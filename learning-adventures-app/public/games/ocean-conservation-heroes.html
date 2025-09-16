@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Conservation Heroes - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 50%, #191970 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #0F172A;
+            overflow: hidden;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1E40AF;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            color: #334155;
+            margin-bottom: 20px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #E0F2FE;
+            padding: 10px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #0EA5E9;
+        }
+
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1E40AF;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748B;
+        }
+
+        .game-area {
+            position: relative;
+            height: calc(100% - 160px);
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 70%, #191970 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #0EA5E9;
+        }
+
+        .submarine {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: #FBBF24;
+            border-radius: 20px 40px 40px 20px;
+            bottom: 50%;
+            left: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .submarine::before {
+            content: '🔍';
+            position: absolute;
+            right: -10px;
+            top: -5px;
+            font-size: 1.5rem;
+        }
+
+        .submarine::after {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 15px;
+            width: 15px;
+            height: 10px;
+            background: #FCD34D;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .ocean-zone {
+            position: absolute;
+            width: 100%;
+            transition: all 0.5s ease;
+            border-bottom: 2px dashed rgba(255,255,255,0.3);
+        }
+
+        .sunlight-zone {
+            height: 25%;
+            top: 0;
+            background: linear-gradient(180deg, rgba(135,206,235,0.8) 0%, rgba(70,130,180,0.8) 100%);
+        }
+
+        .twilight-zone {
+            height: 25%;
+            top: 25%;
+            background: linear-gradient(180deg, rgba(70,130,180,0.8) 0%, rgba(25,25,112,0.8) 100%);
+        }
+
+        .midnight-zone {
+            height: 25%;
+            top: 50%;
+            background: linear-gradient(180deg, rgba(25,25,112,0.8) 0%, rgba(0,0,139,0.9) 100%);
+        }
+
+        .abyssal-zone {
+            height: 25%;
+            top: 75%;
+            background: linear-gradient(180deg, rgba(0,0,139,0.9) 0%, rgba(0,0,0,0.9) 100%);
+        }
+
+        .pollution-item {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .pollution-item:hover {
+            transform: scale(1.2);
+            filter: brightness(1.3);
+        }
+
+        .plastic-bottle {
+            font-size: 1.5rem;
+            color: #DC2626;
+        }
+
+        .oil-spill {
+            font-size: 2rem;
+            color: #374151;
+        }
+
+        .trash-bag {
+            font-size: 1.8rem;
+            color: #6B7280;
+        }
+
+        .fishing-net {
+            font-size: 1.6rem;
+            color: #059669;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .marine-life {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: swim 8s linear infinite;
+            pointer-events: none;
+        }
+
+        .fish { color: #FBBF24; }
+        .whale { color: #6366F1; font-size: 2.5rem; }
+        .dolphin { color: #8B5CF6; font-size: 2rem; }
+        .turtle { color: #10B981; font-size: 1.8rem; }
+        .shark { color: #374151; font-size: 2.2rem; }
+
+        @keyframes swim {
+            0% { left: -100px; }
+            100% { left: calc(100% + 100px); }
+        }
+
+        .mission-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #0EA5E9;
+            min-width: 200px;
+            max-width: 250px;
+            z-index: 10;
+        }
+
+        .mission-title {
+            font-weight: bold;
+            color: #1E40AF;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .mission-objective {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        .depth-meter {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #0EA5E9;
+            z-index: 10;
+        }
+
+        .depth-display {
+            font-weight: bold;
+            color: #1E40AF;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .depth-bar {
+            width: 20px;
+            height: 200px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .depth-indicator {
+            position: absolute;
+            width: 100%;
+            height: 10px;
+            background: #EF4444;
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            background: #1E40AF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .control-btn:hover {
+            background: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30,64,175,0.4);
+        }
+
+        .control-btn:disabled {
+            background: #94A3B8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #10B981;
+            text-align: center;
+            z-index: 20;
+            display: none;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            display: block;
+            animation: popup 0.5s ease-out;
+        }
+
+        @keyframes popup {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .success { border-color: #10B981; background: #ECFDF5; }
+        .warning { border-color: #F59E0B; background: #FFFBEB; }
+        .info { border-color: #3B82F6; background: #EFF6FF; }
+
+        .level-complete {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(16,185,129,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 30;
+            color: white;
+            text-align: center;
+        }
+
+        .level-complete.show {
+            display: flex;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .celebration {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .restart-btn {
+            background: white;
+            color: #10B981;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: #F0FDF4;
+            transform: translateY(-2px);
+        }
+
+        .ocean-facts {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #0EA5E9;
+            max-width: 250px;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 1.8rem;
+            }
+
+            .mission-panel, .ocean-facts {
+                position: relative;
+                margin: 10px 0;
+                max-width: 100%;
+            }
+
+            .depth-meter {
+                display: none;
+            }
+
+            .controls {
+                position: relative;
+                margin-top: 20px;
+                justify-content: center;
+            }
+
+            .submarine {
+                left: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">🌊 Ocean Conservation Heroes</h1>
+            <p class="game-subtitle">Dive deep and save our oceans from pollution!</p>
+
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-value" id="scoreValue">0</div>
+                    <div class="stat-label">🏆 Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="collectedValue">0</div>
+                    <div class="stat-label">♻️ Collected</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="levelValue">1</div>
+                    <div class="stat-label">🌊 Level</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="healthValue">100</div>
+                    <div class="stat-label">💚 Ocean Health</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <!-- Ocean Zones -->
+            <div class="ocean-zone sunlight-zone" id="sunlightZone">
+                <div style="position: absolute; top: 10px; left: 20px; color: white; font-weight: bold;">
+                    ☀️ Sunlight Zone (0-200m)
+                </div>
+            </div>
+            <div class="ocean-zone twilight-zone" id="twilightZone">
+                <div style="position: absolute; top: 10px; left: 20px; color: white; font-weight: bold;">
+                    🌅 Twilight Zone (200-1000m)
+                </div>
+            </div>
+            <div class="ocean-zone midnight-zone" id="midnightZone">
+                <div style="position: absolute; top: 10px; left: 20px; color: white; font-weight: bold;">
+                    🌙 Midnight Zone (1000-4000m)
+                </div>
+            </div>
+            <div class="ocean-zone abyssal-zone" id="abyssalZone">
+                <div style="position: absolute; top: 10px; left: 20px; color: white; font-weight: bold;">
+                    🕳️ Abyssal Zone (4000m+)
+                </div>
+            </div>
+
+            <!-- Submarine -->
+            <div class="submarine" id="submarine"></div>
+
+            <!-- Depth Meter -->
+            <div class="depth-meter">
+                <div class="depth-display" id="depthDisplay">0m</div>
+                <div class="depth-bar">
+                    <div class="depth-indicator" id="depthIndicator"></div>
+                </div>
+            </div>
+
+            <!-- Mission Panel -->
+            <div class="mission-panel">
+                <div class="mission-title">🎯 Current Mission</div>
+                <div class="mission-objective" id="missionText">
+                    Collect 5 plastic bottles from the sunlight zone to help marine life thrive!
+                </div>
+            </div>
+
+            <!-- Ocean Facts -->
+            <div class="ocean-facts" id="oceanFacts">
+                🌊 Did you know? The ocean produces over 50% of Earth's oxygen!
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="control-btn" onclick="moveSubmarine('up')" id="upBtn">⬆️ Surface</button>
+            <button class="control-btn" onclick="moveSubmarine('down')" id="downBtn">⬇️ Dive</button>
+            <button class="control-btn" onclick="pauseGame()" id="pauseBtn">⏸️ Pause</button>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification">
+            <h3 id="notificationTitle"></h3>
+            <p id="notificationText"></p>
+        </div>
+
+        <!-- Level Complete Screen -->
+        <div class="level-complete" id="levelComplete">
+            <div class="celebration">🎉🌊🎊</div>
+            <h2 id="levelCompleteTitle">Level Complete!</h2>
+            <p id="levelCompleteText">Great job cleaning up the ocean!</p>
+            <button class="restart-btn" onclick="nextLevel()">Next Level 🌊</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            score: 0,
+            collected: 0,
+            level: 1,
+            oceanHealth: 100,
+            submarineDepth: 50, // percentage from top
+            currentZone: 'sunlight',
+            isPaused: false,
+            missionTarget: 5,
+            pollutionItems: [],
+            marineLifeItems: []
+        };
+
+        // Pollution types
+        const pollutionTypes = [
+            { emoji: '🍼', class: 'plastic-bottle', points: 10, damage: 2 },
+            { emoji: '🛢️', class: 'oil-spill', points: 20, damage: 5 },
+            { emoji: '🗑️', class: 'trash-bag', points: 15, damage: 3 },
+            { emoji: '🕸️', class: 'fishing-net', points: 25, damage: 4 }
+        ];
+
+        // Marine life types
+        const marineLife = [
+            { emoji: '🐠', class: 'fish', zone: 'sunlight' },
+            { emoji: '🐡', class: 'fish', zone: 'sunlight' },
+            { emoji: '🐙', class: 'octopus', zone: 'twilight' },
+            { emoji: '🦈', class: 'shark', zone: 'midnight' },
+            { emoji: '🐋', class: 'whale', zone: 'twilight' },
+            { emoji: '🐢', class: 'turtle', zone: 'sunlight' },
+            { emoji: '🐬', class: 'dolphin', zone: 'sunlight' }
+        ];
+
+        // Ocean facts for each zone
+        const oceanFacts = {
+            sunlight: [
+                "🌊 The sunlight zone is where most ocean life lives!",
+                "🐠 This zone gets enough light for photosynthesis!",
+                "🌱 Coral reefs are found in this bright zone!",
+                "🏊 This is the only zone where humans can swim without equipment!"
+            ],
+            twilight: [
+                "🌅 The twilight zone is dimly lit and mysterious!",
+                "🦑 Many creatures here have bioluminescent features!",
+                "🐋 Whales dive to this zone to hunt for squid!",
+                "👁️ Fish here often have large eyes to see better!"
+            ],
+            midnight: [
+                "🌙 The midnight zone is completely dark!",
+                "💡 Creatures here create their own light!",
+                "🦈 Giant squids live in this deep zone!",
+                "❄️ Water temperature is near freezing here!"
+            ],
+            abyssal: [
+                "🕳️ The abyssal zone is Earth's largest ecosystem!",
+                "🏔️ Underwater mountains and trenches are found here!",
+                "🐛 Strange tube worms live around volcanic vents!",
+                "💎 The pressure here would crush a human instantly!"
+            ]
+        };
+
+        // Game missions for each level
+        const missions = [
+            { target: 5, type: 'plastic-bottle', description: "Collect 5 plastic bottles from the sunlight zone!" },
+            { target: 3, type: 'oil-spill', description: "Clean up 3 oil spills from all zones!" },
+            { target: 4, type: 'trash-bag', description: "Remove 4 trash bags from the ocean!" },
+            { target: 2, type: 'fishing-net', description: "Free marine life from 2 abandoned fishing nets!" },
+            { target: 8, type: 'any', description: "Collect any 8 pollution items to complete your mission!" }
+        ];
+
+        function initGame() {
+            updateDisplay();
+            spawnPollution();
+            spawnMarineLife();
+            updateMission();
+            startGameLoop();
+            updateOceanFact();
+        }
+
+        function updateDisplay() {
+            document.getElementById('scoreValue').textContent = gameState.score;
+            document.getElementById('collectedValue').textContent = gameState.collected;
+            document.getElementById('levelValue').textContent = gameState.level;
+            document.getElementById('healthValue').textContent = gameState.oceanHealth;
+
+            // Update submarine position
+            const submarine = document.getElementById('submarine');
+            submarine.style.bottom = (100 - gameState.submarineDepth) + '%';
+
+            // Update depth display
+            const depth = Math.round((gameState.submarineDepth / 100) * 4000);
+            document.getElementById('depthDisplay').textContent = depth + 'm';
+            document.getElementById('depthIndicator').style.top = gameState.submarineDepth + '%';
+
+            // Update current zone
+            updateCurrentZone();
+        }
+
+        function updateCurrentZone() {
+            let zone = 'sunlight';
+            if (gameState.submarineDepth > 75) zone = 'abyssal';
+            else if (gameState.submarineDepth > 50) zone = 'midnight';
+            else if (gameState.submarineDepth > 25) zone = 'twilight';
+
+            if (zone !== gameState.currentZone) {
+                gameState.currentZone = zone;
+                updateOceanFact();
+                playSound(600, 0.2); // Zone transition sound
+            }
+        }
+
+        function moveSubmarine(direction) {
+            if (gameState.isPaused) return;
+
+            playSound(400, 0.1);
+
+            if (direction === 'up' && gameState.submarineDepth > 5) {
+                gameState.submarineDepth -= 10;
+            } else if (direction === 'down' && gameState.submarineDepth < 95) {
+                gameState.submarineDepth += 10;
+            }
+
+            updateDisplay();
+        }
+
+        function spawnPollution() {
+            // Clear existing pollution
+            document.querySelectorAll('.pollution-item').forEach(item => item.remove());
+            gameState.pollutionItems = [];
+
+            // Spawn new pollution items
+            const gameArea = document.getElementById('gameArea');
+            const itemCount = 3 + gameState.level;
+
+            for (let i = 0; i < itemCount; i++) {
+                const pollutionType = pollutionTypes[Math.floor(Math.random() * pollutionTypes.length)];
+                const item = document.createElement('div');
+
+                item.className = `pollution-item ${pollutionType.class}`;
+                item.textContent = pollutionType.emoji;
+                item.style.left = Math.random() * 70 + 15 + '%';
+                item.style.top = Math.random() * 80 + 10 + '%';
+                item.dataset.type = pollutionType.class;
+                item.dataset.points = pollutionType.points;
+                item.dataset.damage = pollutionType.damage;
+
+                item.addEventListener('click', () => collectPollution(item));
+
+                gameArea.appendChild(item);
+                gameState.pollutionItems.push(item);
+            }
+        }
+
+        function spawnMarineLife() {
+            const gameArea = document.getElementById('gameArea');
+
+            // Spawn marine life periodically
+            setInterval(() => {
+                if (gameState.isPaused || gameState.marineLifeItems.length > 5) return;
+
+                const lifeType = marineLife[Math.floor(Math.random() * marineLife.length)];
+                const creature = document.createElement('div');
+
+                creature.className = `marine-life ${lifeType.class}`;
+                creature.textContent = lifeType.emoji;
+
+                // Random vertical position based on zone preference
+                let verticalPos;
+                switch(lifeType.zone) {
+                    case 'sunlight': verticalPos = Math.random() * 25; break;
+                    case 'twilight': verticalPos = 25 + Math.random() * 25; break;
+                    case 'midnight': verticalPos = 50 + Math.random() * 25; break;
+                    default: verticalPos = 75 + Math.random() * 25;
+                }
+
+                creature.style.top = verticalPos + '%';
+                creature.style.left = '-100px';
+
+                gameArea.appendChild(creature);
+                gameState.marineLifeItems.push(creature);
+
+                // Remove after animation
+                setTimeout(() => {
+                    if (creature.parentNode) {
+                        creature.remove();
+                        gameState.marineLifeItems = gameState.marineLifeItems.filter(item => item !== creature);
+                    }
+                }, 8000);
+            }, 3000 + Math.random() * 2000);
+        }
+
+        function collectPollution(item) {
+            if (gameState.isPaused) return;
+
+            // Check if submarine is in range
+            const submarinePos = gameState.submarineDepth;
+            const itemPos = parseFloat(item.style.top);
+
+            if (Math.abs(submarinePos - itemPos) > 15) {
+                showNotification('warning', 'Too Far!', 'Move your submarine closer to collect items!');
+                return;
+            }
+
+            const points = parseInt(item.dataset.points);
+            gameState.score += points;
+            gameState.collected++;
+            gameState.oceanHealth = Math.min(100, gameState.oceanHealth + 2);
+
+            // Remove item
+            item.remove();
+            gameState.pollutionItems = gameState.pollutionItems.filter(i => i !== item);
+
+            // Visual feedback
+            showNotification('success', 'Great Job!', `+${points} points! Ocean health improved!`);
+            playSound(800, 0.3);
+
+            updateDisplay();
+            checkMissionProgress();
+        }
+
+        function updateMission() {
+            const mission = missions[Math.min(gameState.level - 1, missions.length - 1)];
+            document.getElementById('missionText').textContent = mission.description;
+        }
+
+        function checkMissionProgress() {
+            const mission = missions[Math.min(gameState.level - 1, missions.length - 1)];
+
+            if (gameState.collected >= mission.target) {
+                levelComplete();
+            }
+        }
+
+        function levelComplete() {
+            gameState.isPaused = true;
+
+            const levelCompleteDiv = document.getElementById('levelComplete');
+            const title = document.getElementById('levelCompleteTitle');
+            const text = document.getElementById('levelCompleteText');
+
+            title.textContent = `Level ${gameState.level} Complete!`;
+            text.textContent = `You collected ${gameState.collected} items and scored ${gameState.score} points! The ocean is cleaner thanks to you!`;
+
+            levelCompleteDiv.classList.add('show');
+            playSound(1000, 1);
+        }
+
+        function nextLevel() {
+            gameState.level++;
+            gameState.collected = 0;
+            gameState.submarineDepth = 50;
+            gameState.currentZone = 'sunlight';
+            gameState.isPaused = false;
+
+            document.getElementById('levelComplete').classList.remove('show');
+
+            spawnPollution();
+            updateMission();
+            updateDisplay();
+
+            showNotification('info', `Level ${gameState.level}!`, 'New challenges await in the deep blue sea!');
+        }
+
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            pauseBtn.textContent = gameState.isPaused ? '▶️ Resume' : '⏸️ Pause';
+
+            if (gameState.isPaused) {
+                showNotification('info', 'Game Paused', 'Click Resume to continue your ocean mission!');
+            }
+        }
+
+        function updateOceanFact() {
+            const facts = oceanFacts[gameState.currentZone];
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            document.getElementById('oceanFacts').textContent = randomFact;
+        }
+
+        function showNotification(type, title, text) {
+            const notification = document.getElementById('notification');
+            const titleEl = document.getElementById('notificationTitle');
+            const textEl = document.getElementById('notificationText');
+
+            notification.className = `notification ${type} show`;
+            titleEl.textContent = title;
+            textEl.textContent = text;
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function startGameLoop() {
+            setInterval(() => {
+                if (gameState.isPaused) return;
+
+                // Randomly damage ocean health from pollution
+                if (gameState.pollutionItems.length > 5 && Math.random() < 0.3) {
+                    gameState.oceanHealth = Math.max(0, gameState.oceanHealth - 1);
+                    updateDisplay();
+
+                    if (gameState.oceanHealth <= 20) {
+                        showNotification('warning', 'Ocean in Danger!', 'Collect pollution quickly to save marine life!');
+                    }
+                }
+
+                // Randomly update ocean facts
+                if (Math.random() < 0.1) {
+                    updateOceanFact();
+                }
+            }, 2000);
+        }
+
+        function playSound(frequency, duration) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Audio not supported, continue silently
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    moveSubmarine('up');
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    moveSubmarine('down');
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    pauseGame();
+                    break;
+            }
+        });
+
+        // Touch/mobile controls
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    moveSubmarine('up');
+                } else {
+                    moveSubmarine('down');
+                }
+            }
+        });
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', initGame);
+
+        // Welcome message
+        setTimeout(() => {
+            showNotification('info', 'Welcome, Ocean Hero!', 'Use arrow keys or buttons to dive and collect pollution. Save our oceans! 🌊');
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volcano Explorer Lab | Learning Adventures</title>
+    <meta name="description" content="Explore volcanoes and learn about Earth's geological processes through interactive simulations and virtual field trips.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 50%, #FF8E53 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .lab-container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #D63031 0%, #E17055 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #00B894;
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .welcome-screen, .section {
+            display: none;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .welcome-screen.active, .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .volcano-diagram {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background: #87CEEB;
+            border-radius: 15px;
+            padding: 20px;
+            height: 400px;
+        }
+
+        .volcano-shape {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 200px solid #8B4513;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .volcano-shape:hover {
+            filter: brightness(1.2);
+        }
+
+        .volcano-parts {
+            position: absolute;
+        }
+
+        .crater {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            background: #FF4500;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid #FFD700;
+            box-shadow: 0 0 20px #FF4500;
+        }
+
+        .magma-chamber {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FF4500 0%, #DC143C 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .eruption-animation {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+        }
+
+        .eruption-animation.active {
+            display: block;
+            animation: erupt 3s ease-out;
+        }
+
+        @keyframes erupt {
+            0% { transform: translateX(-50%) translateY(0) scale(0.5); opacity: 0; }
+            30% { transform: translateX(-50%) translateY(-100px) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-200px) scale(1.5); opacity: 0; }
+        }
+
+        .lava-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FF4500;
+            border-radius: 50%;
+            animation: lavaFlow 2s ease-out forwards;
+        }
+
+        @keyframes lavaFlow {
+            0% { transform: translateY(0) translateX(0); opacity: 1; }
+            100% { transform: translateY(150px) translateX(var(--random-x)); opacity: 0; }
+        }
+
+        .interactive-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00B894 0%, #00A085 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,184,148,0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,184,148,0.4);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #D63031 0%, #E17055 100%);
+            box-shadow: 0 4px 15px rgba(214,48,49,0.3);
+        }
+
+        .btn.danger:hover {
+            box-shadow: 0 6px 20px rgba(214,48,49,0.4);
+        }
+
+        .info-panel {
+            background: #F8F9FA;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #00B894;
+        }
+
+        .volcano-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .volcano-type {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .volcano-type:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .volcano-type.selected {
+            border-color: #00B894;
+            background: #E8F8F5;
+        }
+
+        .volcano-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .quiz-section {
+            background: #E8F4FD;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2D3436;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: white;
+            border: 2px solid #DDD;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: #00B894;
+            background: #F0F9FF;
+        }
+
+        .quiz-option.correct {
+            background: #D4EDDA;
+            border-color: #00B894;
+        }
+
+        .quiz-option.incorrect {
+            background: #F8D7DA;
+            border-color: #D63031;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #D4EDDA;
+            color: #155724;
+            border: 1px solid #00B894;
+        }
+
+        .feedback.incorrect {
+            background: #F8D7DA;
+            color: #721C24;
+            border: 1px solid #D63031;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #6C5CE7 0%, #5A4ED1 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108,92,231,0.4);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .celebration {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: celebrate 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes celebrate {
+            from { transform: scale(1) rotate(-5deg); }
+            to { transform: scale(1.1) rotate(5deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .volcano-diagram {
+                height: 300px;
+            }
+
+            .volcano-shape {
+                border-left-width: 100px;
+                border-right-width: 100px;
+                border-bottom-width: 150px;
+            }
+
+            .interactive-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lab-container">
+        <div class="header">
+            <h1>🌋 Volcano Explorer Lab</h1>
+            <p>Discover the explosive world of volcanoes and Earth's geological forces!</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen active" id="welcomeScreen">
+                <h2>Welcome to the Volcano Explorer Lab! 🔬</h2>
+                <p>Ready to become a volcanologist? In this interactive lab, you'll:</p>
+                <ul style="text-align: left; max-width: 600px; margin: 20px auto; font-size: 1.2rem; line-height: 1.8;">
+                    <li>🔍 Explore the anatomy of a volcano</li>
+                    <li>💥 Simulate volcanic eruptions</li>
+                    <li>🏔️ Learn about different volcano types</li>
+                    <li>🌍 Take virtual field trips to famous volcanoes</li>
+                    <li>🧪 Test your volcano knowledge</li>
+                </ul>
+                <button class="btn" onclick="nextSection()">Start Exploring! 🚀</button>
+            </div>
+
+            <!-- Section 1: Volcano Anatomy -->
+            <div class="section" id="section1">
+                <h2>🔍 Volcano Anatomy Explorer</h2>
+                <p>Click on different parts of the volcano to learn about them!</p>
+
+                <div class="volcano-diagram" id="volcanoDiagram">
+                    <div class="volcano-shape" onclick="showVolcanoInfo('main')">
+                        <div class="crater" onclick="event.stopPropagation(); showVolcanoInfo('crater')"></div>
+                        <div class="magma-chamber" onclick="event.stopPropagation(); showVolcanoInfo('magma')"></div>
+                    </div>
+                    <div class="eruption-animation" id="eruptionAnimation">🌋💥🔥</div>
+                </div>
+
+                <div class="interactive-buttons">
+                    <button class="btn danger" onclick="simulateEruption()">🌋 Simulate Eruption!</button>
+                    <button class="btn" onclick="resetVolcano()">🔄 Reset</button>
+                </div>
+
+                <div class="info-panel" id="volcanoInfo">
+                    <h3>🌋 Click on parts of the volcano to learn more!</h3>
+                    <p>Volcanoes are openings in Earth's crust where melted rock, gases, and debris can escape from underground.</p>
+                </div>
+            </div>
+
+            <!-- Section 2: Volcano Types -->
+            <div class="section" id="section2">
+                <h2>🏔️ Types of Volcanoes</h2>
+                <p>There are three main types of volcanoes. Click on each one to learn more!</p>
+
+                <div class="volcano-types">
+                    <div class="volcano-type" onclick="selectVolcanoType('shield')">
+                        <div class="volcano-icon">🛡️</div>
+                        <h3>Shield Volcano</h3>
+                        <p>Wide and gently sloping</p>
+                    </div>
+                    <div class="volcano-type" onclick="selectVolcanoType('cinder')">
+                        <div class="volcano-icon">🔥</div>
+                        <h3>Cinder Cone</h3>
+                        <p>Small and steep-sided</p>
+                    </div>
+                    <div class="volcano-type" onclick="selectVolcanoType('composite')">
+                        <div class="volcano-icon">⛰️</div>
+                        <h3>Composite Volcano</h3>
+                        <p>Tall and cone-shaped</p>
+                    </div>
+                </div>
+
+                <div class="info-panel" id="volcanoTypeInfo">
+                    <h3>🌋 Select a volcano type to learn more!</h3>
+                    <p>Each type of volcano has different characteristics and eruption styles.</p>
+                </div>
+            </div>
+
+            <!-- Section 3: Famous Volcanoes -->
+            <div class="section" id="section3">
+                <h2>🌍 Virtual Field Trip</h2>
+                <p>Let's visit some of the world's most famous volcanoes!</p>
+
+                <div class="volcano-types">
+                    <div class="volcano-type" onclick="visitVolcano('vesuvius')">
+                        <div class="volcano-icon">🏛️</div>
+                        <h3>Mount Vesuvius</h3>
+                        <p>Italy - Famous for Pompeii</p>
+                    </div>
+                    <div class="volcano-type" onclick="visitVolcano('kilauea')">
+                        <div class="volcano-icon">🌺</div>
+                        <h3>Kilauea</h3>
+                        <p>Hawaii - Most active volcano</p>
+                    </div>
+                    <div class="volcano-type" onclick="visitVolcano('fuji')">
+                        <div class="volcano-icon">🗾</div>
+                        <h3>Mount Fuji</h3>
+                        <p>Japan - Sacred mountain</p>
+                    </div>
+                </div>
+
+                <div class="info-panel" id="famousVolcanoInfo">
+                    <h3>🌋 Click on a volcano to start your virtual field trip!</h3>
+                    <p>Learn about famous volcanoes from around the world and their impact on history and culture.</p>
+                </div>
+            </div>
+
+            <!-- Section 4: Quiz -->
+            <div class="section" id="section4">
+                <h2>🧪 Test Your Knowledge</h2>
+                <div class="quiz-section">
+                    <div class="quiz-question" id="quizQuestion">What is the liquid rock inside a volcano called?</div>
+                    <div class="quiz-options" id="quizOptions">
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Lava</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, true)">Magma</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Molten rock</div>
+                        <div class="quiz-option" onclick="selectAnswer(this, false)">Hot liquid</div>
+                    </div>
+                    <div class="feedback" id="quizFeedback"></div>
+                </div>
+                <button class="btn" onclick="nextQuestion()" id="nextQuizBtn" style="display: none;">Next Question 🔜</button>
+            </div>
+
+            <!-- Completion Screen -->
+            <div class="section" id="completionScreen">
+                <div class="completion-screen">
+                    <div class="celebration">🎉🌋🎊</div>
+                    <h2>Congratulations, Volcanologist!</h2>
+                    <p>You've successfully completed the Volcano Explorer Lab!</p>
+                    <div style="margin: 20px 0; font-size: 1.2rem;">
+                        <p>🏆 You learned about volcano anatomy</p>
+                        <p>🏆 You discovered different volcano types</p>
+                        <p>🏆 You visited famous volcanoes around the world</p>
+                        <p>🏆 You tested your knowledge with a quiz</p>
+                    </div>
+                    <button class="btn" onclick="restartLab()">🔄 Explore Again</button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="navigation">
+                <button class="nav-btn" onclick="previousSection()" id="prevBtn" disabled>⬅️ Previous</button>
+                <button class="nav-btn" onclick="nextSection()" id="nextBtn">Next ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSection = 0;
+        let currentQuiz = 0;
+        let score = 0;
+
+        const sections = ['welcomeScreen', 'section1', 'section2', 'section3', 'section4', 'completionScreen'];
+
+        const quizQuestions = [
+            {
+                question: "What is the liquid rock inside a volcano called?",
+                options: ["Lava", "Magma", "Molten rock", "Hot liquid"],
+                correct: 1,
+                explanation: "Magma is the liquid rock inside a volcano. When it erupts and flows out, it's called lava!"
+            },
+            {
+                question: "Which type of volcano is the tallest and most dangerous?",
+                options: ["Shield volcano", "Cinder cone", "Composite volcano", "Underwater volcano"],
+                correct: 2,
+                explanation: "Composite volcanoes are tall, steep, and often the most explosive and dangerous type!"
+            },
+            {
+                question: "What destroyed the ancient city of Pompeii?",
+                options: ["Earthquake", "Tsunami", "Mount Vesuvius eruption", "Fire"],
+                correct: 2,
+                explanation: "Mount Vesuvius erupted in 79 AD, burying Pompeii in ash and preserving it for thousands of years!"
+            }
+        ];
+
+        function updateProgress() {
+            const progress = (currentSection / (sections.length - 1)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showSection(index) {
+            sections.forEach((section, i) => {
+                const element = document.getElementById(section);
+                if (i === index) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+            });
+
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').style.display = index === sections.length - 1 ? 'none' : 'block';
+
+            updateProgress();
+        }
+
+        function nextSection() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(currentSection);
+            }
+        }
+
+        function previousSection() {
+            if (currentSection > 0) {
+                currentSection--;
+                showSection(currentSection);
+            }
+        }
+
+        function showVolcanoInfo(part) {
+            const infoPanel = document.getElementById('volcanoInfo');
+            let content = '';
+
+            switch(part) {
+                case 'crater':
+                    content = `
+                        <h3>🌋 Crater</h3>
+                        <p>The crater is the opening at the top of a volcano where magma, gases, and volcanic materials erupt onto the surface. It's like the volcano's mouth!</p>
+                    `;
+                    break;
+                case 'magma':
+                    content = `
+                        <h3>🔥 Magma Chamber</h3>
+                        <p>The magma chamber is a large underground pool of liquid rock called magma. When pressure builds up, the magma rises through the volcanic vent and erupts!</p>
+                    `;
+                    break;
+                case 'main':
+                    content = `
+                        <h3>⛰️ Volcanic Cone</h3>
+                        <p>The cone is the mountain-like structure formed by layers of hardened lava, ash, and other volcanic materials from previous eruptions.</p>
+                    `;
+                    break;
+            }
+
+            infoPanel.innerHTML = content;
+        }
+
+        function simulateEruption() {
+            const animation = document.getElementById('eruptionAnimation');
+            animation.classList.add('active');
+
+            // Create lava particles
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    createLavaParticle();
+                }, i * 200);
+            }
+
+            setTimeout(() => {
+                animation.classList.remove('active');
+            }, 3000);
+        }
+
+        function createLavaParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'lava-particle';
+            particle.style.left = (Math.random() * 60 + 20) + '%';
+            particle.style.setProperty('--random-x', (Math.random() * 200 - 100) + 'px');
+
+            document.querySelector('.volcano-diagram').appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 2000);
+        }
+
+        function resetVolcano() {
+            const particles = document.querySelectorAll('.lava-particle');
+            particles.forEach(particle => particle.remove());
+            document.getElementById('eruptionAnimation').classList.remove('active');
+        }
+
+        function selectVolcanoType(type) {
+            document.querySelectorAll('.volcano-type').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.volcano-type').classList.add('selected');
+
+            const infoPanel = document.getElementById('volcanoTypeInfo');
+            let content = '';
+
+            switch(type) {
+                case 'shield':
+                    content = `
+                        <h3>🛡️ Shield Volcano</h3>
+                        <p>Shield volcanoes are broad and gently sloping, like a warrior's shield lying on the ground. They're formed by fluid lava flows that spread out over large areas. Famous example: Mauna Loa in Hawaii!</p>
+                    `;
+                    break;
+                case 'cinder':
+                    content = `
+                        <h3>🔥 Cinder Cone Volcano</h3>
+                        <p>Cinder cones are small, steep-sided volcanic hills formed by explosive eruptions that throw lava fragments into the air. They're usually less than 1,000 feet tall. Example: Sunset Crater in Arizona!</p>
+                    `;
+                    break;
+                case 'composite':
+                    content = `
+                        <h3>⛰️ Composite Volcano</h3>
+                        <p>Composite volcanoes are tall, steep, and cone-shaped mountains formed by alternating layers of lava flows and explosive volcanic debris. They're often the most dangerous! Example: Mount St. Helens!</p>
+                    `;
+                    break;
+            }
+
+            infoPanel.innerHTML = content;
+        }
+
+        function visitVolcano(volcano) {
+            document.querySelectorAll('.volcano-type').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.volcano-type').classList.add('selected');
+
+            const infoPanel = document.getElementById('famousVolcanoInfo');
+            let content = '';
+
+            switch(volcano) {
+                case 'vesuvius':
+                    content = `
+                        <h3>🏛️ Mount Vesuvius, Italy</h3>
+                        <p>Mount Vesuvius is famous for its devastating eruption in 79 AD that buried the cities of Pompeii and Herculaneum. The ash preserved these ancient cities, giving us amazing insights into Roman life. Vesuvius is still considered an active volcano!</p>
+                        <p><strong>Fun Fact:</strong> The eruption happened so quickly that people were preserved in the exact positions they were in when the ash hit!</p>
+                    `;
+                    break;
+                case 'kilauea':
+                    content = `
+                        <h3>🌺 Kilauea, Hawaii</h3>
+                        <p>Kilauea is one of the world's most active volcanoes and has been erupting continuously since 1983! It's located on the Big Island of Hawaii and is sacred to the Hawaiian goddess Pele. The lava flows slowly, so it's usually safe to observe from a distance.</p>
+                        <p><strong>Fun Fact:</strong> Kilauea creates new land as its lava flows into the ocean and hardens!</p>
+                    `;
+                    break;
+                case 'fuji':
+                    content = `
+                        <h3>🗾 Mount Fuji, Japan</h3>
+                        <p>Mount Fuji is Japan's highest mountain and most famous landmark. This beautiful, symmetrical composite volcano is considered sacred and has inspired countless artists and poets. It last erupted in 1707 and is still classified as active.</p>
+                        <p><strong>Fun Fact:</strong> Over 300,000 people climb Mount Fuji every year during the climbing season!</p>
+                    `;
+                    break;
+            }
+
+            infoPanel.innerHTML = content;
+        }
+
+        function selectAnswer(element, isCorrect) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+                if (option === element) {
+                    option.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (option.onclick.toString().includes('true')) {
+                    option.classList.add('correct');
+                }
+            });
+
+            const feedback = document.getElementById('quizFeedback');
+            feedback.className = `feedback show ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.innerHTML = `
+                <div>${isCorrect ? '🎉 Correct!' : '❌ Not quite right!'}</div>
+                <div>${quizQuestions[currentQuiz].explanation}</div>
+            `;
+
+            if (isCorrect) score++;
+
+            document.getElementById('nextQuizBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuiz++;
+            if (currentQuiz < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuiz];
+            document.getElementById('quizQuestion').textContent = question.question;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'quiz-option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectAnswer(optionElement, index === question.correct);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            document.getElementById('quizFeedback').className = 'feedback';
+            document.getElementById('nextQuizBtn').style.display = 'none';
+        }
+
+        function showQuizResults() {
+            const percentage = Math.round((score / quizQuestions.length) * 100);
+            let message = '';
+
+            if (percentage >= 80) {
+                message = `🌟 Excellent! You scored ${score}/${quizQuestions.length} (${percentage}%)! You're a volcano expert!`;
+            } else if (percentage >= 60) {
+                message = `👍 Good job! You scored ${score}/${quizQuestions.length} (${percentage}%)! You know your volcanoes!`;
+            } else {
+                message = `🌋 Keep learning! You scored ${score}/${quizQuestions.length} (${percentage}%). Try exploring the lab again!`;
+            }
+
+            document.querySelector('.quiz-section').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h3>Quiz Complete!</h3>
+                    <p style="font-size: 1.2rem; margin: 20px 0;">${message}</p>
+                    <button class="btn" onclick="nextSection()">Continue to Completion 🎉</button>
+                </div>
+            `;
+        }
+
+        function restartLab() {
+            currentSection = 0;
+            currentQuiz = 0;
+            score = 0;
+            showSection(0);
+            loadQuestion();
+        }
+
+        // Initialize
+        showSection(0);
+        loadQuestion();
+
+        // Add some fun sound effects (using Web Audio API)
+        function playSound(frequency, duration) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Add sound effects to buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn') || e.target.classList.contains('nav-btn')) {
+                playSound(800, 0.1);
+            }
+        });
+    </script>
+</body>
+</html>

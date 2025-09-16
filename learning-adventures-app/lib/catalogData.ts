@@ -314,6 +314,19 @@ const scienceLessons: Adventure[] = [
     featured: true
   },
   {
+    id: 'volcano-explorer-lab',
+    title: 'Volcano Explorer Lab',
+    description: 'Interactive volcano exploration with eruption simulations and geological learning',
+    type: 'lesson',
+    category: 'science',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Earth Science', 'Volcanoes', 'Geology'],
+    estimatedTime: '25-30 mins',
+    featured: true,
+    htmlPath: '/lessons/volcano-explorer-lab.html'
+  },
+  {
     id: 'weather-station-simulator',
     title: 'Weather Station Simulator',
     description: 'Track and predict weather with interactive meteorology tools',
@@ -448,6 +461,19 @@ const scienceGames: Adventure[] = [
     skills: ['Astronomy', 'Space Facts', 'Navigation'],
     estimatedTime: '15-20 mins',
     featured: true
+  },
+  {
+    id: 'ocean-conservation-heroes',
+    title: 'Ocean Conservation Heroes',
+    description: 'Dive deep and clean up ocean pollution while learning about marine ecosystems',
+    type: 'game',
+    category: 'science',
+    gradeLevel: ['2', '3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Marine Biology', 'Environmental Science', 'Conservation'],
+    estimatedTime: '15-20 mins',
+    featured: true,
+    htmlPath: '/games/ocean-conservation-heroes.html'
   },
   {
     id: 'animal-kingdom-match',
