@@ -14,9 +14,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
 
   body {
     @apply bg-white text-ink-900 font-body antialiased;
