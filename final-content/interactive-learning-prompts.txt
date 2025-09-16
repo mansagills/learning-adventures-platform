@@ -1,0 +1,138 @@
+Interactive Learning Lesson Development Prompts
+===================================================
+
+## MASTER PROMPT TEMPLATE FOR INTERACTIVE LEARNING LESSONS
+
+Create a single HTML file interactive learning lesson for elementary students (grades K-5) that teaches [SPECIFIC TOPIC]. The lesson should be engaging, educational, and follow current best practices for elementary education.
+
+### REQUIREMENTS:
+
+**Educational Standards:**
+- Align with elementary curriculum standards for [SUBJECT]
+- Include clear learning objectives
+- Incorporate formative assessment opportunities
+- Provide immediate feedback to students
+
+**Interactive Elements:**
+- Use HTML5, CSS3, and JavaScript (no external dependencies)
+- Include click, drag, and drop interactions
+- Add visual and audio feedback
+- Implement progress tracking within the lesson
+
+**Design Principles:**
+- Colorful, child-friendly interface
+- Large, easy-to-click buttons and elements
+- Clear, simple instructions
+- Age-appropriate language and vocabulary
+
+**Learning Best Practices:**
+- Multiple learning modalities (visual, auditory, kinesthetic)
+- Scaffolded learning progression
+- Social-emotional learning integration where appropriate
+- Culturally responsive content
+- Adaptive difficulty based on student responses
+
+**Technical Specifications:**
+- Single HTML file with embedded CSS and JavaScript
+- Mobile-responsive design
+- Works offline
+- Accessible design following WCAG guidelines
+- File size under 2MB for fast loading
+
+**Content Structure:**
+1. Welcome screen with clear objectives
+2. Interactive learning activities (3-5 sections)
+3. Practice exercises with immediate feedback
+4. Assessment/quiz component
+5. Celebration/completion screen
+
+### SPECIFIC PROMPTS:
+
+---
+
+**MATH LESSON PROMPT:**
+Create an interactive HTML lesson teaching [MATH CONCEPT: fractions, addition, geometry, etc.] for grade [K-5]. Include:
+- Visual manipulatives students can drag and interact with
+- Real-world problem scenarios
+- Step-by-step guided practice
+- Multiple representation methods (visual, numerical, word problems)
+- Progress indicators and celebration animations
+
+---
+
+**SCIENCE LESSON PROMPT:**
+Create an interactive HTML lesson exploring [SCIENCE CONCEPT: states of matter, plant life cycles, simple machines, etc.] for grade [K-5]. Include:
+- Virtual laboratory or exploration environment
+- Cause-and-effect interactive demonstrations
+- Observation and hypothesis activities
+- Scientific vocabulary integration
+- Connection to students' daily experiences
+
+---
+
+**FRACTION PIZZA PARTY SPECIFIC PROMPT:**
+Create a single HTML file for "Virtual Fraction Pizza Party" teaching fraction concepts to elementary students. Include:
+
+Technical Features:
+- Interactive pizza that can be sliced into equal parts
+- Drag-and-drop toppings for visual fraction representation
+- Comparison tools for different fraction sizes
+- Fraction equivalency demonstrations
+
+Educational Components:
+- Introduction to fraction vocabulary (numerator, denominator, equal parts)
+- Visual fraction representations with pizza slices
+- Comparing fractions using pizza visuals
+- Simple fraction addition using pizza pieces
+- Assessment with immediate feedback
+
+Engagement Elements:
+- Party theme with festive colors and sounds
+- Achievement badges for completed activities
+- Fun animations when fractions are correctly identified
+- Celebration screen with virtual pizza party
+
+---
+
+**PLANT GROWTH LAB SPECIFIC PROMPT:**
+Create a single HTML file for "Virtual Plant Growth Lab" teaching plant biology to elementary students. Include:
+
+Interactive Features:
+- Virtual plant that grows based on student choices
+- Sliders to control sunlight, water, and nutrients
+- Time-lapse animation of plant growth stages
+- Different plant types with varying needs
+
+Educational Elements:
+- Plant parts identification (roots, stem, leaves, flowers)
+- Photosynthesis explanation through animations
+- Cause-and-effect relationships in plant care
+- Scientific observation journal feature
+
+Engagement Features:
+- Multiple plant species to experiment with
+- Growth competitions and challenges
+- Discovery of what happens with too much/too little care
+- Certificate of successful plant growing
+
+---
+
+**QUALITY ASSURANCE CHECKLIST:**
+Ensure the created lesson includes:
+□ Age-appropriate content and language
+□ Clear navigation and instructions
+□ Multiple opportunities for student interaction
+□ Immediate feedback mechanisms
+□ Visual progress indicators
+□ Celebration of achievements
+□ Accessibility features (alt text, keyboard navigation)
+□ Mobile-friendly responsive design
+□ Educational value aligned with learning objectives
+□ Fun and engaging user experience
+
+**TESTING REQUIREMENTS:**
+- Test on multiple devices (desktop, tablet, mobile)
+- Verify all interactive elements work properly
+- Ensure content loads quickly and runs smoothly
+- Confirm educational objectives are met through activities
+- Validate that feedback is encouraging and constructive

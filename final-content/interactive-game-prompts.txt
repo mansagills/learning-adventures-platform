@@ -1,0 +1,222 @@
+Interactive Educational Game Development Prompts
+==============================================
+
+## MASTER PROMPT TEMPLATE FOR EDUCATIONAL GAMES
+
+Create a single HTML file educational game for elementary students (grades K-5) that teaches [SPECIFIC SUBJECT/CONCEPT] through engaging gameplay. The game should balance entertainment with learning objectives while following HTML5 game development best practices.
+
+### CORE REQUIREMENTS:
+
+**Game Design Principles:**
+- Balance entertainment and education (70% fun, 30% obvious learning)
+- Clear game mechanics that reinforce learning objectives
+- Progressive difficulty with achievable challenges
+- Immediate feedback and positive reinforcement
+- Short play sessions (5-15 minutes) suitable for classroom use
+
+**Educational Integration:**
+- Seamlessly integrate learning into gameplay mechanics
+- Align with elementary curriculum standards
+- Include multiple skill levels and adaptive difficulty
+- Provide meaningful choices that affect learning outcomes
+- Track progress and provide assessment data
+
+**Technical Specifications:**
+- Single HTML file with embedded CSS and JavaScript
+- No external dependencies or libraries required
+- Mobile-responsive design for tablets and smartphones
+- Optimized performance (60 FPS target)
+- Offline functionality for classroom use
+- File size under 3MB for quick loading
+
+**User Experience:**
+- Intuitive controls suitable for young children
+- Colorful, engaging visual design
+- Appropriate sound effects and music
+- Clear instructions and tutorials
+- Pause/resume functionality
+- Save progress capability
+
+**Accessibility & Inclusion:**
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- High contrast mode option
+- Culturally responsive content
+- Multiple language support where appropriate
+
+### SPECIFIC GAME PROMPTS:
+
+---
+
+**MATH GAME PROMPT:**
+Create an HTML5 educational game teaching [MATH CONCEPT: addition, multiplication, fractions, geometry, etc.] for grade [K-5]. Include:
+
+Game Mechanics:
+- Core gameplay loop that requires mathematical thinking
+- Power-ups or bonuses earned through correct answers
+- Multiple game modes (practice, timed, challenge)
+- Leaderboard or achievement system
+
+Educational Features:
+- Adaptive difficulty based on student performance
+- Multiple problem types and representations
+- Hint system for struggling students
+- Progress tracking and skill mastery indicators
+
+Engagement Elements:
+- Compelling theme and storyline
+- Character progression or customization
+- Mini-games within the main game
+- Social features for classroom competition
+
+---
+
+**SCIENCE GAME PROMPT:**
+Create an HTML5 educational game exploring [SCIENCE CONCEPT: ecosystems, states of matter, simple machines, etc.] for grade [K-5]. Include:
+
+Game Mechanics:
+- Exploration and discovery gameplay
+- Experimentation with cause-and-effect relationships
+- Resource management or building elements
+- Problem-solving challenges
+
+Educational Integration:
+- Scientific method integration (hypothesis, test, observe)
+- Real-world applications and connections
+- Vocabulary development through context
+- Interactive simulations and demonstrations
+
+Engagement Features:
+- Virtual laboratory or field environment
+- Collection and cataloging systems
+- Achievement unlocks for scientific discoveries
+- Collaborative or competitive modes
+
+---
+
+**MATH RACE RALLY SPECIFIC PROMPT:**
+Create a single HTML file racing game where students solve math problems to advance their car. Include:
+
+Game Mechanics:
+- Racing car that moves forward with correct answers
+- Multiple race tracks with different themes
+- Speed boosts for quick correct answers
+- Obstacles that require problem-solving to overcome
+
+Technical Features:
+- Smooth 2D animation using CSS transitions and JavaScript
+- Sound effects for engine, boosts, and achievements
+- Multiple difficulty levels (grades K-5)
+- Customizable car colors and styles
+
+Educational Components:
+- Random problem generation for replayability
+- Multiple operation types (addition, subtraction, multiplication, division)
+- Visual representation of math problems when helpful
+- Progress tracking across multiple races
+
+Engagement Elements:
+- Championship mode with multiple races
+- Unlock new tracks and car upgrades
+- Friendly AI opponents for competition
+- Celebration animations for victories
+
+---
+
+**PLANET EXPLORER QUEST SPECIFIC PROMPT:**
+Create a single HTML file space exploration game teaching solar system facts. Include:
+
+Game Mechanics:
+- Spaceship navigation between planets
+- Fuel management requiring correct answers
+- Collection of space rocks and artifacts
+- Mini-missions on each planet
+
+Educational Features:
+- Accurate planet facts and characteristics
+- Scale representations of distances and sizes
+- Solar system formation and structure lessons
+- Space exploration history integration
+
+Technical Implementation:
+- Interactive solar system map
+- 2D sprite-based graphics with animations
+- Sound effects for space ambiance
+- Smooth transitions between planets
+
+Engagement Systems:
+- NASA-style mission badges and achievements
+- Spacecraft customization options
+- Discovery journal for recording findings
+- Bonus content about real space missions
+
+---
+
+**ECOSYSTEM BUILDING TYCOON SPECIFIC PROMPT:**
+Create a single HTML file simulation game where students build and balance ecosystems. Include:
+
+Game Mechanics:
+- Drag-and-drop ecosystem construction
+- Population management and balance
+- Environmental factor controls (temperature, rainfall)
+- Crisis events requiring ecological knowledge
+
+Educational Integration:
+- Food chain and food web concepts
+- Predator-prey relationships
+- Environmental impact scenarios
+- Conservation and sustainability themes
+
+Simulation Features:
+- Real-time ecosystem dynamics
+- Visual representation of population changes
+- Cause-and-effect feedback systems
+- Multiple biome types to explore
+
+Progression System:
+- Unlock new species and environments
+- Challenge scenarios based on real-world issues
+- Research points for discovering new facts
+- Eco-friendly achievement system
+
+---
+
+**QUALITY ASSURANCE FOR GAMES:**
+
+Performance Checklist:
+□ Game runs smoothly at 60 FPS on target devices
+□ Loading time under 10 seconds on average connections
+□ Memory usage remains stable during extended play
+□ No memory leaks or performance degradation
+
+Educational Effectiveness:
+□ Learning objectives clearly met through gameplay
+□ Assessment data available for teachers
+□ Multiple skill levels accommodated
+□ Immediate feedback provided for all actions
+
+User Experience:
+□ Intuitive controls for target age group
+□ Clear visual and audio feedback
+□ Appropriate difficulty progression
+□ Engaging theme and presentation
+
+Technical Reliability:
+□ Works across multiple browsers and devices
+□ Graceful handling of errors and edge cases
+□ Offline functionality when internet unavailable
+□ Responsive design for various screen sizes
+
+**TESTING PROTOCOL:**
+1. Functionality testing on target devices and browsers
+2. Educational effectiveness review with teachers
+3. User experience testing with elementary students
+4. Performance optimization and bug fixes
+5. Accessibility compliance verification
+
+**DEPLOYMENT CONSIDERATIONS:**
+- Classroom network compatibility
+- Teacher dashboard integration possibilities
+- Student data privacy compliance
+- Easy installation and setup procedures
+- Technical support and documentation needs
