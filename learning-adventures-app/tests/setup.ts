@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
+declare global {
+  var jest: any;
+}
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter() {
@@ -43,17 +47,22 @@ jest.mock('@/lib/analytics', () => ({
 }));
 
 // Mock intersection observer for animations
-global.IntersectionObserver = class IntersectionObserver {
+(global as any).IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
+  takeRecords() { return []; }
 };
 
 // Mock matchMedia for responsive tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,

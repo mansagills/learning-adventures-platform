@@ -36,7 +36,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pricing" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#pricing" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Pricing
                   </Link>
                 </li>
@@ -53,17 +53,17 @@ export default function Footer() {
               <h3 className="font-semibold text-lg mb-4">Support</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/help" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#help" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Help Center
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#contact" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/community" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#community" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Community
                   </Link>
                 </li>
@@ -80,22 +80,22 @@ export default function Footer() {
               <h3 className="font-semibold text-lg mb-4">Company</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/about" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#about" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/careers" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#careers" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Careers
                   </Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#blog" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link href="/press" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
+                  <Link href="#press" className="text-gray-300 hover:text-white transition-colors duration-250 text-sm">
                     Press
                   </Link>
                 </li>
@@ -110,13 +110,13 @@ export default function Footer() {
                 © 2024 Learning Adventures. All rights reserved.
               </p>
               <div className="flex space-x-4 text-sm">
-                <Link href="/privacy" className="text-gray-300 hover:text-white transition-colors duration-250">
+                <Link href="#privacy" className="text-gray-300 hover:text-white transition-colors duration-250">
                   Privacy Policy
                 </Link>
-                <Link href="/terms" className="text-gray-300 hover:text-white transition-colors duration-250">
+                <Link href="#terms" className="text-gray-300 hover:text-white transition-colors duration-250">
                   Terms of Service
                 </Link>
-                <Link href="/accessibility" className="text-gray-300 hover:text-white transition-colors duration-250">
+                <Link href="#accessibility" className="text-gray-300 hover:text-white transition-colors duration-250">
                   Accessibility
                 </Link>
               </div>

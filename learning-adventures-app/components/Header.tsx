@@ -69,6 +69,12 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/internal"
+              className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium text-sm"
+            >
+              Content Studio
+            </Link>
             <Button
               onClick={handleCTAClick}
               data-analytics="header-cta-start-adventure"
@@ -126,6 +132,13 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 FAQ
+              </Link>
+              <Link
+                href="/internal"
+                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Content Studio
               </Link>
               <div className="pt-4">
                 <Button
