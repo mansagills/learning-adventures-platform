@@ -19,7 +19,10 @@ export default function AdventureCard({
   const handleCardClick = () => {
     analytics.clickCTA(`View ${adventure.title}`, 'adventure-catalog');
 
-    if (adventure.htmlPath) {
+    if (adventure.componentGame) {
+      // Navigate to React component game
+      window.location.href = `/games/${adventure.id}`;
+    } else if (adventure.htmlPath) {
       window.open(adventure.htmlPath, '_blank');
     }
   };
@@ -154,7 +157,7 @@ export default function AdventureCard({
       <div className="absolute inset-0 bg-gradient-to-t from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 pointer-events-none" />
 
       {/* Play Now Button or Interactive Arrow */}
-      {adventure.htmlPath ? (
+      {(adventure.htmlPath || adventure.componentGame) ? (
         <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-250">
           <button
             className="bg-brand-500 hover:bg-brand-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-md"

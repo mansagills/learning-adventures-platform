@@ -11,34 +11,9 @@ import { analytics } from '@/lib/analytics';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const { data: session, status } = useSession();
 
   const handleCTAClick = () => {
-    if (session) {
-      // If user is logged in, navigate to dashboard
-      window.location.href = '/dashboard';
-    } else {
-      // If not logged in, open signup modal
-      setAuthMode('signup');
-      setIsAuthModalOpen(true);
-    }
     analytics.clickCTA('Header CTA', 'header');
-  };
-
-  const handleSignIn = () => {
-    setAuthMode('signin');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleSignUp = () => {
-    setAuthMode('signup');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
   };
 
   const toggleMenu = () => {
@@ -102,49 +77,12 @@ export default function Header() {
             >
               Content Studio
             </Link>
-
-            {status === 'loading' ? (
-              <div className="animate-pulse">
-                <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
-              </div>
-            ) : session ? (
-              <div className="flex items-center space-x-3">
-                <Link
-                  href="/dashboard"
-                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
-                >
-                  Dashboard
-                </Link>
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {session.user.name?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-ink-600 hover:text-brand-500 transition-colors duration-250 text-sm"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={handleSignIn}
-                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
-                >
-                  Sign In
-                </button>
-                <Button
-                  onClick={handleSignUp}
-                  data-analytics="header-cta-sign-up"
-                >
-                  Sign Up
-                </Button>
-              </div>
-            )}
+            <Button
+              onClick={handleCTAClick}
+              data-analytics="header-cta-start-adventure"
+            >
+              Start Your Adventure
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -205,60 +143,18 @@ export default function Header() {
                 Content Studio
               </Link>
               <div className="pt-4">
-                {session ? (
-                  <div className="space-y-3">
-                    <Link
-                      href="/dashboard"
-                      className="block text-center py-2 text-brand-500 font-medium"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleSignOut();
-                      }}
-                      className="w-full text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleSignIn();
-                      }}
-                      className="w-full text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium"
-                    >
-                      Sign In
-                    </button>
-                    <Button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleSignUp();
-                      }}
-                      className="w-full"
-                      data-analytics="mobile-header-cta-sign-up"
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
-                )}
+                <Button
+                  onClick={handleCTAClick}
+                  className="w-full"
+                  data-analytics="mobile-header-cta-start-adventure"
+                >
+                  Start Your Adventure
+                </Button>
               </div>
             </nav>
           </div>
         )}
       </Container>
-
-      {/* Authentication Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        defaultMode={authMode}
-      />
     </header>
   );
 }

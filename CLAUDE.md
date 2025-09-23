@@ -1,5 +1,65 @@
 # Learning Adventures Platform - Claude Instructions
 
+## 🚀 Platform Development Sessions
+
+### Current Development Status
+
+**Active Development Plan**: COMPREHENSIVE_PLATFORM_PLAN.md
+**Current Phase**: Plan 1 - Authentication & Login System
+**Last Completed**: Phase 1A - Authentication Infrastructure ✅
+**Next Phase**: Phase 1B - Database Setup & User Registration Flow
+
+### 📋 Development Session Protocol
+
+**IMPORTANT**: When starting any development session, ALWAYS:
+
+1. **Check Development Status**: Read `COMPREHENSIVE_PLATFORM_PLAN.md` to understand current progress
+2. **Review Last Completed Phase**: Look for the "COMPLETED" marker in the plan
+3. **Continue from Next Phase**: Pick up from the next uncompleted phase/day
+4. **Update Progress**: When completing a phase, mark it as "COMPLETED ✅" in the plan
+5. **Track Session Work**: Update the plan with detailed progress notes
+
+### 🎯 Session Continuation Instructions
+
+When asked to continue development work:
+- Read the comprehensive plan to understand the current state
+- Continue from the next uncompleted phase
+- Use TodoWrite to track current session progress
+- Update the comprehensive plan when phases are completed
+- Commit changes with descriptive messages including phase completion status
+
+### 📊 Current Platform Architecture
+
+**Completed Features**:
+- ✅ Authentication system with NextAuth.js
+- ✅ Database schema design (Prisma)
+- ✅ User roles: Admin, Teacher, Parent, Student
+- ✅ Login/signup modals with role selection
+- ✅ Header integration with auth status
+- ✅ 5-subject catalog system (Math, Science, English, History, Interdisciplinary)
+
+**In Progress**: Database connection and user registration flow
+**Next Up**: Frontend adventure preview system
+
+### 🔄 Development Commands
+
+```bash
+# Start development server
+cd learning-adventures-app
+npm run dev
+
+# Database operations (when DB is connected)
+npx prisma generate
+npx prisma db push
+npx prisma studio
+
+# Type checking and linting
+npm run lint
+npm run type-check
+```
+
+---
+
 ## Game/Lesson Creation Workflow
 
 When creating new games or lessons for this platform, follow this specific workflow:
@@ -93,4 +153,7 @@ curl http://localhost:3000/catalog
 ---
 
 **Last Updated**: September 2024
-**Total Adventures**: 54 games and lessons across Math and Science categories
+**Total Adventures**: 85+ games and lessons across 5 categories
+**Development Status**: Phase 1A Complete - Authentication Infrastructure Implemented
+**Platform Features**: NextAuth.js, Prisma Schema, User Roles, Modal System, 5-Subject Catalog
+- Always check the comprehensive_platform_plan to see which phase we last worked on from previous sessions.

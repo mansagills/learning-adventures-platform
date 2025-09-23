@@ -9,7 +9,7 @@ import Icon from '@/components/Icon';
 
 export const metadata: Metadata = generateMetadata({
   title: 'Adventure Catalog - Learning Adventures',
-  description: 'Explore our comprehensive collection of interactive math and science games and lessons designed for elementary students. Start your learning adventure today!',
+  description: 'Explore our comprehensive collection of interactive math, science, English, history, and interdisciplinary games and lessons designed for elementary students. Start your learning adventure today!',
   path: '/catalog'
 });
 
@@ -27,17 +27,17 @@ export default function CatalogPage() {
             </h1>
             <p className="text-xl md:text-2xl mb-8 opacity-90">
               Discover interactive learning experiences that make education exciting.
-              Choose from math adventures and science explorations designed for every learner.
+              Choose from math, science, English, history, and interdisciplinary adventures designed for every learner.
             </p>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold mb-2">50+</div>
+                <div className="text-3xl md:text-4xl font-bold mb-2">85+</div>
                 <div className="opacity-90">Learning Adventures</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold mb-2">2</div>
+                <div className="text-3xl md:text-4xl font-bold mb-2">5</div>
                 <div className="opacity-90">Subject Areas</div>
               </div>
               <div className="text-center">
@@ -57,6 +57,14 @@ export default function CatalogPage() {
               <Icon name="filter" size={20} className="text-ink-600" />
               <span className="text-ink-600 font-medium">Filter by:</span>
               <div className="flex space-x-2">
+                <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <option value="">All Subjects</option>
+                  <option value="math">Math</option>
+                  <option value="science">Science</option>
+                  <option value="english">English Language Arts</option>
+                  <option value="history">History</option>
+                  <option value="interdisciplinary">Interdisciplinary</option>
+                </select>
                 <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                   <option value="">All Grades</option>
                   <option value="K">Kindergarten</option>

@@ -68,6 +68,9 @@ export default function AdventureFilters({
               <option value="">All Subjects</option>
               <option value="math">Math</option>
               <option value="science">Science</option>
+              <option value="english">English Language Arts</option>
+              <option value="history">History</option>
+              <option value="interdisciplinary">Interdisciplinary</option>
             </select>
 
             {/* Grade Level Filter */}
@@ -144,7 +147,14 @@ export default function AdventureFilters({
         <div className="mt-4 flex flex-wrap gap-2">
           {filters.category && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-100 text-brand-700">
-              Subject: {filters.category === 'math' ? 'Math' : 'Science'}
+              Subject: {
+                filters.category === 'math' ? 'Math' :
+                filters.category === 'science' ? 'Science' :
+                filters.category === 'english' ? 'English Language Arts' :
+                filters.category === 'history' ? 'History' :
+                filters.category === 'interdisciplinary' ? 'Interdisciplinary' :
+                filters.category
+              }
               <button
                 onClick={() => handleFilterChange('category', '')}
                 className="ml-2 text-brand-500 hover:text-brand-700"

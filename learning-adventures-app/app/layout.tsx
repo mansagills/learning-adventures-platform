@@ -3,6 +3,8 @@ import { Nunito, Inter } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import GameRegistryInitializer from '@/components/GameRegistryInitializer';
+import { Providers } from '@/components/Providers';
 import { generateMetadata, generateOrganizationSchema, generateWebSiteSchema, createJSONLD } from '@/lib/seo';
 
 const nunito = Nunito({
@@ -54,15 +56,18 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <div className="min-h-screen flex flex-col">
-          <Header />
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <GameRegistryInitializer />
+            <Header />
 
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
 
-          <Footer />
-        </div>
+            <Footer />
+          </div>
+        </Providers>
 
         {/* Analytics initialization stub */}
         <script

@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // For email/password authentication
+  role          UserRole  @default(STUDENT)
+  gradeLevel    String?   // For students
+  subjects      String[]  // Array of subjects they're interested in
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts    Account[]
+  sessions    Session[]
+  progress    UserProgress[]
+  achievements UserAchievement[]
+  enrollments ClassroomEnrollment[]
+  // Relations for teachers
+  classrooms  Classroom[] @relation("TeacherClassrooms")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// User management and progress tracking
+enum UserRole {
+  ADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+model UserProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  adventureId    String   // ID from catalogData
+  adventureType  String   // 'game' or 'lesson'
+  category       String   // 'math', 'science', etc.
+  status         ProgressStatus @default(NOT_STARTED)
+  score          Int?
+  timeSpent      Int      @default(0) // in minutes
+  completedAt    DateTime?
+  lastAccessed   DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adventureId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  MASTERED
+}
+
+model UserAchievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // 'completion', 'streak', 'score', 'time'
+  title       String
+  description String
+  category    String?  // Subject category
+  earnedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Classroom management for teachers
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  gradeLevel  String
+  subjects    String[] // Array of subjects
+  teacherId   String
+  inviteCode  String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher     User @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  enrollments ClassroomEnrollment[]
+}
+
+model ClassroomEnrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  classroomId String
+  enrolledAt  DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classroomId])
+}

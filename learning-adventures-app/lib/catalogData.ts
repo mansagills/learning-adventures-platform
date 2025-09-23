@@ -3,7 +3,7 @@ export interface Adventure {
   title: string;
   description: string;
   type: 'game' | 'lesson';
-  category: 'math' | 'science';
+  category: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
   gradeLevel: string[];
   difficulty: 'easy' | 'medium' | 'hard';
   skills: string[];
@@ -11,6 +11,7 @@ export interface Adventure {
   image?: string;
   featured?: boolean;
   htmlPath?: string;
+  componentGame?: boolean; // True if this is a React component game
 }
 
 export interface CategoryData {
@@ -141,6 +142,19 @@ const mathLessons: Adventure[] = [
 ];
 
 const mathGames: Adventure[] = [
+  {
+    id: 'sample-math-game',
+    title: 'Math Challenge',
+    description: 'Test your math skills with addition, subtraction, and multiplication!',
+    type: 'game',
+    category: 'math',
+    gradeLevel: ['2', '3', '4', '5'],
+    difficulty: 'easy',
+    skills: ['Addition', 'Subtraction', 'Multiplication', 'Mental Math'],
+    estimatedTime: '10 mins',
+    featured: true,
+    componentGame: true
+  },
   {
     id: 'math-race-rally',
     title: 'Math Race Rally',
@@ -642,6 +656,363 @@ const scienceGames: Adventure[] = [
   }
 ];
 
+// English Adventures Data
+const englishLessons: Adventure[] = [
+  {
+    id: 'creative-writing-workshop',
+    title: 'Creative Writing Workshop',
+    description: 'Interactive story building with character development and plot creation tools',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Creative Writing', 'Storytelling', 'Character Development'],
+    estimatedTime: '25-30 mins',
+    featured: true
+  },
+  {
+    id: 'grammar-detective',
+    title: 'Grammar Detective',
+    description: 'Solve mysteries by identifying and correcting grammar mistakes in clues',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['2', '3', '4'],
+    difficulty: 'easy',
+    skills: ['Grammar', 'Sentence Structure', 'Detective Skills'],
+    estimatedTime: '15-20 mins'
+  },
+  {
+    id: 'poetry-playground',
+    title: 'Poetry Playground',
+    description: 'Create and explore different types of poems with rhyme and rhythm tools',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['2', '3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Poetry', 'Rhyme', 'Rhythm', 'Creative Expression'],
+    estimatedTime: '20-25 mins'
+  },
+  {
+    id: 'reading-comprehension-adventure',
+    title: 'Reading Comprehension Adventure',
+    description: 'Interactive stories with comprehension questions and vocabulary building',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['2', '3', '4'],
+    difficulty: 'medium',
+    skills: ['Reading Comprehension', 'Vocabulary', 'Critical Thinking'],
+    estimatedTime: '20-25 mins'
+  },
+  {
+    id: 'vocabulary-builder',
+    title: 'Vocabulary Builder',
+    description: 'Learn new words through context clues and interactive word games',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Vocabulary', 'Context Clues', 'Word Recognition'],
+    estimatedTime: '15-20 mins'
+  }
+];
+
+const englishGames: Adventure[] = [
+  {
+    id: 'word-wizard-quest',
+    title: 'Word Wizard Quest',
+    description: 'Cast spelling spells and build vocabulary to defeat the Confusion Dragon',
+    type: 'game',
+    category: 'english',
+    gradeLevel: ['2', '3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Spelling', 'Vocabulary', 'Adventure'],
+    estimatedTime: '15-20 mins',
+    featured: true
+  },
+  {
+    id: 'punctuation-pirates',
+    title: 'Punctuation Pirates',
+    description: 'Navigate the high seas while correctly placing punctuation marks',
+    type: 'game',
+    category: 'english',
+    gradeLevel: ['2', '3', '4'],
+    difficulty: 'easy',
+    skills: ['Punctuation', 'Grammar', 'Adventure'],
+    estimatedTime: '12-18 mins'
+  },
+  {
+    id: 'rhyme-time-racing',
+    title: 'Rhyme Time Racing',
+    description: 'Race through word tracks by matching rhyming words and patterns',
+    type: 'game',
+    category: 'english',
+    gradeLevel: ['1', '2', '3'],
+    difficulty: 'easy',
+    skills: ['Rhyming', 'Phonics', 'Word Recognition'],
+    estimatedTime: '10-15 mins'
+  },
+  {
+    id: 'story-building-blocks',
+    title: 'Story Building Blocks',
+    description: 'Construct engaging stories using interactive plot, character, and setting blocks',
+    type: 'game',
+    category: 'english',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Creative Writing', 'Story Structure', 'Imagination'],
+    estimatedTime: '20-25 mins'
+  },
+  {
+    id: 'synonym-shuffle',
+    title: 'Synonym Shuffle',
+    description: 'Fast-paced word matching game connecting synonyms and antonyms',
+    type: 'game',
+    category: 'english',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Synonyms', 'Antonyms', 'Vocabulary'],
+    estimatedTime: '10-15 mins'
+  }
+];
+
+// History Adventures Data
+const historyLessons: Adventure[] = [
+  {
+    id: 'time-travel-museum',
+    title: 'Time Travel Museum',
+    description: 'Explore different historical periods through interactive museum exhibits',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Historical Timeline', 'Cultural Understanding', 'Chronology'],
+    estimatedTime: '25-30 mins',
+    featured: true
+  },
+  {
+    id: 'ancient-civilizations-explorer',
+    title: 'Ancient Civilizations Explorer',
+    description: 'Discover Egypt, Greece, and Rome through virtual archaeological digs',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['4', '5'],
+    difficulty: 'medium',
+    skills: ['Ancient History', 'Archaeology', 'Cultural Comparison'],
+    estimatedTime: '30-35 mins'
+  },
+  {
+    id: 'american-heroes-hall',
+    title: 'American Heroes Hall',
+    description: 'Learn about historical figures and their contributions to American history',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['2', '3', '4', '5'],
+    difficulty: 'easy',
+    skills: ['American History', 'Biography', 'Historical Figures'],
+    estimatedTime: '20-25 mins'
+  },
+  {
+    id: 'world-landmarks-journey',
+    title: 'World Landmarks Journey',
+    description: 'Virtual tours of historical landmarks and their significance',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['World Geography', 'Cultural Heritage', 'Architecture'],
+    estimatedTime: '25-30 mins'
+  },
+  {
+    id: 'timeline-detective',
+    title: 'Timeline Detective',
+    description: 'Solve historical mysteries by placing events in chronological order',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Chronology', 'Cause and Effect', 'Historical Analysis'],
+    estimatedTime: '20-25 mins'
+  }
+];
+
+const historyGames: Adventure[] = [
+  {
+    id: 'civilization-builder',
+    title: 'Civilization Builder',
+    description: 'Build and manage ancient civilizations while learning historical concepts',
+    type: 'game',
+    category: 'history',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['Strategy', 'Historical Understanding', 'Resource Management'],
+    estimatedTime: '25-30 mins',
+    featured: true
+  },
+  {
+    id: 'historical-trivia-quest',
+    title: 'Historical Trivia Quest',
+    description: 'Adventure through time answering historical questions and challenges',
+    type: 'game',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Historical Facts', 'Memory', 'Timeline Knowledge'],
+    estimatedTime: '15-20 mins'
+  },
+  {
+    id: 'pioneer-trail-adventure',
+    title: 'Pioneer Trail Adventure',
+    description: 'Experience westward expansion through interactive decision-making',
+    type: 'game',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['American History', 'Decision Making', 'Historical Simulation'],
+    estimatedTime: '20-25 mins'
+  },
+  {
+    id: 'world-war-heroes',
+    title: 'World War Heroes',
+    description: 'Learn about courage and sacrifice through age-appropriate war stories',
+    type: 'game',
+    category: 'history',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['World History', 'Character Values', 'Historical Perspective'],
+    estimatedTime: '25-30 mins'
+  },
+  {
+    id: 'invention-timeline',
+    title: 'Invention Timeline',
+    description: 'Match inventions to their time periods and learn about innovation',
+    type: 'game',
+    category: 'history',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Innovation', 'Technology History', 'Timeline Skills'],
+    estimatedTime: '15-20 mins'
+  }
+];
+
+// Interdisciplinary Adventures Data
+const interdisciplinaryLessons: Adventure[] = [
+  {
+    id: 'space-mission-control',
+    title: 'Space Mission Control',
+    description: 'Combine math, science, and teamwork to plan and execute space missions',
+    type: 'lesson',
+    category: 'interdisciplinary',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['STEM Integration', 'Problem Solving', 'Teamwork', 'Space Science'],
+    estimatedTime: '35-40 mins',
+    featured: true
+  },
+  {
+    id: 'environmental-detective',
+    title: 'Environmental Detective',
+    description: 'Use science, math, and research skills to solve environmental challenges',
+    type: 'lesson',
+    category: 'interdisciplinary',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Environmental Science', 'Data Analysis', 'Research Skills'],
+    estimatedTime: '30-35 mins'
+  },
+  {
+    id: 'historical-math-mysteries',
+    title: 'Historical Math Mysteries',
+    description: 'Solve mathematical problems using historical contexts and ancient methods',
+    type: 'lesson',
+    category: 'interdisciplinary',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Mathematics', 'History', 'Cultural Math', 'Problem Solving'],
+    estimatedTime: '25-30 mins'
+  },
+  {
+    id: 'storytelling-with-data',
+    title: 'Storytelling with Data',
+    description: 'Create compelling narratives using charts, graphs, and statistical analysis',
+    type: 'lesson',
+    category: 'interdisciplinary',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['Data Visualization', 'Storytelling', 'Statistics', 'Communication'],
+    estimatedTime: '30-35 mins'
+  },
+  {
+    id: 'design-thinking-lab',
+    title: 'Design Thinking Lab',
+    description: 'Apply creative problem-solving to real-world challenges across subjects',
+    type: 'lesson',
+    category: 'interdisciplinary',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['Design Thinking', 'Creativity', 'Innovation', 'Problem Solving'],
+    estimatedTime: '40-45 mins'
+  }
+];
+
+const interdisciplinaryGames: Adventure[] = [
+  {
+    id: 'eco-city-simulator',
+    title: 'Eco-City Simulator',
+    description: 'Build sustainable cities using science, math, and social studies concepts',
+    type: 'game',
+    category: 'interdisciplinary',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['Urban Planning', 'Environmental Science', 'Mathematics', 'Social Studies'],
+    estimatedTime: '30-35 mins',
+    featured: true
+  },
+  {
+    id: 'time-traveler-scholar',
+    title: 'Time Traveler Scholar',
+    description: 'Travel through time solving problems that combine multiple academic subjects',
+    type: 'game',
+    category: 'interdisciplinary',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Cross-curricular', 'Critical Thinking', 'Historical Context', 'Problem Solving'],
+    estimatedTime: '25-30 mins'
+  },
+  {
+    id: 'museum-curator-challenge',
+    title: 'Museum Curator Challenge',
+    description: 'Curate museum exhibits combining art, history, science, and math',
+    type: 'game',
+    category: 'interdisciplinary',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Art History', 'Research', 'Organization', 'Presentation'],
+    estimatedTime: '25-30 mins'
+  },
+  {
+    id: 'newspaper-editor-simulation',
+    title: 'Newspaper Editor Simulation',
+    description: 'Create news stories combining writing, current events, and data analysis',
+    type: 'game',
+    category: 'interdisciplinary',
+    gradeLevel: ['4', '5'],
+    difficulty: 'hard',
+    skills: ['Journalism', 'Writing', 'Current Events', 'Media Literacy'],
+    estimatedTime: '30-35 mins'
+  },
+  {
+    id: 'invention-workshop',
+    title: 'Invention Workshop',
+    description: 'Invent solutions to problems using science, engineering, and creative thinking',
+    type: 'game',
+    category: 'interdisciplinary',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'hard',
+    skills: ['Engineering', 'Innovation', 'Science', 'Creative Problem Solving'],
+    estimatedTime: '35-40 mins'
+  }
+];
+
 // Combined catalog data
 export const catalogData: CategoryData[] = [
   {
@@ -662,6 +1033,36 @@ export const catalogData: CategoryData[] = [
     adventures: {
       lessons: scienceLessons,
       games: scienceGames
+    }
+  },
+  {
+    id: 'english',
+    name: 'English Language Arts',
+    description: 'Enhance reading, writing, and communication skills through interactive adventures',
+    icon: 'academic',
+    adventures: {
+      lessons: englishLessons,
+      games: englishGames
+    }
+  },
+  {
+    id: 'history',
+    name: 'History Explorations',
+    description: 'Journey through time and explore civilizations, cultures, and historical events',
+    icon: 'academic',
+    adventures: {
+      lessons: historyLessons,
+      games: historyGames
+    }
+  },
+  {
+    id: 'interdisciplinary',
+    name: 'Interdisciplinary Learning',
+    description: 'Cross-curricular adventures that combine multiple subjects for deeper understanding',
+    icon: 'academic',
+    adventures: {
+      lessons: interdisciplinaryLessons,
+      games: interdisciplinaryGames
     }
   }
 ];
