@@ -8,6 +8,8 @@ declare module 'next-auth' {
       name?: string | null;
       image?: string | null;
       role: string;
+      gradeLevel?: string | null;
+      subjects?: string[];
     };
   }
 
@@ -17,11 +19,15 @@ declare module 'next-auth' {
     name?: string | null;
     image?: string | null;
     role: string;
+    gradeLevel?: string | null;
+    subjects?: string[];
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     role: string;
+    gradeLevel?: string | null;
+    subjects?: string[];
   }
 }

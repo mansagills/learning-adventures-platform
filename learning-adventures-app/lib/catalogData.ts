@@ -1116,3 +1116,46 @@ export function filterAdventures(
     return true;
   });
 }
+
+// Preview-specific helper functions
+export function getFeaturedAdventuresByCategory(categoryId: string, limit: number = 5): Adventure[] {
+  const categoryAdventures = getAdventuresByCategory(categoryId);
+  const featuredAdventures = categoryAdventures.filter(adventure => adventure.featured);
+
+  // If we have enough featured adventures, return them
+  if (featuredAdventures.length >= limit) {
+    return featuredAdventures.slice(0, limit);
+  }
+
+  // Otherwise, supplement with non-featured adventures
+  const nonFeaturedAdventures = categoryAdventures.filter(adventure => !adventure.featured);
+  const supplementCount = limit - featuredAdventures.length;
+
+  return [
+    ...featuredAdventures,
+    ...nonFeaturedAdventures.slice(0, supplementCount)
+  ];
+}
+
+export function getPreviewAdventuresForAllCategories(limit: number = 5): Record<string, Adventure[]> {
+  const categories = ['math', 'science', 'english', 'history', 'interdisciplinary'] as const;
+  const previewData: Record<string, Adventure[]> = {};
+
+  categories.forEach(categoryId => {
+    previewData[categoryId] = getFeaturedAdventuresByCategory(categoryId, limit);
+  });
+
+  return previewData;
+}
+
+export function getCategoryMetadata() {
+  return catalogData.map(category => ({
+    id: category.id,
+    name: category.name,
+    description: category.description,
+    icon: category.icon,
+    totalAdventures: category.adventures.lessons.length + category.adventures.games.length,
+    featuredAdventures: [...category.adventures.lessons, ...category.adventures.games]
+      .filter(adventure => adventure.featured).length
+  }));
+}

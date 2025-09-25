@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import AdventurePreviewGrid from '@/components/preview/AdventurePreviewGrid';
 import Benefits from '@/components/Benefits';
 import HowItWorks from '@/components/HowItWorks';
 import SocialProof from '@/components/SocialProof';
@@ -9,6 +10,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <AdventurePreviewGrid />
       <Benefits />
       <HowItWorks />
       <SocialProof />

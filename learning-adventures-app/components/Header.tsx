@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import Container from './Container';
 import Button from './Button';
 import Icon from './Icon';
 import AuthModal from './AuthModal';
+import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
 
 export default function Header() {
@@ -37,9 +38,6 @@ export default function Header() {
     setIsAuthModalOpen(true);
   };
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
-  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -115,19 +113,7 @@ export default function Header() {
                 >
                   Dashboard
                 </Link>
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {session.user.name?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-ink-600 hover:text-brand-500 transition-colors duration-250 text-sm"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                <UserMenu />
               </div>
             ) : (
               <div className="flex items-center space-x-3">
@@ -214,15 +200,9 @@ export default function Header() {
                     >
                       Dashboard
                     </Link>
-                    <button
-                      onClick={() => {
-                        setIsMenuOpen(false);
-                        handleSignOut();
-                      }}
-                      className="w-full text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2"
-                    >
-                      Sign Out
-                    </button>
+                    <div className="flex justify-center">
+                      <UserMenu />
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">

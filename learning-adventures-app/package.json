@@ -9,7 +9,12 @@
     "lint": "next lint",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "npx prisma db push --force-reset && npm run db:seed",
+    "db:studio": "npx prisma studio"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.0",
@@ -20,6 +25,7 @@
     "dotenv": "^17.2.2",
     "next": "^14.2.32",
     "next-auth": "^4.24.11",
+    "node-fetch": "^3.3.2",
     "prisma": "^6.16.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -38,6 +44,7 @@
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
     "tailwindcss": "^3.3.5",
+    "tsx": "^4.20.5",
     "typescript": "^5.2.2",
     "vitest": "^3.2.4"
   },
