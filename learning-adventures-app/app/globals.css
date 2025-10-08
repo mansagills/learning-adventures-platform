@@ -15,6 +15,10 @@
 
 @layer base {
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-white text-ink-900 font-body antialiased;
   }
@@ -125,5 +129,28 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  /* Touch-friendly interactions for mobile */
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  /* Smooth momentum scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent layout shift during loading */
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
   }
 }

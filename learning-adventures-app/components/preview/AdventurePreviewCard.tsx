@@ -11,6 +11,8 @@ interface AdventurePreviewCardProps {
   compact?: boolean;
   showCategory?: boolean;
   onClick?: () => void;
+  progress?: number; // 0-100 percentage
+  showProgress?: boolean;
 }
 
 export default function AdventurePreviewCard({
@@ -18,7 +20,9 @@ export default function AdventurePreviewCard({
   className,
   compact = true,
   showCategory = false,
-  onClick
+  onClick,
+  progress,
+  showProgress = false
 }: AdventurePreviewCardProps) {
   const handleCardClick = () => {
     analytics.clickCTA(`Preview ${adventure.title}`, 'homepage-preview');
@@ -163,10 +167,22 @@ export default function AdventurePreviewCard({
           </div>
           <div className="mt-3 text-xs text-ink-600 flex items-center">
             <Icon name="arrow-right" size={12} className="mr-1" />
-            Click to start {adventure.type}
+            {showProgress && progress !== undefined && progress > 0
+              ? `Continue ${adventure.type} (${progress}% complete)`
+              : `Click to start ${adventure.type}`}
           </div>
         </div>
       </div>
+
+      {/* Progress Bar */}
+      {showProgress && progress !== undefined && progress > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-lg overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-brand-500 to-accent-500 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 }

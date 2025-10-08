@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   getPreviewAdventuresForAllCategories,
   getCategoryMetadata,
@@ -21,11 +22,22 @@ interface CategoryPreviewData {
 }
 
 export default function AdventurePreviewGrid() {
+  const { status } = useSession();
   const [categoryData, setCategoryData] = useState<CategoryPreviewData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Determine preview limit based on authentication status
+  // Show limited preview during loading state and for unauthenticated users
+  const isAuthenticated = status === 'authenticated';
+  const previewLimit = isAuthenticated ? 5 : 3;
+
   useEffect(() => {
+    // Don't load data while session is still loading
+    if (status === 'loading') {
+      return;
+    }
+
     const loadPreviewData = async () => {
       try {
         setIsLoading(true);
@@ -33,7 +45,7 @@ export default function AdventurePreviewGrid() {
 
         // Get category metadata and preview adventures
         const metadata = getCategoryMetadata();
-        const previewAdventures = getPreviewAdventuresForAllCategories(5);
+        const previewAdventures = getPreviewAdventuresForAllCategories(previewLimit);
 
         // Combine metadata with preview data
         const combinedData: CategoryPreviewData[] = metadata.map(category => ({
@@ -56,9 +68,10 @@ export default function AdventurePreviewGrid() {
     };
 
     loadPreviewData();
-  }, []);
+  }, [status, previewLimit]);
 
-  if (isLoading) {
+  // Only show loading skeleton if we have no data yet
+  if (isLoading && categoryData.length === 0) {
     return (
       <section className="py-16 bg-gray-50">
         <Container>
@@ -146,27 +159,64 @@ export default function AdventurePreviewGrid() {
 
         {/* Call to Action */}
         <div className="text-center mt-16 pt-12 border-t border-gray-200">
-          <h3 className="text-2xl font-bold text-ink-800 mb-4">
-            Ready to Start Learning?
-          </h3>
-          <p className="text-ink-600 mb-6 max-w-xl mx-auto">
-            Browse our complete catalog of educational adventures, or jump right into
-            a featured game or lesson to begin your learning journey.
-          </p>
-          <div className="flex items-center justify-center space-x-4">
-            <a
-              href="/catalog"
-              className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
-            >
-              Browse All Adventures
-            </a>
-            <a
-              href="/catalog?featured=true"
-              className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
-            >
-              View Featured Only
-            </a>
-          </div>
+          {!isAuthenticated ? (
+            <>
+              <h3 className="text-2xl font-bold text-ink-800 mb-4">
+                Sign In to Unlock All Adventures!
+              </h3>
+              <p className="text-ink-600 mb-6 max-w-xl mx-auto">
+                You're viewing a limited preview. Create a free account to access our complete catalog
+                of {totalAdventures} educational adventures, track your progress, and earn achievements.
+              </p>
+              <div className="flex items-center justify-center space-x-4">
+                <button
+                  onClick={() => {
+                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'signup' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
+                >
+                  Create Free Account
+                </button>
+                <button
+                  onClick={() => {
+                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'login' } });
+                    window.dispatchEvent(event);
+                  }}
+                  className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
+                >
+                  Sign In
+                </button>
+              </div>
+              <p className="text-sm text-ink-500 mt-4">
+                Already have an account? Sign in to see more adventures and continue your learning journey.
+              </p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-2xl font-bold text-ink-800 mb-4">
+                Ready to Start Learning?
+              </h3>
+              <p className="text-ink-600 mb-6 max-w-xl mx-auto">
+                Browse our complete catalog of educational adventures, or jump right into
+                a featured game or lesson to begin your learning journey.
+              </p>
+              <div className="flex items-center justify-center space-x-4">
+                <a
+                  href="/catalog"
+                  className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
+                >
+                  Browse All Adventures
+                </a>
+                <a
+                  href="/dashboard"
+                  className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
+                >
+                  View My Dashboard
+                </a>
+              </div>
+            </>
+          )}
         </div>
       </Container>
     </section>

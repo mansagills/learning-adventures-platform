@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Adventure } from '@/lib/catalogData';
+import { useInView } from '@/hooks/useInView';
 import Icon from '../Icon';
 import AdventurePreviewCard from './AdventurePreviewCard';
 import ViewMoreButton from './ViewMoreButton';
@@ -25,8 +26,14 @@ export default function SubjectPreviewSection({
   isLoading = false
 }: SubjectPreviewSectionProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Intersection observer for fade-in animation
+  const [sectionRef, isInView] = useInView<HTMLDivElement>({
+    threshold: 0.1,
+    triggerOnce: true
+  });
 
   const checkScrollButtons = () => {
     const container = scrollContainerRef.current;
@@ -37,6 +44,16 @@ export default function SubjectPreviewSection({
       container.scrollLeft < container.scrollWidth - container.clientWidth - 10
     );
   };
+
+  // Check scroll buttons on mount and when adventures change
+  useEffect(() => {
+    // Small delay to ensure layout has completed
+    const timer = setTimeout(() => {
+      checkScrollButtons();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [adventures]);
 
   const scroll = (direction: 'left' | 'right') => {
     const container = scrollContainerRef.current;
@@ -144,7 +161,12 @@ export default function SubjectPreviewSection({
   }
 
   return (
-    <div className="mb-12">
+    <div
+      ref={sectionRef}
+      className={`mb-12 transition-all duration-700 ${
+        isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
@@ -191,7 +213,7 @@ export default function SubjectPreviewSection({
         <div
           ref={scrollContainerRef}
           onScroll={checkScrollButtons}
-          className="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-8"
+          className="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth smooth-scroll touch-pan-x pb-4 px-8"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {adventures.map((adventure) => (

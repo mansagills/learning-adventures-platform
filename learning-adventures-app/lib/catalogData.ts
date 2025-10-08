@@ -1159,3 +1159,9 @@ export function getCategoryMetadata() {
       .filter(adventure => adventure.featured).length
   }));
 }
+
+// Get adventure by ID from all categories
+export function getAdventureById(adventureId: string): Adventure | null {
+  const allAdventures = getAllAdventures();
+  return allAdventures.find(adventure => adventure.id === adventureId) || null;
+}
