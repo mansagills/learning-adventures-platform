@@ -4,6 +4,8 @@ import { Adventure } from '@/lib/catalogData';
 import { cn } from '@/lib/utils';
 import Icon from '../Icon';
 import { analytics } from '@/lib/analytics';
+import { useSaveForLater } from '@/hooks/useSaveForLater';
+import SocialShare from './SocialShare';
 
 interface AdventurePreviewCardProps {
   adventure: Adventure;
@@ -24,6 +26,9 @@ export default function AdventurePreviewCard({
   progress,
   showProgress = false
 }: AdventurePreviewCardProps) {
+  const { isSaved, toggleSave } = useSaveForLater();
+  const saved = isSaved(adventure.id);
+
   const handleCardClick = () => {
     analytics.clickCTA(`Preview ${adventure.title}`, 'homepage-preview');
 
@@ -35,6 +40,12 @@ export default function AdventurePreviewCard({
     } else if (adventure.htmlPath) {
       window.open(adventure.htmlPath, '_blank');
     }
+  };
+
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleSave(adventure.id);
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -87,19 +98,41 @@ export default function AdventurePreviewCard({
       )}
       role="button"
       tabIndex={0}
-      onKeyPress={(e) => {
+      onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
           handleCardClick();
         }
       }}
     >
-      {/* Type Badge */}
-      <div className={cn(
-        'absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1',
-        getTypeColor(adventure.type)
-      )}>
-        <Icon name={getTypeIcon(adventure.type)} size={12} />
-        <span className="capitalize">{adventure.type}</span>
+      {/* Action Buttons */}
+      <div className="absolute top-3 right-3 flex items-center space-x-2 z-10">
+        {/* Save for Later Button */}
+        <button
+          onClick={handleSaveClick}
+          className={cn(
+            'p-1.5 rounded-lg transition-all duration-200 hover:scale-110 shadow-sm',
+            saved
+              ? 'bg-accent-500 text-white hover:bg-accent-600'
+              : 'bg-white text-gray-600 hover:bg-white hover:text-accent-500 border border-gray-200'
+          )}
+          aria-label={saved ? 'Remove from saved' : 'Save for later'}
+          title={saved ? 'Remove from saved' : 'Save for later'}
+        >
+          <Icon name={saved ? 'bookmark-fill' : 'bookmark'} size={16} />
+        </button>
+
+        {/* Social Share Button */}
+        <SocialShare adventure={adventure} compact={true} />
+
+        {/* Type Badge */}
+        <div className={cn(
+          'px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1 shadow-sm',
+          getTypeColor(adventure.type)
+        )}>
+          <Icon name={getTypeIcon(adventure.type)} size={12} />
+          <span className="capitalize">{adventure.type}</span>
+        </div>
       </div>
 
       {/* Category Badge (if shown) */}

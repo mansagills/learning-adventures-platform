@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Adventure } from '@/lib/catalogData';
 import { useInView } from '@/hooks/useInView';
+import { useContentRotation } from '@/hooks/useContentRotation';
+import { cn } from '@/lib/utils';
 import Icon from '../Icon';
 import AdventurePreviewCard from './AdventurePreviewCard';
 import ViewMoreButton from './ViewMoreButton';
@@ -15,6 +17,7 @@ interface SubjectPreviewSectionProps {
   categoryIcon: string;
   adventures: Adventure[];
   isLoading?: boolean;
+  enableRotation?: boolean; // Enable auto-rotation of content
 }
 
 export default function SubjectPreviewSection({
@@ -23,7 +26,8 @@ export default function SubjectPreviewSection({
   categoryDescription,
   categoryIcon,
   adventures,
-  isLoading = false
+  isLoading = false,
+  enableRotation = false
 }: SubjectPreviewSectionProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -34,6 +38,20 @@ export default function SubjectPreviewSection({
     threshold: 0.1,
     triggerOnce: true
   });
+
+  // Content rotation hook (shows different sets of adventures)
+  const rotation = useContentRotation({
+    totalItems: adventures.length,
+    itemsPerPage: 5,
+    autoRotate: enableRotation,
+    rotationInterval: 8000, // 8 seconds per rotation
+    pauseOnHover: true
+  });
+
+  // Get visible adventures based on rotation
+  const visibleAdventures = enableRotation
+    ? rotation.getVisibleItems(adventures)
+    : adventures;
 
   const checkScrollButtons = () => {
     const container = scrollContainerRef.current;
@@ -53,7 +71,7 @@ export default function SubjectPreviewSection({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [adventures]);
+  }, [visibleAdventures]);
 
   const scroll = (direction: 'left' | 'right') => {
     const container = scrollContainerRef.current;
@@ -213,10 +231,12 @@ export default function SubjectPreviewSection({
         <div
           ref={scrollContainerRef}
           onScroll={checkScrollButtons}
+          onMouseEnter={enableRotation ? rotation.handleMouseEnter : undefined}
+          onMouseLeave={enableRotation ? rotation.handleMouseLeave : undefined}
           className="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth smooth-scroll touch-pan-x pb-4 px-8"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {adventures.map((adventure) => (
+          {visibleAdventures.map((adventure) => (
             <AdventurePreviewCard
               key={adventure.id}
               adventure={adventure}
@@ -229,6 +249,25 @@ export default function SubjectPreviewSection({
         <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none" />
       </div>
+
+      {/* Rotation Indicators (if rotation is enabled) */}
+      {enableRotation && rotation.totalPages > 1 && (
+        <div className="flex items-center justify-center mt-4 space-x-2">
+          {Array.from({ length: rotation.totalPages }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => rotation.goToPage(index)}
+              className={cn(
+                'w-2 h-2 rounded-full transition-all duration-300',
+                rotation.currentPage === index
+                  ? 'bg-brand-500 w-6'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              )}
+              aria-label={`Go to page ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="flex items-center justify-center mt-6 text-sm text-gray-500 space-x-4">
