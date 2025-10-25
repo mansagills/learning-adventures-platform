@@ -8,16 +8,16 @@ import Link from 'next/link';
 interface DashboardCardProps {
   title: string;
   description?: string;
-  icon?: string;
+  icon?: ReactNode;
   iconColor?: string;
   children: ReactNode;
-  action?: {
+  action?: ReactNode | {
     label: string;
     href: string;
   };
   className?: string;
   variant?: 'default' | 'gradient' | 'outlined';
-  loading?: boolean;
+  isLoading?: boolean;
 }
 
 export default function DashboardCard({
@@ -29,20 +29,22 @@ export default function DashboardCard({
   action,
   className,
   variant = 'default',
-  loading = false
+  isLoading = false
 }: DashboardCardProps) {
   const cardStyles = {
-    default: 'bg-white border border-gray-200',
-    gradient: 'bg-gradient-to-br from-brand-50 to-accent-50 border border-brand-200',
-    outlined: 'bg-transparent border-2 border-gray-300'
+    default: 'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700',
+    gradient: 'bg-gradient-to-br from-brand-500 to-accent-500 border-none',
+    outlined: 'bg-transparent border-2 border-gray-300 dark:border-gray-600'
   };
+
+  const isActionObject = action && typeof action === 'object' && 'href' in action;
 
   return (
     <div
       className={cn(
         'rounded-lg shadow-sm p-6',
         cardStyles[variant],
-        loading && 'animate-pulse',
+        isLoading && 'animate-pulse',
         className
       )}
     >
@@ -51,33 +53,53 @@ export default function DashboardCard({
         <div className="flex items-center space-x-3 flex-1">
           {icon && (
             <div className="flex-shrink-0">
-              <Icon name={icon} size={24} className={iconColor} />
+              {typeof icon === 'string' ? (
+                <Icon name={icon} size={24} className={iconColor} />
+              ) : (
+                icon
+              )}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-ink-800 truncate">{title}</h3>
+            <h3 className={cn(
+              "text-lg font-bold truncate",
+              variant === 'gradient' ? 'text-white' : 'text-gray-800 dark:text-gray-200'
+            )}>
+              {title}
+            </h3>
             {description && (
-              <p className="text-sm text-ink-600 mt-1">{description}</p>
+              <p className={cn(
+                "text-sm mt-1",
+                variant === 'gradient' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+              )}>
+                {description}
+              </p>
             )}
           </div>
         </div>
 
         {action && (
-          <Link
-            href={action.href}
-            className="flex-shrink-0 text-sm text-brand-600 hover:text-brand-700 font-medium ml-4"
-          >
-            {action.label}
-          </Link>
+          <div className="flex-shrink-0 ml-4">
+            {isActionObject ? (
+              <Link
+                href={(action as { href: string }).href}
+                className="text-sm text-brand-500 hover:text-brand-600 font-medium"
+              >
+                {(action as { label: string }).label}
+              </Link>
+            ) : (
+              action
+            )}
+          </div>
         )}
       </div>
 
       {/* Content */}
       <div className="mt-4">
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
           </div>
         ) : (
           children
@@ -89,58 +111,63 @@ export default function DashboardCard({
 
 // Metric Card Variant for displaying statistics
 interface MetricCardProps {
-  label: string;
+  title: string;
   value: string | number;
-  icon: string;
-  iconColor?: string;
+  icon: ReactNode;
   trend?: {
     value: number;
     direction: 'up' | 'down';
   };
   className?: string;
+  isLoading?: boolean;
 }
 
 export function MetricCard({
-  label,
+  title,
   value,
   icon,
-  iconColor = 'text-brand-600',
   trend,
-  className
+  className,
+  isLoading = false
 }: MetricCardProps) {
   return (
     <div
       className={cn(
-        'bg-white rounded-lg border border-gray-200 shadow-sm p-4',
+        'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4',
+        isLoading && 'animate-pulse',
         className
       )}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className={cn('p-2 bg-gray-50 rounded-lg', iconColor)}>
-            <Icon name={icon} size={20} />
+      {isLoading ? (
+        <div className="space-y-3">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+        </div>
+      ) : (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
+            {icon}
           </div>
-          <div>
-            <p className="text-sm text-ink-600">{label}</p>
-            <p className="text-2xl font-bold text-ink-800 mt-1">{value}</p>
+          <div className="flex items-end justify-between">
+            <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{value}</p>
+            {trend && (
+              <div
+                className={cn(
+                  'flex items-center space-x-1 text-sm font-medium',
+                  trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
+                )}
+              >
+                <Icon
+                  name={trend.direction === 'up' ? 'chevronUp' : 'chevronDown'}
+                  size={16}
+                />
+                <span>{Math.abs(trend.value)}%</span>
+              </div>
+            )}
           </div>
         </div>
-
-        {trend && (
-          <div
-            className={cn(
-              'flex items-center space-x-1 text-sm font-medium',
-              trend.direction === 'up' ? 'text-green-600' : 'text-red-600'
-            )}
-          >
-            <Icon
-              name={trend.direction === 'up' ? 'chevron-up' : 'chevron-down'}
-              size={16}
-            />
-            <span>{Math.abs(trend.value)}%</span>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

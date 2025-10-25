@@ -8,9 +8,9 @@ This comprehensive plan covers four major development initiatives to transform t
 
 ## 🚦 CURRENT DEVELOPMENT STATUS
 **Active Development Plan**: COMPREHENSIVE_PLATFORM_PLAN.md
-**Last Completed**: Phase 3A - Dashboard Infrastructure ✅
-**Next To Complete**: Phase 3B - Core Dashboard Components
-**Current Focus**: Dashboard infrastructure components built and ready
+**Last Completed**: Skills Development - Claude Code Skills Created ✅
+**Next To Complete**: Phase 5 - Content Agent Workflow System
+**Current Focus**: Building agent workflow to leverage skills for automated content creation
 
 ### ✅ Completed Phases:
 - Phase 1A: Authentication Infrastructure ✅
@@ -21,9 +21,11 @@ This comprehensive plan covers four major development initiatives to transform t
 - Phase 2B: Homepage Integration & Enhancement ✅
 - Phase 2C: Advanced Preview Features (COMPLETE) ✅
 - Phase 3A: Dashboard Infrastructure ✅
+- Phase 3B: Core Dashboard Components ✅
+- **Skills Development: Claude Code Skills (educational-game-builder, react-game-component, catalog-metadata-formatter, accessibility-validator)** ✅
 
 ### 📋 Next Priority:
-Begin Phase 3B - Core Dashboard Components (ProgressOverview, RecentActivity, Achievement Showcase)
+Begin Phase 5 - Content Agent Workflow System to automate content creation using the skills
 
 ### 🔧 Infrastructure Notes:
 - PostgreSQL 14 installed via Homebrew and configured
@@ -662,36 +664,522 @@ components/
 
 **Next Step:** Phase 3B focuses on building core dashboard features using these infrastructure components.
 
-## Phase 3B: Core Dashboard Components (Day 4)
-**Session Focus: Essential Dashboard Features**
+---
+
+# 📋 Plan 5: Content Agent Workflow System
+**Estimated Time: 2-3 days**
+**Status**: 🎯 NEXT TO IMPLEMENT
+
+## Overview
+Build an automated content creation workflow that leverages the four Claude Code skills to streamline the production of educational games and lessons. This system will enable rapid, high-quality content generation with built-in validation and accessibility compliance.
+
+## Phase 5A: Skills Foundation ✅ COMPLETED
+**Session Focus: Claude Code Skills Development**
+**Status**: ✅ Complete - All four skills created and documented
+
+### ✅ Phase 5A Completion Summary (October 24, 2025)
+
+**What Was Completed:**
+
+1. **educational-game-builder Skill** ✅ (2,064 lines)
+   - Complete guide for building single HTML file educational games
+   - Core game design principles (70/30 fun-to-learning ratio)
+   - Technical specifications (60 FPS, 3MB limit, browser compatibility)
+   - Three complete game templates (Math Racing, Science Exploration, English Vocabulary)
+   - Educational integration patterns (adaptive difficulty, skill tracking, hints)
+   - WCAG 2.1 AA accessibility requirements
+   - Subject-specific guidelines (Math, Science, English, History)
+   - 4-step integration workflow (Planning → Development → Testing → Deployment)
+
+2. **react-game-component Skill** ✅ (1,092 lines)
+   - Guide for building React-based educational games
+   - Complete architecture overview with directory structure
+   - Detailed documentation of all shared components (GameContainer, GameButton, ScoreBoard, GameModal)
+   - Platform hooks reference (useGameState, useGameTimer)
+   - Full game template example (Math Quiz - 615 lines)
+   - 5 advanced patterns (adaptive difficulty, hints, persistence, sound, streak system)
+   - TypeScript type definitions and quality checklists
+   - Deployment and testing procedures
+
+3. **catalog-metadata-formatter Skill** ✅ (802 lines)
+   - Comprehensive catalog entry formatting guide
+   - Complete field specifications with validation rules
+   - Category-specific guidelines for all 5 subjects
+   - Multi-format support (HTML games, React components, lessons, activities)
+   - Quality control checklist and common error patterns
+   - Integration workflow with catalogData.ts
+   - Examples for all content types
+
+4. **accessibility-validator Skill** ✅ (1,103 lines)
+   - WCAG 2.1 AA compliance validation guide
+   - 8 critical testing categories with detailed requirements
+   - Automated and manual testing procedures
+   - Code examples for all accessibility patterns
+   - Priority-based remediation system (Critical, High, Medium, Low)
+   - Comprehensive test report template
+   - Educational content specific considerations (K-2, 3-5)
+   - Continuous accessibility workflow (5 phases)
+
+**File Structure:**
+```
+skills/
+├── educational-game-builder/
+│   └── SKILL.md              ✅ (2,064 lines)
+├── react-game-component/
+│   └── SKILL.md              ✅ (1,092 lines)
+├── catalog-metadata-formatter/
+│   └── SKILL.md              ✅ (802 lines)
+└── accessibility-validator/
+│   └── SKILL.md              ✅ (1,103 lines)
+```
+
+**Total Skills Documentation**: 5,061 lines of comprehensive guides
+
+**Next Step:** Phase 5B focuses on building the agent workflow system to orchestrate these skills.
+
+## Phase 5B: Agent Workflow Architecture (Day 15-16)
+**Session Focus: Content Creation Pipeline**
+**Status**: 🎯 NEXT TO IMPLEMENT
 
 ### Components to Build:
-- **ProgressOverview** - Main progress tracking
-- **RecentActivity** - Latest user activities
-- **AchievementShowcase** - Earned badges display
-- **RecommendedContent** - Personalized suggestions
+
+1. **ContentAgentOrchestrator**
+   - Main coordination system for multi-agent workflows
+   - Task queue management
+   - Agent communication protocol
+   - Error handling and retry logic
+
+2. **Game Builder Agent**
+   - Leverages educational-game-builder skill
+   - Takes game idea and subject as input
+   - Generates complete HTML game file
+   - Validates against technical specifications
+   - Returns ready-to-deploy game file
+
+3. **React Component Agent**
+   - Leverages react-game-component skill
+   - Creates TypeScript React components
+   - Integrates with shared hooks and components
+   - Generates registration files
+   - Creates complete directory structure
+
+4. **Metadata Formatter Agent**
+   - Leverages catalog-metadata-formatter skill
+   - Takes game/lesson details as input
+   - Generates properly formatted catalog entries
+   - Validates against schema
+   - Returns ready-to-integrate metadata
+
+5. **Accessibility Validator Agent**
+   - Leverages accessibility-validator skill
+   - Takes HTML/React code as input
+   - Runs automated tests (Lighthouse simulation)
+   - Performs manual checklist validation
+   - Returns accessibility report with fixes
+
+### Workflow Patterns:
+
+#### Pattern 1: HTML Game Creation Workflow
+```typescript
+interface HTMLGameWorkflow {
+  input: {
+    gameIdea: string;
+    subject: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
+    gradeLevel: string;
+    skills: string[];
+  };
+
+  steps: [
+    {
+      agent: 'game-builder';
+      skill: 'educational-game-builder';
+      output: 'game.html';
+    },
+    {
+      agent: 'accessibility-validator';
+      skill: 'accessibility-validator';
+      input: 'game.html';
+      output: 'accessibility-report.md';
+    },
+    {
+      agent: 'game-builder';
+      skill: 'educational-game-builder';
+      input: ['game.html', 'accessibility-report.md'];
+      output: 'game-fixed.html';
+    },
+    {
+      agent: 'metadata-formatter';
+      skill: 'catalog-metadata-formatter';
+      input: 'game-fixed.html';
+      output: 'catalog-entry.ts';
+    }
+  ];
+
+  output: {
+    gameFile: 'public/games/[game-id].html';
+    catalogEntry: 'lib/catalogData.ts addition';
+    accessibilityScore: number;
+  };
+}
+```
+
+#### Pattern 2: React Component Game Workflow
+```typescript
+interface ReactGameWorkflow {
+  input: {
+    gameIdea: string;
+    subject: string;
+    complexity: 'simple' | 'moderate' | 'complex';
+    features: string[];
+  };
+
+  steps: [
+    {
+      agent: 'react-component';
+      skill: 'react-game-component';
+      output: 'components/games/[game-id]/';
+    },
+    {
+      agent: 'accessibility-validator';
+      skill: 'accessibility-validator';
+      input: 'components/games/[game-id]/';
+      output: 'accessibility-report.md';
+    },
+    {
+      agent: 'react-component';
+      skill: 'react-game-component';
+      input: ['components/', 'accessibility-report.md'];
+      output: 'components-fixed/';
+    },
+    {
+      agent: 'metadata-formatter';
+      skill: 'catalog-metadata-formatter';
+      input: 'game-metadata';
+      output: 'catalog-entry.ts';
+    }
+  ];
+
+  output: {
+    componentDirectory: 'components/games/[game-id]/';
+    registrationFile: 'components/games/[game-id]/index.ts';
+    catalogEntry: 'lib/catalogData.ts addition';
+    accessibilityScore: number;
+  };
+}
+```
+
+#### Pattern 3: Batch Content Creation
+```typescript
+interface BatchContentWorkflow {
+  input: {
+    gameIdeas: Array<{
+      title: string;
+      type: 'html' | 'react';
+      subject: string;
+      description: string;
+    }>;
+  };
+
+  execution: 'parallel' | 'sequential';
+
+  progress: {
+    total: number;
+    completed: number;
+    failed: number;
+    current: string;
+  };
+
+  output: {
+    successfulGames: GameFile[];
+    failedGames: FailureReport[];
+    aggregateReport: BatchReport;
+  };
+}
+```
+
+### Technical Requirements:
+
+```typescript
+// Agent orchestration types
+interface AgentWorkflow {
+  id: string;
+  name: string;
+  steps: WorkflowStep[];
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  currentStep: number;
+  results: Record<string, any>;
+  errors: WorkflowError[];
+}
+
+interface WorkflowStep {
+  stepNumber: number;
+  agentType: 'game-builder' | 'react-component' | 'metadata-formatter' | 'accessibility-validator';
+  skillName: string;
+  input: any;
+  output?: any;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  duration?: number;
+}
+
+interface ContentAgent {
+  id: string;
+  type: string;
+  skillPath: string;
+  execute(input: any): Promise<AgentResult>;
+  validate(output: any): boolean;
+}
+
+interface AgentResult {
+  success: boolean;
+  output: any;
+  errors: string[];
+  warnings: string[];
+  metadata: {
+    duration: number;
+    timestamp: Date;
+    version: string;
+  };
+}
+```
+
+## Phase 5C: Integration & Automation (Day 17)
+**Session Focus: Deployment Pipeline**
 
 ### Features to Implement:
-- **Progress Visualization**:
-  ```typescript
-  interface UserProgress {
-    totalAdventures: number;
-    completedAdventures: number;
-    timeSpent: number;
-    subjectProgress: Record<string, SubjectProgress>;
-    weeklyActivity: DailyActivity[];
+
+1. **Automated File Placement**
+   - Automatic file system operations
+   - Path validation and conflict resolution
+   - Backup creation before modifications
+   - Rollback capability for failed deployments
+
+2. **Catalog Integration**
+   - Automatic catalogData.ts updates
+   - Proper TypeScript formatting
+   - Import statement management
+   - Duplicate detection and merging
+
+3. **Testing & Validation**
+   - Automated accessibility testing
+   - Game functionality verification
+   - Performance benchmarking
+   - Cross-browser compatibility checks
+
+4. **Reporting & Monitoring**
+   - Workflow execution logs
+   - Success/failure statistics
+   - Performance metrics
+   - Quality assurance reports
+
+### Automation Scripts:
+
+```typescript
+// scripts/agents/create-game.ts
+async function createGame(config: GameConfig) {
+  const workflow = new ContentWorkflow('html-game-creation');
+
+  // Step 1: Generate game
+  const gameCode = await workflow.runAgent('game-builder', {
+    idea: config.idea,
+    subject: config.subject,
+    gradeLevel: config.gradeLevel,
+  });
+
+  // Step 2: Validate accessibility
+  const a11yReport = await workflow.runAgent('accessibility-validator', {
+    code: gameCode,
+  });
+
+  // Step 3: Fix accessibility issues
+  if (a11yReport.score < 95) {
+    gameCode = await workflow.runAgent('game-builder', {
+      code: gameCode,
+      fixes: a11yReport.issues,
+    });
   }
-  ```
-- **Activity Feed**:
-  - Recently completed adventures
-  - Achievements earned
-  - Streaks and milestones
-  - Social activities (if enabled)
-- **Recommendation Engine**:
-  - Based on completed content
-  - Difficulty progression
-  - Subject preferences
-  - Peer recommendations
+
+  // Step 4: Generate metadata
+  const metadata = await workflow.runAgent('metadata-formatter', {
+    game: gameCode,
+    subject: config.subject,
+  });
+
+  // Step 5: Deploy
+  await deployGame({
+    file: gameCode,
+    path: `public/games/${config.id}.html`,
+    metadata: metadata,
+  });
+
+  return workflow.report();
+}
+```
+
+### CLI Tools:
+
+```bash
+# Create single HTML game
+npm run agent:create-game -- --idea "Fraction Pizza Party" --subject math --grade "3-5"
+
+# Create React component game
+npm run agent:create-react-game -- --idea "Cell Explorer" --subject science --complexity moderate
+
+# Batch create from ideas file
+npm run agent:batch-create -- --input game-ideas.json --parallel 3
+
+# Validate existing game
+npm run agent:validate -- --file public/games/math-race.html
+
+# Update catalog metadata
+npm run agent:update-metadata -- --game math-race --field difficulty --value hard
+
+# Generate accessibility report
+npm run agent:accessibility-audit -- --target all
+```
+
+### Dashboard Integration:
+
+```typescript
+// Admin panel features for content agents
+interface ContentAgentDashboard {
+  activeWorkflows: AgentWorkflow[];
+  completedJobs: number;
+  failureRate: number;
+  averageCompletionTime: number;
+
+  actions: {
+    createNewGame(): void;
+    viewWorkflowHistory(): void;
+    retryFailedJob(id: string): void;
+    downloadReport(workflowId: string): void;
+  };
+}
+```
+
+## Success Criteria:
+
+### Phase 5B (Agent Workflow):
+- ✅ All four agent types created and functional
+- ✅ Workflow orchestration system operational
+- ✅ Agent communication protocol established
+- ✅ Error handling and retry logic working
+- ✅ HTML game workflow produces valid games
+- ✅ React component workflow produces valid components
+
+### Phase 5C (Integration):
+- ✅ Automated file placement working correctly
+- ✅ Catalog integration updates catalogData.ts
+- ✅ CLI tools functional for all operations
+- ✅ Dashboard integration displays workflow status
+- ✅ Batch processing handles multiple games
+- ✅ Accessibility validation catches common issues
+
+### Overall Quality Metrics:
+- Generated games pass accessibility validation (95+ score)
+- Games integrate seamlessly with existing catalog
+- Workflow completion time < 5 minutes per game
+- Failure rate < 5%
+- Code quality matches hand-written standards
+
+---
+
+## Phase 3B: Core Dashboard Components (Day 4) ✅ COMPLETED
+**Session Focus: Essential Dashboard Features**
+**Status**: ✅ Complete - All core dashboard components built and integrated
+
+### ✅ Phase 3B Completion Summary (October 24, 2025)
+
+**What Was Implemented:**
+
+1. **ProgressOverview Component** ✅
+   - 4 key metric cards (Adventures Completed, Completion Rate, Time Learning, Current Streak)
+   - Weekly activity bar chart visualization
+   - Subject progress donut chart with color coding
+   - Horizontal progress bars for subject breakdown
+   - Overall progress summary card with gradient background
+   - Responsive grid layouts (1/2/4 columns)
+
+2. **RecentActivity Component** ✅
+   - Activity feed with 4 activity types: completed, achievement, started, milestone
+   - Color-coded activity items with icons
+   - Timestamp formatting (relative and absolute dates)
+   - Metadata display (score, category, adventure links)
+   - Empty state with CTA to explore catalog
+   - "View All" link for pagination
+   - Activity counts and footer stats
+
+3. **AchievementShowcase Component** ✅
+   - Achievement grid with rarity-based coloring (common, rare, epic, legendary)
+   - Filter tabs: All, Earned, Locked
+   - Progress bar showing overall achievement completion
+   - Achievement cards with icons, descriptions, and earned dates
+   - Progress indicators for locked achievements
+   - Gradient borders based on rarity
+   - Grid/list toggle view options
+
+4. **RecommendedContent Component** ✅
+   - Personalized recommendations based on user progress
+   - Smart filtering (excludes completed adventures)
+   - Category prioritization based on user's favorite subjects
+   - Grid and list view toggle
+   - Adventure cards with full metadata
+   - Skill tags display
+   - Reason labels (difficulty, subject, peer, continuation, new)
+   - Category color coding
+   - Difficulty badges
+
+5. **Dashboard Page Integration** ✅
+   - Complete data transformation layer
+   - Weekly activity calculation (last 7 days)
+   - Subject progress aggregation with color mapping
+   - Recent activity transformation with adventure lookups
+   - Smart recommendation engine
+   - Empty state handling for new users
+   - Integrated with DashboardLayout component
+   - Two-column responsive layout
+
+6. **Additional Icons** ✅
+   - Added missing icons: info, lock, user, book, list, grid
+   - Total icon library now includes 26+ icons
+
+**Files Created:**
+- ✅ `components/dashboard/ProgressOverview.tsx` (175 lines)
+- ✅ `components/dashboard/RecentActivity.tsx` (200 lines)
+- ✅ `components/dashboard/AchievementShowcase.tsx` (240 lines)
+- ✅ `components/dashboard/RecommendedContent.tsx` (220 lines)
+
+**Files Updated:**
+- ✅ `app/dashboard/page.tsx` - Complete rewrite with data transformations (270 lines)
+- ✅ `components/Icon.tsx` - Added 6 new icons
+
+**Total New Code**: ~1,105 lines
+
+### File Structure:
+```
+components/dashboard/
+├── DashboardLayout.tsx          ✅ (Phase 3A)
+├── DashboardNav.tsx              ✅ (Phase 3A)
+├── DashboardCard.tsx             ✅ (Phase 3A)
+├── ProgressChart.tsx             ✅ (Phase 3A)
+├── ProgressOverview.tsx          ✅ (Phase 3B)
+├── RecentActivity.tsx            ✅ (Phase 3B)
+├── AchievementShowcase.tsx       ✅ (Phase 3B)
+└── RecommendedContent.tsx        ✅ (Phase 3B)
+```
+
+**Key Features:**
+- Real-time data integration with progress and achievement APIs
+- Smart data transformations from API format to component format
+- Weekly activity tracking and visualization
+- Subject-based progress breakdown with color coding
+- Achievement system with rarity tiers
+- Personalized content recommendations
+- Empty states for new users
+- Responsive design (mobile, tablet, desktop)
+- Loading states and skeleton screens
+- Interactive filtering and view toggles
+
+**Next Step:** Phase 3C focuses on subject-specific dashboard views for deeper insights into Math, Science, English, History, and Interdisciplinary subjects.
 
 ## Phase 3C: Subject-Specific Views (Day 10)
 **Session Focus: Subject-Focused Dashboards**
