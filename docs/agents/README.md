@@ -69,6 +69,36 @@ This directory contains documentation for the AI agents that assist with content
 
 ---
 
+## 🔗 Agent-Skill Integration Matrix
+
+Each agent has been configured to integrate with specific Claude Code skills for enhanced capabilities and consistency.
+
+| Agent | Required Skills | Optional Skills | Purpose |
+|-------|----------------|-----------------|---------|
+| **Game Idea Generator** | None | educational-game-builder<br>react-game-component<br>accessibility-validator | Optional reference for technical feasibility and pattern awareness |
+| **Interactive Content Builder** | educational-game-builder<br>react-game-component | catalog-metadata-formatter | HTML/React game creation following platform standards |
+| **Catalog Integration** | catalog-metadata-formatter | None | Ensure proper metadata schema and validation |
+| **Quality Assurance** | accessibility-validator | None | WCAG 2.1 AA compliance testing and validation |
+
+### How It Works:
+1. **Each agent's documentation includes a "Skill Integration Protocol" section**
+2. **When you invoke an agent role, read the required skills FIRST**
+3. **Apply skill patterns and validation checklists to your work**
+4. **Return compliant, high-quality output**
+
+### Example:
+```
+User: "Build an HTML multiplication game"
+
+Step 1: Invoke Interactive Content Builder Agent role
+Step 2: READ docs/skills/educational-game-builder/SKILL.md
+Step 3: Create game following skill patterns
+Step 4: Validate against skill checklist (70/30 ratio, accessibility, etc.)
+Step 5: Return compliant game
+```
+
+For detailed information on how agents and skills work together, see [Agent-Skill Integration Guide](../workflows/agent-skill-integration.md).
+
 ## 🔄 Agent Workflow
 
 The agents work together in a typical content creation flow:
@@ -76,16 +106,16 @@ The agents work together in a typical content creation flow:
 ```
 1. Game Idea Generator
    ↓ (generates concept)
-   
-2. Interactive Content Builder
-   ↓ (creates game/lesson)
-   
-3. Catalog Integration
-   ↓ (adds to platform)
-   
-4. Quality Assurance
-   ↓ (validates quality)
-   
+
+2. Interactive Content Builder → READ SKILLS
+   ↓ (creates game/lesson following skill patterns)
+
+3. Catalog Integration → READ SKILL
+   ↓ (adds to platform with proper metadata)
+
+4. Quality Assurance → READ SKILL
+   ↓ (validates quality against skill standards)
+
 5. ✅ Production Ready
 ```
 

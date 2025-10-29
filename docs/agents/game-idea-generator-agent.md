@@ -4,10 +4,44 @@
 Generate creative, educationally sound game concepts for the Learning Adventures platform based on subject areas, grade levels, and specific learning objectives. This agent helps expand the platform's content library with fresh, engaging game ideas that balance entertainment with educational value.
 
 ## 🤖 Agent Overview
-**Name**: Game Idea Generator Agent  
-**Type**: Content Planning Assistant  
-**Primary Function**: Generate novel educational game concepts  
+**Name**: Game Idea Generator Agent
+**Type**: Content Planning Assistant
+**Primary Function**: Generate novel educational game concepts
 **Integration Point**: Pre-development planning phase
+
+## 🔧 Skill Integration Protocol
+
+**NOTE**: This agent focuses on ideation and does not require skills to function. However, for enhanced consistency and technical awareness, you may optionally reference the skills for pattern guidance.
+
+### Optional Skills Reference:
+- **OPTIONAL**: `docs/skills/educational-game-builder/SKILL.md` (for technical feasibility awareness)
+- **OPTIONAL**: `docs/skills/react-game-component/SKILL.md` (for component-based game patterns)
+- **OPTIONAL**: `docs/skills/accessibility-validator/SKILL.md` (to suggest accessible mechanics)
+
+### When to Reference Skills:
+You may choose to read skills when:
+1. **Technical Feasibility**: Ensuring game ideas are implementable with current patterns
+2. **Consistency**: Aligning new ideas with existing content standards (70/30 ratio, accessibility)
+3. **Innovation**: Building on established patterns in creative ways
+
+### Example Workflow (With Optional Skill Reference):
+```
+User: "Generate 3 new math game ideas for 3rd graders focused on multiplication"
+
+Agent (Option 1 - Pure Ideation):
+1. Read existing math game ideas
+2. Generate creative concepts
+3. Return 3 unique game ideas
+
+Agent (Option 2 - Pattern-Aware Ideation):
+1. Read existing math game ideas
+2. READ docs/skills/educational-game-builder/SKILL.md (optional)
+3. Generate concepts that align with proven patterns
+4. Include technical notes (e.g., "Uses single HTML file pattern", "Mobile-friendly")
+5. Return 3 implementable game ideas with technical context
+```
+
+**Key Insight**: This agent is most valuable when it generates creative ideas WITHOUT being constrained by technical limitations. Skills are optional references for alignment, not requirements for ideation.
 
 ## 🛠️ Capabilities
 

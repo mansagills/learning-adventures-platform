@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Star Challenge - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffa07a 0%, #ff6347 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 700px;
+            padding: 30px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #ff6347;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: #d63031;
+        }
+
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            font-size: 2.5rem;
+        }
+
+        .star {
+            transition: transform 0.3s;
+        }
+
+        .star.earned {
+            animation: starPop 0.5s;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .problem-area {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 15px;
+        }
+
+        .problem {
+            font-size: 3rem;
+            color: #2d3748;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-btn {
+            background: #ff6347;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.8rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            min-height: 70px;
+        }
+
+        .option-btn:hover {
+            background: #e63946;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 99, 71, 0.4);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .option-btn:focus {
+            outline: 3px solid #ffa07a;
+            outline-offset: 3px;
+        }
+
+        .feedback {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            min-height: 2.5rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .correct {
+            color: #48bb78;
+            animation: bounce 0.5s;
+        }
+
+        .incorrect {
+            color: #f56565;
+            animation: shake 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .victory-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .victory-screen h2 {
+            font-size: 3rem;
+            color: #48bb78;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .final-stats {
+            font-size: 1.3rem;
+            margin: 15px 0;
+            color: #4a5568;
+        }
+
+        .btn-primary {
+            background: #ff6347;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background: #e63946;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 99, 71, 0.4);
+        }
+
+        .btn-primary:focus {
+            outline: 3px solid #ffa07a;
+            outline-offset: 3px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transition: width 0.5s ease-out;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .problem { font-size: 2.2rem; }
+            .option-btn {
+                font-size: 1.5rem;
+                padding: 15px;
+                min-height: 60px;
+            }
+            .stars-container { font-size: 2rem; }
+            .stats-bar { font-size: 1rem; }
+            .game-container { padding: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .answer-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="gameScreen">
+            <div class="game-header">
+                <h1>⭐ Multiplication Star Challenge ⭐</h1>
+                <p class="subtitle">Collect all 10 stars by solving multiplication problems!</p>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span>Score</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Stars</span>
+                    <span class="stat-value" id="starsCount">0/10</span>
+                </div>
+                <div class="stat-item">
+                    <span>Streak</span>
+                    <span class="stat-value" id="streak">0</span>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+
+            <div class="stars-container" id="starsDisplay">
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+                <span class="star">⭐</span>
+            </div>
+
+            <div class="problem-area">
+                <div class="problem" id="problem" role="region" aria-label="Math problem">3 × 4 = ?</div>
+                <div class="answer-options" id="answerOptions" role="group" aria-label="Answer choices">
+                    <!-- Options will be dynamically inserted -->
+                </div>
+                <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <div id="victoryScreen" class="hidden victory-screen">
+            <h2>🎉 You're a Multiplication Star! 🎉</h2>
+            <div class="final-stats">
+                <p>Final Score: <strong id="finalScore">0</strong> points</p>
+                <p>Total Time: <strong id="totalTime">0</strong> seconds</p>
+                <p>Streak: <strong id="finalStreak">0</strong> in a row!</p>
+            </div>
+            <button class="btn-primary" onclick="restartGame()" aria-label="Play game again">
+                Play Again 🌟
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURATION ===
+        const CONFIG = {
+            starsToWin: 10,
+            numberRange: { min: 2, max: 10 },
+            pointsPerCorrect: 10,
+            streakBonus: 5,
+            numberOfOptions: 4
+        };
+
+        // === GAME STATE ===
+        let gameState = {
+            score: 0,
+            starsCollected: 0,
+            streak: 0,
+            currentProblem: null,
+            currentAnswer: null,
+            startTime: null,
+            totalProblems: 0,
+            correctAnswers: 0
+        };
+
+        // === UTILITY FUNCTIONS ===
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateProblem() {
+            const num1 = randomInt(CONFIG.numberRange.min, CONFIG.numberRange.max);
+            const num2 = randomInt(CONFIG.numberRange.min, CONFIG.numberRange.max);
+            const answer = num1 * num2;
+
+            return {
+                question: `${num1} × ${num2} = ?`,
+                answer: answer,
+                num1: num1,
+                num2: num2
+            };
+        }
+
+        function generateOptions(correctAnswer) {
+            const options = [correctAnswer];
+
+            // Generate 3 plausible wrong answers
+            while (options.length < CONFIG.numberOfOptions) {
+                // Create believable distractors
+                const offset = randomInt(1, 5);
+                const wrongAnswer = randomInt(0, 1) === 0
+                    ? correctAnswer + offset
+                    : correctAnswer - offset;
+
+                if (wrongAnswer > 0 && !options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+
+            // Shuffle the options
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        // === GAME LOGIC ===
+        function initGame() {
+            gameState.score = 0;
+            gameState.starsCollected = 0;
+            gameState.streak = 0;
+            gameState.startTime = Date.now();
+            gameState.totalProblems = 0;
+            gameState.correctAnswers = 0;
+
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('victoryScreen').classList.add('hidden');
+
+            updateDisplay();
+            newProblem();
+        }
+
+        function newProblem() {
+            const problem = generateProblem();
+            gameState.currentProblem = problem.question;
+            gameState.currentAnswer = problem.answer;
+            gameState.totalProblems++;
+
+            // Update problem display
+            document.getElementById('problem').textContent = problem.question;
+
+            // Generate and display options
+            const options = generateOptions(problem.answer);
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.setAttribute('aria-label', `Answer option: ${option}`);
+                button.onclick = () => checkAnswer(option);
+
+                // Keyboard navigation
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        checkAnswer(option);
+                    }
+                });
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Clear feedback
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+        }
+
+        function checkAnswer(userAnswer) {
+            const feedbackEl = document.getElementById('feedback');
+            const buttons = document.querySelectorAll('.option-btn');
+
+            // Disable all buttons temporarily
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (userAnswer === gameState.currentAnswer) {
+                // Correct answer!
+                const basePoints = CONFIG.pointsPerCorrect;
+                const streakPoints = gameState.streak * CONFIG.streakBonus;
+                const totalPoints = basePoints + streakPoints;
+
+                gameState.score += totalPoints;
+                gameState.starsCollected++;
+                gameState.streak++;
+                gameState.correctAnswers++;
+
+                feedbackEl.textContent = `🎉 Awesome! +${totalPoints} points!`;
+                feedbackEl.className = 'feedback correct';
+
+                // Update star display with animation
+                updateStars();
+
+                // Check for victory
+                if (gameState.starsCollected >= CONFIG.starsToWin) {
+                    setTimeout(showVictory, 1500);
+                } else {
+                    setTimeout(() => {
+                        buttons.forEach(btn => btn.disabled = false);
+                        newProblem();
+                    }, 1500);
+                }
+            } else {
+                // Incorrect answer
+                gameState.streak = 0;
+
+                feedbackEl.textContent = `Try again! The answer is ${gameState.currentAnswer}`;
+                feedbackEl.className = 'feedback incorrect';
+
+                setTimeout(() => {
+                    buttons.forEach(btn => btn.disabled = false);
+                    newProblem();
+                }, 2000);
+            }
+
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('starsCount').textContent =
+                `${gameState.starsCollected}/${CONFIG.starsToWin}`;
+            document.getElementById('streak').textContent = gameState.streak;
+
+            // Update progress bar
+            const progress = (gameState.starsCollected / CONFIG.starsToWin) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        function updateStars() {
+            const stars = document.querySelectorAll('.star');
+            stars[gameState.starsCollected - 1].classList.add('earned');
+        }
+
+        function showVictory() {
+            const totalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const accuracy = Math.floor((gameState.correctAnswers / gameState.totalProblems) * 100);
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('victoryScreen').classList.remove('hidden');
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('totalTime').textContent = totalTime;
+            document.getElementById('finalStreak').textContent =
+                `Best streak: ${Math.max(...Array(gameState.starsCollected).fill(0).map((_, i) => i + 1))}`;
+
+            // Announce victory to screen readers
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'alert');
+            announcement.setAttribute('aria-live', 'assertive');
+            announcement.textContent = `Congratulations! You completed the challenge with ${gameState.score} points in ${totalTime} seconds!`;
+            announcement.style.position = 'absolute';
+            announcement.style.left = '-10000px';
+            document.body.appendChild(announcement);
+        }
+
+        function restartGame() {
+            // Reset star animations
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => star.classList.remove('earned'));
+
+            initGame();
+        }
+
+        // === EVENT HANDLERS ===
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                if (!document.getElementById('victoryScreen').classList.contains('hidden')) {
+                    restartGame();
+                }
+            }
+
+            // Number keys 1-4 to select options
+            if (['1', '2', '3', '4'].includes(e.key)) {
+                const buttons = document.querySelectorAll('.option-btn');
+                const index = parseInt(e.key) - 1;
+                if (buttons[index] && !buttons[index].disabled) {
+                    buttons[index].click();
+                }
+            }
+        });
+
+        // === INITIALIZATION ===
+        initGame();
+    </script>
+</body>
+</html>

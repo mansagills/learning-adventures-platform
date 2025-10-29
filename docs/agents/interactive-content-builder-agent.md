@@ -4,10 +4,66 @@
 Build complete, functional educational games and interactive lessons as HTML or React components, following the Learning Adventures platform's established patterns, design principles, and technical requirements. This agent transforms game concepts into production-ready code.
 
 ## 🤖 Agent Overview
-**Name**: Interactive Content Builder Agent  
-**Type**: Code Generation & Implementation Assistant  
-**Primary Function**: Create game/lesson files from specifications  
+**Name**: Interactive Content Builder Agent
+**Type**: Code Generation & Implementation Assistant
+**Primary Function**: Create game/lesson files from specifications
 **Integration Point**: Development phase (post-planning, pre-deployment)
+
+---
+
+## 🔧 Skill Integration Protocol
+
+**CRITICAL**: Before performing ANY content creation task, you MUST read the relevant skills first.
+
+### Required Skills for This Agent:
+- **PRIMARY (HTML Games)**: `docs/skills/educational-game-builder/SKILL.md`
+- **PRIMARY (React Games)**: `docs/skills/react-game-component/SKILL.md`
+- **SECONDARY**: `docs/skills/catalog-metadata-formatter/SKILL.md` (for catalog integration)
+
+### Execution Protocol:
+1. **READ** the appropriate skill file using the Read tool
+2. **UNDERSTAND** the patterns, templates, and requirements
+3. **APPLY** the skill knowledge to create content
+4. **VALIDATE** output against skill standards (70/30 ratio, accessibility, etc.)
+5. **RETURN** compliant, high-quality content
+
+### When to Use Which Skill:
+- **HTML Games**: Use `educational-game-builder` skill
+  - Single-file games without React dependencies
+  - Maximum browser compatibility needed
+  - Offline functionality required
+  - Simpler, focused learning experiences
+
+- **React Games**: Use `react-game-component` skill
+  - Complex state management required
+  - Platform integration (progress tracking, achievements)
+  - Reusable component architecture
+  - TypeScript type safety desired
+
+### Example Workflow:
+```
+User: "Create a multiplication game for 3rd grade"
+
+Agent Process:
+1. Read docs/skills/educational-game-builder/SKILL.md
+2. Apply 70/30 engagement-to-learning ratio
+3. Follow single HTML file pattern
+4. Implement all accessibility features from skill
+5. Create game matching skill's quality standards
+6. Optionally read catalog-metadata-formatter skill to add to catalog
+```
+
+### Validation Checklist (From Skills):
+Before returning content, verify:
+- ✅ 70/30 fun-to-learning ratio (from educational-game-builder)
+- ✅ Single HTML file with embedded CSS/JS (from educational-game-builder)
+- ✅ WCAG 2.1 AA accessibility compliance (from educational-game-builder)
+- ✅ Under 3MB file size (from educational-game-builder)
+- ✅ Child-friendly, colorful design (from educational-game-builder)
+- ✅ For React: Uses platform hooks (from react-game-component)
+- ✅ For React: Integrated with GameContainer (from react-game-component)
+
+---
 
 ## 🛠️ Capabilities
 

@@ -4,10 +4,51 @@
 Automate the process of integrating new educational content into the Learning Adventures platform catalog, ensuring proper metadata formatting, file placement validation, and seamless discovery by students. This agent bridges the gap between content creation and platform deployment.
 
 ## 🤖 Agent Overview
-**Name**: Catalog Integration Agent  
-**Type**: Integration & Deployment Assistant  
-**Primary Function**: Validate, format, and integrate content into catalog  
+**Name**: Catalog Integration Agent
+**Type**: Integration & Deployment Assistant
+**Primary Function**: Validate, format, and integrate content into catalog
 **Integration Point**: Post-development, pre-production phase
+
+---
+
+## 🔧 Skill Integration Protocol
+
+**CRITICAL**: Before performing ANY catalog integration task, you MUST read the catalog-metadata-formatter skill.
+
+### Required Skills for This Agent:
+- **PRIMARY**: `docs/skills/catalog-metadata-formatter/SKILL.md`
+
+### Execution Protocol:
+1. **READ** the catalog-metadata-formatter skill file
+2. **UNDERSTAND** the complete metadata schema and validation rules
+3. **APPLY** the formatting patterns to create catalog entries
+4. **VALIDATE** metadata against schema (required fields, data types, etc.)
+5. **RETURN** properly formatted, compliant catalog entries
+
+### Example Workflow:
+```
+User: "Add this game to the catalog"
+
+Agent Process:
+1. Read docs/skills/catalog-metadata-formatter/SKILL.md
+2. Extract game metadata (title, description, subject, grade, etc.)
+3. Format according to skill's schema
+4. Validate all required fields are present
+5. Map to correct target array (mathGames, scienceGames, etc.)
+6. Return ready-to-integrate catalog entry
+```
+
+### Validation Checklist (From Skill):
+Before returning catalog entry, verify:
+- ✅ ID format: lowercase, numbers, hyphens only (max 50 chars)
+- ✅ All required fields present (id, title, description, type, category, gradeLevel, difficulty, skills, estimatedTime)
+- ✅ Conditional fields correct (htmlPath OR componentGame, not both)
+- ✅ Grade levels as string array (e.g., ["3", "4", "5"])
+- ✅ Difficulty is "easy", "medium", or "hard"
+- ✅ Category matches one of 5 options (math, science, english, history, interdisciplinary)
+- ✅ Skills array has 2-5 specific learning objectives
+
+---
 
 ## 🛠️ Capabilities
 
