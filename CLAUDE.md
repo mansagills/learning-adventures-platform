@@ -110,9 +110,34 @@ When creating new games or lessons for this platform, follow this specific workf
 2. **Review content in `interactive-learning` folder** - Check existing lesson ideas and patterns
 3. **Review prompts in `final-content/` folders** - Use established prompt templates
 4. **Look at README files** - Understand project structure and requirements
-5. **Create the games/lessons** - Build HTML files following existing patterns
+5. **Create the games/lessons** - Build HTML or React component files
 6. **Upload to the app** - Place files in correct directories
-7. **Host on the catalogue page** - Update catalog data with metadata
+7. **Test in isolated environment** - Add to test games list (see Test Games Workflow below)
+8. **Quality assurance** - Run comprehensive testing
+9. **Publish to catalog** - Update catalog data with metadata when ready for production
+
+### 🧪 Test Games Workflow
+
+**IMPORTANT**: Games can be tested without adding them to the catalog!
+
+**For React Component Games:**
+1. Create game in `components/games/[game-name]/`
+2. Register in `lib/gameLoader.ts` `initializeGameRegistry()`
+3. Add to `docs/test-games.md` with direct URL
+4. Test at `http://localhost:3000/games/[game-id]`
+5. DO NOT add to `lib/catalogData.ts` until testing is complete
+
+**For HTML Games/Lessons:**
+1. Save file to `public/games/` or `public/lessons/`
+2. Add to `docs/test-games.md` with direct URL
+3. Test at `http://localhost:3000/games/[game-name].html`
+4. DO NOT add to `lib/catalogData.ts` until testing is complete
+
+**Key Concept**: Registered ≠ Cataloged
+- **Registered**: Game is accessible by URL and can be tested
+- **Cataloged**: Game appears in public catalog for all users
+
+**Testing Reference**: See `docs/test-games.md` for complete testing workflow and checklist
 
 ### 📁 Directory Structure
 ```

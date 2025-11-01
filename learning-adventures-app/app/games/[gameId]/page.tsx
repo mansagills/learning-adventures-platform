@@ -20,13 +20,18 @@ function GameLoader({ gameId, onExit, onComplete }: {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isGameRegistered(gameId)) {
-      setError(`Game "${gameId}" not found`);
-      return;
-    }
-
     const loadGame = async () => {
       try {
+        // Ensure registry is initialized
+        const { initializeGameRegistry } = await import('@/lib/gameLoader');
+        await initializeGameRegistry();
+
+        // Check if game is registered
+        if (!isGameRegistered(gameId)) {
+          setError(`Game "${gameId}" not found`);
+          return;
+        }
+
         const LazyGameComponent = loadGameComponent(gameId);
         setGameComponent(() => LazyGameComponent);
       } catch (err) {

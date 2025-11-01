@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Space Quest - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 900px;
+            padding: 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #1a1a2e;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #533483;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+
+        .space-scene {
+            background: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 100%);
+            border: 4px solid #667eea;
+            border-radius: 20px;
+            height: 200px;
+            position: relative;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+
+        .spaceship {
+            position: absolute;
+            bottom: 20px;
+            font-size: 3.5rem;
+            transition: left 0.6s ease-out;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 0, 0.5));
+        }
+
+        .planet {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: translateY(-50%) rotate(0deg); }
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .progress-track {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            width: 0%;
+            transition: width 0.6s ease-out;
+        }
+
+        .problem-area {
+            text-align: center;
+            margin: 30px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+        }
+
+        .problem {
+            font-size: 3.5rem;
+            color: white;
+            margin: 20px 0;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .answer-input {
+            font-size: 2.5rem;
+            padding: 20px;
+            border: 4px solid #667eea;
+            border-radius: 15px;
+            width: 250px;
+            text-align: center;
+            font-weight: bold;
+            background: white;
+            color: #1a1a2e;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 15px 10px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            min-width: 60px;
+            min-height: 60px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:focus {
+            outline: 3px solid #ffd700;
+            outline-offset: 3px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .feedback {
+            font-size: 1.8rem;
+            margin: 20px 0;
+            min-height: 50px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .correct {
+            color: #22c55e;
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        .incorrect {
+            color: #ef4444;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .end-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .end-screen h2 {
+            font-size: 3.5rem;
+            color: #22c55e;
+            margin-bottom: 25px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .end-screen p {
+            font-size: 1.5rem;
+            color: #1a1a2e;
+            margin: 15px 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            min-width: 120px;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .instructions {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .instructions h3 {
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .problem { font-size: 2.5rem; min-height: 60px; }
+            .answer-input {
+                width: 180px;
+                font-size: 2rem;
+                padding: 15px;
+            }
+            .btn {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+                min-width: 50px;
+                min-height: 50px;
+            }
+            .space-scene { height: 150px; }
+            .spaceship { font-size: 2.5rem; }
+            .planet { font-size: 3rem; }
+            .score-board { font-size: 1rem; flex-wrap: wrap; gap: 10px; }
+            .end-screen h2 { font-size: 2.5rem; }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starsContainer" aria-hidden="true"></div>
+
+    <div class="game-container" role="main" aria-label="Multiplication Space Quest Game">
+        <div id="menuScreen">
+            <div class="game-header">
+                <h1>🚀 Multiplication Space Quest 🪐</h1>
+                <p class="subtitle">Blast off to practice your times tables!</p>
+            </div>
+
+            <div class="instructions">
+                <h3>How to Play:</h3>
+                <p>
+                    Solve multiplication problems to pilot your spaceship across the galaxy!
+                    Each correct answer moves you closer to the destination planet.
+                    Complete 10 problems to win the mission! 🌟
+                </p>
+            </div>
+
+            <div class="difficulty-selector">
+                <button class="btn difficulty-btn active" data-difficulty="easy" onclick="selectDifficulty('easy')" aria-pressed="true">
+                    Easy (2-5)
+                </button>
+                <button class="btn difficulty-btn" data-difficulty="medium" onclick="selectDifficulty('medium')" aria-pressed="false">
+                    Medium (2-10)
+                </button>
+                <button class="btn difficulty-btn" data-difficulty="hard" onclick="selectDifficulty('hard')" aria-pressed="false">
+                    Hard (2-12)
+                </button>
+            </div>
+
+            <button class="btn" onclick="startGame()">
+                🚀 Start Mission
+            </button>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <div class="game-header">
+                <h1>🚀 Space Quest 🪐</h1>
+            </div>
+
+            <div class="score-board" role="status" aria-live="polite" aria-atomic="true">
+                <div class="score-item">
+                    <span class="score-label">Score</span>
+                    <span class="score-value" id="score">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Problems Left</span>
+                    <span class="score-value" id="remaining">10</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Time</span>
+                    <span class="score-value" id="timer">60</span>s
+                </div>
+            </div>
+
+            <div class="space-scene" aria-label="Space journey progress">
+                <div class="spaceship" id="spaceship" aria-hidden="true">🚀</div>
+                <div class="planet" aria-hidden="true">🪐</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="problem-area">
+                <div class="problem" id="problem" role="heading" aria-level="2" aria-live="polite">
+                    5 × 3 = ?
+                </div>
+                <label for="answerInput" class="sr-only">Enter your answer</label>
+                <input
+                    type="number"
+                    id="answerInput"
+                    class="answer-input"
+                    placeholder="?"
+                    aria-label="Answer input"
+                    aria-required="true"
+                    aria-describedby="feedback"
+                />
+                <br>
+                <button class="btn" id="submitBtn" onclick="checkAnswer()" aria-label="Submit answer">
+                    Submit Answer
+                </button>
+                <button class="btn btn-secondary" onclick="useHint()" aria-label="Get hint">
+                    💡 Hint
+                </button>
+                <div class="feedback" id="feedback" role="alert" aria-live="assertive" aria-atomic="true"></div>
+            </div>
+        </div>
+
+        <div id="endScreen" class="hidden end-screen">
+            <h2 id="endTitle">🎉 Mission Complete! 🎉</h2>
+            <p id="endMessage"></p>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Final Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="finalTime">0</div>
+                    <div class="stat-label">Time Taken</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy">0</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="restartGame()">
+                🔄 Play Again
+            </button>
+            <button class="btn btn-secondary" onclick="backToMenu()">
+                📋 Main Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURATION ===
+        const DIFFICULTIES = {
+            easy: {
+                name: 'Easy',
+                range: { min: 2, max: 5 },
+                timeLimit: 90,
+                hintsAvailable: 3,
+                problemsToWin: 10
+            },
+            medium: {
+                name: 'Medium',
+                range: { min: 2, max: 10 },
+                timeLimit: 60,
+                hintsAvailable: 2,
+                problemsToWin: 10
+            },
+            hard: {
+                name: 'Hard',
+                range: { min: 2, max: 12 },
+                timeLimit: 45,
+                hintsAvailable: 1,
+                problemsToWin: 10
+            }
+        };
+
+        // === GAME STATE ===
+        let gameState = {
+            difficulty: 'easy',
+            score: 0,
+            problemsSolved: 0,
+            problemsAttempted: 0,
+            correctAnswers: 0,
+            currentProblem: null,
+            currentAnswer: null,
+            timeRemaining: 90,
+            timerInterval: null,
+            startTime: null,
+            hintsUsed: 0
+        };
+
+        // === INITIALIZATION ===
+        function initStars() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // === UTILITY FUNCTIONS ===
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateProblem() {
+            const config = DIFFICULTIES[gameState.difficulty];
+            const num1 = randomInt(config.range.min, config.range.max);
+            const num2 = randomInt(config.range.min, config.range.max);
+
+            return {
+                question: `${num1} × ${num2} = ?`,
+                answer: num1 * num2,
+                factors: [num1, num2]
+            };
+        }
+
+        // === DIFFICULTY SELECTION ===
+        function selectDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+
+            // Update button states
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                const isActive = btn.dataset.difficulty === difficulty;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive);
+            });
+        }
+
+        // === GAME MANAGEMENT ===
+        function startGame() {
+            const config = DIFFICULTIES[gameState.difficulty];
+
+            gameState.score = 0;
+            gameState.problemsSolved = 0;
+            gameState.problemsAttempted = 0;
+            gameState.correctAnswers = 0;
+            gameState.timeRemaining = config.timeLimit;
+            gameState.startTime = Date.now();
+            gameState.hintsUsed = 0;
+
+            changeScreen('menuScreen', 'gameScreen');
+            updateDisplay();
+            newProblem();
+            startTimer();
+
+            document.getElementById('answerInput').focus();
+        }
+
+        function newProblem() {
+            const problem = generateProblem();
+            gameState.currentProblem = problem.question;
+            gameState.currentAnswer = problem.answer;
+            gameState.currentFactors = problem.factors;
+
+            document.getElementById('problem').textContent = problem.question;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const feedbackEl = document.getElementById('feedback');
+
+            gameState.problemsAttempted++;
+
+            if (isNaN(userAnswer)) {
+                feedbackEl.textContent = '❓ Please enter a number!';
+                feedbackEl.className = 'feedback incorrect';
+                return;
+            }
+
+            if (userAnswer === gameState.currentAnswer) {
+                // Correct answer!
+                const config = DIFFICULTIES[gameState.difficulty];
+                const points = 10 + (gameState.hintsUsed === 0 ? 5 : 0); // Bonus for no hints
+                gameState.score += points;
+                gameState.problemsSolved++;
+                gameState.correctAnswers++;
+
+                feedbackEl.textContent = '🎉 Correct! Great job astronaut!';
+                feedbackEl.className = 'feedback correct';
+
+                moveSpaceship();
+
+                if (gameState.problemsSolved >= config.problemsToWin) {
+                    setTimeout(() => endGame(true), 1000);
+                } else {
+                    setTimeout(newProblem, 1500);
+                }
+            } else {
+                feedbackEl.textContent = `❌ Not quite! The answer is ${gameState.currentAnswer}`;
+                feedbackEl.className = 'feedback incorrect';
+                setTimeout(() => {
+                    feedbackEl.textContent = '';
+                    newProblem();
+                }, 2500);
+            }
+
+            updateDisplay();
+        }
+
+        function useHint() {
+            const config = DIFFICULTIES[gameState.difficulty];
+            if (gameState.hintsUsed >= config.hintsAvailable) {
+                document.getElementById('feedback').textContent = '💡 No more hints available!';
+                document.getElementById('feedback').className = 'feedback incorrect';
+                return;
+            }
+
+            gameState.hintsUsed++;
+            const [num1, num2] = gameState.currentFactors;
+
+            const hints = [
+                `💡 Think: ${num1} groups of ${num2}`,
+                `💡 Try counting by ${num2}, ${num1} times`,
+                `💡 The answer is between ${gameState.currentAnswer - 5} and ${gameState.currentAnswer + 5}`
+            ];
+
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.textContent = hints[gameState.hintsUsed - 1];
+            feedbackEl.className = 'feedback';
+        }
+
+        function moveSpaceship() {
+            const config = DIFFICULTIES[gameState.difficulty];
+            const progress = (gameState.problemsSolved / config.problemsToWin) * 100;
+            const trackWidth = document.querySelector('.space-scene').offsetWidth;
+            const shipPosition = (progress / 100) * (trackWidth - 100);
+
+            document.getElementById('spaceship').style.left = shipPosition + 'px';
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeRemaining--;
+                document.getElementById('timer').textContent = gameState.timeRemaining;
+
+                if (gameState.timeRemaining <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        function endGame(won) {
+            clearInterval(gameState.timerInterval);
+
+            const timeTaken = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const accuracy = gameState.problemsAttempted > 0
+                ? Math.round((gameState.correctAnswers / gameState.problemsAttempted) * 100)
+                : 0;
+
+            changeScreen('gameScreen', 'endScreen');
+
+            const endTitle = document.getElementById('endTitle');
+            const endMessage = document.getElementById('endMessage');
+
+            if (won) {
+                endTitle.textContent = '🎉 Mission Complete! 🎉';
+                endMessage.textContent = 'Outstanding work, space explorer! You\'ve mastered your multiplication mission!';
+                endTitle.style.color = '#22c55e';
+            } else {
+                endTitle.textContent = '⏰ Time\'s Up! ⏰';
+                endMessage.textContent = `You solved ${gameState.problemsSolved} problems! Keep practicing to complete the mission!`;
+                endTitle.style.color = '#f59e0b';
+            }
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalTime').textContent = timeTaken + 's';
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function restartGame() {
+            // Reset spaceship position
+            document.getElementById('spaceship').style.left = '10px';
+            document.getElementById('progressFill').style.width = '0%';
+            startGame();
+        }
+
+        function backToMenu() {
+            document.getElementById('spaceship').style.left = '10px';
+            document.getElementById('progressFill').style.width = '0%';
+            changeScreen('endScreen', 'menuScreen');
+        }
+
+        // === UI UPDATES ===
+        function updateDisplay() {
+            const config = DIFFICULTIES[gameState.difficulty];
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('remaining').textContent =
+                config.problemsToWin - gameState.problemsSolved;
+        }
+
+        function changeScreen(hideScreen, showScreen) {
+            document.getElementById(hideScreen).classList.add('hidden');
+            document.getElementById(showScreen).classList.remove('hidden');
+        }
+
+        // === EVENT HANDLERS ===
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('gameScreen').classList.contains('hidden')) {
+                if (confirm('Pause game and return to menu?')) {
+                    clearInterval(gameState.timerInterval);
+                    backToMenu();
+                }
+            }
+        });
+
+        // === INITIALIZATION ===
+        window.addEventListener('load', function() {
+            initStars();
+        });
+    </script>
+</body>
+</html>
