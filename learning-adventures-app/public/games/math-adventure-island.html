@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Adventure Island - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
+            border-radius: 25px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            width: 95%;
+            max-width: 900px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-panel {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            color: #ffd700;
+        }
+
+        .island-scene {
+            background: linear-gradient(to bottom, #87ceeb 0%, #f0e68c 100%);
+            border-radius: 20px;
+            min-height: 180px;
+            position: relative;
+            margin: 25px 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #8b4513;
+        }
+
+        .treasure-map {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .treasure-icon {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .ship-icon {
+            font-size: 3rem;
+            position: relative;
+            transition: left 0.5s ease-out;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .progress-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #8b4513;
+        }
+
+        .progress-dot.completed {
+            background: #ffd700;
+            animation: ping 0.5s ease-out;
+        }
+
+        @keyframes ping {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .problem-area {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .problem-display {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .problem {
+            font-size: 3.5rem;
+            color: #2d3748;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .operation-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .addition {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .subtraction {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .answer-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 25px;
+            font-size: 2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            min-height: 80px;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .answer-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .answer-btn:focus {
+            outline: 3px solid #ffd700;
+            outline-offset: 3px;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .answer-btn.correct {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            animation: correctBounce 0.5s ease-out;
+        }
+
+        .answer-btn.incorrect {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes correctBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.8rem;
+            min-height: 50px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            color: #48bb78;
+        }
+
+        .feedback.incorrect {
+            color: #f56565;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            font-size: 1.3rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            min-width: 140px;
+            min-height: 60px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:focus {
+            outline: 3px solid #ffd700;
+            outline-offset: 3px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+            border: 3px solid #8b4513;
+        }
+
+        .modal h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .modal p {
+            font-size: 1.3rem;
+            margin: 15px 0;
+            color: #4a5568;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            min-width: 110px;
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .instructions {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .instructions h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .problem { font-size: 2.5rem; }
+            .answer-options {
+                grid-template-columns: 1fr;
+            }
+            .answer-btn {
+                font-size: 1.5rem;
+                padding: 20px;
+                min-height: 60px;
+            }
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.1rem;
+                min-height: 50px;
+            }
+            .treasure-icon, .ship-icon {
+                font-size: 2rem;
+            }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" role="main" aria-label="Math Adventure Island Game">
+        <!-- Start Screen -->
+        <div id="startScreen">
+            <div class="game-header">
+                <h1>🏝️ Math Adventure Island 🏴‍☠️</h1>
+                <p class="subtitle">Sail to the treasure island by solving math problems!</p>
+            </div>
+
+            <div class="instructions">
+                <h3>How to Play:</h3>
+                <p>
+                    You're a pirate sailing to Treasure Island! Solve addition and subtraction problems
+                    to move your ship forward. Collect 10 treasures to win the game! Choose your
+                    difficulty level and start your adventure! ⚓
+                </p>
+            </div>
+
+            <div class="island-scene">
+                <div class="treasure-map">
+                    <div class="ship-icon">⛵</div>
+                    <div style="font-size: 2rem;">🌊 🌊 🌊</div>
+                    <div class="treasure-icon">💰</div>
+                </div>
+            </div>
+
+            <div class="difficulty-selector">
+                <button class="btn difficulty-btn active" id="easyBtn" aria-pressed="true">
+                    Easy (1-10)
+                </button>
+                <button class="btn difficulty-btn" id="mediumBtn" aria-pressed="false">
+                    Medium (1-20)
+                </button>
+                <button class="btn difficulty-btn" id="hardBtn" aria-pressed="false">
+                    Hard (1-50)
+                </button>
+            </div>
+
+            <div class="control-buttons">
+                <button class="btn btn-success" id="startButton">
+                    ⚓ Set Sail!
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="game-header">
+                <h1>🏝️ Math Adventure 🏴‍☠️</h1>
+            </div>
+
+            <div class="score-panel" role="status" aria-live="polite" aria-atomic="true">
+                <div class="score-item">
+                    <div class="score-label">Score</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Treasures</div>
+                    <div class="score-value" id="treasures">0/10</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Streak</div>
+                    <div class="score-value" id="streak">0🔥</div>
+                </div>
+            </div>
+
+            <div class="island-scene">
+                <div class="treasure-map">
+                    <div class="ship-icon" id="ship">⛵</div>
+                    <div style="font-size: 2rem;">🌊 🌊 🌊</div>
+                    <div class="treasure-icon">💰</div>
+                </div>
+                <div class="progress-dots" id="progressDots">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <div class="problem-area">
+                <div class="problem-display">
+                    <div class="operation-badge" id="operationBadge">Addition</div>
+                    <div class="problem" id="problem" role="heading" aria-level="2">
+                        5 + 3 = ?
+                    </div>
+                </div>
+                <div class="answer-options" id="answerOptions">
+                    <!-- Buttons generated by JavaScript -->
+                </div>
+                <div class="feedback" id="feedback" role="alert" aria-live="assertive" aria-atomic="true"></div>
+            </div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="hidden modal">
+            <div class="modal-content">
+                <h2 id="endTitle">🎉 Treasure Found! 🎉</h2>
+                <p id="endMessage">You've reached Treasure Island!</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="finalScore">0</div>
+                        <div class="stat-label">Final Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalProblems">0</div>
+                        <div class="stat-label">Problems Solved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="maxStreak">0</div>
+                        <div class="stat-label">Best Streak</div>
+                    </div>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="btn btn-success" id="restartButton">
+                        🔄 Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === GAME CONFIGURATION ===
+        const DIFFICULTY_LEVELS = {
+            easy: {
+                name: 'Easy',
+                range: { min: 1, max: 10 },
+                treasuresToWin: 10
+            },
+            medium: {
+                name: 'Medium',
+                range: { min: 1, max: 20 },
+                treasuresToWin: 10
+            },
+            hard: {
+                name: 'Hard',
+                range: { min: 1, max: 50 },
+                treasuresToWin: 10
+            }
+        };
+
+        // === GAME STATE ===
+        let gameState = {
+            difficulty: 'easy',
+            score: 0,
+            treasuresCollected: 0,
+            streak: 0,
+            maxStreak: 0,
+            problemsAttempted: 0,
+            correctAnswers: 0,
+            currentProblem: null,
+            currentAnswer: null,
+            currentOperation: null,
+            isAnswering: false
+        };
+
+        // === UTILITY FUNCTIONS ===
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateProblem() {
+            const config = DIFFICULTY_LEVELS[gameState.difficulty];
+            const operation = Math.random() < 0.5 ? '+' : '-';
+
+            let num1, num2, answer;
+
+            if (operation === '+') {
+                num1 = randomInt(config.range.min, config.range.max);
+                num2 = randomInt(config.range.min, config.range.max);
+                answer = num1 + num2;
+            } else {
+                // Subtraction - ensure positive result
+                num1 = randomInt(config.range.min + 5, config.range.max);
+                num2 = randomInt(config.range.min, num1);
+                answer = num1 - num2;
+            }
+
+            return {
+                question: `${num1} ${operation} ${num2} = ?`,
+                answer: answer,
+                operation: operation === '+' ? 'addition' : 'subtraction'
+            };
+        }
+
+        function generateAnswerOptions(correctAnswer) {
+            const options = [correctAnswer];
+
+            while (options.length < 4) {
+                const offset = randomInt(-10, 10);
+                const option = correctAnswer + offset;
+                if (option > 0 && !options.includes(option)) {
+                    options.push(option);
+                }
+            }
+
+            return shuffleArray(options);
+        }
+
+        // === DIFFICULTY SELECTION ===
+        function selectDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+
+            // Update button states
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-pressed', 'false');
+            });
+
+            const selectedBtn = document.getElementById(`${difficulty}Btn`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                selectedBtn.setAttribute('aria-pressed', 'true');
+            }
+        }
+
+        // === GAME MANAGEMENT ===
+        function startGame() {
+            const config = DIFFICULTY_LEVELS[gameState.difficulty];
+
+            gameState = {
+                difficulty: gameState.difficulty,
+                score: 0,
+                treasuresCollected: 0,
+                streak: 0,
+                maxStreak: 0,
+                problemsAttempted: 0,
+                correctAnswers: 0,
+                currentProblem: null,
+                currentAnswer: null,
+                currentOperation: null,
+                isAnswering: false
+            };
+
+            changeScreen('startScreen', 'gameScreen');
+            initProgressDots();
+            displayNewProblem();
+            updateScoreDisplay();
+        }
+
+        function initProgressDots() {
+            const dotsContainer = document.getElementById('progressDots');
+            dotsContainer.innerHTML = '';
+
+            const config = DIFFICULTY_LEVELS[gameState.difficulty];
+            for (let i = 0; i < config.treasuresToWin; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                dot.id = `dot-${i}`;
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function displayNewProblem() {
+            const problem = generateProblem();
+            gameState.currentProblem = problem.question;
+            gameState.currentAnswer = problem.answer;
+            gameState.currentOperation = problem.operation;
+
+            document.getElementById('problem').textContent = problem.question;
+            document.getElementById('feedback').textContent = '';
+
+            // Update operation badge
+            const badge = document.getElementById('operationBadge');
+            badge.textContent = problem.operation === 'addition' ? 'Addition' : 'Subtraction';
+            badge.className = `operation-badge ${problem.operation}`;
+
+            // Generate answer buttons
+            const options = generateAnswerOptions(problem.answer);
+            const container = document.getElementById('answerOptions');
+            container.innerHTML = '';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = option;
+                button.setAttribute('aria-label', `Answer: ${option}`);
+                button.addEventListener('click', () => checkAnswer(option));
+                container.appendChild(button);
+            });
+
+            gameState.isAnswering = false;
+        }
+
+        function checkAnswer(selectedAnswer) {
+            if (gameState.isAnswering) return;
+            gameState.isAnswering = true;
+            gameState.problemsAttempted++;
+
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedbackEl = document.getElementById('feedback');
+
+            buttons.forEach(button => {
+                button.disabled = true;
+                const value = parseInt(button.textContent);
+                if (value === gameState.currentAnswer) {
+                    button.classList.add('correct');
+                } else if (value === selectedAnswer) {
+                    button.classList.add('incorrect');
+                }
+            });
+
+            if (selectedAnswer === gameState.currentAnswer) {
+                // Correct answer
+                gameState.correctAnswers++;
+                gameState.streak++;
+                gameState.maxStreak = Math.max(gameState.maxStreak, gameState.streak);
+                gameState.treasuresCollected++;
+
+                const points = 10 + (gameState.streak >= 3 ? 5 : 0);
+                gameState.score += points;
+
+                feedbackEl.textContent = `🎉 Correct! +${points} points`;
+                feedbackEl.className = 'feedback correct';
+
+                updateProgressDot(gameState.treasuresCollected - 1);
+
+                const config = DIFFICULTY_LEVELS[gameState.difficulty];
+                if (gameState.treasuresCollected >= config.treasuresToWin) {
+                    setTimeout(() => endGame(), 1500);
+                    return;
+                }
+            } else {
+                // Wrong answer
+                gameState.streak = 0;
+                feedbackEl.textContent = `❌ Not quite! The answer is ${gameState.currentAnswer}`;
+                feedbackEl.className = 'feedback incorrect';
+            }
+
+            updateScoreDisplay();
+
+            setTimeout(() => {
+                displayNewProblem();
+            }, 2000);
+        }
+
+        function updateProgressDot(index) {
+            const dot = document.getElementById(`dot-${index}`);
+            if (dot) {
+                dot.classList.add('completed');
+            }
+        }
+
+        function endGame() {
+            const accuracy = gameState.problemsAttempted > 0
+                ? Math.round((gameState.correctAnswers / gameState.problemsAttempted) * 100)
+                : 0;
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('totalProblems').textContent = gameState.correctAnswers;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+            document.getElementById('maxStreak').textContent = gameState.maxStreak;
+
+            const config = DIFFICULTY_LEVELS[gameState.difficulty];
+            if (gameState.treasuresCollected === config.treasuresToWin) {
+                document.getElementById('endTitle').textContent = '🎉 Treasure Found! 🎉';
+                document.getElementById('endMessage').textContent = 'Amazing work! You\'ve collected all the treasure!';
+            } else {
+                document.getElementById('endTitle').textContent = '🌟 Great Effort! 🌟';
+                document.getElementById('endMessage').textContent = `You collected ${gameState.treasuresCollected} treasures! Try again to get them all!`;
+            }
+
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').classList.add('hidden');
+            startGame();
+        }
+
+        // === UI UPDATES ===
+        function updateScoreDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('treasures').textContent =
+                `${gameState.treasuresCollected}/${DIFFICULTY_LEVELS[gameState.difficulty].treasuresToWin}`;
+            document.getElementById('streak').textContent = gameState.streak + '🔥';
+        }
+
+        function changeScreen(hideId, showId) {
+            document.getElementById(hideId).classList.add('hidden');
+            document.getElementById(showId).classList.remove('hidden');
+        }
+
+        // === EVENT HANDLERS ===
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (!document.getElementById('gameScreen').classList.contains('hidden')) {
+                    if (confirm('Return to start screen?')) {
+                        changeScreen('gameScreen', 'startScreen');
+                    }
+                }
+            }
+        });
+
+        // === INITIALIZATION ===
+        window.addEventListener('load', function() {
+            // Difficulty button event listeners
+            document.getElementById('easyBtn').addEventListener('click', () => selectDifficulty('easy'));
+            document.getElementById('mediumBtn').addEventListener('click', () => selectDifficulty('medium'));
+            document.getElementById('hardBtn').addEventListener('click', () => selectDifficulty('hard'));
+
+            // Start button
+            document.getElementById('startButton').addEventListener('click', startGame);
+
+            // Restart button
+            document.getElementById('restartButton').addEventListener('click', restartGame);
+        });
+    </script>
+</body>
+</html>

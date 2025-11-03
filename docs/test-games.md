@@ -22,6 +22,7 @@ These games exist in `public/games/` but are not yet cataloged.
 |-----------|-----|--------|-------|
 | **Multiplication Space Quest** | [http://localhost:3000/games/multiplication-space-quest.html](http://localhost:3000/games/multiplication-space-quest.html) | ✅ Testing | Space-themed multiplication game for grades 3-4. Single HTML file, WCAG 2.1 AA compliant. |
 | **Solar System Explorer** | [http://localhost:3000/games/solar-system-explorer.html](http://localhost:3000/games/solar-system-explorer.html) | ✅ Testing | Science game about planets and their properties. 8 planets to explore, quiz format, streak system. WCAG 2.1 AA compliant. |
+| **Math Adventure Island** | [http://localhost:3000/games/math-adventure-island.html](http://localhost:3000/games/math-adventure-island.html) | ✅ Testing | Pirate-themed addition/subtraction game. 3 difficulty levels, treasure hunt format, streak bonuses. WCAG 2.1 AA compliant. |
 
 ### HTML-Based Lessons
 
@@ -210,9 +211,9 @@ Ensure the catalog entry has:
 
 ## 📊 Test Games Statistics
 
-**Total Test Games:** 3
+**Total Test Games:** 4
 - React Component Games: 1
-- HTML Games: 2
+- HTML Games: 3
 - HTML Lessons: 0
 
 **Catalog Statistics:**
