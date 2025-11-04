@@ -32,11 +32,15 @@ export async function POST(request: NextRequest) {
       skills: metadata.skills,
       estimatedTime: metadata.estimatedTime,
       featured: metadata.featured || false,
-      htmlPath: metadata.htmlPath
+      htmlPath: metadata.htmlPath,
+      subscriptionTier: metadata.subscriptionTier || 'free',
+      uploadedContent: metadata.uploadedContent || false,
+      platform: metadata.platform,
+      sourceCodeUrl: metadata.sourceCodeUrl
     };
 
-    // Format the new adventure as a string
-    const adventureString = `  {
+    // Format the new adventure as a string with optional premium fields
+    let adventureString = `  {
     id: '${newAdventure.id}',
     title: '${newAdventure.title}',
     description: '${newAdventure.description}',
@@ -46,8 +50,26 @@ export async function POST(request: NextRequest) {
     difficulty: '${newAdventure.difficulty}',
     skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
     estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}
-  }`;
+    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+
+    // Add premium/uploaded content fields if applicable
+    if (newAdventure.subscriptionTier && newAdventure.subscriptionTier !== 'free') {
+      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
+    }
+
+    if (newAdventure.uploadedContent) {
+      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
+    }
+
+    if (newAdventure.platform) {
+      adventureString += `,\n    platform: '${newAdventure.platform}'`;
+    }
+
+    if (newAdventure.sourceCodeUrl) {
+      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
+    }
+
+    adventureString += `\n  }`;
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(`(const ${arrayName}: Adventure\\[\\] = \\[)([\\s\\S]*?)(\\];)`, 'm');

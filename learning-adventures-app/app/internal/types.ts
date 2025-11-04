@@ -9,6 +9,14 @@ export interface ContentFormData {
   estimatedTime: string;
   concept: string;
   additionalRequirements?: string;
+  // New fields for uploaded content
+  uploadSource?: 'ai-generated' | 'uploaded';
+  uploadPlatform?: 'base44' | 'v0' | 'replit' | 'bolt' | 'other';
+  subscriptionTier: 'free' | 'premium' | 'custom' | 'course';
+  sourceCodeUrl?: string;
+  buildInstructions?: string;
+  uploadedZipPath?: string; // Temp path after upload
+  projectType?: 'html' | 'react-nextjs'; // Detected project type
 }
 
 export interface GeneratedContent {
@@ -25,6 +33,11 @@ export interface GeneratedContent {
     estimatedTime: string;
     featured?: boolean;
     htmlPath?: string;
+    // New fields for premium/uploaded content
+    subscriptionTier?: 'free' | 'premium' | 'custom' | 'course';
+    uploadedContent?: boolean;
+    platform?: string;
+    sourceCodeUrl?: string;
   };
 }
 

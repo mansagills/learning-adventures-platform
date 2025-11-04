@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ContentFormData } from '../types';
 import { refineContentIdea } from '../services/claudeApi';
 
@@ -19,7 +19,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
     skills: [],
     estimatedTime: '',
     concept: '',
-    additionalRequirements: ''
+    additionalRequirements: '',
+    uploadSource: 'ai-generated',
+    subscriptionTier: 'premium',
   });
 
   const [skillInput, setSkillInput] = useState('');
@@ -27,12 +29,117 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
   const [isRefining, setIsRefining] = useState(false);
   const [showRefinements, setShowRefinements] = useState(false);
   const [error, setError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (file: File) => {
+    if (!file.name.endsWith('.zip')) {
+      setError('Only .zip files are supported');
+      return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      setError('File size exceeds 100MB limit');
+      return;
+    }
+
+    setIsUploading(true);
+    setError('');
+    setUploadProgress(0);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('/api/internal/upload-zip', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      setUploadProgress(100);
+      setUploadedFile(file);
+
+      // Extract metadata from the zip
+      const metadataResponse = await fetch('/api/internal/extract-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zipPath: result.path }),
+      });
+
+      if (metadataResponse.ok) {
+        const metadataResult = await metadataResponse.json();
+
+        // Pre-fill form with extracted metadata
+        if (metadataResult.metadata) {
+          const meta = metadataResult.metadata;
+          setFormData(prev => ({
+            ...prev,
+            title: meta.title || prev.title,
+            gameIdea: meta.description || prev.gameIdea,
+            concept: meta.category || prev.concept,
+            gradeLevel: meta.gradeLevel || prev.gradeLevel,
+            difficulty: meta.difficulty || prev.difficulty,
+            skills: meta.skills || prev.skills,
+            estimatedTime: meta.estimatedTime || prev.estimatedTime,
+            uploadedZipPath: result.path,
+            projectType: metadataResult.projectType,
+            platform: meta.platform,
+            sourceCodeUrl: meta.sourceCodeUrl,
+          }));
+        } else {
+          // No metadata found, just store the path
+          setFormData(prev => ({
+            ...prev,
+            uploadedZipPath: result.path,
+            projectType: metadataResult.projectType,
+          }));
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed');
+      setUploadedFile(null);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.gameIdea || !formData.concept || formData.gradeLevel.length === 0) {
-      alert('Please fill in all required fields');
-      return;
+
+    // Validation based on upload source
+    if (formData.uploadSource === 'uploaded') {
+      if (!formData.uploadedZipPath) {
+        alert('Please upload a zip file first');
+        return;
+      }
+      if (!formData.title || formData.gradeLevel.length === 0) {
+        alert('Please fill in at least the title and grade levels');
+        return;
+      }
+    } else {
+      if (!formData.title || !formData.gameIdea || !formData.concept || formData.gradeLevel.length === 0) {
+        alert('Please fill in all required fields');
+        return;
+      }
     }
 
     // Include refinements if they exist
@@ -107,6 +214,193 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Content Source Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Content Source *
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, uploadSource: 'ai-generated' }))}
+                className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                  formData.uploadSource === 'ai-generated'
+                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">🤖</span>
+                  <h3 className="font-semibold">Generate with AI</h3>
+                </div>
+                <p className="text-sm text-gray-600">Use Claude AI to create content from your idea</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, uploadSource: 'uploaded' }))}
+                className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                  formData.uploadSource === 'uploaded'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center mb-2">
+                  <span className="text-2xl mr-2">📦</span>
+                  <h3 className="font-semibold">Upload Zip File</h3>
+                </div>
+                <p className="text-sm text-gray-600">Upload game built with Base44, V0.dev, Replit, or Bolt</p>
+              </button>
+            </div>
+          </div>
+
+          {/* Zip Upload Section */}
+          {formData.uploadSource === 'uploaded' && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Your Game</h3>
+
+              {!uploadedFile ? (
+                <div
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-100 transition-colors"
+                >
+                  <div className="text-6xl mb-4">📦</div>
+                  <p className="text-lg font-medium text-gray-900 mb-2">
+                    {isUploading ? 'Uploading...' : 'Drag & Drop ZIP File'}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    or click to browse
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Supported: .zip files from Base44, V0.dev, Replit, Bolt (Max: 100MB)
+                  </p>
+                  {isUploading && (
+                    <div className="mt-4">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".zip"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <div className="bg-white border border-green-300 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-3xl">✅</span>
+                      <div>
+                        <p className="font-medium text-gray-900">{uploadedFile.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                          {formData.projectType && ` • ${formData.projectType === 'react-nextjs' ? 'React/Next.js' : 'HTML'} Project`}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUploadedFile(null);
+                        setFormData(prev => ({ ...prev, uploadedZipPath: undefined }));
+                      }}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Platform Selection */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Built with
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {['base44', 'v0', 'replit', 'bolt', 'other'].map((platform) => (
+                    <button
+                      key={platform}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, uploadPlatform: platform as any }))}
+                      className={`px-3 py-2 rounded-md border text-sm transition-colors ${
+                        formData.uploadPlatform === platform
+                          ? 'bg-blue-500 text-white border-blue-500'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Source Code URL (Optional) */}
+              <div className="mt-4">
+                <label htmlFor="sourceCodeUrl" className="block text-sm font-medium text-gray-700 mb-2">
+                  Source Code URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  id="sourceCodeUrl"
+                  value={formData.sourceCodeUrl || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sourceCodeUrl: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://replit.com/@yourname/project"
+                />
+              </div>
+
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Subscription Tier Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subscription Tier *
+            </label>
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { value: 'free', label: 'Free', desc: 'Available to all users', color: 'green' },
+                { value: 'premium', label: 'Premium', desc: 'Subscription required', color: 'blue' },
+                { value: 'custom', label: 'Custom', desc: 'Custom-built for client', color: 'purple' },
+                { value: 'course', label: 'Course', desc: 'Full learning path', color: 'orange' },
+              ].map((tier) => (
+                <button
+                  key={tier.value}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, subscriptionTier: tier.value as any }))}
+                  className={`p-3 border-2 rounded-lg text-left transition-colors ${
+                    formData.subscriptionTier === tier.value
+                      ? `border-${tier.color}-500 bg-${tier.color}-50`
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <h4 className="font-semibold text-sm mb-1">{tier.label}</h4>
+                  <p className="text-xs text-gray-600">{tier.desc}</p>
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-gray-500">
+              💡 Uploaded games default to <strong>Premium</strong>. Admins can change tier after publishing.
+            </p>
+          </div>
+
           {/* Content Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -410,7 +704,7 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               type="submit"
               className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
             >
-              Generate Content
+              {formData.uploadSource === 'uploaded' ? 'Continue to Preview' : 'Generate Content'}
             </button>
           </div>
         </form>
