@@ -37,7 +37,19 @@ export default function InternalApp() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Content Creation Studio</h1>
-              <p className="mt-1 text-gray-600">Create engaging educational games and interactive lessons</p>
+              <p className="mt-1 text-gray-600">
+                Create engaging educational games and interactive lessons
+                {formData?.uploadSource === 'uploaded' && (
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    📦 Uploaded Content
+                  </span>
+                )}
+                {formData?.uploadSource === 'ai-generated' && (
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    🤖 AI-Generated
+                  </span>
+                )}
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">

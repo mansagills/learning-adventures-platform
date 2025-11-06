@@ -23,9 +23,8 @@ export default function ContentPublisher({
     setError('');
 
     try {
-      // Step 1: Save the HTML file
+      // Step 1: Save the content (HTML file or extract zip)
       const fileName = `${content.metadata.id}.html`;
-      const filePath = `/public/${formData.type}s/${fileName}`;
 
       const saveResponse = await fetch('/api/internal/save-content', {
         method: 'POST',
@@ -35,15 +34,21 @@ export default function ContentPublisher({
         body: JSON.stringify({
           content: content.htmlContent,
           fileName,
-          type: formData.type
+          type: formData.type,
+          subscriptionTier: formData.subscriptionTier,
+          uploadedZipPath: formData.uploadedZipPath,
+          uploadSource: formData.uploadSource
         })
       });
 
       if (!saveResponse.ok) {
-        throw new Error('Failed to save HTML file');
+        const errorData = await saveResponse.json();
+        throw new Error(errorData.error || 'Failed to save content');
       }
 
-      // Step 2: Update the catalog
+      const saveResult = await saveResponse.json();
+
+      // Step 2: Update the catalog with all metadata including premium fields
       const catalogResponse = await fetch('/api/internal/update-catalog', {
         method: 'POST',
         headers: {
@@ -52,13 +57,18 @@ export default function ContentPublisher({
         body: JSON.stringify({
           metadata: {
             ...content.metadata,
-            htmlPath: `/${formData.type}s/${fileName}`
+            htmlPath: saveResult.filePath,
+            subscriptionTier: formData.subscriptionTier,
+            uploadedContent: formData.uploadSource === 'uploaded',
+            platform: formData.uploadPlatform,
+            sourceCodeUrl: formData.sourceCodeUrl
           }
         })
       });
 
       if (!catalogResponse.ok) {
-        throw new Error('Failed to update catalog');
+        const errorData = await catalogResponse.json();
+        throw new Error(errorData.error || 'Failed to update catalog');
       }
 
       setPublishStatus('success');
@@ -84,6 +94,33 @@ export default function ContentPublisher({
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Content Summary</h3>
 
+        {/* Upload/Tier Badges */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          {formData.uploadSource === 'uploaded' && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              📦 Uploaded Content
+            </span>
+          )}
+          {formData.uploadSource === 'ai-generated' && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+              🤖 AI-Generated
+            </span>
+          )}
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+            formData.subscriptionTier === 'free' ? 'bg-green-100 text-green-800' :
+            formData.subscriptionTier === 'premium' ? 'bg-blue-100 text-blue-800' :
+            formData.subscriptionTier === 'custom' ? 'bg-purple-100 text-purple-800' :
+            'bg-orange-100 text-orange-800'
+          }`}>
+            {formData.subscriptionTier.charAt(0).toUpperCase() + formData.subscriptionTier.slice(1)} Tier
+          </span>
+          {formData.uploadPlatform && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+              {formData.uploadPlatform.charAt(0).toUpperCase() + formData.uploadPlatform.slice(1)}
+            </span>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-gray-700 mb-2">Basic Information</h4>
@@ -104,6 +141,16 @@ export default function ContentPublisher({
                 <dt className="inline font-medium text-gray-600">ID:</dt>
                 <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">{content.metadata.id}</dd>
               </div>
+              {formData.sourceCodeUrl && (
+                <div>
+                  <dt className="inline font-medium text-gray-600">Source:</dt>
+                  <dd className="inline ml-1">
+                    <a href={formData.sourceCodeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-xs underline">
+                      View Code
+                    </a>
+                  </dd>
+                </div>
+              )}
             </dl>
           </div>
 
@@ -126,6 +173,12 @@ export default function ContentPublisher({
                 <dt className="inline font-medium text-gray-600">File Path:</dt>
                 <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">{content.metadata.htmlPath}</dd>
               </div>
+              {formData.projectType && (
+                <div>
+                  <dt className="inline font-medium text-gray-600">Project Type:</dt>
+                  <dd className="inline ml-1">{formData.projectType === 'react-nextjs' ? 'React/Next.js' : 'HTML'}</dd>
+                </div>
+              )}
             </dl>
           </div>
         </div>
