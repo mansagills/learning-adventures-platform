@@ -62,6 +62,10 @@ model User {
   enrollments ClassroomEnrollment[]
   // Relations for teachers
   classrooms  Classroom[] @relation("TeacherClassrooms")
+  // Course system relations
+  courseEnrollments CourseEnrollment[]
+  dailyXP          DailyXP[]
+  level            UserLevel?
 }
 
 model VerificationToken {
@@ -145,4 +149,204 @@ model ClassroomEnrollment {
   classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 
   @@unique([userId, classroomId])
+}
+
+// ============================================================================
+// COURSE SYSTEM MODELS
+// ============================================================================
+
+// Course Definition
+model Course {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  slug            String   @unique
+  subject         String   // 'math', 'science', etc.
+  gradeLevel      String[] // ['3-5', '6-8']
+  difficulty      Difficulty @default(BEGINNER)
+  isPremium       Boolean  @default(false)
+  isPublished     Boolean  @default(false)
+
+  // Metadata
+  thumbnailUrl    String?
+  estimatedMinutes Int
+  totalXP         Int      @default(0)
+
+  // Prerequisites
+  prerequisiteCourseIds String[] // Array of course IDs
+
+  // Content
+  lessons         CourseLesson[]
+  enrollments     CourseEnrollment[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([subject, isPremium, isPublished])
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// Individual Lesson within a Course
+model CourseLesson {
+  id              String   @id @default(cuid())
+  courseId        String
+  order           Int      // 1, 2, 3... (determines sequence)
+
+  // Lesson Content
+  title           String
+  description     String?  @db.Text
+  type            LessonType
+  contentPath     String   // HTML file path or React component ID
+
+  // Progression
+  duration        Int      // Estimated minutes
+  xpReward        Int      @default(50)
+  requiredScore   Int?     // Minimum score to pass (if applicable)
+
+  // Relations
+  course          Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress        CourseLessonProgress[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([courseId, order])
+  @@index([courseId, order])
+}
+
+enum LessonType {
+  VIDEO          // Video lesson
+  INTERACTIVE    // Interactive HTML lesson
+  GAME           // Practice game
+  QUIZ           // Assessment/quiz
+  READING        // Text-based content
+  PROJECT        // Final project
+}
+
+// User's Course Enrollment
+model CourseEnrollment {
+  id              String   @id @default(cuid())
+  userId          String
+  courseId        String
+
+  // Progress
+  status          CourseStatus @default(IN_PROGRESS)
+  completedLessons Int      @default(0)
+  totalLessons     Int
+  progressPercent  Int      @default(0)
+
+  // XP & Scoring
+  totalXPEarned   Int      @default(0)
+  averageScore    Float?
+
+  // Timestamps
+  enrolledAt      DateTime @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastAccessedAt  DateTime @default(now())
+
+  // Certificate
+  certificateEarned Boolean @default(false)
+  certificateUrl    String?
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress  CourseLessonProgress[]
+
+  @@unique([userId, courseId])
+  @@index([userId, status])
+}
+
+enum CourseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// Progress for Individual Lessons
+model CourseLessonProgress {
+  id              String   @id @default(cuid())
+  userId          String
+  enrollmentId    String
+  lessonId        String
+
+  // Progress
+  status          LessonProgressStatus @default(NOT_STARTED)
+  score           Int?     // 0-100
+  timeSpent       Int      @default(0) // minutes
+  attempts        Int      @default(0)
+  xpEarned        Int      @default(0)
+
+  // Timestamps
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastAccessedAt  DateTime @default(now())
+
+  // Relations
+  enrollment      CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson          CourseLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([userId, status])
+}
+
+enum LessonProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  LOCKED        // Not yet unlocked (previous lesson incomplete)
+}
+
+// Daily XP Tracking
+model DailyXP {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime @db.Date
+
+  // XP Breakdown
+  xpFromLessons   Int      @default(0)
+  xpFromGames     Int      @default(0)
+  xpFromStreak    Int      @default(0)
+  totalXP         Int      @default(0)
+
+  // Activity
+  lessonsCompleted Int     @default(0)
+  gamesCompleted   Int     @default(0)
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+// User Level & XP System
+model UserLevel {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // XP & Level
+  currentLevel    Int      @default(1)
+  totalXP         Int      @default(0)
+  xpToNextLevel   Int      @default(100)
+
+  // Streaks
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastActivityDate DateTime?
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, currentLevel])
 }
