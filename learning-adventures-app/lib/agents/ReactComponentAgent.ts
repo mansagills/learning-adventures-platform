@@ -16,7 +16,7 @@ export class ReactComponentAgent extends BaseAgent {
   constructor() {
     super({
       type: 'react-component',
-      skillPaths: ['skills/react-game-component/SKILL.md'],
+      skillPaths: ['docs/skills/react-game-component/SKILL.md'],
       maxRetries: 2,
       timeout: 300000, // 5 minutes
       validateOutput: true,

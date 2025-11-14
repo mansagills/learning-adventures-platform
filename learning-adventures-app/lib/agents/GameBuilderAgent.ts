@@ -16,7 +16,7 @@ export class GameBuilderAgent extends BaseAgent {
   constructor() {
     super({
       type: 'game-builder',
-      skillPaths: ['skills/educational-game-builder/SKILL.md'],
+      skillPaths: ['docs/skills/educational-game-builder/SKILL.md'],
       maxRetries: 2,
       timeout: 300000, // 5 minutes
       validateOutput: true,

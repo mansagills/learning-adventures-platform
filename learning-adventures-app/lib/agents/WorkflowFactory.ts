@@ -50,14 +50,14 @@ export class WorkflowFactory {
         agentType: 'accessibility-validator',
         skillName: 'accessibility-validator',
         description: 'Validating accessibility',
-        input: { code: '{{step1.output.gameCode}}', format: 'html' },
+        input: { code: '{{step1.gameCode}}', format: 'html' },
       },
       {
         agentType: 'metadata-formatter',
         skillName: 'catalog-metadata-formatter',
         description: 'Formatting catalog metadata',
         input: {
-          concept: '{{step1.output.metadata}}',
+          concept: '{{step1.metadata}}',
           format: 'html',
         },
       },
@@ -88,14 +88,14 @@ export class WorkflowFactory {
         agentType: 'accessibility-validator',
         skillName: 'accessibility-validator',
         description: 'Validating accessibility',
-        input: { code: '{{step1.output.componentCode}}', format: 'react' },
+        input: { code: '{{step1.componentCode}}', format: 'react' },
       },
       {
         agentType: 'metadata-formatter',
         skillName: 'catalog-metadata-formatter',
         description: 'Formatting catalog metadata',
         input: {
-          concept: '{{step1.output.metadata}}',
+          concept: '{{step1.metadata}}',
           format: 'react',
         },
       },

@@ -136,8 +136,12 @@ export class ContentAgentOrchestrator {
     this.emitEvent(workflowId, 'step_started', `Executing step ${step.stepNumber}: ${step.description}`, step.stepNumber);
 
     try {
-      // Execute agent with input
-      const result = await agent.executeWithRetry(step.input);
+      // Resolve template strings in input using previous step outputs
+      const workflow = this.workflows.get(workflowId);
+      const resolvedInput = workflow ? this.resolveTemplates(step.input, workflow) : step.input;
+
+      // Execute agent with resolved input
+      const result = await agent.executeWithRetry(resolvedInput);
 
       if (!result.success) {
         step.status = 'failed';
@@ -310,5 +314,83 @@ export class ContentAgentOrchestrator {
       }
     }
     return cleared;
+  }
+
+  /**
+   * Resolve template strings in input data
+   * Replaces {{stepN.output.field}} with actual values from previous steps
+   */
+  private resolveTemplates(input: any, workflow: AgentWorkflow): any {
+    // Helper function to resolve a single template string
+    const resolveString = (str: string): any => {
+      // Match patterns like {{step1.output.metadata}}
+      const templateRegex = /\{\{([^}]+)\}\}/g;
+      let match;
+      let result = str;
+
+      while ((match = templateRegex.exec(str)) !== null) {
+        const path = match[1].trim(); // e.g., "step1.output.metadata"
+        const value = this.getValueFromPath(path, workflow);
+
+        // If the entire string is just the template, return the value directly
+        if (str === match[0]) {
+          return value;
+        }
+
+        // Otherwise, replace the template in the string
+        result = result.replace(match[0], JSON.stringify(value));
+      }
+
+      return result;
+    };
+
+    // Recursively process objects and arrays
+    const processValue = (value: any): any => {
+      if (typeof value === 'string') {
+        return resolveString(value);
+      } else if (Array.isArray(value)) {
+        return value.map(processValue);
+      } else if (value !== null && typeof value === 'object') {
+        const result: any = {};
+        for (const key in value) {
+          result[key] = processValue(value[key]);
+        }
+        return result;
+      }
+      return value;
+    };
+
+    return processValue(input);
+  }
+
+  /**
+   * Get value from a path like "step1.output.metadata"
+   */
+  private getValueFromPath(path: string, workflow: AgentWorkflow): any {
+    const parts = path.split('.');
+
+    // Handle stepN references
+    if (parts[0].startsWith('step')) {
+      const stepNum = parseInt(parts[0].replace('step', ''));
+      const stepData = workflow.results[`step${stepNum}`];
+
+      if (!stepData) {
+        return null;
+      }
+
+      // Navigate through the remaining path
+      let value: any = stepData;
+      for (let i = 1; i < parts.length; i++) {
+        if (value && typeof value === 'object') {
+          value = value[parts[i]];
+        } else {
+          return null;
+        }
+      }
+
+      return value;
+    }
+
+    return null;
   }
 }

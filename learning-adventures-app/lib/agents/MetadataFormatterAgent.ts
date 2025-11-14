@@ -17,7 +17,7 @@ export class MetadataFormatterAgent extends BaseAgent {
   constructor() {
     super({
       type: 'metadata-formatter',
-      skillPaths: ['skills/catalog-metadata-formatter/SKILL.md'],
+      skillPaths: ['docs/skills/catalog-metadata-formatter/SKILL.md'],
       maxRetries: 2,
       timeout: 60000, // 1 minute
       validateOutput: true,

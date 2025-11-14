@@ -17,7 +17,7 @@ export class AccessibilityValidatorAgent extends BaseAgent {
   constructor() {
     super({
       type: 'accessibility-validator',
-      skillPaths: ['skills/accessibility-validator/SKILL.md'],
+      skillPaths: ['docs/skills/accessibility-validator/SKILL.md'],
       maxRetries: 1,
       timeout: 120000, // 2 minutes
       validateOutput: true,
