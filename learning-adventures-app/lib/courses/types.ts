@@ -16,7 +16,7 @@ import type {
   LessonType,
   CourseStatus,
   LessonProgressStatus,
-} from '@/lib/generated/prisma';
+} from '@prisma/client';
 
 // ============================================================================
 // EXTENDED COURSE TYPES (with computed fields)

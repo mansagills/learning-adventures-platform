@@ -5,8 +5,8 @@
  * and enforcing linear progression.
  */
 
-import { PrismaClient, LessonProgressStatus } from '@/lib/generated/prisma';
-import type { CourseLessonProgress, CourseLesson } from '@/lib/generated/prisma';
+import { PrismaClient, LessonProgressStatus } from '@prisma/client';
+import type { CourseLessonProgress, CourseLesson } from '@prisma/client';
 import type {
   LessonWithProgress,
   LessonAccessCheck,

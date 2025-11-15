@@ -64,8 +64,6 @@ export async function initializeGameRegistry() {
     // Import known game registrations
     await import('@/components/games/sample-math-game');
     await import('@/components/games/ecosystem-builder');
-    // Temporarily commented out - missing dependencies
-    // await import('@/components/games/space-multiplication-adventure');
 
     // Future games will be added here or they can self-register
     // by importing their index files elsewhere in the app

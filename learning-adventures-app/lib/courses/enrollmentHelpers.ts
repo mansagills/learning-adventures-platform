@@ -5,8 +5,8 @@
  * and handling enrollment lifecycle.
  */
 
-import { PrismaClient, CourseStatus, LessonProgressStatus } from '@/lib/generated/prisma';
-import type { CourseEnrollment, User } from '@/lib/generated/prisma';
+import { PrismaClient, CourseStatus, LessonProgressStatus } from '@prisma/client';
+import type { CourseEnrollment, User } from '@prisma/client';
 import type {
   EnrollmentEligibility,
   EnrollmentWithDetails,

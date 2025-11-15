@@ -5,13 +5,13 @@
  * sorting, and user-specific progress data.
  */
 
-import { PrismaClient } from '@/lib/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import type {
   Course,
   CourseLesson,
   CourseEnrollment,
   Difficulty,
-} from '@/lib/generated/prisma';
+} from '@prisma/client';
 import type {
   CourseFilters,
   CourseQueryOptions,

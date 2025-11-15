@@ -5,7 +5,7 @@
  * and level progression.
  */
 
-import { PrismaClient } from '@/lib/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import type {
   XPCalculation,
   StreakMultiplier,
