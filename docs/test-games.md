@@ -18,11 +18,31 @@ These games are registered in `lib/gameLoader.ts` and accessible via direct URL 
 
 These games exist in `public/games/` but are not yet cataloged.
 
+#### 🎯 Math Games (13 NEW from math-game-ideas.txt)
 | Game Name | URL | Status | Notes |
 |-----------|-----|--------|-------|
+| **Number Monster Feeding** | [http://localhost:3000/games/number-monster-feeding.html](http://localhost:3000/games/number-monster-feeding.html) | ✅ Ready | Feed monsters correct numbers! Counting, addition, subtraction with cute animations. Grades K-3. |
+| **Treasure Hunt Calculator** | [http://localhost:3000/games/treasure-hunt-calculator.html](http://localhost:3000/games/treasure-hunt-calculator.html) | ✅ Ready | Solve math problems to find buried treasure. Map-based adventure. Grades 2-5. |
+| **Pizza Fraction Frenzy** | [http://localhost:3000/games/pizza-fraction-frenzy.html](http://localhost:3000/games/pizza-fraction-frenzy.html) | ✅ Ready | Fast-paced fraction ordering game. Serve customers correct pizza slices. Grades 3-5. Time pressure! |
+| **Multiplication Bingo Bonanza** | [http://localhost:3000/games/multiplication-bingo-bonanza.html](http://localhost:3000/games/multiplication-bingo-bonanza.html) | ✅ Ready | Interactive bingo with multiplication tables. Get 5 in a row to win! Grades 3-5. |
+| **Shape Sorting Arcade** | [http://localhost:3000/games/shape-sorting-arcade.html](http://localhost:3000/games/shape-sorting-arcade.html) | ✅ Ready | Sort shapes by properties (sides, names). Fast-paced geometry. Grades K-4. |
+| **Math Jeopardy Junior** | [http://localhost:3000/games/math-jeopardy-junior.html](http://localhost:3000/games/math-jeopardy-junior.html) | ✅ Ready | Game show format with 4 math categories. Answer questions for points. Grades 2-5. |
+| **Number Line Ninja** | [http://localhost:3000/games/number-line-ninja.html](http://localhost:3000/games/number-line-ninja.html) | ✅ Ready | Jump ninja along number line to solve problems. Collect coins! Grades 1-4. |
+| **Equation Balance Scale** | [http://localhost:3000/games/equation-balance-scale.html](http://localhost:3000/games/equation-balance-scale.html) | ✅ Ready | Visual algebra with balance scale. Find missing numbers. Grades 3-6. |
+| **Math Memory Match** | [http://localhost:3000/games/math-memory-match.html](http://localhost:3000/games/math-memory-match.html) | ✅ Ready | Match problems with answers. Memory + math skills. Grades 1-4. |
+| **Counting Carnival** | [http://localhost:3000/games/counting-carnival.html](http://localhost:3000/games/counting-carnival.html) | ✅ Ready | Carnival-themed counting games. Ring toss, duck pond, ball throw. Grades K-2. |
+| **Geometry Builder Challenge** | [http://localhost:3000/games/geometry-builder-challenge.html](http://localhost:3000/games/geometry-builder-challenge.html) | ✅ Ready | Build structures using geometric shapes. Count shapes needed. Grades 2-5. |
+| **Money Market Madness** | [http://localhost:3000/games/money-market-madness.html](http://localhost:3000/games/money-market-madness.html) | ✅ Ready | Buy items and calculate change. Real-world money skills. Grades 2-4. |
+| **Time Attack Clock** | [http://localhost:3000/games/time-attack-clock.html](http://localhost:3000/games/time-attack-clock.html) | ✅ Ready | Match analog clocks to digital times. Learn to read time! Grades 1-3. |
+
+#### 🔬 Previously Created Games
+| Game Name | URL | Status | Notes |
+|-----------|-----|--------|-------|
+| **Math Race Rally** | [http://localhost:3000/games/math-race-rally.html](http://localhost:3000/games/math-race-rally.html) | ✅ Testing | Race car moves forward by solving problems. Multiple difficulty levels. |
 | **Multiplication Space Quest** | [http://localhost:3000/games/multiplication-space-quest.html](http://localhost:3000/games/multiplication-space-quest.html) | ✅ Testing | Space-themed multiplication game for grades 3-4. Single HTML file, WCAG 2.1 AA compliant. |
 | **Solar System Explorer** | [http://localhost:3000/games/solar-system-explorer.html](http://localhost:3000/games/solar-system-explorer.html) | ✅ Testing | Science game about planets and their properties. 8 planets to explore, quiz format, streak system. WCAG 2.1 AA compliant. |
 | **Math Adventure Island** | [http://localhost:3000/games/math-adventure-island.html](http://localhost:3000/games/math-adventure-island.html) | ✅ Testing | Pirate-themed addition/subtraction game. 3 difficulty levels, treasure hunt format, streak bonuses. WCAG 2.1 AA compliant. |
+| **Ocean Conservation Heroes** | [http://localhost:3000/games/ocean-conservation-heroes.html](http://localhost:3000/games/ocean-conservation-heroes.html) | ✅ Testing | Science/environmental game about ocean conservation. |
 
 ### HTML-Based Lessons
 
@@ -211,14 +231,19 @@ Ensure the catalog entry has:
 
 ## 📊 Test Games Statistics
 
-**Total Test Games:** 4
+**Total Test Games:** 19
 - React Component Games: 1
-- HTML Games: 3
+- HTML Games: 18 (13 NEW math games + 5 previously created)
 - HTML Lessons: 0
 
+**New Math Games Created** (from math-game-ideas.txt):
+- 13 complete, WCAG 2.1 AA compliant HTML games
+- Covering all difficulty levels (K-6)
+- Topics: counting, fractions, multiplication, geometry, money, time, algebra basics
+
 **Catalog Statistics:**
-- Total Cataloged: 85 adventures
-- Math: 25 adventures
+- Total Cataloged: 85 adventures (not including new games)
+- Math: 25 adventures (+ 13 ready to add)
 - Science: 30 adventures
 - English: 10 adventures
 - History: 10 adventures
@@ -248,6 +273,7 @@ Ensure the catalog entry has:
 
 ---
 
-**Last Updated:** October 2025
+**Last Updated:** November 2025
 **Maintained By:** Learning Adventures Platform Team
+**Latest Addition:** 13 new math games from math-game-ideas.txt (Nov 16, 2025)
 **Questions?** Check the related documentation above or ask the Interactive Content Builder agent for help.

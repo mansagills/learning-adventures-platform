@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Line Ninja | Math Adventure</title>
+    <meta name="description" content="Jump along the number line to solve problems! Collect coins and dodge obstacles.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }
+        .skip-link:focus { top: 0; }
+        .game-container { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 1000px; width: 100%; }
+        h1 { color: #8e2de2; text-align: center; margin-bottom: 1rem; font-size: 2.5rem; }
+        #instructions { background: #f3e5f5; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border-left: 4px solid #8e2de2; }
+        .stats { display: flex; justify-content: space-around; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
+        .stat-box { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 1rem 1.5rem; border-radius: 12px; font-size: 1.2rem; font-weight: bold; }
+        .problem { font-size: 2rem; text-align: center; margin-bottom: 1.5rem; color: #2d3748; font-weight: bold; }
+        .number-line { background: #f7fafc; border: 3px solid #cbd5e0; border-radius: 12px; padding: 2rem 1rem; margin-bottom: 2rem; position: relative; overflow-x: auto; }
+        .line { height: 4px; background: #4a5568; margin: 3rem 0 2rem; position: relative; }
+        .numbers { display: flex; justify-content: space-between; position: relative; padding: 0 10px; }
+        .number { font-size: 1.3rem; font-weight: bold; color: #2d3748; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.3s; }
+        .number:hover, .number:focus { background: #e2e8f0; transform: scale(1.2); outline: 2px solid #8e2de2; }
+        .ninja { position: absolute; top: -50px; font-size: 3rem; transition: left 0.5s; }
+        .coin { position: absolute; top: -60px; font-size: 1.5rem; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .feedback { text-align: center; font-size: 1.5rem; font-weight: bold; padding: 1rem; border-radius: 12px; margin: 1rem 0; }
+        .feedback.correct { background: #c6f6d5; color: #22543d; }
+        .feedback.incorrect { background: #fed7d7; color: #742a2a; }
+        .btn { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s; margin: 0.5rem; }
+        .btn:hover, .btn:focus { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <a href="#main-game" class="skip-link">Skip to game</a>
+    <div class="game-container">
+        <h1>🥷 Number Line Ninja 🥷</h1>
+        <p style="text-align: center; color: #718096; margin-bottom: 2rem;">Jump along the number line to solve problems!</p>
+        <div id="instructions">
+            <h2 style="color: #8e2de2; margin-bottom: 0.5rem;">How to Play</h2>
+            <ul style="margin-left: 1.5rem; color: #4a5568;">
+                <li>Solve the math problem shown</li>
+                <li>Click the correct number on the number line</li>
+                <li>Watch the ninja jump to that number!</li>
+                <li>Collect coins for correct answers</li>
+            </ul>
+            <div style="text-align: center; margin-top: 1rem;">
+                <button class="btn" onclick="startGame()">Start Adventure!</button>
+            </div>
+        </div>
+        <div id="main-game" class="hidden">
+            <div class="stats">
+                <div class="stat-box">💰 Coins: <span id="coins">0</span></div>
+                <div class="stat-box">⭐ Score: <span id="score">0</span></div>
+                <div class="stat-box">🎯 Level: <span id="level">1</span></div>
+            </div>
+            <div class="problem" id="problem">? + ? = ?</div>
+            <div class="feedback hidden" id="feedback"></div>
+            <div class="number-line">
+                <div class="ninja" id="ninja" style="left: 0;">🥷</div>
+                <div class="coin hidden" id="coin">💰</div>
+                <div class="line"></div>
+                <div class="numbers" id="numbers"></div>
+            </div>
+        </div>
+        <div id="game-over" class="hidden" style="text-align: center;">
+            <h2 style="color: #8e2de2; font-size: 2.5rem; margin-bottom: 1rem;">Ninja Master! 🎉</h2>
+            <p style="font-size: 1.5rem; margin: 1rem 0;">Total Coins: <span id="final-coins">0</span></p>
+            <p style="font-size: 1.5rem; margin: 1rem 0;">Final Score: <span id="final-score">0</span></p>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+    <script>
+        let score = 0, coins = 0, level = 1, currentAnswer = 0, range = { min: 0, max: 10 };
+        function startGame() {
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('main-game').classList.remove('hidden');
+            updateDisplay();
+            generateProblem();
+        }
+        function updateDisplay() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('level').textContent = level;
+        }
+        function generateProblem() {
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('coin').classList.add('hidden');
+            const type = ['add', 'sub'][Math.floor(Math.random() * 2)];
+            let a, b;
+            if (type === 'add') {
+                a = Math.floor(Math.random() * range.max) + 1;
+                b = Math.floor(Math.random() * range.max) + 1;
+                currentAnswer = a + b;
+                document.getElementById('problem').textContent = `${a} + ${b} = ?`;
+            } else {
+                a = Math.floor(Math.random() * range.max) + range.max;
+                b = Math.floor(Math.random() * range.max) + 1;
+                currentAnswer = a - b;
+                document.getElementById('problem').textContent = `${a} - ${b} = ?`;
+            }
+            range.min = Math.max(0, currentAnswer - 5);
+            range.max = currentAnswer + 5;
+            renderNumberLine();
+        }
+        function renderNumberLine() {
+            const numbers = document.getElementById('numbers');
+            let html = '';
+            for (let i = range.min; i <= range.max; i++) {
+                html += `<div class="number" tabindex="0" onclick="jumpTo(${i})" onkeypress="if(event.key==='Enter') jumpTo(${i})">${i}</div>`;
+            }
+            numbers.innerHTML = html;
+        }
+        function jumpTo(num) {
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+            const percent = ((num - range.min) / (range.max - range.min)) * 100;
+            document.getElementById('ninja').style.left = `${percent}%`;
+            if (num === currentAnswer) {
+                score += 10 + (level * 5);
+                coins++;
+                feedback.classList.add('correct');
+                feedback.textContent = `✅ Perfect jump! +${10 + (level * 5)} points!`;
+                document.getElementById('coin').style.left = `${percent}%`;
+                document.getElementById('coin').classList.remove('hidden');
+                if (coins % 10 === 0) {
+                    level++;
+                    range.max = range.max + 5;
+                    setTimeout(() => {
+                        alert(`🎉 Level ${level}! Harder problems ahead!`);
+                        generateProblem();
+                    }, 1500);
+                } else {
+                    setTimeout(() => generateProblem(), 1500);
+                }
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.textContent = `❌ Wrong landing! Answer: ${currentAnswer}`;
+                setTimeout(() => generateProblem(), 2000);
+            }
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>
