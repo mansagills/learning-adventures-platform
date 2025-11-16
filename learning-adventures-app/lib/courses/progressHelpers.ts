@@ -460,7 +460,6 @@ export async function completeLesson(
     data: {
       completedLessons: completedCount,
       totalXPEarned: enrollment.totalXPEarned + xpCalc.totalXP,
-      currentLessonOrder: nextLesson?.order || lesson.order,
       lastActivityAt: new Date(),
     },
   });
