@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     // Get in-progress courses
     const inProgressCourses = enrollments.filter(
-      (e) => e.status === 'IN_PROGRESS'
+      (e: any) => e.status === 'IN_PROGRESS'
     );
 
     // Get completed courses count
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate total XP earned from courses
     const totalCourseXP = enrollments.reduce(
-      (sum, enrollment) => sum + enrollment.totalXPEarned,
+      (sum: number, enrollment: any) => sum + enrollment.totalXPEarned,
       0
     );
 
