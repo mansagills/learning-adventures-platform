@@ -33,8 +33,7 @@ export default function HomePage() {
       if (process.env.NODE_ENV === 'production') {
         window.location.href = MARKETING_SITE_URL;
       } else {
-        // In development, redirect to a local marketing preview page
-        // You can change this to show marketing content locally if needed
+        // In development, redirect to marketing preview
         router.push('/marketing-preview');
       }
     }
