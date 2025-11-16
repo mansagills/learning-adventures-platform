@@ -56,12 +56,15 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
       const courseResponse = await fetch(`/api/courses?search=${slug}`);
       const courseData = await courseResponse.json();
 
-      if (!courseData.success || courseData.data.courses.length === 0) {
+      // Handle both paginated (data.data.data) and non-paginated (data.data.courses) responses
+      const coursesData = courseData.data?.data || courseData.data?.courses || [];
+
+      if (!courseData.success || coursesData.length === 0) {
         setError('Course not found');
         return;
       }
 
-      const foundCourse = courseData.data.courses.find((c: any) => c.slug === slug);
+      const foundCourse = coursesData.find((c: any) => c.slug === slug);
 
       if (!foundCourse) {
         setError('Course not found');
