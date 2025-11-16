@@ -59,15 +59,15 @@ export default function Benefits() {
               key={benefit.title}
               className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-250 group"
             >
-              {/* Image */}
-              <div className="relative h-48 mb-6 rounded-lg overflow-hidden">
-                <Image
-                  src={benefit.image}
-                  alt={benefit.imageAlt}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
+              {/* Image Placeholder */}
+              <div className="relative h-48 mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-brand-100 to-accent-100 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                <span className="text-5xl opacity-50">
+                  {index === 0 && '🎯'}
+                  {index === 1 && '🎮'}
+                  {index === 2 && '❤️'}
+                  {index === 3 && '📚'}
+                  {index === 4 && '⭐'}
+                </span>
               </div>
 
               {/* Icon */}

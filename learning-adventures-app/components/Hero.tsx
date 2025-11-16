@@ -91,17 +91,11 @@ export default function Hero() {
             {/* Decorative background elements */}
             <div className="absolute -inset-6 bg-gradient-to-br from-brand-400/30 via-coral-400/30 to-sunshine-400/30 rounded-3xl blur-2xl opacity-60"></div>
 
-            <div className="relative z-10 card-fun overflow-hidden">
-              <Image
-                src="/hero-image.jpg"
-                alt="Children engaged in interactive learning with tablets and educational games"
-                width={600}
-                height={400}
-                className="rounded-3xl"
-                priority
-                placeholder="blur"
-                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+15/8Aej7vzLKrVagZ2lVzsWOlgDgR+2eKCY7aM+QhVsHc8DP0CXNN+u9jEK4YQDJgppvOeGkTq4GawX4mS5mI+CxvGN7wL8A/rGlTxKbR2Cv20F3d/ePn5t+kCCNhGQJKckb+C35L1rYCvK6z6KKKUFvSgaBebB3BSE+3vFRt5Tk1+VzKmWkM55BG4aJJkIznJX2oUhU6lLdPKvz2Zt5N5t7VKm5VQG/k/9k="
-              />
+            <div className="relative z-10 card-fun overflow-hidden bg-gradient-to-br from-brand-200 via-purple-200 to-accent-200">
+              {/* Placeholder for hero image - replace with actual image later */}
+              <div className="w-full h-96 flex items-center justify-center text-6xl rounded-3xl">
+                🎓📚✨
+              </div>
             </div>
 
             {/* Fun floating decorative elements */}
