@@ -191,6 +191,7 @@ export async function enrollInCourse(
         courseId,
         status: CourseStatus.IN_PROGRESS,
         currentLessonOrder: 1,
+        totalLessons: lessons.length,
       },
     });
 
@@ -211,9 +212,10 @@ export async function enrollInCourse(
       enrollment,
     };
   } catch (error) {
+    console.error('Error enrolling in course:', error);
     return {
       success: false,
-      error: 'Failed to create enrollment',
+      error: error instanceof Error ? error.message : 'Failed to create enrollment',
     };
   }
 }
