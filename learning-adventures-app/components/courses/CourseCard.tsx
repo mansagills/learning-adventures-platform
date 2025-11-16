@@ -67,7 +67,7 @@ export default function CourseCard({ course }: CourseCardProps) {
   return (
     <Link
       href={isLocked ? '#' : `/courses/${slug}`}
-      className={`block card-fun group ${
+      className={`block card-fun group relative ${
         isLocked ? 'opacity-60 cursor-not-allowed' : ''
       }`}
     >
