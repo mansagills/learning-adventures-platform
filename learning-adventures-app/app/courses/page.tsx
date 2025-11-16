@@ -51,7 +51,9 @@ export default function CourseCatalogPage() {
       const data = await response.json();
 
       if (data.success) {
-        setCourses(data.data.courses || []);
+        // Handle both paginated (data.data.data) and non-paginated (data.data.courses) responses
+        const coursesData = data.data.data || data.data.courses || [];
+        setCourses(coursesData);
       } else {
         setError(data.error?.message || 'Failed to load courses');
       }
