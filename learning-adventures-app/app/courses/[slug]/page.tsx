@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import EnrollButton from '@/components/courses/EnrollButton';
 import LessonList from '@/components/courses/LessonList';
+import PremiumBadge from '@/components/courses/PremiumBadge';
 
 interface CourseDetailProps {
   params: {
@@ -25,6 +26,7 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [generatingCertificate, setGeneratingCertificate] = useState(false);
 
   useEffect(() => {
     fetchCourse();
@@ -102,6 +104,9 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
   }
 
   const isEnrolled = !!course.enrollment;
+  const isCompleted = course.enrollment?.status === 'COMPLETED';
+  const hasCertificate = course.enrollment?.certificateEarned;
+
   const hours = Math.floor(course.estimatedMinutes / 60);
   const minutes = course.estimatedMinutes % 60;
   const timeEstimate = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
@@ -110,6 +115,28 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
     BEGINNER: 'bg-green-100 text-green-800',
     INTERMEDIATE: 'bg-yellow-100 text-yellow-800',
     ADVANCED: 'bg-red-100 text-red-800',
+  };
+
+  const handleGenerateCertificate = async () => {
+    try {
+      setGeneratingCertificate(true);
+      const response = await fetch(`/api/courses/${course.id}/certificate`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        const certificateId = data.data.certificate.id;
+        router.push(`/certificates/${certificateId}`);
+      } else {
+        alert(data.error?.message || 'Failed to generate certificate');
+      }
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      alert('Failed to generate certificate');
+    } finally {
+      setGeneratingCertificate(false);
+    }
   };
 
   return (
@@ -142,11 +169,7 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
                 <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-semibold rounded capitalize">
                   {course.subject}
                 </span>
-                {course.isPremium && (
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded">
-                    Premium
-                  </span>
-                )}
+                {course.isPremium && <PremiumBadge size="md" showLabel={true} />}
               </div>
             </div>
           </div>
@@ -201,10 +224,42 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
           <EnrollButton
             courseId={course.id}
             courseSlug={course.slug}
+            courseTitle={course.title}
             isEnrolled={isEnrolled}
             isPremium={course.isPremium}
             onEnrollmentChange={fetchCourse}
           />
+
+          {/* Certificate Button - Show when course is completed */}
+          {isCompleted && (
+            <div className="mt-4">
+              <button
+                onClick={handleGenerateCertificate}
+                disabled={generatingCertificate}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {generatingCertificate ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                    Generating...
+                  </span>
+                ) : (
+                  <span>{hasCertificate ? 'View Certificate' : 'Get Your Certificate'}</span>
+                )}
+              </button>
+              <p className="text-xs text-gray-600 text-center mt-2">
+                🎉 Congratulations on completing this course! Download your certificate to showcase your achievement.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Lessons Section */}

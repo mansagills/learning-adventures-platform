@@ -8,6 +8,7 @@
 
 import Link from 'next/link';
 import { Course } from '@/lib/courses';
+import PremiumBadge from './PremiumBadge';
 
 interface CourseCardProps {
   course: Course & {
@@ -71,16 +72,14 @@ export default function CourseCard({ course }: CourseCardProps) {
         {/* Title and Premium Badge */}
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-xl font-bold text-gray-900 flex-1">{title}</h3>
-          {isPremium && (
-            <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">
-              Premium
-            </span>
-          )}
-          {isLocked && (
-            <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">
-              🔒 Locked
-            </span>
-          )}
+          <div className="flex items-center gap-2 ml-2">
+            {isPremium && <PremiumBadge size="sm" showLabel={true} />}
+            {isLocked && (
+              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">
+                🔒 Locked
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Description */}

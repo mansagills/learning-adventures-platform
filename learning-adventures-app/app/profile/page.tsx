@@ -8,6 +8,7 @@ import ProfileSettings from '@/components/ProfileSettings';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
+import CertificatesSection from '@/components/profile/CertificatesSection';
 
 export default function ProfilePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -112,6 +113,11 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Certificates Section */}
+            <div className="mt-8">
+              <CertificatesSection />
             </div>
 
             {/* Quick Actions */}

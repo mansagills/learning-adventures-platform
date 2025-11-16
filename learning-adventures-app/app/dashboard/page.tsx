@@ -13,6 +13,10 @@ import ProgressOverview from '@/components/dashboard/ProgressOverview';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import AchievementShowcase from '@/components/dashboard/AchievementShowcase';
 import RecommendedContent from '@/components/dashboard/RecommendedContent';
+import RecentCourses from '@/components/dashboard/RecentCourses';
+import XPWidget from '@/components/xp/XPWidget';
+import StreakDisplay from '@/components/xp/StreakDisplay';
+import DailyXPGoal from '@/components/xp/DailyXPGoal';
 import { getAllAdventures, getAdventureById } from '@/lib/catalogData';
 
 function DashboardContent() {
@@ -235,6 +239,18 @@ function DashboardContent() {
           isLoading={progressLoading}
         />
       )}
+
+      {/* XP & Course Progress Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <XPWidget />
+        <StreakDisplay />
+        <DailyXPGoal />
+      </div>
+
+      {/* Recent Courses */}
+      <div className="mt-6">
+        <RecentCourses />
+      </div>
 
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
