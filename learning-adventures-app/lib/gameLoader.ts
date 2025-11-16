@@ -61,10 +61,12 @@ export async function initializeGameRegistry() {
   // For Next.js, we need to manually import game registrations
   // Games will self-register when their modules are imported
   try {
-    // Import known game registrations
+       // Import known game registrations
     await import('@/components/games/sample-math-game');
     await import('@/components/games/ecosystem-builder');
-    await import('@/components/games/space-multiplication-adventure');
+    
+    // Future games will be added here or they can self-register
+
 
     // Future games will be added here or they can self-register
     // by importing their index files elsewhere in the app
