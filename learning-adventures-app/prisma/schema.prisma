@@ -253,12 +253,12 @@ model CourseEnrollment {
 
   // Certificate
   certificateEarned Boolean @default(false)
-  certificateUrl    String?
 
   // Relations
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
   course          Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress  CourseLessonProgress[]
+  certificate     CourseCertificate?
 
   @@unique([userId, courseId])
   @@index([userId, status])
@@ -350,4 +350,34 @@ model UserLevel {
   updatedAt       DateTime @updatedAt
 
   @@index([userId, currentLevel])
+}
+
+// Course Completion Certificates
+model CourseCertificate {
+  id                String   @id @default(cuid())
+  enrollmentId      String   @unique
+
+  // Certificate Details
+  certificateNumber String   @unique // e.g., "CERT-2025-001234"
+  studentName       String
+  courseTitle       String
+  completionDate    DateTime
+
+  // Performance Metrics
+  totalXPEarned     Int
+  averageScore      Float?
+  totalLessons      Int
+  timeSpent         Int      // Total minutes spent
+
+  // Certificate Metadata
+  issuedAt          DateTime @default(now())
+  verificationCode  String   @unique // For verification purposes
+
+  // Relations
+  enrollment        CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime @default(now())
+
+  @@index([certificateNumber])
+  @@index([verificationCode])
 }
