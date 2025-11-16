@@ -37,8 +37,11 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
       const response = await fetch(`/api/courses?search=${slug}`);
       const data = await response.json();
 
-      if (data.success && data.data.courses.length > 0) {
-        const foundCourse = data.data.courses.find((c: any) => c.slug === slug);
+      // Handle both paginated (data.data.data) and non-paginated (data.data.courses) responses
+      const coursesData = data.data?.data || data.data?.courses || [];
+
+      if (data.success && coursesData.length > 0) {
+        const foundCourse = coursesData.find((c: any) => c.slug === slug);
 
         if (foundCourse) {
           // Now get full course details with progress if authenticated
