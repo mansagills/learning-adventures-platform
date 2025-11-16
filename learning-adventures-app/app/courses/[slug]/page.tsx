@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import EnrollButton from '@/components/courses/EnrollButton';
 import LessonList from '@/components/courses/LessonList';
+import PremiumBadge from '@/components/courses/PremiumBadge';
 
 interface CourseDetailProps {
   params: {
@@ -139,11 +140,7 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
                 <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-semibold rounded capitalize">
                   {course.subject}
                 </span>
-                {course.isPremium && (
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded">
-                    Premium
-                  </span>
-                )}
+                {course.isPremium && <PremiumBadge size="md" showLabel={true} />}
               </div>
             </div>
           </div>
@@ -198,6 +195,7 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
           <EnrollButton
             courseId={course.id}
             courseSlug={course.slug}
+            courseTitle={course.title}
             isEnrolled={isEnrolled}
             isPremium={course.isPremium}
             onEnrollmentChange={fetchCourse}
