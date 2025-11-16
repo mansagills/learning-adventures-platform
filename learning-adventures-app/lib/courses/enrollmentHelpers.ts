@@ -190,7 +190,6 @@ export async function enrollInCourse(
         userId,
         courseId,
         status: CourseStatus.IN_PROGRESS,
-        currentLessonOrder: 1,
         totalLessons: lessons.length,
       },
     });
