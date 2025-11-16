@@ -34,23 +34,23 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    const url = new URL(request.url);
 
     // Get user if authenticated
     const user = await getAuthenticatedUser(request);
     const userId = user?.id;
 
     // Parse query parameters
-    const subject = getQueryParam(searchParams, 'subject') || undefined;
-    const difficulty = getQueryParam(searchParams, 'difficulty') as any;
-    const isPremium = getQueryParamAsBoolean(searchParams, 'isPremium');
-    const search = getQueryParam(searchParams, 'search') || undefined;
-    const sortBy = (getQueryParam(searchParams, 'sortBy') || 'recent') as CourseSortBy;
-    const sortDirection = (getQueryParam(searchParams, 'sortDirection') ||
+    const subject = getQueryParam(url, 'subject') || undefined;
+    const difficulty = getQueryParam(url, 'difficulty') as any;
+    const isPremium = getQueryParamAsBoolean(url, 'isPremium');
+    const search = getQueryParam(url, 'search') || undefined;
+    const sortBy = (getQueryParam(url, 'sortBy') || 'recent') as CourseSortBy;
+    const sortDirection = (getQueryParam(url, 'sortDirection') ||
       'desc') as SortDirection;
-    const page = getQueryParamAsNumber(searchParams, 'page', 1);
-    const pageSize = getQueryParamAsNumber(searchParams, 'pageSize', 10);
-    const includeProgress = getQueryParamAsBoolean(searchParams, 'includeProgress', false);
+    const page = getQueryParamAsNumber(url, 'page', 1);
+    const pageSize = getQueryParamAsNumber(url, 'pageSize', 10);
+    const includeProgress = getQueryParamAsBoolean(url, 'includeProgress', false);
 
     // Build filters
     const filters = {

@@ -5,15 +5,13 @@
  * and level progression.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import type {
   XPCalculation,
   StreakMultiplier,
   LevelInfo,
   DailyXPBreakdown,
 } from './types';
-
-const prisma = new PrismaClient();
 
 // ============================================================================
 // CONSTANTS

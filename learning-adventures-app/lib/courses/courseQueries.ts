@@ -5,7 +5,7 @@
  * sorting, and user-specific progress data.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import type {
   Course,
   CourseLesson,
@@ -20,8 +20,6 @@ import type {
   CourseWithProgress,
   PaginatedResponse,
 } from './types';
-
-const prisma = new PrismaClient();
 
 // ============================================================================
 // COURSE QUERIES
@@ -545,11 +543,4 @@ export async function getMissingPrerequisites(
   return prisma.course.findMany({
     where: { id: { in: missingIds } },
   });
-}
-
-/**
- * Cleanup function to disconnect Prisma
- */
-export async function disconnectPrisma() {
-  await prisma.$disconnect();
 }

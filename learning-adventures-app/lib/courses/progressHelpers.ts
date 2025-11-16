@@ -5,7 +5,8 @@
  * and enforcing linear progression.
  */
 
-import { PrismaClient, LessonProgressStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { LessonProgressStatus } from '@prisma/client';
 import type { CourseLessonProgress, CourseLesson } from '@prisma/client';
 import type {
   LessonWithProgress,
@@ -21,8 +22,6 @@ import {
   getUserStreak,
 } from './xpCalculations';
 import { updateEnrollmentActivity } from './enrollmentHelpers';
-
-const prisma = new PrismaClient();
 
 // ============================================================================
 // LESSON ACCESS CONTROL (Linear Progression)

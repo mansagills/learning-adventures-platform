@@ -5,7 +5,8 @@
  * and handling enrollment lifecycle.
  */
 
-import { PrismaClient, CourseStatus, LessonProgressStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { CourseStatus, LessonProgressStatus } from '@prisma/client';
 import type { CourseEnrollment, User } from '@prisma/client';
 import type {
   EnrollmentEligibility,
@@ -13,8 +14,6 @@ import type {
   CompletionRequirements,
 } from './types';
 import { checkPrerequisites, getMissingPrerequisites, getCourseById } from './courseQueries';
-
-const prisma = new PrismaClient();
 
 // ============================================================================
 // CONSTANTS
