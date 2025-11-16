@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import CourseCard from '@/components/courses/CourseCard';
+import { CourseCatalogSkeleton } from '@/components/LoadingSkeleton';
 
 interface Course {
   id: string;
@@ -108,10 +109,28 @@ export default function CourseCatalogPage() {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading courses...</p>
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Course Catalog</h1>
+            <p className="text-gray-600">
+              Explore our courses and start your learning adventure!
+            </p>
           </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-8 animate-pulse">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="h-20 bg-gray-200 rounded" />
+              <div className="h-20 bg-gray-200 rounded" />
+              <div className="h-20 bg-gray-200 rounded" />
+            </div>
+          </div>
+
+          {/* Results count skeleton */}
+          <div className="h-6 bg-gray-200 rounded w-48 mb-6 animate-pulse" />
+
+          {/* Course grid skeleton */}
+          <CourseCatalogSkeleton count={6} />
         </div>
       </div>
     );
