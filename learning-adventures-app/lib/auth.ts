@@ -4,6 +4,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth/next';
 
 console.log('🔧 Auth configuration loaded');
 
@@ -122,3 +124,62 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+// ============================================================================
+// API Authentication Helpers
+// ============================================================================
+
+/**
+ * Custom error classes
+ */
+export class AuthenticationError extends Error {
+  constructor(message: string = 'Authentication required') {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
+
+export class AuthorizationError extends Error {
+  constructor(message: string = 'Not authorized') {
+    super(message);
+    this.name = 'AuthorizationError';
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+/**
+ * Get the authenticated user from the request
+ */
+export async function getAuthenticatedUser(request?: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user?.id) {
+    return null;
+  }
+
+  return {
+    id: session.user.id,
+    email: session.user.email,
+    name: session.user.name,
+    role: session.user.role,
+  };
+}
+
+/**
+ * Require authentication - throws error if not authenticated
+ */
+export async function requireAuth(request?: NextRequest) {
+  const user = await getAuthenticatedUser(request);
+
+  if (!user) {
+    throw new AuthenticationError('Authentication required');
+  }
+
+  return user;
+}
