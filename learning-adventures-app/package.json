@@ -13,8 +13,10 @@
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:test-games": "tsx prisma/seed-test-games.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "vercel:deploy": "vercel --prod"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.0",

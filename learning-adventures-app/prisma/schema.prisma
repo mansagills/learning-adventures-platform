@@ -381,3 +381,135 @@ model CourseCertificate {
   @@index([certificateNumber])
   @@index([verificationCode])
 }
+
+// ============================================================================
+// GAME APPROVAL WORKFLOW MODELS
+// ============================================================================
+
+// Test Games pending approval
+model TestGame {
+  id              String   @id @default(cuid())
+
+  // Game Information
+  gameId          String   @unique // filename without .html (e.g., "number-monster-feeding")
+  title           String
+  description     String   @db.Text
+  category        String   // 'math', 'science', etc.
+  type            String   // 'game' or 'lesson'
+  gradeLevel      String[] // ['K', '1', '2', '3']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  skills          String[] // Array of skills
+  estimatedTime   String   // '10-15 mins'
+
+  // File Paths
+  filePath        String   // '/games/number-monster-feeding.html'
+  isHtmlGame      Boolean  @default(true)
+  isReactComponent Boolean @default(false)
+
+  // Approval Status
+  status          TestGameStatus @default(NOT_TESTED)
+
+  // Metadata
+  createdBy       String?  // User ID who added this
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Catalog Integration
+  catalogued      Boolean  @default(false)
+  cataloguedAt    DateTime?
+  cataloguedBy    String?  // User ID who promoted to catalog
+
+  // Relations
+  approvals       GameApproval[]
+  feedback        GameFeedback[]
+
+  @@index([status, category])
+  @@index([catalogued])
+}
+
+enum TestGameStatus {
+  NOT_TESTED      // Just uploaded, not tested yet
+  IN_TESTING      // Currently being tested by team
+  APPROVED        // Approved and ready for catalog
+  REJECTED        // Rejected, needs fixes
+  NEEDS_REVISION  // Approved with requested changes
+}
+
+// Approval/Rejection decisions
+model GameApproval {
+  id              String   @id @default(cuid())
+  testGameId      String
+
+  // Approver
+  userId          String   // Admin who made the decision
+  userName        String   // Cached for display
+
+  // Decision
+  decision        ApprovalDecision
+  notes           String?  @db.Text
+
+  // Checklist (optional structured feedback)
+  educationalQuality    Boolean?
+  technicalQuality      Boolean?
+  accessibilityCompliant Boolean?
+  ageAppropriate        Boolean?
+  engagementLevel       Int?     // 1-5 rating
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testGame        TestGame @relation(fields: [testGameId], references: [id], onDelete: Cascade)
+
+  @@index([testGameId])
+  @@index([userId])
+}
+
+enum ApprovalDecision {
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+}
+
+// Detailed feedback/notes on games
+model GameFeedback {
+  id              String   @id @default(cuid())
+  testGameId      String
+
+  // Feedback Provider
+  userId          String
+  userName        String
+
+  // Feedback Content
+  feedbackType    FeedbackType
+  message         String   @db.Text
+
+  // Optional: Specific issues/bugs
+  issueSeverity   IssueSeverity?
+  screenshotUrl   String?
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testGame        TestGame @relation(fields: [testGameId], references: [id], onDelete: Cascade)
+
+  @@index([testGameId])
+  @@index([userId])
+}
+
+enum FeedbackType {
+  BUG
+  SUGGESTION
+  PRAISE
+  ACCESSIBILITY_ISSUE
+  CONTENT_ERROR
+  GENERAL
+}
+
+enum IssueSeverity {
+  CRITICAL    // Blocks approval
+  MAJOR       // Significant issue
+  MINOR       // Nice to fix
+  TRIVIAL     // Optional
+}
