@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasure Hunt Calculator | Math Adventure Game</title>
+    <meta name="description" content="Solve math problems to find buried treasure! Navigate a pirate map and unlock treasure chests with your math skills.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        .game-container {
+            background: #f7f4e9;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1000px;
+            width: 100%;
+            border: 4px solid #8b4513;
+        }
+
+        h1 {
+            color: #8b4513;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #654321;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+
+        #instructions {
+            background: #fff8dc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 2px solid #8b4513;
+        }
+
+        #instructions h2 {
+            color: #8b4513;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        #instructions ul {
+            margin-left: 1.5rem;
+            color: #654321;
+        }
+
+        #instructions li {
+            margin: 0.5rem 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #8b4513;
+            border: 2px solid #8b4513;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .treasure-map {
+            background: linear-gradient(135deg, #8dd1e1 0%, #d4eef9 100%);
+            border: 4px solid #8b4513;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            min-height: 300px;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+        }
+
+        .map-location {
+            background: #f5deb3;
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .map-location:hover, .map-location:focus {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            outline: 3px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .map-location.discovered {
+            background: linear-gradient(135deg, #90ee90 0%, #98fb98 100%);
+        }
+
+        .map-location.current {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .location-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-name {
+            font-weight: bold;
+            color: #8b4513;
+        }
+
+        .clue-area {
+            background: #fff8dc;
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .clue-text {
+            color: #8b4513;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .problem-area {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid #8b4513;
+            margin-bottom: 2rem;
+        }
+
+        .math-problem {
+            font-size: 2.5rem;
+            color: #8b4513;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .answer-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 1rem;
+            font-size: 2rem;
+            text-align: center;
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            margin: 0 auto 1rem;
+            display: block;
+        }
+
+        .answer-input:focus {
+            outline: 3px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0.5rem;
+            display: inline-block;
+        }
+
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            outline: 3px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-center {
+            text-align: center;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .treasure-found {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .treasure-found h2 {
+            color: #ffd700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #game-over {
+            text-align: center;
+        }
+
+        #game-over h2 {
+            color: #8b4513;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #game-over p {
+            font-size: 1.5rem;
+            color: #654321;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .math-problem {
+                font-size: 1.8rem;
+            }
+
+            .location-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-game" class="skip-link">Skip to game</a>
+
+    <div class="game-container" role="main">
+        <h1>🏴‍☠️ Treasure Hunt Calculator 💰</h1>
+        <p class="subtitle">Solve math problems to find buried treasure!</p>
+
+        <div id="instructions" role="region" aria-labelledby="instructions-title">
+            <h2 id="instructions-title">How to Play</h2>
+            <ul>
+                <li>Follow the map to different island locations</li>
+                <li>Solve math clues to unlock treasure chests</li>
+                <li>Each correct answer reveals a new location</li>
+                <li>Find all the treasures to win!</li>
+                <li>Type your answer and press Enter or click Submit</li>
+            </ul>
+            <div class="btn-center">
+                <button class="btn" onclick="startGame()" aria-label="Start treasure hunt">Start Adventure!</button>
+            </div>
+        </div>
+
+        <div id="main-game" class="hidden" role="application" aria-label="Treasure Hunt Calculator game">
+            <div class="stats">
+                <div class="stat-box" role="status" aria-live="polite">
+                    💰 Treasures: <span id="treasures">0</span>/5
+                </div>
+                <div class="stat-box" role="status" aria-live="polite">
+                    ⭐ Score: <span id="score">0</span>
+                </div>
+                <div class="stat-box" role="status" aria-live="polite">
+                    📍 Location: <span id="location">Start</span>
+                </div>
+            </div>
+
+            <div class="clue-area">
+                <div class="clue-text" id="clue-text">X marks the spot! Solve the problem to find the first treasure...</div>
+            </div>
+
+            <div class="problem-area">
+                <div class="math-problem" id="math-problem" aria-live="polite">? + ? = ?</div>
+                <div class="feedback hidden" id="feedback" role="alert" aria-live="assertive"></div>
+                <input type="number"
+                       id="answer-input"
+                       class="answer-input"
+                       placeholder="Your answer"
+                       aria-label="Enter your answer"
+                       aria-describedby="math-problem">
+                <div class="btn-center">
+                    <button class="btn" onclick="checkAnswer()" id="submit-btn">Submit Answer</button>
+                    <button class="btn" onclick="skipQuestion()" id="hint-btn">Get Hint (-5 points)</button>
+                </div>
+            </div>
+
+            <div class="treasure-map" id="treasure-map" role="region" aria-label="Treasure map with discovered locations">
+                <!-- Map locations will be generated here -->
+            </div>
+        </div>
+
+        <div id="game-over" class="hidden">
+            <div class="treasure-found">
+                <h2>🎉 All Treasures Found! 🎉</h2>
+                <div style="font-size: 5rem; margin: 1rem 0;">💎🏆💰</div>
+                <p style="font-size: 2rem;">Final Score: <span id="final-score">0</span></p>
+                <p>You're a master treasure hunter!</p>
+                <button class="btn" onclick="location.reload()" aria-label="Play again">New Adventure</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let treasuresFound = 0;
+        let currentProblem = null;
+        let discoveredLocations = [];
+
+        const locations = [
+            { name: 'Palm Beach', icon: '🌴', clue: 'Solve this to start your journey!' },
+            { name: 'Skull Cave', icon: '💀', clue: 'The cave holds secrets... and treasure!' },
+            { name: 'Shipwreck Bay', icon: '⛵', clue: 'An old ship holds golden coins!' },
+            { name: 'Volcano Peak', icon: '🌋', clue: 'Dare to climb? Treasure awaits!' },
+            { name: 'Mystic Falls', icon: '💧', clue: 'Behind the waterfall, treasure sparkles!' }
+        ];
+
+        function startGame() {
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('main-game').classList.remove('hidden');
+            score = 0;
+            treasuresFound = 0;
+            discoveredLocations = [];
+            updateDisplay();
+            renderMap();
+            generateProblem();
+        }
+
+        function updateDisplay() {
+            document.getElementById('treasures').textContent = treasuresFound;
+            document.getElementById('score').textContent = score;
+            document.getElementById('location').textContent = treasuresFound < 5
+                ? locations[treasuresFound].name
+                : 'Complete!';
+        }
+
+        function renderMap() {
+            const mapDiv = document.getElementById('treasure-map');
+            mapDiv.innerHTML = locations.map((loc, index) => {
+                const discovered = index < treasuresFound;
+                const current = index === treasuresFound;
+                const classes = `map-location ${discovered ? 'discovered' : ''} ${current ? 'current' : ''}`;
+
+                return `
+                    <div class="${classes}"
+                         role="img"
+                         aria-label="${loc.name} ${discovered ? 'discovered' : current ? 'current location' : 'locked'}">
+                        <div class="location-icon">${discovered ? '✅' : current ? loc.icon : '❓'}</div>
+                        <div class="location-name">${discovered || current ? loc.name : '???'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateProblem() {
+            if (treasuresFound >= 5) {
+                gameWin();
+                return;
+            }
+
+            const difficulty = treasuresFound + 1; // Increase difficulty with each treasure
+            let num1, num2, answer, operation, problemText;
+
+            if (difficulty <= 2) {
+                // Addition
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                answer = num1 + num2;
+                operation = '+';
+                problemText = `${num1} + ${num2} = ?`;
+            } else if (difficulty <= 3) {
+                // Subtraction
+                num2 = Math.floor(Math.random() * 10) + 1;
+                num1 = num2 + Math.floor(Math.random() * 10) + 1;
+                answer = num1 - num2;
+                operation = '-';
+                problemText = `${num1} - ${num2} = ?`;
+            } else if (difficulty === 4) {
+                // Multiplication
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                answer = num1 * num2;
+                operation = '×';
+                problemText = `${num1} × ${num2} = ?`;
+            } else {
+                // Mixed operations
+                const ops = ['+', '-', '×'];
+                operation = ops[Math.floor(Math.random() * ops.length)];
+
+                if (operation === '+') {
+                    num1 = Math.floor(Math.random() * 20) + 1;
+                    num2 = Math.floor(Math.random() * 20) + 1;
+                    answer = num1 + num2;
+                } else if (operation === '-') {
+                    num2 = Math.floor(Math.random() * 15) + 1;
+                    num1 = num2 + Math.floor(Math.random() * 15) + 1;
+                    answer = num1 - num2;
+                } else {
+                    num1 = Math.floor(Math.random() * 12) + 1;
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    answer = num1 * num2;
+                }
+                problemText = `${num1} ${operation} ${num2} = ?`;
+            }
+
+            currentProblem = {
+                num1, num2, answer, operation, problemText
+            };
+
+            document.getElementById('math-problem').textContent = problemText;
+            document.getElementById('clue-text').textContent = locations[treasuresFound].clue;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('answer-input').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer-input').value);
+            const feedback = document.getElementById('feedback');
+
+            if (isNaN(userAnswer)) {
+                feedback.classList.remove('hidden', 'correct', 'incorrect');
+                feedback.classList.add('incorrect');
+                feedback.textContent = '⚠️ Please enter a number!';
+                return;
+            }
+
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+
+            if (userAnswer === currentProblem.answer) {
+                // Correct!
+                score += 20;
+                treasuresFound++;
+                feedback.classList.add('correct');
+                feedback.textContent = `🎉 Treasure found! ${currentProblem.problemText.replace('?', currentProblem.answer)}`;
+
+                updateDisplay();
+                renderMap();
+
+                setTimeout(() => {
+                    generateProblem();
+                }, 2000);
+            } else {
+                // Incorrect
+                feedback.classList.add('incorrect');
+                feedback.textContent = `❌ Not quite! Try again. (Answer: ${currentProblem.answer})`;
+
+                setTimeout(() => {
+                    generateProblem();
+                }, 2500);
+            }
+        }
+
+        function skipQuestion() {
+            score = Math.max(0, score - 5);
+            updateDisplay();
+
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+            feedback.textContent = `💡 Hint: ${currentProblem.num1} ${currentProblem.operation} ${currentProblem.num2} = ${currentProblem.answer}`;
+
+            setTimeout(() => {
+                treasuresFound++;
+                updateDisplay();
+                renderMap();
+                generateProblem();
+            }, 3000);
+        }
+
+        function gameWin() {
+            document.getElementById('main-game').classList.add('hidden');
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            const answerInput = document.getElementById('answer-input');
+
+            if (e.key === 'Enter' && !document.getElementById('main-game').classList.contains('hidden')) {
+                checkAnswer();
+            }
+
+            if (e.key === 'Escape') {
+                if (confirm('Exit treasure hunt?')) {
+                    location.reload();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
