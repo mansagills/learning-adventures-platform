@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Fraction Frenzy | Fun Fractions Game</title>
+    <meta name="description" content="Serve customers the correct pizza slice sizes! Fast-paced fraction ordering and comparison game with time pressure.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 950px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+
+        #instructions {
+            background: #fff5f5;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        #instructions h2 {
+            color: #c53030;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        #instructions ul {
+            margin-left: 1.5rem;
+            color: #742a2a;
+        }
+
+        #instructions li {
+            margin: 0.5rem 0;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #742a2a;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .timer {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .timer.warning {
+            animation: pulse-timer 1s infinite;
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+        }
+
+        @keyframes pulse-timer {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .customer-area {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 3px solid #e17055;
+        }
+
+        .customer {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .customer-says {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #742a2a;
+            margin-bottom: 0.5rem;
+        }
+
+        .fraction-request {
+            font-size: 3rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+        }
+
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .fraction > span {
+            display: block;
+            padding: 0 0.2em;
+        }
+
+        .fraction .numerator {
+            border-bottom: 2px solid currentColor;
+        }
+
+        .pizza-choices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pizza-option {
+            background: #fff5f5;
+            border: 3px solid #fc8181;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .pizza-option:hover, .pizza-option:focus {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-color: #ff6b6b;
+            outline: 3px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .pizza-visual {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .pizza-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ffa500 0deg,
+                #ffa500 var(--slice-angle),
+                #ddd var(--slice-angle),
+                #ddd 360deg
+            );
+            border: 4px solid #8b4513;
+            position: relative;
+        }
+
+        .pizza-circle::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pizza-label {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #742a2a;
+            font-family: 'Georgia', serif;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0.5rem;
+        }
+
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            outline: 3px solid #ffd700;
+            outline-offset: 2px;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #game-over {
+            text-align: center;
+        }
+
+        #game-over h2 {
+            color: #ff6b6b;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #game-over p {
+            font-size: 1.5rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .fraction-request {
+                font-size: 2rem;
+            }
+
+            .pizza-visual {
+                width: 120px;
+                height: 120px;
+            }
+
+            .pizza-label {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-game" class="skip-link">Skip to game</a>
+
+    <div class="game-container" role="main">
+        <h1>🍕 Pizza Fraction Frenzy 🍕</h1>
+        <p class="subtitle">Serve customers the correct pizza slice sizes!</p>
+
+        <div id="instructions" role="region" aria-labelledby="instructions-title">
+            <h2 id="instructions-title">How to Play</h2>
+            <ul>
+                <li>Customers will order specific fraction sizes of pizza</li>
+                <li>Click the pizza that matches their order</li>
+                <li>Earn points for correct orders!</li>
+                <li>Race against the clock - you have 60 seconds!</li>
+                <li>Compare fractions to choose the right size</li>
+            </ul>
+            <div style="text-align: center;">
+                <button class="btn" onclick="startGame()" aria-label="Start game">Start Serving!</button>
+            </div>
+        </div>
+
+        <div id="main-game" class="hidden" role="application" aria-label="Pizza Fraction Frenzy game">
+            <div class="game-stats">
+                <div class="stat-box" role="status" aria-live="polite">
+                    💰 Score: <span id="score">0</span>
+                </div>
+                <div class="stat-box" role="status" aria-live="polite">
+                    ✅ Served: <span id="served">0</span>
+                </div>
+                <div class="stat-box timer" id="timer-box" role="status" aria-live="assertive" aria-atomic="true">
+                    ⏱️ Time: <span id="timer">60</span>s
+                </div>
+            </div>
+
+            <div class="customer-area">
+                <div class="customer" role="img" aria-label="Customer">👨‍🍳</div>
+                <div class="customer-says">Customer wants:</div>
+                <div class="fraction-request" id="fraction-request" aria-live="polite">
+                    <span class="fraction" id="target-fraction"></span>
+                </div>
+            </div>
+
+            <div class="feedback hidden" id="feedback" role="alert" aria-live="assertive"></div>
+
+            <div class="pizza-choices" id="pizza-choices">
+                <!-- Pizza options will be generated here -->
+            </div>
+        </div>
+
+        <div id="game-over" class="hidden">
+            <h2>Time's Up! 🎉</h2>
+            <div style="font-size: 4rem; margin: 1rem 0;">🍕</div>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <p>Pizzas Served: <span id="final-served">0</span></p>
+            <p id="rating"></p>
+            <button class="btn" onclick="location.reload()" aria-label="Play again">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let served = 0;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let currentTarget = null;
+
+        const fractions = [
+            { num: 1, den: 2, value: 0.5, display: '1/2' },
+            { num: 1, den: 3, value: 0.333, display: '1/3' },
+            { num: 2, den: 3, value: 0.667, display: '2/3' },
+            { num: 1, den: 4, value: 0.25, display: '1/4' },
+            { num: 3, den: 4, value: 0.75, display: '3/4' },
+            { num: 1, den: 8, value: 0.125, display: '1/8' },
+            { num: 3, den: 8, value: 0.375, display: '3/8' },
+            { num: 5, den: 8, value: 0.625, display: '5/8' },
+            { num: 7, den: 8, value: 0.875, display: '7/8' },
+        ];
+
+        function startGame() {
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('main-game').classList.remove('hidden');
+            score = 0;
+            served = 0;
+            timeLeft = 60;
+            updateDisplay();
+            startTimer();
+            generateQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+
+                if (timeLeft <= 10) {
+                    document.getElementById('timer-box').classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    gameOver();
+                }
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('served').textContent = served;
+            document.getElementById('timer').textContent = timeLeft;
+        }
+
+        function generateQuestion() {
+            document.getElementById('feedback').classList.add('hidden');
+
+            // Pick a random target fraction
+            currentTarget = fractions[Math.floor(Math.random() * fractions.length)];
+
+            // Display target fraction
+            const fractionEl = document.getElementById('target-fraction');
+            fractionEl.innerHTML = `
+                <span class="numerator">${currentTarget.num}</span>
+                <span class="denominator">${currentTarget.den}</span>
+            `;
+
+            // Generate 3 options including the correct one
+            const options = [currentTarget];
+            while (options.length < 3) {
+                const randomFraction = fractions[Math.floor(Math.random() * fractions.length)];
+                if (!options.includes(randomFraction)) {
+                    options.push(randomFraction);
+                }
+            }
+
+            // Shuffle options
+            options.sort(() => Math.random() - 0.5);
+
+            // Render pizzas
+            const pizzaChoices = document.getElementById('pizza-choices');
+            pizzaChoices.innerHTML = options.map((frac, index) => {
+                const angle = frac.value * 360;
+                return `
+                    <div class="pizza-option"
+                         tabindex="0"
+                         role="button"
+                         aria-label="Pizza showing ${frac.display} fraction"
+                         onclick="checkAnswer('${frac.display}')"
+                         onkeypress="if(event.key==='Enter') checkAnswer('${frac.display}')">
+                        <div class="pizza-visual">
+                            <div class="pizza-circle" style="--slice-angle: ${angle}deg"></div>
+                        </div>
+                        <div class="pizza-label">
+                            <span class="fraction">
+                                <span class="numerator">${frac.num}</span>
+                                <span class="denominator">${frac.den}</span>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkAnswer(selectedFraction) {
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+
+            if (selectedFraction === currentTarget.display) {
+                // Correct!
+                score += 10;
+                served++;
+                feedback.classList.add('correct');
+                feedback.textContent = `✅ Perfect! ${currentTarget.display} pizza served! +10 points`;
+
+                updateDisplay();
+
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1200);
+            } else {
+                // Incorrect
+                feedback.classList.add('incorrect');
+                feedback.textContent = `❌ Oops! That's ${selectedFraction}, customer wanted ${currentTarget.display}`;
+
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1800);
+            }
+        }
+
+        function gameOver() {
+            clearInterval(timerInterval);
+            document.getElementById('main-game').classList.add('hidden');
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-served').textContent = served;
+
+            let rating = '';
+            if (served >= 20) rating = '🏆 Master Chef!';
+            else if (served >= 15) rating = '⭐ Expert Server!';
+            else if (served >= 10) rating = '👍 Great Job!';
+            else if (served >= 5) rating = '🙂 Nice Try!';
+            else rating = '💪 Keep Practicing!';
+
+            document.getElementById('rating').textContent = rating;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !document.getElementById('main-game').classList.contains('hidden')) {
+                if (confirm('Exit game?')) {
+                    clearInterval(timerInterval);
+                    location.reload();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
