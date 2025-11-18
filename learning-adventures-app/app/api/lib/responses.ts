@@ -5,7 +5,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { AuthenticationError, AuthorizationError, ValidationError } from './auth';
+import { AuthenticationError, AuthorizationError, ValidationError } from '@/app/api/lib/auth';
 
 /**
  * Success response
