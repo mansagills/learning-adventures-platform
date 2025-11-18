@@ -5,8 +5,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { requireAuth } from '../../lib/auth';
-import { successResponse, handleApiError } from '../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, handleApiError } from '@/lib/responses';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {

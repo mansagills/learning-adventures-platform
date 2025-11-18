@@ -84,9 +84,8 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
         >
           <ProgressChart
             type="bar"
-            data={data.weeklyActivity}
+            data={data.weeklyActivity as any}
             height={250}
-            color="var(--color-brand-500)"
           />
         </DashboardCard>
 
@@ -97,16 +96,13 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
           isLoading={isLoading}
         >
           <ProgressChart
-            type="donut"
+            type="pie"
             data={data.subjectProgress.map(s => ({
               label: s.subject,
               value: s.completed,
               color: s.color
             }))}
             height={250}
-            showLegend={true}
-            centerLabel="Subjects"
-            centerValue={`${data.subjectProgress.length}`}
           />
         </DashboardCard>
       </div>
@@ -129,7 +125,7 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
                 </span>
               </div>
               <ProgressChart
-                type="bar-horizontal"
+                type="bar"
                 data={[{
                   label: subject.subject,
                   value: subject.completed,
@@ -137,7 +133,6 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
                   color: subject.color
                 }]}
                 height={30}
-                showLabels={false}
               />
             </div>
           ))}
@@ -170,7 +165,7 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
         </div>
         <div className="mt-4">
           <ProgressChart
-            type="bar-horizontal"
+            type="bar"
             data={[{
               label: 'Overall Progress',
               value: data.completedAdventures,
@@ -178,7 +173,6 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
               color: '#fff'
             }]}
             height={40}
-            showLabels={false}
           />
         </div>
       </DashboardCard>

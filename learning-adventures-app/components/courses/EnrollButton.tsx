@@ -42,7 +42,7 @@ export default function EnrollButton({
   const handleEnroll = async () => {
     // Check if user is authenticated
     if (status !== 'authenticated') {
-      router.push('/login?redirect=/courses/' + courseSlug);
+      router.push(('/login?redirect=/courses/' + courseSlug) as any);
       return;
     }
 

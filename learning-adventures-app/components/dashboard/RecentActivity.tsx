@@ -115,7 +115,7 @@ export default function RecentActivity({
       action={
         activities.length > maxItems ? (
           <Link
-            href="/dashboard/activity"
+            href={"/dashboard/activity" as any}
             className="text-sm text-brand-500 hover:text-brand-600 font-medium"
           >
             View All
@@ -194,7 +194,7 @@ export default function RecentActivity({
             </span>
             {activities.length > displayedActivities.length && (
               <Link
-                href="/dashboard/activity"
+                href={"/dashboard/activity" as any}
                 className="text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1"
               >
                 View All

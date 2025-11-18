@@ -62,7 +62,7 @@ async function testReactGameWorkflow() {
   console.log('\n👂 Step 4: Setting up Event Monitoring...');
   let currentStep = 0;
 
-  factory.addEventListener(workflowId, (event) => {
+  factory.addEventListener(workflowId, (event: any) => {
     const timestamp = new Date().toLocaleTimeString();
 
     switch (event.type) {
@@ -134,10 +134,10 @@ async function testReactGameWorkflow() {
 
       if (report.issues.length > 0) {
         console.log('\n🔍 Issues by Severity:');
-        const criticalIssues = report.issues.filter(i => i.severity === 'critical');
-        const highIssues = report.issues.filter(i => i.severity === 'high');
-        const mediumIssues = report.issues.filter(i => i.severity === 'medium');
-        const lowIssues = report.issues.filter(i => i.severity === 'low');
+        const criticalIssues = report.issues.filter((i: any) => i.severity === 'critical');
+        const highIssues = report.issues.filter((i: any) => i.severity === 'high');
+        const mediumIssues = report.issues.filter((i: any) => i.severity === 'medium');
+        const lowIssues = report.issues.filter((i: any) => i.severity === 'low');
 
         console.log(`  🔴 Critical: ${criticalIssues.length}`);
         console.log(`  🟠 High: ${highIssues.length}`);
@@ -146,7 +146,7 @@ async function testReactGameWorkflow() {
 
         if (criticalIssues.length > 0) {
           console.log('\n⚠️  Critical Issues:');
-          criticalIssues.forEach((issue, i) => {
+          criticalIssues.forEach((issue: any, i: number) => {
             console.log(`  ${i + 1}. ${issue.description}`);
             console.log(`     Fix: ${issue.suggestedFix}`);
           });
@@ -154,7 +154,7 @@ async function testReactGameWorkflow() {
       }
 
       console.log('\n💡 Recommendations:');
-      report.recommendations.forEach((rec, i) => {
+      report.recommendations.forEach((rec: any, i: number) => {
         console.log(`  ${i + 1}. ${rec}`);
       });
     }

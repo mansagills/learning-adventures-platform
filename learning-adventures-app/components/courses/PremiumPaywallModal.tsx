@@ -224,7 +224,7 @@ export default function PremiumPaywallModal({
           {/* Actions */}
           <div className="space-y-3">
             <Link
-              href="/pricing"
+              href={"/pricing" as any}
               className="block w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md hover:shadow-lg text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
               Upgrade to Premium

@@ -39,7 +39,7 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push(`/login?redirect=/courses/${slug}/lessons/${order}`);
+      router.push(`/login?redirect=/courses/${slug}/lessons/${order}` as any);
       return;
     }
 

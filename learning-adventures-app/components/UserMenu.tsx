@@ -131,7 +131,7 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
             {menuItems.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as any}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center px-4 py-2 text-sm text-ink-700 hover:bg-gray-50 hover:text-brand-600 transition-colors duration-150"
               >

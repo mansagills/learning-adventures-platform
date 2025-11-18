@@ -23,14 +23,14 @@ import {
   type CourseSortBy,
   type SortDirection,
 } from '@/lib/courses';
-import { getAuthenticatedUser } from '../lib/auth';
+import { getAuthenticatedUser } from '@/lib/auth';
 import {
   successResponse,
   handleApiError,
   getQueryParam,
   getQueryParamAsNumber,
   getQueryParamAsBoolean,
-} from '../lib/responses';
+} from '@/lib/responses';
 
 export async function GET(request: NextRequest) {
   try {

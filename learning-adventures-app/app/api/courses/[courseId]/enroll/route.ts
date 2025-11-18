@@ -14,8 +14,8 @@ import {
   unenrollFromCourse,
   checkEnrollmentEligibility,
 } from '@/lib/courses';
-import { requireAuth } from '../../../lib/auth';
-import { successResponse, errorResponse, handleApiError } from '../../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
 
 export async function POST(
   request: NextRequest,

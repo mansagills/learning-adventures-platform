@@ -80,6 +80,7 @@ export async function generateCertificate(
   // Generate unique identifiers
   const certificateNumber = await generateCertificateNumber();
   const verificationCode = await generateVerificationCode();
+  const timeSpent = await calculateTotalTimeSpent(enrollmentId);
 
   // Create certificate
   const certificate = await prisma.courseCertificate.create({
@@ -93,7 +94,7 @@ export async function generateCertificate(
       totalXPEarned: enrollment.totalXPEarned,
       averageScore: enrollment.averageScore,
       totalLessons: enrollment.totalLessons,
-      timeSpent: calculateTotalTimeSpent(enrollmentId),
+      timeSpent,
     },
   });
 

@@ -111,7 +111,7 @@ export default function AchievementShowcase({
       action={
         achievements.length > maxDisplay ? (
           <Link
-            href="/dashboard/achievements"
+            href={"/dashboard/achievements" as any}
             className="text-sm text-brand-500 hover:text-brand-600 font-medium"
           >
             View All
@@ -252,7 +252,7 @@ export default function AchievementShowcase({
       {filteredAchievements.length > maxDisplay && (
         <div className="mt-6 text-center">
           <Link
-            href="/dashboard/achievements"
+            href={"/dashboard/achievements" as any}
             className="inline-flex items-center gap-2 text-brand-500 hover:text-brand-600 font-medium"
           >
             View All Achievements

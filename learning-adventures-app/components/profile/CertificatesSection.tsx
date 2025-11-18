@@ -158,7 +158,7 @@ export default function CertificatesSection() {
       {certificates.length > 2 && (
         <div className="mt-4 text-center">
           <Link
-            href="/profile/certificates"
+            href={"/profile/certificates" as any}
             className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
           >
             View All Certificates →

@@ -23,7 +23,6 @@ export async function getAuthenticatedUser(request?: NextRequest) {
     email: session.user.email,
     name: session.user.name,
     role: session.user.role,
-    subscriptionStatus: session.user.subscriptionStatus,
   };
 }
 
@@ -42,9 +41,11 @@ export async function requireAuth(request?: NextRequest) {
 
 /**
  * Check if user has premium access
+ * Note: Premium access logic would need to be implemented based on your subscription system
  */
-export function hasPremiumAccess(user: { subscriptionStatus?: string | null }) {
-  return user.subscriptionStatus === 'active';
+export function hasPremiumAccess(user: { id: string }) {
+  // TODO: Implement premium access check based on user subscriptions
+  return false;
 }
 
 /**

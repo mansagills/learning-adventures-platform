@@ -306,13 +306,13 @@ export class ContentAgentOrchestrator {
    */
   clearCompletedWorkflows(): number {
     let cleared = 0;
-    for (const [id, workflow] of this.workflows.entries()) {
+    Array.from(this.workflows.entries()).forEach(([id, workflow]) => {
       if (workflow.status === 'completed') {
         this.workflows.delete(id);
         this.eventListeners.delete(id);
         cleared++;
       }
-    }
+    });
     return cleared;
   }
 

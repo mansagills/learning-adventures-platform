@@ -166,7 +166,7 @@ function ProgressTestContent() {
               Your Achievements ({achievementData.totalCount})
             </h2>
             <AchievementGrid
-              achievements={achievementData.achievements}
+              achievements={achievementData.achievements as any}
               columns={2}
               size="md"
               showDates={true}

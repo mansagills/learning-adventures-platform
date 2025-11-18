@@ -6,8 +6,8 @@
 
 import { NextRequest } from 'next/server';
 import { startLesson } from '@/lib/courses';
-import { requireAuth } from '../../../../../lib/auth';
-import { successResponse, errorResponse, handleApiError } from '../../../../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
 
 export async function POST(
   request: NextRequest,

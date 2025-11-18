@@ -5,8 +5,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { requireAuth } from '../../lib/auth';
-import { successResponse, handleApiError } from '../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, handleApiError } from '@/lib/responses';
 import { getUserCertificates } from '@/lib/certificates/certificateGenerator';
 
 export async function GET(request: NextRequest) {

@@ -143,7 +143,7 @@ async function main() {
 
   for (const progressData of progressEntries) {
     await prisma.userProgress.create({
-      data: progressData,
+      data: progressData as any,
     });
   }
 

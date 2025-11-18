@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { TestGameStatus } from '@prisma/client';
 
 // POST /api/admin/test-games/[id]/approve - Submit approval decision
 export async function POST(
@@ -42,19 +43,19 @@ export async function POST(
     });
 
     // Update game status based on decision
-    let newStatus: string;
+    let newStatus: TestGameStatus;
     switch (decision) {
       case 'APPROVE':
-        newStatus = 'APPROVED';
+        newStatus = TestGameStatus.APPROVED;
         break;
       case 'REJECT':
-        newStatus = 'REJECTED';
+        newStatus = TestGameStatus.REJECTED;
         break;
       case 'REQUEST_CHANGES':
-        newStatus = 'NEEDS_REVISION';
+        newStatus = TestGameStatus.NEEDS_REVISION;
         break;
       default:
-        newStatus = 'IN_TESTING';
+        newStatus = TestGameStatus.IN_TESTING;
     }
 
     await prisma.testGame.update({

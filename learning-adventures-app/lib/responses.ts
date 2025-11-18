@@ -58,7 +58,7 @@ export function errorResponse(
       error: {
         code,
         message,
-        ...(details && { details }),
+        ...(details !== undefined ? { details } : {}),
       },
     },
     { status }

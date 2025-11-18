@@ -60,7 +60,7 @@ export default function AdminPanel() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as any}
                 className={`
                   flex items-start space-x-3 px-3 py-3 rounded-lg transition-all duration-200
                   ${isActive

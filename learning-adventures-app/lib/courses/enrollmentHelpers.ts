@@ -62,7 +62,8 @@ export async function checkEnrollmentEligibility(
     };
   }
 
-  const hasPremiumAccess = user.subscriptionStatus === 'active';
+  // TODO: Implement premium access check based on subscription system
+  const hasPremiumAccess = false;
 
   // Check if already enrolled
   const existingEnrollment = await prisma.courseEnrollment.findUnique({
@@ -335,7 +336,7 @@ export async function getUserEnrollments(
       lessonProgress: true,
     },
     orderBy: {
-      lastActivityAt: 'desc',
+      lastAccessedAt: 'desc',
     },
   });
 }
@@ -532,7 +533,7 @@ export async function updateEnrollmentActivity(enrollmentId: string): Promise<vo
   await prisma.courseEnrollment.update({
     where: { id: enrollmentId },
     data: {
-      lastActivityAt: new Date(),
+      lastAccessedAt: new Date(),
     },
   });
 }

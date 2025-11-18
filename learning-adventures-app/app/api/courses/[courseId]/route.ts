@@ -9,13 +9,13 @@
 
 import { NextRequest } from 'next/server';
 import { getCourseById, getCourseWithProgress } from '@/lib/courses';
-import { getAuthenticatedUser } from '../../lib/auth';
+import { getAuthenticatedUser } from '@/lib/auth';
 import {
   successResponse,
   errorResponse,
   handleApiError,
   getQueryParamAsBoolean,
-} from '../../lib/responses';
+} from '@/lib/responses';
 
 export async function GET(
   request: NextRequest,

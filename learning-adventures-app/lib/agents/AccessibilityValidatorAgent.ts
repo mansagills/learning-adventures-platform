@@ -333,7 +333,7 @@ export class AccessibilityValidatorAgent extends BaseAgent {
 
     // Extract heading levels
     const headingRegex = /<h([1-6])[^>]*>/g;
-    const headings = [...code.matchAll(headingRegex)].map(match => parseInt(match[1]));
+    const headings = Array.from(code.matchAll(headingRegex)).map(match => parseInt(match[1]));
 
     if (headings.length > 0) {
       // Check if starts with h1

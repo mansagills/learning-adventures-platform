@@ -122,7 +122,7 @@ export default function RecommendedContent({
         {displayedRecommendations.map((adventure) => (
           <Link
             key={adventure.id}
-            href={adventure.htmlPath || `/catalog?adventure=${adventure.id}`}
+            href={(adventure.htmlPath || `/catalog?adventure=${adventure.id}`) as any}
             className={`block group ${
               view === 'grid'
                 ? 'p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-brand-500 transition-all'

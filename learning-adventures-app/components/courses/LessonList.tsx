@@ -129,7 +129,7 @@ export default function LessonList({ lessons, courseSlug, isEnrolled }: LessonLi
         );
 
         return canClick ? (
-          <Link key={lesson.id} href={href}>
+          <Link key={lesson.id} href={href as any}>
             {lessonComponent}
           </Link>
         ) : (

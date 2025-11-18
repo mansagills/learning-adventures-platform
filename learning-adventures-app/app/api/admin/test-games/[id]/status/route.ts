@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { TestGameStatus } from '@prisma/client';
 
 // PATCH /api/admin/test-games/[id]/status - Update game status
 export async function PATCH(
@@ -17,14 +18,20 @@ export async function PATCH(
 
     const { status } = await req.json();
 
-    const validStatuses = ['NOT_TESTED', 'IN_TESTING', 'APPROVED', 'REJECTED', 'NEEDS_REVISION'];
-    if (!validStatuses.includes(status)) {
+    const validStatuses: TestGameStatus[] = [
+      TestGameStatus.NOT_TESTED,
+      TestGameStatus.IN_TESTING,
+      TestGameStatus.APPROVED,
+      TestGameStatus.REJECTED,
+      TestGameStatus.NEEDS_REVISION
+    ];
+    if (!validStatuses.includes(status as TestGameStatus)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
     const game = await prisma.testGame.update({
       where: { id: params.id },
-      data: { status }
+      data: { status: status as TestGameStatus }
     });
 
     return NextResponse.json({ game });

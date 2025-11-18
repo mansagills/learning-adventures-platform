@@ -82,7 +82,7 @@ export default function DashboardCard({
           <div className="flex-shrink-0 ml-4">
             {isActionObject ? (
               <Link
-                href={(action as { href: string }).href}
+                href={(action as { href: string }).href as any}
                 className="text-sm text-brand-500 hover:text-brand-600 font-medium"
               >
                 {(action as { label: string }).label}

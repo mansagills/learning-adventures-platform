@@ -28,7 +28,7 @@ export default function ProtectedRoute({
 
     // If authentication is required but user is not authenticated
     if (requireAuth && !session) {
-      router.push(fallbackUrl);
+      router.push(fallbackUrl as any);
       return;
     }
 

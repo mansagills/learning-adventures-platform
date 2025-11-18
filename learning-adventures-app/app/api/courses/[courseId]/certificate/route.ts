@@ -5,8 +5,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { requireAuth } from '../../../../lib/auth';
-import { successResponse, errorResponse, handleApiError } from '../../../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
 import { prisma } from '@/lib/prisma';
 import { generateCertificate } from '@/lib/certificates/certificateGenerator';
 

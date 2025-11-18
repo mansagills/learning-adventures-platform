@@ -48,7 +48,7 @@ export default function ProfilePage() {
                     </h2>
                     <p className="text-ink-600 mb-1">{session?.user?.email}</p>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800">
-                      {session?.user?.role?.charAt(0) + session?.user?.role?.slice(1).toLowerCase()}
+                      {session?.user?.role ? (session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase()) : 'User'}
                     </span>
                   </div>
                 </div>
@@ -80,7 +80,7 @@ export default function ProfilePage() {
                   <div>
                     <label className="text-sm font-medium text-ink-600">Account Type</label>
                     <p className="text-ink-800">
-                      {session?.user?.role?.charAt(0) + session?.user?.role?.slice(1).toLowerCase()}
+                      {session?.user?.role ? (session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase()) : 'User'}
                     </p>
                   </div>
                   {session?.user?.role === 'STUDENT' && (

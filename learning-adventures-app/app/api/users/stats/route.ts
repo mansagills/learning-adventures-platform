@@ -14,8 +14,8 @@
 
 import { NextRequest } from 'next/server';
 import { getUserCourseStats } from '@/lib/courses';
-import { requireAuth } from '../../lib/auth';
-import { successResponse, handleApiError } from '../../lib/responses';
+import { requireAuth } from '@/lib/auth';
+import { successResponse, handleApiError } from '@/lib/responses';
 
 export async function GET(request: NextRequest) {
   try {

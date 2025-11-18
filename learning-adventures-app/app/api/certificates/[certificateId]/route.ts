@@ -5,7 +5,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { successResponse, errorResponse, handleApiError } from '../../../lib/responses';
+import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
 import { getCertificateById } from '@/lib/certificates/certificateGenerator';
 
 interface RouteParams {

@@ -50,7 +50,7 @@ export class MetadataFormatterAgent extends BaseAgent {
       const catalogEntry = this.generateCatalogEntry(concept, format, filePath);
 
       // Determine target array
-      const targetArray = this.determineTargetArray(concept.subject, concept.type || 'game');
+      const targetArray = this.determineTargetArray(concept.subject, (concept as any).type || 'game');
 
       // Validate the entry
       const validation = this.validateCatalogEntry(catalogEntry);
@@ -96,7 +96,7 @@ export class MetadataFormatterAgent extends BaseAgent {
     format: 'html' | 'react',
     filePath?: string
   ): CatalogEntry {
-    const id = this.generateId(concept.title);
+    const id = this.generateContentId(concept.title);
 
     const entry: CatalogEntry = {
       id,
@@ -277,7 +277,7 @@ ${entry.componentPath ? `${indent}componentPath: '${entry.componentPath}',` : ''
   /**
    * Utility methods
    */
-  private generateId(title: string): string {
+  private generateContentId(title: string): string {
     return title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')

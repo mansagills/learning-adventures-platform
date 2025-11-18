@@ -12,13 +12,13 @@
 
 import { NextRequest } from 'next/server';
 import { completeLesson } from '@/lib/courses';
-import { requireAuth, ValidationError } from '../../../../../lib/auth';
+import { requireAuth, ValidationError } from '@/lib/auth';
 import {
   successResponse,
   errorResponse,
   handleApiError,
   validateRequestBody,
-} from '../../../../../lib/responses';
+} from '@/lib/responses';
 
 interface CompleteLessonBody {
   score?: number;

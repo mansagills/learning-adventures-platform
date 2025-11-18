@@ -252,7 +252,7 @@ export default function ContentPreview({
                 <button
                   onClick={() => {
                     // Open the uploaded game in a new tab
-                    const testPath = formData.uploadedZipPath.replace('/uploads/temp/', '/uploads/temp/');
+                    const testPath = formData.uploadedZipPath?.replace('/uploads/temp/', '/uploads/temp/') || '';
                     window.open(testPath, '_blank');
                   }}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

@@ -474,8 +474,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
                   </div>
                   {selectedOrganism === organism.id && (
                     <GameButton
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={() => {
                         removeOrganism(organism.id);
                       }}
                       variant="danger"

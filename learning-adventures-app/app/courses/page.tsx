@@ -216,7 +216,7 @@ export default function CourseCatalogPage() {
                 </div>
                 <div className="flex-shrink-0">
                   <Link
-                    href="/pricing"
+                    href={"/pricing" as any}
                     className="inline-block px-8 py-3 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-md"
                   >
                     View Plans
@@ -332,7 +332,7 @@ export default function CourseCatalogPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard key={course.id} course={course as any} />
             ))}
           </div>
         )}

@@ -460,7 +460,7 @@ export async function completeLesson(
     data: {
       completedLessons: completedCount,
       totalXPEarned: enrollment.totalXPEarned + xpCalc.totalXP,
-      lastActivityAt: new Date(),
+      lastAccessedAt: new Date(),
     },
   });
 
