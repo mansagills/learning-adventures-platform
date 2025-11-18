@@ -8,15 +8,12 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import Icon from '@/components/Icon';
 import { useUserProgress } from '@/hooks/useProgress';
 import { useAchievements } from '@/hooks/useAchievements';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import ProgressOverview from '@/components/dashboard/ProgressOverview';
-import RecentActivity from '@/components/dashboard/RecentActivity';
-import AchievementShowcase from '@/components/dashboard/AchievementShowcase';
+import DashboardHero from '@/components/dashboard/DashboardHero';
+import QuickActions from '@/components/dashboard/QuickActions';
+import SubjectCards, { defaultSubjects } from '@/components/dashboard/SubjectCards';
+import ContinueLearningCards from '@/components/dashboard/ContinueLearningCards';
+import AchievementCelebration from '@/components/dashboard/AchievementCelebration';
 import RecommendedContent from '@/components/dashboard/RecommendedContent';
-import RecentCourses from '@/components/dashboard/RecentCourses';
-import XPWidget from '@/components/xp/XPWidget';
-import StreakDisplay from '@/components/xp/StreakDisplay';
-import DailyXPGoal from '@/components/xp/DailyXPGoal';
 import { getAllAdventures, getAdventureById } from '@/lib/catalogData';
 
 function DashboardContent() {
@@ -169,52 +166,122 @@ function DashboardContent() {
   const recentActivity = transformRecentActivity();
   const recommendations = getRecommendations();
 
+  // Transform subject data for SubjectCards
+  const getSubjectCardsData = () => {
+    if (!progressData) return defaultSubjects;
+
+    const stats = progressData.stats.byCategory;
+    const allAdventures = getAllAdventures();
+
+    return defaultSubjects.map(subject => {
+      const categoryStats = stats[subject.id.toLowerCase()] || { completed: 0, total: 0 };
+      const categoryAdventures = allAdventures.filter(adv => adv.category === subject.id);
+
+      return {
+        ...subject,
+        completedCount: categoryStats.completed,
+        totalCount: categoryAdventures.length,
+        recentlyPlayed: progressData.progress.some(p => {
+          const adventure = getAdventureById(p.adventureId);
+          return adventure?.category === subject.id && p.lastAccessed;
+        })
+      };
+    });
+  };
+
+  // Transform progress data for continue learning
+  const getContinueLearningData = () => {
+    if (!progressData) return [];
+
+    return progressData.progress
+      .filter(p => p.progress > 0 && p.progress < 100)
+      .map(p => {
+        const adventure = getAdventureById(p.adventureId);
+        return {
+          id: p.adventureId,
+          title: adventure?.title || p.adventureId.split('-').map(w =>
+            w.charAt(0).toUpperCase() + w.slice(1)
+          ).join(' '),
+          category: adventure?.category || 'math',
+          progress: p.progress,
+          timeSpent: p.timeSpent,
+          lastAccessed: new Date(p.lastAccessed),
+          difficulty: adventure?.difficulty as any,
+        };
+      })
+      .sort((a, b) => b.lastAccessed.getTime() - a.lastAccessed.getTime());
+  };
+
+  // Transform achievements for celebration
+  const getRecentAchievements = () => {
+    if (!achievementData) return [];
+
+    return achievementData.achievements
+      .filter((a: any) => a.earnedAt)
+      .sort((a: any, b: any) =>
+        new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime()
+      )
+      .slice(0, 6)
+      .map((achievement: any) => ({
+        id: achievement.id,
+        name: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon || '🏆',
+        rarity: achievement.rarity || 'common',
+        earnedAt: achievement.earnedAt ? new Date(achievement.earnedAt) : undefined,
+      }));
+  };
+
+  const subjectCardsData = getSubjectCardsData();
+  const continueLearning = getContinueLearningData();
+  const recentAchievements = getRecentAchievements();
+
+  // Calculate user stats for hero
+  const userLevel = progressData ? Math.floor(progressData.stats.completed / 5) + 1 : 1;
+  const totalXP = progressData ? progressData.stats.completed * 100 : 0;
+  const streak = 3; // TODO: Calculate actual streak
+
   // Empty state - no progress yet
   if (progressData && progressData.progress.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
-                <p className="mt-1 text-gray-600">
-                  Welcome back, {session?.user?.name || 'Learner'}!
-                </p>
-              </div>
-              <Link
-                href="/catalog"
-                className="flex items-center space-x-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors"
-              >
-                <Icon name="explore" size={20} />
-                <span>Explore Adventures</span>
-              </Link>
-            </div>
-          </div>
-        </header>
-
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-teal-50">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mt-6 bg-gradient-to-br from-brand-50 to-accent-50 rounded-lg border border-brand-200 p-12 text-center">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
-              <Icon name="rocket" size={40} className="text-brand-600" />
+          {/* Hero Section */}
+          <DashboardHero
+            userName={session?.user?.name}
+            userLevel={1}
+            totalXP={0}
+            streak={0}
+          />
+
+          {/* Welcome message */}
+          <div className="mb-8 bg-gradient-to-br from-brand-50 to-accent-50 rounded-3xl border-2 border-brand-200 p-12 text-center animate-bounce-in">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-fun text-6xl animate-float">
+              🚀
             </div>
-            <h3 className="text-2xl font-bold text-ink-800 mb-2">
+            <h3 className="text-3xl font-display font-bold text-ink-900 mb-3">
               Start Your Learning Journey!
             </h3>
-            <p className="text-ink-600 mb-6 max-w-md mx-auto">
-              Explore our catalog of educational games and interactive lessons to begin earning achievements and tracking your progress.
+            <p className="text-ink-600 text-lg mb-8 max-w-md mx-auto">
+              Explore our catalog of fun educational games and interactive lessons to begin earning achievements!
             </p>
             <Link
               href="/catalog"
-              className="inline-flex items-center space-x-2 px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-2xl hover:shadow-fun-lg transition-all transform hover:scale-105 font-display font-bold text-lg"
             >
-              <Icon name="explore" size={20} />
+              <Icon name="explore" size={24} />
               <span>Explore Adventures</span>
             </Link>
           </div>
 
+          {/* Subject Cards */}
+          <SubjectCards subjects={defaultSubjects} />
+
           {/* Show recommendations even for new users */}
           <div className="mt-8">
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-ink-900 mb-6">
+              Start With These! ⭐
+            </h2>
             <RecommendedContent
               recommendations={recommendations}
               reason="new"
@@ -227,59 +294,56 @@ function DashboardContent() {
   }
 
   return (
-    <DashboardLayout
-      title="My Dashboard"
-      description={`Welcome back, ${session?.user?.name || 'Learner'}!`}
-      gridColumns={1}
-    >
-      {/* Progress Overview */}
-      {progressOverviewData && (
-        <ProgressOverview
-          data={progressOverviewData}
-          isLoading={progressLoading}
-        />
-      )}
-
-      {/* XP & Course Progress Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <XPWidget />
-        <StreakDisplay />
-        <DailyXPGoal />
-      </div>
-
-      {/* Recent Courses */}
-      <div className="mt-6">
-        <RecentCourses />
-      </div>
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Recent Activity */}
-        <RecentActivity
-          activities={recentActivity}
-          isLoading={progressLoading}
-          maxItems={5}
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-teal-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Hero Section */}
+        <DashboardHero
+          userName={session?.user?.name}
+          userLevel={userLevel}
+          totalXP={totalXP}
+          streak={streak}
         />
 
-        {/* Achievement Showcase */}
-        <AchievementShowcase
-          achievements={achievements}
-          totalAchievements={15} // TODO: Get from database
-          isLoading={achievementsLoading}
-          showLocked={true}
-          maxDisplay={6}
+        {/* Quick Actions */}
+        <QuickActions
+          continueCount={continueLearning.length}
+          newAdventuresCount={recommendations.length}
+          achievementsCount={achievementData?.achievements?.length || 0}
         />
-      </div>
 
-      {/* Recommended Content */}
-      <div className="mt-6">
-        <RecommendedContent
-          recommendations={recommendations}
-          reason="subject"
-          maxDisplay={4}
-        />
-      </div>
-    </DashboardLayout>
+        {/* Continue Learning Section */}
+        {continueLearning.length > 0 && (
+          <ContinueLearningCards
+            adventures={continueLearning}
+            maxDisplay={4}
+          />
+        )}
+
+        {/* Subject Category Cards */}
+        <SubjectCards subjects={subjectCardsData} />
+
+        {/* Achievement Celebration */}
+        {recentAchievements.length > 0 && (
+          <AchievementCelebration
+            recentAchievements={recentAchievements}
+            totalAchievements={achievementData?.totalAchievements || 15}
+            earnedCount={achievementData?.achievements?.length || 0}
+          />
+        )}
+
+        {/* Recommended Content */}
+        <div className="mt-8">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-ink-900 mb-6">
+            Try These Next! 🌟
+          </h2>
+          <RecommendedContent
+            recommendations={recommendations}
+            reason="subject"
+            maxDisplay={4}
+          />
+        </div>
+      </main>
+    </div>
   );
 }
 
