@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icon from '../Icon';
@@ -13,10 +14,16 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
+    label: 'Gemini Studio',
+    href: '/internal/studio',
+    icon: 'explore',
+    description: 'AI-powered game creation',
+  },
+  {
     label: 'Content Studio',
     href: '/internal',
     icon: 'upload',
-    description: 'Create new games and lessons',
+    description: 'Upload games and lessons',
   },
   {
     label: 'User Management',
@@ -40,6 +47,21 @@ const navItems: NavItem[] = [
 
 export default function AdminPanel() {
   const pathname = usePathname();
+  const [geminiStats, setGeminiStats] = useState({ total: 0, thisMonth: 0 });
+
+  useEffect(() => {
+    // Fetch Gemini stats
+    fetch('/api/gemini/stats')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setGeminiStats({ total: data.total, thisMonth: data.thisMonth });
+        }
+      })
+      .catch(() => {
+        // Silently fail if API not available
+      });
+  }, []);
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
@@ -98,13 +120,15 @@ export default function AdminPanel() {
             <span className="text-sm text-ink-600">Total Adventures</span>
             <span className="text-sm font-semibold text-ink-800">85+</span>
           </div>
+          {geminiStats.total > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-ink-600">Gemini Games</span>
+              <span className="text-sm font-semibold text-brand-600">{geminiStats.total}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <span className="text-sm text-ink-600">Active Users</span>
             <span className="text-sm font-semibold text-ink-800">-</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-600">Content Items</span>
-            <span className="text-sm font-semibold text-ink-800">85+</span>
           </div>
         </div>
       </div>
