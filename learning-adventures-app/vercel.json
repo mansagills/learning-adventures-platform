@@ -2,10 +2,5 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "NEXTAUTH_URL": "https://app.learningadventures.org",
-    "NEXTAUTH_SECRET": "@nextauth-secret",
-    "DATABASE_URL": "@postgres-url"
-  }
+  "regions": ["iad1"]
 }
