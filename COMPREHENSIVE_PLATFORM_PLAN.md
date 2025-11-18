@@ -9,9 +9,9 @@ This comprehensive plan covers the complete development roadmap for the Learning
 
 ## 🚦 CURRENT DEVELOPMENT STATUS
 **Active Development Plan**: COMPREHENSIVE_PLATFORM_PLAN.md
-**Last Completed**: Phase 5B - Agent Workflow Architecture ✅
-**Next To Complete**: Phase 5C - Integration & Automation
-**Current Focus**: Deploying workflows and integrating with file system and catalog
+**Last Completed**: Phase 5B - Agent Workflow Architecture ✅ | **NEW**: Phase 7 - Gemini 3 Studio (Phase 1 Setup Complete) ✅
+**Next To Complete**: Phase 5C - Integration & Automation OR Phase 7 - Gemini Studio (Phases 2-4)
+**Current Focus**: Gemini 3 Content Studio for AI-powered game creation
 
 ### ✅ Completed Phases:
 - Phase 1A: Authentication Infrastructure ✅
@@ -25,6 +25,7 @@ This comprehensive plan covers the complete development roadmap for the Learning
 - Phase 3B: Core Dashboard Components ✅
 - **Skills Development: Claude Code Skills (educational-game-builder, react-game-component, catalog-metadata-formatter, accessibility-validator)** ✅
 - **Phase 5B: Agent Workflow Architecture (ContentAgentOrchestrator, 4 specialized agents, workflow patterns)** ✅
+- **Phase 7 (Gemini Studio) - Phase 1: Environment Setup (Gemini SDK, Prisma Schema, Documentation)** ✅
 
 ### 📋 Next Priority:
 Begin Phase 5C - Integration & Automation to deploy workflows and integrate with file system
@@ -2591,6 +2592,364 @@ Each development session should follow this pattern:
 - Google OAuth integration works
 - Authentication state persists across page reloads
 - Basic user profile information is stored
+
+---
+
+# 📋 Plan 7: Gemini 3 Content Studio
+**Estimated Time**: 8-12 hours across 4 phases
+**Status**: 🔄 Phase 1 Complete ✅ | Phases 2-4 Planned
+**Last Updated**: November 18, 2025
+
+## Overview
+
+The Gemini 3 Content Studio is an AI-powered content creation tool that leverages Google's Gemini 3 Pro model with "vibe coding" capabilities. It enables rapid creation of 2D and 3D educational games through natural language prompts, dramatically accelerating content production from hours to minutes.
+
+### Key Features
+
+- **Natural Language Creation**: Describe games in plain English, get working code
+- **2D → 3D Upgrade**: Start with 2D, upgrade to 3D with physics simulation
+- **Iterative Refinement**: Conversational improvements in real-time
+- **Quality Assurance**: Automatic accessibility, performance, and educational validation
+- **Seamless Publishing**: Direct integration with platform catalog
+- **Cost-Effective**: ~$0.30 per game generation
+
+### Technology Stack
+
+- **AI Model**: Google Gemini 3 Pro
+- **SDK**: `@google/generative-ai` (v0.21.0+)
+- **Database**: PostgreSQL (Prisma ORM) - 3 new models added
+- **Frontend**: Next.js 14 + React + TypeScript
+- **Backend**: Next.js API Routes
+
+## Phase 7.1: Environment Setup ✅ COMPLETED
+
+**Duration**: 30 minutes
+**Status**: ✅ Complete
+
+### Completed Tasks:
+
+1. **Gemini SDK Installation** ✅
+   - Installed `@google/generative-ai` package
+   - 566 packages added successfully
+   - No breaking changes to existing dependencies
+
+2. **Environment Configuration** ✅
+   - Updated `.env.local.example` with `GEMINI_API_KEY`
+   - Documented API key setup process
+   - Added configuration guide for local development
+
+3. **Prisma Schema Updates** ✅
+   - Added `GeminiContent` model (tracks all generated content)
+   - Added `GeminiIteration` model (tracks refinement history)
+   - Added `GeminiUsage` model (cost monitoring and analytics)
+   - Added `GameType` enum (HTML_2D, HTML_3D, INTERACTIVE, QUIZ, SIMULATION, PUZZLE)
+   - Added `GeminiContentStatus` enum (DRAFT, ITERATING, TESTING, APPROVED, PUBLISHED, ARCHIVED)
+   - All models include proper indexes for performance
+
+4. **Documentation Created** ✅
+   - Comprehensive README: `docs/gemini-studio/README.md`
+   - Phase 1 guide: `docs/gemini-studio/phase-1-setup.md`
+   - Phase 2 guide: `docs/gemini-studio/phase-2-api-routes.md`
+   - Phase 3 guide: `docs/gemini-studio/phase-3-ui-components.md`
+   - Phase 4 guide: `docs/gemini-studio/phase-4-integration.md`
+
+### Database Schema Added:
+
+```prisma
+model GeminiContent {
+  id              String   @id @default(cuid())
+  userId          String
+  title           String
+  prompt          String   @db.Text
+  generatedCode   String   @db.Text
+  gameType        GameType @default(HTML_2D)
+  category        String
+  status          GeminiContentStatus @default(DRAFT)
+  iterations      Int      @default(1)
+  // ... quality metrics, publishing info, timestamps
+}
+
+model GeminiIteration {
+  id              String   @id @default(cuid())
+  geminiContentId String
+  iterationNumber Int
+  userFeedback    String   @db.Text
+  previousCode    String   @db.Text
+  newCode         String   @db.Text
+  // ... metrics and timestamps
+}
+
+model GeminiUsage {
+  id              String   @id @default(cuid())
+  userId          String
+  operation       String
+  tokensInput     Int
+  tokensOutput    Int
+  estimatedCost   Float
+  // ... tracking details
+}
+```
+
+### Next Steps for Local Environment:
+
+To complete setup locally:
+
+1. Get Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Create `.env.local` and add: `GEMINI_API_KEY=your_key_here`
+3. Run `npx prisma generate` to generate Prisma client
+4. Run `npx prisma db push` to create database tables
+5. Verify with `npx prisma studio`
+
+## Phase 7.2: API Routes Implementation 📋 PLANNED
+
+**Estimated Duration**: 2-3 hours
+**Status**: 📋 Planned
+**Documentation**: `docs/gemini-studio/phase-2-api-routes.md`
+
+### API Endpoints to Build:
+
+1. **`/api/gemini/generate`** - Initial content generation
+   - Takes natural language prompt
+   - Returns complete game code
+   - Tracks usage and costs
+
+2. **`/api/gemini/iterate`** - Refine existing content
+   - Accepts feedback for improvements
+   - Maintains iteration history
+   - Updates preview automatically
+
+3. **`/api/gemini/stream`** - Real-time streaming generation
+   - Server-Sent Events for live updates
+   - Better UX during generation
+   - Shows progress to user
+
+4. **`/api/gemini/preview/[contentId]`** - Preview generated content
+   - Serves HTML in sandboxed iframe
+   - Safe preview environment
+   - No external dependencies
+
+5. **`/api/gemini/publish`** - Publish to catalog
+   - Saves file to `public/games/`
+   - Creates TestGame or catalog entry
+   - Validates metadata
+
+### Implementation Features:
+
+- Rate limiting (10 requests/min for generate, 20/min for iterate)
+- Error handling and logging
+- Cost tracking per user
+- Token usage monitoring
+- Automatic retry logic
+- Input validation and sanitization
+
+## Phase 7.3: UI Components Implementation 📋 PLANNED
+
+**Estimated Duration**: 3-4 hours
+**Status**: 📋 Planned
+**Documentation**: `docs/gemini-studio/phase-3-ui-components.md`
+
+### Components to Build:
+
+1. **Main Studio Page** (`/app/internal/studio/page.tsx`)
+   - View switcher (Create, History, Analytics)
+   - Protected route (Admin only)
+   - Responsive layout
+
+2. **PromptInput Component**
+   - Natural language textarea
+   - Template selector
+   - Configuration options (subject, grade level, difficulty, game type)
+   - Quick suggestions
+   - Generate button with loading state
+
+3. **LivePreview Component**
+   - Sandboxed iframe preview
+   - Device switcher (Desktop, Tablet, Mobile)
+   - Generation metrics display
+   - Real-time updates
+
+4. **IterationControls Component**
+   - Feedback input
+   - Quick suggestion buttons
+   - Iteration history
+   - Progress tracking
+
+5. **PublishWorkflow Component**
+   - 3-step process (Metadata, Quality Check, Publish)
+   - Destination selector (Test Games vs Catalog)
+   - Quality scores display
+   - Save draft option
+
+6. **ContentHistory Component**
+   - List all generated content
+   - Filter by status/category
+   - Quick actions (edit, delete, publish)
+   - Search functionality
+
+7. **UsageAnalytics Component**
+   - Cost tracking dashboard
+   - Usage graphs
+   - Monthly summaries
+   - Budget alerts
+
+### Design Features:
+
+- Responsive across all devices
+- Accessibility compliant (WCAG 2.1 AA)
+- Loading states and animations
+- Error handling and validation
+- Keyboard navigation support
+- Touch-friendly interactions
+
+## Phase 7.4: Integration & Testing 📋 PLANNED
+
+**Estimated Duration**: 2-3 hours
+**Status**: 📋 Planned
+**Documentation**: `docs/gemini-studio/phase-4-integration.md`
+
+### Integration Tasks:
+
+1. **AdminPanel Navigation**
+   - Add "Gemini Studio" link
+   - Update quick stats with Gemini metrics
+   - Icon and description
+
+2. **File Management System**
+   - Create `lib/fileManager.ts`
+   - Save generated games to filesystem
+   - Handle duplicates and naming
+   - Delete and cleanup utilities
+
+3. **Environment Validation**
+   - Create `lib/env.ts`
+   - Validate required env variables
+   - Provide helpful error messages
+
+4. **Error Logging**
+   - Create `lib/logger.ts`
+   - Log generation events
+   - Track errors for review
+   - Integration with monitoring tools
+
+### Testing Strategy:
+
+1. **Unit Tests**
+   - File manager functions
+   - Cost calculation logic
+   - Input validation
+   - Error handling
+
+2. **Integration Tests**
+   - API route responses
+   - Database operations
+   - File system operations
+   - Authentication checks
+
+3. **E2E Tests** (Playwright)
+   - Complete generation workflow
+   - Iteration process
+   - Publishing workflow
+   - Error scenarios
+
+### Performance Optimization:
+
+- Response caching (5 min TTL)
+- Database query optimization
+- Rate limiting implementation
+- Concurrent request handling
+- API response time monitoring
+
+## 🎯 Success Metrics
+
+### Performance Targets:
+- Generation time: < 3 minutes per game
+- Iteration time: < 2 minutes
+- API response: < 5 seconds
+- Preview loading: < 1 second
+
+### Quality Targets:
+- Accessibility score: > 95%
+- Generated games pass validation: > 95%
+- First-time success rate: > 70%
+- User satisfaction: > 4/5
+
+### Business Metrics:
+- Time saved vs manual: > 70%
+- Cost per game: < $0.50
+- Monthly content output: 3x increase
+- ROI: Positive within 3 months
+
+## 💰 Cost Analysis
+
+**Per Game Generation**:
+- Average tokens: 50,000 (input + output)
+- Gemini 3 Pro pricing:
+  - Input: $2/million tokens = $0.10
+  - Output: $12/million tokens = $0.60
+- **Total: ~$0.30 per game**
+
+**Monthly Estimate** (100 games):
+- API costs: ~$30
+- Time saved: 200-300 hours
+- **Value: $6,000-9,000 at $30/hour**
+
+## 📚 Documentation
+
+All documentation available in `docs/gemini-studio/`:
+
+- **README.md**: Complete overview and quick start
+- **phase-1-setup.md**: Environment setup guide (✅ Complete)
+- **phase-2-api-routes.md**: API implementation guide
+- **phase-3-ui-components.md**: UI development guide
+- **phase-4-integration.md**: Integration and testing guide
+
+## 🔐 Security & Compliance
+
+- API keys stored securely in environment variables
+- Server-side only (never exposed to client)
+- Rate limiting to prevent abuse
+- Input sanitization and validation
+- Sandbox preview for generated code
+- Admin-only access control
+- Audit logging for all operations
+- Cost monitoring and budget alerts
+
+## 🚀 Next Steps
+
+### Immediate (Phase 2):
+1. Implement all 5 API routes
+2. Add rate limiting middleware
+3. Set up error handling and logging
+4. Test with various prompts
+5. Document API responses
+
+### Following (Phase 3):
+1. Build all UI components
+2. Integrate with APIs
+3. Add responsive design
+4. Implement loading states
+5. Test user workflows
+
+### Final (Phase 4):
+1. Integrate with admin panel
+2. Add file management
+3. Complete testing suite
+4. Performance optimization
+5. Go live
+
+## 📊 Progress Tracking
+
+- ✅ Phase 7.1: Environment Setup (Complete)
+- 📋 Phase 7.2: API Routes (Planned)
+- 📋 Phase 7.3: UI Components (Planned)
+- 📋 Phase 7.4: Integration & Testing (Planned)
+
+**Total Progress**: 25% Complete (1/4 phases)
+**Estimated Remaining Time**: 6-9 hours
+
+---
+
+*Gemini 3 Content Studio represents a major leap forward in content creation efficiency, enabling the Learning Adventures platform to scale educational game production dramatically while maintaining high quality and accessibility standards.*
 
 ---
 
