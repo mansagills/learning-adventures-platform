@@ -27,7 +27,7 @@ export default async function AgentStudioPage() {
 
   // Check if user has permission to access Agent Studio
   const userRole = session.user.role;
-  const hasAccess = userRole === 'admin' || userRole === 'teacher';
+  const hasAccess = userRole === 'ADMIN' || userRole === 'TEACHER';
 
   if (!hasAccess) {
     redirect('/unauthorized');

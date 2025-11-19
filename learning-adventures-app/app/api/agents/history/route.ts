@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     // Check permissions
     const userRole = session.user.role;
-    if (userRole !== 'admin' && userRole !== 'teacher') {
+    if (userRole !== 'ADMIN' && userRole !== 'TEACHER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

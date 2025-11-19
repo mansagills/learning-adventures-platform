@@ -55,7 +55,7 @@ export default async function AgentChatPage({ params }: PageProps) {
 
   // Check if user has permission
   const userRole = session.user.role;
-  const hasAccess = userRole === 'admin' || userRole === 'teacher';
+  const hasAccess = userRole === 'ADMIN' || userRole === 'TEACHER';
 
   if (!hasAccess) {
     redirect('/unauthorized');
