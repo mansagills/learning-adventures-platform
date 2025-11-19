@@ -20,18 +20,33 @@ export const metadata: Metadata = {
 export default async function AgentStudioPage() {
   const session = await getServerSession(authOptions);
 
+  // DEBUG: Log session data
+  console.log('🔍 Agent Studio Access Attempt:', {
+    hasSession: !!session,
+    hasUser: !!session?.user,
+    userEmail: session?.user?.email,
+    userRole: session?.user?.role,
+    roleType: typeof session?.user?.role,
+  });
+
   // Redirect non-authenticated users
   if (!session) {
+    console.log('❌ No session - redirecting to login');
     redirect('/auth/login?callbackUrl=/agents');
   }
 
   // Check if user has permission to access Agent Studio
-  const userRole = session.user.role;
+  const userRole = session.user?.role;
+  console.log('🔐 Role check:', { userRole, isAdmin: userRole === 'ADMIN', isTeacher: userRole === 'TEACHER' });
+
   const hasAccess = userRole === 'ADMIN' || userRole === 'TEACHER';
 
   if (!hasAccess) {
+    console.log('❌ Access denied - role:', userRole);
     redirect('/unauthorized');
   }
+
+  console.log('✅ Access granted to Agent Studio');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-accent-50">
