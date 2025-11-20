@@ -1,97 +1,56 @@
 /**
- * Agent Workflow System - Main Export
- * Phase 5B: Agent Workflow Architecture
+ * AI Agent Studio - Main Export
  *
- * This module provides a complete agent-based workflow system for automating
- * educational content creation.
+ * Exports all agents, types, and utilities for the AI Agent Studio.
+ * Based on Plan 6 specifications.
  */
 
-// Core components
-export { BaseAgent } from './BaseAgent';
-export { ContentAgentOrchestrator } from './ContentAgentOrchestrator';
-export { WorkflowFactory } from './WorkflowFactory';
-
-// Specialized agents
-export { GameBuilderAgent } from './GameBuilderAgent';
-export { ReactComponentAgent } from './ReactComponentAgent';
-export { MetadataFormatterAgent } from './MetadataFormatterAgent';
-export { AccessibilityValidatorAgent } from './AccessibilityValidatorAgent';
-
-// Type definitions
+// Type exports
 export type {
-  // Core types
-  AgentType,
-  WorkflowStatus,
-  StepStatus,
   AgentResult,
-  ValidationResult,
-
-  // Workflow types
-  AgentWorkflow,
   WorkflowStep,
+  AgentWorkflow,
   WorkflowError,
-  WorkflowEvent,
-  WorkflowProgress,
-
-  // Content types
   GameConcept,
   GameFile,
   CatalogEntry,
-  AccessibilityReport,
-  AccessibilityIssue,
-
-  // Input types
-  HTMLGameWorkflowInput,
-  ReactGameWorkflowInput,
-  BatchContentWorkflowInput,
-
-  // Output types
-  HTMLGameWorkflowOutput,
-  ReactGameWorkflowOutput,
-  BatchWorkflowOutput,
-
-  // Agent response types
-  GameBuilderResponse,
-  ReactComponentResponse,
-  MetadataFormatterResponse,
-  AccessibilityValidatorResponse,
-
-  // Config types
-  AgentConfig,
+  QAReport,
+  QAIssue,
+  ContentAgent,
+  ConversationContext,
   SkillKnowledge,
 } from './types';
 
+// Base agent
+export { BaseAgent } from './BaseAgent';
+
+// Specialized agents
+export { GameIdeaGeneratorAgent } from './GameIdeaGeneratorAgent';
+
+// TODO: Export remaining agents when implemented:
+// export { ContentBuilderAgent } from './ContentBuilderAgent';
+// export { CatalogManagerAgent } from './CatalogManagerAgent';
+// export { QualityAssuranceAgent } from './QualityAssuranceAgent';
+
+// TODO: Export workflow orchestration:
+// export { WorkflowOrchestrator } from './WorkflowOrchestrator';
+// export { WorkflowFactory } from './WorkflowFactory';
+
 /**
- * Quick Start Guide:
+ * Quick Start Example:
  *
- * 1. Create a workflow factory:
- *    ```ts
- *    import { WorkflowFactory } from '@/lib/agents';
- *    const factory = new WorkflowFactory();
- *    ```
+ * ```typescript
+ * import { GameIdeaGeneratorAgent } from '@/lib/agents';
  *
- * 2. Create an HTML game workflow:
- *    ```ts
- *    const workflowId = await factory.createHTMLGameWorkflow({
- *      gameIdea: 'A fun multiplication game',
- *      subject: 'math',
- *      gradeLevel: '3-5',
- *      skills: ['multiplication', 'mental math'],
- *    });
- *    ```
+ * const agent = new GameIdeaGeneratorAgent();
+ * const result = await agent.execute({
+ *   subject: 'math',
+ *   gradeLevel: '3-5',
+ *   learningObjectives: ['Master multiplication facts'],
+ * });
  *
- * 3. Execute the workflow:
- *    ```ts
- *    const result = await factory.executeWorkflow(workflowId);
- *    ```
- *
- * 4. Get the results:
- *    ```ts
- *    if (result.status === 'completed') {
- *      const gameCode = result.results.step1.gameCode;
- *      const catalogEntry = result.results.step3.catalogEntry;
- *    }
- *    ```
- *
- * See /lib/agents/examples/ for more detailed usage examples.
+ * if (result.success) {
+ *   console.log('Generated concepts:', result.output);
+ * }
+ * ```
  */
