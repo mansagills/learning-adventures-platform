@@ -2,9 +2,11 @@
  * File Parser Utilities
  *
  * Extract text content from various file formats (MD, PDF, DOCX)
+ * Store metadata for image files (PNG, JPG, JPEG, GIF, WEBP)
  */
 
 import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Parse markdown file
@@ -60,6 +62,35 @@ export async function parseDOCX(filePath: string): Promise<string> {
 }
 
 /**
+ * Parse image file
+ * Returns metadata about the image
+ */
+export async function parseImage(filePath: string): Promise<string> {
+  try {
+    const stats = await fs.promises.stat(filePath);
+    const filename = path.basename(filePath);
+    const extension = getFileExtension(filename);
+
+    // For now, just return metadata
+    // In the future, we could integrate Claude's vision API to describe the image
+    return `[Image file: ${filename}, Format: ${extension.toUpperCase()}, Size: ${formatFileSize(stats.size)}]`;
+  } catch (error) {
+    throw new Error(`Failed to parse image: ${error}`);
+  }
+}
+
+/**
+ * Format file size in human-readable format
+ */
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+/**
  * Parse file based on extension
  */
 export async function parseFile(filePath: string, fileType: string): Promise<string> {
@@ -75,6 +106,13 @@ export async function parseFile(filePath: string, fileType: string): Promise<str
 
     case 'docx':
       return parseDOCX(filePath);
+
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif':
+    case 'webp':
+      return parseImage(filePath);
 
     default:
       throw new Error(`Unsupported file type: ${fileType}`);
@@ -114,7 +152,16 @@ export function getFileExtension(filename: string): string {
  * Validate file type
  */
 export function isAllowedFileType(filename: string): boolean {
-  const allowedExtensions = ['md', 'pdf', 'docx'];
+  const allowedExtensions = ['md', 'pdf', 'docx', 'png', 'jpg', 'jpeg', 'gif', 'webp'];
   const extension = getFileExtension(filename);
   return allowedExtensions.includes(extension);
+}
+
+/**
+ * Check if file is an image
+ */
+export function isImageFile(filename: string): boolean {
+  const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+  const extension = getFileExtension(filename);
+  return imageExtensions.includes(extension);
 }

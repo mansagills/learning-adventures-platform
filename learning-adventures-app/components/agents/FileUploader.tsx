@@ -4,7 +4,7 @@
  * File Uploader Component
  *
  * Drag-and-drop file uploader for agent conversations.
- * Supports: MD, PDF, DOCX files
+ * Supports: MD, PDF, DOCX files, and images (PNG, JPG, GIF, WEBP)
  */
 
 import { useState, useCallback, useRef } from 'react';
@@ -16,6 +16,7 @@ interface UploadedFileInfo {
   type: string;
   status: 'uploading' | 'completed' | 'failed';
   error?: string;
+  previewUrl?: string; // For image previews
 }
 
 interface FileUploaderProps {
@@ -37,15 +38,25 @@ export default function FileUploader({
     'text/markdown',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/gif',
+    'image/webp',
   ];
 
-  const allowedExtensions = ['.md', '.pdf', '.docx'];
+  const allowedExtensions = ['.md', '.pdf', '.docx', '.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
+  const isImageFile = (fileName: string): boolean => {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '');
+  };
 
   const validateFile = (file: File): string | null => {
     // Check file type
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
     if (!allowedExtensions.includes(extension)) {
-      return `File type not supported. Please upload MD, PDF, or DOCX files.`;
+      return `File type not supported. Please upload MD, PDF, DOCX, or image files (PNG, JPG, GIF, WEBP).`;
     }
 
     // Check file size
@@ -59,12 +70,20 @@ export default function FileUploader({
 
   const uploadFile = async (file: File) => {
     const tempId = Math.random().toString(36);
+
+    // Create preview URL for images
+    let previewUrl: string | undefined;
+    if (isImageFile(file.name)) {
+      previewUrl = URL.createObjectURL(file);
+    }
+
     const fileInfo: UploadedFileInfo = {
       id: tempId,
       name: file.name,
       size: file.size,
       type: file.type,
       status: 'uploading',
+      previewUrl,
     };
 
     setUploadedFiles((prev) => [...prev, fileInfo]);
@@ -161,6 +180,7 @@ export default function FileUploader({
     if (ext === 'md') return '📝';
     if (ext === 'pdf') return '📄';
     if (ext === 'docx') return '📘';
+    if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '')) return '🖼️';
     return '📎';
   };
 
@@ -187,13 +207,16 @@ export default function FileUploader({
           Drop files here or click to browse
         </p>
         <p className="text-sm text-neutral-500">
-          Supports MD, PDF, DOCX (max {maxFileSizeMB}MB)
+          Supports MD, PDF, DOCX, and images (PNG, JPG, GIF, WEBP)
+        </p>
+        <p className="text-xs text-neutral-400 mt-1">
+          Max {maxFileSizeMB}MB per file
         </p>
         <input
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".md,.pdf,.docx"
+          accept=".md,.pdf,.docx,.png,.jpg,.jpeg,.gif,.webp"
           onChange={handleFileInputChange}
           className="hidden"
         />
@@ -208,7 +231,16 @@ export default function FileUploader({
               className="flex items-center justify-between p-3 bg-white border border-neutral-200 rounded-lg"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <span className="text-2xl">{getFileIcon(file.name)}</span>
+                {/* Image Preview or Icon */}
+                {file.previewUrl ? (
+                  <img
+                    src={file.previewUrl}
+                    alt={file.name}
+                    className="w-12 h-12 object-cover rounded border border-neutral-200"
+                  />
+                ) : (
+                  <span className="text-2xl">{getFileIcon(file.name)}</span>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-neutral-900 truncate">
                     {file.name}
