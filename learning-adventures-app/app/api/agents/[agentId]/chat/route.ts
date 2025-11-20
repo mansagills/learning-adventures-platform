@@ -26,10 +26,36 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { message, conversationId, history } = await request.json();
+    const { message, conversationId, history, fileIds } = await request.json();
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+    }
+
+    // Fetch uploaded files if fileIds provided
+    let fileContext = '';
+    if (fileIds && Array.isArray(fileIds) && fileIds.length > 0) {
+      const files = await prisma.uploadedFile.findMany({
+        where: {
+          id: { in: fileIds },
+          userId: session.user.id,
+        },
+      });
+
+      if (files.length > 0) {
+        fileContext = '\n\n===REFERENCE DOCUMENTS===\n\n';
+        files.forEach((file) => {
+          fileContext += `File: ${file.originalName}\n`;
+          fileContext += `Type: ${file.fileType.toUpperCase()}\n`;
+          if (file.extractedText) {
+            fileContext += `Content:\n${file.extractedText}\n\n---\n\n`;
+          } else if (file.uploadStatus === 'PROCESSING') {
+            fileContext += `[Content extraction in progress]\n\n---\n\n`;
+          } else if (file.uploadStatus === 'FAILED') {
+            fileContext += `[Content extraction failed: ${file.errorMessage || 'Unknown error'}]\n\n---\n\n`;
+          }
+        });
+      }
     }
 
     // Validate agent ID
@@ -76,16 +102,25 @@ export async function POST(
     const stream = new ReadableStream({
       async start(controller) {
         // Simulate streaming response
-        const mockResponse = `Thank you for your message! I'm the ${params.agentId.replace(/-/g, ' ')} agent, and I'm here to help you create educational content.
+        let mockResponse = '';
 
-Based on your request, I would recommend the following approach:
-
-1. First, let's clarify the learning objectives
-2. Consider the target grade level and subject
-3. Think about the engagement strategies we can use
-4. Ensure accessibility and educational value
-
-What would you like to focus on first?`;
+        if (fileContext) {
+          mockResponse = `Thank you for your message and the uploaded document(s)! I've received and reviewed your reference materials.\n\n`;
+          mockResponse += `I'm the ${params.agentId.replace(/-/g, ' ')} agent. Based on the content you've provided and your request, I can help you:\n\n`;
+          mockResponse += `1. Extract and analyze key concepts from your documents\n`;
+          mockResponse += `2. Generate game ideas aligned with your content\n`;
+          mockResponse += `3. Create interactive learning experiences\n`;
+          mockResponse += `4. Ensure educational value and accessibility\n\n`;
+          mockResponse += `Your uploaded content will inform my recommendations. What would you like me to focus on?`;
+        } else {
+          mockResponse = `Thank you for your message! I'm the ${params.agentId.replace(/-/g, ' ')} agent, and I'm here to help you create educational content.\n\n`;
+          mockResponse += `Based on your request, I would recommend the following approach:\n\n`;
+          mockResponse += `1. First, let's clarify the learning objectives\n`;
+          mockResponse += `2. Consider the target grade level and subject\n`;
+          mockResponse += `3. Think about the engagement strategies we can use\n`;
+          mockResponse += `4. Ensure accessibility and educational value\n\n`;
+          mockResponse += `What would you like to focus on first?`;
+        }
 
         const words = mockResponse.split(' ');
         for (let i = 0; i < words.length; i++) {

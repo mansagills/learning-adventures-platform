@@ -532,6 +532,7 @@ model AgentConversation {
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages        ConversationMessage[]
   generatedContent GeneratedContent[]
+  uploadedFiles   UploadedFile[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -630,4 +631,41 @@ model AgentMetrics {
 
   @@index([userId, agentType])
   @@index([createdAt])
+}
+
+// Uploaded files for agent reference
+model UploadedFile {
+  id              String   @id @default(cuid())
+  userId          String
+  conversationId  String?
+
+  // File information
+  originalName    String
+  fileName        String   // Sanitized filename
+  fileType        String   // 'md', 'pdf', 'docx'
+  mimeType        String
+  fileSize        Int      // in bytes
+  filePath        String   // Local or S3 path
+
+  // Extracted content
+  extractedText   String?  @db.Text
+
+  // Metadata
+  uploadStatus    UploadStatus @default(PROCESSING)
+  errorMessage    String?
+
+  // Relations
+  conversation    AgentConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime? // Optional expiration
+
+  @@index([userId])
+  @@index([conversationId])
+}
+
+enum UploadStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
 }

@@ -12,6 +12,7 @@ import { useState, useRef, useEffect } from 'react';
 import MessageBubble from './MessageBubble';
 import ActivityViewer from './ActivityViewer';
 import StreamingIndicator from './StreamingIndicator';
+import FileUploader from './FileUploader';
 
 interface Message {
   id: string;
@@ -39,6 +40,8 @@ export default function ChatInterface({
   const [inputValue, setInputValue] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentActivity, setCurrentActivity] = useState<string[]>([]);
+  const [showFileUploader, setShowFileUploader] = useState(false);
+  const [uploadedFileIds, setUploadedFileIds] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -77,8 +80,15 @@ export default function ChatInterface({
           message: inputValue,
           conversationId,
           history: messages,
+          fileIds: uploadedFileIds.length > 0 ? uploadedFileIds : undefined,
         }),
       });
+
+      // Clear uploaded files after sending
+      if (uploadedFileIds.length > 0) {
+        setUploadedFileIds([]);
+        setShowFileUploader(false);
+      }
 
       if (!response.ok) throw new Error('Failed to get response');
 
@@ -201,27 +211,72 @@ export default function ChatInterface({
         {/* Input Area */}
         <div className="border-t border-neutral-200 p-4">
           <div className="max-w-4xl mx-auto">
+            {/* File Uploader (collapsible) */}
+            {showFileUploader && (
+              <div className="mb-4 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-neutral-900">
+                    Upload Reference Documents
+                  </h4>
+                  <button
+                    onClick={() => setShowFileUploader(false)}
+                    className="text-neutral-500 hover:text-neutral-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <FileUploader
+                  conversationId={conversationId}
+                  onFileUploaded={(fileId) => {
+                    setUploadedFileIds((prev) => [...prev, fileId]);
+                  }}
+                />
+                {uploadedFileIds.length > 0 && (
+                  <p className="mt-2 text-xs text-green-600">
+                    ✓ {uploadedFileIds.length} file(s) uploaded and will be included
+                    in your next message
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3">
-              <textarea
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={`Message ${agentName}...`}
-                rows={3}
-                className="flex-1 px-4 py-3 border border-neutral-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                disabled={isStreaming}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isStreaming}
-                className="px-6 py-3 bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors"
-              >
-                Send
-              </button>
+              <div className="flex-1">
+                <textarea
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={`Message ${agentName}...`}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  disabled={isStreaming}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isStreaming}
+                  className="px-6 py-3 bg-brand-500 text-white rounded-lg font-semibold hover:bg-brand-600 disabled:bg-neutral-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  Send
+                </button>
+                <button
+                  onClick={() => setShowFileUploader(!showFileUploader)}
+                  className="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
+                  title="Upload files"
+                >
+                  📎 Files
+                </button>
+              </div>
             </div>
-            <div className="mt-2 text-xs text-neutral-500">
-              Press Enter to send, Shift+Enter for new line
+            <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+              <span>Press Enter to send, Shift+Enter for new line</span>
+              {uploadedFileIds.length > 0 && (
+                <span className="text-brand-600">
+                  {uploadedFileIds.length} file(s) attached
+                </span>
+              )}
             </div>
           </div>
         </div>
