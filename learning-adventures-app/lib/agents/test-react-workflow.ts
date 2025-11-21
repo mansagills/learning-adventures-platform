@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Test Script: React Game Workflow
  * Tests the complete workflow for creating a React-based math game

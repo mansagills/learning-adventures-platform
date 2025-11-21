@@ -160,7 +160,7 @@ export class WorkflowExecutor {
           where: { id: this.executionId },
           data: {
             status: 'FAILED',
-            error: error instanceof Error ? error.message : 'Step failed',
+            errorMessage: error instanceof Error ? error.message : 'Step failed',
           },
         });
 
@@ -183,7 +183,7 @@ export class WorkflowExecutor {
       where: { id: this.executionId },
       data: {
         status: 'COMPLETED',
-        output: results,
+        outputData: results,
       },
     });
 
@@ -238,12 +238,16 @@ export class WorkflowExecutor {
       prompt = 'Generate 3 creative educational game ideas for elementary students';
     }
 
-    const response = await agent.processMessage(prompt, [], context.fileIds);
+    const result = await agent.execute({
+      subject: context.input?.subject || 'math',
+      gradeLevel: context.input?.gradeLevel || '3-5',
+      learningObjectives: [],
+    });
 
     return {
       agent: 'game-idea-generator',
       action,
-      output: response,
+      output: result.output,
       timestamp: new Date().toISOString(),
     };
   }

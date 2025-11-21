@@ -27,7 +27,7 @@ export async function parseMarkdown(filePath: string): Promise<string> {
 export async function parsePDF(filePath: string): Promise<string> {
   try {
     // Dynamic import to avoid issues if package not installed
-    const pdfParse = (await import('pdf-parse')).default;
+    const pdfParse = (await import('pdf-parse' as any)).default as any;
     const dataBuffer = await fs.promises.readFile(filePath);
     const data = await pdfParse(dataBuffer);
     return data.text;

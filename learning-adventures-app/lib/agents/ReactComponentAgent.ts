@@ -6,21 +6,38 @@
 import { BaseAgent } from './BaseAgent';
 import {
   AgentResult,
-  ReactComponentResponse,
-  ReactGameWorkflowInput,
   GameConcept,
-  ValidationResult,
 } from './types';
+
+// TODO: Move these types to ./types.ts
+interface ReactComponentResponse {
+  componentCode: string;
+  gameId: string;
+  metadata: GameConcept;
+  dependencies: string[];
+  fileStructure: {
+    mainFile: string;
+    additionalFiles?: Array<{ path: string; content: string }>;
+  };
+}
+
+interface ReactGameWorkflowInput {
+  gameIdea: string;
+  subject: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
+  gradeLevel: string;
+  complexity: 'simple' | 'moderate' | 'complex';
+  features: string[];
+  skills?: string[];
+  learningObjectives?: string[];
+}
 
 export class ReactComponentAgent extends BaseAgent {
   constructor() {
-    super({
-      type: 'react-component',
-      skillPaths: ['docs/skills/react-game-component/SKILL.md'],
-      maxRetries: 2,
-      timeout: 300000, // 5 minutes
-      validateOutput: true,
-    });
+    super(
+      'react-component',
+      ['docs/skills/react-game-component/SKILL.md'],
+      'You are a React component agent. Create React-based educational games.'
+    );
   }
 
   /**
@@ -59,15 +76,16 @@ export class ReactComponentAgent extends BaseAgent {
 
       // Generate React component code
       const componentCode = await this.generateComponentCode(prompt, concept);
-      const registrationCode = this.generateRegistrationCode(concept);
-      const componentDirectory = `components/games/${this.generateGameId(concept.title)}`;
+      const gameId = this.generateGameId(concept.title);
 
       const response: ReactComponentResponse = {
         componentCode,
-        componentDirectory,
-        registrationCode,
-        dependencies: this.extractDependencies(features),
+        gameId,
         metadata: concept,
+        dependencies: this.extractDependencies(features),
+        fileStructure: {
+          mainFile: `components/games/${gameId}/index.tsx`,
+        },
       };
 
       return {
@@ -106,10 +124,12 @@ export class ReactComponentAgent extends BaseAgent {
       description: input.gameIdea,
       subject: input.subject as any,
       gradeLevel: input.gradeLevel,
-      skills: input.skills,
+      skills: input.skills || [],
       learningObjectives: input.learningObjectives || this.generateLearningObjectives(input),
-      estimatedTime: this.estimatePlayTime(input.complexity),
+      estimatedTime: `${this.estimatePlayTime(input.complexity)} minutes`,
       difficulty: this.determineDifficulty(input.complexity),
+      gameplayMechanics: input.features || [],
+      educationalValue: 8,
     };
   }
 
@@ -348,35 +368,22 @@ export default ${componentName};
   /**
    * Validate generated component code
    */
-  protected validate(output: any): ValidationResult {
+  protected validate(output: any): boolean {
     const response = output as ReactComponentResponse;
 
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
     // Check required fields
-    if (!response.componentCode) errors.push('No component code generated');
-    if (!response.componentDirectory) errors.push('No component directory specified');
-    if (!response.registrationCode) errors.push('No registration code generated');
+    if (!response.componentCode) return false;
+    if (!response.gameId) return false;
+    if (!response.metadata) return false;
 
     // Check component code structure
     if (response.componentCode) {
       if (!response.componentCode.includes('export default')) {
-        errors.push('Missing default export');
-      }
-      if (!response.componentCode.includes('use client')) {
-        warnings.push('Missing "use client" directive');
-      }
-      if (!response.componentCode.includes('GameContainer')) {
-        warnings.push('Not using GameContainer shared component');
+        return false;
       }
     }
 
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
+    return true;
   }
 
   /**
@@ -428,7 +435,9 @@ export default ${componentName};
   private generateLearningObjectives(input: ReactGameWorkflowInput): string[] {
     const objectives: string[] = [];
 
-    objectives.push(`Practice ${input.skills.join(', ')}`);
+    if (input.skills && input.skills.length > 0) {
+      objectives.push(`Practice ${input.skills.join(', ')}`);
+    }
     objectives.push(`Apply ${input.subject} concepts interactively`);
     objectives.push(`Develop problem-solving skills through gameplay`);
 

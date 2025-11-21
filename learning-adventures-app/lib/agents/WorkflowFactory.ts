@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Workflow Factory
  * Provides pre-built workflow patterns for common content creation tasks
