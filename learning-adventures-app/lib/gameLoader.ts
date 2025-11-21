@@ -58,20 +58,21 @@ export function getAllGameMetadata(): Array<Omit<GameComponent, 'component'> & {
 // Auto-register games from the games directory
 // This function should be called during app initialization
 export async function initializeGameRegistry() {
-  // For Next.js, we need to manually import game registrations
-  // Games will self-register when their modules are imported
-  try {
-       // Import known game registrations
-    await import('@/components/games/sample-math-game');
-    await import('@/components/games/ecosystem-builder');
+  // For Next.js, games are registered lazily when accessed
+  // Games self-register when their modules are imported via dynamic import
+  // This avoids circular dependencies during build time
 
-    // Future games will be added here or they can self-register
-    // by importing their index files elsewhere in the app
+  // NOTE: Games are now registered on-demand when accessed through
+  // the game player. This approach works better with Next.js SSR/SSG
+  // and avoids build-time circular dependency issues.
 
-    console.log('Game registry initialized with', getRegisteredGames().length, 'games');
-  } catch (error) {
-    console.warn('Could not initialize game registry:', error);
-  }
+  // The imports below are commented out to prevent circular dependencies
+  // Games will auto-register when first loaded via the game player
+
+  // await import('@/components/games/sample-math-game');
+  // await import('@/components/games/ecosystem-builder');
+
+  console.log('Game registry ready. Games will register on-demand.');
 }
 
 // Helper function to create a game registration
