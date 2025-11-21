@@ -14,6 +14,11 @@ interface AccessibilityReport {
   issuesFound: number;
   criticalIssues: number;
   warningsFound: number;
+  overallScore?: number;
+  wcagCompliant?: boolean;
+  issues?: AccessibilityIssue[];
+  recommendations?: string[];
+  testedAt?: Date;
 }
 
 interface AccessibilityIssue {
