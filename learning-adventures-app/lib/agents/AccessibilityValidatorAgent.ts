@@ -42,13 +42,11 @@ interface AccessibilityValidatorResponse {
 
 export class AccessibilityValidatorAgent extends BaseAgent {
   constructor() {
-    super({
-      type: 'accessibility-validator',
-      skillPaths: ['docs/skills/accessibility-validator/SKILL.md'],
-      maxRetries: 1,
-      timeout: 120000, // 2 minutes
-      validateOutput: true,
-    });
+    super(
+      'accessibility-validator',
+      ['docs/skills/accessibility-validator/SKILL.md'],
+      'You are an accessibility validator agent. Validate HTML games for WCAG 2.1 AA compliance.'
+    );
   }
 
   /**
