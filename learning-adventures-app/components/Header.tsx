@@ -101,6 +101,16 @@ export default function Header() {
               Content Studio
             </Link>
 
+            {/* AI Agent Studio - Only show for ADMIN and TEACHER */}
+            {session && (session.user.role === 'ADMIN' || session.user.role === 'TEACHER') && (
+              <Link
+                href="/agents"
+                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium text-sm"
+              >
+                AI Agent Studio
+              </Link>
+            )}
+
             {status === 'loading' ? (
               <div className="animate-pulse">
                 <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
@@ -190,6 +200,18 @@ export default function Header() {
               >
                 Content Studio
               </Link>
+
+              {/* AI Agent Studio - Only show for ADMIN and TEACHER */}
+              {session && (session.user.role === 'ADMIN' || session.user.role === 'TEACHER') && (
+                <Link
+                  href="/agents"
+                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  AI Agent Studio
+                </Link>
+              )}
+
               <div className="pt-4">
                 {session ? (
                   <div className="space-y-3">
