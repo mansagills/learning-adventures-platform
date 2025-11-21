@@ -1,0 +1,27 @@
+# Documentation and guides
+*.md
+!learning-adventures-app/README.md
+
+# Development folders not needed in production
+games/
+interactive-learning/
+final-content/
+docs/
+test-outputs/
+la_mvp/
+
+# Development files
+learning-adventures-app/test-*.js
+learning-adventures-app/diagnostic.sh
+learning-adventures-app/clean-start.sh
+learning-adventures-app/verify-users.js
+
+# Environment files (configured in Vercel dashboard)
+.env
+.env.local
+.env*.local
+
+# Test files
+learning-adventures-app/tests/
+learning-adventures-app/**/*.test.*
+learning-adventures-app/**/*.spec.*
