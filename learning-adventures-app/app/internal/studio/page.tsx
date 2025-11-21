@@ -12,22 +12,37 @@ export default function ContentStudioPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isIterating, setIsIterating] = useState(false);
 
+  const handleGenerationStart = () => {
+    setIsGenerating(true);
+    setCurrentContent(null); // Clear previous content when starting new generation
+  };
+
   const handleGenerate = async (content: any) => {
     setIsGenerating(false);
-    setCurrentContent(content);
+    if (content) {
+      setCurrentContent(content);
+    }
+  };
+
+  const handleGenerationError = () => {
+    setIsGenerating(false);
+    // Don't clear content on error
+  };
+
+  const handleIterationStart = () => {
+    setIsIterating(true);
   };
 
   const handleIterate = async (updated: any) => {
     setIsIterating(false);
-    setCurrentContent(updated);
+    if (updated) {
+      setCurrentContent(updated);
+    }
   };
 
-  const startGeneration = () => {
-    setIsGenerating(true);
-  };
-
-  const startIteration = () => {
-    setIsIterating(true);
+  const handleIterationError = () => {
+    setIsIterating(false);
+    // Keep existing content on iteration error
   };
 
   return (
@@ -62,11 +77,9 @@ export default function ContentStudioPage() {
           {/* Creation Interface */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <PromptInput
-              onGenerate={(content) => {
-                startGeneration();
-                // Simulate API call delay
-                setTimeout(() => handleGenerate(content), 100);
-              }}
+              onGenerationStart={handleGenerationStart}
+              onGenerate={handleGenerate}
+              onGenerationError={handleGenerationError}
               isGenerating={isGenerating}
             />
             <LivePreview
@@ -80,11 +93,9 @@ export default function ContentStudioPage() {
             <>
               <IterationControls
                 content={currentContent}
-                onIterate={(updated) => {
-                  startIteration();
-                  // Simulate API call delay
-                  setTimeout(() => handleIterate(updated), 100);
-                }}
+                onIterationStart={handleIterationStart}
+                onIterate={handleIterate}
+                onIterationError={handleIterationError}
                 isIterating={isIterating}
               />
               <PublishWorkflow content={currentContent} />

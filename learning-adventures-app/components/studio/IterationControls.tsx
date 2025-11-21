@@ -5,7 +5,9 @@ import Icon from '@/components/Icon';
 
 interface IterationControlsProps {
   content: any;
+  onIterationStart?: () => void;
   onIterate: (updated: any) => void;
+  onIterationError?: () => void;
   isIterating?: boolean;
 }
 
@@ -20,7 +22,7 @@ const SUGGESTIONS = [
   'Include hints for struggling students'
 ];
 
-export default function IterationControls({ content, onIterate, isIterating = false }: IterationControlsProps) {
+export default function IterationControls({ content, onIterationStart, onIterate, onIterationError, isIterating = false }: IterationControlsProps) {
   const [feedback, setFeedback] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState('');
@@ -38,12 +40,17 @@ export default function IterationControls({ content, onIterate, isIterating = fa
 
     setError('');
 
+    // Notify parent that iteration is starting
+    if (onIterationStart) {
+      onIterationStart();
+    }
+
     try {
       const response = await fetch('/api/gemini/iterate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contentId: content.contentId,
+          contentId: content?.contentId,
           feedback
         })
       });
@@ -52,6 +59,10 @@ export default function IterationControls({ content, onIterate, isIterating = fa
 
       if (!response.ok) {
         setError(data.error || 'Iteration failed');
+        // Reset loading state on error but keep existing content
+        if (onIterationError) {
+          onIterationError();
+        }
         return;
       }
 
@@ -59,6 +70,10 @@ export default function IterationControls({ content, onIterate, isIterating = fa
       setFeedback('');
     } catch (err: any) {
       setError(err.message || 'Network error');
+      // Reset loading state on network error but keep existing content
+      if (onIterationError) {
+        onIterationError();
+      }
     }
   };
 

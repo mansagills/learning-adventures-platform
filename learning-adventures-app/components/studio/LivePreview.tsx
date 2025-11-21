@@ -108,7 +108,7 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
           >
             <iframe
               key={iframeKey}
-              src={content.previewUrl}
+              src={content?.previewUrl}
               className="w-full h-full border-0"
               sandbox="allow-scripts allow-same-origin"
               title="Game Preview"
@@ -123,19 +123,19 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Generation Time</p>
             <p className="text-lg font-semibold text-ink-900">
-              {content.generationTime ? (content.generationTime / 1000).toFixed(1) : '0'}s
+              {content?.generationTime ? (content.generationTime / 1000).toFixed(1) : '0'}s
             </p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Tokens Used</p>
             <p className="text-lg font-semibold text-ink-900">
-              {content.tokens?.total ? content.tokens.total.toLocaleString() : '0'}
+              {content?.tokens?.total ? content.tokens.total.toLocaleString() : '0'}
             </p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Cost</p>
             <p className="text-lg font-semibold text-ink-900">
-              ${content.estimatedCost ? content.estimatedCost.toFixed(3) : '0.000'}
+              ${content?.estimatedCost ? content.estimatedCost.toFixed(3) : '0.000'}
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
       {content && !isLoading && (
         <div className="mt-4 flex justify-center">
           <a
-            href={content.previewUrl}
+            href={content?.previewUrl || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center px-4 py-2 text-sm text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"

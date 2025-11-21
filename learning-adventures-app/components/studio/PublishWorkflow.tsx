@@ -49,7 +49,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contentId: content.contentId,
+          contentId: content?.contentId,
           destination,
           metadata
         })

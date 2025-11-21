@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Icon from '@/components/Icon';
 
 interface PromptInputProps {
+  onGenerationStart?: () => void;
   onGenerate: (content: any) => void;
+  onGenerationError?: () => void;
   isGenerating?: boolean;
 }
 
@@ -26,7 +28,7 @@ const TEMPLATES = [
   }
 ];
 
-export default function PromptInput({ onGenerate, isGenerating = false }: PromptInputProps) {
+export default function PromptInput({ onGenerationStart, onGenerate, onGenerationError, isGenerating = false }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
   const [config, setConfig] = useState({
     category: 'math',
@@ -56,6 +58,11 @@ export default function PromptInput({ onGenerate, isGenerating = false }: Prompt
 
     setError('');
 
+    // Notify parent that generation is starting
+    if (onGenerationStart) {
+      onGenerationStart();
+    }
+
     try {
       const response = await fetch('/api/gemini/generate', {
         method: 'POST',
@@ -67,12 +74,20 @@ export default function PromptInput({ onGenerate, isGenerating = false }: Prompt
 
       if (!response.ok) {
         setError(data.error || 'Generation failed');
+        // Reset loading state on error
+        if (onGenerationError) {
+          onGenerationError();
+        }
         return;
       }
 
       onGenerate(data);
     } catch (err: any) {
       setError(err.message || 'Network error');
+      // Reset loading state on network error
+      if (onGenerationError) {
+        onGenerationError();
+      }
     }
   };
 
