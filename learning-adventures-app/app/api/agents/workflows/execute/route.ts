@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         status: 'RUNNING',
         currentStep: 0,
         totalSteps: 0, // Will be set by executor
-        input: input || {},
+        inputData: input || {},
       },
     });
 
