@@ -669,3 +669,130 @@ enum UploadStatus {
   COMPLETED
   FAILED
 }
+
+// ============================================================================
+// GEMINI 3D CONTENT STUDIO MODELS
+// ============================================================================
+
+// Gemini-generated content tracking
+model GeminiContent {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Content Information
+  title           String
+  prompt          String   @db.Text
+  generatedCode   String   @db.Text
+  gameType        GameType @default(HTML_2D)
+  category        String   // 'math', 'science', 'english', 'history', 'interdisciplinary'
+  gradeLevel      String[] // ['K', '1', '2', '3', '4', '5', '6', '7', '8']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  skills          String[] // Learning objectives/skills
+
+  // Workflow Status
+  status          GeminiContentStatus @default(DRAFT)
+
+  // Iteration History
+  iterations      Int      @default(1)
+  iterationNotes  String[] // Array of feedback/changes for each iteration
+
+  // Quality Metrics
+  accessibilityScore Int?   // 0-100
+  performanceScore   Int?   // 0-100
+  educationalScore   Int?   // 0-100
+
+  // File Management
+  filePath        String?  // Where the file is saved (e.g., '/games/gemini-math-race.html')
+  previewUrl      String?  // Temporary preview URL
+
+  // Publishing
+  publishedAt     DateTime?
+  catalogEntryId  String?  // Reference to catalogData entry if published
+  testGameId      String?  // Reference to TestGame if moved to testing
+
+  // Metadata
+  metadata        Json?    // Additional metadata (tokens used, model version, etc.)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  iterations_history GeminiIteration[]
+
+  @@index([userId, status])
+  @@index([status, category])
+  @@index([createdAt])
+}
+
+enum GameType {
+  HTML_2D         // Standard 2D HTML game
+  HTML_3D         // 3D game with Three.js
+  INTERACTIVE     // Interactive lesson/tutorial
+  QUIZ            // Quiz/assessment
+  SIMULATION      // Science simulation
+  PUZZLE          // Logic puzzle
+}
+
+enum GeminiContentStatus {
+  DRAFT           // Initial generation, not finalized
+  ITERATING       // Being refined through conversation
+  TESTING         // Ready for testing
+  APPROVED        // Approved for publishing
+  PUBLISHED       // Published to catalog
+  ARCHIVED        // Archived/deprecated
+}
+
+// Track each iteration/refinement of Gemini content
+model GeminiIteration {
+  id              String   @id @default(cuid())
+  geminiContentId String
+
+  // Iteration Details
+  iterationNumber Int      // 1, 2, 3...
+  userFeedback    String   @db.Text // What the user asked to change
+  previousCode    String   @db.Text // Code before this iteration
+  newCode         String   @db.Text // Code after this iteration
+
+  // Changes Summary
+  changesSummary  String?  @db.Text // AI-generated summary of what changed
+
+  // Metrics
+  tokensUsed      Int?
+  generationTime  Int?     // Milliseconds
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  geminiContent   GeminiContent @relation(fields: [geminiContentId], references: [id], onDelete: Cascade)
+
+  @@index([geminiContentId, iterationNumber])
+}
+
+// Gemini API usage tracking for cost monitoring
+model GeminiUsage {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Usage Details
+  operation       String   // 'generate', 'iterate', 'preview'
+  model           String   // 'gemini-3-pro', etc.
+  tokensInput     Int
+  tokensOutput    Int
+  tokensCached    Int?     // If using caching
+
+  // Cost Calculation
+  estimatedCost   Float    // In USD
+
+  // Context
+  geminiContentId String?  // If related to specific content
+  success         Boolean  @default(true)
+  errorMessage    String?  @db.Text
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
