@@ -6,22 +6,31 @@
 import { BaseAgent } from './BaseAgent';
 import {
   AgentResult,
-  MetadataFormatterResponse,
   GameFile,
   GameConcept,
   CatalogEntry,
-  ValidationResult,
 } from './types';
+
+// TODO: Move these types to ./types.ts
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+interface MetadataFormatterResponse {
+  catalogEntry: CatalogEntry;
+  targetArray: string;
+  validation: ValidationResult;
+}
 
 export class MetadataFormatterAgent extends BaseAgent {
   constructor() {
-    super({
-      type: 'metadata-formatter',
-      skillPaths: ['docs/skills/catalog-metadata-formatter/SKILL.md'],
-      maxRetries: 2,
-      timeout: 60000, // 1 minute
-      validateOutput: true,
-    });
+    super(
+      'metadata-formatter',
+      ['docs/skills/catalog-metadata-formatter/SKILL.md'],
+      'You are a metadata formatter agent. Format game metadata for catalog integration.'
+    );
   }
 
   /**
@@ -107,17 +116,11 @@ export class MetadataFormatterAgent extends BaseAgent {
       gradeLevel: this.parseGradeLevel(concept.gradeLevel),
       difficulty: concept.difficulty,
       skills: concept.skills,
-      learningObjectives: concept.learningObjectives,
       estimatedTime: concept.estimatedTime,
       featured: false, // New games start as not featured
+      htmlPath: format === 'html' ? (filePath || `/games/${id}.html`) : undefined,
+      reactPath: format === 'react' ? `components/games/${id}` : undefined,
     };
-
-    // Add path based on format
-    if (format === 'html') {
-      entry.htmlPath = filePath || `/games/${id}.html`;
-    } else {
-      entry.componentPath = `components/games/${id}`;
-    }
 
     return entry;
   }
@@ -173,8 +176,8 @@ export class MetadataFormatterAgent extends BaseAgent {
     if (!entry.estimatedTime) errors.push('Missing required field: estimatedTime');
 
     // Path validation
-    if (!entry.htmlPath && !entry.componentPath) {
-      errors.push('Must have either htmlPath or componentPath');
+    if (!entry.htmlPath && !entry.reactPath) {
+      errors.push('Must have either htmlPath or reactPath');
     }
 
     // Field validation
@@ -194,13 +197,15 @@ export class MetadataFormatterAgent extends BaseAgent {
       warnings.push('No skills specified');
     }
 
-    if (entry.learningObjectives && entry.learningObjectives.length === 0) {
-      warnings.push('No learning objectives specified');
-    }
+    // Learning objectives are not part of CatalogEntry schema
+    // if (entry.learningObjectives && entry.learningObjectives.length === 0) {
+    //   warnings.push('No learning objectives specified');
+    // }
 
-    if (entry.estimatedTime && (entry.estimatedTime < 5 || entry.estimatedTime > 60)) {
-      warnings.push('Estimated time outside typical range (5-60 minutes)');
-    }
+    // estimatedTime is a string in CatalogEntry, so we can't do numeric comparison
+    // if (entry.estimatedTime && (entry.estimatedTime < 5 || entry.estimatedTime > 60)) {
+    //   warnings.push('Estimated time outside typical range (5-60 minutes)');
+    // }
 
     // Type validation
     const validTypes = ['game', 'lesson', 'activity'];
@@ -228,27 +233,19 @@ export class MetadataFormatterAgent extends BaseAgent {
   /**
    * Validate against full catalog entry schema
    */
-  protected validate(output: any): ValidationResult {
+  protected validate(output: any): boolean {
     const response = output as MetadataFormatterResponse;
 
     if (!response.catalogEntry) {
-      return {
-        valid: false,
-        errors: ['No catalog entry generated'],
-        warnings: [],
-      };
+      return false;
     }
 
     if (!response.targetArray) {
-      return {
-        valid: false,
-        errors: ['No target array determined'],
-        warnings: [],
-      };
+      return false;
     }
 
     // Use the catalog entry validation
-    return response.validation;
+    return response.validation.valid;
   }
 
   /**
@@ -266,11 +263,10 @@ ${indent}category: '${entry.category}',
 ${indent}gradeLevel: ${JSON.stringify(entry.gradeLevel)},
 ${indent}difficulty: '${entry.difficulty}',
 ${indent}skills: ${JSON.stringify(entry.skills)},
-${indent}learningObjectives: ${JSON.stringify(entry.learningObjectives)},
-${indent}estimatedTime: ${entry.estimatedTime},
+${indent}estimatedTime: '${entry.estimatedTime}',
 ${indent}featured: ${entry.featured},
 ${entry.htmlPath ? `${indent}htmlPath: '${entry.htmlPath}',` : ''}
-${entry.componentPath ? `${indent}componentPath: '${entry.componentPath}',` : ''}
+${entry.reactPath ? `${indent}reactPath: '${entry.reactPath}',` : ''}
 }`;
   }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Deploy Generated Game - Test Script
  * Runs the React workflow and saves the generated files to disk

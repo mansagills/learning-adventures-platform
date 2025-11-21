@@ -520,30 +520,17 @@ export class AccessibilityValidatorAgent extends BaseAgent {
   /**
    * Validate agent output
    */
-  protected validate(output: any): ValidationResult {
+  protected validate(output: any): boolean {
     const response = output as AccessibilityValidatorResponse;
 
     if (!response.report) {
-      return {
-        valid: false,
-        errors: ['No accessibility report generated'],
-        warnings: [],
-      };
+      return false;
     }
 
     if (typeof response.report.overallScore !== 'number') {
-      return {
-        valid: false,
-        errors: ['Invalid accessibility score'],
-        warnings: [],
-      };
+      return false;
     }
 
-    return {
-      valid: true,
-      errors: [],
-      warnings: [],
-      score: response.report.overallScore,
-    };
+    return true;
   }
 }

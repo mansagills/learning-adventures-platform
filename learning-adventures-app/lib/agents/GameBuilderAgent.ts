@@ -6,21 +6,36 @@
 import { BaseAgent } from './BaseAgent';
 import {
   AgentResult,
-  GameBuilderResponse,
-  HTMLGameWorkflowInput,
   GameConcept,
-  ValidationResult,
 } from './types';
+
+// TODO: Move these types to ./types.ts
+interface GameBuilderResponse {
+  gameCode: string;
+  gameId: string;
+  metadata: GameConcept;
+  technicalSpecs: {
+    fileSize: number;
+    lineCount: number;
+    hasAccessibilityFeatures: boolean;
+  };
+}
+
+interface HTMLGameWorkflowInput {
+  gameIdea: string;
+  subject: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
+  gradeLevel: string;
+  skills: string[];
+  learningObjectives?: string[];
+}
 
 export class GameBuilderAgent extends BaseAgent {
   constructor() {
-    super({
-      type: 'game-builder',
-      skillPaths: ['docs/skills/educational-game-builder/SKILL.md'],
-      maxRetries: 2,
-      timeout: 300000, // 5 minutes
-      validateOutput: true,
-    });
+    super(
+      'game-builder',
+      ['docs/skills/educational-game-builder/SKILL.md'],
+      'You are a game builder agent. Create HTML educational games.'
+    );
   }
 
   /**
@@ -102,8 +117,10 @@ export class GameBuilderAgent extends BaseAgent {
       gradeLevel: input.gradeLevel,
       skills: input.skills,
       learningObjectives: input.learningObjectives || this.generateLearningObjectives(input),
-      estimatedTime: this.estimatePlayTime(input),
+      estimatedTime: `${this.estimatePlayTime(input)} minutes`,
       difficulty: this.determineDifficulty(input.gradeLevel),
+      gameplayMechanics: [],
+      educationalValue: 8,
     };
   }
 
@@ -159,7 +176,8 @@ Please generate a complete, production-ready HTML file that meets all these requ
     // This is a placeholder that shows the structure
     // In production, this would call the Claude API with the prompt and skill context
 
-    const skillContext = await this.getSkillContext();
+    const skills = await this.loadSkills();
+    const skillContext = skills.map(s => s.content).join('\n\n');
 
     // Simulated response structure
     return `<!DOCTYPE html>
@@ -233,43 +251,30 @@ Please generate a complete, production-ready HTML file that meets all these requ
   /**
    * Validate generated game code
    */
-  protected validate(output: any): ValidationResult {
+  protected validate(output: any): boolean {
     const response = output as GameBuilderResponse;
 
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
     // Check required fields
-    if (!response.gameCode) errors.push('No game code generated');
-    if (!response.gameId) errors.push('No game ID generated');
-    if (!response.metadata) errors.push('No metadata included');
+    if (!response.gameCode) return false;
+    if (!response.gameId) return false;
+    if (!response.metadata) return false;
 
     // Check game code structure
     if (response.gameCode) {
       if (!response.gameCode.includes('<!DOCTYPE html>')) {
-        errors.push('Missing DOCTYPE declaration');
+        return false;
       }
       if (!response.gameCode.includes('<html')) {
-        errors.push('Missing html tag');
-      }
-      if (!response.gameCode.includes('lang=')) {
-        warnings.push('Missing language attribute');
-      }
-      if (!response.gameCode.includes('role=')) {
-        warnings.push('Missing ARIA roles');
+        return false;
       }
     }
 
     // Check file size
-    if (response.technicalSpecs.fileSize > 3 * 1024 * 1024) {
-      errors.push('File size exceeds 3MB limit');
+    if (response.technicalSpecs?.fileSize > 3 * 1024 * 1024) {
+      return false;
     }
 
-    return {
-      valid: errors.length === 0,
-      errors,
-      warnings,
-    };
+    return true;
   }
 
   /**

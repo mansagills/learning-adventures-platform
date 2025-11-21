@@ -17,26 +17,59 @@ export interface AgentResult {
   };
 }
 
+// Workflow status types
+export type WorkflowStatus = 'pending' | 'running' | 'completed' | 'failed' | 'paused' | 'cancelled';
+export type StepStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+// Workflow event
+export interface WorkflowEvent {
+  workflowId: string;
+  type: 'started' | 'step_started' | 'step_completed' | 'step_failed' | 'completed' | 'failed';
+  message: string;
+  step?: number;
+  timestamp: Date;
+  data?: any;
+}
+
+// Workflow progress tracking
+export interface WorkflowProgress {
+  workflowId: string;
+  currentStep: number;
+  totalSteps: number;
+  percentComplete: number;
+  status: WorkflowStatus;
+  currentActivity: string;
+}
+
 // Workflow step definition
 export interface WorkflowStep {
   stepNumber: number;
   agentType: 'game-builder' | 'react-component' | 'metadata-formatter' | 'accessibility-validator';
   skillName: string;
+  description?: string;
   input: any;
   output?: any;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: StepStatus;
   duration?: number;
+  startedAt?: Date;
+  completedAt?: Date;
+  error?: string;
 }
 
 // Workflow definition
 export interface AgentWorkflow {
   id: string;
   name: string;
+  type: string;
   steps: WorkflowStep[];
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: WorkflowStatus;
   currentStep: number;
   results: Record<string, any>;
   errors: WorkflowError[];
+  createdAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  totalDuration?: number;
 }
 
 // Workflow error
@@ -45,6 +78,7 @@ export interface WorkflowError {
   agentType: string;
   message: string;
   timestamp: Date;
+  recoverable?: boolean;
 }
 
 // Game concept from Game Idea Generator

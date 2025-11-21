@@ -11,12 +11,6 @@ import {
   WorkflowError,
   WorkflowEvent,
   WorkflowProgress,
-  HTMLGameWorkflowInput,
-  HTMLGameWorkflowOutput,
-  ReactGameWorkflowInput,
-  ReactGameWorkflowOutput,
-  BatchContentWorkflowInput,
-  BatchWorkflowOutput,
 } from './types';
 import { BaseAgent } from './BaseAgent';
 
@@ -29,9 +23,9 @@ export class ContentAgentOrchestrator {
    * Register an agent with the orchestrator
    */
   registerAgent(agent: BaseAgent): void {
-    const info = agent.getInfo();
-    this.agents.set(info.type, agent);
-    console.log(`Agent registered: ${info.type}`);
+    const metadata = agent.getMetadata();
+    this.agents.set(metadata.id, agent);
+    console.log(`Agent registered: ${metadata.id}`);
   }
 
   /**
@@ -141,7 +135,7 @@ export class ContentAgentOrchestrator {
       const resolvedInput = workflow ? this.resolveTemplates(step.input, workflow) : step.input;
 
       // Execute agent with resolved input
-      const result = await agent.executeWithRetry(resolvedInput);
+      const result = await agent.execute(resolvedInput);
 
       if (!result.success) {
         step.status = 'failed';
