@@ -8,7 +8,6 @@
  */
 
 import { useState } from 'react';
-import Link from 'next/link';
 import AgentCard from './AgentCard';
 
 // Agent definitions based on Plan 6 specifications
