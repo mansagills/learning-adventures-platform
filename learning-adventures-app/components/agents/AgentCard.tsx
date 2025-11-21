@@ -97,7 +97,7 @@ export default function AgentCard({ agent, isSelected, onSelect }: AgentCardProp
 
       {/* Action Button */}
       <Link
-        href={`/agents/${agent.id}`}
+        href={`/agents/${agent.id}` as any}
         className={`
           block w-full px-4 py-3 text-center font-semibold rounded-lg
           transition-all duration-200
