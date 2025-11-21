@@ -43,8 +43,11 @@ interface ValidationResult {
 
 interface AccessibilityValidatorResponse {
   report: AccessibilityReport;
-  issues: AccessibilityIssue[];
-  summary: string;
+  issues?: AccessibilityIssue[];
+  summary?: string;
+  passedValidation?: boolean;
+  criticalIssuesCount?: number;
+  recommendedFixes?: string[];
 }
 
 export class AccessibilityValidatorAgent extends BaseAgent {
