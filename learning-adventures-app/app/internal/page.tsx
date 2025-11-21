@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import ContentCreationForm from './components/ContentCreationForm';
 import ContentPreview from './components/ContentPreview';
 import ContentPublisher from './components/ContentPublisher';
@@ -50,6 +51,14 @@ export default function InternalApp() {
                   </span>
                 )}
               </p>
+              <div className="mt-2">
+                <Link
+                  href="/internal/agent-studio"
+                  className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
+                >
+                  🤖 Try AI Agent Studio →
+                </Link>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">

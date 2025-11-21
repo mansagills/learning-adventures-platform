@@ -8,7 +8,6 @@
  */
 
 import { useState } from 'react';
-import Link from 'next/link';
 import AgentCard from './AgentCard';
 
 // Agent definitions based on Plan 6 specifications
@@ -140,12 +139,9 @@ export default function AgentDiscovery() {
           </li>
         </ul>
         <div className="mt-6">
-          <Link
-            href="/agents/workflows"
-            className="inline-block px-6 py-3 bg-white text-brand-600 rounded-lg font-semibold hover:bg-neutral-50 transition-colors"
-          >
-            Or use a complete workflow →
-          </Link>
+          <p className="text-sm text-white/90">
+            💡 <strong>Tip:</strong> Switch to the "Workflows" tab above to use complete multi-agent workflows that combine these agents automatically!
+          </p>
         </div>
       </div>
     </div>
