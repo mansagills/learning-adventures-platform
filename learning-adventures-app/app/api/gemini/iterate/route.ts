@@ -207,7 +207,8 @@ Start your response with: <!DOCTYPE html>
 
 // Helper: Extract changes summary from code comment
 function extractChangesSummary(code: string): string | null {
-  const commentMatch = code.match(/<!--\s*Changes:\s*(.*?)\s*-->/is);
+  // Use [\s\S] instead of 's' flag for ES2017 compatibility
+  const commentMatch = code.match(/<!--\s*Changes:\s*([\s\S]*?)\s*-->/i);
   return commentMatch ? commentMatch[1].trim() : null;
 }
 
