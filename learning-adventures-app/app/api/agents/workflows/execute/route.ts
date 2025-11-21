@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
             where: { id: execution.id },
             data: {
               status: 'FAILED',
-              error: error instanceof Error ? error.message : 'Unknown error',
+              errorMessage: error instanceof Error ? error.message : 'Unknown error',
             },
           });
         }
