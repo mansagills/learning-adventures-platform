@@ -6,12 +6,18 @@
 import { BaseAgent } from './BaseAgent';
 import {
   AgentResult,
-  AccessibilityValidatorResponse,
   AccessibilityReport,
   AccessibilityIssue,
   GameFile,
   ValidationResult,
 } from './types';
+
+// Type for accessibility validator response (not exported from types yet)
+interface AccessibilityValidatorResponse {
+  report: AccessibilityReport;
+  issues: AccessibilityIssue[];
+  summary: string;
+}
 
 export class AccessibilityValidatorAgent extends BaseAgent {
   constructor() {
