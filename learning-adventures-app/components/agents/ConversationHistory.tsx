@@ -136,7 +136,7 @@ export default function ConversationHistory() {
           {filteredConversations.map((conversation) => (
             <Link
               key={conversation.id}
-              href={`/agents/${conversation.agentType}/chat/${conversation.id}`}
+              href={`/agents/${conversation.agentType}/chat/${conversation.id}` as any}
               className="block p-6 bg-white rounded-xl border border-neutral-200 hover:border-brand-300 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
