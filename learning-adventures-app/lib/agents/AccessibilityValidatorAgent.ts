@@ -64,11 +64,11 @@ export class AccessibilityValidatorAgent extends BaseAgent {
 
       // Handle two input types
       if ('game' in input) {
-        code = input.game.code;
-        format = input.game.format;
+        code = input.game.code || input.game.content || '';
+        format = (input.game.format as 'html' | 'react') || 'html';
       } else {
-        code = input.code;
-        format = input.format;
+        code = input.code || input.content || '';
+        format = (input.format as 'html' | 'react') || 'html';
       }
 
       // Run validation checks
