@@ -23,10 +23,14 @@ interface AccessibilityReport {
 
 interface AccessibilityIssue {
   severity: string;
-  rule: string;
-  message: string;
+  rule?: string;
+  message?: string;
   element?: string;
   line?: number;
+  category?: string;
+  description?: string;
+  suggestedFix?: string;
+  wcagCriterion?: string;
 }
 
 interface GameFile {
