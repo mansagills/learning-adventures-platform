@@ -6,13 +6,34 @@
 import { BaseAgent } from './BaseAgent';
 import {
   AgentResult,
-  AccessibilityReport,
-  AccessibilityIssue,
-  GameFile,
-  ValidationResult,
 } from './types';
 
-// Type for accessibility validator response (not exported from types yet)
+// TODO: Move these types to ./types.ts
+interface AccessibilityReport {
+  score: number;
+  issuesFound: number;
+  criticalIssues: number;
+  warningsFound: number;
+}
+
+interface AccessibilityIssue {
+  severity: string;
+  rule: string;
+  message: string;
+  element?: string;
+  line?: number;
+}
+
+interface GameFile {
+  path: string;
+  content: string;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
 interface AccessibilityValidatorResponse {
   report: AccessibilityReport;
   issues: AccessibilityIssue[];
