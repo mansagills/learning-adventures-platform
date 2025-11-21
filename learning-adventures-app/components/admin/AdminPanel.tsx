@@ -20,6 +20,12 @@ const navItems: NavItem[] = [
     description: 'AI-powered game creation',
   },
   {
+    label: 'AI Agent Studio',
+    href: '/internal/agent-studio',
+    icon: 'rocket',
+    description: 'Multi-agent workflows',
+  },
+  {
     label: 'Content Studio',
     href: '/internal',
     icon: 'upload',
