@@ -27,6 +27,8 @@ interface AccessibilityIssue {
 interface GameFile {
   path: string;
   content: string;
+  code?: string;
+  format?: string;
 }
 
 interface ValidationResult {
