@@ -87,6 +87,10 @@ export class AccessibilityValidatorAgent extends BaseAgent {
 
       // Create report
       const report: AccessibilityReport = {
+        score,
+        issuesFound: issues.length,
+        criticalIssues: issues.filter(i => i.severity === 'critical').length,
+        warningsFound: issues.filter(i => i.severity === 'warning').length,
         overallScore: score,
         wcagCompliant: score >= 95,
         issues,
