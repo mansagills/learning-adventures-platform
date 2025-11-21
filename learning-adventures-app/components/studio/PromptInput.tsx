@@ -93,7 +93,7 @@ export default function PromptInput({ onGenerationStart, onGenerate, onGeneratio
 
   const handleTemplateSelect = (template: typeof TEMPLATES[0]) => {
     setPrompt(template.prompt);
-    setConfig({ ...config, ...template.config });
+    setConfig({ ...config, ...template.config } as any);
   };
 
   const handleAddSkill = () => {
