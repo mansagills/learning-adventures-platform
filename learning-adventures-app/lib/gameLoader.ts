@@ -58,15 +58,48 @@ export function getAllGameMetadata(): Array<Omit<GameComponent, 'component'> & {
 // Auto-register games from the games directory
 // This function should be called during app initialization
 export async function initializeGameRegistry() {
-  // For Next.js, we need to manually import game registrations
-  // Games will self-register when their modules are imported
+  // Register games directly to avoid webpack build issues with dynamic imports
   try {
-       // Import known game registrations
-    await import('@/components/games/sample-math-game');
-    await import('@/components/games/ecosystem-builder');
+    // Register sample-math-game
+    if (!isGameRegistered('sample-math-game')) {
+      createGameRegistration(
+        'sample-math-game',
+        {
+          name: 'Math Challenge',
+          description: 'Test your math skills with addition, subtraction, and multiplication!',
+          category: 'math',
+          difficulty: 'easy',
+          estimatedTime: 10,
+          skills: ['Addition', 'Subtraction', 'Multiplication', 'Mental Math'],
+          gradeLevel: '2nd-5th Grade',
+        },
+        () => import('@/components/games/sample-math-game/SampleMathGame')
+      );
+    }
 
-    // Future games will be added here or they can self-register
-    // by importing their index files elsewhere in the app
+    // Register ecosystem-builder
+    if (!isGameRegistered('ecosystem-builder')) {
+      createGameRegistration(
+        'ecosystem-builder',
+        {
+          name: 'Ecosystem Builder',
+          description: 'Build a balanced ecosystem by adding producers, consumers, and decomposers. Learn how organisms interact in nature!',
+          category: 'science',
+          difficulty: 'medium',
+          estimatedTime: 15,
+          skills: [
+            'Food Chains',
+            'Ecosystem Balance',
+            'Producers and Consumers',
+            'Decomposers',
+            'Energy Flow',
+            'Scientific Observation'
+          ],
+          gradeLevel: '3rd-6th Grade',
+        },
+        () => import('@/components/games/ecosystem-builder/EcosystemBuilder')
+      );
+    }
 
     console.log('Game registry initialized with', getRegisteredGames().length, 'games');
   } catch (error) {
