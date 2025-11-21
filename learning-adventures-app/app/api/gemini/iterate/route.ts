@@ -96,7 +96,7 @@ Start your response with: <!DOCTYPE html>
 
     // 9. Initialize Gemini and generate iteration
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-preview-11-2025' });
 
     const startTime = Date.now();
     const result = await model.generateContent(iterationPrompt);
@@ -145,7 +145,7 @@ Start your response with: <!DOCTYPE html>
       data: {
         userId: session.user.id,
         operation: 'iterate',
-        model: 'gemini-1.5-pro',
+        model: 'gemini-3-pro-preview-11-2025',
         tokensInput,
         tokensOutput,
         estimatedCost,
@@ -185,7 +185,7 @@ Start your response with: <!DOCTYPE html>
           data: {
             userId: session.user.id,
             operation: 'iterate',
-            model: 'gemini-1.5-pro',
+            model: 'gemini-3-pro-preview-11-2025',
             tokensInput: 0,
             tokensOutput: 0,
             estimatedCost: 0,

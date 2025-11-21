@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-pro-preview-11-2025' });
 
     // 6. Build enhanced prompt
     const enhancedPrompt = buildEducationalGamePrompt({
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
         skills,
         status: 'DRAFT',
         metadata: {
-          model: 'gemini-1.5-pro',
+          model: 'gemini-3-pro-preview-11-2025',
           generationTime,
           tokensUsed: response.usageMetadata?.totalTokenCount || 0
         }
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: session.user.id,
         operation: 'generate',
-        model: 'gemini-1.5-pro',
+        model: 'gemini-3-pro-preview-11-2025',
         tokensInput,
         tokensOutput,
         estimatedCost,
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
           data: {
             userId: session.user.id,
             operation: 'generate',
-            model: 'gemini-1.5-pro',
+            model: 'gemini-3-pro-preview-11-2025',
             tokensInput: 0,
             tokensOutput: 0,
             estimatedCost: 0,
