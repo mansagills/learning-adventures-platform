@@ -10,7 +10,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import AgentDiscovery from '@/components/agents/AgentDiscovery';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'AI Agent Studio | Learning Adventures',

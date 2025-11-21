@@ -5,7 +5,7 @@
  * and managing state between steps.
  */
 
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { GameIdeaGeneratorAgent } from './GameIdeaGeneratorAgent';
 
 export interface WorkflowStep {
