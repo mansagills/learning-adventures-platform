@@ -67,7 +67,7 @@ export class AccessibilityValidatorAgent extends BaseAgent {
         code = input.game.code || input.game.content || '';
         format = (input.game.format as 'html' | 'react') || 'html';
       } else {
-        code = input.code || input.content || '';
+        code = input.code || (input as any).content || '';
         format = (input.format as 'html' | 'react') || 'html';
       }
 
