@@ -127,10 +127,10 @@ export default function ContentStudioPage() {
                 </div>
                 <div>
                   <div className="text-3xl mb-2">3️⃣</div>
-                  <h4 className="font-semibold text-ink-800 mb-1">Publish to Platform</h4>
+                  <h4 className="font-semibold text-ink-800 mb-1">Submit for Testing</h4>
                   <p className="text-sm text-ink-600">
-                    Save to Test Games for review or publish directly to the catalog.
-                    Your game is ready for students!
+                    Submit your game to the testing queue for team review and approval.
+                    Once approved, it will be added to the public catalog!
                   </p>
                 </div>
               </div>

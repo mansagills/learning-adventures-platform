@@ -14,7 +14,8 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
     featured: false,
     estimatedTime: '10-15 mins'
   });
-  const [destination, setDestination] = useState<'catalog' | 'test-games'>('test-games');
+  // Always use test-games - catalog direct publishing is disabled
+  const destination = 'test-games';
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<any>(null);
   const [error, setError] = useState('');
@@ -81,10 +82,10 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
         <div className="text-center py-8">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold text-ink-900 mb-2">
-            Successfully Published!
+            Submitted for Review!
           </h2>
           <p className="text-ink-600 mb-6">
-            Your game has been {publishResult.destination === 'test-games' ? 'added to Test Games' : 'prepared for the catalog'}
+            Your game has been added to the testing queue and is ready for team review.
           </p>
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -96,23 +97,35 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
                 <strong>Test Game ID:</strong> {publishResult.testGameId}
               </p>
             )}
+            <p className="text-xs text-green-700 mt-3">
+              📋 Your game will appear in the testing dashboard with status "NOT_TESTED"
+            </p>
           </div>
 
-          <div className="flex space-x-3 justify-center">
-            <a
-              href={publishResult.previewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors"
-            >
-              <Icon name="external-link" size={16} className="mr-2" />
-              View Published Game
-            </a>
+          <div className="space-y-3">
+            <div className="flex space-x-3 justify-center">
+              <a
+                href={publishResult.previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors"
+              >
+                <Icon name="external-link" size={16} className="mr-2" />
+                Test Game
+              </a>
+              <a
+                href="/internal/testing"
+                className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Icon name="clipboard" size={16} className="mr-2" />
+                Go to Testing Dashboard
+              </a>
+            </div>
             <button
               onClick={() => setPublishResult(null)}
-              className="px-6 py-3 border border-gray-300 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors"
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:border-brand-500 hover:text-brand-600 transition-colors w-full"
             >
-              Publish Another
+              Create Another Game
             </button>
           </div>
 
@@ -133,7 +146,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-xl font-semibold mb-6">Publish to Platform</h2>
+      <h2 className="text-xl font-semibold mb-6">Submit for Testing</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Step 1: Metadata */}
@@ -178,7 +191,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
                 disabled={isPublishing}
                 className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <span className="text-sm">Feature this game</span>
+              <span className="text-sm">Feature this game (if approved)</span>
             </label>
           </div>
         </div>
@@ -217,7 +230,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
             <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center text-green-700">
                 <span className="mr-2">✓</span>
-                <span className="text-sm font-medium">Ready to publish</span>
+                <span className="text-sm font-medium">Ready for testing</span>
               </div>
             </div>
 
@@ -227,33 +240,32 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
           </div>
         </div>
 
-        {/* Step 3: Publish */}
+        {/* Step 3: Submit */}
         <div>
           <h3 className="font-medium mb-3 flex items-center">
             <span className="w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm mr-2">
               3
             </span>
-            Publish
+            Submit
           </h3>
 
           <div className="space-y-3">
-            {/* Destination Selector */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Destination</label>
-              <select
-                value={destination}
-                onChange={(e) => setDestination(e.target.value as any)}
-                disabled={isPublishing}
-                className="w-full p-2 border rounded focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
-              >
-                <option value="test-games">Test Games (for review)</option>
-                <option value="catalog">Public Catalog (direct)</option>
-              </select>
-              <p className="text-xs text-ink-500 mt-1">
-                {destination === 'test-games'
-                  ? 'Game will be added to the test queue for review'
-                  : 'Game file will be created. Manual catalog entry needed.'}
-              </p>
+            {/* Publishing Info */}
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start">
+                <span className="text-2xl mr-3">🧪</span>
+                <div>
+                  <h4 className="text-sm font-semibold text-blue-900 mb-1">
+                    Testing Queue
+                  </h4>
+                  <p className="text-xs text-blue-700">
+                    All games must be tested and approved before appearing in the public catalog.
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    📍 Review at: <span className="font-mono">/internal/testing</span>
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Error Display */}
@@ -263,7 +275,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               </div>
             )}
 
-            {/* Publish Button */}
+            {/* Submit Button */}
             <button
               onClick={handlePublish}
               disabled={isPublishing || !metadata.title || !metadata.description}
@@ -276,11 +288,11 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               {isPublishing ? (
                 <span className="flex items-center justify-center">
                   <Icon name="loader" className="animate-spin mr-2" />
-                  Publishing...
+                  Submitting...
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
-                  🚀 Publish to {destination === 'catalog' ? 'Catalog' : 'Test Games'}
+                  🧪 Submit for Testing & Review
                 </span>
               )}
             </button>

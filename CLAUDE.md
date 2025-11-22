@@ -103,7 +103,24 @@ npm run type-check
 
 ## Game/Lesson Creation Workflow
 
-When creating new games or lessons for this platform, follow this specific workflow:
+**IMPORTANT**: All game creation methods (developer workflow, Gemini Studio, AI Agent Studio, Content Studio) must go through the testing workflow before games reach the public catalog.
+
+### 🎯 Choose Your Creation Method:
+
+#### For Developers:
+See `GAME_DEVELOPMENT.md` for the complete React component game development workflow.
+
+#### For Non-Developers (Content Creators, Educators):
+See `NON_DEVELOPER_WORKFLOW.md` for AI-powered game creation using:
+- **Gemini Studio** - Natural language AI game generation
+- **AI Agent Studio** - Multi-agent workflows
+- **Content Studio** - Upload existing content
+
+All methods route through `/internal/testing` for quality assurance before catalog publication.
+
+### Manual Creation Workflow
+
+When creating new games or lessons manually, follow this specific workflow:
 
 ### 📋 Step-by-Step Process
 1. **Review content in `games` folder** - Check existing game ideas and patterns
