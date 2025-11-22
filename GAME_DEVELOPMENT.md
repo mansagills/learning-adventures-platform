@@ -142,28 +142,28 @@ createGameRegistration(
 export { default } from './MyAwesomeGame';
 ```
 
-### 5. Add to Catalog
+### 5. Add to Testing System (REQUIRED Before Catalog)
 
-Update `lib/catalogData.ts` to include your game:
+**IMPORTANT**: All games must go through the testing system before being added to the catalog.
 
-```tsx
-const mathGames: Adventure[] = [
-  {
-    id: 'my-awesome-game',
-    title: 'My Awesome Game',
-    description: 'An amazing educational game that teaches...',
-    type: 'game',
-    category: 'math',
-    gradeLevel: ['3', '4', '5'],
-    difficulty: 'medium',
-    skills: ['Problem Solving', 'Critical Thinking'],
-    estimatedTime: '15 mins',
-    featured: true, // Set to true if you want it featured
-    componentGame: true // IMPORTANT: Mark as React component
-  },
-  // ... other games
-];
+Add your game to the test games database using the utility script:
+
+```bash
+# For React component games
+npm run add-test-game -- --component=my-awesome-game
+
+# For HTML games
+npm run add-test-game -- --file=my-game.html
+
+# Interactive mode (asks for all metadata)
+npm run add-test-game -- --interactive
 ```
+
+This will:
+- Add the game to the TestGame database with status "NOT_TESTED"
+- Make it accessible for testing at `/games/[game-id]`
+- Show it in the admin testing dashboard at `/internal/testing`
+- NOT add it to the public catalog yet
 
 ### 6. Test Your Game
 
@@ -171,12 +171,36 @@ const mathGames: Adventure[] = [
 # Start development server
 npm run dev
 
-# Navigate to your game
+# Navigate to your game directly
 http://localhost:3000/games/my-awesome-game
 
-# Or find it in the catalog
-http://localhost:3000/catalog
+# Access the admin testing dashboard (requires ADMIN role)
+http://localhost:3000/internal/testing
 ```
+
+### 7. Get Approval
+
+1. **Test the game yourself** at the direct URL
+2. **Submit for review** by updating status to "IN_TESTING" in the admin dashboard
+3. **Team reviews** the game using the testing dashboard:
+   - Educational quality
+   - Technical quality
+   - Accessibility compliance
+   - Age appropriateness
+   - Engagement level
+4. **Receive feedback** and make necessary revisions
+5. **Get approval** from admin team members
+
+### 8. Promote to Catalog (ADMIN ONLY)
+
+Once approved, an admin can promote the game to the public catalog:
+
+1. Log in as ADMIN
+2. Go to `/internal/testing`
+3. Find your game (should have "APPROVED" status)
+4. Click "🚀 Promote to Catalog"
+5. Game is automatically added to `lib/catalogData.ts`
+6. Game appears in public catalog at `/catalog`
 
 ## 🎮 Shared Components Reference
 
@@ -302,24 +326,31 @@ timer.actions.addTime(30); // Add 30 seconds
 - [ ] Style with Tailwind CSS (consistent with platform)
 - [ ] Test responsiveness and accessibility
 
-### 3. Integration Phase
-- [ ] Register game component
-- [ ] Add metadata to catalog
+### 3. Testing Database Phase (NEW)
+- [ ] Add game to test games database using `npm run add-test-game`
+- [ ] Verify game loads at direct URL (`/games/[game-id]`)
+- [ ] Test all game mechanics in isolation
+- [ ] Check console for errors and warnings
+
+### 4. Integration & Testing Phase
+- [ ] Register game component in `lib/gameLoader.ts`
 - [ ] Test dynamic loading
 - [ ] Verify routing works correctly
+- [ ] Submit to testing dashboard (`/internal/testing`)
+- [ ] Update status to "IN_TESTING"
 
-### 4. Testing Phase
-- [ ] Test all game mechanics
-- [ ] Verify educational objectives are met
-- [ ] Test on different screen sizes
-- [ ] Check accessibility compliance
-- [ ] Performance testing
+### 5. Team Review Phase
+- [ ] Admin team reviews game in testing dashboard
+- [ ] Team provides feedback via testing interface
+- [ ] Address any quality issues or bugs
+- [ ] Get approval from at least 1 admin
+- [ ] Game status updated to "APPROVED"
 
-### 5. Submission Phase
-- [ ] Code review by team
-- [ ] Documentation updates
-- [ ] Submit pull request
-- [ ] Address feedback
+### 6. Promotion Phase (ADMIN ONLY)
+- [ ] Admin promotes game to catalog from testing dashboard
+- [ ] Verify game appears in public catalog
+- [ ] Test game from catalog interface
+- [ ] Announce game launch to users
 
 ## 🎨 Design Guidelines
 

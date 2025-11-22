@@ -16,6 +16,7 @@
     "db:seed:test-games": "tsx prisma/seed-test-games.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
     "db:studio": "npx prisma studio",
+    "add-test-game": "tsx scripts/add-test-game.ts",
     "vercel:deploy": "vercel --prod"
   },
   "dependencies": {
