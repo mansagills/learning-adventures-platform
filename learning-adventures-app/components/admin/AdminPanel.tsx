@@ -32,6 +32,12 @@ const navItems: NavItem[] = [
     description: 'Upload games and lessons',
   },
   {
+    label: 'Testing',
+    href: '/internal/testing',
+    icon: 'clipboard',
+    description: 'Test and approve games',
+  },
+  {
     label: 'User Management',
     href: '/internal/users',
     icon: 'users',

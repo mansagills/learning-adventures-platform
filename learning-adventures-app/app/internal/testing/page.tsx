@@ -79,14 +79,6 @@ export default function TestGamesAdminPage() {
     issueSeverity: null as 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL' | null
   });
 
-  // Check if user is admin
-  useEffect(() => {
-    if (status === 'loading') return;
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push('/');
-    }
-  }, [session, status, router]);
-
   // Fetch games
   useEffect(() => {
     fetchGames();
@@ -233,17 +225,23 @@ export default function TestGamesAdminPage() {
   };
 
   if (status === 'loading' || loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  if (!session || session.user.role !== 'ADMIN') {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
+          <p className="text-ink-600">Loading test games...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">🎮 Game Testing & Approval Dashboard</h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">🎮 Game Testing & Approval</h1>
+          <p className="text-ink-600">Review, test, and approve games before adding them to the catalog</p>
+        </div>
 
         {/* Filter Tabs */}
         <div className="mb-6 flex gap-2 flex-wrap">
@@ -253,7 +251,7 @@ export default function TestGamesAdminPage() {
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 filter === status
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-brand-600 text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -276,7 +274,7 @@ export default function TestGamesAdminPage() {
                   onClick={() => handleSelectGame(game)}
                   className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
                     selectedGame?.id === game.id
-                      ? 'border-blue-500 shadow-lg'
+                      ? 'border-brand-500 shadow-lg'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -319,14 +317,14 @@ export default function TestGamesAdminPage() {
                     </div>
                     <button
                       onClick={() => setShowGamePreview(!showGamePreview)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
                     >
                       {showGamePreview ? 'Hide' : 'Preview'} Game
                     </button>
                   </div>
 
                   {showGamePreview && (
-                    <div className="mb-4 border-4 border-blue-200 rounded-lg overflow-hidden">
+                    <div className="mb-4 border-4 border-brand-200 rounded-lg overflow-hidden">
                       <iframe
                         src={selectedGame.filePath}
                         className="w-full h-[600px]"
@@ -356,7 +354,7 @@ export default function TestGamesAdminPage() {
                     </button>
                     <button
                       onClick={() => setShowFeedbackModal(true)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700"
                     >
                       💬 Add Feedback
                     </button>
