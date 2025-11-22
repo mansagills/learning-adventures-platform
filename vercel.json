@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd learning-adventures-app && npm run build",
-  "devCommand": "cd learning-adventures-app && npm run dev",
-  "installCommand": "cd learning-adventures-app && npm install",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": "learning-adventures-app/.next"
+  "outputDirectory": ".next"
 }
