@@ -4,13 +4,16 @@
 
 This guide is for **content creators, educators, and non-developers** who want to create educational games using the Learning Adventures Platform's AI-powered studios. No coding experience required!
 
-## 🎯 Three Ways to Create Games
+## 🎯 Four Ways to Create Games
 
 ### 1. **Gemini Studio** (AI-Powered Game Generation)
 ### 2. **AI Agent Studio** (Multi-Agent Workflows)
 ### 3. **Content Studio** (Upload & Publish)
+### 4. **Platform Import** (BuildBox, Unity, Construct, etc.)
 
-All three methods now follow the same quality assurance workflow: **Create → Test → Approve → Publish**
+All methods follow the same quality assurance workflow: **Create → Test → Approve → Publish**
+
+> **Note:** For importing games from professional game engines (BuildBox, Unity WebGL, Construct 3, GDevelop, GameMaker, Godot, and more), see `PLATFORM_INTEGRATION.md` for detailed platform-specific instructions.
 
 ---
 
@@ -117,7 +120,7 @@ Uses multiple AI agents working together to create complex, multi-part education
 ## 📤 Method 3: Content Studio (Upload Existing Games)
 
 ### What It Does:
-Upload HTML games or React components you already have.
+Upload simple HTML games, zip files, or React components you already have.
 
 ### Step-by-Step:
 
@@ -148,6 +151,48 @@ Review your uploaded content in the preview pane.
 #### Step 4: Publish to Testing
 1. Click **"Publish to Catalog"**
    *(Note: This currently publishes directly - will be updated to testing workflow soon)*
+
+---
+
+## 🎮 Method 4: Platform Import (Professional Game Engines)
+
+### What It Does:
+Import games created with professional game development platforms like BuildBox, Unity, Construct 3, and more.
+
+### Supported Platforms:
+- **BuildBox** - Mobile game builder
+- **Unity WebGL** - 3D game engine
+- **Construct 3** - Visual game creator
+- **GDevelop** - Open-source game engine
+- **GameMaker Studio** - 2D game engine
+- **Godot Engine** - Open-source 3D/2D engine
+- **Phaser** - HTML5 game framework
+- **And 10+ more!**
+
+### Quick Process:
+1. **Export** your game to HTML5/WebGL format
+2. **Upload** the zip file via Content Studio
+3. **Select platform** (auto-detected in most cases)
+4. **Test** the game in preview
+5. **Submit** to testing queue
+
+### When to Use:
+- You have existing games from other platforms
+- You need advanced 3D graphics or physics
+- You're comfortable with game development tools
+- You want professional-quality games
+
+### Full Guide:
+For complete platform-specific export instructions, file size limits, troubleshooting, and best practices, see:
+
+📚 **`PLATFORM_INTEGRATION.md`**
+
+This comprehensive guide includes:
+- Step-by-step export instructions for each platform
+- Platform detection and validation
+- Troubleshooting common issues
+- Performance optimization tips
+- Platform comparison table
 
 ---
 
@@ -264,6 +309,7 @@ When ready for team review:
 | **Gemini Studio** | Quick games, beginners | 5-10 min | None | Easy (feedback-based) |
 | **AI Agent Studio** | Complex content, series | 15-30 min | Intermediate | Moderate (template-based) |
 | **Content Studio** | Existing content | 5 min | Varies | Manual (re-upload) |
+| **Platform Import** | Professional games, 3D | 10-30 min | Varies by platform | Platform-dependent |
 
 ---
 

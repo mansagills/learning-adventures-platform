@@ -116,6 +116,13 @@ See `NON_DEVELOPER_WORKFLOW.md` for AI-powered game creation using:
 - **AI Agent Studio** - Multi-agent workflows
 - **Content Studio** - Upload existing content
 
+#### For Game Platform Imports (BuildBox, Unity, Construct, etc.):
+See `PLATFORM_INTEGRATION.md` for importing games from professional game engines:
+- **BuildBox** - HTML5 exports
+- **Unity WebGL** - Unity game builds
+- **Construct 3** - HTML5 exports
+- **GDevelop, GameMaker, Godot** - And 10+ more platforms
+
 All methods route through `/internal/testing` for quality assurance before catalog publication.
 
 ### Manual Creation Workflow
