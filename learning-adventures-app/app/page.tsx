@@ -28,14 +28,12 @@ export default function HomePage() {
       // Authenticated users go directly to their dashboard
       router.push('/dashboard');
     } else {
-      // Unauthenticated users go to marketing site
-      // For local development without marketing site, you can comment this out
-      if (process.env.NODE_ENV === 'production') {
-        window.location.href = MARKETING_SITE_URL;
-      } else {
-        // In development, redirect to marketing preview
-        router.push('/marketing-preview');
-      }
+      // Unauthenticated users see marketing content
+      // TODO: Once Webflow is live at learningadventures.org, uncomment the line below
+      // window.location.href = MARKETING_SITE_URL;
+
+      // For now, show marketing preview on this domain
+      router.push('/marketing-preview');
     }
   }, [status, router]);
 
