@@ -5,7 +5,7 @@ export function GET(): Response {
 Allow: /
 
 # Sitemap
-Sitemap: https://learningadventures.com/sitemap.xml
+Sitemap: https://learningadventures.org/sitemap.xml
 
 # Disallow private/admin areas
 Disallow: /admin/

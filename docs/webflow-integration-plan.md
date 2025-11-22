@@ -30,7 +30,7 @@
 Build a professional marketing website using Webflow while maintaining the existing Next.js Learning Adventures platform for the actual application and dashboard functionality.
 
 ### Recommended Solution
-**Subdomain Approach** - Host marketing site at `learningadventures.com` (Webflow) and the application at `app.learningadventures.com` (Vercel/Next.js)
+**Subdomain Approach** - Host marketing site at `learningadventures.org` (Webflow) and the application at `app.learningadventures.org` (Vercel/Next.js)
 
 ### Key Benefits
 - ✅ **Fastest time to market** (1-2 weeks implementation)
@@ -91,14 +91,14 @@ Key Routes:
 
 **Architecture:**
 ```
-learningadventures.com           → Webflow (marketing site)
-app.learningadventures.com       → Vercel (Next.js platform)
+learningadventures.org           → Webflow (marketing site)
+app.learningadventures.org       → Vercel (Next.js platform)
 ```
 
 **How It Works:**
-1. User visits `learningadventures.com` (Webflow marketing site)
+1. User visits `learningadventures.org` (Webflow marketing site)
 2. Clicks "Start Learning" or "Login" button
-3. Redirected to `app.learningadventures.com` (Next.js platform)
+3. Redirected to `app.learningadventures.org` (Next.js platform)
 4. After authentication, user stays on app subdomain
 
 **Pros:**
@@ -122,8 +122,8 @@ app.learningadventures.com       → Vercel (Next.js platform)
 
 **Architecture:**
 ```
-learningadventures.com/          → Webflow
-learningadventures.com/app/*     → Next.js (via Subfold reverse proxy)
+learningadventures.org/          → Webflow
+learningadventures.org/app/*     → Next.js (via Subfold reverse proxy)
 ```
 
 **How It Works:**
@@ -150,8 +150,8 @@ learningadventures.com/app/*     → Next.js (via Subfold reverse proxy)
 
 **Architecture:**
 ```
-learningadventures.com/          → Webflow
-learningadventures.com/app/*     → Cloudflare Worker → Vercel
+learningadventures.org/          → Webflow
+learningadventures.org/app/*     → Cloudflare Worker → Vercel
 ```
 
 **How It Works:**
@@ -178,8 +178,8 @@ learningadventures.com/app/*     → Cloudflare Worker → Vercel
 
 **Architecture:**
 ```
-learningadventures.com/          → Vercel rewrites to Webflow
-learningadventures.com/app/*     → Next.js
+learningadventures.org/          → Vercel rewrites to Webflow
+learningadventures.org/app/*     → Next.js
 ```
 
 **How It Works:**
@@ -208,21 +208,21 @@ learningadventures.com/app/*     → Next.js
 1. **Speed to Market**: Implement in 1-2 weeks vs. 3-4 weeks for other options
 2. **Lower Risk**: Clear separation means changes to marketing site won't break app
 3. **Cost-Effective**: Only need Webflow Basic ($23/month), no additional proxy tools
-4. **Scalability**: Easy to add more subdomains later (e.g., `blog.learningadventures.com`)
+4. **Scalability**: Easy to add more subdomains later (e.g., `blog.learningadventures.org`)
 5. **Developer-Friendly**: Simpler debugging, clear boundaries
 6. **Future-Proof**: Can migrate to subdirectory approach later if needed
 
 ### Domain Structure
 ```
-Primary Domain: learningadventures.com
-├── learningadventures.com              → Webflow (marketing)
+Primary Domain: learningadventures.org
+├── learningadventures.org              → Webflow (marketing)
 │   ├── / (homepage)
 │   ├── /about
 │   ├── /pricing
 │   ├── /contact
 │   └── /blog
 │
-└── app.learningadventures.com          → Vercel (Next.js platform)
+└── app.learningadventures.org          → Vercel (Next.js platform)
     ├── / (dashboard/homepage)
     ├── /catalog
     ├── /games/[gameId]
@@ -233,18 +233,18 @@ Primary Domain: learningadventures.com
 ### User Journey Example
 
 **First-Time Visitor:**
-1. Arrives at `learningadventures.com` (Webflow site)
+1. Arrives at `learningadventures.org` (Webflow site)
 2. Reads about platform features, pricing, testimonials
 3. Clicks "Get Started" button
-4. Redirected to `app.learningadventures.com/auth/signup`
+4. Redirected to `app.learningadventures.org/auth/signup`
 5. Creates account on Next.js platform
-6. Lands on `app.learningadventures.com/dashboard`
+6. Lands on `app.learningadventures.org/dashboard`
 
 **Returning User:**
-1. Visits `learningadventures.com`
+1. Visits `learningadventures.org`
 2. Clicks "Login" button
-3. If already authenticated (cookie exists), redirect to `app.learningadventures.com/dashboard`
-4. If not authenticated, redirect to `app.learningadventures.com/auth/login`
+3. If already authenticated (cookie exists), redirect to `app.learningadventures.org/dashboard`
+4. If not authenticated, redirect to `app.learningadventures.org/auth/login`
 
 ---
 
@@ -252,7 +252,7 @@ Primary Domain: learningadventures.com
 
 ### Challenge: Cross-Domain Cookie Sharing
 
-By default, cookies set on `app.learningadventures.com` won't be accessible on `learningadventures.com` and vice versa.
+By default, cookies set on `app.learningadventures.org` won't be accessible on `learningadventures.org` and vice versa.
 
 ### Solution: Domain-Level Cookies
 
@@ -326,7 +326,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         // 🔑 KEY CHANGE: Set domain to parent domain
         domain: process.env.NODE_ENV === 'production'
-          ? '.learningadventures.com'  // Leading dot allows all subdomains
+          ? '.learningadventures.org'  // Leading dot allows all subdomains
           : 'localhost',
       },
     },
@@ -362,14 +362,14 @@ File: `/learning-adventures-app/.env.local`
 
 ```bash
 # NextAuth Configuration
-NEXTAUTH_URL=https://app.learningadventures.com
+NEXTAUTH_URL=https://app.learningadventures.org
 NEXTAUTH_SECRET=your-super-secret-key-here
 
 # Database
 DATABASE_URL=postgresql://...
 
 # Production domain (for cookie sharing)
-COOKIE_DOMAIN=.learningadventures.com
+COOKIE_DOMAIN=.learningadventures.org
 ```
 
 **Step 3: Add CORS Headers**
@@ -385,8 +385,8 @@ export function middleware(request: NextRequest) {
 
   // Allow credentials from Webflow marketing site
   const allowedOrigins = [
-    'https://learningadventures.com',
-    'https://www.learningadventures.com',
+    'https://learningadventures.org',
+    'https://www.learningadventures.org',
   ];
 
   const origin = request.headers.get('origin');
@@ -428,12 +428,12 @@ In Webflow, add custom code to buttons:
 
 ```html
 <!-- Get Started Button -->
-<a href="https://app.learningadventures.com/auth/signup" class="cta-button">
+<a href="https://app.learningadventures.org/auth/signup" class="cta-button">
   Get Started
 </a>
 
 <!-- Login Button -->
-<a href="https://app.learningadventures.com/auth/login" class="cta-button-outline">
+<a href="https://app.learningadventures.org/auth/login" class="cta-button-outline">
   Login
 </a>
 ```
@@ -448,7 +448,7 @@ File: Webflow Custom Code (in page settings or global footer)
 <script>
 async function checkAuthStatus() {
   try {
-    const response = await fetch('https://app.learningadventures.com/api/auth/session', {
+    const response = await fetch('https://app.learningadventures.org/api/auth/session', {
       credentials: 'include' // Important for cookie sharing
     });
 
@@ -460,7 +460,7 @@ async function checkAuthStatus() {
 
       // Show "Go to Dashboard" instead of "Login"
       document.querySelectorAll('.login-button').forEach(btn => {
-        btn.href = 'https://app.learningadventures.com/dashboard';
+        btn.href = 'https://app.learningadventures.org/dashboard';
         btn.textContent = 'Go to Dashboard';
       });
     }
@@ -475,7 +475,7 @@ checkAuthStatus();
 ```
 
 **4. Publish Webflow Site**
-- Connect custom domain `learningadventures.com`
+- Connect custom domain `learningadventures.org`
 - Enable SSL (automatic via Webflow)
 - Test all links to app subdomain
 
@@ -489,12 +489,12 @@ checkAuthStatus();
 
 ```bash
 # Production
-NEXTAUTH_URL=https://app.learningadventures.com
-COOKIE_DOMAIN=.learningadventures.com
+NEXTAUTH_URL=https://app.learningadventures.org
+COOKIE_DOMAIN=.learningadventures.org
 
 # Staging (optional)
-NEXTAUTH_URL=https://staging-app.learningadventures.com
-COOKIE_DOMAIN=.learningadventures.com
+NEXTAUTH_URL=https://staging-app.learningadventures.org
+COOKIE_DOMAIN=.learningadventures.org
 ```
 
 **3. Add Redirect Logic for Unauthenticated Users**
@@ -516,7 +516,7 @@ export default function HomePage() {
   useEffect(() => {
     // If not authenticated, redirect to marketing site
     if (status === 'unauthenticated') {
-      window.location.href = 'https://learningadventures.com';
+      window.location.href = 'https://learningadventures.org';
     }
   }, [status]);
 
@@ -545,7 +545,7 @@ File: `/learning-adventures-app/components/Header.tsx`
 ```typescript
 // Add "Back to Home" link to header
 <a
-  href="https://learningadventures.com"
+  href="https://learningadventures.org"
   className="text-gray-600 hover:text-gray-900"
 >
   About Learning Adventures
@@ -560,8 +560,8 @@ vercel --prod
 ```
 
 Set environment variables in Vercel dashboard:
-- `NEXTAUTH_URL=https://app.learningadventures.com`
-- `COOKIE_DOMAIN=.learningadventures.com`
+- `NEXTAUTH_URL=https://app.learningadventures.org`
+- `COOKIE_DOMAIN=.learningadventures.org`
 - `NEXTAUTH_SECRET=<your-secret>`
 - `DATABASE_URL=<postgres-url>`
 
@@ -571,7 +571,7 @@ Set environment variables in Vercel dashboard:
 
 ### Step-by-Step Setup
 
-**1. Root Domain (learningadventures.com) → Webflow**
+**1. Root Domain (learningadventures.org) → Webflow**
 
 In your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.):
 
@@ -589,7 +589,7 @@ Value: proxy-ssl.webflow.com
 TTL: 3600
 ```
 
-**2. App Subdomain (app.learningadventures.com) → Vercel**
+**2. App Subdomain (app.learningadventures.org) → Vercel**
 
 ```
 Type: CNAME Record
@@ -604,13 +604,13 @@ Use online tools or command line:
 
 ```bash
 # Check root domain
-dig learningadventures.com
+dig learningadventures.org
 
 # Check www subdomain
-dig www.learningadventures.com
+dig www.learningadventures.org
 
 # Check app subdomain
-dig app.learningadventures.com
+dig app.learningadventures.org
 ```
 
 DNS propagation can take 24-48 hours, but usually completes in 1-2 hours.
@@ -624,7 +624,7 @@ DNS propagation can take 24-48 hours, but usually completes in 1-2 hours.
 **Webflow:**
 - Edit in Webflow Designer (webflow.com)
 - Preview changes at `preview.webflow.io/site/[project-id]`
-- Publish to staging domain (optional): `staging.learningadventures.com`
+- Publish to staging domain (optional): `staging.learningadventures.org`
 
 **Next.js Platform:**
 ```bash
@@ -657,8 +657,8 @@ vercel
 
 **Recommended Setup:**
 ```
-staging.learningadventures.com        → Webflow (staging site)
-staging-app.learningadventures.com    → Vercel (preview branch)
+staging.learningadventures.org        → Webflow (staging site)
+staging-app.learningadventures.org    → Vercel (preview branch)
 ```
 
 Create a `staging` branch in your Next.js repo and configure Vercel to auto-deploy it to the staging subdomain.
@@ -668,7 +668,7 @@ Create a `staging` branch in your Next.js repo and configure Vercel to auto-depl
 **Webflow:**
 1. Make changes in Designer
 2. Click "Publish" button
-3. Changes go live immediately on `learningadventures.com`
+3. Changes go live immediately on `learningadventures.org`
 
 **Next.js Platform:**
 ```bash
@@ -677,7 +677,7 @@ git commit -m "Update: [description]"
 git push origin main
 ```
 
-Vercel auto-deploys `main` branch to `app.learningadventures.com`
+Vercel auto-deploys `main` branch to `app.learningadventures.org`
 
 ---
 
@@ -758,8 +758,8 @@ TOTAL:                ~$24.25/month
 - [ ] Configure DNS records (root + app subdomain)
 
 **Deliverables:**
-- Fully functional marketing site at `learningadventures.com`
-- App accessible at `app.learningadventures.com`
+- Fully functional marketing site at `learningadventures.org`
+- App accessible at `app.learningadventures.org`
 - Authentication working across both domains
 
 ---
@@ -767,7 +767,7 @@ TOTAL:                ~$24.25/month
 ### Phase 3: Testing & QA (3-5 days)
 
 **Authentication Testing:**
-- [ ] Verify cookies set correctly (`.learningadventures.com`)
+- [ ] Verify cookies set correctly (`.learningadventures.org`)
 - [ ] Test signup flow (marketing → app)
 - [ ] Test login flow (marketing → app)
 - [ ] Test logout (app → marketing)
@@ -846,8 +846,8 @@ If you later decide the subdomain approach isn't ideal, here's how to migrate:
 **Option A: Add Subfold Reverse Proxy**
 
 1. Sign up for Subfold ($19/month)
-2. Configure Subfold to proxy `learningadventures.com/app/*` → `app.learningadventures.com`
-3. Update all internal links from `app.learningadventures.com` → `learningadventures.com/app`
+2. Configure Subfold to proxy `learningadventures.org/app/*` → `app.learningadventures.org`
+3. Update all internal links from `app.learningadventures.org` → `learningadventures.org/app`
 4. Maintain old subdomain as redirect for backward compatibility
 
 **Timeline**: 1 week
@@ -899,11 +899,11 @@ If you later decide the subdomain approach isn't ideal, here's how to migrate:
 
 ### Risk 1: Cookie Sharing Doesn't Work
 
-**Symptom**: Users logged in on `app.learningadventures.com` appear logged out on `learningadventures.com`
+**Symptom**: Users logged in on `app.learningadventures.org` appear logged out on `learningadventures.org`
 
 **Mitigation:**
 - Test thoroughly in staging before launch
-- Ensure `domain: '.learningadventures.com'` is correctly set
+- Ensure `domain: '.learningadventures.org'` is correctly set
 - Verify `sameSite: 'lax'` (not 'strict')
 - Check browser dev tools → Application → Cookies to see domain attribute
 
@@ -934,7 +934,7 @@ If you later decide the subdomain approach isn't ideal, here's how to migrate:
 - Cache Webflow pages via Cloudflare (optional)
 - Have backup static HTML version hosted on Vercel
 
-**Fallback**: Redirect root domain to `app.learningadventures.com/about` temporarily
+**Fallback**: Redirect root domain to `app.learningadventures.org/about` temporarily
 
 ---
 
@@ -1033,7 +1033,7 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production'
-          ? '.learningadventures.com'
+          ? '.learningadventures.org'
           : 'localhost',
       },
     },
@@ -1075,8 +1075,8 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   const allowedOrigins = [
-    'https://learningadventures.com',
-    'https://www.learningadventures.com',
+    'https://learningadventures.org',
+    'https://www.learningadventures.org',
   ];
 
   const origin = request.headers.get('origin');
@@ -1105,7 +1105,7 @@ export const config = {
 <script>
 (async function() {
   try {
-    const response = await fetch('https://app.learningadventures.com/api/auth/session', {
+    const response = await fetch('https://app.learningadventures.org/api/auth/session', {
       credentials: 'include'
     });
 
@@ -1118,7 +1118,7 @@ export const config = {
       // Update login button to "Go to Dashboard"
       const loginButtons = document.querySelectorAll('.js-login-btn');
       loginButtons.forEach(btn => {
-        btn.href = 'https://app.learningadventures.com/dashboard';
+        btn.href = 'https://app.learningadventures.org/dashboard';
         btn.textContent = 'Go to Dashboard';
       });
 
@@ -1128,7 +1128,7 @@ export const config = {
         ctaSection.innerHTML = `
           <div class="welcome-back">
             <h2>Welcome back, ${session.user.name || 'Learner'}!</h2>
-            <a href="https://app.learningadventures.com/dashboard" class="btn-primary">
+            <a href="https://app.learningadventures.org/dashboard" class="btn-primary">
               Continue Learning →
             </a>
           </div>
@@ -1151,16 +1151,16 @@ export const config = {
 # /learning-adventures-app/.env.local (Production)
 
 # NextAuth
-NEXTAUTH_URL=https://app.learningadventures.com
+NEXTAUTH_URL=https://app.learningadventures.org
 NEXTAUTH_SECRET=your-super-secret-key-min-32-chars
-COOKIE_DOMAIN=.learningadventures.com
+COOKIE_DOMAIN=.learningadventures.org
 
 # Database
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 
 # Email (for future password reset, etc.)
 EMAIL_SERVER=smtp://username:password@smtp.sendgrid.net:587
-EMAIL_FROM=noreply@learningadventures.com
+EMAIL_FROM=noreply@learningadventures.org
 
 # Analytics (optional)
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
@@ -1179,8 +1179,8 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXTAUTH_URL": "https://app.learningadventures.com",
-    "COOKIE_DOMAIN": ".learningadventures.com"
+    "NEXTAUTH_URL": "https://app.learningadventures.org",
+    "COOKIE_DOMAIN": ".learningadventures.org"
   }
 }
 ```
@@ -1192,7 +1192,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 Use this checklist to implement the subdomain approach:
 
 ### Pre-Launch Setup
-- [ ] Purchase domain `learningadventures.com`
+- [ ] Purchase domain `learningadventures.org`
 - [ ] Create Webflow account (Basic plan)
 - [ ] Verify Vercel account is active
 - [ ] Backup current Next.js platform code
@@ -1203,7 +1203,7 @@ Use this checklist to implement the subdomain approach:
 - [ ] Design homepage
 - [ ] Design About page
 - [ ] Design Pricing page (optional)
-- [ ] Add CTA buttons → `app.learningadventures.com`
+- [ ] Add CTA buttons → `app.learningadventures.org`
 - [ ] Add auth check script (optional)
 - [ ] Test in Webflow preview
 - [ ] Connect custom domain in Webflow settings
@@ -1273,7 +1273,7 @@ Use this checklist to implement the subdomain approach:
 
 ## Conclusion
 
-The **subdomain approach** (learningadventures.com + app.learningadventures.com) provides the fastest, most cost-effective path to launching a professional marketing website while maintaining your powerful Next.js Learning Adventures platform.
+The **subdomain approach** (learningadventures.org + app.learningadventures.org) provides the fastest, most cost-effective path to launching a professional marketing website while maintaining your powerful Next.js Learning Adventures platform.
 
 **Key Takeaways:**
 1. **Low Risk**: Clear separation between marketing and application

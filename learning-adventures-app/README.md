@@ -155,7 +155,7 @@ NEXT_PUBLIC_GA_ID=your-ga-id
 NEXT_PUBLIC_ANALYTICS_API=your-analytics-endpoint
 
 # SEO
-NEXT_PUBLIC_SITE_URL=https://learningadventures.com
+NEXT_PUBLIC_SITE_URL=https://learningadventures.org
 ```
 
 ### Customization

@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 // Marketing site URL (will be Webflow in production)
-const MARKETING_SITE_URL = process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.com';
+const MARKETING_SITE_URL = process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
 
 export default function HomePage() {
   const { data: session, status } = useSession();

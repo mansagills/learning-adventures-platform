@@ -123,7 +123,7 @@ export default function CertificateView({ certificate }: CertificateViewProps) {
           <p>Certificate Number: {certificate.certificateNumber}</p>
           <p className="mt-1">Verification Code: {certificate.verificationCode}</p>
           <p className="mt-2 italic">
-            Verify this certificate at learningadventures.com/verify
+            Verify this certificate at learningadventures.org/verify
           </p>
         </div>
       </div>

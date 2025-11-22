@@ -23,7 +23,7 @@ export default function MarketingPreviewPage() {
       <div className="bg-yellow-50 border-b border-yellow-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <p className="text-sm text-yellow-800 text-center">
-            📋 <strong>Marketing Preview Mode</strong> - This content will be hosted on Webflow at learningadventures.com in production
+            📋 <strong>Marketing Preview Mode</strong> - This content will be hosted on Webflow at learningadventures.org in production
           </p>
         </div>
       </div>

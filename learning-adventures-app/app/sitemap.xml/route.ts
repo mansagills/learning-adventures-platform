@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export function GET(): Response {
-  const baseUrl = 'https://learningadventures.com';
+  const baseUrl = 'https://learningadventures.org';
 
   const sitemap: MetadataRoute.Sitemap = [
     {
