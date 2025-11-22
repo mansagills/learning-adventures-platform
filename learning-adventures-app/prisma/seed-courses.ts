@@ -3,7 +3,7 @@
  * Creates sample courses with lessons for testing and development
  */
 
-import { PrismaClient, Difficulty, LessonType } from '../lib/generated/prisma';
+import { PrismaClient, Difficulty, LessonType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
