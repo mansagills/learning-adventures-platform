@@ -20,6 +20,31 @@ const navItems: NavItem[] = [
     icon: 'home'
   },
   {
+    label: 'Mathematics',
+    href: '/dashboard/math',
+    icon: 'calculate'
+  },
+  {
+    label: 'Science',
+    href: '/dashboard/science',
+    icon: 'science'
+  },
+  {
+    label: 'English',
+    href: '/dashboard/english',
+    icon: 'book'
+  },
+  {
+    label: 'History',
+    href: '/dashboard/history',
+    icon: 'history'
+  },
+  {
+    label: 'Interdisciplinary',
+    href: '/dashboard/interdisciplinary',
+    icon: 'explore'
+  },
+  {
     label: 'My Progress',
     href: '/dashboard/progress',
     icon: 'chart'
