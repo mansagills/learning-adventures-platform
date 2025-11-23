@@ -69,6 +69,8 @@ model User {
   level            UserLevel?
   // AI Agent Studio relations
   agentConversations AgentConversation[]
+  // Goal system relations
+  learningGoals LearningGoal[]
 }
 
 model VerificationToken {
@@ -122,6 +124,73 @@ model UserAchievement {
   earnedAt    DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Learning Goals for students
+model LearningGoal {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // Goal Details
+  title       String
+  description String?  @db.Text
+  type        GoalType @default(DAILY)
+  category    String?  // Subject category (optional: 'math', 'science', etc.)
+
+  // Target & Progress
+  targetType  GoalTargetType // What they're trying to achieve
+  targetValue Int      // Target number (e.g., 3 adventures, 200 XP)
+  currentValue Int     @default(0)
+  unit        String   // 'adventures', 'XP', 'minutes', 'skills'
+
+  // Status & Timing
+  status      GoalStatus @default(ACTIVE)
+  startDate   DateTime @default(now())
+  deadline    DateTime?
+
+  // Completion
+  completedAt DateTime?
+  streakCount Int      @default(0) // For recurring goals
+
+  // Metadata
+  icon        String?  // Emoji or icon identifier
+  color       String?  // Color code for UI
+  priority    Int      @default(0) // 0 = normal, 1 = high, 2 = urgent
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, type])
+}
+
+enum GoalType {
+  DAILY       // Resets daily
+  WEEKLY      // Resets weekly
+  MONTHLY     // Resets monthly
+  CUSTOM      // One-time goal with custom deadline
+}
+
+enum GoalTargetType {
+  ADVENTURES_COMPLETE    // Complete X adventures
+  XP_EARN               // Earn X XP
+  TIME_SPEND            // Spend X minutes learning
+  SKILLS_MASTER         // Master X skills
+  STREAK_MAINTAIN       // Maintain X day streak
+  SUBJECT_COMPLETE      // Complete X adventures in specific subject
+  SCORE_ACHIEVE         // Achieve average score of X%
+}
+
+enum GoalStatus {
+  ACTIVE      // Currently working on
+  COMPLETED   // Successfully completed
+  EXPIRED     // Deadline passed without completion
+  PAUSED      // Temporarily paused
+  ARCHIVED    // Archived/no longer active
 }
 
 // Classroom management for teachers
