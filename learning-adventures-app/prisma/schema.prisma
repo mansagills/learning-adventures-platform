@@ -71,6 +71,8 @@ model User {
   agentConversations AgentConversation[]
   // Goal system relations
   learningGoals LearningGoal[]
+  // Calendar system relations
+  calendarEvents CalendarEvent[]
 }
 
 model VerificationToken {
@@ -191,6 +193,78 @@ enum GoalStatus {
   EXPIRED     // Deadline passed without completion
   PAUSED      // Temporarily paused
   ARCHIVED    // Archived/no longer active
+}
+
+// Calendar Events for scheduling
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // Event Details
+  title       String
+  description String?  @db.Text
+  eventType   EventType
+  category    String?  // Subject category (optional)
+
+  // Timing
+  startTime   DateTime
+  endTime     DateTime
+  allDay      Boolean  @default(false)
+  timeZone    String?  // User's timezone
+
+  // Related Items
+  adventureId String?  // Link to specific adventure/lesson
+  goalId      String?  // Link to learning goal
+  classroomId String?  // For classroom assignments
+
+  // Recurrence
+  isRecurring Boolean  @default(false)
+  recurrenceRule String? // RRULE format (e.g., "FREQ=WEEKLY;BYDAY=MO,WE,FR")
+  recurrenceEnd  DateTime?
+
+  // Reminders
+  reminderMinutes Int[]  // Array of minutes before event to remind
+
+  // Status
+  status      EventStatus @default(SCHEDULED)
+  completedAt DateTime?
+
+  // Metadata
+  color       String?  // Custom color for event
+  icon        String?  // Emoji or icon
+  priority    Int      @default(0) // 0 = normal, 1 = high, 2 = urgent
+  location    String?  // Virtual or physical location
+  url         String?  // Link to resource/meeting
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startTime])
+  @@index([userId, eventType])
+  @@index([startTime, endTime])
+}
+
+enum EventType {
+  LEARNING_SESSION    // Scheduled learning time
+  ASSIGNMENT          // Assignment due date
+  GOAL_DEADLINE       // Goal deadline
+  ACHIEVEMENT         // Achievement earned date
+  LIVE_CLASS          // Live virtual class
+  ASSESSMENT          // Quiz or test
+  REMINDER            // General reminder
+  CUSTOM              // Custom event
+}
+
+enum EventStatus {
+  SCHEDULED   // Future event
+  IN_PROGRESS // Currently happening
+  COMPLETED   // Finished
+  CANCELLED   // Cancelled
+  MISSED      // Passed without completion
 }
 
 // Classroom management for teachers
