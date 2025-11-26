@@ -73,6 +73,13 @@ model User {
   learningGoals LearningGoal[]
   // Calendar system relations
   calendarEvents CalendarEvent[]
+  // Social & gamification relations (Phase 3E)
+  friendships Friendship[] @relation("UserFriendships")
+  friendOf Friendship[] @relation("FriendOfUsers")
+  createdChallenges Challenge[] @relation("CreatedChallenges")
+  receivedChallenges Challenge[] @relation("ReceivedChallenges")
+  ownedStudyGroups StudyGroup[] @relation("OwnedStudyGroups")
+  studyGroupMemberships StudyGroupMember[]
 }
 
 model VerificationToken {
@@ -938,4 +945,123 @@ model GeminiUsage {
 
   @@index([userId, createdAt])
   @@index([createdAt])
+}
+
+// ============================================================================
+// GAMIFICATION & SOCIAL FEATURES (Phase 3E)
+// ============================================================================
+
+// Friend connections for social features
+model Friendship {
+  id          String   @id @default(cuid())
+  userId      String   // User who initiated the friendship
+  friendId    String   // Friend user ID
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+
+  user        User @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend      User @relation("FriendOfUsers", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId, status])
+  @@index([friendId, status])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+// Challenge competitions between users
+model Challenge {
+  id              String   @id @default(cuid())
+  creatorId       String
+  challengedId    String
+
+  // Challenge Details
+  type            ChallengeType
+  category        String?  // Subject category
+  adventureId     String?  // Specific adventure challenge
+  goalValue       Int      // Target to achieve
+  unit            String   // 'adventures', 'xp', 'score'
+
+  // Status & Results
+  status          ChallengeStatus @default(ACTIVE)
+  creatorProgress Int      @default(0)
+  challengedProgress Int   @default(0)
+  winnerId        String?
+
+  // Timing
+  startDate       DateTime @default(now())
+  endDate         DateTime
+  completedAt     DateTime?
+
+  createdAt       DateTime @default(now())
+
+  creator         User @relation("CreatedChallenges", fields: [creatorId], references: [id], onDelete: Cascade)
+  challenged      User @relation("ReceivedChallenges", fields: [challengedId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, status])
+  @@index([challengedId, status])
+  @@index([status, endDate])
+}
+
+enum ChallengeType {
+  ADVENTURE_RACE    // Complete X adventures first
+  XP_BATTLE         // Earn most XP in time period
+  SCORE_SHOWDOWN    // Get highest average score
+  STREAK_CHALLENGE  // Maintain longest streak
+}
+
+enum ChallengeStatus {
+  PENDING    // Waiting for acceptance
+  ACTIVE     // In progress
+  COMPLETED  // Finished
+  DECLINED   // Rejected by challenged user
+  EXPIRED    // Time ran out
+}
+
+// Study groups for collaborative learning
+model StudyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  category    String?  // Subject focus
+  ownerId     String
+
+  // Settings
+  isPublic    Boolean  @default(false)
+  maxMembers  Int      @default(10)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User @relation("OwnedStudyGroups", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     StudyGroupMember[]
+
+  @@index([ownerId])
+  @@index([category, isPublic])
+}
+
+model StudyGroupMember {
+  id           String   @id @default(cuid())
+  groupId      String
+  userId       String
+  role         GroupRole @default(MEMBER)
+  joinedAt     DateTime @default(now())
+
+  group        StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId, role])
+}
+
+enum GroupRole {
+  OWNER
+  MODERATOR
+  MEMBER
 }
