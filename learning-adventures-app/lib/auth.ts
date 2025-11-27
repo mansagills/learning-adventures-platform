@@ -1,5 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import EmailProvider from 'next-auth/providers/email';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '@/lib/prisma';
@@ -10,12 +11,30 @@ import { getServerSession } from 'next-auth/next';
 console.log('🔧 Auth configuration loaded');
 
 export const authOptions: NextAuthOptions = {
-  // adapter: PrismaAdapter(prisma), // Temporarily disabled for credentials provider testing
+  adapter: PrismaAdapter(prisma),
   providers: [
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID || '',
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    // }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code'
+        }
+      }
+    }),
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: Number(process.env.EMAIL_SERVER_PORT),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD
+        }
+      },
+      from: process.env.EMAIL_FROM
+    }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -79,12 +98,26 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, trigger }) {
+      // Initial sign in
       if (user) {
         token.role = (user as any).role;
         token.gradeLevel = (user as any).gradeLevel;
         token.subjects = (user as any).subjects;
       }
+
+      // Fetch fresh user data from database on each token refresh
+      if (token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.gradeLevel = dbUser.gradeLevel;
+          token.subjects = dbUser.subjects;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -97,14 +130,15 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
-        // For Google OAuth, check if user exists or create new one
+      // OAuth providers (Google) and Email provider
+      if (account?.provider === 'google' || account?.provider === 'email') {
+        // Check if user exists
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
         });
 
         if (!existingUser) {
-          // Create new user with default role
+          // Create new user with default role for OAuth/Email sign-ups
           await prisma.user.create({
             data: {
               email: user.email!,
