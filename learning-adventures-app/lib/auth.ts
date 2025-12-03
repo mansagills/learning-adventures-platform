@@ -1,5 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import AppleProvider from 'next-auth/providers/apple';
 import EmailProvider from 'next-auth/providers/email';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
@@ -23,6 +24,10 @@ export const authOptions: NextAuthOptions = {
           response_type: 'code'
         }
       }
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID || '',
+      clientSecret: process.env.APPLE_CLIENT_SECRET || '',
     }),
     EmailProvider({
       server: {
@@ -130,8 +135,8 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      // OAuth providers (Google) and Email provider
-      if (account?.provider === 'google' || account?.provider === 'email') {
+      // OAuth providers (Google, Apple) and Email provider
+      if (account?.provider === 'google' || account?.provider === 'apple' || account?.provider === 'email') {
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
