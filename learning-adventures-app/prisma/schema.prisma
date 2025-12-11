@@ -56,6 +56,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Parent account verification (COPPA compliance)
+  isVerifiedAdult Boolean @default(false)  // Parent gate verification
+  childProfiles   ChildProfile[]           // Parent's children
+
   accounts    Account[]
   sessions    Session[]
   progress    UserProgress[]
@@ -1064,4 +1068,49 @@ enum GroupRole {
   OWNER
   MODERATOR
   MEMBER
+}
+
+// ============================================================================
+// CHILD ACCOUNT PROVISIONING (COPPA-Compliant)
+// ============================================================================
+
+// Child profiles for parent-managed accounts
+model ChildProfile {
+  id              String   @id @default(cuid())
+  parentId        String
+  parent          User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  // Child Identity (COPPA-compliant - no email, no PII)
+  displayName     String   // Parent's nickname for child (e.g., "Alex")
+  username        String   @unique // Auto-generated anonymous username (e.g., "BraveEagle42")
+  authCode        String   // Hashed PIN (bcrypt)
+
+  // Profile Information
+  gradeLevel      String   // "K", "1", "2", ... "12"
+  avatarId        String   // "tiger", "dragon", "rocket", etc.
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+
+  // Relations
+  sessions        ChildSession[]
+
+  @@index([parentId])
+  @@index([username])
+}
+
+// Child session management (separate from NextAuth)
+model ChildSession {
+  id              String   @id @default(cuid())
+  childId         String
+  child           ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  sessionToken    String   @unique
+  expires         DateTime
+  createdAt       DateTime @default(now())
+
+  @@index([childId])
+  @@index([sessionToken])
 }
