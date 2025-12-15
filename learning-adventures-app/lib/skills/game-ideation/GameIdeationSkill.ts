@@ -302,7 +302,72 @@ export class GameIdeationSkill extends BaseSkill {
     guidance: string,
     request: GameIdeaRequest
   ): Promise<GameConcept[]> {
-    // Mock implementation - would call Claude API in production
+    // Check if Claude API is configured
+    const { isClaudeConfigured, callClaude } = await import('../../claude-client');
+
+    if (!isClaudeConfigured()) {
+      console.warn('⚠️  ANTHROPIC_API_KEY not configured, using mock game concepts');
+      return this.getMockGameConcepts(request);
+    }
+
+    try {
+      // Combine skill guidance with specific prompt
+      const fullPrompt = `${guidance}
+
+${prompt}
+
+Please provide 3-5 game concepts in JSON array format. Each concept should be a JSON object with the following structure:
+{
+  "title": "Game Title",
+  "description": "Brief description of the game",
+  "subject": "${request.subject}",
+  "gradeLevel": ["${request.gradeLevel}"],
+  "difficulty": "easy|medium|hard",
+  "skills": ["skill1", "skill2"],
+  "learningObjectives": ["objective1", "objective2"],
+  "estimatedTime": "10-15 minutes",
+  "gameplayMechanics": ["mechanic1", "mechanic2"],
+  "educationalValue": 8,
+  "engagementPotential": 9
+}
+
+Return ONLY a valid JSON array of game concepts, no markdown formatting or explanations.`;
+
+      const response = await callClaude(fullPrompt, {
+        model: 'claude-3-5-sonnet-latest',
+        maxTokens: 2000,
+        temperature: 1.0,
+      });
+
+      // Extract JSON if wrapped in markdown code blocks
+      let jsonStr = response.trim();
+      const jsonMatch = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1].trim();
+      }
+
+      // Parse the JSON response
+      const concepts: GameConcept[] = JSON.parse(jsonStr);
+
+      // Validate and return
+      if (Array.isArray(concepts) && concepts.length > 0) {
+        return concepts.slice(0, 5); // Limit to 5 concepts
+      }
+
+      // Fallback if parsing failed
+      console.warn('⚠️  Could not parse Claude response as valid game concepts, using mock data');
+      return this.getMockGameConcepts(request);
+    } catch (error) {
+      console.error('❌ Error generating game concepts with Claude:', error);
+      console.warn('⚠️  Falling back to mock game concepts');
+      return this.getMockGameConcepts(request);
+    }
+  }
+
+  /**
+   * Get mock game concepts (fallback when API not available)
+   */
+  private getMockGameConcepts(request: GameIdeaRequest): GameConcept[] {
     const subjectGames: Record<string, GameConcept[]> = {
       math: [
         {

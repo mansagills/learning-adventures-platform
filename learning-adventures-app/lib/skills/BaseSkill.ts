@@ -116,13 +116,26 @@ export abstract class BaseSkill {
 
     if (matchedCount === 0) return 0;
 
-    // Base score from percentage of triggers matched
-    const baseScore = (matchedCount / triggers.length) * 100;
+    // Improved scoring algorithm:
+    // - 1 match: 60-70% base confidence
+    // - 2 matches: 75-85% confidence
+    // - 3+ matches: 85-95% confidence
 
-    // Bonus for multiple matches (indicates strong intent)
-    const bonusScore = Math.min(matchedCount * 10, 20);
+    let confidence = 0;
 
-    return Math.min(baseScore + bonusScore, 100);
+    if (matchedCount === 1) {
+      confidence = 65; // Strong base for single match
+    } else if (matchedCount === 2) {
+      confidence = 80; // Very confident with two matches
+    } else if (matchedCount >= 3) {
+      confidence = 90; // Extremely confident with multiple matches
+    }
+
+    // Bonus for partial trigger coverage (more triggers = higher potential bonus)
+    const triggerCoverage = matchedCount / Math.min(triggers.length, 5);
+    const coverageBonus = triggerCoverage * 10;
+
+    return Math.min(confidence + coverageBonus, 98);
   }
 
   /**
