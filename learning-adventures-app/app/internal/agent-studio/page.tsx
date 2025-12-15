@@ -3,18 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import AgentDiscovery from '@/components/agents/AgentDiscovery';
-import WorkflowList from '@/components/agents/WorkflowList';
+import LearningBuilderChat from '@/components/agents/LearningBuilderChat';
 import ConversationHistory from '@/components/agents/ConversationHistory';
 
-type TabType = 'ai-agents' | 'workflows' | 'history';
+type TabType = 'learning-builder' | 'history';
 
 export default function AIAgentStudioPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('ai-agents');
+  const [activeTab, setActiveTab] = useState<TabType>('learning-builder');
 
   const tabs = [
-    { id: 'ai-agents' as TabType, label: 'AI Agents', icon: '🤖', description: 'Chat with specialized AI agents' },
-    { id: 'workflows' as TabType, label: 'Workflows', icon: '⚡', description: 'Multi-agent orchestration' },
+    { id: 'learning-builder' as TabType, label: 'Learning Builder', icon: '🎓', description: 'Create interactive learning content' },
     { id: 'history' as TabType, label: 'History', icon: '📚', description: 'Past conversations' },
   ];
 
@@ -35,19 +33,19 @@ export default function AIAgentStudioPage() {
                       ← Content Studio
                     </Link>
                   </div>
-                  <h1 className="text-3xl font-bold text-gray-900">🚀 AI Agent Studio</h1>
+                  <h1 className="text-3xl font-bold text-gray-900">🎓 Learning Builder Studio</h1>
                   <p className="mt-1 text-gray-600">
-                    Orchestrate multi-agent workflows for sophisticated content creation
+                    Create interactive learning content and educational games with AI assistance
                   </p>
                 </div>
 
                 {/* Status Badge */}
-                <div className="px-4 py-2 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg border-2 border-purple-300">
-                  <p className="text-sm font-semibold text-purple-700">
-                    Now Available
+                <div className="px-4 py-2 bg-gradient-to-r from-green-100 to-blue-100 rounded-lg border-2 border-green-300">
+                  <p className="text-sm font-semibold text-green-700">
+                    ✨ Upgraded
                   </p>
-                  <p className="text-xs text-purple-600">
-                    Advanced AI Workflows
+                  <p className="text-xs text-green-600">
+                    Intelligent Skill Detection
                   </p>
                 </div>
               </div>
@@ -82,14 +80,38 @@ export default function AIAgentStudioPage() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* AI Agents Tab */}
-          {activeTab === 'ai-agents' && (
-            <AgentDiscovery />
-          )}
-
-          {/* Workflows Tab */}
-          {activeTab === 'workflows' && (
-            <WorkflowList />
+          {/* Learning Builder Tab */}
+          {activeTab === 'learning-builder' && (
+            <div>
+              <div className="mb-6 p-6 bg-gradient-to-r from-brand-50 to-accent-50 rounded-xl border border-brand-200">
+                <h2 className="text-xl font-semibold text-neutral-900 mb-2 flex items-center gap-2">
+                  <span className="text-2xl">🎓</span>
+                  Welcome to the Learning Builder Agent
+                </h2>
+                <p className="text-neutral-700 mb-4">
+                  This intelligent agent automatically detects what you need and uses the right skills to help you create educational content.
+                  No need to choose between different agents - just tell me what you want to create!
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
+                    💡 Game Ideation
+                  </span>
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
+                    🎮 HTML Game Builder
+                  </span>
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
+                    ⚛️ React Components
+                  </span>
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
+                    📋 Metadata Formatting
+                  </span>
+                  <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
+                    ✅ Accessibility Validation
+                  </span>
+                </div>
+              </div>
+              <LearningBuilderChat />
+            </div>
           )}
 
           {/* History Tab */}

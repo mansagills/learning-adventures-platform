@@ -14,6 +14,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [authCallbackUrl, setAuthCallbackUrl] = useState<string>('/');
   const { data: session, status } = useSession();
 
   const handleCTAClick = () => {
@@ -23,18 +24,21 @@ export default function Header() {
     } else {
       // If not logged in, open signup modal
       setAuthMode('signup');
+      setAuthCallbackUrl('/');
       setIsAuthModalOpen(true);
     }
     analytics.clickCTA('Header CTA', 'header');
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = (callbackUrl: string = '/') => {
     setAuthMode('signin');
+    setAuthCallbackUrl(callbackUrl);
     setIsAuthModalOpen(true);
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = (callbackUrl: string = '/') => {
     setAuthMode('signup');
+    setAuthCallbackUrl(callbackUrl);
     setIsAuthModalOpen(true);
   };
 
@@ -94,12 +98,21 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/internal"
-              className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium text-sm"
-            >
-              Content Studio
-            </Link>
+            {session ? (
+              <Link
+                href="/internal"
+                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium text-sm"
+              >
+                Content Studio
+              </Link>
+            ) : (
+              <button
+                onClick={() => handleSignIn('/internal')}
+                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium text-sm"
+              >
+                Content Studio
+              </button>
+            )}
 
             {status === 'loading' ? (
               <div className="animate-pulse">
@@ -183,13 +196,25 @@ export default function Header() {
               >
                 FAQ
               </Link>
-              <Link
-                href="/internal"
-                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Content Studio
-              </Link>
+              {session ? (
+                <Link
+                  href="/internal"
+                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Content Studio
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    handleSignIn('/internal');
+                  }}
+                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 py-2 font-medium text-left w-full"
+                >
+                  Content Studio
+                </button>
+              )}
 
               <div className="pt-4">
                 {session ? (
@@ -239,6 +264,7 @@ export default function Header() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         defaultMode={authMode}
+        callbackUrl={authCallbackUrl}
       />
     </header>
   );

@@ -10,9 +10,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: 'signin' | 'signup';
+  callbackUrl?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', callbackUrl = '/' }: AuthModalProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await signIn('google', { callbackUrl });
     } catch (err) {
       setError('Failed to sign in with Google');
     } finally {
@@ -41,7 +42,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('apple', { callbackUrl: '/' });
+      await signIn('apple', { callbackUrl });
     } catch (err) {
       setError('Failed to sign in with Apple');
     } finally {
@@ -80,7 +81,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
           await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            callbackUrl: '/',
+            callbackUrl,
           });
         } else {
           const data = await response.json();
@@ -101,6 +102,10 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
         setError('Invalid email or password');
       } else if (result?.ok) {
         onClose();
+        // Redirect to callback URL after successful sign in
+        if (callbackUrl && callbackUrl !== '/') {
+          window.location.href = callbackUrl;
+        }
       }
     }
 

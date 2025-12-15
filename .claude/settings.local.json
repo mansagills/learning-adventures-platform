@@ -10,7 +10,8 @@
       "Bash(npx prisma db push)",
       "Bash(set DATABASE_URL=postgresql://mansagills@localhost:5432/template1?sslmode=disable:*)",
       "Bash(export DATABASE_URL:*)",
-      "Bash(brew services:*)"
+      "Bash(brew services:*)",
+      "Bash(postgres -D /opt/homebrew/var/postgresql@14:*)"
     ],
     "deny": [],
     "ask": []

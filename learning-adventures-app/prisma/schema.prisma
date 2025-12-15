@@ -678,7 +678,8 @@ enum IssueSeverity {
 model AgentConversation {
   id              String   @id @default(cuid())
   userId          String
-  agentType       String   // 'game-idea-generator', 'content-builder', etc.
+  agentType       String?  // Made optional for universal agent
+  skillsUsed      String[] // Array of skill IDs used in conversation
   title           String?
   status          ConversationStatus @default(ACTIVE)
 
@@ -687,6 +688,7 @@ model AgentConversation {
   messages        ConversationMessage[]
   generatedContent GeneratedContent[]
   uploadedFiles   UploadedFile[]
+  skillExecutions SkillExecution[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -721,6 +723,28 @@ enum MessageRole {
   USER
   ASSISTANT
   SYSTEM
+}
+
+// Skill execution tracking for Universal Agent
+model SkillExecution {
+  id              String   @id @default(cuid())
+  skillId         String
+  conversationId  String
+  userRequest     String   @db.Text
+  confidence      Float
+  success         Boolean
+  executionTime   Int      // milliseconds
+  output          Json?
+  errorMessage    String?  @db.Text
+
+  // Relations
+  conversation    AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@index([skillId])
+  @@index([conversationId, createdAt])
+  @@index([success])
 }
 
 // Multi-agent workflow executions
