@@ -171,6 +171,7 @@ export interface LessonAccessCheck {
   previousLessonPassed: boolean;
   requiredScore?: number;
   userScore?: number;
+  requiresPremium?: boolean; // Indicates if premium subscription is needed
 }
 
 /**

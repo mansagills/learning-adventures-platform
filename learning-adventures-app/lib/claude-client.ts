@@ -55,7 +55,7 @@ export async function callClaude(
   ];
 
   const response = await client.messages.create({
-    model: options?.model || 'claude-3-5-sonnet-latest',
+    model: options?.model || 'claude-3-7-sonnet-20250219',
     max_tokens: options?.maxTokens || 4000,
     temperature: options?.temperature ?? 1.0,
     system: options?.systemPrompt,

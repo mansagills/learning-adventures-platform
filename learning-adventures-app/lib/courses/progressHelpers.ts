@@ -22,6 +22,7 @@ import {
   getUserStreak,
 } from './xpCalculations';
 import { updateEnrollmentActivity } from './enrollmentHelpers';
+import { hasActivePremiumSubscription } from './subscriptionHelpers';
 
 // ============================================================================
 // LESSON ACCESS CONTROL (Linear Progression)
@@ -48,6 +49,32 @@ export async function checkLessonAccess(
       previousLessonCompleted: false,
       previousLessonPassed: false,
     };
+  }
+
+  // Check if lesson is a free preview (first 2-3 lessons of premium courses)
+  if (lesson.isFreePreview) {
+    return {
+      canAccess: true,
+      isLocked: false,
+      previousLessonCompleted: true,
+      previousLessonPassed: true,
+    };
+  }
+
+  // Check premium access for premium courses
+  if (lesson.course.isPremium) {
+    const hasPremium = await hasActivePremiumSubscription(userId);
+
+    if (!hasPremium) {
+      return {
+        canAccess: false,
+        reason: 'Premium subscription required to access this lesson',
+        isLocked: true,
+        requiresPremium: true,
+        previousLessonCompleted: false,
+        previousLessonPassed: false,
+      };
+    }
   }
 
   // Get user's enrollment

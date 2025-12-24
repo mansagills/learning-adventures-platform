@@ -81,25 +81,72 @@ async function main() {
     },
   });
 
+  // Create Subscriptions for test users
+  console.log('💳 Creating subscriptions for test users...');
+
+  // Student: FREE tier
+  await prisma.subscription.create({
+    data: {
+      userId: studentUser.id,
+      tier: 'FREE',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
+  // Teacher: PREMIUM tier (for testing premium features)
+  await prisma.subscription.create({
+    data: {
+      userId: teacherUser.id,
+      tier: 'PREMIUM',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
+  // Parent: FREE tier
+  await prisma.subscription.create({
+    data: {
+      userId: parentUser.id,
+      tier: 'FREE',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
+  // Admin: PREMIUM tier
+  await prisma.subscription.create({
+    data: {
+      userId: adminUser.id,
+      tier: 'PREMIUM',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
   console.log('✅ Seed completed successfully!');
   console.log('\n📋 Test Credentials Created:');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('🎓 Student: student@test.com / password123');
   console.log('   Name: Alex Student');
   console.log('   Grade: 3rd Grade');
-  console.log('   Subjects: Math, Science, English\n');
+  console.log('   Subjects: Math, Science, English');
+  console.log('   Subscription: FREE tier\n');
 
   console.log('👩‍🏫 Teacher: teacher@test.com / password123');
   console.log('   Name: Sarah Teacher');
-  console.log('   Subjects: All subjects\n');
+  console.log('   Subjects: All subjects');
+  console.log('   Subscription: PREMIUM tier (for testing)\n');
 
   console.log('👨‍👩‍👧‍👦 Parent: parent@test.com / password123');
   console.log('   Name: Maria Parent');
-  console.log('   Subjects: Math, Science, English\n');
+  console.log('   Subjects: Math, Science, English');
+  console.log('   Subscription: FREE tier\n');
 
   console.log('👩‍💼 Admin: admin@test.com / password123');
   console.log('   Name: Jordan Admin');
   console.log('   Subjects: All subjects');
+  console.log('   Subscription: PREMIUM tier');
   console.log('   Access: Full platform administration\n');
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

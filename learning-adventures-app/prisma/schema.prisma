@@ -71,6 +71,7 @@ model User {
   courseEnrollments CourseEnrollment[]
   dailyXP          DailyXP[]
   level            UserLevel?
+  subscription     Subscription?
   // AI Agent Studio relations
   agentConversations AgentConversation[]
   // Goal system relations
@@ -309,6 +310,47 @@ model ClassroomEnrollment {
 }
 
 // ============================================================================
+// SUBSCRIPTION & PREMIUM ACCESS
+// ============================================================================
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Subscription Tier
+  tier            SubscriptionTier @default(FREE)
+  status          SubscriptionStatus @default(ACTIVE)
+
+  // Stripe Integration (for future payment processing)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  // Timing
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+// ============================================================================
 // COURSE SYSTEM MODELS
 // ============================================================================
 
@@ -359,6 +401,15 @@ model CourseLesson {
   description     String?  @db.Text
   type            LessonType
   contentPath     String   // HTML file path or React component ID
+
+  // Chapter Grouping (Simple Approach)
+  chapterNumber   Int?     // 1, 2, 3, 4, 5
+  chapterTitle    String?  // "Chapter 1: Early Life"
+  isFreePreview   Boolean  @default(false)  // First 2-3 lessons free for premium courses
+
+  // Quiz Data
+  quizData        Json?    // Quiz questions/answers structure
+  hintsData       Json?    // Hints for wrong answers (deprecated - now part of quizData)
 
   // Progression
   duration        Int      // Estimated minutes

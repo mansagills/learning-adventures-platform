@@ -349,7 +349,7 @@ Please create a complete, self-contained HTML file with embedded CSS and JavaScr
 Return ONLY the HTML code, no markdown formatting or explanations.`;
 
       const gameCode = await callClaude(fullPrompt, {
-        model: 'claude-3-5-sonnet-latest',
+        model: 'claude-3-7-sonnet-20250219',
         maxTokens: 4000,
         temperature: 1.0,
       });

@@ -6,6 +6,8 @@
  * Displays a single message in the chat interface with role-based styling.
  */
 
+import ReactMarkdown from 'react-markdown';
+
 interface MessageBubbleProps {
   message: {
     id: string;
@@ -53,7 +55,47 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             }
           `}
         >
-          <div className="whitespace-pre-wrap break-words">{message.content}</div>
+          <div className="prose prose-sm max-w-none break-words">
+            {isUser ? (
+              // User messages: plain text with line breaks
+              <div className="whitespace-pre-wrap">{message.content}</div>
+            ) : (
+              // Assistant messages: render markdown
+              <ReactMarkdown
+                components={{
+                  // Style headings
+                  h1: ({ node, ...props }) => <h1 className="text-xl font-bold mb-2" {...props} />,
+                  h2: ({ node, ...props }) => <h2 className="text-lg font-semibold mb-2" {...props} />,
+                  h3: ({ node, ...props }) => <h3 className="text-base font-semibold mb-1" {...props} />,
+                  // Style lists
+                  ul: ({ node, ...props }) => <ul className="list-disc ml-4 mb-2" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal ml-4 mb-2" {...props} />,
+                  li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                  // Style paragraphs
+                  p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                  // Style code
+                  code: ({ node, inline, ...props }: any) =>
+                    inline ? (
+                      <code className="bg-neutral-200 px-1 rounded text-sm" {...props} />
+                    ) : (
+                      <code className="block bg-neutral-200 p-2 rounded text-sm overflow-x-auto" {...props} />
+                    ),
+                  // Style links
+                  a: ({ node, ...props }) => <a className="text-brand-600 underline hover:text-brand-700" {...props} />,
+                  // Style blockquotes
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote className="border-l-4 border-neutral-300 pl-3 italic" {...props} />
+                  ),
+                  // Style strong/bold
+                  strong: ({ node, ...props }) => <strong className="font-bold" {...props} />,
+                  // Style emphasis/italic
+                  em: ({ node, ...props }) => <em className="italic" {...props} />,
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            )}
+          </div>
 
           {/* Attachments */}
           {message.metadata?.attachments && message.metadata.attachments.length > 0 && (

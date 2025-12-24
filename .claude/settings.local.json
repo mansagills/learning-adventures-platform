@@ -11,7 +11,10 @@
       "Bash(set DATABASE_URL=postgresql://mansagills@localhost:5432/template1?sslmode=disable:*)",
       "Bash(export DATABASE_URL:*)",
       "Bash(brew services:*)",
-      "Bash(postgres -D /opt/homebrew/var/postgresql@14:*)"
+      "Bash(postgres -D /opt/homebrew/var/postgresql@14:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

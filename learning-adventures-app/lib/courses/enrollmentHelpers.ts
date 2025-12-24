@@ -14,6 +14,7 @@ import type {
   CompletionRequirements,
 } from './types';
 import { checkPrerequisites, getMissingPrerequisites, getCourseById } from './courseQueries';
+import { hasActivePremiumSubscription } from './subscriptionHelpers';
 
 // ============================================================================
 // CONSTANTS
@@ -62,8 +63,8 @@ export async function checkEnrollmentEligibility(
     };
   }
 
-  // TODO: Implement premium access check based on subscription system
-  const hasPremiumAccess = false;
+  // Check premium subscription
+  const hasPremiumAccess = await hasActivePremiumSubscription(userId);
 
   // Check if already enrolled
   const existingEnrollment = await prisma.courseEnrollment.findUnique({

@@ -18,10 +18,12 @@ import {
 export class LearningBuilderAgent {
   private skillRegistry: SkillRegistry;
   private conversationHistory: Map<string, ConversationMessage[]>;
+  private skillOutputs: Map<string, Map<string, any>>; // conversationId -> (skillId -> output)
 
   constructor() {
     this.skillRegistry = SkillRegistry.getInstance();
     this.conversationHistory = new Map();
+    this.skillOutputs = new Map();
   }
 
   /**
@@ -57,10 +59,14 @@ export class LearningBuilderAgent {
     const startTime = Date.now();
 
     try {
-      // Build execution context
-      const history = this.conversationHistory.get(conversationId || 'default') || [];
+      // Build execution context with previous skill outputs
+      const convId = conversationId || 'default';
+      const history = this.conversationHistory.get(convId) || [];
+      const previousOutputs = this.skillOutputs.get(convId) || new Map();
+
       const context = SkillContextBuilder.build(userRequest, {
         conversationHistory: history,
+        previousOutputs,
         conversationId,
         userId,
       });
@@ -93,14 +99,17 @@ export class LearningBuilderAgent {
       // Execute single skill
       const skillResult = await this.executeSkill(skill, context);
 
+      // Store skill output for future context
+      this.storeSkillOutput(convId, topSkill.skillId, skillResult.output);
+
       // Update conversation history
-      this.addToHistory(conversationId || 'default', {
+      this.addToHistory(convId, {
         role: 'user',
         content: userRequest,
         timestamp: new Date(),
       });
 
-      this.addToHistory(conversationId || 'default', {
+      this.addToHistory(convId, {
         role: 'assistant',
         content: skillResult.message,
         timestamp: new Date(),
@@ -272,6 +281,26 @@ What would you like to do?`,
   }
 
   /**
+   * Store skill output for future context
+   */
+  private storeSkillOutput(conversationId: string, skillId: string, output: any): void {
+    let outputs = this.skillOutputs.get(conversationId);
+
+    if (!outputs) {
+      outputs = new Map();
+      this.skillOutputs.set(conversationId, outputs);
+    }
+
+    outputs.set(skillId, output);
+
+    // Keep only last 5 skill outputs to prevent memory bloat
+    if (outputs.size > 5) {
+      const firstKey = outputs.keys().next().value;
+      outputs.delete(firstKey);
+    }
+  }
+
+  /**
    * Get available skills
    */
   public getAvailableSkills() {
@@ -290,5 +319,6 @@ What would you like to do?`,
    */
   public clearConversation(conversationId: string): void {
     this.conversationHistory.delete(conversationId);
+    this.skillOutputs.delete(conversationId);
   }
 }

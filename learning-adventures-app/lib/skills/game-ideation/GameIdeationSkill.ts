@@ -334,7 +334,7 @@ Please provide 3-5 game concepts in JSON array format. Each concept should be a 
 Return ONLY a valid JSON array of game concepts, no markdown formatting or explanations.`;
 
       const response = await callClaude(fullPrompt, {
-        model: 'claude-3-5-sonnet-latest',
+        model: 'claude-3-7-sonnet-20250219',
         maxTokens: 2000,
         temperature: 1.0,
       });
