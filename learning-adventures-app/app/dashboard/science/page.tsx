@@ -203,7 +203,7 @@ function ScienceDashboardContent() {
     timeSpent: totalTimeSpent,
     skillsMastered: scienceSkills.filter(s => s.mastered).length,
     totalSkills: scienceSkills.length,
-    currentStreak: progressData?.stats.currentStreak || 0
+    currentStreak: 0
   };
 
   return (

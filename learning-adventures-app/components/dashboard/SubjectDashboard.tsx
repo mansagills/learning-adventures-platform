@@ -147,31 +147,18 @@ export default function SubjectDashboard({
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <DashboardCard
-          title="Average Score"
-          value={`${metrics.averageScore}%`}
-          icon="star"
-          trend={{ value: 0, isPositive: true }}
-          color="yellow"
-        />
-        <DashboardCard
-          title="Time Spent"
-          value={`${Math.floor(metrics.timeSpent / 60)}h ${metrics.timeSpent % 60}m`}
-          icon="clock"
-          color="blue"
-        />
-        <DashboardCard
-          title="In Progress"
-          value={metrics.inProgressAdventures.toString()}
-          icon="play"
-          color="green"
-        />
-        <DashboardCard
-          title="Skill Progress"
-          value={`${metrics.skillsMastered}/${metrics.totalSkills}`}
-          icon="lightbulb"
-          color="purple"
-        />
+        <DashboardCard title="Average Score">
+          <div className="text-3xl font-bold text-yellow-600">{`${metrics.averageScore}%`}</div>
+        </DashboardCard>
+        <DashboardCard title="Time Spent">
+          <div className="text-3xl font-bold text-blue-600">{`${Math.floor(metrics.timeSpent / 60)}h ${metrics.timeSpent % 60}m`}</div>
+        </DashboardCard>
+        <DashboardCard title="In Progress">
+          <div className="text-3xl font-bold text-green-600">{metrics.inProgressAdventures}</div>
+        </DashboardCard>
+        <DashboardCard title="Skill Progress">
+          <div className="text-3xl font-bold text-purple-600">{`${metrics.skillsMastered}/${metrics.totalSkills}`}</div>
+        </DashboardCard>
       </div>
 
       {/* Two Column Layout */}
@@ -215,7 +202,7 @@ export default function SubjectDashboard({
                 {recommendedAdventures.slice(0, 5).map(adventure => (
                   <Link
                     key={adventure.id}
-                    href={`/adventures/${adventure.id}`}
+                    href={`/adventures/${adventure.id}` as any}
                     className="block group"
                   >
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:border-brand-300 hover:bg-brand-50 transition-all">

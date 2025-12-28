@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       leaderboard = users
         .map(user => {
           const totalXP = startDate
-            ? user.dailyXP.reduce((sum, day) => sum + day.xpEarned, 0)
+            ? user.dailyXP.reduce((sum, day) => sum + day.totalXP, 0)
             : user.level?.totalXP || 0;
 
           return {

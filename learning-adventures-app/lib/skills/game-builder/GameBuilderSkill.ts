@@ -235,10 +235,9 @@ export class GameBuilderSkill extends BaseSkill {
       description: context.userRequest,
       subject: parsed.subject,
       gradeLevel: parsed.gradeLevel || ['3'],
-      skills: this.extractSkills(context.userRequest),
       learningObjectives: this.extractLearningObjectives(context.userRequest),
-      estimatedTime: '10-15 minutes',
-      difficulty: parsed.difficulty || 'medium',
+      estimatedPlayTime: '10-15 minutes',
+      difficulty: (parsed.difficulty || 'medium') as 'easy' | 'medium' | 'hard',
       gameplayMechanics: [],
       educationalValue: 8,
       engagementPotential: 8,
@@ -291,10 +290,7 @@ export class GameBuilderSkill extends BaseSkill {
 **Subject**: ${concept.subject}
 **Grade Level**: ${concept.gradeLevel.join(', ')}
 **Difficulty**: ${concept.difficulty}
-**Estimated Play Time**: ${concept.estimatedTime}
-
-**Skills to Practice**:
-${concept.skills.map((s) => `- ${s}`).join('\n')}
+**Estimated Play Time**: ${concept.estimatedPlayTime}
 
 **Learning Objectives**:
 ${concept.learningObjectives.map((o) => `- ${o}`).join('\n')}

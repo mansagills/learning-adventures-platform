@@ -40,7 +40,7 @@ function TutorialsContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Tutorial Card */}
           <Link
-            href="/tutorials/fractions-intro"
+            href={"/tutorials/fractions-intro" as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
@@ -79,7 +79,7 @@ function TutorialsContent() {
 
           {/* More Tutorial Cards */}
           <Link
-            href="/tutorials/plant-photosynthesis"
+            href={"/tutorials/plant-photosynthesis" as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center relative">
@@ -117,7 +117,7 @@ function TutorialsContent() {
           </Link>
 
           <Link
-            href="/tutorials/sentence-structure"
+            href={"/tutorials/sentence-structure" as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center relative">
@@ -173,7 +173,7 @@ function TutorialsContent() {
                 </div>
               </div>
               <Link
-                href="/tutorials/fractions-intro"
+                href={"/tutorials/fractions-intro" as any}
                 className="px-4 py-2 bg-brand-500 text-white font-medium text-sm rounded-lg hover:bg-brand-600 transition-colors"
               >
                 Continue

@@ -115,13 +115,13 @@ export default function Header() {
             ) : (
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={handleSignIn}
+                  onClick={() => handleSignIn()}
                   className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
                 >
                   Sign In
                 </button>
                 <Button
-                  onClick={handleSignUp}
+                  onClick={() => handleSignUp()}
                   data-analytics="header-cta-sign-up"
                 >
                   Sign Up

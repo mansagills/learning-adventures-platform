@@ -61,7 +61,7 @@ export async function POST(
     }
 
     // Validate quiz structure
-    const quizData = lesson.quizData as QuizData;
+    const quizData = lesson.quizData as unknown as QuizData;
     if (!quizData.questions || !Array.isArray(quizData.questions)) {
       return NextResponse.json(
         { error: 'Invalid quiz data structure' },

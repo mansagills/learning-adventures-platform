@@ -60,7 +60,7 @@ export async function POST(
       );
     }
 
-    const quizData = lesson.quizData as QuizData;
+    const quizData = lesson.quizData as unknown as QuizData;
     const question = quizData.questions.find((q) => q.id === questionId);
 
     if (!question) {

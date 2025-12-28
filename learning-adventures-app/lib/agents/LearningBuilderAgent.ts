@@ -296,7 +296,9 @@ What would you like to do?`,
     // Keep only last 5 skill outputs to prevent memory bloat
     if (outputs.size > 5) {
       const firstKey = outputs.keys().next().value;
-      outputs.delete(firstKey);
+      if (firstKey) {
+        outputs.delete(firstKey);
+      }
     }
   }
 

@@ -89,7 +89,7 @@ export default function AppSideNav() {
               return (
                 <li key={item.name}>
                   <Link
-                    href={item.href}
+                    href={item.href as any}
                     className={`
                       flex items-center gap-3 px-3 py-2.5 rounded-lg
                       transition-all duration-200
@@ -132,7 +132,7 @@ export default function AppSideNav() {
                 Unlock all courses and features
               </p>
               <Link
-                href="/upgrade"
+                href={"/upgrade" as any}
                 className="block w-full px-3 py-2 text-center text-sm font-medium bg-white text-brand-600 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Learn More
@@ -151,7 +151,7 @@ export default function AppSideNav() {
             return (
               <li key={item.name} className="flex-1">
                 <Link
-                  href={item.href}
+                  href={item.href as any}
                   className={`
                     flex flex-col items-center justify-center h-full gap-1
                     transition-colors duration-200
@@ -171,7 +171,7 @@ export default function AppSideNav() {
           })}
           <li className="flex-1">
             <Link
-              href="/more"
+              href={"/more" as any}
               className="flex flex-col items-center justify-center h-full gap-1 text-gray-500"
             >
               <Icon name="menu" size={20} />

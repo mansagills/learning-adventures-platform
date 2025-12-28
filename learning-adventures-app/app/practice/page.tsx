@@ -169,7 +169,7 @@ function PracticeContent() {
           </div>
           <div className="flex items-center gap-4">
             <Link
-              href="/practice/daily-challenge"
+              href={"/practice/daily-challenge" as any}
               className="px-6 py-3 bg-white text-brand-600 font-medium rounded-lg hover:bg-gray-50 transition-colors"
             >
               Start Challenge

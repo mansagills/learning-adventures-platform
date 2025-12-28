@@ -39,7 +39,7 @@ function AssessmentsContent() {
                   </p>
                   <div className="flex items-center gap-4">
                     <Link
-                      href="/assessments/math-fundamentals"
+                      href={"/assessments/math-fundamentals" as any}
                       className="px-6 py-2 bg-brand-500 text-white font-medium rounded-lg hover:bg-brand-600 transition-colors"
                     >
                       Start Assessment
@@ -72,7 +72,7 @@ function AssessmentsContent() {
                   </p>
                   <div className="flex items-center gap-4">
                     <Link
-                      href="/assessments/science-basics"
+                      href={"/assessments/science-basics" as any}
                       className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Retake

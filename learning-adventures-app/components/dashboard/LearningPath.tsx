@@ -142,7 +142,7 @@ export default function LearningPath({
               return (
                 <Link
                   key={node.id}
-                  href={`/adventures/${node.adventureId}`}
+                  href={`/adventures/${node.adventureId}` as any}
                   className="flex items-start group"
                 >
                   {NodeContent}

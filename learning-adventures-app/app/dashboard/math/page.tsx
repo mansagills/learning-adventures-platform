@@ -206,7 +206,7 @@ function MathDashboardContent() {
     timeSpent: totalTimeSpent,
     skillsMastered: mathSkills.filter(s => s.mastered).length,
     totalSkills: mathSkills.length,
-    currentStreak: progressData?.stats.currentStreak || 0
+    currentStreak: 0
   };
 
   return (

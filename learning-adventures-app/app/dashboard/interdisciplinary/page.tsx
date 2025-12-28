@@ -203,7 +203,7 @@ function InterdisciplinaryDashboardContent() {
     timeSpent: totalTimeSpent,
     skillsMastered: interdisciplinarySkills.filter(s => s.mastered).length,
     totalSkills: interdisciplinarySkills.length,
-    currentStreak: progressData?.stats.currentStreak || 0
+    currentStreak: 0
   };
 
   return (

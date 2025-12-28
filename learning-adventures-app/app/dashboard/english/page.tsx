@@ -203,7 +203,7 @@ function EnglishDashboardContent() {
     timeSpent: totalTimeSpent,
     skillsMastered: englishSkills.filter(s => s.mastered).length,
     totalSkills: englishSkills.length,
-    currentStreak: progressData?.stats.currentStreak || 0
+    currentStreak: 0
   };
 
   return (

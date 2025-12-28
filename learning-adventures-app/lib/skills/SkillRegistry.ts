@@ -132,7 +132,7 @@ export class SkillRegistry {
     const detectionResults: SkillDetectionResult[] = [];
 
     // Query all skills for their confidence
-    for (const skill of this.skills.values()) {
+    for (const skill of Array.from(this.skills.values())) {
       try {
         const confidence = await skill.canHandle(userRequest, context);
 

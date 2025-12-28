@@ -203,7 +203,7 @@ function HistoryDashboardContent() {
     timeSpent: totalTimeSpent,
     skillsMastered: historySkills.filter(s => s.mastered).length,
     totalSkills: historySkills.length,
-    currentStreak: progressData?.stats.currentStreak || 0
+    currentStreak: 0
   };
 
   return (

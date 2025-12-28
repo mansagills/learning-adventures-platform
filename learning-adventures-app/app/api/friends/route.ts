@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { FriendshipStatus } from '@prisma/client';
 
 // GET /api/friends - Get user's friends and pending requests
 export async function GET(request: NextRequest) {
@@ -12,7 +13,8 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'ACCEPTED';
+    const statusParam = searchParams.get('status') || 'ACCEPTED';
+    const status = statusParam as FriendshipStatus;
 
     // Get friendships where user is either the initiator or the friend
     const friendships = await prisma.friendship.findMany({
