@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import GameRegistryInitializer from '@/components/GameRegistryInitializer';
+import AppLayout from '@/components/navigation/AppLayout';
 import { Providers } from '@/components/Providers';
 import { generateMetadata, generateOrganizationSchema, generateWebSiteSchema, createJSONLD } from '@/lib/seo';
 
@@ -62,7 +63,7 @@ export default function RootLayout({
             <Header />
 
             <main id="main-content" className="flex-1">
-              {children}
+              <AppLayout>{children}</AppLayout>
             </main>
 
             <Footer />
