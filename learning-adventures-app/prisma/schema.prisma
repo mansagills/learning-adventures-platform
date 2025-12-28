@@ -85,6 +85,8 @@ model User {
   receivedChallenges Challenge[] @relation("ReceivedChallenges")
   ownedStudyGroups StudyGroup[] @relation("OwnedStudyGroups")
   studyGroupMemberships StudyGroupMember[]
+  // Admin content upload relations
+  uploadedContent UploadedContent[] @relation("UploadedContent")
 }
 
 model VerificationToken {
@@ -377,6 +379,7 @@ model Course {
   // Content
   lessons         CourseLesson[]
   enrollments     CourseEnrollment[]
+  uploadedContent UploadedContent[] @relation("CourseContent")
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -1188,4 +1191,73 @@ model ChildSession {
 
   @@index([childId])
   @@index([sessionToken])
+}
+
+// ============================================================================
+// ADMIN CONTENT UPLOAD SYSTEM
+// ============================================================================
+
+// Uploaded content by admin team (games, lessons, videos, courses)
+model UploadedContent {
+  id              String   @id @default(cuid())
+
+  // Content Info
+  contentId       String   @unique
+  title           String
+  description     String   @db.Text
+  type            ContentType
+  subject         String
+
+  // Metadata
+  gradeLevel      String[]
+  difficulty      Difficulty
+  skills          String[]
+  estimatedTime   String
+  featured        Boolean  @default(false)
+
+  // File Storage
+  storageType     StorageType
+  filePath        String
+  fileSize        Int
+  mimeType        String
+
+  // Premium/Publishing
+  subscriptionTier SubscriptionTier @default(FREE)
+  isPremium       Boolean  @default(false)
+  publishStatus   PublishStatus @default(PUBLISHED)
+  publishedAt     DateTime?
+  publishedBy     String?
+
+  // Relations
+  uploadedBy      String
+  uploader        User     @relation("UploadedContent", fields: [uploadedBy], references: [id])
+  courseId        String?
+  course          Course?  @relation("CourseContent", fields: [courseId], references: [id])
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([publishStatus, type, subject])
+  @@index([contentId])
+}
+
+enum ContentType {
+  GAME
+  LESSON
+  VIDEO
+  QUIZ
+  PROJECT
+}
+
+enum StorageType {
+  LOCAL
+  BLOB
+  EXTERNAL
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }

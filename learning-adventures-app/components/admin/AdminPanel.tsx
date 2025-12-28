@@ -26,10 +26,10 @@ const navItems: NavItem[] = [
     description: 'Multi-agent workflows',
   },
   {
-    label: 'Content Studio',
-    href: '/internal',
+    label: 'Content Upload',
+    href: '/internal/content-upload',
     icon: 'upload',
-    description: 'Upload games and lessons',
+    description: 'Upload games, lessons, and courses',
   },
   {
     label: 'Testing',
