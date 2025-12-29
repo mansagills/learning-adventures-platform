@@ -63,6 +63,20 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
     },
   ];
 
+  // Add course request menu items for PARENT and TEACHER
+  if (user.role === 'PARENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
+    menuItems.splice(1, 0, {
+      label: 'Request Custom Course',
+      href: '/course-request',
+      icon: 'plus',
+    });
+    menuItems.splice(2, 0, {
+      label: 'My Requests',
+      href: '/my-requests',
+      icon: 'clipboard',
+    });
+  }
+
   // Add admin/teacher specific menu items based on role
   if (user.role === 'ADMIN') {
     menuItems.push(

@@ -87,6 +87,9 @@ model User {
   studyGroupMemberships StudyGroupMember[]
   // Admin content upload relations
   uploadedContent UploadedContent[] @relation("UploadedContent")
+  // Custom course request relations
+  courseRequests CourseRequest[] @relation("CourseRequests")
+  assignedCourseRequests CourseRequest[] @relation("AssignedCourseRequests")
 }
 
 model VerificationToken {
@@ -1260,4 +1263,171 @@ enum PublishStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+// ============================================================================
+// CUSTOM COURSE REQUEST SYSTEM (Parent/Teacher Intake Form)
+// ============================================================================
+
+// Course Request submitted by parents/teachers for custom AI-generated courses
+model CourseRequest {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Section 1: Requestor Information
+  fullName        String
+  role            RequestorRole
+  email           String
+  phone           String?
+  organization    String?
+  preferredContact ContactMethod @default(EMAIL)
+
+  // Section 2: Student Profile
+  studentName     String   // Name or alias
+  studentAge      Int
+  gradeLevel      String   // 'K', '1', '2', ..., '12'
+  numberOfStudents StudentCount @default(SINGLE)
+  learningAccommodations String[] // Array: 'IEP', '504', 'ADHD', 'Dyslexia', 'Other'
+  accommodationNotes String? @db.Text
+
+  // Section 3: Subject & Focus Area
+  primarySubject  String   // 'math', 'reading', 'writing', 'science', 'history', 'stem', 'other'
+  specificTopics  String[] // Array of topic strings
+  customTopics    String?  @db.Text
+  learningGoal    LearningGoalType
+
+  // Section 4: Learning Challenges
+  challenges      String[] // Array: 'loses_interest', 'difficulty_focusing', etc.
+  observationalNotes String? @db.Text
+
+  // Section 5: Learning Style & Interests
+  learningStyles  String[] // 'visual', 'hands_on', 'story_based', 'game_based', 'audio'
+  studentInterests String[] // 'science', 'space', 'nature', etc.
+  favoriteCharacters String? @db.Text
+
+  // Section 6: Course Format Preferences
+  courseLength    CourseLengthPreference
+  preferredComponents String[] // 'games', 'quizzes', 'projects', 'stories', 'printables'
+  sessionTime     SessionDuration
+
+  // Section 7: Assessment & Success
+  successIndicators String[] // 'improved_grades', 'confidence', etc.
+  reportingPreferences String[] // 'progress_reports', 'skill_mastery', 'dashboard'
+
+  // Section 8: Delivery & Logistics
+  preferredStartDate DateTime?
+  urgencyLevel    UrgencyLevel @default(STANDARD)
+  devicePreference String[] // 'web', 'tablet', 'mobile'
+  includeOfflinePackets Boolean @default(false)
+
+  // Section 9: Budget & Reusability
+  budgetTier      BudgetTier @default(STANDARD)
+  allowReuse      Boolean?  // null = 'not sure'
+
+  // Section 10: Final Notes & Consent
+  additionalNotes String?   @db.Text
+  consentGiven    Boolean   @default(false)
+
+  // Status & Workflow
+  status          RequestStatus @default(DRAFT)
+  isDraft         Boolean   @default(true)
+
+  // AI Agent Processing
+  aiProcessingStatus AIProcessingStatus @default(NOT_STARTED)
+  generatedCourseId String?  // Link to generated Course
+  aiMetadata      Json?     // Store AI agent outputs
+
+  // Admin Management
+  assignedToId    String?   // Admin user ID
+  adminNotes      String?   @db.Text
+  reviewedAt      DateTime?
+  rejectionReason String?   @db.Text
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  submittedAt     DateTime?
+  completedAt     DateTime?
+
+  // Relations
+  user            User      @relation("CourseRequests", fields: [userId], references: [id], onDelete: Cascade)
+  assignedAdmin   User?     @relation("AssignedCourseRequests", fields: [assignedToId], references: [id])
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([assignedToId])
+}
+
+// Enums for CourseRequest
+enum RequestorRole {
+  PARENT
+  TEACHER
+  TUTOR
+  ADMIN
+  OTHER
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  EITHER
+}
+
+enum StudentCount {
+  SINGLE
+  SMALL_GROUP  // 2-5 students
+  CLASS        // 6+ students
+}
+
+enum LearningGoalType {
+  CATCH_UP
+  REINFORCE
+  GET_AHEAD
+  BUILD_CONFIDENCE
+}
+
+enum CourseLengthPreference {
+  ONE_TO_TWO_WEEKS
+  THREE_TO_FOUR_WEEKS
+  SIX_TO_EIGHT_WEEKS
+  FLEXIBLE
+}
+
+enum SessionDuration {
+  FIFTEEN_MIN
+  THIRTY_MIN
+  FORTY_FIVE_MIN
+  FLEXIBLE
+}
+
+enum UrgencyLevel {
+  ASAP          // Within 1 week
+  STANDARD      // 2-4 weeks
+  FLEXIBLE      // No rush
+}
+
+enum BudgetTier {
+  STARTER       // $0-50
+  STANDARD      // $51-150
+  FULLY_CUSTOM  // $151+
+}
+
+enum RequestStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum AIProcessingStatus {
+  NOT_STARTED
+  CURRICULUM_GENERATION
+  GAME_CREATION
+  NARRATIVE_DESIGN
+  ASSESSMENT_BUILDING
+  COMPLETED
+  FAILED
 }

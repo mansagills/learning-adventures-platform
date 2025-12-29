@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import Modal from './Modal';
 import Button from './Button';
 import Icon from './Icon';
+import { getAppUrl } from '@/lib/utils/urls';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -30,7 +31,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl });
+      // Always redirect to dashboard on app subdomain
+      await signIn('google', { callbackUrl: getAppUrl('/dashboard') });
     } catch (err) {
       setError('Failed to sign in with Google');
     } finally {
@@ -42,7 +44,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('apple', { callbackUrl });
+      // Always redirect to dashboard on app subdomain
+      await signIn('apple', { callbackUrl: getAppUrl('/dashboard') });
     } catch (err) {
       setError('Failed to sign in with Apple');
     } finally {
@@ -77,11 +80,11 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
         });
 
         if (response.ok) {
-          // Auto sign in after successful signup
+          // Auto sign in after successful signup and redirect to dashboard
           await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            callbackUrl,
+            callbackUrl: getAppUrl('/dashboard'),
           });
         } else {
           const data = await response.json();
@@ -102,10 +105,8 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
         setError('Invalid email or password');
       } else if (result?.ok) {
         onClose();
-        // Redirect to callback URL after successful sign in
-        if (callbackUrl && callbackUrl !== '/') {
-          window.location.href = callbackUrl;
-        }
+        // Always redirect to dashboard on app subdomain
+        window.location.href = getAppUrl('/dashboard');
       }
     }
 

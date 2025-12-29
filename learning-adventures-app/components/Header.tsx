@@ -9,6 +9,7 @@ import Icon from './Icon';
 import AuthModal from './AuthModal';
 import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
+import { getAppUrl } from '@/lib/utils/urls';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,12 +20,11 @@ export default function Header() {
 
   const handleCTAClick = () => {
     if (session) {
-      // If user is logged in, navigate to dashboard
-      window.location.href = '/dashboard';
+      // Redirect logged-in users to app subdomain dashboard
+      window.location.href = getAppUrl('/dashboard');
     } else {
       // If not logged in, open signup modal
       setAuthMode('signup');
-      setAuthCallbackUrl('/');
       setIsAuthModalOpen(true);
     }
     analytics.clickCTA('Header CTA', 'header');
@@ -70,6 +70,14 @@ export default function Header() {
             >
               Adventure Catalog
             </Link>
+            {session && (session.user.role === 'PARENT' || session.user.role === 'TEACHER' || session.user.role === 'ADMIN') && (
+              <Link
+                href="/course-request"
+                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
+              >
+                Request Custom Course
+              </Link>
+            )}
             <Link
               href="#benefits"
               className="text-ink-600 hover:text-brand-500 transition-colors duration-250"
