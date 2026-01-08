@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Family Groups: Skip Counting Fun</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', cursive, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #98D8C8 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #FF6B35;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #4ECDC4;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: #FFF8DC;
+            border: 4px solid #FFD700;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .progress-bar {
+            background: #E0E0E0;
+            height: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            background: #FFB6C1;
+            color: #333;
+            font-weight: bold;
+            transition: all 0.3s;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .level-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .level-btn.active {
+            background: #FF69B4;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .game-area {
+            display: none;
+            min-height: 400px;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .challenge-container {
+            background: #F0F8FF;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .challenge-title {
+            font-size: 24px;
+            color: #FF6B35;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .animals-source {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 120px;
+            padding: 20px;
+            background: #FFFACD;
+            border-radius: 15px;
+            border: 3px dashed #FFD700;
+        }
+
+        .animal {
+            width: 70px;
+            height: 70px;
+            font-size: 50px;
+            cursor: grab;
+            transition: transform 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+
+        .animal:hover {
+            transform: scale(1.1);
+        }
+
+        .animal.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .groups-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .group-box {
+            background: white;
+            border: 4px solid #4ECDC4;
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 150px;
+            min-height: 200px;
+            text-align: center;
+        }
+
+        .group-box.drag-over {
+            background: #E0F7FA;
+            border-color: #00BCD4;
+            transform: scale(1.05);
+        }
+
+        .group-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 15px;
+        }
+
+        .group-animals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 100px;
+        }
+
+        .equation-display {
+            background: #FFE4B5;
+            border: 3px solid #FFA500;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .check-btn {
+            display: block;
+            margin: 30px auto;
+            padding: 20px 50px;
+            font-size: 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+
+        .check-btn:hover {
+            background: #45a049;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .check-btn:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #C8E6C9;
+            color: #2E7D32;
+            border: 4px solid #4CAF50;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #FFCDD2;
+            color: #C62828;
+            border: 4px solid #F44336;
+            display: block;
+        }
+
+        .stars {
+            text-align: center;
+            font-size: 60px;
+            margin: 20px 0;
+        }
+
+        .next-btn {
+            display: none;
+            margin: 20px auto;
+            padding: 20px 50px;
+            font-size: 24px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .next-btn:hover {
+            background: #FF5722;
+            transform: translateY(-3px);
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-screen.active {
+            display: block;
+        }
+
+        .completion-title {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .completion-message {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .trophy {
+            font-size: 120px;
+            margin: 30px 0;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .restart-btn {
+            padding: 20px 50px;
+            font-size: 24px;
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #45B7AF;
+            transform: translateY(-3px);
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #FFD700;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+            }
+
+            .instructions {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .level-btn {
+                padding: 12px 20px;
+                font-size: 18px;
+                min-width: 100px;
+            }
+
+            .animal {
+                width: 60px;
+                height: 60px;
+                font-size: 40px;
+            }
+
+            .group-box {
+                min-width: 120px;
+            }
+
+            .check-btn, .next-btn, .restart-btn {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
+
+            .trophy {
+                font-size: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle" id="soundToggle" aria-label="Toggle sound">🔊</button>
+
+    <div class="container">
+        <header>
+            <h1>🦁 Animal Family Groups 🐘</h1>
+            <div class="subtitle">Skip Counting Safari Adventure!</div>
+        </header>
+
+        <div class="instructions">
+            <strong>🎯 Your Mission:</strong> Help the animal families find their groups! Drag the animals into equal groups, then count by skip counting to find how many animals there are in total. Choose your skip counting number to begin!
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar">0 / 12</div>
+        </div>
+
+        <div class="level-selector" id="levelSelector">
+            <button class="level-btn" data-skip="2">Count by 2s 🐰</button>
+            <button class="level-btn" data-skip="3">Count by 3s 🐸</button>
+            <button class="level-btn" data-skip="4">Count by 4s 🦋</button>
+            <button class="level-btn" data-skip="5">Count by 5s 🐠</button>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="challenge-container">
+                <div class="challenge-title" id="challengeTitle"></div>
+                
+                <div class="animals-source" id="animalsSource"></div>
+
+                <div class="groups-container" id="groupsContainer"></div>
+
+                <div class="equation-display" id="equationDisplay">
+                    Drag animals into groups to see the equation!
+                </div>
+            </div>
+
+            <button class="check-btn" id="checkBtn">Check My Answer!</button>
+
+            <div class="feedback" id="feedback"></div>
+            <div class="stars" id="stars"></div>
+
+            <button class="next-btn" id="nextBtn">Next Challenge! →</button>
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-title">🎉 Amazing Work, Safari Explorer! 🎉</div>
+            <div class="trophy">🏆</div>
+            <div class="completion-message">
+                You've mastered skip counting with all the animal families!<br>
+                You're a true multiplication champion!<br><br>
+                <strong>⭐ Skills Unlocked:</strong><br>
+                ✓ Skip counting by 2s, 3s, 4s, and 5s<br>
+                ✓ Making equal groups<br>
+                ✓ Understanding multiplication<br>
+            </div>
+            <button class="restart-btn" id="restartBtn">Play Again! 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let currentSkip = 0;
+        let currentChallenge = 0;
+        let completedChallenges = 0;
+        let soundEnabled = true;
+        let draggedElement = null;
+
+        // Animal emojis for each skip count
+        const animalSets = {
+            2: ['🐰', '🐇'],
+            3: ['🐸', '🐊', '🦎'],
+            4: ['🦋', '🐛', '🐝', '🐞'],
+            5: ['🐠', '🐟', '🐡', '🦈', '🐙']
+        };
+
+        // Challenges for each skip count level
+        const challenges = {
+            2: [
+                { groups: 3, total: 6, animal: '🐰' },
+                { groups: 4, total: 8, animal: '🐇' },
+                { groups: 5, total: 10, animal: '🐰' }
+            ],
+            3: [
+                { groups: 2, total: 6, animal: '🐸' },
+                { groups: 3, total: 9, animal: '🐊' },
+                { groups: 4, total: 12, animal: '🦎' }
+            ],
+            4: [
+                { groups: 2, total: 8, animal: '🦋' },
+                { groups: 3, total: 12, animal: '🐛' },
+                { groups: 4, total: 16, animal: '🐝' }
+            ],
+            5: [
+                { groups: 2, total: 10, animal: '🐠' },
+                { groups: 3, total: 15, animal: '🐟' },
+                { groups: 4, total: 20, animal: '🐡' }
+            ]
+        };
+
+        // DOM Elements
+        const levelSelector = document.getElementById('levelSelector');
+        const gameArea = document.getElementById('gameArea');
+        const challengeTitle = document.getElementById('challengeTitle');
+        const animalsSource = document.getElementById('animalsSource');
+        const groupsContainer = document.getElementById('groupsContainer');
+        const equationDisplay = document.getElementById('equationDisplay');
+        const checkBtn = document.getElementById('checkBtn');
+        const feedback = document.getElementById('feedback');
+        const stars = document.getElementById('stars');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const completionScreen = document.getElementById('completionScreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // Sound Effects (using Web Audio API)
+        function playSound(frequency, duration) {
+            if (!soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        function playCorrectSound() {
+            playSound(523.25, 0.2);
+            setTimeout(() => playSound(659.25, 0.2), 100);
+            setTimeout(() => playSound(783.99, 0.3), 200);
+        }
+
+        function playIncorrectSound() {
+            playSound(200, 0.3);
+        }
+
+        function playClickSound() {
+            playSound(400, 0.1);
+        }
+
+        // Sound Toggle
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+            playClickSound();
+        });
+
+        // Level Selection
+        levelSelector.addEventListener('click', (e) => {
+            if (e.target.classList.contains('level-btn')) {
+                playClickSound();
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                e.target.classList.add('active');
+                
+                // Set current skip count
+                currentSkip = parseInt(e.target.dataset.skip);
+                currentChallenge = 0;
+                
+                // Show game area
+                gameArea.classList.add('active');
+                
+                // Load first challenge
+                loadChallenge();
+            }
+        });
+
+        // Load Challenge
+        function loadChallenge() {
+            const challenge = challenges[currentSkip][currentChallenge];
+            
+            // Update title
+            challengeTitle.textContent = `Make ${challenge.groups} groups of ${currentSkip} ${challenge.animal}`;
+            
+            // Clear previous animals and groups
+            animalsSource.innerHTML = '';
+            groupsContainer.innerHTML = '';
+            equationDisplay.textContent = 'Drag animals into groups to see the equation!';
+            feedback.style.display = 'none';
+            feedback.className = 'feedback';
+            stars.textContent = '';
+            nextBtn.style.display = 'none';
+            checkBtn.disabled = false;
+            
+            // Create animals
+            for (let i = 0; i < challenge.total; i++) {
+                const animal = document.createElement('div');
+                animal.className = 'animal';
+                animal.textContent = challenge.animal;
+                animal.draggable = true;
+                animal.setAttribute('role', 'button');
+                animal.setAttribute('aria-label', `Animal ${i + 1}`);
+                animal.dataset.index = i;
+                
+                animal.addEventListener('dragstart', handleDragStart);
+                animal.addEventListener('dragend', handleDragEnd);
+                
+                // Touch events for mobile
+                animal.addEventListener('touchstart', handleTouchStart);
+                animal.addEventListener('touchmove', handleTouchMove);
+                animal.addEventListener('touchend', handleTouchEnd);
+                
+                animalsSource.appendChild(animal);
+            }
+            
+            // Create group boxes
+            for (let i = 0; i < challenge.groups; i++) {
+                const groupBox = document.createElement('div');
+                groupBox.className = 'group-box';
+                groupBox.dataset.groupIndex = i;
+                
+                const label = document.createElement('div');
+                label.className = 'group-label';
+                label.textContent = `Group ${i + 1}`;
+                
+                const groupAnimals = document.createElement('div');
+                groupAnimals.className = 'group-animals';
+                groupAnimals.dataset.groupIndex = i;
+                
+                groupBox.appendChild(label);
+                groupBox.appendChild(groupAnimals);
+                groupsContainer.appendChild(groupBox);
+                
+                // Drag and drop events
+                groupBox.addEventListener('dragover', handleDragOver);
+                groupBox.addEventListener('drop', handleDrop);
+                groupBox.addEventListener('dragleave', handleDragLeave);
+            }
+            
+            updateProgress();
+        }
+
+        // Drag and Drop Handlers
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            if (draggedElement) {
+                const groupAnimals = e.currentTarget.querySelector('.group-animals');
+                if (groupAnimals) {
+                    groupAnimals.appendChild(draggedElement);
+                    playClickSound();
+                    updateEquation();
+                }
+            }
+        }
+
+        // Touch Handlers for Mobile
+        let touchStartX, touchStartY;
+        let touchElement = null;
+
+        function handleTouchStart(e) {
+            touchElement = e.target;
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchElement.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchElement) return;
+            
+            touchElement.classList.remove('dragging');
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (dropTarget) {
+                const groupBox = dropTarget.closest('.group-box');
+                if (groupBox) {
+                    const groupAnimals = groupBox.querySelector('.group-animals');
+                    if (groupAnimals) {
+                        groupAnimals.appendChild(touchElement);
+                        playClickSound();
+                        updateEquation();
+                    }
+                }
+            }
+            
+            touchElement = null;
+        }
+
+        // Update Equation Display
+        function updateEquation() {
+            const challenge = challenges[currentSkip][currentChallenge];
+            const groups = document.querySelectorAll('.group-animals');
+            
+            let allGroupsFilled = true;
+            let groupCounts = [];
+            
+            groups.forEach(group => {
+                const count = group.children.length;
+                groupCounts.push(count);
+                if (count !== currentSkip) {
+                    allGroupsFilled = false;
+                }
+            });
+            
+            if (allGroupsFilled) {
+                const skipSequence = [];
+                for (let i = 1; i <= challenge.groups; i++) {
+                    skipSequence.push(currentSkip * i);
+                }
+                equationDisplay.innerHTML = `
+                    <strong>Skip Counting:</strong> ${skipSequence.join(', ')}<br>
+                    <strong>Multiplication:</strong> ${challenge.groups} × ${currentSkip} = ?
+                `;
+            } else {
+                equationDisplay.textContent = `Keep going! Put ${currentSkip} animals in each group.`;
+            }
+        }
+
+        // Check Answer
+        checkBtn.addEventListener('click', () => {
+            playClickSound();
+            
+            const challenge = challenges[currentSkip][currentChallenge];
+            const groups = document.querySelectorAll('.group-animals');
+            
+            let correct = true;
+            groups.forEach(group => {
+                if (group.children.length !== currentSkip) {
+                    correct = false;
+                }
+            });
+            
+            if (correct) {
+                playCorrectSound();
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `
+                    🎉 Perfect! You made ${challenge.groups} groups of ${currentSkip}!<br>
+                    ${challenge.groups} × ${currentSkip} = ${challenge.total}
+                `;
+                feedback.style.display = 'block';
+                stars.textContent = '⭐⭐⭐';
+                nextBtn.style.display = 'block';
+                checkBtn.disabled = true;
+                completedChallenges++;
+                updateProgress();
+            } else {
+                playIncorrectSound();
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = `
+                    Not quite! Remember: Each group needs exactly ${currentSkip} animals.<br>
+                    Try again! 💪
+                `;
+                feedback.style.display = 'block';
+                
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        // Next Challenge
+        nextBtn.addEventListener('click', () => {
+            playClickSound();
+            currentChallenge++;
+            
+            if (currentChallenge >= challenges[currentSkip].length) {
+                // Check if all levels completed
+                if (completedChallenges >= 12) {
+                    showCompletion();
+                } else {
+                    // Return to level selection
+                    gameArea.classList.remove('active');
+                    document.querySelectorAll('.level-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                }
+            } else {
+                loadChallenge();
+            }
+        });
+
+        // Update Progress
+        function updateProgress() {
+            const total = 12;
+            const percentage = (completedChallenges / total) * 100;
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `${completedChallenges} / ${total}`;
+        }
+
+        // Show Completion Screen
+        function showCompletion() {
+            gameArea.classList.remove('active');
+            completionScreen.classList.add('active');
+            playCorrectSound();
+            setTimeout(() => playCorrectSound(), 300);
+        }
+
+        // Restart Game
+        restartBtn.addEventListener('click', () => {
+            playClickSound();
+            completedChallenges = 0;
+            currentChallenge = 0;
+            currentSkip = 0;
+            completionScreen.classList.remove('active');
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            updateProgress();
+        });
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (checkBtn.style.display !== 'none' && !checkBtn.disabled) {
+                    checkBtn.click();
+                } else if (nextBtn.style.display === 'block') {
+                    nextBtn.click();
+                }
+            }
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

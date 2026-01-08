@@ -14,7 +14,17 @@
       "Bash(postgres -D /opt/homebrew/var/postgresql@14:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npm run db:seed:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(cat:*)",
+      "Bash(npm run build:*)",
+      "Bash(for file in app/dashboard/{math,science,history,interdisciplinary,english}/page.tsx)",
+      "Bash(do sed -i '' 's/currentStreak: progressData?\\\\.stats\\\\.currentStreak || 0/currentStreak: 0/' \"$file\")",
+      "Bash(done)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)",
+      "Bash(npx tsx:*)",
+      "Bash(tee:*)"
     ],
     "deny": [],
     "ask": []

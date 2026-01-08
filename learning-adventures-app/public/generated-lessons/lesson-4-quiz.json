@@ -1,0 +1,298 @@
+{
+  "quiz": {
+    "title": "Multiplication Basics Quiz",
+    "passingScore": 70,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "A mama elephant has 3 baby elephants. Each baby elephant eats 4 bananas. How many bananas do all the baby elephants eat together?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "7 bananas",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "12 bananas",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "10 bananas",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "9 bananas",
+            "correct": false
+          }
+        ],
+        "explanation": "Great job! 3 × 4 = 12. When you have 3 groups of 4 bananas, you can count 4 + 4 + 4 = 12 bananas total!",
+        "points": 10
+      },
+      {
+        "id": "q2",
+        "question": "What does 5 × 2 mean?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "5 groups of 2",
+            "correct": true
+          },
+          {
+            "id": "b",
+            "text": "5 plus 2",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "5 minus 2",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "2 divided by 5",
+            "correct": false
+          }
+        ],
+        "explanation": "Perfect! 5 × 2 means 5 groups of 2. Multiplication is a fast way to add the same number many times!",
+        "points": 10
+      },
+      {
+        "id": "q3",
+        "question": "A monkey finds 2 trees. Each tree has 6 coconuts. How many coconuts are there in all?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "8 coconuts",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "10 coconuts",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "12 coconuts",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "14 coconuts",
+            "correct": false
+          }
+        ],
+        "explanation": "Awesome! 2 × 6 = 12. The monkey found 2 groups of 6 coconuts, which equals 12 coconuts total!",
+        "points": 10
+      },
+      {
+        "id": "q4",
+        "question": "What is 4 × 3?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "7",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "10",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "12",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "15",
+            "correct": false
+          }
+        ],
+        "explanation": "You got it! 4 × 3 = 12. Think of it as 4 groups of 3: 3 + 3 + 3 + 3 = 12!",
+        "points": 10
+      },
+      {
+        "id": "q5",
+        "question": "A zebra has 4 legs. How many legs do 2 zebras have altogether?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "6 legs",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "8 legs",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "10 legs",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "12 legs",
+            "correct": false
+          }
+        ],
+        "explanation": "Excellent! 2 × 4 = 8. Each zebra has 4 legs, so 2 zebras have 4 + 4 = 8 legs!",
+        "points": 10
+      },
+      {
+        "id": "q6",
+        "question": "What is 3 × 3?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "6",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "9",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "12",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "15",
+            "correct": false
+          }
+        ],
+        "explanation": "Perfect! 3 × 3 = 9. That's 3 groups of 3: 3 + 3 + 3 = 9!",
+        "points": 10
+      },
+      {
+        "id": "q7",
+        "question": "A bird lays 5 eggs in each nest. If there are 3 nests, how many eggs are there in total?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "8 eggs",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "12 eggs",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "15 eggs",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "18 eggs",
+            "correct": false
+          }
+        ],
+        "explanation": "Great thinking! 3 × 5 = 15. There are 3 nests with 5 eggs each: 5 + 5 + 5 = 15 eggs!",
+        "points": 10
+      },
+      {
+        "id": "q8",
+        "question": "What is 2 × 7?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "9",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "12",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "14",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "16",
+            "correct": false
+          }
+        ],
+        "explanation": "Wonderful! 2 × 7 = 14. That's 2 groups of 7: 7 + 7 = 14!",
+        "points": 10
+      },
+      {
+        "id": "q9",
+        "question": "A lion sleeps for 4 hours each day. How many hours does the lion sleep in 2 days?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "6 hours",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "8 hours",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "10 hours",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "12 hours",
+            "correct": false
+          }
+        ],
+        "explanation": "You're right! 2 × 4 = 8. The lion sleeps 4 hours each day, so in 2 days that's 4 + 4 = 8 hours!",
+        "points": 10
+      },
+      {
+        "id": "q10",
+        "question": "What is 5 × 3?",
+        "type": "multiple-choice",
+        "options": [
+          {
+            "id": "a",
+            "text": "8",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "12",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "15",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "18",
+            "correct": false
+          }
+        ],
+        "explanation": "Amazing! 5 × 3 = 15. That's 5 groups of 3: 3 + 3 + 3 + 3 + 3 = 15!",
+        "points": 10
+      }
+    ]
+  }
+}
