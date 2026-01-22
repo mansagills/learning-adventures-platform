@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Wave Surfer - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #4a148c 50%, #880e4f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #7c4dff, #e040fb, #ff4081);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .game-subtitle {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(135deg, #ede7f6, #e1bee7);
+            padding: 12px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #7c4dff;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #4a148c;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .wave-display {
+            background: linear-gradient(180deg, #1a237e 0%, #311b92 100%);
+            border-radius: 15px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .wave-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .surfer {
+            position: absolute;
+            font-size: 2.5rem;
+            transition: top 0.1s, left 0.1s;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+        }
+
+        .surfer.riding {
+            animation: bounce 0.3s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .collectible {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: float 1s ease infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .obstacle {
+            position: absolute;
+            font-size: 2rem;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .controls-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .control-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .control-title {
+            font-weight: bold;
+            color: #4a148c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .slider-group {
+            margin-bottom: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider.frequency {
+            background: linear-gradient(90deg, #2196f3, #e91e63);
+        }
+
+        .slider.amplitude {
+            background: linear-gradient(90deg, #4caf50, #ff9800);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid #4a148c;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .instrument-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .instrument-btn {
+            padding: 10px 5px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .instrument-btn:hover {
+            border-color: #7c4dff;
+            transform: translateY(-2px);
+        }
+
+        .instrument-btn.active {
+            border-color: #7c4dff;
+            background: linear-gradient(135deg, #ede7f6, #e1bee7);
+        }
+
+        .instrument-emoji {
+            font-size: 1.5rem;
+        }
+
+        .instrument-name {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .challenge-area {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .challenge-title {
+            color: #e65100;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .target-wave {
+            display: inline-flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .target-param {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .match-btn {
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .match-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .match-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-display {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-display.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .result-display.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .fact-card {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #1565c0;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #7c4dff, #e040fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .modal-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .modal-text {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #7c4dff, #651fff);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(124, 77, 255, 0.4);
+        }
+
+        .wave-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .controls-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .instrument-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .game-title {
+                font-size: 1.5rem;
+            }
+
+            .wave-display {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">🎵 Sound Wave Surfer 🏄</h1>
+            <p class="game-subtitle">Ride the waves of sound and learn about frequency!</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value" id="scoreDisplay">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="levelDisplay">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="matchesDisplay">0/5</div>
+                <div class="stat-label">Matches</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="streakDisplay">0</div>
+                <div class="stat-label">Streak</div>
+            </div>
+        </div>
+
+        <div class="wave-display" id="waveDisplay">
+            <canvas class="wave-canvas" id="waveCanvas"></canvas>
+            <div class="surfer" id="surfer">🏄</div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-section">
+                <div class="control-title">🎚️ Wave Controls</div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Frequency (Pitch)</span>
+                        <span id="freqValue">440 Hz</span>
+                    </div>
+                    <input type="range" class="slider frequency" id="frequencySlider"
+                           min="100" max="1000" value="440" oninput="updateWave()">
+                    <div class="slider-label" style="font-size: 0.7rem; color: #999;">
+                        <span>Low (Bass) 🔊</span>
+                        <span>High (Treble) 🎵</span>
+                    </div>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Amplitude (Volume)</span>
+                        <span id="ampValue">50%</span>
+                    </div>
+                    <input type="range" class="slider amplitude" id="amplitudeSlider"
+                           min="10" max="100" value="50" oninput="updateWave()">
+                    <div class="slider-label" style="font-size: 0.7rem; color: #999;">
+                        <span>Quiet 🔈</span>
+                        <span>Loud 🔊</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-title">🎸 Instruments</div>
+                <div class="instrument-buttons" id="instrumentButtons">
+                    <button class="instrument-btn active" data-freq="262" data-amp="60" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🎹</span>
+                        <span class="instrument-name">Piano</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="330" data-amp="70" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🎸</span>
+                        <span class="instrument-name">Guitar</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="440" data-amp="80" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🎺</span>
+                        <span class="instrument-name">Trumpet</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="196" data-amp="90" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🥁</span>
+                        <span class="instrument-name">Drum</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="523" data-amp="50" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🎻</span>
+                        <span class="instrument-name">Violin</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="294" data-amp="65" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🪕</span>
+                        <span class="instrument-name">Banjo</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="880" data-amp="40" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">🪈</span>
+                        <span class="instrument-name">Flute</span>
+                    </button>
+                    <button class="instrument-btn" data-freq="147" data-amp="85" onclick="selectInstrument(this)">
+                        <span class="instrument-emoji">📯</span>
+                        <span class="instrument-name">Tuba</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="challenge-area">
+            <div class="challenge-title" id="challengeTitle">🎯 Challenge: Match the Target Wave!</div>
+            <div class="target-wave" id="targetWave">
+                <div class="target-param">🎵 Frequency: <strong id="targetFreq">440</strong> Hz</div>
+                <div class="target-param">🔊 Amplitude: <strong id="targetAmp">50</strong>%</div>
+            </div>
+            <button class="match-btn" id="matchBtn" onclick="checkMatch()">Check My Wave!</button>
+            <div class="result-display" id="resultDisplay"></div>
+            <div class="fact-card" id="factCard"></div>
+        </div>
+    </div>
+
+    <!-- Start Modal -->
+    <div class="modal active" id="startModal">
+        <div class="modal-content">
+            <div class="modal-emoji">🎵🏄</div>
+            <h2 class="modal-title">Sound Wave Surfer</h2>
+            <p class="modal-text">Learn about sound waves and create music!</p>
+
+            <div class="wave-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(90deg, #2196f3, #e91e63);"></div>
+                    <span>Frequency = Pitch</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(90deg, #4caf50, #ff9800);"></div>
+                    <span>Amplitude = Volume</span>
+                </div>
+            </div>
+
+            <p class="modal-text">
+                <strong>How to Play:</strong><br>
+                🎚️ Adjust frequency and amplitude sliders<br>
+                🎸 Try different instruments<br>
+                🎯 Match the target wave settings<br>
+                ⭐ Earn points for accurate matches!
+            </p>
+
+            <button class="btn" onclick="startGame()">Start Surfing!</button>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal" id="levelModal">
+        <div class="modal-content">
+            <div class="modal-emoji">🌟</div>
+            <h2 class="modal-title">Level Complete!</h2>
+            <p class="modal-text" id="levelMessage"></p>
+            <button class="btn" onclick="nextLevel()">Next Level</button>
+        </div>
+    </div>
+
+    <!-- Game Complete Modal -->
+    <div class="modal" id="completeModal">
+        <div class="modal-content">
+            <div class="modal-emoji">🏆</div>
+            <h2 class="modal-title">Sound Master!</h2>
+            <p class="modal-text">You've mastered the science of sound waves!</p>
+            <div style="font-size: 2rem; color: #7c4dff; margin: 15px 0;">
+                Final Score: <span id="finalScore">0</span>
+            </div>
+            <p class="modal-text" id="finalFact"></p>
+            <button class="btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Sound facts for learning
+        const soundFacts = [
+            "🔊 Sound travels at about 343 meters per second in air - that's faster than a race car!",
+            "🐬 Dolphins use sound waves (echolocation) to 'see' underwater!",
+            "🎵 The human ear can hear frequencies from about 20 Hz to 20,000 Hz.",
+            "🐘 Elephants can hear sounds too low for humans - called infrasound!",
+            "🦇 Bats use ultrasound (frequencies too high for humans) to navigate in the dark!",
+            "🎸 Guitars make sound when strings vibrate, creating waves in the air.",
+            "🌊 Sound waves need something to travel through - they can't move in space!",
+            "🎹 Higher frequency means higher pitch - like the notes on the right side of a piano.",
+            "📢 Amplitude determines how loud a sound is - bigger waves = louder sound!",
+            "🏔️ Echoes happen when sound waves bounce off surfaces and come back to you!",
+            "🎻 The violin's strings vibrate between 196 Hz and 3,520 Hz!",
+            "🐋 Blue whales make the loudest sounds of any animal - up to 188 decibels!"
+        ];
+
+        // Game state
+        let gameState = {
+            score: 0,
+            level: 1,
+            matches: 0,
+            streak: 0,
+            targetFreq: 440,
+            targetAmp: 50,
+            currentFreq: 440,
+            currentAmp: 50,
+            matchesPerLevel: 5,
+            tolerance: 50 // How close you need to be
+        };
+
+        let canvas, ctx;
+        let animationId;
+
+        function init() {
+            canvas = document.getElementById('waveCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            showRandomFact();
+        }
+
+        function resizeCanvas() {
+            const display = document.getElementById('waveDisplay');
+            canvas.width = display.clientWidth;
+            canvas.height = display.clientHeight;
+            drawWave();
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            generateChallenge();
+            startWaveAnimation();
+        }
+
+        function drawWave() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw current wave
+            const freq = gameState.currentFreq;
+            const amp = gameState.currentAmp;
+
+            ctx.beginPath();
+            ctx.strokeStyle = `hsl(${(freq - 100) / 3}, 80%, 60%)`;
+            ctx.lineWidth = 3;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 10;
+
+            const centerY = canvas.height / 2;
+            const waveLength = canvas.width / (freq / 100);
+            const amplitude = (amp / 100) * (canvas.height / 3);
+
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin((x / waveLength) * Math.PI * 2 + Date.now() / 200) * amplitude;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Draw target wave (faded)
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 0;
+            ctx.setLineDash([5, 5]);
+
+            const targetWaveLength = canvas.width / (gameState.targetFreq / 100);
+            const targetAmplitude = (gameState.targetAmp / 100) * (canvas.height / 3);
+
+            for (let x = 0; x < canvas.width; x++) {
+                const y = centerY + Math.sin((x / targetWaveLength) * Math.PI * 2) * targetAmplitude;
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Update surfer position
+            const surfer = document.getElementById('surfer');
+            const surferX = canvas.width * 0.3;
+            const surferY = centerY + Math.sin((surferX / waveLength) * Math.PI * 2 + Date.now() / 200) * amplitude;
+            surfer.style.left = surferX + 'px';
+            surfer.style.top = (surferY - 20) + 'px';
+        }
+
+        function startWaveAnimation() {
+            function animate() {
+                drawWave();
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function updateWave() {
+            gameState.currentFreq = parseInt(document.getElementById('frequencySlider').value);
+            gameState.currentAmp = parseInt(document.getElementById('amplitudeSlider').value);
+
+            document.getElementById('freqValue').textContent = gameState.currentFreq + ' Hz';
+            document.getElementById('ampValue').textContent = gameState.currentAmp + '%';
+
+            // Update surfer class based on amplitude
+            const surfer = document.getElementById('surfer');
+            if (gameState.currentAmp > 60) {
+                surfer.classList.add('riding');
+            } else {
+                surfer.classList.remove('riding');
+            }
+        }
+
+        function selectInstrument(btn) {
+            document.querySelectorAll('.instrument-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const freq = parseInt(btn.dataset.freq);
+            const amp = parseInt(btn.dataset.amp);
+
+            document.getElementById('frequencySlider').value = freq;
+            document.getElementById('amplitudeSlider').value = amp;
+            updateWave();
+        }
+
+        function generateChallenge() {
+            // Generate target based on level (harder = more precise)
+            const freqRange = 100 + (gameState.level * 50);
+            const baseFreq = 200 + Math.floor(Math.random() * (800 - gameState.level * 50));
+            const baseAmp = 30 + Math.floor(Math.random() * 50);
+
+            gameState.targetFreq = Math.round(baseFreq / 10) * 10;
+            gameState.targetAmp = Math.round(baseAmp / 5) * 5;
+            gameState.tolerance = Math.max(20, 60 - (gameState.level * 10));
+
+            document.getElementById('targetFreq').textContent = gameState.targetFreq;
+            document.getElementById('targetAmp').textContent = gameState.targetAmp;
+
+            // Reset result display
+            document.getElementById('resultDisplay').className = 'result-display';
+            document.getElementById('matchBtn').disabled = false;
+        }
+
+        function checkMatch() {
+            const freqDiff = Math.abs(gameState.currentFreq - gameState.targetFreq);
+            const ampDiff = Math.abs(gameState.currentAmp - gameState.targetAmp);
+
+            const resultDisplay = document.getElementById('resultDisplay');
+            const matchBtn = document.getElementById('matchBtn');
+
+            // Check if within tolerance
+            if (freqDiff <= gameState.tolerance && ampDiff <= 15) {
+                // Success!
+                gameState.streak++;
+                const accuracy = 100 - (freqDiff + ampDiff);
+                const points = Math.floor(accuracy * (1 + gameState.streak * 0.1));
+                gameState.score += points;
+                gameState.matches++;
+
+                resultDisplay.textContent = `🎉 Perfect! +${points} points (Streak: ${gameState.streak})`;
+                resultDisplay.className = 'result-display success';
+
+                document.getElementById('scoreDisplay').textContent = gameState.score;
+                document.getElementById('matchesDisplay').textContent = `${gameState.matches}/${gameState.matchesPerLevel}`;
+                document.getElementById('streakDisplay').textContent = gameState.streak;
+
+                showRandomFact();
+
+                matchBtn.disabled = true;
+
+                setTimeout(() => {
+                    if (gameState.matches >= gameState.matchesPerLevel) {
+                        levelComplete();
+                    } else {
+                        generateChallenge();
+                    }
+                }, 2000);
+            } else {
+                // Miss
+                gameState.streak = 0;
+                document.getElementById('streakDisplay').textContent = 0;
+
+                let hint = '';
+                if (freqDiff > gameState.tolerance) {
+                    hint += gameState.currentFreq < gameState.targetFreq ?
+                        'Increase frequency (higher pitch)! ' : 'Decrease frequency (lower pitch)! ';
+                }
+                if (ampDiff > 15) {
+                    hint += gameState.currentAmp < gameState.targetAmp ?
+                        'Increase amplitude (louder)!' : 'Decrease amplitude (quieter)!';
+                }
+
+                resultDisplay.textContent = `🎯 Not quite! ${hint}`;
+                resultDisplay.className = 'result-display error';
+            }
+        }
+
+        function showRandomFact() {
+            const fact = soundFacts[Math.floor(Math.random() * soundFacts.length)];
+            document.getElementById('factCard').textContent = fact;
+        }
+
+        function levelComplete() {
+            document.getElementById('levelMessage').textContent =
+                `Level ${gameState.level} complete! Score: ${gameState.score}`;
+
+            if (gameState.level < 3) {
+                document.getElementById('levelModal').classList.add('active');
+            } else {
+                gameComplete();
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('levelModal').classList.remove('active');
+            gameState.level++;
+            gameState.matches = 0;
+            gameState.matchesPerLevel = 5 + gameState.level;
+
+            document.getElementById('levelDisplay').textContent = gameState.level;
+            document.getElementById('matchesDisplay').textContent = `0/${gameState.matchesPerLevel}`;
+
+            generateChallenge();
+        }
+
+        function gameComplete() {
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalFact').textContent = soundFacts[Math.floor(Math.random() * soundFacts.length)];
+            document.getElementById('completeModal').classList.add('active');
+        }
+
+        function restartGame() {
+            gameState = {
+                score: 0,
+                level: 1,
+                matches: 0,
+                streak: 0,
+                targetFreq: 440,
+                targetAmp: 50,
+                currentFreq: 440,
+                currentAmp: 50,
+                matchesPerLevel: 5,
+                tolerance: 50
+            };
+
+            document.getElementById('scoreDisplay').textContent = 0;
+            document.getElementById('levelDisplay').textContent = 1;
+            document.getElementById('matchesDisplay').textContent = '0/5';
+            document.getElementById('streakDisplay').textContent = 0;
+
+            document.getElementById('frequencySlider').value = 440;
+            document.getElementById('amplitudeSlider').value = 50;
+            updateWave();
+
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            generateChallenge();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

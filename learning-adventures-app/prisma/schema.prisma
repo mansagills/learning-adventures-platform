@@ -1431,3 +1431,109 @@ enum AIProcessingStatus {
   COMPLETED
   FAILED
 }
+
+// ============================================================================
+// TEST COURSE MODEL (STAGING/REVIEW WORKFLOW)
+// ============================================================================
+
+// Test Courses pending approval (mirrors TestGame for courses)
+model TestCourse {
+  id              String   @id @default(cuid())
+
+  // Course Information
+  slug            String   @unique
+  title           String
+  description     String   @db.Text
+  subject         String   // 'math', 'science', etc.
+  gradeLevel      String[] // ['3-5', '6-8']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  isPremium       Boolean  @default(false)
+  estimatedMinutes Int
+  totalXP         Int      @default(0)
+
+  // Staging File Paths
+  stagingPath     String   // Base path for staged files (e.g., '/staging/lessons/courses/my-course/')
+  thumbnailPath   String?
+
+  // Lesson Metadata (stored as JSON for staging)
+  lessonsData     Json     // Array of lesson metadata from manifest
+
+  // Approval Status
+  status          TestGameStatus @default(NOT_TESTED)
+
+  // Metadata
+  createdBy       String?  // User ID who uploaded
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Production Integration
+  promotedToCourseId String?  // Reference to Course if promoted
+  promotedAt         DateTime?
+  promotedBy         String?  // User ID who promoted
+
+  // Relations
+  approvals       CourseApproval[]
+  feedback        CourseFeedback[]
+
+  @@index([status, subject])
+  @@index([promotedToCourseId])
+}
+
+// Approval/Rejection decisions for courses
+model CourseApproval {
+  id              String   @id @default(cuid())
+  testCourseId    String
+
+  // Approver
+  userId          String   // Admin who made the decision
+  userName        String   // Cached for display
+
+  // Decision
+  decision        ApprovalDecision
+  notes           String?  @db.Text
+
+  // Checklist (optional structured feedback)
+  curriculumQuality     Boolean?
+  contentAccuracy       Boolean?
+  technicalQuality      Boolean?
+  accessibilityCompliant Boolean?
+  ageAppropriate        Boolean?
+  engagementLevel       Int?     // 1-5 rating
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testCourse      TestCourse @relation(fields: [testCourseId], references: [id], onDelete: Cascade)
+
+  @@index([testCourseId])
+  @@index([userId])
+}
+
+// Detailed feedback/notes on courses
+model CourseFeedback {
+  id              String   @id @default(cuid())
+  testCourseId    String
+
+  // Feedback Provider
+  userId          String
+  userName        String
+
+  // Feedback Content
+  feedbackType    FeedbackType
+  message         String   @db.Text
+  lessonIndex     Int?     // Which lesson the feedback refers to (if applicable)
+
+  // Optional: Specific issues/bugs
+  issueSeverity   IssueSeverity?
+  screenshotUrl   String?
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testCourse      TestCourse @relation(fields: [testCourseId], references: [id], onDelete: Cascade)
+
+  @@index([testCourseId])
+  @@index([userId])
+}

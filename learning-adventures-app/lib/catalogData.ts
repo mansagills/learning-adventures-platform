@@ -474,7 +474,8 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Astronomy', 'Space Facts', 'Navigation'],
     estimatedTime: '15-20 mins',
-    featured: true
+    featured: true,
+    htmlPath: '/games/planet-explorer-quest.html'
   },
   {
     id: 'ocean-conservation-heroes',
@@ -498,7 +499,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['1', '2', '3', '4'],
     difficulty: 'easy',
     skills: ['Animals', 'Habitats', 'Speed'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
+    htmlPath: '/games/animal-kingdom-match.html'
   },
   {
     id: 'weather-wizard-battle',
@@ -509,7 +511,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Weather', 'Problem Solving', 'Strategy'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/weather-wizard-battle.html'
   },
   {
     id: 'body-system-heroes',
@@ -520,7 +523,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Human Biology', 'Health', 'Adventure'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
+    htmlPath: '/games/body-system-heroes.html'
   },
   {
     id: 'ecosystem-building-tycoon',
@@ -531,7 +535,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Ecology', 'Management', 'Strategy'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
+    htmlPath: '/games/ecosystem-building-tycoon.html'
   },
   {
     id: 'states-of-matter-mixer',
@@ -542,7 +547,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Chemistry', 'States of Matter', 'Cooking'],
-    estimatedTime: '12-18 mins'
+    estimatedTime: '12-18 mins',
+    htmlPath: '/games/states-of-matter-mixer.html'
   },
   {
     id: 'fossil-dig-adventure',
@@ -553,7 +559,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Paleontology', 'Archaeology', 'History'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/fossil-dig-adventure.html'
   },
   {
     id: 'magnet-power-puzzle',
@@ -564,7 +571,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Physics', 'Magnetism', 'Problem Solving'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/magnet-power-puzzle.html'
   },
   {
     id: 'light-laboratory-escape',
@@ -575,7 +583,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Physics', 'Optics', 'Logic'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
+    htmlPath: '/games/light-laboratory-escape.html'
   },
   {
     id: 'plant-growing-championship',
@@ -586,7 +595,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Biology', 'Competition', 'Plant Care'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/plant-growing-championship.html'
   },
   {
     id: 'rock-cycle-racing',
@@ -597,7 +607,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Geology', 'Earth Science', 'Racing'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/rock-cycle-racing.html'
   },
   {
     id: 'sound-wave-surfer',
@@ -608,7 +619,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Physics', 'Sound', 'Music'],
-    estimatedTime: '12-18 mins'
+    estimatedTime: '12-18 mins',
+    htmlPath: '/games/sound-wave-surfer.html'
   },
   {
     id: 'ocean-depth-diver',
@@ -619,7 +631,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Marine Biology', 'Ocean Science', 'Exploration'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/ocean-depth-diver.html'
   },
   {
     id: 'simple-machines-construction',
@@ -630,7 +643,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Engineering', 'Physics', 'Construction'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
+    htmlPath: '/games/simple-machines-construction.html'
   },
   {
     id: 'pollution-solution-squad',
@@ -641,7 +655,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Environmental Science', 'Conservation', 'Action'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
+    htmlPath: '/games/pollution-solution-squad.html'
   },
   {
     id: 'crystal-cave-chemistry',
@@ -652,7 +667,8 @@ const scienceGames: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Chemistry', 'Crystals', 'Experiments'],
-    estimatedTime: '18-25 mins'
+    estimatedTime: '18-25 mins',
+    htmlPath: '/games/crystal-cave-chemistry.html'
   }
 ];
 

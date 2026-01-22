@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Ecosystem Building Tycoon">
+    <meta name="description" content="Build and balance your own ecosystem while learning about food chains and ecology">
+    <meta name="content-type" content="game">
+    <meta name="subject" content="science">
+    <meta name="grade-level" content="4,5">
+    <meta name="difficulty" content="hard">
+    <meta name="skills" content="Ecology,Food Chains,Ecosystems,Environmental Science">
+    <meta name="estimated-time" content="25-30 mins">
+    <title>Ecosystem Building Tycoon - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #90EE90 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #228B22, #2E8B57);
+            padding: 15px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(34,139,34,0.3);
+        }
+
+        .game-header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .stat.warning {
+            background: rgba(255,165,0,0.5);
+            animation: pulse 1s infinite;
+        }
+
+        .stat.danger {
+            background: rgba(255,0,0,0.5);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .main-area {
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            .main-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .shop-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .shop-panel h3 {
+            color: #228B22;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .shop-category {
+            margin-bottom: 15px;
+        }
+
+        .shop-category h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 5px;
+            background: #f5f5f5;
+        }
+
+        .shop-item:hover {
+            background: #e8f5e9;
+            transform: translateX(3px);
+        }
+
+        .shop-item.selected {
+            background: #c8e6c9;
+            border: 2px solid #4CAF50;
+        }
+
+        .shop-item .emoji {
+            font-size: 1.5em;
+        }
+
+        .shop-item .info {
+            flex: 1;
+        }
+
+        .shop-item .name {
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .shop-item .cost {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        .ecosystem-view {
+            background: linear-gradient(180deg, #87CEEB 0%, #90EE90 60%, #8B4513 100%);
+            border-radius: 15px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .ecosystem-entity {
+            position: absolute;
+            font-size: 2em;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
+
+        .ecosystem-entity:hover {
+            transform: scale(1.2);
+            z-index: 100;
+        }
+
+        .ecosystem-entity.dead {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+
+        .ecosystem-entity .status {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.4em;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .info-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-panel h3 {
+            color: #228B22;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .population-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .pop-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .pop-item .count {
+            font-weight: bold;
+            min-width: 25px;
+        }
+
+        .food-chain {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .food-chain h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .chain-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            font-size: 1.5em;
+        }
+
+        .chain-arrow {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .balance-meter {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .balance-meter h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .balance-bar {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .balance-indicator {
+            position: absolute;
+            top: -5px;
+            width: 10px;
+            height: 30px;
+            background: #333;
+            border-radius: 5px;
+            transition: left 0.5s ease;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+
+        .control-btn.secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .event-log {
+            margin-top: 15px;
+            max-height: 100px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .event-log .event {
+            padding: 3px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .event-log .event.good {
+            color: #4CAF50;
+        }
+
+        .event-log .event.bad {
+            color: #f44336;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #228B22;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .modal-btn {
+            padding: 12px 35px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .tip-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: left;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .tip-box h4 {
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .game-header h1 {
+                font-size: 1.4em;
+            }
+
+            .ecosystem-entity {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🌿 Ecosystem Building Tycoon</h1>
+            <p>Create a balanced ecosystem!</p>
+            <div class="stats-bar">
+                <div class="stat">💰 Energy: <span id="energy">100</span></div>
+                <div class="stat">⏱️ Year: <span id="year">1</span></div>
+                <div class="stat" id="balanceStat">⚖️ Balance: <span id="balance">50</span>%</div>
+                <div class="stat">🏆 Score: <span id="score">0</span></div>
+            </div>
+        </header>
+
+        <div class="main-area">
+            <div class="shop-panel">
+                <h3>🛒 Add Life</h3>
+
+                <div class="shop-category">
+                    <h4>🌱 Producers</h4>
+                    <div class="shop-item" onclick="selectEntity('grass')">
+                        <span class="emoji">🌾</span>
+                        <div class="info">
+                            <div class="name">Grass</div>
+                            <div class="cost">10 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('flower')">
+                        <span class="emoji">🌸</span>
+                        <div class="info">
+                            <div class="name">Flowers</div>
+                            <div class="cost">15 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('tree')">
+                        <span class="emoji">🌳</span>
+                        <div class="info">
+                            <div class="name">Tree</div>
+                            <div class="cost">25 energy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-category">
+                    <h4>🐰 Herbivores</h4>
+                    <div class="shop-item" onclick="selectEntity('rabbit')">
+                        <span class="emoji">🐰</span>
+                        <div class="info">
+                            <div class="name">Rabbit</div>
+                            <div class="cost">20 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('deer')">
+                        <span class="emoji">🦌</span>
+                        <div class="info">
+                            <div class="name">Deer</div>
+                            <div class="cost">30 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('butterfly')">
+                        <span class="emoji">🦋</span>
+                        <div class="info">
+                            <div class="name">Butterfly</div>
+                            <div class="cost">15 energy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-category">
+                    <h4>🦊 Carnivores</h4>
+                    <div class="shop-item" onclick="selectEntity('fox')">
+                        <span class="emoji">🦊</span>
+                        <div class="info">
+                            <div class="name">Fox</div>
+                            <div class="cost">40 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('owl')">
+                        <span class="emoji">🦉</span>
+                        <div class="info">
+                            <div class="name">Owl</div>
+                            <div class="cost">35 energy</div>
+                        </div>
+                    </div>
+                    <div class="shop-item" onclick="selectEntity('wolf')">
+                        <span class="emoji">🐺</span>
+                        <div class="info">
+                            <div class="name">Wolf</div>
+                            <div class="cost">50 energy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shop-category">
+                    <h4>🔄 Decomposers</h4>
+                    <div class="shop-item" onclick="selectEntity('mushroom')">
+                        <span class="emoji">🍄</span>
+                        <div class="info">
+                            <div class="name">Mushroom</div>
+                            <div class="cost">10 energy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ecosystem-view" id="ecosystemView" onclick="placeEntity(event)">
+                <!-- Entities will be added here -->
+            </div>
+
+            <div class="info-panel">
+                <h3>📊 Population</h3>
+                <div class="population-list" id="populationList"></div>
+
+                <div class="food-chain">
+                    <h4>🔗 Food Chain</h4>
+                    <div class="chain-visual">
+                        🌱 <span class="chain-arrow">→</span>
+                        🐰 <span class="chain-arrow">→</span>
+                        🦊 <span class="chain-arrow">→</span>
+                        🍄
+                    </div>
+                </div>
+
+                <div class="balance-meter">
+                    <h4>⚖️ Ecosystem Balance</h4>
+                    <div class="balance-bar">
+                        <div class="balance-indicator" id="balanceIndicator"></div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn primary" onclick="advanceTime()">⏭️ Next Year</button>
+                    <button class="control-btn secondary" onclick="showTips()">💡 Tips</button>
+                </div>
+
+                <div class="event-log" id="eventLog">
+                    <div class="event">🌱 Start building your ecosystem!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Modal -->
+    <div class="modal active" id="startModal">
+        <div class="modal-content">
+            <h2>🌿 Ecosystem Building Tycoon</h2>
+            <p>Welcome, Eco-Builder! Your mission is to create a balanced ecosystem where plants and animals can thrive together.</p>
+            <div class="tip-box">
+                <h4>🎯 Goal:</h4>
+                <p>Build a balanced ecosystem with at least 20 organisms and maintain 70%+ balance for 10 years!</p>
+            </div>
+            <p><strong>Remember:</strong><br>
+            🌱 Producers (plants) are eaten by herbivores<br>
+            🐰 Herbivores are eaten by carnivores<br>
+            🍄 Decomposers recycle dead matter</p>
+            <button class="modal-btn" onclick="startGame()">Start Building!</button>
+        </div>
+    </div>
+
+    <!-- Tips Modal -->
+    <div class="modal" id="tipsModal">
+        <div class="modal-content">
+            <h2>💡 Ecosystem Tips</h2>
+            <div class="tip-box">
+                <h4>⚖️ Balance Rules:</h4>
+                <p>• Need MORE producers than herbivores<br>
+                • Need MORE herbivores than carnivores<br>
+                • Ideal ratio: 5 plants : 3 herbivores : 1 carnivore<br>
+                • Decomposers help recycle energy!</p>
+            </div>
+            <div class="tip-box">
+                <h4>⚠️ Watch For:</h4>
+                <p>• Too many predators = herbivores die out<br>
+                • No plants = herbivores starve<br>
+                • No prey = predators starve<br>
+                • Good balance = reproduction!</p>
+            </div>
+            <button class="modal-btn" onclick="closeTips()">Got It!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">🏆 Results</h2>
+            <p id="gameOverText"></p>
+            <p id="gameOverStats"></p>
+            <button class="modal-btn" onclick="startGame()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Entity definitions
+        const entityTypes = {
+            // Producers
+            grass: { emoji: '🌾', type: 'producer', cost: 10, growth: 0.3, maxAge: 5 },
+            flower: { emoji: '🌸', type: 'producer', cost: 15, growth: 0.2, maxAge: 3 },
+            tree: { emoji: '🌳', type: 'producer', cost: 25, growth: 0.1, maxAge: 20 },
+            // Herbivores
+            rabbit: { emoji: '🐰', type: 'herbivore', cost: 20, eats: ['grass', 'flower'], reproduction: 0.4, maxAge: 5 },
+            deer: { emoji: '🦌', type: 'herbivore', cost: 30, eats: ['grass', 'tree'], reproduction: 0.2, maxAge: 10 },
+            butterfly: { emoji: '🦋', type: 'herbivore', cost: 15, eats: ['flower'], reproduction: 0.3, maxAge: 2 },
+            // Carnivores
+            fox: { emoji: '🦊', type: 'carnivore', cost: 40, eats: ['rabbit', 'butterfly'], reproduction: 0.2, maxAge: 8 },
+            owl: { emoji: '🦉', type: 'carnivore', cost: 35, eats: ['rabbit', 'butterfly'], reproduction: 0.15, maxAge: 12 },
+            wolf: { emoji: '🐺', type: 'carnivore', cost: 50, eats: ['deer', 'rabbit'], reproduction: 0.1, maxAge: 10 },
+            // Decomposers
+            mushroom: { emoji: '🍄', type: 'decomposer', cost: 10, growth: 0.2, maxAge: 3 }
+        };
+
+        // Game state
+        let gameState = {
+            energy: 100,
+            year: 1,
+            score: 0,
+            selectedEntity: null,
+            entities: [],
+            balancedYears: 0,
+            events: []
+        };
+
+        function initGame() {
+            gameState = {
+                energy: 100,
+                year: 1,
+                score: 0,
+                selectedEntity: null,
+                entities: [],
+                balancedYears: 0,
+                events: []
+            };
+
+            document.getElementById('ecosystemView').innerHTML = '';
+            updateUI();
+            addEvent('🌱 Start building your ecosystem!', 'good');
+        }
+
+        function selectEntity(type) {
+            const entity = entityTypes[type];
+            if (gameState.energy < entity.cost) {
+                addEvent(`❌ Not enough energy for ${entity.emoji}`, 'bad');
+                return;
+            }
+
+            gameState.selectedEntity = type;
+
+            // Update UI
+            document.querySelectorAll('.shop-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function placeEntity(event) {
+            if (!gameState.selectedEntity) return;
+
+            const view = document.getElementById('ecosystemView');
+            const rect = view.getBoundingClientRect();
+            const x = ((event.clientX - rect.left) / rect.width) * 100;
+            const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+            // Check bounds
+            if (x < 5 || x > 95 || y < 5 || y > 95) return;
+
+            const entityType = entityTypes[gameState.selectedEntity];
+
+            // Deduct energy
+            gameState.energy -= entityType.cost;
+
+            // Create entity
+            const entity = {
+                id: Date.now() + Math.random(),
+                type: gameState.selectedEntity,
+                x: x,
+                y: y,
+                age: 0,
+                hunger: 100,
+                alive: true
+            };
+
+            gameState.entities.push(entity);
+            renderEntity(entity);
+            updateUI();
+
+            addEvent(`➕ Added ${entityType.emoji} to ecosystem`, 'good');
+            gameState.score += 5;
+        }
+
+        function renderEntity(entity) {
+            const entityType = entityTypes[entity.type];
+            const view = document.getElementById('ecosystemView');
+
+            const el = document.createElement('div');
+            el.className = `ecosystem-entity ${entity.alive ? '' : 'dead'}`;
+            el.id = `entity-${entity.id}`;
+            el.textContent = entityType.emoji;
+            el.style.left = entity.x + '%';
+            el.style.top = entity.y + '%';
+
+            if (!entity.alive) {
+                el.style.opacity = '0.3';
+            }
+
+            el.onclick = (e) => {
+                e.stopPropagation();
+                showEntityInfo(entity);
+            };
+
+            view.appendChild(el);
+        }
+
+        function showEntityInfo(entity) {
+            const entityType = entityTypes[entity.type];
+            alert(`${entityType.emoji} ${entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}
+Age: ${entity.age} years
+${entityType.type === 'herbivore' || entityType.type === 'carnivore' ? `Hunger: ${entity.hunger}%` : ''}
+Status: ${entity.alive ? 'Alive' : 'Dead'}`);
+        }
+
+        function advanceTime() {
+            gameState.year++;
+
+            // Simulate ecosystem dynamics
+            simulateEcosystem();
+
+            // Energy regeneration
+            const producers = gameState.entities.filter(e => e.alive && entityTypes[e.type].type === 'producer');
+            gameState.energy += producers.length * 2;
+            gameState.energy = Math.min(gameState.energy, 200);
+
+            // Calculate balance
+            const balance = calculateBalance();
+
+            if (balance >= 70) {
+                gameState.balancedYears++;
+                gameState.score += 20;
+                addEvent(`✅ Year ${gameState.year}: Ecosystem balanced! (+20 points)`, 'good');
+            } else if (balance < 30) {
+                addEvent(`⚠️ Year ${gameState.year}: Ecosystem unstable!`, 'bad');
+            }
+
+            // Check win/lose conditions
+            const aliveCount = gameState.entities.filter(e => e.alive).length;
+            if (aliveCount === 0) {
+                endGame(false, 'All life has died! Your ecosystem collapsed.');
+                return;
+            }
+
+            if (gameState.balancedYears >= 10 && aliveCount >= 20) {
+                endGame(true, 'Amazing! You\'ve maintained a thriving ecosystem!');
+                return;
+            }
+
+            updateUI();
+        }
+
+        function simulateEcosystem() {
+            const alive = gameState.entities.filter(e => e.alive);
+
+            // Count by type
+            const counts = {
+                producer: alive.filter(e => entityTypes[e.type].type === 'producer').length,
+                herbivore: alive.filter(e => entityTypes[e.type].type === 'herbivore').length,
+                carnivore: alive.filter(e => entityTypes[e.type].type === 'carnivore').length,
+                decomposer: alive.filter(e => entityTypes[e.type].type === 'decomposer').length
+            };
+
+            alive.forEach(entity => {
+                const entityType = entityTypes[entity.type];
+                entity.age++;
+
+                // Death by old age
+                if (entity.age >= entityType.maxAge) {
+                    entity.alive = false;
+                    addEvent(`💀 ${entityType.emoji} died of old age`, 'bad');
+                    return;
+                }
+
+                // Producer growth
+                if (entityType.type === 'producer') {
+                    if (Math.random() < entityType.growth && counts.producer < 30) {
+                        const newEntity = {
+                            id: Date.now() + Math.random(),
+                            type: entity.type,
+                            x: Math.max(5, Math.min(95, entity.x + (Math.random() - 0.5) * 20)),
+                            y: Math.max(5, Math.min(95, entity.y + (Math.random() - 0.5) * 20)),
+                            age: 0,
+                            hunger: 100,
+                            alive: true
+                        };
+                        gameState.entities.push(newEntity);
+                        renderEntity(newEntity);
+                        addEvent(`🌱 ${entityType.emoji} grew!`, 'good');
+                    }
+                }
+
+                // Herbivore feeding and reproduction
+                if (entityType.type === 'herbivore') {
+                    entity.hunger -= 20;
+
+                    // Try to eat
+                    const food = alive.find(e =>
+                        e.alive && entityType.eats.includes(e.type)
+                    );
+
+                    if (food && entity.hunger < 80) {
+                        food.alive = false;
+                        entity.hunger = Math.min(100, entity.hunger + 50);
+                        addEvent(`${entityType.emoji} ate ${entityTypes[food.type].emoji}`, 'good');
+                    }
+
+                    // Starve
+                    if (entity.hunger <= 0) {
+                        entity.alive = false;
+                        addEvent(`💀 ${entityType.emoji} starved`, 'bad');
+                        return;
+                    }
+
+                    // Reproduce
+                    if (entity.hunger > 70 && Math.random() < entityType.reproduction && counts.herbivore < 20) {
+                        const newEntity = {
+                            id: Date.now() + Math.random(),
+                            type: entity.type,
+                            x: Math.max(5, Math.min(95, entity.x + (Math.random() - 0.5) * 15)),
+                            y: Math.max(5, Math.min(95, entity.y + (Math.random() - 0.5) * 15)),
+                            age: 0,
+                            hunger: 80,
+                            alive: true
+                        };
+                        gameState.entities.push(newEntity);
+                        renderEntity(newEntity);
+                        addEvent(`🎉 ${entityType.emoji} had a baby!`, 'good');
+                    }
+                }
+
+                // Carnivore feeding and reproduction
+                if (entityType.type === 'carnivore') {
+                    entity.hunger -= 25;
+
+                    // Try to hunt
+                    const prey = alive.find(e =>
+                        e.alive && entityType.eats.includes(e.type)
+                    );
+
+                    if (prey && entity.hunger < 80) {
+                        prey.alive = false;
+                        entity.hunger = Math.min(100, entity.hunger + 60);
+                        addEvent(`${entityType.emoji} hunted ${entityTypes[prey.type].emoji}`, 'good');
+                    }
+
+                    // Starve
+                    if (entity.hunger <= 0) {
+                        entity.alive = false;
+                        addEvent(`💀 ${entityType.emoji} starved`, 'bad');
+                        return;
+                    }
+
+                    // Reproduce
+                    if (entity.hunger > 80 && Math.random() < entityType.reproduction && counts.carnivore < 10) {
+                        const newEntity = {
+                            id: Date.now() + Math.random(),
+                            type: entity.type,
+                            x: Math.max(5, Math.min(95, entity.x + (Math.random() - 0.5) * 10)),
+                            y: Math.max(5, Math.min(95, entity.y + (Math.random() - 0.5) * 10)),
+                            age: 0,
+                            hunger: 70,
+                            alive: true
+                        };
+                        gameState.entities.push(newEntity);
+                        renderEntity(newEntity);
+                        addEvent(`🎉 ${entityType.emoji} had a baby!`, 'good');
+                    }
+                }
+
+                // Decomposer growth
+                if (entityType.type === 'decomposer') {
+                    const deadCount = gameState.entities.filter(e => !e.alive).length;
+                    if (deadCount > 0 && Math.random() < entityType.growth) {
+                        // Recycle dead matter
+                        gameState.energy += 5;
+                        addEvent(`🍄 Decomposed matter → +5 energy`, 'good');
+                    }
+                }
+            });
+
+            // Update visual positions (slight movement)
+            alive.forEach(entity => {
+                if (entity.alive && entityTypes[entity.type].type !== 'producer') {
+                    entity.x = Math.max(5, Math.min(95, entity.x + (Math.random() - 0.5) * 5));
+                    entity.y = Math.max(5, Math.min(95, entity.y + (Math.random() - 0.5) * 5));
+
+                    const el = document.getElementById(`entity-${entity.id}`);
+                    if (el) {
+                        el.style.left = entity.x + '%';
+                        el.style.top = entity.y + '%';
+                    }
+                }
+            });
+
+            // Remove dead entities visually
+            gameState.entities.filter(e => !e.alive).forEach(entity => {
+                const el = document.getElementById(`entity-${entity.id}`);
+                if (el) {
+                    el.classList.add('dead');
+                    setTimeout(() => el.remove(), 2000);
+                }
+            });
+
+            // Clean up old dead entities
+            gameState.entities = gameState.entities.filter(e => e.alive ||
+                gameState.entities.indexOf(e) > gameState.entities.length - 20);
+        }
+
+        function calculateBalance() {
+            const alive = gameState.entities.filter(e => e.alive);
+            const counts = {
+                producer: alive.filter(e => entityTypes[e.type].type === 'producer').length,
+                herbivore: alive.filter(e => entityTypes[e.type].type === 'herbivore').length,
+                carnivore: alive.filter(e => entityTypes[e.type].type === 'carnivore').length
+            };
+
+            // Ideal ratio: 5:3:1
+            const total = counts.producer + counts.herbivore + counts.carnivore;
+            if (total === 0) return 0;
+
+            const producerRatio = counts.producer / total;
+            const herbivoreRatio = counts.herbivore / total;
+            const carnivoreRatio = counts.carnivore / total;
+
+            // Score based on how close to ideal ratios
+            const idealProducer = 0.55;
+            const idealHerbivore = 0.33;
+            const idealCarnivore = 0.12;
+
+            const producerScore = 1 - Math.abs(producerRatio - idealProducer);
+            const herbivoreScore = 1 - Math.abs(herbivoreRatio - idealHerbivore);
+            const carnivoreScore = 1 - Math.abs(carnivoreRatio - idealCarnivore);
+
+            return Math.round(((producerScore + herbivoreScore + carnivoreScore) / 3) * 100);
+        }
+
+        function updateUI() {
+            document.getElementById('energy').textContent = gameState.energy;
+            document.getElementById('year').textContent = gameState.year;
+            document.getElementById('score').textContent = gameState.score;
+
+            const balance = calculateBalance();
+            document.getElementById('balance').textContent = balance;
+            document.getElementById('balanceIndicator').style.left = `calc(${balance}% - 5px)`;
+
+            // Balance stat styling
+            const balanceStat = document.getElementById('balanceStat');
+            balanceStat.classList.remove('warning', 'danger');
+            if (balance < 30) balanceStat.classList.add('danger');
+            else if (balance < 50) balanceStat.classList.add('warning');
+
+            // Update population list
+            updatePopulationList();
+        }
+
+        function updatePopulationList() {
+            const list = document.getElementById('populationList');
+            const alive = gameState.entities.filter(e => e.alive);
+
+            const counts = {};
+            alive.forEach(e => {
+                counts[e.type] = (counts[e.type] || 0) + 1;
+            });
+
+            list.innerHTML = Object.entries(counts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([type, count]) => `
+                    <div class="pop-item">
+                        <span>${entityTypes[type].emoji}</span>
+                        <span class="count">${count}</span>
+                        <span>${type}</span>
+                    </div>
+                `).join('') || '<div class="pop-item">No life yet!</div>';
+        }
+
+        function addEvent(text, type) {
+            const log = document.getElementById('eventLog');
+            const event = document.createElement('div');
+            event.className = `event ${type}`;
+            event.textContent = text;
+            log.insertBefore(event, log.firstChild);
+
+            // Keep only last 20 events
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function endGame(won, message) {
+            document.getElementById('gameOverTitle').textContent = won ? '🏆 Victory!' : '💔 Game Over';
+            document.getElementById('gameOverText').textContent = message;
+            document.getElementById('gameOverStats').innerHTML = `
+                <strong>Final Score:</strong> ${gameState.score}<br>
+                <strong>Years Survived:</strong> ${gameState.year}<br>
+                <strong>Balanced Years:</strong> ${gameState.balancedYears}<br>
+                <strong>Peak Population:</strong> ${gameState.entities.filter(e => e.alive).length}
+            `;
+            document.getElementById('gameOverModal').classList.add('active');
+        }
+
+        function showTips() {
+            document.getElementById('tipsModal').classList.add('active');
+        }
+
+        function closeTips() {
+            document.getElementById('tipsModal').classList.remove('active');
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            document.getElementById('gameOverModal').classList.remove('active');
+            initGame();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>

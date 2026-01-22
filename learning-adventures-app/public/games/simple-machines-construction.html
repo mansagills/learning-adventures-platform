@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Simple Machines Construction">
+    <meta name="description" content="Build contraptions using simple machines to solve engineering puzzles">
+    <meta name="content-type" content="game">
+    <meta name="subject" content="science">
+    <meta name="grade-level" content="3,4,5">
+    <meta name="difficulty" content="hard">
+    <meta name="skills" content="Engineering,Physics,Simple Machines,Problem Solving">
+    <meta name="estimated-time" content="20-25 mins">
+    <title>Simple Machines Construction - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #B0C4DE 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4169E1, #1E90FF);
+            padding: 20px;
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(65,105,225,0.4);
+        }
+
+        .game-header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .workshop {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .workshop {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .toolbox {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .toolbox h3 {
+            color: #4169E1;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .machine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .machine-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: grab;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .machine-item:hover {
+            background: #e8f4ff;
+            transform: translateX(3px);
+        }
+
+        .machine-item.selected {
+            border-color: #4169E1;
+            background: #e8f4ff;
+        }
+
+        .machine-item .emoji {
+            font-size: 1.8em;
+        }
+
+        .machine-item .info {
+            flex: 1;
+        }
+
+        .machine-item .name {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .machine-item .type {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        .construction-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .challenge-header h2 {
+            color: #4169E1;
+            font-size: 1.3em;
+        }
+
+        .challenge-goal {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .build-grid {
+            display: grid;
+            gap: 3px;
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.5em;
+            position: relative;
+        }
+
+        .grid-cell:hover {
+            background: #f0f8ff;
+        }
+
+        .grid-cell.start {
+            background: linear-gradient(135deg, #90EE90, #32CD32);
+        }
+
+        .grid-cell.end {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        .grid-cell.obstacle {
+            background: #666;
+        }
+
+        .grid-cell.placed {
+            background: #e8f4ff;
+            border: 2px solid #4169E1;
+        }
+
+        .grid-cell .rotation {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 0.5em;
+            opacity: 0.6;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #4169E1, #1E90FF);
+            color: white;
+        }
+
+        .control-btn.secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .control-btn.success {
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .info-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-panel h3 {
+            color: #4169E1;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .machines-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .machine-card {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .machine-card .emoji {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .machine-card .name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .machine-card .desc {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+            border-radius: 50%;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #4169E1;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .modal-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4169E1, #1E90FF);
+            color: white;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .fact-box {
+            background: #e8f4ff;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4169E1;
+            text-align: left;
+        }
+
+        .fact-box h4 {
+            color: #4169E1;
+            margin-bottom: 8px;
+        }
+
+        .celebration {
+            position: fixed;
+            font-size: 3em;
+            animation: gearSpin 1.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        @keyframes gearSpin {
+            0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { opacity: 0; transform: scale(1) rotate(360deg) translateY(-100px); }
+        }
+
+        .energy-indicator {
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4169E1, #1E90FF);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .game-header h1 {
+                font-size: 1.5em;
+            }
+
+            .grid-cell {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>⚙️ Simple Machines Construction</h1>
+            <p>Build contraptions to solve engineering challenges!</p>
+            <div class="stats-bar">
+                <div class="stat">📊 Level: <span id="level">1</span>/6</div>
+                <div class="stat">⭐ Score: <span id="score">0</span></div>
+                <div class="stat">🔧 Parts: <span id="parts">0</span></div>
+            </div>
+        </header>
+
+        <div class="workshop">
+            <div class="toolbox">
+                <h3>🔧 Machines</h3>
+                <div class="machine-list" id="machineList"></div>
+            </div>
+
+            <div class="construction-area">
+                <div class="challenge-header">
+                    <h2 id="challengeTitle">Level 1: The Ramp</h2>
+                    <div class="challenge-goal" id="challengeGoal">Get ball to the star!</div>
+                </div>
+
+                <div class="build-grid" id="buildGrid"></div>
+
+                <div class="energy-indicator">
+                    <div class="energy-fill" id="energyFill" style="width: 100%;"></div>
+                </div>
+                <p style="text-align: center; font-size: 0.85em; color: #666;">Energy: <span id="energyText">100%</span></p>
+
+                <div class="controls">
+                    <button class="control-btn primary" onclick="testMachine()">▶️ Test Machine</button>
+                    <button class="control-btn secondary" onclick="resetLevel()">🔄 Reset</button>
+                    <button class="control-btn secondary" onclick="rotatePart()">↩️ Rotate</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>📚 The 6 Simple Machines</h3>
+            <div class="machines-info">
+                <div class="machine-card">
+                    <div class="emoji">📐</div>
+                    <div class="name">Inclined Plane</div>
+                    <div class="desc">A flat surface at an angle - makes lifting easier!</div>
+                </div>
+                <div class="machine-card">
+                    <div class="emoji">⚙️</div>
+                    <div class="name">Wheel & Axle</div>
+                    <div class="desc">A wheel attached to a rod - reduces friction!</div>
+                </div>
+                <div class="machine-card">
+                    <div class="emoji">🔧</div>
+                    <div class="name">Lever</div>
+                    <div class="desc">A bar that pivots - multiplies force!</div>
+                </div>
+                <div class="machine-card">
+                    <div class="emoji">🔩</div>
+                    <div class="name">Screw</div>
+                    <div class="desc">An inclined plane wrapped around - holds things together!</div>
+                </div>
+                <div class="machine-card">
+                    <div class="emoji">🔺</div>
+                    <div class="name">Wedge</div>
+                    <div class="desc">Two inclined planes - splits things apart!</div>
+                </div>
+                <div class="machine-card">
+                    <div class="emoji">🎡</div>
+                    <div class="name">Pulley</div>
+                    <div class="desc">A wheel with a rope - changes direction of force!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Modal -->
+    <div class="modal active" id="startModal">
+        <div class="modal-content">
+            <h2>⚙️ Simple Machines Construction</h2>
+            <p>Welcome, young engineer! Learn about simple machines by building contraptions to solve puzzles.</p>
+            <p><strong>How to play:</strong></p>
+            <p>1. Select a machine from the toolbox<br>
+            2. Click on the grid to place it<br>
+            3. Test your contraption to see if it works!<br>
+            4. Get the ball to reach the star!</p>
+            <p><em>Simple machines make work easier by reducing the force needed!</em></p>
+            <button class="modal-btn" onclick="startGame()">Start Building!</button>
+        </div>
+    </div>
+
+    <!-- Level Complete Modal -->
+    <div class="modal" id="completeModal">
+        <div class="modal-content">
+            <h2>🎉 Challenge Complete!</h2>
+            <p id="completeText"></p>
+            <div class="fact-box">
+                <h4>⚙️ Engineering Fact:</h4>
+                <p id="completeFact"></p>
+            </div>
+            <button class="modal-btn" onclick="nextLevel()">Next Challenge →</button>
+        </div>
+    </div>
+
+    <!-- Game Complete Modal -->
+    <div class="modal" id="gameCompleteModal">
+        <div class="modal-content">
+            <h2>🏆 Master Engineer!</h2>
+            <p>Amazing! You've mastered all the simple machines!</p>
+            <p id="finalStats"></p>
+            <button class="modal-btn" onclick="startGame()">Build Again!</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple machines definitions
+        const machines = {
+            ramp: { emoji: '📐', name: 'Ramp', type: 'Inclined Plane', effect: 'down-right' },
+            rampLeft: { emoji: '📐', name: 'Ramp Left', type: 'Inclined Plane', effect: 'down-left' },
+            wheel: { emoji: '⚙️', name: 'Wheel', type: 'Wheel & Axle', effect: 'speed' },
+            lever: { emoji: '🔧', name: 'Lever', type: 'Lever', effect: 'bounce' },
+            pulley: { emoji: '🎡', name: 'Pulley', type: 'Pulley', effect: 'up' },
+            wedge: { emoji: '🔺', name: 'Wedge', type: 'Wedge', effect: 'split' }
+        };
+
+        // Level definitions
+        const levels = [
+            {
+                title: 'Level 1: The Ramp',
+                goal: 'Use a ramp to guide the ball down!',
+                gridSize: 6,
+                start: { x: 1, y: 0 },
+                end: { x: 5, y: 5 },
+                obstacles: [],
+                availableMachines: ['ramp'],
+                maxParts: 3,
+                fact: 'Ramps are inclined planes - one of the oldest simple machines! The ancient Egyptians used ramps to build the pyramids.'
+            },
+            {
+                title: 'Level 2: Direction Change',
+                goal: 'Use different ramps to change direction!',
+                gridSize: 7,
+                start: { x: 0, y: 0 },
+                end: { x: 6, y: 0 },
+                obstacles: [{x: 3, y: 0}, {x: 3, y: 1}, {x: 3, y: 2}],
+                availableMachines: ['ramp', 'rampLeft'],
+                maxParts: 5,
+                fact: 'A wedge is actually two inclined planes stuck together! Axes, knives, and your front teeth are all wedges.'
+            },
+            {
+                title: 'Level 3: The Bounce',
+                goal: 'Use a lever to launch the ball over the wall!',
+                gridSize: 7,
+                start: { x: 0, y: 3 },
+                end: { x: 6, y: 3 },
+                obstacles: [{x: 3, y: 2}, {x: 3, y: 3}, {x: 3, y: 4}],
+                availableMachines: ['ramp', 'lever'],
+                maxParts: 4,
+                fact: 'A seesaw is a lever! The fulcrum (pivot point) in the middle lets a small force lift a heavy weight.'
+            },
+            {
+                title: 'Level 4: Speed Boost',
+                goal: 'Use wheels to increase speed!',
+                gridSize: 8,
+                start: { x: 0, y: 4 },
+                end: { x: 7, y: 4 },
+                obstacles: [],
+                availableMachines: ['ramp', 'wheel'],
+                maxParts: 5,
+                fact: 'The wheel and axle was invented about 5,500 years ago. Before that, people had to drag heavy loads!'
+            },
+            {
+                title: 'Level 5: Going Up',
+                goal: 'Use a pulley to lift the ball!',
+                gridSize: 8,
+                start: { x: 0, y: 7 },
+                end: { x: 7, y: 0 },
+                obstacles: [{x: 4, y: 3}, {x: 4, y: 4}, {x: 4, y: 5}, {x: 4, y: 6}, {x: 4, y: 7}],
+                availableMachines: ['ramp', 'pulley', 'wheel'],
+                maxParts: 6,
+                fact: 'Pulleys can change the direction of force AND multiply it! A system of pulleys can let you lift something much heavier than you.'
+            },
+            {
+                title: 'Level 6: Master Builder',
+                goal: 'Combine all machines to reach the goal!',
+                gridSize: 9,
+                start: { x: 0, y: 4 },
+                end: { x: 8, y: 4 },
+                obstacles: [
+                    {x: 2, y: 3}, {x: 2, y: 4}, {x: 2, y: 5},
+                    {x: 5, y: 2}, {x: 5, y: 3}, {x: 5, y: 4}, {x: 5, y: 5}, {x: 5, y: 6}
+                ],
+                availableMachines: ['ramp', 'rampLeft', 'lever', 'wheel', 'pulley'],
+                maxParts: 8,
+                fact: 'Modern machines are combinations of simple machines! A bicycle uses wheels, levers (handlebars), and screws (bolts) all working together.'
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            currentLevel: 0,
+            score: 0,
+            selectedMachine: null,
+            placedMachines: [],
+            ballPosition: null,
+            energy: 100
+        };
+
+        function initLevel() {
+            const level = levels[gameState.currentLevel];
+            gameState.placedMachines = [];
+            gameState.selectedMachine = null;
+            gameState.energy = 100;
+            gameState.ballPosition = { ...level.start };
+
+            document.getElementById('level').textContent = gameState.currentLevel + 1;
+            document.getElementById('challengeTitle').textContent = level.title;
+            document.getElementById('challengeGoal').textContent = level.goal;
+
+            renderGrid();
+            renderMachineList();
+            updateUI();
+        }
+
+        function renderGrid() {
+            const level = levels[gameState.currentLevel];
+            const grid = document.getElementById('buildGrid');
+            grid.style.gridTemplateColumns = `repeat(${level.gridSize}, 1fr)`;
+            grid.innerHTML = '';
+
+            for (let y = 0; y < level.gridSize; y++) {
+                for (let x = 0; x < level.gridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    cell.dataset.x = x;
+                    cell.dataset.y = y;
+
+                    // Start position
+                    if (level.start.x === x && level.start.y === y) {
+                        cell.classList.add('start');
+                        cell.textContent = '🔴';
+                    }
+
+                    // End position
+                    if (level.end.x === x && level.end.y === y) {
+                        cell.classList.add('end');
+                        cell.textContent = '⭐';
+                    }
+
+                    // Obstacles
+                    if (level.obstacles.some(o => o.x === x && o.y === y)) {
+                        cell.classList.add('obstacle');
+                    }
+
+                    // Placed machines
+                    const placed = gameState.placedMachines.find(m => m.x === x && m.y === y);
+                    if (placed) {
+                        cell.classList.add('placed');
+                        cell.textContent = machines[placed.type].emoji;
+                    }
+
+                    // Click handler
+                    if (!cell.classList.contains('start') &&
+                        !cell.classList.contains('end') &&
+                        !cell.classList.contains('obstacle')) {
+                        cell.onclick = () => placeMachine(x, y);
+                    }
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function renderMachineList() {
+            const level = levels[gameState.currentLevel];
+            const list = document.getElementById('machineList');
+            list.innerHTML = '';
+
+            level.availableMachines.forEach(machineId => {
+                const machine = machines[machineId];
+                const item = document.createElement('div');
+                item.className = `machine-item ${gameState.selectedMachine === machineId ? 'selected' : ''}`;
+                item.innerHTML = `
+                    <span class="emoji">${machine.emoji}</span>
+                    <div class="info">
+                        <div class="name">${machine.name}</div>
+                        <div class="type">${machine.type}</div>
+                    </div>
+                `;
+                item.onclick = () => selectMachine(machineId);
+                list.appendChild(item);
+            });
+        }
+
+        function selectMachine(machineId) {
+            gameState.selectedMachine = machineId;
+            renderMachineList();
+        }
+
+        function placeMachine(x, y) {
+            const level = levels[gameState.currentLevel];
+
+            // Check if already placed here
+            const existingIndex = gameState.placedMachines.findIndex(m => m.x === x && m.y === y);
+            if (existingIndex !== -1) {
+                // Remove existing
+                gameState.placedMachines.splice(existingIndex, 1);
+            } else if (gameState.selectedMachine && gameState.placedMachines.length < level.maxParts) {
+                // Add new
+                gameState.placedMachines.push({
+                    type: gameState.selectedMachine,
+                    x: x,
+                    y: y,
+                    rotation: 0
+                });
+            }
+
+            renderGrid();
+            updateUI();
+        }
+
+        function rotatePart() {
+            if (gameState.placedMachines.length > 0) {
+                const lastPart = gameState.placedMachines[gameState.placedMachines.length - 1];
+                lastPart.rotation = (lastPart.rotation + 90) % 360;
+                renderGrid();
+            }
+        }
+
+        function testMachine() {
+            const level = levels[gameState.currentLevel];
+            gameState.ballPosition = { ...level.start };
+            gameState.energy = 100;
+
+            simulateBall();
+        }
+
+        function simulateBall() {
+            const level = levels[gameState.currentLevel];
+            let x = gameState.ballPosition.x;
+            let y = gameState.ballPosition.y;
+            let vx = 1; // Initial velocity
+            let vy = 0;
+            let steps = 0;
+            const maxSteps = 50;
+
+            const simulate = () => {
+                steps++;
+                if (steps > maxSteps || gameState.energy <= 0) {
+                    showFailure();
+                    return;
+                }
+
+                // Check for machines at current position
+                const machine = gameState.placedMachines.find(m => m.x === x && m.y === y);
+                if (machine) {
+                    const effect = machines[machine.type].effect;
+
+                    switch (effect) {
+                        case 'down-right':
+                            vx = 1; vy = 1;
+                            break;
+                        case 'down-left':
+                            vx = -1; vy = 1;
+                            break;
+                        case 'speed':
+                            vx *= 1.5;
+                            vy *= 1.5;
+                            break;
+                        case 'bounce':
+                            vy = -2;
+                            break;
+                        case 'up':
+                            vy = -1;
+                            break;
+                    }
+                }
+
+                // Apply gravity
+                vy += 0.2;
+
+                // Move ball
+                x += Math.sign(vx);
+                y = Math.round(y + Math.sign(vy));
+
+                // Check bounds
+                if (x < 0) x = 0;
+                if (x >= level.gridSize) x = level.gridSize - 1;
+                if (y < 0) y = 0;
+                if (y >= level.gridSize) y = level.gridSize - 1;
+
+                // Check obstacles
+                if (level.obstacles.some(o => o.x === x && o.y === y)) {
+                    showFailure();
+                    return;
+                }
+
+                // Update position
+                gameState.ballPosition = { x, y };
+                gameState.energy -= 2;
+                updateUI();
+                visualizeBall(x, y);
+
+                // Check win condition
+                if (x === level.end.x && y === level.end.y) {
+                    completeLevel();
+                    return;
+                }
+
+                // Continue simulation
+                setTimeout(simulate, 200);
+            };
+
+            simulate();
+        }
+
+        function visualizeBall(x, y) {
+            // Remove existing ball visualization
+            const existingBall = document.querySelector('.ball');
+            if (existingBall) existingBall.remove();
+
+            const level = levels[gameState.currentLevel];
+            const grid = document.getElementById('buildGrid');
+            const cells = grid.children;
+            const cellIndex = y * level.gridSize + x;
+            const cell = cells[cellIndex];
+
+            if (cell) {
+                const ball = document.createElement('div');
+                ball.className = 'ball';
+                cell.appendChild(ball);
+            }
+        }
+
+        function showFailure() {
+            alert('The ball didn\'t reach the goal! Try rearranging your machines.');
+            resetLevel();
+        }
+
+        function completeLevel() {
+            const level = levels[gameState.currentLevel];
+            const efficiency = Math.floor(gameState.energy);
+            const partsBonus = (level.maxParts - gameState.placedMachines.length) * 20;
+            const points = 100 + efficiency + partsBonus;
+            gameState.score += points;
+
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('completeText').textContent =
+                `You solved it using ${gameState.placedMachines.length} parts! Efficiency: ${efficiency}%`;
+            document.getElementById('completeFact').textContent = level.fact;
+            document.getElementById('completeModal').classList.add('active');
+
+            // Celebration
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => createCelebration(['⚙️', '🔧', '🎡'][i % 3]), i * 100);
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('completeModal').classList.remove('active');
+
+            if (gameState.currentLevel < levels.length - 1) {
+                gameState.currentLevel++;
+                initLevel();
+            } else {
+                document.getElementById('finalStats').innerHTML = `
+                    <strong>Final Score:</strong> ${gameState.score}<br>
+                    <strong>Levels Completed:</strong> ${levels.length}
+                `;
+                document.getElementById('gameCompleteModal').classList.add('active');
+            }
+        }
+
+        function resetLevel() {
+            initLevel();
+        }
+
+        function updateUI() {
+            const level = levels[gameState.currentLevel];
+            document.getElementById('parts').textContent = `${gameState.placedMachines.length}/${level.maxParts}`;
+            document.getElementById('energyFill').style.width = gameState.energy + '%';
+            document.getElementById('energyText').textContent = Math.round(gameState.energy) + '%';
+        }
+
+        function createCelebration(emoji) {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            celebration.textContent = emoji;
+            celebration.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+            celebration.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+            document.body.appendChild(celebration);
+            setTimeout(() => celebration.remove(), 1500);
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            document.getElementById('gameCompleteModal').classList.remove('active');
+            gameState.currentLevel = 0;
+            gameState.score = 0;
+            initLevel();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initLevel();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Rock Cycle Racing">
+    <meta name="description" content="Race through the rock cycle while learning about igneous, sedimentary, and metamorphic rocks">
+    <meta name="content-type" content="game">
+    <meta name="subject" content="science">
+    <meta name="grade-level" content="4,5">
+    <meta name="difficulty" content="hard">
+    <meta name="skills" content="Geology,Rock Types,Earth Science,Rock Cycle">
+    <meta name="estimated-time" content="15-20 mins">
+    <title>Rock Cycle Racing - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #8B4513 0%, #654321 50%, #3d2914 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(139,69,19,0.6), rgba(101,67,33,0.6));
+            padding: 20px;
+            border-radius: 20px;
+            border: 3px solid rgba(210,180,140,0.3);
+        }
+
+        .game-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            color: #DEB887;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .race-track {
+            background: linear-gradient(90deg, #2d2d2d, #3d3d3d, #2d2d2d);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 300px;
+            border: 4px solid #555;
+        }
+
+        .track-path {
+            position: relative;
+            height: 200px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M0 50 Q25 0, 50 50 T 100 50' stroke='%23666' stroke-width='20' fill='none'/%3E%3C/svg%3E") repeat-x;
+            background-size: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .checkpoint {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 4px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkpoint.igneous {
+            background: linear-gradient(135deg, #FF4500, #B22222);
+        }
+
+        .checkpoint.sedimentary {
+            background: linear-gradient(135deg, #DAA520, #CD853F);
+        }
+
+        .checkpoint.metamorphic {
+            background: linear-gradient(135deg, #4682B4, #483D8B);
+        }
+
+        .checkpoint.current {
+            border-color: #FFD700;
+            animation: currentPulse 1s infinite;
+            transform: scale(1.15);
+        }
+
+        .checkpoint.completed {
+            opacity: 0.6;
+        }
+
+        @keyframes currentPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255,215,0,0.5); }
+            50% { box-shadow: 0 0 30px rgba(255,215,0,0.8); }
+        }
+
+        .checkpoint .emoji {
+            font-size: 1.8em;
+        }
+
+        .checkpoint .name {
+            font-size: 0.7em;
+            margin-top: 3px;
+        }
+
+        .racer {
+            position: absolute;
+            font-size: 2.5em;
+            transition: all 1s ease;
+            z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+        }
+
+        .question-panel {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 3px solid rgba(210,180,140,0.3);
+        }
+
+        .question-panel h3 {
+            color: #DEB887;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .answers {
+            display: grid;
+            gap: 10px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transition: all 0.3s;
+            text-align: left;
+            border: 2px solid transparent;
+        }
+
+        .answer-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .answer-btn.correct {
+            background: rgba(76,175,80,0.5);
+            border-color: #4CAF50;
+        }
+
+        .answer-btn.incorrect {
+            background: rgba(244,67,54,0.5);
+            border-color: #f44336;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .rock-info {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .rock-info.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rock-info h4 {
+            color: #DEB887;
+            margin-bottom: 10px;
+        }
+
+        .rock-collection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .rock-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .rock-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .rock-card.igneous { border-color: #FF4500; }
+        .rock-card.sedimentary { border-color: #DAA520; }
+        .rock-card.metamorphic { border-color: #4682B4; }
+
+        .rock-card.collected {
+            opacity: 1;
+        }
+
+        .rock-card.locked {
+            opacity: 0.4;
+        }
+
+        .rock-card .emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .rock-card .name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .rock-card .type {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .cycle-diagram {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .cycle-diagram h3 {
+            color: #DEB887;
+            margin-bottom: 15px;
+        }
+
+        .cycle-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .cycle-step {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .cycle-arrow {
+            font-size: 1.5em;
+            color: #DEB887;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #654321, #3d2914);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 4px solid #DEB887;
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #DEB887;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #DEB887, #D2691E);
+            color: #3d2914;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .fact-box {
+            background: rgba(222,184,135,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #DEB887;
+            text-align: left;
+        }
+
+        .fact-box h4 {
+            color: #DEB887;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF4500, #DAA520, #4682B4);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .celebration {
+            position: fixed;
+            font-size: 3em;
+            animation: rockFly 1.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        @keyframes rockFly {
+            0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { opacity: 0; transform: scale(1) rotate(360deg) translateY(-100px); }
+        }
+
+        @media (max-width: 600px) {
+            .game-header h1 {
+                font-size: 1.6em;
+            }
+
+            .checkpoint {
+                width: 60px;
+                height: 60px;
+            }
+
+            .checkpoint .emoji {
+                font-size: 1.3em;
+            }
+
+            .checkpoint .name {
+                font-size: 0.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🪨 Rock Cycle Racing</h1>
+            <p>Race through the rock cycle and collect rocks!</p>
+            <div class="stats-bar">
+                <div class="stat">🏁 Lap: <span id="lap">1</span>/3</div>
+                <div class="stat">⭐ Score: <span id="score">0</span></div>
+                <div class="stat">🪨 Rocks: <span id="rocks">0</span>/9</div>
+            </div>
+        </header>
+
+        <div class="race-track">
+            <div class="track-path">
+                <div class="checkpoint igneous current" id="cp-igneous" onclick="selectCheckpoint('igneous')">
+                    <span class="emoji">🌋</span>
+                    <span class="name">Igneous</span>
+                </div>
+                <div class="checkpoint sedimentary" id="cp-sedimentary" onclick="selectCheckpoint('sedimentary')">
+                    <span class="emoji">🏜️</span>
+                    <span class="name">Sedimentary</span>
+                </div>
+                <div class="checkpoint metamorphic" id="cp-metamorphic" onclick="selectCheckpoint('metamorphic')">
+                    <span class="emoji">⛰️</span>
+                    <span class="name">Metamorphic</span>
+                </div>
+            </div>
+            <div class="racer" id="racer">🚗</div>
+        </div>
+
+        <div class="question-panel" id="questionPanel">
+            <h3 id="questionTitle">🌋 Igneous Rocks</h3>
+            <p class="question-text" id="questionText">Loading question...</p>
+            <div class="answers" id="answers"></div>
+            <div class="rock-info" id="rockInfo">
+                <h4 id="infoTitle">🪨 Rock Info</h4>
+                <p id="infoText"></p>
+            </div>
+        </div>
+
+        <div class="cycle-diagram">
+            <h3>🔄 The Rock Cycle</h3>
+            <div class="cycle-visual">
+                <span class="cycle-step igneous" style="background: #FF4500;">Igneous</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step sedimentary" style="background: #DAA520;">Sedimentary</span>
+                <span class="cycle-arrow">→</span>
+                <span class="cycle-step metamorphic" style="background: #4682B4;">Metamorphic</span>
+                <span class="cycle-arrow">→</span>
+                <span style="opacity: 0.7;">(back to any!)</span>
+            </div>
+        </div>
+
+        <div class="rock-collection">
+            <h3 style="grid-column: 1/-1; color: #DEB887; text-align: center; margin-bottom: 10px;">🏆 Rock Collection</h3>
+            <div id="collectionGrid"></div>
+        </div>
+    </div>
+
+    <!-- Start Modal -->
+    <div class="modal active" id="startModal">
+        <div class="modal-content">
+            <h2>🪨 Rock Cycle Racing</h2>
+            <p>Welcome, geologist! Race around the rock cycle and collect different types of rocks.</p>
+            <p><strong>The three rock types:</strong></p>
+            <p>🌋 <strong>Igneous</strong> - Formed from cooled lava/magma<br>
+            🏜️ <strong>Sedimentary</strong> - Formed from compressed sediments<br>
+            ⛰️ <strong>Metamorphic</strong> - Changed by heat and pressure</p>
+            <p>Answer questions correctly to move forward and collect rocks!</p>
+            <button class="modal-btn" onclick="startGame()">Start Racing!</button>
+        </div>
+    </div>
+
+    <!-- Lap Complete Modal -->
+    <div class="modal" id="lapModal">
+        <div class="modal-content">
+            <h2>🏁 Lap Complete!</h2>
+            <p id="lapText"></p>
+            <div class="fact-box">
+                <h4>🔬 Geology Fact:</h4>
+                <p id="lapFact"></p>
+            </div>
+            <button class="modal-btn" onclick="continueLap()">Continue Racing!</button>
+        </div>
+    </div>
+
+    <!-- Game Complete Modal -->
+    <div class="modal" id="completeModal">
+        <div class="modal-content">
+            <h2>🏆 Rock Star!</h2>
+            <p>Amazing! You've completed all 3 laps of the rock cycle!</p>
+            <p id="finalStats"></p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="finalProgress"></div>
+            </div>
+            <button class="modal-btn" onclick="startGame()">Race Again!</button>
+        </div>
+    </div>
+
+    <script>
+        // Rock data
+        const rockTypes = {
+            igneous: {
+                name: 'Igneous Rocks',
+                emoji: '🌋',
+                color: '#FF4500',
+                description: 'Formed when molten rock (magma or lava) cools and solidifies.',
+                rocks: [
+                    { name: 'Granite', emoji: '🪨', fact: 'Granite forms deep underground and is very hard. Many kitchen countertops are made of granite!' },
+                    { name: 'Obsidian', emoji: '🖤', fact: 'Obsidian is volcanic glass! It forms when lava cools so fast that crystals can\'t form.' },
+                    { name: 'Basalt', emoji: '⚫', fact: 'Most of the ocean floor is made of basalt! It\'s the most common rock on Earth\'s surface.' }
+                ],
+                questions: [
+                    {
+                        question: 'How are igneous rocks formed?',
+                        options: ['From compressed sand', 'From cooled magma or lava', 'From heat and pressure', 'From dead plants'],
+                        correct: 1
+                    },
+                    {
+                        question: 'What is magma called when it reaches Earth\'s surface?',
+                        options: ['Granite', 'Sediment', 'Lava', 'Metamorphic rock'],
+                        correct: 2
+                    },
+                    {
+                        question: 'Which is an example of an igneous rock?',
+                        options: ['Limestone', 'Granite', 'Marble', 'Sandstone'],
+                        correct: 1
+                    }
+                ]
+            },
+            sedimentary: {
+                name: 'Sedimentary Rocks',
+                emoji: '🏜️',
+                color: '#DAA520',
+                description: 'Formed when sediments (like sand, mud, or shells) are compressed together over millions of years.',
+                rocks: [
+                    { name: 'Sandstone', emoji: '🟤', fact: 'Sandstone is made of sand grains cemented together. The Grand Canyon walls are sandstone!' },
+                    { name: 'Limestone', emoji: '⬜', fact: 'Limestone is often made from sea creature shells! The pyramids of Egypt are made of limestone.' },
+                    { name: 'Shale', emoji: '📄', fact: 'Shale forms from clay and mud. It splits into thin layers, like pages in a book!' }
+                ],
+                questions: [
+                    {
+                        question: 'What are sedimentary rocks made from?',
+                        options: ['Cooled lava', 'Compressed sediments', 'Melted crystals', 'Pure minerals'],
+                        correct: 1
+                    },
+                    {
+                        question: 'Where are fossils most commonly found?',
+                        options: ['Igneous rocks', 'Sedimentary rocks', 'Metamorphic rocks', 'Volcanic rocks'],
+                        correct: 1
+                    },
+                    {
+                        question: 'Which process helps form sedimentary rocks?',
+                        options: ['Melting', 'Freezing', 'Compaction and cementation', 'Evaporation'],
+                        correct: 2
+                    }
+                ]
+            },
+            metamorphic: {
+                name: 'Metamorphic Rocks',
+                emoji: '⛰️',
+                color: '#4682B4',
+                description: 'Formed when existing rocks are changed by extreme heat and pressure deep underground.',
+                rocks: [
+                    { name: 'Marble', emoji: '🤍', fact: 'Marble was once limestone! Heat and pressure transformed it. Famous statues like Michelangelo\'s David are made of marble.' },
+                    { name: 'Slate', emoji: '🩶', fact: 'Slate was once shale! It\'s so flat and strong that it\'s used for roof tiles and chalkboards.' },
+                    { name: 'Quartzite', emoji: '💎', fact: 'Quartzite was once sandstone! It\'s one of the hardest rocks and sparkles in sunlight.' }
+                ],
+                questions: [
+                    {
+                        question: 'What causes metamorphic rocks to form?',
+                        options: ['Water erosion', 'Heat and pressure', 'Volcanic eruption', 'Freezing'],
+                        correct: 1
+                    },
+                    {
+                        question: 'Marble is a metamorphic rock that came from:',
+                        options: ['Granite', 'Sandstone', 'Limestone', 'Obsidian'],
+                        correct: 2
+                    },
+                    {
+                        question: 'Where do metamorphic rocks usually form?',
+                        options: ['On the surface', 'In the ocean', 'Deep underground', 'In space'],
+                        correct: 2
+                    }
+                ]
+            }
+        };
+
+        const cycleOrder = ['igneous', 'sedimentary', 'metamorphic'];
+        const cycleFacts = [
+            'The rock cycle never stops! It has been continuously transforming rocks for over 4 billion years.',
+            'Mount Everest\'s peak is made of sedimentary rocks that were once at the bottom of an ancient ocean!',
+            'Some rocks take millions of years to complete one full journey through the rock cycle.',
+            'Diamonds are metamorphic - they form when carbon is squeezed under extreme pressure deep in the Earth!',
+            'The oldest rocks ever found are over 4 billion years old - almost as old as Earth itself!'
+        ];
+
+        // Game state
+        let gameState = {
+            currentCheckpoint: 0,
+            lap: 1,
+            score: 0,
+            collectedRocks: [],
+            questionsAsked: { igneous: 0, sedimentary: 0, metamorphic: 0 }
+        };
+
+        function initGame() {
+            gameState = {
+                currentCheckpoint: 0,
+                lap: 1,
+                score: 0,
+                collectedRocks: [],
+                questionsAsked: { igneous: 0, sedimentary: 0, metamorphic: 0 }
+            };
+
+            updateUI();
+            renderCollection();
+            loadQuestion();
+            updateRacerPosition();
+        }
+
+        function updateUI() {
+            document.getElementById('lap').textContent = gameState.lap;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('rocks').textContent = gameState.collectedRocks.length;
+
+            // Update checkpoints
+            cycleOrder.forEach((type, index) => {
+                const cp = document.getElementById(`cp-${type}`);
+                cp.classList.remove('current', 'completed');
+                if (index === gameState.currentCheckpoint) {
+                    cp.classList.add('current');
+                } else if (index < gameState.currentCheckpoint) {
+                    cp.classList.add('completed');
+                }
+            });
+        }
+
+        function updateRacerPosition() {
+            const racer = document.getElementById('racer');
+            const checkpoints = document.querySelectorAll('.checkpoint');
+            const currentCp = checkpoints[gameState.currentCheckpoint];
+
+            if (currentCp) {
+                const rect = currentCp.getBoundingClientRect();
+                const trackRect = document.querySelector('.track-path').getBoundingClientRect();
+
+                racer.style.left = (currentCp.offsetLeft + 40) + 'px';
+                racer.style.top = (currentCp.offsetTop - 40) + 'px';
+            }
+        }
+
+        function loadQuestion() {
+            const currentType = cycleOrder[gameState.currentCheckpoint];
+            const rockType = rockTypes[currentType];
+            const questionIndex = gameState.questionsAsked[currentType] % rockType.questions.length;
+            const question = rockType.questions[questionIndex];
+
+            document.getElementById('questionTitle').innerHTML = `${rockType.emoji} ${rockType.name}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersDiv = document.getElementById('answers');
+            answersDiv.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index, question.correct);
+                answersDiv.appendChild(btn);
+            });
+
+            document.getElementById('rockInfo').classList.remove('show');
+        }
+
+        function checkAnswer(selected, correct) {
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn, index) => {
+                btn.disabled = true;
+                if (index === correct) {
+                    btn.classList.add('correct');
+                } else if (index === selected) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            const currentType = cycleOrder[gameState.currentCheckpoint];
+            gameState.questionsAsked[currentType]++;
+
+            if (selected === correct) {
+                gameState.score += 50;
+                collectRock();
+            }
+
+            // Show rock info
+            showRockInfo();
+
+            // Move to next checkpoint after delay
+            setTimeout(() => {
+                advanceCheckpoint();
+            }, 2500);
+
+            updateUI();
+        }
+
+        function collectRock() {
+            const currentType = cycleOrder[gameState.currentCheckpoint];
+            const rockType = rockTypes[currentType];
+            const rockIndex = gameState.questionsAsked[currentType] - 1;
+
+            if (rockIndex < rockType.rocks.length) {
+                const rock = rockType.rocks[rockIndex];
+                const rockId = `${currentType}-${rockIndex}`;
+
+                if (!gameState.collectedRocks.includes(rockId)) {
+                    gameState.collectedRocks.push(rockId);
+                    createCelebration(rock.emoji);
+                }
+            }
+
+            renderCollection();
+        }
+
+        function showRockInfo() {
+            const currentType = cycleOrder[gameState.currentCheckpoint];
+            const rockType = rockTypes[currentType];
+            const rockIndex = (gameState.questionsAsked[currentType] - 1) % rockType.rocks.length;
+            const rock = rockType.rocks[rockIndex];
+
+            document.getElementById('infoTitle').innerHTML = `${rock.emoji} ${rock.name}`;
+            document.getElementById('infoText').textContent = rock.fact;
+            document.getElementById('rockInfo').classList.add('show');
+        }
+
+        function advanceCheckpoint() {
+            gameState.currentCheckpoint++;
+
+            if (gameState.currentCheckpoint >= cycleOrder.length) {
+                // Completed a lap
+                completeLap();
+            } else {
+                updateUI();
+                updateRacerPosition();
+                loadQuestion();
+            }
+        }
+
+        function completeLap() {
+            gameState.lap++;
+            gameState.currentCheckpoint = 0;
+            gameState.score += 100; // Lap bonus
+
+            if (gameState.lap > 3) {
+                // Game complete
+                showComplete();
+            } else {
+                // Show lap complete modal
+                document.getElementById('lapText').textContent = `You've completed lap ${gameState.lap - 1}! The rock cycle continues...`;
+                document.getElementById('lapFact').textContent = cycleFacts[Math.floor(Math.random() * cycleFacts.length)];
+                document.getElementById('lapModal').classList.add('active');
+            }
+
+            updateUI();
+        }
+
+        function continueLap() {
+            document.getElementById('lapModal').classList.remove('active');
+            updateRacerPosition();
+            loadQuestion();
+        }
+
+        function showComplete() {
+            const totalRocks = 9;
+            const progress = (gameState.collectedRocks.length / totalRocks) * 100;
+
+            document.getElementById('finalStats').innerHTML = `
+                <strong>Final Score:</strong> ${gameState.score} points<br>
+                <strong>Rocks Collected:</strong> ${gameState.collectedRocks.length}/${totalRocks}
+            `;
+            document.getElementById('finalProgress').style.width = progress + '%';
+            document.getElementById('completeModal').classList.add('active');
+
+            // Big celebration
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createCelebration(['🪨', '💎', '🌋'][i % 3]), i * 100);
+            }
+        }
+
+        function renderCollection() {
+            const grid = document.querySelector('.rock-collection');
+            grid.innerHTML = '<h3 style="grid-column: 1/-1; color: #DEB887; text-align: center; margin-bottom: 10px;">🏆 Rock Collection</h3>';
+
+            cycleOrder.forEach(type => {
+                const rockType = rockTypes[type];
+                rockType.rocks.forEach((rock, index) => {
+                    const rockId = `${type}-${index}`;
+                    const collected = gameState.collectedRocks.includes(rockId);
+
+                    const card = document.createElement('div');
+                    card.className = `rock-card ${type} ${collected ? 'collected' : 'locked'}`;
+                    card.innerHTML = `
+                        <div class="emoji">${collected ? rock.emoji : '❓'}</div>
+                        <div class="name">${collected ? rock.name : '???'}</div>
+                        <div class="type">${rockType.name.replace(' Rocks', '')}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            });
+        }
+
+        function selectCheckpoint(type) {
+            // Visual feedback only - can't skip checkpoints
+        }
+
+        function createCelebration(emoji) {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            celebration.textContent = emoji;
+            celebration.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+            celebration.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+            document.body.appendChild(celebration);
+            setTimeout(() => celebration.remove(), 1500);
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            document.getElementById('completeModal').classList.remove('active');
+            initGame();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>

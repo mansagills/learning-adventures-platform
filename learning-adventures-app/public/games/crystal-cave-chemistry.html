@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Crystal Cave Chemistry">
+    <meta name="description" content="Mix elements and create amazing crystals by learning chemistry combinations">
+    <meta name="content-type" content="game">
+    <meta name="subject" content="science">
+    <meta name="grade-level" content="4,5">
+    <meta name="difficulty" content="hard">
+    <meta name="skills" content="Chemistry,Elements,Compounds,Chemical Reactions">
+    <meta name="estimated-time" content="20-25 mins">
+    <title>Crystal Cave Chemistry - Learning Adventures</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #2c1654 0%, #1a0a3e 50%, #0d0520 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(138,43,226,0.4), rgba(75,0,130,0.4));
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .game-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #E0B0FF, #DA70D6, #9370DB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .lab-area {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .lab-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .elements-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(138,43,226,0.3);
+        }
+
+        .elements-panel h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #E0B0FF;
+        }
+
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .element-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .element-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,255,255,0.2);
+        }
+
+        .element-btn.selected {
+            animation: elementPulse 1s infinite;
+        }
+
+        @keyframes elementPulse {
+            0%, 100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 25px currentColor; }
+        }
+
+        .element-btn .symbol {
+            font-size: 1.5em;
+        }
+
+        .element-btn .name {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        /* Element colors based on type */
+        .element-metal { background: linear-gradient(135deg, #4169E1, #1E90FF); color: white; }
+        .element-nonmetal { background: linear-gradient(135deg, #32CD32, #228B22); color: white; }
+        .element-noble { background: linear-gradient(135deg, #9370DB, #8A2BE2); color: white; }
+        .element-halogen { background: linear-gradient(135deg, #FF6B6B, #EE4B4B); color: white; }
+
+        .mixing-chamber {
+            background: linear-gradient(180deg, rgba(75,0,130,0.3), rgba(138,43,226,0.2));
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            border: 3px solid rgba(138,43,226,0.5);
+            position: relative;
+            min-height: 400px;
+        }
+
+        .mixing-chamber h3 {
+            margin-bottom: 20px;
+            color: #E0B0FF;
+        }
+
+        .cauldron {
+            width: 200px;
+            height: 180px;
+            margin: 0 auto 20px;
+            background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-radius: 0 0 100px 100px;
+            position: relative;
+            border: 4px solid #444;
+            overflow: hidden;
+        }
+
+        .cauldron-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(180deg, rgba(138,43,226,0.8), rgba(75,0,130,0.9));
+            transition: all 0.5s ease;
+            border-radius: 0 0 96px 96px;
+        }
+
+        .cauldron-liquid.active {
+            animation: bubbling 0.5s ease-in-out infinite;
+        }
+
+        @keyframes bubbling {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .selected-elements {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .selected-element {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1.3em;
+            min-width: 100px;
+            border: 2px dashed rgba(255,255,255,0.3);
+        }
+
+        .selected-element.filled {
+            border-style: solid;
+            background: rgba(138,43,226,0.3);
+        }
+
+        .mix-btn {
+            padding: 15px 50px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #9370DB, #8A2BE2);
+            color: white;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .mix-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 25px rgba(138,43,226,0.5);
+        }
+
+        .mix-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            padding: 10px 25px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            background: transparent;
+            color: white;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .crystals-panel {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            border: 2px solid rgba(138,43,226,0.3);
+        }
+
+        .crystals-panel h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #E0B0FF;
+        }
+
+        .crystal-collection {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .crystal-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .crystal-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .crystal-item.discovered {
+            border-color: rgba(138,43,226,0.5);
+        }
+
+        .crystal-item.not-discovered {
+            opacity: 0.4;
+        }
+
+        .crystal-item .crystal-emoji {
+            font-size: 2em;
+        }
+
+        .crystal-item .crystal-info {
+            flex: 1;
+        }
+
+        .crystal-item .crystal-name {
+            font-weight: bold;
+            color: #E0B0FF;
+        }
+
+        .crystal-item .crystal-formula {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .recipe-book {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid rgba(138,43,226,0.3);
+        }
+
+        .recipe-book h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #E0B0FF;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .recipe-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .recipe-card.discovered {
+            border-color: #9370DB;
+            background: rgba(138,43,226,0.1);
+        }
+
+        .recipe-card .emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .recipe-card .hint {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c1654, #1a0a3e);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 3px solid rgba(138,43,226,0.5);
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #E0B0FF;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #9370DB, #8A2BE2);
+            color: white;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .discovery-crystal {
+            font-size: 5em;
+            animation: crystalSpin 2s ease-in-out infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes crystalSpin {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
+        }
+
+        .fact-box {
+            background: rgba(138,43,226,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #9370DB;
+            text-align: left;
+        }
+
+        .fact-box h4 {
+            color: #E0B0FF;
+            margin-bottom: 8px;
+        }
+
+        /* Sparkle effects */
+        .sparkle {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #fff, #E0B0FF);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0) translateY(-50px); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9370DB, #E0B0FF);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 600px) {
+            .game-header h1 {
+                font-size: 1.6em;
+            }
+
+            .cauldron {
+                width: 150px;
+                height: 130px;
+            }
+
+            .element-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>💎 Crystal Cave Chemistry</h1>
+            <p>Mix elements to create amazing crystal compounds!</p>
+            <div class="stats-bar">
+                <div class="stat">💎 Crystals: <span id="crystalCount">0</span>/<span id="totalCrystals">10</span></div>
+                <div class="stat">⭐ Score: <span id="score">0</span></div>
+                <div class="stat">🧪 Reactions: <span id="reactions">0</span></div>
+            </div>
+        </header>
+
+        <div class="lab-area">
+            <div class="elements-panel">
+                <h3>⚗️ Elements</h3>
+                <div class="element-grid" id="elementGrid"></div>
+            </div>
+
+            <div class="mixing-chamber">
+                <h3>🔮 Mixing Chamber</h3>
+                <div class="cauldron">
+                    <div class="cauldron-liquid" id="cauldronLiquid"></div>
+                </div>
+                <div class="selected-elements">
+                    <div class="selected-element" id="slot1">?</div>
+                    <div class="selected-element" id="slot2">?</div>
+                </div>
+                <button class="mix-btn" id="mixBtn" onclick="mixElements()" disabled>
+                    ✨ Create Crystal!
+                </button>
+                <br>
+                <button class="clear-btn" onclick="clearSelection()">🔄 Clear</button>
+            </div>
+
+            <div class="crystals-panel">
+                <h3>🏆 Collection</h3>
+                <div class="crystal-collection" id="crystalCollection"></div>
+            </div>
+        </div>
+
+        <div class="recipe-book">
+            <h3>📖 Crystal Recipe Hints</h3>
+            <div class="recipe-grid" id="recipeGrid"></div>
+        </div>
+    </div>
+
+    <!-- Start Modal -->
+    <div class="modal active" id="startModal">
+        <div class="modal-content">
+            <h2>💎 Crystal Cave Chemistry</h2>
+            <p>Welcome to the magical crystal laboratory! Combine different elements to create beautiful crystals.</p>
+            <p><strong>How to play:</strong></p>
+            <p>1. Select TWO elements from the panel<br>
+            2. Click "Create Crystal!" to mix them<br>
+            3. Discover all 10 crystal compounds!</p>
+            <p><em>Hint: Look at the recipe book for clues!</em></p>
+            <button class="modal-btn" onclick="startGame()">Start Mixing!</button>
+        </div>
+    </div>
+
+    <!-- Discovery Modal -->
+    <div class="modal" id="discoveryModal">
+        <div class="modal-content">
+            <h2 id="discoveryTitle">🎉 New Crystal!</h2>
+            <div class="discovery-crystal" id="discoveryCrystal">💎</div>
+            <p id="discoveryName"></p>
+            <p id="discoveryFormula"></p>
+            <div class="fact-box">
+                <h4>🔬 Chemistry Fact:</h4>
+                <p id="discoveryFact"></p>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="discoveryProgress"></div>
+            </div>
+            <p id="discoveryStats"></p>
+            <button class="modal-btn" onclick="closeDiscovery()">Keep Mixing!</button>
+        </div>
+    </div>
+
+    <!-- Failure Modal -->
+    <div class="modal" id="failModal">
+        <div class="modal-content">
+            <h2>🌫️ No Reaction</h2>
+            <p id="failText">These elements don't form a crystal compound. Try a different combination!</p>
+            <p style="opacity: 0.7; font-style: italic;">Hint: Check the recipe book for clues about which elements work together.</p>
+            <button class="modal-btn" onclick="closeFailure()">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Complete Modal -->
+    <div class="modal" id="completeModal">
+        <div class="modal-content">
+            <h2>🏆 Master Chemist!</h2>
+            <p>Amazing! You've discovered all the crystal compounds!</p>
+            <p id="completeStats"></p>
+            <button class="modal-btn" onclick="startGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Elements data
+        const elements = [
+            { symbol: 'Na', name: 'Sodium', type: 'metal', color: '#4169E1' },
+            { symbol: 'Cl', name: 'Chlorine', type: 'halogen', color: '#FF6B6B' },
+            { symbol: 'K', name: 'Potassium', type: 'metal', color: '#4169E1' },
+            { symbol: 'I', name: 'Iodine', type: 'halogen', color: '#FF6B6B' },
+            { symbol: 'Ca', name: 'Calcium', type: 'metal', color: '#4169E1' },
+            { symbol: 'C', name: 'Carbon', type: 'nonmetal', color: '#32CD32' },
+            { symbol: 'Cu', name: 'Copper', type: 'metal', color: '#4169E1' },
+            { symbol: 'S', name: 'Sulfur', type: 'nonmetal', color: '#32CD32' },
+            { symbol: 'Fe', name: 'Iron', type: 'metal', color: '#4169E1' },
+            { symbol: 'O', name: 'Oxygen', type: 'nonmetal', color: '#32CD32' },
+            { symbol: 'Al', name: 'Aluminum', type: 'metal', color: '#4169E1' },
+            { symbol: 'Si', name: 'Silicon', type: 'nonmetal', color: '#32CD32' }
+        ];
+
+        // Crystal compounds
+        const crystals = [
+            {
+                elements: ['Na', 'Cl'],
+                name: 'Salt Crystal (Halite)',
+                formula: 'NaCl',
+                emoji: '🧂',
+                fact: 'Table salt! Ancient Romans paid soldiers in salt - that\'s where "salary" comes from!',
+                hint: 'Common seasoning'
+            },
+            {
+                elements: ['K', 'I'],
+                name: 'Potassium Iodide',
+                formula: 'KI',
+                emoji: '💜',
+                fact: 'Used in photography and medicine. It can protect your thyroid from radiation!',
+                hint: 'Purple medicine'
+            },
+            {
+                elements: ['Ca', 'C'],
+                name: 'Calcium Carbonate (Calcite)',
+                formula: 'CaCO₃',
+                emoji: '🤍',
+                fact: 'Found in seashells, chalk, and limestone! It\'s what makes pearls shiny.',
+                hint: 'Chalk and shells'
+            },
+            {
+                elements: ['Cu', 'S'],
+                name: 'Copper Sulfide',
+                formula: 'CuS',
+                emoji: '🔵',
+                fact: 'Creates beautiful blue crystals! Ancient Egyptians used copper compounds for makeup.',
+                hint: 'Blue penny metal'
+            },
+            {
+                elements: ['Fe', 'O'],
+                name: 'Iron Oxide (Rust/Hematite)',
+                formula: 'Fe₂O₃',
+                emoji: '🔴',
+                fact: 'This is what makes Mars red! Also found in blood and used as a pigment for thousands of years.',
+                hint: 'Red planet mineral'
+            },
+            {
+                elements: ['Al', 'O'],
+                name: 'Aluminum Oxide (Corundum)',
+                formula: 'Al₂O₃',
+                emoji: '💎',
+                fact: 'Pure corundum is colorless, but impurities create rubies (red) and sapphires (blue)!',
+                hint: 'Precious gems base'
+            },
+            {
+                elements: ['Si', 'O'],
+                name: 'Silicon Dioxide (Quartz)',
+                formula: 'SiO₂',
+                emoji: '🔮',
+                fact: 'The most common mineral on Earth! Used in watches, computers, and smartphones.',
+                hint: 'Crystal balls'
+            },
+            {
+                elements: ['Ca', 'S'],
+                name: 'Calcium Sulfide (Oldhamite)',
+                formula: 'CaS',
+                emoji: '🌟',
+                fact: 'Glows in the dark! Found in meteorites and used in glow-in-the-dark toys.',
+                hint: 'Space rock glow'
+            },
+            {
+                elements: ['Cu', 'O'],
+                name: 'Copper Oxide',
+                formula: 'CuO',
+                emoji: '🖤',
+                fact: 'Creates black crystals! Used in fireworks to make blue flames.',
+                hint: 'Black penny burn'
+            },
+            {
+                elements: ['Fe', 'S'],
+                name: 'Iron Sulfide (Pyrite)',
+                formula: 'FeS₂',
+                emoji: '🥇',
+                fact: 'Called "Fool\'s Gold" because it looks like gold! Miners were often tricked by it.',
+                hint: 'Fake treasure'
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            selectedElements: [],
+            discoveredCrystals: [],
+            score: 0,
+            reactions: 0
+        };
+
+        function initGame() {
+            gameState.selectedElements = [];
+            gameState.discoveredCrystals = [];
+            gameState.score = 0;
+            gameState.reactions = 0;
+
+            renderElements();
+            renderCrystals();
+            renderRecipes();
+            updateStats();
+            updateSelection();
+        }
+
+        function renderElements() {
+            const grid = document.getElementById('elementGrid');
+            grid.innerHTML = '';
+
+            elements.forEach(element => {
+                const btn = document.createElement('button');
+                btn.className = `element-btn element-${element.type}`;
+                btn.innerHTML = `
+                    <span class="symbol">${element.symbol}</span>
+                    <span class="name">${element.name}</span>
+                `;
+                btn.onclick = () => selectElement(element);
+                btn.id = `element-${element.symbol}`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectElement(element) {
+            if (gameState.selectedElements.length >= 2) return;
+
+            // Check if already selected
+            if (gameState.selectedElements.find(e => e.symbol === element.symbol)) return;
+
+            gameState.selectedElements.push(element);
+
+            // Update button style
+            document.getElementById(`element-${element.symbol}`).classList.add('selected');
+
+            updateSelection();
+            createSparkles(event.clientX, event.clientY);
+        }
+
+        function updateSelection() {
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const mixBtn = document.getElementById('mixBtn');
+            const liquid = document.getElementById('cauldronLiquid');
+
+            if (gameState.selectedElements.length >= 1) {
+                slot1.textContent = gameState.selectedElements[0].symbol;
+                slot1.classList.add('filled');
+                liquid.style.height = '30%';
+                liquid.style.background = gameState.selectedElements[0].color;
+            } else {
+                slot1.textContent = '?';
+                slot1.classList.remove('filled');
+                liquid.style.height = '0%';
+            }
+
+            if (gameState.selectedElements.length >= 2) {
+                slot2.textContent = gameState.selectedElements[1].symbol;
+                slot2.classList.add('filled');
+                liquid.style.height = '60%';
+                // Mix colors
+                liquid.style.background = `linear-gradient(180deg, ${gameState.selectedElements[0].color}, ${gameState.selectedElements[1].color})`;
+                liquid.classList.add('active');
+            } else {
+                slot2.textContent = '?';
+                slot2.classList.remove('filled');
+                liquid.classList.remove('active');
+            }
+
+            mixBtn.disabled = gameState.selectedElements.length < 2;
+        }
+
+        function clearSelection() {
+            gameState.selectedElements.forEach(element => {
+                document.getElementById(`element-${element.symbol}`).classList.remove('selected');
+            });
+            gameState.selectedElements = [];
+            updateSelection();
+        }
+
+        function mixElements() {
+            if (gameState.selectedElements.length < 2) return;
+
+            gameState.reactions++;
+            const liquid = document.getElementById('cauldronLiquid');
+            liquid.style.height = '80%';
+
+            // Check for valid combination
+            const selected = gameState.selectedElements.map(e => e.symbol).sort();
+            const crystal = crystals.find(c =>
+                c.elements.slice().sort().join(',') === selected.join(',')
+            );
+
+            setTimeout(() => {
+                if (crystal) {
+                    const isNew = !gameState.discoveredCrystals.find(c => c.formula === crystal.formula);
+                    if (isNew) {
+                        gameState.discoveredCrystals.push(crystal);
+                        gameState.score += 100;
+                        showDiscovery(crystal);
+                    } else {
+                        // Already discovered
+                        showDiscovery(crystal, true);
+                    }
+                } else {
+                    showFailure();
+                }
+
+                clearSelection();
+                updateStats();
+                renderCrystals();
+                renderRecipes();
+
+                // Check for completion
+                if (gameState.discoveredCrystals.length === crystals.length) {
+                    setTimeout(showComplete, 1000);
+                }
+            }, 1000);
+        }
+
+        function showDiscovery(crystal, alreadyFound = false) {
+            document.getElementById('discoveryTitle').textContent = alreadyFound ?
+                '🔄 Crystal Recreated!' : '🎉 New Crystal Discovered!';
+            document.getElementById('discoveryCrystal').textContent = crystal.emoji;
+            document.getElementById('discoveryName').innerHTML = `<strong>${crystal.name}</strong>`;
+            document.getElementById('discoveryFormula').textContent = `Formula: ${crystal.formula}`;
+            document.getElementById('discoveryFact').textContent = crystal.fact;
+
+            const progress = (gameState.discoveredCrystals.length / crystals.length) * 100;
+            document.getElementById('discoveryProgress').style.width = progress + '%';
+            document.getElementById('discoveryStats').textContent =
+                `${gameState.discoveredCrystals.length}/${crystals.length} crystals discovered`;
+
+            document.getElementById('discoveryModal').classList.add('active');
+
+            // Create celebration sparkles
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    createSparkles(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight
+                    );
+                }, i * 50);
+            }
+        }
+
+        function closeDiscovery() {
+            document.getElementById('discoveryModal').classList.remove('active');
+        }
+
+        function showFailure() {
+            document.getElementById('failModal').classList.add('active');
+        }
+
+        function closeFailure() {
+            document.getElementById('failModal').classList.remove('active');
+        }
+
+        function showComplete() {
+            document.getElementById('completeStats').innerHTML = `
+                <strong>Final Score:</strong> ${gameState.score} points<br>
+                <strong>Crystals Discovered:</strong> ${gameState.discoveredCrystals.length}<br>
+                <strong>Total Reactions:</strong> ${gameState.reactions}
+            `;
+            document.getElementById('completeModal').classList.add('active');
+        }
+
+        function renderCrystals() {
+            const collection = document.getElementById('crystalCollection');
+            collection.innerHTML = '';
+
+            crystals.forEach(crystal => {
+                const isDiscovered = gameState.discoveredCrystals.find(c => c.formula === crystal.formula);
+                const item = document.createElement('div');
+                item.className = `crystal-item ${isDiscovered ? 'discovered' : 'not-discovered'}`;
+                item.innerHTML = `
+                    <span class="crystal-emoji">${isDiscovered ? crystal.emoji : '❓'}</span>
+                    <div class="crystal-info">
+                        <div class="crystal-name">${isDiscovered ? crystal.name : '???'}</div>
+                        <div class="crystal-formula">${isDiscovered ? crystal.formula : '? + ?'}</div>
+                    </div>
+                `;
+                if (isDiscovered) {
+                    item.onclick = () => showDiscovery(crystal, true);
+                }
+                collection.appendChild(item);
+            });
+        }
+
+        function renderRecipes() {
+            const grid = document.getElementById('recipeGrid');
+            grid.innerHTML = '';
+
+            crystals.forEach(crystal => {
+                const isDiscovered = gameState.discoveredCrystals.find(c => c.formula === crystal.formula);
+                const card = document.createElement('div');
+                card.className = `recipe-card ${isDiscovered ? 'discovered' : ''}`;
+                card.innerHTML = `
+                    <div class="emoji">${isDiscovered ? crystal.emoji : '❓'}</div>
+                    <div class="name">${isDiscovered ? crystal.name : '???'}</div>
+                    <div class="hint">${isDiscovered ? crystal.formula : `Hint: ${crystal.hint}`}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('crystalCount').textContent = gameState.discoveredCrystals.length;
+            document.getElementById('totalCrystals').textContent = crystals.length;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('reactions').textContent = gameState.reactions;
+        }
+
+        function createSparkles(x, y) {
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.left = (x + Math.random() * 40 - 20) + 'px';
+                sparkle.style.top = (y + Math.random() * 40 - 20) + 'px';
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1000);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('startModal').classList.remove('active');
+            document.getElementById('completeModal').classList.remove('active');
+            initGame();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
