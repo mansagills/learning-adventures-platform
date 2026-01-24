@@ -57,14 +57,53 @@ export async function GET(request: Request) {
         }))
       );
     } else if (user.role === 'PARENT') {
-      // TODO: Implement parent-child relationships
-      // For now, return empty array
-      students = [];
+      // Get children from ChildProfile for this parent
+      const childProfiles = await prisma.childProfile.findMany({
+        where: { parentId: session.user.id },
+        select: {
+          id: true,
+          displayName: true,
+          username: true,
+          gradeLevel: true,
+          avatarId: true,
+          createdAt: true,
+          lastLoginAt: true,
+        }
+      });
+
+      // Map child profiles to student format
+      // Note: Child profiles use a separate auth system, so we map fields accordingly
+      students = childProfiles.map(child => ({
+        id: child.id,
+        name: child.displayName,
+        email: `${child.username}@child.internal`, // Placeholder for display
+        gradeLevel: child.gradeLevel,
+        createdAt: child.createdAt,
+        isChildProfile: true, // Flag to indicate this is a ChildProfile, not a User
+        avatarId: child.avatarId,
+        lastLoginAt: child.lastLoginAt,
+      }));
     }
 
     // Get progress stats for each student
     const studentsWithStats = await Promise.all(
       students.map(async (student) => {
+        // Child profiles don't have progress tracking yet - return placeholder stats
+        // TODO: Implement progress tracking for ChildProfile accounts
+        if (student.isChildProfile) {
+          return {
+            ...student,
+            stats: {
+              totalAdventures: 0,
+              completedAdventures: 0,
+              completionRate: 0,
+              achievements: 0,
+              activeGoals: 0
+            }
+          };
+        }
+
+        // Regular User accounts - fetch actual stats
         const [progressCount, completedCount, achievements, goals] = await Promise.all([
           prisma.userProgress.count({
             where: { userId: student.id }

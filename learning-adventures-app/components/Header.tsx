@@ -112,6 +112,15 @@ export default function Header() {
               </div>
             ) : session ? (
               <div className="flex items-center space-x-3">
+                {session.user.role === 'ADMIN' && (
+                  <Link
+                    href="/internal"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-600 transition-all"
+                  >
+                    <Icon name="settings" size={16} />
+                    Admin
+                  </Link>
+                )}
                 <Link
                   href="/dashboard"
                   className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
@@ -192,6 +201,16 @@ export default function Header() {
               <div className="pt-4">
                 {session ? (
                   <div className="space-y-3">
+                    {session.user.role === 'ADMIN' && (
+                      <Link
+                        href="/internal"
+                        className="flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <Icon name="settings" size={18} />
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <Link
                       href="/dashboard"
                       className="block text-center py-2 text-brand-500 font-medium"

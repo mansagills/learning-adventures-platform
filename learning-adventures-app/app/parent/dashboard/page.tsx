@@ -117,13 +117,22 @@ function ParentDashboard() {
                 Monitor your {totalChildren === 1 ? "child's" : "children's"} learning journey
               </p>
             </div>
-            <Link
-              href="/dashboard"
-              className="flex items-center space-x-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors"
-            >
-              <Icon name="arrow-left" size={16} />
-              <span>Back to Dashboard</span>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/parent/children"
+                className="flex items-center space-x-2 px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors"
+              >
+                <Icon name="plus" size={16} />
+                <span>Manage Children</span>
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex items-center space-x-2 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors"
+              >
+                <Icon name="arrow-left" size={16} />
+                <span>Back to Dashboard</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -210,38 +219,44 @@ function ParentDashboard() {
 
           {!loading && !error && children.length === 0 && (
             <div className="text-center py-16">
-              <Icon name="users" size={64} className="text-ink-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-ink-800 mb-2">No Children Connected</h3>
+              <div className="text-6xl mb-4">👨‍👩‍👧‍👦</div>
+              <h3 className="text-xl font-semibold text-ink-800 mb-2">No Children Added Yet</h3>
               <p className="text-ink-500 mb-6 max-w-md mx-auto">
-                Parent-child account linking is coming soon! Once available, you'll be able to
-                monitor your children's learning progress and help them achieve their goals.
+                Add your children to start monitoring their learning progress and help them achieve their educational goals.
               </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto">
+              <Link
+                href="/parent/children"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
+              >
+                <Icon name="plus" size={20} />
+                <span>Add Your First Child</span>
+              </Link>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto mt-8">
                 <div className="flex items-start space-x-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Icon name="info" size={20} className="text-blue-600" />
                   </div>
                   <div className="text-left">
-                    <h4 className="font-semibold text-blue-900 mb-2">Coming Soon</h4>
+                    <h4 className="font-semibold text-blue-900 mb-2">How It Works</h4>
                     <p className="text-sm text-blue-800 mb-3">
-                      We're working on parent-child account connections. Soon you'll be able to:
+                      Create child accounts with COPPA-compliant privacy protections:
                     </p>
                     <ul className="space-y-1 text-sm text-blue-700">
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>Link your children's student accounts</span>
+                        <span>Children log in with a fun username and 4-digit PIN</span>
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>Monitor their progress and achievements</span>
+                        <span>No email address required for children</span>
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>Help them set and track learning goals</span>
+                        <span>You control their account and can change their PIN anytime</span>
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>Receive weekly progress reports</span>
+                        <span>Monitor their progress from this dashboard</span>
                       </li>
                     </ul>
                   </div>

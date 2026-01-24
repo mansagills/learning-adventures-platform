@@ -77,6 +77,15 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
     });
   }
 
+  // Add parent-specific menu items
+  if (user.role === 'PARENT') {
+    menuItems.splice(1, 0, {
+      label: 'Manage Children',
+      href: '/parent/children',
+      icon: 'users',
+    });
+  }
+
   // Add admin/teacher specific menu items based on role
   if (user.role === 'ADMIN') {
     menuItems.push(

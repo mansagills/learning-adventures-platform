@@ -492,33 +492,33 @@ export default function TestingAdminPage() {
             <div className="space-y-3 max-h-[calc(100vh-350px)] overflow-y-auto">
               {activeTab === 'games' ? (
                 filteredGames.map(game => (
-                  <div
-                    key={game.id}
-                    onClick={() => handleSelectGame(game)}
-                    className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedGame?.id === game.id
+                <div
+                  key={game.id}
+                  onClick={() => handleSelectGame(game)}
+                  className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedGame?.id === game.id
                         ? 'border-indigo-500 shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-gray-900">{game.title}</h3>
-                      {game.catalogued && (
-                        <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-gray-900">{game.title}</h3>
+                    {game.catalogued && (
+                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
                           Published
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{game.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs px-2 py-1 rounded font-medium ${statusColors[game.status]}`}>
-                        {game.status.replace('_', ' ')}
                       </span>
-                      <div className="text-xs text-gray-500">
+                    )}
+                  </div>
+                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{game.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-xs px-2 py-1 rounded font-medium ${statusColors[game.status]}`}>
+                      {game.status.replace('_', ' ')}
+                    </span>
+                    <div className="text-xs text-gray-500">
                         {game._count.feedback} feedback | {game._count.approvals} reviews
-                      </div>
                     </div>
                   </div>
+                </div>
                 ))
               ) : (
                 filteredCourses.map(course => (
@@ -660,15 +660,15 @@ function GameDetailsPanel({
   decisionColors: Record<string, string>;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="mb-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <div className="mb-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
             <h2 className="text-2xl font-bold text-gray-900">{game.title}</h2>
             <span className={`inline-block mt-2 text-sm px-3 py-1 rounded-full font-medium ${statusColors[game.status]}`}>
               {game.status.replace('_', ' ')}
-            </span>
-          </div>
+                      </span>
+                    </div>
           <div className="flex gap-2">
             <Link
               href={`/staging/games/${game.gameId}`}
@@ -677,132 +677,132 @@ function GameDetailsPanel({
             >
               Open Staging URL
             </Link>
-            <button
+                    <button
               onClick={() => setShowPreview(!showPreview)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-            >
+                    >
               {showPreview ? 'Hide' : 'Preview'} Game
-            </button>
+                    </button>
           </div>
-        </div>
+                  </div>
 
         {showPreview && (
           <div className="mb-4 border-4 border-indigo-200 rounded-lg overflow-hidden">
-            <iframe
+                      <iframe
               src={game.filePath}
-              className="w-full h-[600px]"
+                        className="w-full h-[600px]"
               title={game.title}
-            />
-          </div>
-        )}
+                      />
+                    </div>
+                  )}
 
-        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div><strong>Category:</strong> {game.category}</div>
           <div><strong>Type:</strong> {game.type}</div>
           <div><strong>Grade Level:</strong> {game.gradeLevel.join(', ')}</div>
           <div><strong>Difficulty:</strong> {game.difficulty}</div>
           <div><strong>Time:</strong> {game.estimatedTime}</div>
           <div><strong>Skills:</strong> {game.skills.join(', ')}</div>
-        </div>
+                  </div>
 
         <p className="text-gray-600 mb-4">{game.description}</p>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 flex-wrap">
-          <button
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 flex-wrap">
+                    <button
             onClick={onApprove}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    >
             Approve/Review
-          </button>
-          <button
+                    </button>
+                    <button
             onClick={onFeedback}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
+                    >
             Add Feedback
-          </button>
+                    </button>
           {game.status === 'APPROVED' && !game.catalogued && (
-            <button
+                      <button
               onClick={onPromote}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-            >
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                      >
               Promote to Catalog
-            </button>
-          )}
-          <select
+                      </button>
+                    )}
+                    <select
             value={game.status}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="px-4 py-2 border rounded-lg"
-          >
-            <option value="NOT_TESTED">Not Tested</option>
-            <option value="IN_TESTING">In Testing</option>
-            <option value="APPROVED">Approved</option>
-            <option value="NEEDS_REVISION">Needs Revision</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
-        </div>
-      </div>
+                      className="px-4 py-2 border rounded-lg"
+                    >
+                      <option value="NOT_TESTED">Not Tested</option>
+                      <option value="IN_TESTING">In Testing</option>
+                      <option value="APPROVED">Approved</option>
+                      <option value="NEEDS_REVISION">Needs Revision</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
+                  </div>
+                </div>
 
-      {/* Approval History */}
-      <div className="mb-6">
+                {/* Approval History */}
+                <div className="mb-6">
         <h3 className="text-lg font-bold text-gray-900 mb-3">Approval History ({approvals.length})</h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
           {approvals.map(approval => (
-            <div key={approval.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-semibold">{approval.userName}</span>
-                <span className={`font-bold ${decisionColors[approval.decision]}`}>
-                  {approval.decision.replace('_', ' ')}
-                </span>
-              </div>
-              {approval.notes && <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>}
-              <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
-                {approval.educationalQuality !== null && <div>Educational: {approval.educationalQuality ? '✅' : '❌'}</div>}
-                {approval.technicalQuality !== null && <div>Technical: {approval.technicalQuality ? '✅' : '❌'}</div>}
-                {approval.accessibilityCompliant !== null && <div>Accessibility: {approval.accessibilityCompliant ? '✅' : '❌'}</div>}
-                {approval.ageAppropriate !== null && <div>Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}</div>}
-                {approval.engagementLevel && <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>}
-              </div>
-              <div className="text-xs text-gray-400 mt-2">
-                {new Date(approval.createdAt).toLocaleString()}
-              </div>
-            </div>
-          ))}
+                      <div key={approval.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="font-semibold">{approval.userName}</span>
+                          <span className={`font-bold ${decisionColors[approval.decision]}`}>
+                            {approval.decision.replace('_', ' ')}
+                          </span>
+                        </div>
+                        {approval.notes && <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>}
+                        <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
+                          {approval.educationalQuality !== null && <div>Educational: {approval.educationalQuality ? '✅' : '❌'}</div>}
+                          {approval.technicalQuality !== null && <div>Technical: {approval.technicalQuality ? '✅' : '❌'}</div>}
+                          {approval.accessibilityCompliant !== null && <div>Accessibility: {approval.accessibilityCompliant ? '✅' : '❌'}</div>}
+                          {approval.ageAppropriate !== null && <div>Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}</div>}
+                          {approval.engagementLevel && <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-2">
+                          {new Date(approval.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
           {approvals.length === 0 && (
-            <p className="text-gray-500 text-sm">No approvals yet</p>
-          )}
-        </div>
-      </div>
+                      <p className="text-gray-500 text-sm">No approvals yet</p>
+                    )}
+                  </div>
+                </div>
 
-      {/* Feedback */}
-      <div>
+                {/* Feedback */}
+                <div>
         <h3 className="text-lg font-bold text-gray-900 mb-3">Feedback & Notes ({feedback.length})</h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
           {feedback.map(item => (
             <div key={item.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex justify-between items-start mb-2">
+                        <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold">{item.userName}</span>
-                <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                          <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                   {item.feedbackType}
-                </span>
-              </div>
+                          </span>
+                        </div>
               <p className="text-sm text-gray-700 mb-2">{item.message}</p>
               {item.issueSeverity && (
-                <span className="text-xs text-red-600 font-medium">
+                          <span className="text-xs text-red-600 font-medium">
                   Severity: {item.issueSeverity}
-                </span>
-              )}
-              <div className="text-xs text-gray-400 mt-2">
+                          </span>
+                        )}
+                        <div className="text-xs text-gray-400 mt-2">
                 {new Date(item.createdAt).toLocaleString()}
-              </div>
-            </div>
-          ))}
+                        </div>
+                      </div>
+                    ))}
           {feedback.length === 0 && (
-            <p className="text-gray-500 text-sm">No feedback yet</p>
-          )}
-        </div>
-      </div>
-    </div>
+                      <p className="text-gray-500 text-sm">No feedback yet</p>
+                    )}
+                  </div>
+                </div>
+              </div>
   );
 }
 
@@ -893,8 +893,8 @@ function CourseDetailsPanel({
                 title={lessons[previewLessonIndex]?.title}
               />
             </div>
-          </div>
-        )}
+              </div>
+            )}
 
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
           <div><strong>Subject:</strong> {course.subject}</div>
@@ -1044,50 +1044,50 @@ function ApprovalModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <h3 className="text-2xl font-bold mb-4">Review: {title}</h3>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block font-medium mb-2">Decision</label>
-            <select
+              <div className="space-y-4">
+                <div>
+                  <label className="block font-medium mb-2">Decision</label>
+                  <select
               value={form.decision}
               onChange={(e) => setForm({...form, decision: e.target.value})}
-              className="w-full p-2 border rounded-lg"
-            >
-              <option value="APPROVE">Approve</option>
-              <option value="REQUEST_CHANGES">Request Changes</option>
-              <option value="REJECT">Reject</option>
-            </select>
-          </div>
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="APPROVE">Approve</option>
+                    <option value="REQUEST_CHANGES">Request Changes</option>
+                    <option value="REJECT">Reject</option>
+                  </select>
+                </div>
 
-          <div>
-            <label className="block font-medium mb-2">Notes</label>
-            <textarea
+                <div>
+                  <label className="block font-medium mb-2">Notes</label>
+                  <textarea
               value={form.notes}
               onChange={(e) => setForm({...form, notes: e.target.value})}
-              className="w-full p-2 border rounded-lg h-24"
-              placeholder="Add notes about your decision..."
-            />
-          </div>
+                    className="w-full p-2 border rounded-lg h-24"
+                    placeholder="Add notes about your decision..."
+                  />
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
             {isGame ? (
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
                   checked={form.educationalQuality}
                   onChange={(e) => setForm({...form, educationalQuality: e.target.checked})}
-                  className="w-4 h-4"
-                />
-                Educational Quality
-              </label>
+                      className="w-4 h-4"
+                    />
+                    Educational Quality
+                  </label>
             ) : (
               <>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
                     checked={form.curriculumQuality}
                     onChange={(e) => setForm({...form, curriculumQuality: e.target.checked})}
                     className="w-4 h-4"
@@ -1110,62 +1110,62 @@ function ApprovalModal({
                 type="checkbox"
                 checked={form.technicalQuality}
                 onChange={(e) => setForm({...form, technicalQuality: e.target.checked})}
-                className="w-4 h-4"
-              />
-              Technical Quality
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+                      className="w-4 h-4"
+                    />
+                    Technical Quality
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
                 checked={form.accessibilityCompliant}
                 onChange={(e) => setForm({...form, accessibilityCompliant: e.target.checked})}
-                className="w-4 h-4"
-              />
-              Accessibility Compliant
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+                      className="w-4 h-4"
+                    />
+                    Accessibility Compliant
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
                 checked={form.ageAppropriate}
                 onChange={(e) => setForm({...form, ageAppropriate: e.target.checked})}
-                className="w-4 h-4"
-              />
-              Age Appropriate
-            </label>
-          </div>
+                      className="w-4 h-4"
+                    />
+                    Age Appropriate
+                  </label>
+                </div>
 
-          <div>
-            <label className="block font-medium mb-2">Engagement Level</label>
-            <input
-              type="range"
-              min="1"
-              max="5"
+                <div>
+                  <label className="block font-medium mb-2">Engagement Level</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
               value={form.engagementLevel}
               onChange={(e) => setForm({...form, engagementLevel: parseInt(e.target.value)})}
-              className="w-full"
-            />
-            <div className="text-center text-2xl">
+                    className="w-full"
+                  />
+                  <div className="text-center text-2xl">
               {'⭐'.repeat(form.engagementLevel)}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <button
+              onClick={onSubmit}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    Submit Review
+                  </button>
+                  <button
+              onClick={onClose}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="flex gap-2 pt-4">
-            <button
-              onClick={onSubmit}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              Submit Review
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -1188,26 +1188,26 @@ function FeedbackModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-2xl w-full p-6">
         <h3 className="text-2xl font-bold mb-4">Add Feedback: {title}</h3>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block font-medium mb-2">Feedback Type</label>
-            <select
+              <div className="space-y-4">
+                <div>
+                  <label className="block font-medium mb-2">Feedback Type</label>
+                  <select
               value={form.feedbackType}
               onChange={(e) => setForm({...form, feedbackType: e.target.value})}
-              className="w-full p-2 border rounded-lg"
-            >
-              <option value="GENERAL">General</option>
-              <option value="BUG">Bug Report</option>
-              <option value="SUGGESTION">Suggestion</option>
-              <option value="PRAISE">Praise</option>
-              <option value="ACCESSIBILITY_ISSUE">Accessibility Issue</option>
-              <option value="CONTENT_ERROR">Content Error</option>
-            </select>
-          </div>
+                    className="w-full p-2 border rounded-lg"
+                  >
+                    <option value="GENERAL">General</option>
+                    <option value="BUG">Bug Report</option>
+                    <option value="SUGGESTION">Suggestion</option>
+                    <option value="PRAISE">Praise</option>
+                    <option value="ACCESSIBILITY_ISSUE">Accessibility Issue</option>
+                    <option value="CONTENT_ERROR">Content Error</option>
+                  </select>
+                </div>
 
           {!isGame && lessonsCount && lessonsCount > 0 && (
             <div>
@@ -1225,50 +1225,50 @@ function FeedbackModal({
             </div>
           )}
 
-          <div>
-            <label className="block font-medium mb-2">Message</label>
-            <textarea
+                <div>
+                  <label className="block font-medium mb-2">Message</label>
+                  <textarea
               value={form.message}
               onChange={(e) => setForm({...form, message: e.target.value})}
-              className="w-full p-2 border rounded-lg h-32"
-              placeholder="Describe your feedback..."
-              required
-            />
-          </div>
+                    className="w-full p-2 border rounded-lg h-32"
+                    placeholder="Describe your feedback..."
+                    required
+                  />
+                </div>
 
           {form.feedbackType === 'BUG' && (
-            <div>
-              <label className="block font-medium mb-2">Issue Severity</label>
-              <select
+                  <div>
+                    <label className="block font-medium mb-2">Issue Severity</label>
+                    <select
                 value={form.issueSeverity || ''}
                 onChange={(e) => setForm({...form, issueSeverity: e.target.value || null})}
-                className="w-full p-2 border rounded-lg"
-              >
-                <option value="">Select severity...</option>
-                <option value="CRITICAL">Critical (Blocks approval)</option>
-                <option value="MAJOR">Major</option>
-                <option value="MINOR">Minor</option>
-                <option value="TRIVIAL">Trivial</option>
-              </select>
-            </div>
-          )}
+                      className="w-full p-2 border rounded-lg"
+                    >
+                      <option value="">Select severity...</option>
+                      <option value="CRITICAL">Critical (Blocks approval)</option>
+                      <option value="MAJOR">Major</option>
+                      <option value="MINOR">Minor</option>
+                      <option value="TRIVIAL">Trivial</option>
+                    </select>
+                  </div>
+                )}
 
-          <div className="flex gap-2 pt-4">
-            <button
+                <div className="flex gap-2 pt-4">
+                  <button
               onClick={onSubmit}
               disabled={!form.message}
               className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-            >
-              Submit Feedback
-            </button>
-            <button
+                  >
+                    Submit Feedback
+                  </button>
+                  <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
       </div>
     </div>
   );

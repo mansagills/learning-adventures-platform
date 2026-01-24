@@ -220,14 +220,14 @@ export async function promoteCourseToProduction(
   });
 
   // Create CourseLesson entries
-  const typeMap: Record<string, LessonType> = {
-    video: 'VIDEO',
-    interactive: 'INTERACTIVE',
-    game: 'GAME',
-    quiz: 'QUIZ',
-    reading: 'READING',
-    project: 'PROJECT',
-  };
+    const typeMap: Record<string, LessonType> = {
+      video: 'VIDEO',
+      interactive: 'INTERACTIVE',
+      game: 'GAME',
+      quiz: 'QUIZ',
+      reading: 'READING',
+      project: 'PROJECT',
+    };
 
   for (const lessonMeta of lessonsData) {
     const lessonType = typeMap[lessonMeta.type.toLowerCase()] || 'INTERACTIVE';
