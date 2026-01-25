@@ -1,51 +1,37 @@
 /**
- * Homepage - Authentication-based routing
+ * Homepage - Subdomain-aware routing
  *
- * This page implements the separation between marketing and platform:
- * - Unauthenticated users → Marketing site (Webflow at learningadventures.com)
- * - Authenticated users → Platform dashboard (app.learningadventures.com/dashboard)
+ * This page serves different content based on the domain:
+ * - learningadventures.org → Landing page (marketing content)
+ * - app.learningadventures.org → Redirect to dashboard
+ * - localhost → Landing page (for development)
  */
 
-'use client';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import LandingPage from '@/components/LandingPage';
 
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import LoadingSpinner from '@/components/LoadingSpinner';
+export default async function HomePage() {
+  const headersList = headers();
+  const host = headersList.get('host') || '';
+  const subdomain = headersList.get('x-subdomain') || 'marketing';
 
-// Marketing site URL (will be Webflow in production)
-const MARKETING_SITE_URL = process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
+  // Get session for personalization
+  const session = await getServerSession(authOptions);
 
-export default function HomePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  // On app subdomain, redirect to dashboard
+  if (subdomain === 'app' || host.startsWith('app.')) {
+    redirect('/dashboard');
+  }
 
-  useEffect(() => {
-    // Wait for auth status to be determined
-    if (status === 'loading') return;
-
-    if (status === 'authenticated') {
-      // Authenticated users go directly to their dashboard
-      router.push('/dashboard');
-    } else {
-      // Unauthenticated users see marketing content
-      // TODO: Once Webflow is live at learningadventures.org, uncomment the line below
-      // window.location.href = MARKETING_SITE_URL;
-
-      // For now, show marketing preview on this domain
-      router.push('/marketing-preview');
-    }
-  }, [status, router]);
-
-  // Show loading spinner while checking authentication
+  // On marketing domain or localhost, show landing page
+  // Pass auth info for personalized welcome banner
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="text-center">
-        <LoadingSpinner size="lg" />
-        <p className="mt-4 text-gray-600 text-lg">
-          {status === 'loading' ? 'Loading...' : 'Redirecting...'}
-        </p>
-      </div>
-    </div>
+    <LandingPage
+      isAuthenticated={!!session?.user}
+      userName={session?.user?.name}
+    />
   );
 }

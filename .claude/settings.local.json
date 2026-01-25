@@ -29,7 +29,8 @@
       "Bash(pkill:*)",
       "Bash(npx tailwindcss:*)",
       "Bash(npx css-validator)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(head:*)"
     ],
     "deny": [],
     "ask": []

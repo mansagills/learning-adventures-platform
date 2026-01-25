@@ -8,8 +8,34 @@ const ADMIN_DOMAIN = '@learningadventures.org';
 // Child session cookie name
 const CHILD_SESSION_COOKIE = 'child_session';
 
+// Subdomain configuration
+const APP_SUBDOMAIN = 'app';
+const MARKETING_DOMAIN = process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
+const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || 'https://app.learningadventures.org';
+
+/**
+ * Detect which subdomain the request is coming from
+ */
+function getSubdomain(request: NextRequest): 'app' | 'marketing' | 'localhost' {
+  const hostname = request.headers.get('host') || '';
+
+  // Local development - treat as marketing (landing page)
+  if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+    return 'localhost';
+  }
+
+  // Check for app subdomain
+  if (hostname.startsWith(`${APP_SUBDOMAIN}.`)) {
+    return 'app';
+  }
+
+  // Default to marketing (main domain)
+  return 'marketing';
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const subdomain = getSubdomain(request);
 
   // Get the NextAuth token to check user role
   const token = await getToken({ 
@@ -96,7 +122,29 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // ========================================================================
+  // SUBDOMAIN-BASED ROUTING
+  // ========================================================================
+
+  // On app subdomain, require authentication for most routes
+  if (subdomain === 'app') {
+    // Allow public routes on app subdomain
+    const publicAppRoutes = ['/auth', '/api/auth', '/unauthorized'];
+    const isPublicRoute = publicAppRoutes.some(route => pathname.startsWith(route));
+
+    if (!isPublicRoute && !token) {
+      // Redirect to marketing site login
+      const loginUrl = new URL('/auth/signin', MARKETING_DOMAIN);
+      loginUrl.searchParams.set('callbackUrl', `${APP_DOMAIN}${pathname}`);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Add subdomain info to response headers for pages to access
+  const response = NextResponse.next();
+  response.headers.set('x-subdomain', subdomain);
+
+  return response;
 }
 
 // Configure which routes the middleware should run on
