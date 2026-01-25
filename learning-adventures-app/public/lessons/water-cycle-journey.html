@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Cycle Journey | Learning Adventures</title>
+    <meta name="description" content="Explore the water cycle through an interactive journey! Learn about evaporation, condensation, and precipitation.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #4A90D9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e90ff 0%, #00bfff 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #f0f8ff;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .step-circle.active {
+            background: #1e90ff;
+        }
+
+        .step-circle.completed {
+            background: #2ecc71;
+        }
+
+        .step-line {
+            width: 50px;
+            height: 4px;
+            background: #ddd;
+            margin: 0 5px;
+        }
+
+        .step-line.completed {
+            background: #2ecc71;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stage-container {
+            display: none;
+        }
+
+        .stage-container.active {
+            display: block;
+        }
+
+        .stage-title {
+            font-size: 1.8rem;
+            color: #1e90ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stage-content {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .illustration {
+            width: 300px;
+            height: 250px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .evaporation-bg {
+            background: linear-gradient(180deg, #87CEEB 0%, #1e90ff 100%);
+        }
+
+        .condensation-bg {
+            background: linear-gradient(180deg, #87CEEB 0%, #c9c9c9 100%);
+        }
+
+        .precipitation-bg {
+            background: linear-gradient(180deg, #708090 0%, #2f4f4f 100%);
+        }
+
+        .collection-bg {
+            background: linear-gradient(180deg, #87CEEB 0%, #228b22 60%, #1e90ff 100%);
+        }
+
+        .info-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .info-box p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .fun-fact {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 20px;
+        }
+
+        .fun-fact h4 {
+            color: #856404;
+            margin-bottom: 5px;
+        }
+
+        .quiz-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .quiz-question {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: #1e90ff;
+            background: #f0f8ff;
+        }
+
+        .quiz-option.correct {
+            border-color: #2ecc71;
+            background: #d4edda;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #e74c3c;
+            background: #f8d7da;
+        }
+
+        .quiz-option.disabled {
+            pointer-events: none;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e90ff 0%, #00bfff 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(30, 144, 255, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .summary-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .animation-drop {
+            animation: fall 2s infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(20px); opacity: 0; }
+        }
+
+        .animation-rise {
+            animation: rise 2s infinite;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(20px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-20px); opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .stage-content {
+                flex-direction: column;
+            }
+            .illustration {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Water Cycle Journey</h1>
+            <p>Follow a water droplet's amazing adventure!</p>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-step">
+                <div class="step-circle active" id="step-1">1</div>
+                <div class="step-line" id="line-1"></div>
+                <div class="step-circle" id="step-2">2</div>
+                <div class="step-line" id="line-2"></div>
+                <div class="step-circle" id="step-3">3</div>
+                <div class="step-line" id="line-3"></div>
+                <div class="step-circle" id="step-4">4</div>
+                <div class="step-line" id="line-4"></div>
+                <div class="step-circle" id="step-5">5</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Stage 1: Evaporation -->
+            <div class="stage-container active" id="stage-1">
+                <h2 class="stage-title">Stage 1: Evaporation</h2>
+                <div class="stage-content">
+                    <div class="illustration evaporation-bg">
+                        <span class="animation-rise">💧</span>
+                    </div>
+                    <div class="info-box">
+                        <p>Our journey begins in the ocean, where the sun's warm rays heat the water. As water warms up, it transforms from a liquid into an invisible gas called <strong>water vapor</strong>.</p>
+                        <p>This process is called <strong>evaporation</strong>! The water vapor rises up, up, up into the sky.</p>
+                        <div class="fun-fact">
+                            <h4>Fun Fact!</h4>
+                            <p>Every day, about 1,000 cubic kilometers of water evaporates from oceans, lakes, and rivers. That's enough to fill 400 million Olympic swimming pools!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <div class="quiz-question">What causes water to evaporate?</div>
+                    <div class="quiz-options" id="quiz-1">
+                        <div class="quiz-option" onclick="checkQuiz(1, this, false)">The moon's gravity</div>
+                        <div class="quiz-option" onclick="checkQuiz(1, this, true)">Heat from the sun</div>
+                        <div class="quiz-option" onclick="checkQuiz(1, this, false)">Wind blowing</div>
+                        <div class="quiz-option" onclick="checkQuiz(1, this, false)">Fish swimming</div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-primary" id="next-1" onclick="nextStage(2)" disabled>Next Stage</button>
+                </div>
+            </div>
+
+            <!-- Stage 2: Condensation -->
+            <div class="stage-container" id="stage-2">
+                <h2 class="stage-title">Stage 2: Condensation</h2>
+                <div class="stage-content">
+                    <div class="illustration condensation-bg">
+                        <span>☁️</span>
+                    </div>
+                    <div class="info-box">
+                        <p>High in the sky, the air is much cooler. When water vapor meets this cold air, it cools down and changes back from a gas into tiny water droplets.</p>
+                        <p>This process is called <strong>condensation</strong>! These tiny droplets gather together to form <strong>clouds</strong>.</p>
+                        <div class="fun-fact">
+                            <h4>Fun Fact!</h4>
+                            <p>A typical cumulus cloud weighs about 1.1 million pounds! But the droplets are so tiny and spread out that the cloud floats in the air.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <div class="quiz-question">What forms when water vapor cools and turns back into liquid?</div>
+                    <div class="quiz-options" id="quiz-2">
+                        <div class="quiz-option" onclick="checkQuiz(2, this, false)">Steam</div>
+                        <div class="quiz-option" onclick="checkQuiz(2, this, false)">Ice</div>
+                        <div class="quiz-option" onclick="checkQuiz(2, this, true)">Clouds</div>
+                        <div class="quiz-option" onclick="checkQuiz(2, this, false)">Fog</div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-primary" onclick="nextStage(1)">Previous</button>
+                    <button class="btn btn-primary" id="next-2" onclick="nextStage(3)" disabled>Next Stage</button>
+                </div>
+            </div>
+
+            <!-- Stage 3: Precipitation -->
+            <div class="stage-container" id="stage-3">
+                <h2 class="stage-title">Stage 3: Precipitation</h2>
+                <div class="stage-content">
+                    <div class="illustration precipitation-bg">
+                        <span class="animation-drop">🌧️</span>
+                    </div>
+                    <div class="info-box">
+                        <p>As more and more water droplets join together in the clouds, they become heavier and heavier. Eventually, they become too heavy to stay in the air.</p>
+                        <p>The water falls back to Earth as <strong>precipitation</strong>! This can be rain, snow, sleet, or hail depending on the temperature.</p>
+                        <div class="fun-fact">
+                            <h4>Fun Fact!</h4>
+                            <p>A single raindrop falls at about 14-20 miles per hour. Larger drops fall faster than smaller ones!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <div class="quiz-question">Which of these is NOT a form of precipitation?</div>
+                    <div class="quiz-options" id="quiz-3">
+                        <div class="quiz-option" onclick="checkQuiz(3, this, false)">Rain</div>
+                        <div class="quiz-option" onclick="checkQuiz(3, this, false)">Snow</div>
+                        <div class="quiz-option" onclick="checkQuiz(3, this, true)">Fog</div>
+                        <div class="quiz-option" onclick="checkQuiz(3, this, false)">Hail</div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-primary" onclick="nextStage(2)">Previous</button>
+                    <button class="btn btn-primary" id="next-3" onclick="nextStage(4)" disabled>Next Stage</button>
+                </div>
+            </div>
+
+            <!-- Stage 4: Collection -->
+            <div class="stage-container" id="stage-4">
+                <h2 class="stage-title">Stage 4: Collection</h2>
+                <div class="stage-content">
+                    <div class="illustration collection-bg">
+                        <span>🏞️</span>
+                    </div>
+                    <div class="info-box">
+                        <p>When precipitation falls, it collects in different places. Some water flows into rivers, lakes, and oceans. Some soaks into the ground and becomes <strong>groundwater</strong>.</p>
+                        <p>This is called <strong>collection</strong>! The water is now ready to start the cycle all over again.</p>
+                        <div class="fun-fact">
+                            <h4>Fun Fact!</h4>
+                            <p>The water you drink today might have been drunk by dinosaurs millions of years ago! Water keeps cycling over and over.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <div class="quiz-question">Where does precipitation collect after falling to Earth?</div>
+                    <div class="quiz-options" id="quiz-4">
+                        <div class="quiz-option" onclick="checkQuiz(4, this, false)">Only in oceans</div>
+                        <div class="quiz-option" onclick="checkQuiz(4, this, false)">Only in rivers</div>
+                        <div class="quiz-option" onclick="checkQuiz(4, this, false)">Only underground</div>
+                        <div class="quiz-option" onclick="checkQuiz(4, this, true)">Oceans, rivers, lakes, and underground</div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-primary" onclick="nextStage(3)">Previous</button>
+                    <button class="btn btn-primary" id="next-4" onclick="nextStage(5)" disabled>Complete Journey</button>
+                </div>
+            </div>
+
+            <!-- Stage 5: Summary -->
+            <div class="stage-container" id="stage-5">
+                <h2 class="stage-title">Journey Complete!</h2>
+                
+                <div class="summary-card">
+                    <h3>Congratulations!</h3>
+                    <p>You've completed the Water Cycle Journey!</p>
+                    <div class="score-display" id="final-score">0/4</div>
+                    <p>Questions Correct</p>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #1e90ff; margin-bottom: 15px;">Remember the 4 Stages:</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem;">☀️💧</div>
+                            <strong>Evaporation</strong>
+                            <p style="font-size: 0.9rem; color: #666;">Water becomes vapor</p>
+                        </div>
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem;">☁️</div>
+                            <strong>Condensation</strong>
+                            <p style="font-size: 0.9rem; color: #666;">Vapor becomes clouds</p>
+                        </div>
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem;">🌧️</div>
+                            <strong>Precipitation</strong>
+                            <p style="font-size: 0.9rem; color: #666;">Water falls as rain/snow</p>
+                        </div>
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 2rem;">🏞️</div>
+                            <strong>Collection</strong>
+                            <p style="font-size: 0.9rem; color: #666;">Water gathers in bodies of water</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation">
+                    <button class="btn btn-primary" onclick="restartJourney()">Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStage = 1;
+        let score = 0;
+        let answeredQuizzes = new Set();
+
+        function nextStage(stage) {
+            // Hide current stage
+            document.querySelectorAll('.stage-container').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Show new stage
+            document.getElementById(`stage-${stage}`).classList.add('active');
+
+            // Update progress indicators
+            updateProgress(stage);
+
+            currentStage = stage;
+
+            if (stage === 5) {
+                document.getElementById('final-score').textContent = `${score}/4`;
+            }
+        }
+
+        function updateProgress(stage) {
+            for (let i = 1; i <= 5; i++) {
+                const stepCircle = document.getElementById(`step-${i}`);
+                const stepLine = document.getElementById(`line-${i}`);
+
+                if (i < stage) {
+                    stepCircle.classList.add('completed');
+                    stepCircle.classList.remove('active');
+                    if (stepLine) stepLine.classList.add('completed');
+                } else if (i === stage) {
+                    stepCircle.classList.add('active');
+                    stepCircle.classList.remove('completed');
+                } else {
+                    stepCircle.classList.remove('active', 'completed');
+                    if (stepLine) stepLine.classList.remove('completed');
+                }
+            }
+        }
+
+        function checkQuiz(quizNum, element, isCorrect) {
+            if (answeredQuizzes.has(quizNum)) return;
+            answeredQuizzes.add(quizNum);
+
+            // Disable all options in this quiz
+            const quizContainer = document.getElementById(`quiz-${quizNum}`);
+            quizContainer.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.add('disabled');
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                score++;
+            } else {
+                element.classList.add('incorrect');
+                // Show correct answer
+                quizContainer.querySelectorAll('.quiz-option').forEach(opt => {
+                    if (opt.onclick.toString().includes('true')) {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+
+            // Enable next button
+            document.getElementById(`next-${quizNum}`).disabled = false;
+        }
+
+        function restartJourney() {
+            currentStage = 1;
+            score = 0;
+            answeredQuizzes.clear();
+
+            // Reset all quizzes
+            for (let i = 1; i <= 4; i++) {
+                const quizContainer = document.getElementById(`quiz-${i}`);
+                quizContainer.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect', 'disabled');
+                });
+                document.getElementById(`next-${i}`).disabled = true;
+            }
+
+            // Reset progress
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`step-${i}`).classList.remove('active', 'completed');
+                const line = document.getElementById(`line-${i}`);
+                if (line) line.classList.remove('completed');
+            }
+            document.getElementById('step-1').classList.add('active');
+
+            // Show first stage
+            document.querySelectorAll('.stage-container').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('stage-1').classList.add('active');
+        }
+    </script>
+</body>
+</html>

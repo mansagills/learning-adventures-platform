@@ -1,96 +1,139 @@
-import Image from 'next/image';
 import Container from './Container';
-import Icon from './Icon';
 
 export default function Benefits() {
   const benefits = [
     {
-      icon: 'academic',
+      emoji: '🎯',
       title: 'Personalized Learning',
-      description: 'AI-powered adaptive content that adjusts to your child\'s learning pace and style, ensuring they\'re always challenged but never overwhelmed.',
-      image: '/benefit-1.jpg',
-      imageAlt: 'Child using personalized learning interface on tablet'
+      description: 'AI-powered adaptive content that adjusts to your child\'s learning pace and style.',
+      color: 'violet' as const,
     },
     {
-      icon: 'play',
+      emoji: '🎮',
       title: 'Engaging Content',
-      description: 'Interactive games, animations, and hands-on activities that make complex concepts easy to understand and remember.',
-      image: '/benefit-2.jpg',
-      imageAlt: 'Children playing educational games together'
+      description: 'Interactive games and hands-on activities that make complex concepts easy to understand.',
+      color: 'pink' as const,
     },
     {
-      icon: 'heart',
+      emoji: '❤️',
       title: 'Accessibility First',
-      description: 'Designed for all learners with support for different abilities, learning styles, and accessibility needs.',
-      image: '/benefit-3.jpg',
-      imageAlt: 'Diverse group of children learning together with assistive technology'
+      description: 'Designed for all learners with support for different abilities and learning styles.',
+      color: 'mint' as const,
     },
     {
-      icon: 'check',
+      emoji: '📚',
       title: 'Multi-Subject Curriculum',
-      description: 'Comprehensive coverage of math, science, reading, and critical thinking skills aligned with educational standards.',
-      image: '/benefit-1.jpg',
-      imageAlt: 'Educational curriculum showing various subjects'
+      description: 'Comprehensive coverage of math, science, reading, and critical thinking skills.',
+      color: 'yellow' as const,
     },
     {
-      icon: 'star',
+      emoji: '⭐',
       title: 'Proven Results',
-      description: 'Backed by educational research and proven to improve learning outcomes and student engagement.',
-      image: '/benefit-2.jpg',
-      imageAlt: 'Charts and graphs showing improved learning outcomes'
-    }
+      description: 'Backed by educational research and proven to improve learning outcomes.',
+      color: 'violet' as const,
+    },
+    {
+      emoji: '🚀',
+      title: 'Progress Tracking',
+      description: 'Real-time insights into your child\'s learning journey and achievements.',
+      color: 'pink' as const,
+    },
   ];
 
+  const colorClasses = {
+    violet: {
+      iconBg: 'bg-pg-violet',
+      iconBorder: 'border-pg-violet',
+      titleColor: 'text-pg-violet',
+    },
+    pink: {
+      iconBg: 'bg-pg-pink',
+      iconBorder: 'border-pg-pink',
+      titleColor: 'text-pg-pink',
+    },
+    yellow: {
+      iconBg: 'bg-pg-yellow',
+      iconBorder: 'border-pg-yellow',
+      titleColor: 'text-pg-yellow',
+    },
+    mint: {
+      iconBg: 'bg-pg-mint',
+      iconBorder: 'border-pg-mint',
+      titleColor: 'text-pg-mint',
+    },
+  };
+
   return (
-    <section id="benefits" className="py-16 bg-white">
+    <section id="benefits" className="py-20 bg-background relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-dot-grid opacity-20"></div>
+
+      {/* Decorative floating shapes */}
+      <div className="absolute top-20 left-10 w-16 h-16 bg-pg-yellow/30 rounded-full blur-xl"></div>
+      <div className="absolute bottom-20 right-10 w-24 h-24 bg-pg-pink/20 rounded-full blur-xl"></div>
+
       <Container>
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-ink-900 mb-4">
-            Why Parents Choose Learning Adventures
+        {/* Section Header */}
+        <div className="text-center mb-16 relative z-10">
+          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
+            <span className="text-lg">✨</span>
+            <span className="text-sm font-bold text-foreground uppercase tracking-wide">Why Choose Us</span>
+          </div>
+
+          <h2 className="font-outfit text-4xl md:text-5xl font-extrabold text-foreground mb-4">
+            Why Parents Choose{' '}
+            <span className="relative inline-block">
+              <span className="text-pg-violet">Learning Adventures</span>
+              <svg className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 4C20 2 40 6 60 4C80 2 100 6 120 4C140 2 160 6 180 4C190 3 198 4 198 4" stroke="#FBBF24" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            </span>
           </h2>
-          <p className="text-xl text-ink-600 max-w-3xl mx-auto">
-            Our platform combines cutting-edge educational technology with proven teaching methods to create an unparalleled learning experience.
+
+          <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
+            Our platform combines cutting-edge educational technology with proven teaching methods.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {benefits.map((benefit, index) => (
-            <div
-              key={benefit.title}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-250 group"
-            >
-              {/* Image Placeholder */}
-              <div className="relative h-48 mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-brand-100 to-accent-100 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                <span className="text-5xl opacity-50">
-                  {index === 0 && '🎯'}
-                  {index === 1 && '🎮'}
-                  {index === 2 && '❤️'}
-                  {index === 3 && '📚'}
-                  {index === 4 && '⭐'}
-                </span>
-              </div>
+        {/* Benefits Grid - Sticker Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+          {benefits.map((benefit, index) => {
+            const colors = colorClasses[benefit.color];
+            return (
+              <div
+                key={benefit.title}
+                className="card-sticker group hover:-rotate-1 hover:scale-[1.02] transition-all duration-200 ease-bounce relative"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Floating Icon Badge - Half in/half out of top */}
+                <div className={`absolute -top-5 left-6 w-14 h-14 ${colors.iconBg} border-2 border-pg-border rounded-xl shadow-pop flex items-center justify-center text-2xl group-hover:animate-wiggle`}>
+                  {benefit.emoji}
+                </div>
 
-              {/* Icon */}
-              <div className="flex items-center justify-center w-12 h-12 bg-brand-100 rounded-lg mb-4">
-                <Icon name={benefit.icon} size={24} className="text-brand-500" />
-              </div>
+                {/* Card Content */}
+                <div className="pt-8">
+                  <h3 className={`font-outfit text-xl font-bold ${colors.titleColor} mb-3`}>
+                    {benefit.title}
+                  </h3>
+                  <p className="font-plus-jakarta text-foreground/70 leading-relaxed">
+                    {benefit.description}
+                  </p>
+                </div>
 
-              {/* Content */}
-              <h3 className="font-display text-xl font-bold text-ink-900 mb-3">
-                {benefit.title}
-              </h3>
-              <p className="text-ink-600 leading-relaxed">
-                {benefit.description}
-              </p>
-            </div>
-          ))}
+                {/* Decorative corner accent */}
+                <div className={`absolute bottom-4 right-4 w-2 h-2 ${colors.iconBg} rounded-full opacity-50`}></div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Additional Trust Elements */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center space-x-2 bg-brand-100 text-brand-600 px-6 py-3 rounded-full">
-            <Icon name="shield" size={20} />
-            <span className="font-semibold">Trusted by 50,000+ families worldwide</span>
+        {/* Trust Badge */}
+        <div className="mt-16 text-center relative z-10">
+          <div className="inline-flex items-center gap-3 bg-white border-2 border-pg-border px-6 py-3 rounded-full shadow-pop">
+            <div className="w-8 h-8 bg-pg-mint rounded-full flex items-center justify-center">
+              <span className="text-sm">🛡️</span>
+            </div>
+            <span className="font-outfit font-bold text-foreground">Trusted by 50,000+ families worldwide</span>
           </div>
         </div>
       </Container>

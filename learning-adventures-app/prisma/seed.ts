@@ -19,7 +19,20 @@ async function main() {
           'teacher@test.com',
           'parent@test.com',
           'admin@test.com',
+          // Demo accounts for investors/grant reviewers
+          'demo.parent@learningadventures.io',
+          'demo.teacher@learningadventures.io',
+          'demo.admin@learningadventures.io',
         ]
+      }
+    }
+  });
+
+  // Clean existing demo child profiles
+  await prisma.childProfile.deleteMany({
+    where: {
+      username: {
+        in: ['DemoChild1', 'DemoChild2']
       }
     }
   });
@@ -78,6 +91,114 @@ async function main() {
       subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
       createdAt: new Date(),
       updatedAt: new Date(),
+    },
+  });
+
+  // ============================================================================
+  // DEMO ACCOUNTS FOR INVESTORS/GRANT REVIEWERS
+  // ============================================================================
+  console.log('\n🎯 Creating demo accounts for presentations...');
+
+  const demoPassword = await bcrypt.hash('demo2024', 10);
+
+  // Demo Parent (for showing parent features)
+  console.log('👨‍👩‍👧 Creating Demo Parent...');
+  const demoParent = await prisma.user.create({
+    data: {
+      email: 'demo.parent@learningadventures.io',
+      name: 'Demo Parent',
+      password: demoPassword,
+      role: 'PARENT',
+      isVerifiedAdult: true,
+      subjects: ['math', 'science', 'english'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Demo Teacher (for showing teacher features)
+  console.log('👩‍🏫 Creating Demo Teacher...');
+  const demoTeacher = await prisma.user.create({
+    data: {
+      email: 'demo.teacher@learningadventures.io',
+      name: 'Demo Teacher',
+      password: demoPassword,
+      role: 'TEACHER',
+      subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Demo Admin (for showing admin/content features)
+  console.log('👩‍💼 Creating Demo Admin...');
+  const demoAdmin = await prisma.user.create({
+    data: {
+      email: 'demo.admin@learningadventures.io',
+      name: 'Demo Admin',
+      password: demoPassword,
+      role: 'ADMIN',
+      subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Demo Child Profiles (for showing child login flow)
+  console.log('👧 Creating Demo Child accounts...');
+  const childPinHash = await bcrypt.hash('1234', 10);
+
+  const demoChild1 = await prisma.childProfile.create({
+    data: {
+      parentId: demoParent.id,
+      displayName: 'Emma',
+      username: 'DemoChild1',
+      authCode: childPinHash,
+      gradeLevel: '3',
+      avatarId: 'fox',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  const demoChild2 = await prisma.childProfile.create({
+    data: {
+      parentId: demoParent.id,
+      displayName: 'Liam',
+      username: 'DemoChild2',
+      authCode: childPinHash,
+      gradeLevel: '5',
+      avatarId: 'dragon',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Create premium subscriptions for demo accounts
+  await prisma.subscription.create({
+    data: {
+      userId: demoParent.id,
+      tier: 'PREMIUM',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
+  await prisma.subscription.create({
+    data: {
+      userId: demoTeacher.id,
+      tier: 'PREMIUM',
+      status: 'ACTIVE',
+      startDate: new Date(),
+    },
+  });
+
+  await prisma.subscription.create({
+    data: {
+      userId: demoAdmin.id,
+      tier: 'PREMIUM',
+      status: 'ACTIVE',
+      startDate: new Date(),
     },
   });
 
@@ -148,6 +269,27 @@ async function main() {
   console.log('   Subjects: All subjects');
   console.log('   Subscription: PREMIUM tier');
   console.log('   Access: Full platform administration\n');
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  console.log('\n🎯 DEMO ACCOUNTS (For Investors/Grant Reviewers):');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('👨‍👩‍👧 Demo Parent: demo.parent@learningadventures.io / demo2024');
+  console.log('   - Shows: Parent dashboard, child management, progress monitoring');
+  console.log('   - Subscription: PREMIUM\n');
+
+  console.log('👩‍🏫 Demo Teacher: demo.teacher@learningadventures.io / demo2024');
+  console.log('   - Shows: Teacher classroom, student oversight');
+  console.log('   - Subscription: PREMIUM\n');
+
+  console.log('👩‍💼 Demo Admin: demo.admin@learningadventures.io / demo2024');
+  console.log('   - Shows: Admin panel, content upload, AI Studio');
+  console.log('   - Subscription: PREMIUM\n');
+
+  console.log('👧 Demo Children (Child Login Flow):');
+  console.log('   Child 1: DemoChild1 / PIN: 1234 (Emma, Grade 3, Fox avatar)');
+  console.log('   Child 2: DemoChild2 / PIN: 1234 (Liam, Grade 5, Dragon avatar)');
+  console.log('   Login at: /child/login\n');
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 

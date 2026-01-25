@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 :root {
+  /* ===== PLAYFUL GEOMETRIC DESIGN SYSTEM ===== */
+
+  /* Semantic colors */
+  --background: #FFFDF5;
+  --foreground: #1E293B;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+
   /* Primary brand colors */
   --brand-500: #8B5CF6;
   --brand-600: #7C3AED;
@@ -11,6 +19,13 @@
   /* Accent colors */
   --accent-500: #14B8A6;
   --accent-600: #0D9488;
+
+  /* Playful Geometric accent palette */
+  --pg-violet: #8B5CF6;
+  --pg-pink: #F472B6;
+  --pg-yellow: #FBBF24;
+  --pg-mint: #34D399;
+  --pg-border: #1E293B;
 
   /* Fun colors */
   --sunshine-400: #FBBF24;
@@ -24,12 +39,19 @@
 
   /* Text colors */
   --ink-900: #0F172A;
+  --ink-800: #1E293B;
   --ink-700: #334155;
   --ink-600: #475569;
   --ink-400: #94A3B8;
 
   /* Error */
   --error-500: #EF4444;
+
+  /* Playful Geometric shadows */
+  --shadow-pop: 4px 4px 0px 0px #1E293B;
+  --shadow-pop-hover: 6px 6px 0px 0px #1E293B;
+  --shadow-pop-active: 2px 2px 0px 0px #1E293B;
+  --shadow-card: 8px 8px 0px 0px #E2E8F0;
 }
 
 @layer base {
@@ -39,7 +61,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-purple-50 via-white to-teal-50 text-ink-900 font-body antialiased;
+    @apply bg-background text-foreground font-body antialiased;
     min-height: 100vh;
   }
 
@@ -71,7 +93,7 @@
 }
 
 @layer components {
-  /* Button variants */
+  /* ===== LEGACY BUTTON VARIANTS ===== */
   .btn-primary {
     @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-250 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
@@ -84,7 +106,117 @@
     @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-250 focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
   }
 
-  /* Container sizes */
+  /* ===== PLAYFUL GEOMETRIC BUTTONS ===== */
+
+  /* The Candy Button - Primary action */
+  .btn-candy {
+    @apply relative inline-flex items-center justify-center gap-2;
+    @apply bg-pg-violet text-white font-bold;
+    @apply py-3 px-6 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply shadow-pop;
+    @apply transition-all duration-200 ease-bounce;
+  }
+
+  .btn-candy:hover {
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: var(--shadow-pop-hover);
+  }
+
+  .btn-candy:active {
+    @apply translate-x-0.5 translate-y-0.5;
+    box-shadow: var(--shadow-pop-active);
+  }
+
+  .btn-candy:focus-visible {
+    @apply outline-none ring-2 ring-pg-violet ring-offset-2;
+  }
+
+  /* Outline Pop Button - Secondary action */
+  .btn-outline-pop {
+    @apply relative inline-flex items-center justify-center gap-2;
+    @apply bg-transparent text-foreground font-bold;
+    @apply py-3 px-6 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply transition-all duration-200 ease-bounce;
+  }
+
+  .btn-outline-pop:hover {
+    @apply bg-pg-yellow text-foreground;
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .btn-outline-pop:active {
+    @apply translate-x-0.5 translate-y-0.5;
+    box-shadow: var(--shadow-pop-active);
+  }
+
+  .btn-outline-pop:focus-visible {
+    @apply outline-none ring-2 ring-pg-violet ring-offset-2;
+  }
+
+  /* Pink variant */
+  .btn-candy-pink {
+    @apply btn-candy bg-pg-pink;
+  }
+
+  /* Mint variant */
+  .btn-candy-mint {
+    @apply btn-candy bg-pg-mint;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC CARDS ===== */
+
+  /* Sticker Card - Main card style */
+  .card-sticker {
+    @apply relative bg-white;
+    @apply rounded-xl;
+    @apply border-2 border-pg-border;
+    @apply shadow-card-sticker;
+    @apply transition-all duration-300 ease-bounce;
+  }
+
+  .card-sticker:hover {
+    @apply -rotate-1 scale-[1.02];
+    box-shadow: 12px 12px 0px 0px #E2E8F0;
+  }
+
+  /* Featured card with pink shadow */
+  .card-sticker-featured {
+    @apply card-sticker;
+    @apply shadow-card-featured;
+  }
+
+  .card-sticker-featured:hover {
+    box-shadow: 12px 12px 0px 0px #F472B6;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC INPUTS ===== */
+
+  .input-playful {
+    @apply w-full bg-white;
+    @apply py-3 px-4;
+    @apply border-2 border-ink-300;
+    @apply rounded-lg;
+    @apply text-foreground;
+    @apply transition-all duration-200;
+  }
+
+  .input-playful:focus {
+    @apply border-pg-violet outline-none;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .input-playful::placeholder {
+    @apply text-muted-foreground;
+  }
+
+  .label-playful {
+    @apply block text-xs font-bold uppercase tracking-wide text-foreground mb-2;
+  }
+
+  /* ===== CONTAINER SIZES ===== */
   .container-sm {
     @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
   }
@@ -110,6 +242,55 @@
   /* Testimonial card styles */
   .testimonial-card {
     @apply bg-white p-6 rounded-xl shadow-sm border border-gray-100 transition-shadow duration-250 hover:shadow-md;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC ICON CIRCLES ===== */
+
+  .icon-circle {
+    @apply inline-flex items-center justify-center;
+    @apply w-12 h-12 rounded-full;
+    @apply border-2 border-pg-border;
+  }
+
+  .icon-circle-violet {
+    @apply icon-circle bg-pg-violet text-white;
+  }
+
+  .icon-circle-pink {
+    @apply icon-circle bg-pg-pink text-white;
+  }
+
+  .icon-circle-yellow {
+    @apply icon-circle bg-pg-yellow text-foreground;
+  }
+
+  .icon-circle-mint {
+    @apply icon-circle bg-pg-mint text-white;
+  }
+
+  /* ===== DECORATIVE ELEMENTS ===== */
+
+  /* Squiggle underline */
+  .squiggle-underline {
+    @apply relative inline-block;
+  }
+
+  .squiggle-underline::after {
+    content: '';
+    @apply absolute left-0 -bottom-2 w-full h-2;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='8' viewBox='0 0 100 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4C10 4 10 1 20 1C30 1 30 7 40 7C50 7 50 1 60 1C70 1 70 7 80 7C90 7 90 4 100 4' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-size: 50px 8px;
+  }
+
+  /* Floating badge for cards */
+  .floating-badge {
+    @apply absolute -top-4 left-1/2 -translate-x-1/2;
+    @apply px-4 py-1 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply font-bold text-sm;
+    @apply bg-pg-yellow text-foreground;
+    @apply shadow-pop;
   }
 }
 
@@ -187,6 +368,45 @@
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
   }
 
+  /* ===== PLAYFUL GEOMETRIC BACKGROUNDS ===== */
+
+  /* Dot grid pattern (Playful Geometric signature) */
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, #1E293B 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  .bg-dot-grid-light {
+    background-image: radial-gradient(circle, rgba(30, 41, 59, 0.15) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  /* Playful Geometric confetti shapes */
+  .pg-confetti {
+    @apply pointer-events-none;
+  }
+
+  .pg-confetti::before,
+  .pg-confetti::after {
+    content: '';
+    @apply absolute;
+  }
+
+  /* Blob mask for images */
+  .blob-mask {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  /* Speech bubble radius */
+  .bubble-radius {
+    border-radius: 1.5rem 1.5rem 1.5rem 0;
+  }
+
+  /* Arch radius (top rounded, bottom flat) */
+  .arch-radius {
+    border-radius: 9999px 9999px 0 0;
+  }
+
   /* Scrollbar utilities for preview components */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
@@ -233,5 +453,79 @@
 
   .aspect-square {
     aspect-ratio: 1 / 1;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC ANIMATIONS ===== */
+
+  /* Marquee animation for partner logos */
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Wiggle animation for icons */
+  .animate-wiggle {
+    animation: wiggle 0.5s ease-in-out;
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(3deg);
+    }
+    75% {
+      transform: rotate(-3deg);
+    }
+  }
+
+  /* Pop-in animation */
+  .animate-pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop-in {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Bounce-in animation (existing, enhanced) */
+  .animate-bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 }

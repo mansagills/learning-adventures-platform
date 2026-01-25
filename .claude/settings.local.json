@@ -24,7 +24,12 @@
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
       "Bash(npx tsx:*)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(npx css-validator)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []

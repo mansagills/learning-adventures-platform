@@ -41,6 +41,19 @@ const mathLessons: Adventure[] = [
     htmlPath: '/lessons/fraction-pizza-party.html'
   },
   {
+    id: 'multiplication-tables-adventure',
+    title: 'Multiplication Tables Adventure',
+    description: 'Master multiplication tables through an exciting interactive adventure with progress tracking',
+    type: 'lesson',
+    category: 'math',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Multiplication', 'Times Tables', 'Mental Math'],
+    estimatedTime: '20-30 mins',
+    featured: true,
+    htmlPath: '/lessons/multiplication-tables-adventure.html'
+  },
+  {
     id: 'number-line-adventure',
     title: 'Number Line Adventure',
     description: 'Animated character jumps along number line for addition and subtraction',
@@ -339,6 +352,32 @@ const scienceLessons: Adventure[] = [
     estimatedTime: '25-30 mins',
     featured: true,
     htmlPath: '/lessons/volcano-explorer-lab.html'
+  },
+  {
+    id: 'water-cycle-journey',
+    title: 'The Water Cycle Journey',
+    description: 'Follow a water droplet through evaporation, condensation, precipitation, and collection',
+    type: 'lesson',
+    category: 'science',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'easy',
+    skills: ['Earth Science', 'Water Cycle', 'Weather'],
+    estimatedTime: '20-25 mins',
+    featured: true,
+    htmlPath: '/lessons/water-cycle-journey.html'
+  },
+  {
+    id: 'simple-machines-lab',
+    title: 'Simple Machines Lab',
+    description: 'Discover the six simple machines and how they make work easier',
+    type: 'lesson',
+    category: 'science',
+    gradeLevel: ['3', '4', '5', '6'],
+    difficulty: 'medium',
+    skills: ['Physics', 'Simple Machines', 'Engineering'],
+    estimatedTime: '25-30 mins',
+    featured: true,
+    htmlPath: '/lessons/simple-machines-lab.html'
   },
   {
     id: 'weather-station-simulator',
@@ -687,6 +726,19 @@ const englishLessons: Adventure[] = [
     featured: true
   },
   {
+    id: 'spelling-bee-challenge',
+    title: 'Spelling Bee Challenge',
+    description: 'Listen, learn, and spell your way to victory with audio-based word challenges',
+    type: 'lesson',
+    category: 'english',
+    gradeLevel: ['3', '4', '5'],
+    difficulty: 'medium',
+    skills: ['Spelling', 'Vocabulary', 'Listening'],
+    estimatedTime: '15-20 mins',
+    featured: true,
+    htmlPath: '/lessons/spelling-bee-challenge.html'
+  },
+  {
     id: 'grammar-detective',
     title: 'Grammar Detective',
     description: 'Solve mysteries by identifying and correcting grammar mistakes in clues',
@@ -804,6 +856,19 @@ const historyLessons: Adventure[] = [
     skills: ['Historical Timeline', 'Cultural Understanding', 'Chronology'],
     estimatedTime: '25-30 mins',
     featured: true
+  },
+  {
+    id: 'ancient-egypt-explorer',
+    title: 'Ancient Egypt Explorer',
+    description: 'Journey back 5,000 years to explore pyramids, pharaohs, and hieroglyphics',
+    type: 'lesson',
+    category: 'history',
+    gradeLevel: ['3', '4', '5', '6'],
+    difficulty: 'medium',
+    skills: ['Ancient History', 'Egypt', 'Archaeology'],
+    estimatedTime: '25-30 mins',
+    featured: true,
+    htmlPath: '/lessons/ancient-egypt-explorer.html'
   },
   {
     id: 'ancient-civilizations-explorer',
