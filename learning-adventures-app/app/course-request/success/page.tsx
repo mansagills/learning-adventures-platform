@@ -1,11 +1,13 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Container from '@/components/Container';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function CourseRequestSuccessPage() {
+function CourseRequestSuccessContent() {
   const searchParams = useSearchParams();
   const requestId = searchParams.get('requestId');
 
@@ -217,5 +219,19 @@ export default function CourseRequestSuccessPage() {
         </Container>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function CourseRequestSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      }
+    >
+      <CourseRequestSuccessContent />
+    </Suspense>
   );
 }

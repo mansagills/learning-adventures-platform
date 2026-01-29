@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { TestGameStatus } from '@prisma/client';
 
 // POST /api/admin/test-courses/[id]/approve - Submit approval decision
 export async function POST(
@@ -52,13 +53,13 @@ export async function POST(
     });
 
     // Update course status based on decision
-    let newStatus = 'IN_TESTING';
+    let newStatus: TestGameStatus = TestGameStatus.IN_TESTING;
     if (decision === 'APPROVE') {
-      newStatus = 'APPROVED';
+      newStatus = TestGameStatus.APPROVED;
     } else if (decision === 'REJECT') {
-      newStatus = 'REJECTED';
+      newStatus = TestGameStatus.REJECTED;
     } else if (decision === 'REQUEST_CHANGES') {
-      newStatus = 'NEEDS_REVISION';
+      newStatus = TestGameStatus.NEEDS_REVISION;
     }
 
     await prisma.testCourse.update({

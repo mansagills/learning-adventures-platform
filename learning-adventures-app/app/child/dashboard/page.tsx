@@ -182,15 +182,15 @@ function SubjectCard({
   color, 
   href 
 }: { 
-  title: string; 
-  emoji: string; 
-  description: string; 
-  color: string; 
+  title: string;
+  emoji: string;
+  description: string;
+  color: string;
   href: string;
 }) {
   return (
     <Link
-      href={href}
+      href={href as any}
       className={`block p-6 bg-gradient-to-br ${color} rounded-2xl text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98]`}
     >
       <div className="text-5xl mb-3">{emoji}</div>

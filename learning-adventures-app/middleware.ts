@@ -93,7 +93,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/internal') || pathname.startsWith('/staging')) {
     if (!token) {
       // Not logged in, redirect to sign in
-      const signInUrl = new URL('/auth/signin', request.url);
+      const signInUrl = new URL('/api/auth/signin', request.url);
       signInUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(signInUrl);
     }
@@ -111,7 +111,7 @@ export async function middleware(request: NextRequest) {
   // Protect /parent routes - only allow PARENT users
   if (pathname.startsWith('/parent')) {
     if (!token) {
-      const signInUrl = new URL('/auth/signin', request.url);
+      const signInUrl = new URL('/api/auth/signin', request.url);
       signInUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(signInUrl);
     }
@@ -129,12 +129,12 @@ export async function middleware(request: NextRequest) {
   // On app subdomain, require authentication for most routes
   if (subdomain === 'app') {
     // Allow public routes on app subdomain
-    const publicAppRoutes = ['/auth', '/api/auth', '/unauthorized'];
+    const publicAppRoutes = ['/api/auth', '/unauthorized'];
     const isPublicRoute = publicAppRoutes.some(route => pathname.startsWith(route));
 
     if (!isPublicRoute && !token) {
-      // Redirect to marketing site login
-      const loginUrl = new URL('/auth/signin', MARKETING_DOMAIN);
+      // Redirect to marketing site's NextAuth sign-in page
+      const loginUrl = new URL('/api/auth/signin', MARKETING_DOMAIN);
       loginUrl.searchParams.set('callbackUrl', `${APP_DOMAIN}${pathname}`);
       return NextResponse.redirect(loginUrl);
     }

@@ -6,10 +6,13 @@ import { useEffect, ReactNode } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 import { getMarketingUrl } from '@/lib/utils/urls';
 
-interface ProtectedRouteProps {
+type UserRole = 'ADMIN' | 'TEACHER' | 'PARENT' | 'STUDENT';
+
+export interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean;
-  requiredRole?: 'ADMIN' | 'TEACHER' | 'PARENT' | 'STUDENT';
+  requiredRole?: UserRole;
+  allowedRoles?: UserRole[];
   fallbackUrl?: string;
   showLoading?: boolean;
 }
@@ -18,6 +21,7 @@ export default function ProtectedRoute({
   children,
   requireAuth = true,
   requiredRole,
+  allowedRoles,
   fallbackUrl = '/',
   showLoading = true,
 }: ProtectedRouteProps) {
@@ -32,6 +36,15 @@ export default function ProtectedRoute({
       // Redirect to marketing site homepage
       window.location.href = getMarketingUrl();
       return;
+    }
+
+    // If allowed roles are specified, check if user has one of them
+    if (allowedRoles && allowedRoles.length > 0) {
+      const userRole = session?.user?.role as UserRole;
+      if (!allowedRoles.includes(userRole) && userRole !== 'ADMIN') {
+        router.push('/unauthorized');
+        return;
+      }
     }
 
     // If specific role is required but user doesn't have it
@@ -52,7 +65,7 @@ export default function ProtectedRoute({
         return;
       }
     }
-  }, [session, status, requireAuth, requiredRole, router, fallbackUrl]);
+  }, [session, status, requireAuth, requiredRole, allowedRoles, router, fallbackUrl]);
 
   // Show loading state while checking authentication
   if (status === 'loading') {
@@ -66,6 +79,14 @@ export default function ProtectedRoute({
   // Don't render children if authentication requirements aren't met
   if (requireAuth && !session) {
     return null;
+  }
+
+  // Check allowedRoles
+  if (allowedRoles && allowedRoles.length > 0) {
+    const userRole = session?.user?.role as UserRole;
+    if (!allowedRoles.includes(userRole) && userRole !== 'ADMIN') {
+      return null;
+    }
   }
 
   if (requiredRole) {

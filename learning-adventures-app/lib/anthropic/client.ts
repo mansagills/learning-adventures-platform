@@ -7,13 +7,25 @@ import Anthropic from '@anthropic-ai/sdk';
  * Uses the ANTHROPIC_API_KEY from environment variables.
  */
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  throw new Error('ANTHROPIC_API_KEY is not set in environment variables');
+// Create client lazily - only throw when actually used without API key
+let _anthropic: Anthropic | null = null;
+
+export function getAnthropicClient(): Anthropic {
+  if (!_anthropic) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not set in environment variables');
+    }
+    _anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return _anthropic;
 }
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// For backward compatibility - but will throw if API key is missing
+export const anthropic = process.env.ANTHROPIC_API_KEY
+  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  : (null as unknown as Anthropic);
 
 /**
  * Default model configuration for course generation tasks
@@ -31,8 +43,11 @@ export async function callClaudeWithRetry(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await anthropic.messages.create(params);
-      return response;
+      const response = await anthropic.messages.create({
+        ...params,
+        stream: false,
+      });
+      return response as Anthropic.Message;
     } catch (error) {
       lastError = error as Error;
 

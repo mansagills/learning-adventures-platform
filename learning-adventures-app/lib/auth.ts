@@ -206,9 +206,10 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-  },
+  // Using default NextAuth sign-in page at /api/auth/signin
+  // pages: {
+  //   signIn: '/auth/signin',
+  // },
   secret: process.env.NEXTAUTH_SECRET,
 };
 

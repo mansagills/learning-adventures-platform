@@ -43,9 +43,9 @@ export async function POST(
     const result = await promoteCourseToProduction(params.id, session.user.id);
 
     return NextResponse.json({
+      ...result,
       success: true,
-      message: 'Course promoted to production successfully',
-      ...result
+      message: 'Course promoted to production successfully'
     });
   } catch (error) {
     console.error('Error promoting course to production:', error);
