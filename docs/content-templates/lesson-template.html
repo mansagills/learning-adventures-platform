@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Title Here</title>
+    <meta name="description" content="Brief description of what students will learn in this lesson">
+    <meta name="grade-level" content="3,4,5">
+    <meta name="difficulty" content="medium">
+    <meta name="skills" content="Reading,Comprehension,Critical Thinking">
+    <meta name="estimated-time" content="20-25 mins">
+    <meta name="category" content="science">
+    <style>
+        /* === Reset & Base Styles === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* === Lesson Container === */
+        .lesson-container {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* === Header === */
+        .lesson-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .lesson-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .lesson-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* === Progress Bar === */
+        .progress-container {
+            background: #f0f0f0;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* === Content Area === */
+        .lesson-content {
+            padding: 30px;
+        }
+
+        /* === Sections === */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .section-content {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .section-content p {
+            margin-bottom: 15px;
+        }
+
+        /* === Interactive Elements === */
+        .info-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .fun-fact {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .fun-fact h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        /* === Images === */
+        .lesson-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .image-caption {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        /* === Quiz Section === */
+        .quiz-question {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .quiz-question h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            padding: 15px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .quiz-option:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+
+        .quiz-option.selected {
+            border-color: #667eea;
+            background: #e8eaff;
+        }
+
+        .quiz-option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .option-letter {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* === Navigation === */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.prev {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-btn.prev:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* === Completion Screen === */
+        .completion {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .completion h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .completion p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 600px) {
+            .lesson-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .lesson-content {
+                padding: 20px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <!-- Header -->
+        <div class="lesson-header">
+            <h1 class="lesson-title">Lesson Title</h1>
+            <p class="lesson-subtitle">A brief description of this lesson</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">Section 1 of 5</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="lesson-content">
+            <!-- Section 1: Introduction -->
+            <div class="section active" id="section1">
+                <h2 class="section-title">Introduction</h2>
+                <div class="section-content">
+                    <p>Welcome to this lesson! In this section, we'll introduce the main topic and explain what you'll learn.</p>
+
+                    <div class="info-box">
+                        <h4>What You'll Learn</h4>
+                        <ul>
+                            <li>Key concept 1</li>
+                            <li>Key concept 2</li>
+                            <li>Key concept 3</li>
+                        </ul>
+                    </div>
+
+                    <p>Let's get started by exploring the basics...</p>
+                </div>
+            </div>
+
+            <!-- Section 2: Core Content -->
+            <div class="section" id="section2">
+                <h2 class="section-title">Understanding the Basics</h2>
+                <div class="section-content">
+                    <p>This section explains the core concepts. Use clear, simple language that children can understand.</p>
+
+                    <div class="fun-fact">
+                        <h4>Fun Fact!</h4>
+                        <p>Include an interesting fact to keep learners engaged!</p>
+                    </div>
+
+                    <p>Continue explaining the concept with examples and visuals...</p>
+
+                    <!-- Placeholder for image -->
+                    <div style="background: #f0f0f0; height: 200px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 20px 0;">
+                        <span style="color: #999;">Image Placeholder - Add relevant visual</span>
+                    </div>
+                    <p class="image-caption">Caption describing the image</p>
+                </div>
+            </div>
+
+            <!-- Section 3: Interactive Activity -->
+            <div class="section" id="section3">
+                <h2 class="section-title">Let's Practice!</h2>
+                <div class="section-content">
+                    <p>Now let's practice what we've learned with some interactive questions.</p>
+
+                    <div class="quiz-question" id="quiz1">
+                        <h4>Question 1: What is the correct answer?</h4>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz1', false)">
+                                <span class="option-letter">A</span>
+                                <span>Wrong answer 1</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz1', true)">
+                                <span class="option-letter">B</span>
+                                <span>Correct answer</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz1', false)">
+                                <span class="option-letter">C</span>
+                                <span>Wrong answer 2</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz1', false)">
+                                <span class="option-letter">D</span>
+                                <span>Wrong answer 3</span>
+                            </div>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-quiz1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Deep Dive -->
+            <div class="section" id="section4">
+                <h2 class="section-title">Going Deeper</h2>
+                <div class="section-content">
+                    <p>In this section, we explore the topic in more detail...</p>
+
+                    <div class="info-box">
+                        <h4>Did You Know?</h4>
+                        <p>Share additional interesting information here.</p>
+                    </div>
+
+                    <div class="quiz-question" id="quiz2">
+                        <h4>Question 2: Based on what you learned...</h4>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz2', false)">
+                                <span class="option-letter">A</span>
+                                <span>Option A</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz2', false)">
+                                <span class="option-letter">B</span>
+                                <span>Option B</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz2', true)">
+                                <span class="option-letter">C</span>
+                                <span>Correct Option</span>
+                            </div>
+                            <div class="quiz-option" onclick="selectOption(this, 'quiz2', false)">
+                                <span class="option-letter">D</span>
+                                <span>Option D</span>
+                            </div>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-quiz2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Summary & Completion -->
+            <div class="section" id="section5">
+                <div class="completion">
+                    <div class="completion-icon">🎉</div>
+                    <h2>Congratulations!</h2>
+                    <p>You've completed this lesson!</p>
+
+                    <div class="score-display">
+                        Score: <span id="finalScore">0</span>/<span id="totalQuestions">2</span>
+                    </div>
+
+                    <div class="info-box" style="text-align: left;">
+                        <h4>What You Learned</h4>
+                        <ul>
+                            <li>Key takeaway 1</li>
+                            <li>Key takeaway 2</li>
+                            <li>Key takeaway 3</li>
+                        </ul>
+                    </div>
+
+                    <button class="nav-btn next" onclick="restartLesson()">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn prev" id="prevBtn" onclick="navigate(-1)" disabled>
+                ← Previous
+            </button>
+            <button class="nav-btn next" id="nextBtn" onclick="navigate(1)">
+                Next →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // =====================
+        // LESSON STATE
+        // =====================
+        const TOTAL_SECTIONS = 5;
+        let currentSection = 1;
+        let quizScore = 0;
+        let answeredQuestions = {};
+
+        // =====================
+        // NAVIGATION
+        // =====================
+        function navigate(direction) {
+            const newSection = currentSection + direction;
+            if (newSection >= 1 && newSection <= TOTAL_SECTIONS) {
+                showSection(newSection);
+            }
+        }
+
+        function showSection(sectionNum) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            // Show target section
+            document.getElementById(`section${sectionNum}`).classList.add('active');
+            currentSection = sectionNum;
+
+            updateProgress();
+            updateNavigation();
+        }
+
+        function updateProgress() {
+            const percent = ((currentSection - 1) / (TOTAL_SECTIONS - 1)) * 100;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = `Section ${currentSection} of ${TOTAL_SECTIONS}`;
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentSection === 1;
+
+            if (currentSection === TOTAL_SECTIONS) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // =====================
+        // QUIZ HANDLING
+        // =====================
+        function selectOption(element, quizId, isCorrect) {
+            // Prevent re-answering
+            if (answeredQuestions[quizId]) return;
+            answeredQuestions[quizId] = true;
+
+            const options = element.parentElement.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById(`feedback-${quizId}`);
+
+            // Mark selected option
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.textContent = '✓ Correct! Great job!';
+                feedback.className = 'quiz-feedback show correct';
+                quizScore++;
+            } else {
+                element.classList.add('incorrect');
+                // Find and highlight correct answer
+                options.forEach(opt => {
+                    if (opt.onclick && opt.onclick.toString().includes('true')) {
+                        opt.classList.add('correct');
+                    }
+                });
+                feedback.textContent = '✗ Not quite. Review the correct answer above.';
+                feedback.className = 'quiz-feedback show incorrect';
+            }
+
+            // Update final score if on last section
+            document.getElementById('finalScore').textContent = quizScore;
+        }
+
+        // =====================
+        // RESTART
+        // =====================
+        function restartLesson() {
+            currentSection = 1;
+            quizScore = 0;
+            answeredQuestions = {};
+
+            // Reset quiz options
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect', 'selected');
+                opt.style.pointerEvents = 'auto';
+            });
+
+            // Reset feedback
+            document.querySelectorAll('.quiz-feedback').forEach(fb => {
+                fb.className = 'quiz-feedback';
+            });
+
+            showSection(1);
+        }
+
+        // =====================
+        // INITIALIZATION
+        // =====================
+        updateNavigation();
+    </script>
+</body>
+</html>
