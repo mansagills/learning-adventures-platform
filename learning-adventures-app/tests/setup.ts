@@ -1,12 +1,19 @@
 import '@testing-library/jest-dom';
 import React from 'react';
+import { vi } from 'vitest';
 
 declare global {
   var jest: any;
 }
 
+// Compatibility layer for existing tests using jest
+globalThis.jest = vi;
+
+// Make React available globally for tests (fixes "React is not defined" in JSX)
+globalThis.React = React;
+
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: jest.fn(),
