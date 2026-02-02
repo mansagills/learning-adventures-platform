@@ -1,942 +1,1114 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="Light Laboratory Escape">
-    <meta name="description" content="Use mirrors and prisms to direct light beams and escape the laboratory">
-    <meta name="content-type" content="game">
-    <meta name="subject" content="science">
-    <meta name="grade-level" content="4,5">
-    <meta name="difficulty" content="hard">
-    <meta name="skills" content="Physics,Optics,Light,Reflection">
-    <meta name="estimated-time" content="20-25 mins">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="title" content="Light Laboratory Escape" />
+    <meta
+      name="description"
+      content="Use mirrors and prisms to direct light beams and escape the laboratory"
+    />
+    <meta name="content-type" content="game" />
+    <meta name="subject" content="science" />
+    <meta name="grade-level" content="4,5" />
+    <meta name="difficulty" content="hard" />
+    <meta name="skills" content="Physics,Optics,Light,Reflection" />
+    <meta name="estimated-time" content="20-25 mins" />
     <title>Light Laboratory Escape - Learning Adventures</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+        min-height: 100vh;
+        color: white;
+        overflow-x: hidden;
+      }
 
-        .game-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+      .game-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2));
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid rgba(255,215,0,0.3);
-        }
+      .game-header {
+        text-align: center;
+        margin-bottom: 20px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 215, 0, 0.2),
+          rgba(255, 165, 0, 0.2)
+        );
+        padding: 20px;
+        border-radius: 20px;
+        border: 2px solid rgba(255, 215, 0, 0.3);
+      }
 
+      .game-header h1 {
+        font-size: 2.2em;
+        margin-bottom: 5px;
+        color: #ffd700;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
+
+      .stats-bar {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .stat {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+      }
+
+      .lab-room {
+        background: linear-gradient(180deg, #1a1a2e 0%, #2a2a4a 100%);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 3px solid rgba(255, 215, 0, 0.2);
+        position: relative;
+        min-height: 450px;
+      }
+
+      .room-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .room-header h2 {
+        color: #ffd700;
+        font-size: 1.3em;
+      }
+
+      .puzzle-grid {
+        display: grid;
+        gap: 2px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 15px;
+        margin: 0 auto;
+        max-width: 600px;
+      }
+
+      .grid-cell {
+        aspect-ratio: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .grid-cell:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .grid-cell.light-source {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 215, 0, 0.3),
+          rgba(255, 165, 0, 0.3)
+        );
+        border: 2px solid #ffd700;
+      }
+
+      .grid-cell.target {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.2),
+          rgba(139, 195, 74, 0.2)
+        );
+        border: 2px dashed #4caf50;
+        animation: targetPulse 2s infinite;
+      }
+
+      .grid-cell.target.hit {
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.5),
+          rgba(139, 195, 74, 0.5)
+        );
+        border-style: solid;
+        animation: none;
+      }
+
+      @keyframes targetPulse {
+        0%,
+        100% {
+          box-shadow: inset 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        50% {
+          box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+      }
+
+      .grid-cell.wall {
+        background: #333;
+      }
+
+      .light-beam {
+        position: absolute;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 215, 0, 0.8),
+          rgba(255, 255, 0, 0.6)
+        );
+        pointer-events: none;
+        z-index: 5;
+        animation: beamGlow 1s infinite alternate;
+      }
+
+      @keyframes beamGlow {
+        from {
+          opacity: 0.8;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .light-beam.horizontal {
+        height: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .light-beam.vertical {
+        width: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .object {
+        font-size: 1.8em;
+        transition: transform 0.2s;
+        cursor: grab;
+        z-index: 10;
+      }
+
+      .object:hover {
+        transform: scale(1.1);
+      }
+
+      .object.mirror {
+        filter: drop-shadow(0 0 5px rgba(192, 192, 192, 0.5));
+      }
+
+      .object.prism {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+      }
+
+      .toolbox {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .toolbox h3 {
+        color: #ffd700;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .tool-items {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .tool-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px 25px;
+        border-radius: 15px;
+        text-align: center;
+        cursor: grab;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        min-width: 100px;
+      }
+
+      .tool-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-3px);
+      }
+
+      .tool-item.selected {
+        border-color: #ffd700;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+      }
+
+      .tool-item .emoji {
+        font-size: 2em;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .tool-item .name {
+        font-size: 0.9em;
+      }
+
+      .tool-item .count {
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .control-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1em;
+        transition: all 0.3s;
+      }
+
+      .control-btn.primary {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #1a1a2e;
+      }
+
+      .control-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .control-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .info-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .info-panel h3 {
+        color: #ffd700;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .light-rules {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+      }
+
+      .rule {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+      }
+
+      .rule .demo {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+      }
+
+      .rule p {
+        font-size: 0.85em;
+        opacity: 0.8;
+      }
+
+      /* Modals */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, #1a1a2e, #2a2a4a);
+        border-radius: 25px;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        border: 3px solid rgba(255, 215, 0, 0.3);
+        animation: modalPop 0.3s ease-out;
+      }
+
+      @keyframes modalPop {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-content h2 {
+        color: #ffd700;
+        margin-bottom: 15px;
+        font-size: 1.8em;
+      }
+
+      .modal-content p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .modal-btn {
+        padding: 15px 40px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 1.2em;
+        font-weight: bold;
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #1a1a2e;
+        transition: all 0.3s;
+        margin: 5px;
+      }
+
+      .modal-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .fact-box {
+        background: rgba(255, 215, 0, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin: 15px 0;
+        border-left: 4px solid #ffd700;
+        text-align: left;
+      }
+
+      .fact-box h4 {
+        color: #ffd700;
+        margin-bottom: 8px;
+      }
+
+      .celebration {
+        position: fixed;
+        font-size: 3em;
+        animation: lightBurst 1.5s ease-out forwards;
+        pointer-events: none;
+        z-index: 1001;
+      }
+
+      @keyframes lightBurst {
+        0% {
+          opacity: 1;
+          transform: scale(0.5);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1) translateY(-100px);
+        }
+      }
+
+      .rainbow-beam {
+        position: absolute;
+        height: 10px;
+        background: linear-gradient(
+          90deg,
+          red,
+          orange,
+          yellow,
+          green,
+          blue,
+          indigo,
+          violet
+        );
+        pointer-events: none;
+        z-index: 6;
+        border-radius: 5px;
+        animation: rainbowGlow 1s infinite alternate;
+      }
+
+      @keyframes rainbowGlow {
+        from {
+          opacity: 0.7;
+        }
+        to {
+          opacity: 1;
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+      }
+
+      @media (max-width: 600px) {
         .game-header h1 {
-            font-size: 2.2em;
-            margin-bottom: 5px;
-            color: #FFD700;
-            text-shadow: 0 0 20px rgba(255,215,0,0.5);
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .stat {
-            background: rgba(255,255,255,0.1);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-        }
-
-        .lab-room {
-            background: linear-gradient(180deg, #1a1a2e 0%, #2a2a4a 100%);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 3px solid rgba(255,215,0,0.2);
-            position: relative;
-            min-height: 450px;
-        }
-
-        .room-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .room-header h2 {
-            color: #FFD700;
-            font-size: 1.3em;
-        }
-
-        .puzzle-grid {
-            display: grid;
-            gap: 2px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 15px;
-            margin: 0 auto;
-            max-width: 600px;
-        }
-
-        .grid-cell {
-            aspect-ratio: 1;
-            background: rgba(255,255,255,0.05);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .grid-cell:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .grid-cell.light-source {
-            background: linear-gradient(135deg, rgba(255,215,0,0.3), rgba(255,165,0,0.3));
-            border: 2px solid #FFD700;
-        }
-
-        .grid-cell.target {
-            background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(139,195,74,0.2));
-            border: 2px dashed #4CAF50;
-            animation: targetPulse 2s infinite;
-        }
-
-        .grid-cell.target.hit {
-            background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(139,195,74,0.5));
-            border-style: solid;
-            animation: none;
-        }
-
-        @keyframes targetPulse {
-            0%, 100% { box-shadow: inset 0 0 10px rgba(76,175,80,0.3); }
-            50% { box-shadow: inset 0 0 20px rgba(76,175,80,0.5); }
-        }
-
-        .grid-cell.wall {
-            background: #333;
-        }
-
-        .light-beam {
-            position: absolute;
-            background: linear-gradient(90deg, rgba(255,215,0,0.8), rgba(255,255,0,0.6));
-            pointer-events: none;
-            z-index: 5;
-            animation: beamGlow 1s infinite alternate;
-        }
-
-        @keyframes beamGlow {
-            from { opacity: 0.8; }
-            to { opacity: 1; }
-        }
-
-        .light-beam.horizontal {
-            height: 4px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .light-beam.vertical {
-            width: 4px;
-            left: 50%;
-            transform: translateX(-50%);
+          font-size: 1.6em;
         }
 
         .object {
-            font-size: 1.8em;
-            transition: transform 0.2s;
-            cursor: grab;
-            z-index: 10;
+          font-size: 1.4em;
         }
-
-        .object:hover {
-            transform: scale(1.1);
-        }
-
-        .object.mirror {
-            filter: drop-shadow(0 0 5px rgba(192,192,192,0.5));
-        }
-
-        .object.prism {
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
-        }
-
-        .toolbox {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .toolbox h3 {
-            color: #FFD700;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .tool-items {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .tool-item {
-            background: rgba(255,255,255,0.1);
-            padding: 15px 25px;
-            border-radius: 15px;
-            text-align: center;
-            cursor: grab;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            min-width: 100px;
-        }
-
-        .tool-item:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-3px);
-        }
-
-        .tool-item.selected {
-            border-color: #FFD700;
-            box-shadow: 0 0 15px rgba(255,215,0,0.3);
-        }
-
-        .tool-item .emoji {
-            font-size: 2em;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .tool-item .name {
-            font-size: 0.9em;
-        }
-
-        .tool-item .count {
-            font-size: 0.8em;
-            opacity: 0.7;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .control-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-
-        .control-btn.primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-        }
-
-        .control-btn.secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .control-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .info-panel {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .info-panel h3 {
-            color: #FFD700;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .light-rules {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .rule {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .rule .demo {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        .rule p {
-            font-size: 0.85em;
-            opacity: 0.8;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a1a2e, #2a2a4a);
-            border-radius: 25px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            border: 3px solid rgba(255,215,0,0.3);
-            animation: modalPop 0.3s ease-out;
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-content h2 {
-            color: #FFD700;
-            margin-bottom: 15px;
-            font-size: 1.8em;
-        }
-
-        .modal-content p {
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .modal-btn {
-            padding: 15px 40px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1.2em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-            transition: all 0.3s;
-            margin: 5px;
-        }
-
-        .modal-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .fact-box {
-            background: rgba(255,215,0,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
-            border-left: 4px solid #FFD700;
-            text-align: left;
-        }
-
-        .fact-box h4 {
-            color: #FFD700;
-            margin-bottom: 8px;
-        }
-
-        .celebration {
-            position: fixed;
-            font-size: 3em;
-            animation: lightBurst 1.5s ease-out forwards;
-            pointer-events: none;
-            z-index: 1001;
-        }
-
-        @keyframes lightBurst {
-            0% { opacity: 1; transform: scale(0.5); }
-            50% { transform: scale(1.5); }
-            100% { opacity: 0; transform: scale(1) translateY(-100px); }
-        }
-
-        .rainbow-beam {
-            position: absolute;
-            height: 10px;
-            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
-            pointer-events: none;
-            z-index: 6;
-            border-radius: 5px;
-            animation: rainbowGlow 1s infinite alternate;
-        }
-
-        @keyframes rainbowGlow {
-            from { opacity: 0.7; }
-            to { opacity: 1; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        }
-
-        @media (max-width: 600px) {
-            .game-header h1 {
-                font-size: 1.6em;
-            }
-
-            .object {
-                font-size: 1.4em;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <header class="game-header">
-            <h1>💡 Light Laboratory Escape</h1>
-            <p>Direct light beams to the targets using mirrors and prisms!</p>
-            <div class="stats-bar">
-                <div class="stat">🚪 Room: <span id="room">1</span>/6</div>
-                <div class="stat">⭐ Score: <span id="score">0</span></div>
-                <div class="stat">🎯 Targets: <span id="targets">0</span>/<span id="totalTargets">0</span></div>
-            </div>
-        </header>
-
-        <div class="lab-room">
-            <div class="room-header">
-                <h2 id="roomTitle">Room 1: Mirror Basics</h2>
-                <span id="roomHint">💡 Place the mirror to reflect light to the target</span>
-            </div>
-            <div class="puzzle-grid" id="puzzleGrid"></div>
+      <header class="game-header">
+        <h1>💡 Light Laboratory Escape</h1>
+        <p>Direct light beams to the targets using mirrors and prisms!</p>
+        <div class="stats-bar">
+          <div class="stat">🚪 Room: <span id="room">1</span>/6</div>
+          <div class="stat">⭐ Score: <span id="score">0</span></div>
+          <div class="stat">
+            🎯 Targets: <span id="targets">0</span>/<span id="totalTargets"
+              >0</span
+            >
+          </div>
         </div>
+      </header>
 
-        <div class="toolbox">
-            <h3>🧰 Tools</h3>
-            <div class="tool-items" id="toolItems"></div>
+      <div class="lab-room">
+        <div class="room-header">
+          <h2 id="roomTitle">Room 1: Mirror Basics</h2>
+          <span id="roomHint"
+            >💡 Place the mirror to reflect light to the target</span
+          >
         </div>
+        <div class="puzzle-grid" id="puzzleGrid"></div>
+      </div>
 
-        <div class="controls">
-            <button class="control-btn primary" onclick="activateLight()">💡 Activate Light</button>
-            <button class="control-btn secondary" onclick="resetRoom()">🔄 Reset Room</button>
-            <button class="control-btn secondary" onclick="rotateTool()">🔄 Rotate Selected</button>
-        </div>
+      <div class="toolbox">
+        <h3>🧰 Tools</h3>
+        <div class="tool-items" id="toolItems"></div>
+      </div>
 
-        <div class="info-panel">
-            <h3>📚 Light Science</h3>
-            <div class="light-rules">
-                <div class="rule">
-                    <div class="demo">🪞➡️↩️</div>
-                    <p><strong>Reflection</strong><br>Mirrors bounce light at the same angle it hits</p>
-                </div>
-                <div class="rule">
-                    <div class="demo">🔺🌈</div>
-                    <p><strong>Refraction</strong><br>Prisms bend light and split it into colors</p>
-                </div>
-                <div class="rule">
-                    <div class="demo">💡➡️</div>
-                    <p><strong>Light travels straight</strong><br>Until it hits something!</p>
-                </div>
-            </div>
+      <div class="controls">
+        <button class="control-btn primary" onclick="activateLight()">
+          💡 Activate Light
+        </button>
+        <button class="control-btn secondary" onclick="resetRoom()">
+          🔄 Reset Room
+        </button>
+        <button class="control-btn secondary" onclick="rotateTool()">
+          🔄 Rotate Selected
+        </button>
+      </div>
+
+      <div class="info-panel">
+        <h3>📚 Light Science</h3>
+        <div class="light-rules">
+          <div class="rule">
+            <div class="demo">🪞➡️↩️</div>
+            <p>
+              <strong>Reflection</strong><br />Mirrors bounce light at the same
+              angle it hits
+            </p>
+          </div>
+          <div class="rule">
+            <div class="demo">🔺🌈</div>
+            <p>
+              <strong>Refraction</strong><br />Prisms bend light and split it
+              into colors
+            </p>
+          </div>
+          <div class="rule">
+            <div class="demo">💡➡️</div>
+            <p>
+              <strong>Light travels straight</strong><br />Until it hits
+              something!
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Start Modal -->
     <div class="modal active" id="startModal">
-        <div class="modal-content">
-            <h2>💡 Light Laboratory Escape</h2>
-            <p>You're trapped in a light laboratory! To escape, you must direct light beams to unlock each door.</p>
-            <p><strong>How to play:</strong></p>
-            <p>1. Select a tool from the toolbox<br>
-            2. Click on the grid to place it<br>
-            3. Click "Activate Light" to see the beam<br>
-            4. Hit all targets to unlock the door!</p>
-            <button class="modal-btn" onclick="startGame()">Start Escaping!</button>
-        </div>
+      <div class="modal-content">
+        <h2>💡 Light Laboratory Escape</h2>
+        <p>
+          You're trapped in a light laboratory! To escape, you must direct light
+          beams to unlock each door.
+        </p>
+        <p><strong>How to play:</strong></p>
+        <p>
+          1. Select a tool from the toolbox<br />
+          2. Click on the grid to place it<br />
+          3. Click "Activate Light" to see the beam<br />
+          4. Hit all targets to unlock the door!
+        </p>
+        <button class="modal-btn" onclick="startGame()">Start Escaping!</button>
+      </div>
     </div>
 
     <!-- Room Complete Modal -->
     <div class="modal" id="completeModal">
-        <div class="modal-content">
-            <h2>🎉 Door Unlocked!</h2>
-            <p id="completeText"></p>
-            <div class="fact-box">
-                <h4>💡 Light Fact:</h4>
-                <p id="completeFact"></p>
-            </div>
-            <button class="modal-btn" onclick="nextRoom()">Next Room →</button>
+      <div class="modal-content">
+        <h2>🎉 Door Unlocked!</h2>
+        <p id="completeText"></p>
+        <div class="fact-box">
+          <h4>💡 Light Fact:</h4>
+          <p id="completeFact"></p>
         </div>
+        <button class="modal-btn" onclick="nextRoom()">Next Room →</button>
+      </div>
     </div>
 
     <!-- Game Complete Modal -->
     <div class="modal" id="gameCompleteModal">
-        <div class="modal-content">
-            <h2>🏆 Escaped!</h2>
-            <p>Brilliant work! You've mastered the science of light and escaped the laboratory!</p>
-            <p id="finalStats"></p>
-            <button class="modal-btn" onclick="startGame()">Play Again</button>
-        </div>
+      <div class="modal-content">
+        <h2>🏆 Escaped!</h2>
+        <p>
+          Brilliant work! You've mastered the science of light and escaped the
+          laboratory!
+        </p>
+        <p id="finalStats"></p>
+        <button class="modal-btn" onclick="startGame()">Play Again</button>
+      </div>
     </div>
 
     <script>
-        // Room definitions
-        const rooms = [
-            {
-                title: 'Room 1: Mirror Basics',
-                hint: 'Place the mirror to reflect light to the target',
-                gridSize: 6,
-                lightSource: { x: 0, y: 2, direction: 'right' },
-                targets: [{ x: 5, y: 5 }],
-                walls: [],
-                tools: [{ type: 'mirror45', count: 1 }],
-                fact: 'Light travels at 186,000 miles per second - fast enough to go around Earth 7.5 times in one second!'
-            },
-            {
-                title: 'Room 2: Double Reflection',
-                hint: 'Use two mirrors to bounce the light twice',
-                gridSize: 7,
-                lightSource: { x: 0, y: 3, direction: 'right' },
-                targets: [{ x: 0, y: 6 }],
-                walls: [{x: 3, y: 0}, {x: 3, y: 1}, {x: 3, y: 2}, {x: 3, y: 4}, {x: 3, y: 5}, {x: 3, y: 6}],
-                tools: [{ type: 'mirror45', count: 2 }],
-                fact: 'When you look in a mirror, the image appears to be behind the mirror at the same distance you are in front of it!'
-            },
-            {
-                title: 'Room 3: Multi-Target',
-                hint: 'Use a prism to split light and hit both targets!',
-                gridSize: 8,
-                lightSource: { x: 0, y: 3, direction: 'right' },
-                targets: [{ x: 7, y: 1 }, { x: 7, y: 5 }],
-                walls: [],
-                tools: [{ type: 'prism', count: 1 }, { type: 'mirror45', count: 2 }],
-                fact: 'White light is actually made of all the colors of the rainbow! A prism separates them because each color bends differently.'
-            },
-            {
-                title: 'Room 4: The Maze',
-                hint: 'Navigate light through the maze walls',
-                gridSize: 8,
-                lightSource: { x: 0, y: 0, direction: 'right' },
-                targets: [{ x: 7, y: 7 }],
-                walls: [
-                    {x: 2, y: 0}, {x: 2, y: 1}, {x: 2, y: 2},
-                    {x: 4, y: 3}, {x: 4, y: 4}, {x: 4, y: 5}, {x: 4, y: 6}, {x: 4, y: 7},
-                    {x: 6, y: 0}, {x: 6, y: 1}, {x: 6, y: 2}, {x: 6, y: 3}, {x: 6, y: 4}
-                ],
-                tools: [{ type: 'mirror45', count: 4 }],
-                fact: 'Fiber optic cables use total internal reflection to carry internet data as light signals across the world!'
-            },
-            {
-                title: 'Room 5: Rainbow Bridge',
-                hint: 'Create a rainbow to hit all three targets',
-                gridSize: 8,
-                lightSource: { x: 0, y: 4, direction: 'right' },
-                targets: [{ x: 7, y: 2 }, { x: 7, y: 4 }, { x: 7, y: 6 }],
-                walls: [{x: 5, y: 0}, {x: 5, y: 1}, {x: 5, y: 7}],
-                tools: [{ type: 'prism', count: 1 }, { type: 'mirror45', count: 3 }],
-                fact: 'Rainbows appear when sunlight enters raindrops and gets refracted (bent) and reflected inside them!'
-            },
-            {
-                title: 'Room 6: Final Challenge',
-                hint: 'Use everything you\'ve learned to escape!',
-                gridSize: 9,
-                lightSource: { x: 0, y: 4, direction: 'right' },
-                targets: [{ x: 8, y: 0 }, { x: 8, y: 4 }, { x: 8, y: 8 }],
-                walls: [
-                    {x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 5}, {x: 2, y: 6},
-                    {x: 4, y: 0}, {x: 4, y: 1}, {x: 4, y: 7}, {x: 4, y: 8},
-                    {x: 6, y: 3}, {x: 6, y: 4}, {x: 6, y: 5}
-                ],
-                tools: [{ type: 'prism', count: 2 }, { type: 'mirror45', count: 4 }],
-                fact: 'Congratulations! You now understand reflection and refraction - the key principles that make cameras, telescopes, and even your eyes work!'
+      // Room definitions
+      const rooms = [
+        {
+          title: 'Room 1: Mirror Basics',
+          hint: 'Place the mirror to reflect light to the target',
+          gridSize: 6,
+          lightSource: { x: 0, y: 2, direction: 'right' },
+          targets: [{ x: 5, y: 5 }],
+          walls: [],
+          tools: [{ type: 'mirror45', count: 1 }],
+          fact: 'Light travels at 186,000 miles per second - fast enough to go around Earth 7.5 times in one second!',
+        },
+        {
+          title: 'Room 2: Double Reflection',
+          hint: 'Use two mirrors to bounce the light twice',
+          gridSize: 7,
+          lightSource: { x: 0, y: 3, direction: 'right' },
+          targets: [{ x: 0, y: 6 }],
+          walls: [
+            { x: 3, y: 0 },
+            { x: 3, y: 1 },
+            { x: 3, y: 2 },
+            { x: 3, y: 4 },
+            { x: 3, y: 5 },
+            { x: 3, y: 6 },
+          ],
+          tools: [{ type: 'mirror45', count: 2 }],
+          fact: 'When you look in a mirror, the image appears to be behind the mirror at the same distance you are in front of it!',
+        },
+        {
+          title: 'Room 3: Multi-Target',
+          hint: 'Use a prism to split light and hit both targets!',
+          gridSize: 8,
+          lightSource: { x: 0, y: 3, direction: 'right' },
+          targets: [
+            { x: 7, y: 1 },
+            { x: 7, y: 5 },
+          ],
+          walls: [],
+          tools: [
+            { type: 'prism', count: 1 },
+            { type: 'mirror45', count: 2 },
+          ],
+          fact: 'White light is actually made of all the colors of the rainbow! A prism separates them because each color bends differently.',
+        },
+        {
+          title: 'Room 4: The Maze',
+          hint: 'Navigate light through the maze walls',
+          gridSize: 8,
+          lightSource: { x: 0, y: 0, direction: 'right' },
+          targets: [{ x: 7, y: 7 }],
+          walls: [
+            { x: 2, y: 0 },
+            { x: 2, y: 1 },
+            { x: 2, y: 2 },
+            { x: 4, y: 3 },
+            { x: 4, y: 4 },
+            { x: 4, y: 5 },
+            { x: 4, y: 6 },
+            { x: 4, y: 7 },
+            { x: 6, y: 0 },
+            { x: 6, y: 1 },
+            { x: 6, y: 2 },
+            { x: 6, y: 3 },
+            { x: 6, y: 4 },
+          ],
+          tools: [{ type: 'mirror45', count: 4 }],
+          fact: 'Fiber optic cables use total internal reflection to carry internet data as light signals across the world!',
+        },
+        {
+          title: 'Room 5: Rainbow Bridge',
+          hint: 'Create a rainbow to hit all three targets',
+          gridSize: 8,
+          lightSource: { x: 0, y: 4, direction: 'right' },
+          targets: [
+            { x: 7, y: 2 },
+            { x: 7, y: 4 },
+            { x: 7, y: 6 },
+          ],
+          walls: [
+            { x: 5, y: 0 },
+            { x: 5, y: 1 },
+            { x: 5, y: 7 },
+          ],
+          tools: [
+            { type: 'prism', count: 1 },
+            { type: 'mirror45', count: 3 },
+          ],
+          fact: 'Rainbows appear when sunlight enters raindrops and gets refracted (bent) and reflected inside them!',
+        },
+        {
+          title: 'Room 6: Final Challenge',
+          hint: "Use everything you've learned to escape!",
+          gridSize: 9,
+          lightSource: { x: 0, y: 4, direction: 'right' },
+          targets: [
+            { x: 8, y: 0 },
+            { x: 8, y: 4 },
+            { x: 8, y: 8 },
+          ],
+          walls: [
+            { x: 2, y: 2 },
+            { x: 2, y: 3 },
+            { x: 2, y: 5 },
+            { x: 2, y: 6 },
+            { x: 4, y: 0 },
+            { x: 4, y: 1 },
+            { x: 4, y: 7 },
+            { x: 4, y: 8 },
+            { x: 6, y: 3 },
+            { x: 6, y: 4 },
+            { x: 6, y: 5 },
+          ],
+          tools: [
+            { type: 'prism', count: 2 },
+            { type: 'mirror45', count: 4 },
+          ],
+          fact: 'Congratulations! You now understand reflection and refraction - the key principles that make cameras, telescopes, and even your eyes work!',
+        },
+      ];
+
+      // Game state
+      let gameState = {
+        currentRoom: 0,
+        score: 0,
+        selectedTool: null,
+        placedObjects: [],
+        beams: [],
+        hitTargets: [],
+      };
+
+      function initRoom() {
+        const room = rooms[gameState.currentRoom];
+        gameState.placedObjects = [];
+        gameState.beams = [];
+        gameState.hitTargets = [];
+        gameState.selectedTool = null;
+
+        document.getElementById('room').textContent = gameState.currentRoom + 1;
+        document.getElementById('roomTitle').textContent = room.title;
+        document.getElementById('roomHint').textContent = '💡 ' + room.hint;
+        document.getElementById('targets').textContent = '0';
+        document.getElementById('totalTargets').textContent =
+          room.targets.length;
+
+        renderGrid();
+        renderTools();
+      }
+
+      function renderGrid() {
+        const room = rooms[gameState.currentRoom];
+        const grid = document.getElementById('puzzleGrid');
+        grid.style.gridTemplateColumns = `repeat(${room.gridSize}, 1fr)`;
+        grid.innerHTML = '';
+
+        for (let y = 0; y < room.gridSize; y++) {
+          for (let x = 0; x < room.gridSize; x++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+
+            // Light source
+            if (room.lightSource.x === x && room.lightSource.y === y) {
+              cell.classList.add('light-source');
+              cell.innerHTML = '<span class="object">💡</span>';
             }
-        ];
 
-        // Game state
-        let gameState = {
-            currentRoom: 0,
-            score: 0,
-            selectedTool: null,
-            placedObjects: [],
-            beams: [],
-            hitTargets: []
-        };
-
-        function initRoom() {
-            const room = rooms[gameState.currentRoom];
-            gameState.placedObjects = [];
-            gameState.beams = [];
-            gameState.hitTargets = [];
-            gameState.selectedTool = null;
-
-            document.getElementById('room').textContent = gameState.currentRoom + 1;
-            document.getElementById('roomTitle').textContent = room.title;
-            document.getElementById('roomHint').textContent = '💡 ' + room.hint;
-            document.getElementById('targets').textContent = '0';
-            document.getElementById('totalTargets').textContent = room.targets.length;
-
-            renderGrid();
-            renderTools();
-        }
-
-        function renderGrid() {
-            const room = rooms[gameState.currentRoom];
-            const grid = document.getElementById('puzzleGrid');
-            grid.style.gridTemplateColumns = `repeat(${room.gridSize}, 1fr)`;
-            grid.innerHTML = '';
-
-            for (let y = 0; y < room.gridSize; y++) {
-                for (let x = 0; x < room.gridSize; x++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    cell.dataset.x = x;
-                    cell.dataset.y = y;
-
-                    // Light source
-                    if (room.lightSource.x === x && room.lightSource.y === y) {
-                        cell.classList.add('light-source');
-                        cell.innerHTML = '<span class="object">💡</span>';
-                    }
-
-                    // Targets
-                    if (room.targets.some(t => t.x === x && t.y === y)) {
-                        cell.classList.add('target');
-                        if (gameState.hitTargets.some(t => t.x === x && t.y === y)) {
-                            cell.classList.add('hit');
-                        }
-                        cell.innerHTML += '<span style="font-size: 1.5em;">🎯</span>';
-                    }
-
-                    // Walls
-                    if (room.walls.some(w => w.x === x && w.y === y)) {
-                        cell.classList.add('wall');
-                    }
-
-                    // Placed objects
-                    const placed = gameState.placedObjects.find(o => o.x === x && o.y === y);
-                    if (placed) {
-                        const emoji = placed.type === 'mirror45' ? '🪞' : '🔺';
-                        cell.innerHTML = `<span class="object ${placed.type}" data-rotation="${placed.rotation}">${emoji}</span>`;
-                        cell.onclick = () => removeObject(x, y);
-                    } else if (!cell.classList.contains('light-source') && !cell.classList.contains('wall')) {
-                        cell.onclick = () => placeObject(x, y);
-                    }
-
-                    grid.appendChild(cell);
-                }
+            // Targets
+            if (room.targets.some((t) => t.x === x && t.y === y)) {
+              cell.classList.add('target');
+              if (gameState.hitTargets.some((t) => t.x === x && t.y === y)) {
+                cell.classList.add('hit');
+              }
+              cell.innerHTML += '<span style="font-size: 1.5em;">🎯</span>';
             }
 
-            // Render beams
-            gameState.beams.forEach(beam => renderBeam(beam));
+            // Walls
+            if (room.walls.some((w) => w.x === x && w.y === y)) {
+              cell.classList.add('wall');
+            }
+
+            // Placed objects
+            const placed = gameState.placedObjects.find(
+              (o) => o.x === x && o.y === y
+            );
+            if (placed) {
+              const emoji = placed.type === 'mirror45' ? '🪞' : '🔺';
+              cell.innerHTML = `<span class="object ${placed.type}" data-rotation="${placed.rotation}">${emoji}</span>`;
+              cell.onclick = () => removeObject(x, y);
+            } else if (
+              !cell.classList.contains('light-source') &&
+              !cell.classList.contains('wall')
+            ) {
+              cell.onclick = () => placeObject(x, y);
+            }
+
+            grid.appendChild(cell);
+          }
         }
 
-        function renderBeam(beam) {
-            const grid = document.getElementById('puzzleGrid');
-            const room = rooms[gameState.currentRoom];
-            const cellSize = grid.offsetWidth / room.gridSize;
+        // Render beams
+        gameState.beams.forEach((beam) => renderBeam(beam));
+      }
 
-            const beamEl = document.createElement('div');
-            beamEl.className = beam.rainbow ? 'rainbow-beam' : 'light-beam';
+      function renderBeam(beam) {
+        const grid = document.getElementById('puzzleGrid');
+        const room = rooms[gameState.currentRoom];
+        const cellSize = grid.offsetWidth / room.gridSize;
 
-            const startX = beam.x1 * cellSize + cellSize / 2;
-            const startY = beam.y1 * cellSize + cellSize / 2;
-            const endX = beam.x2 * cellSize + cellSize / 2;
-            const endY = beam.y2 * cellSize + cellSize / 2;
+        const beamEl = document.createElement('div');
+        beamEl.className = beam.rainbow ? 'rainbow-beam' : 'light-beam';
 
-            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+        const startX = beam.x1 * cellSize + cellSize / 2;
+        const startY = beam.y1 * cellSize + cellSize / 2;
+        const endX = beam.x2 * cellSize + cellSize / 2;
+        const endY = beam.y2 * cellSize + cellSize / 2;
 
-            beamEl.style.width = length + 'px';
-            beamEl.style.left = startX + 'px';
-            beamEl.style.top = startY + 'px';
-            beamEl.style.transform = `rotate(${angle}deg)`;
-            beamEl.style.transformOrigin = '0 50%';
+        const length = Math.sqrt(
+          Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+        );
+        const angle =
+          (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI;
 
-            grid.appendChild(beamEl);
-        }
+        beamEl.style.width = length + 'px';
+        beamEl.style.left = startX + 'px';
+        beamEl.style.top = startY + 'px';
+        beamEl.style.transform = `rotate(${angle}deg)`;
+        beamEl.style.transformOrigin = '0 50%';
 
-        function renderTools() {
-            const room = rooms[gameState.currentRoom];
-            const toolbox = document.getElementById('toolItems');
-            toolbox.innerHTML = '';
+        grid.appendChild(beamEl);
+      }
 
-            room.tools.forEach((tool, index) => {
-                const usedCount = gameState.placedObjects.filter(o => o.type === tool.type).length;
-                const remaining = tool.count - usedCount;
+      function renderTools() {
+        const room = rooms[gameState.currentRoom];
+        const toolbox = document.getElementById('toolItems');
+        toolbox.innerHTML = '';
 
-                if (remaining > 0) {
-                    const item = document.createElement('div');
-                    item.className = `tool-item ${gameState.selectedTool === tool.type ? 'selected' : ''}`;
-                    item.innerHTML = `
+        room.tools.forEach((tool, index) => {
+          const usedCount = gameState.placedObjects.filter(
+            (o) => o.type === tool.type
+          ).length;
+          const remaining = tool.count - usedCount;
+
+          if (remaining > 0) {
+            const item = document.createElement('div');
+            item.className = `tool-item ${gameState.selectedTool === tool.type ? 'selected' : ''}`;
+            item.innerHTML = `
                         <span class="emoji">${tool.type === 'mirror45' ? '🪞' : '🔺'}</span>
                         <span class="name">${tool.type === 'mirror45' ? 'Mirror' : 'Prism'}</span>
                         <span class="count">×${remaining}</span>
                     `;
-                    item.onclick = () => selectTool(tool.type);
-                    toolbox.appendChild(item);
-                }
-            });
+            item.onclick = () => selectTool(tool.type);
+            toolbox.appendChild(item);
+          }
+        });
+      }
+
+      function selectTool(type) {
+        gameState.selectedTool = type;
+        renderTools();
+      }
+
+      function placeObject(x, y) {
+        if (!gameState.selectedTool) return;
+
+        const room = rooms[gameState.currentRoom];
+
+        // Check if can place more of this type
+        const toolDef = room.tools.find(
+          (t) => t.type === gameState.selectedTool
+        );
+        const usedCount = gameState.placedObjects.filter(
+          (o) => o.type === gameState.selectedTool
+        ).length;
+        if (usedCount >= toolDef.count) return;
+
+        // Check if cell is valid
+        if (room.lightSource.x === x && room.lightSource.y === y) return;
+        if (room.targets.some((t) => t.x === x && t.y === y)) return;
+        if (room.walls.some((w) => w.x === x && w.y === y)) return;
+        if (gameState.placedObjects.some((o) => o.x === x && o.y === y)) return;
+
+        gameState.placedObjects.push({
+          type: gameState.selectedTool,
+          x: x,
+          y: y,
+          rotation: 0,
+        });
+
+        clearBeams();
+        renderGrid();
+        renderTools();
+      }
+
+      function removeObject(x, y) {
+        gameState.placedObjects = gameState.placedObjects.filter(
+          (o) => !(o.x === x && o.y === y)
+        );
+        clearBeams();
+        renderGrid();
+        renderTools();
+      }
+
+      function rotateTool() {
+        // Rotate the last placed object
+        if (gameState.placedObjects.length > 0) {
+          const last =
+            gameState.placedObjects[gameState.placedObjects.length - 1];
+          last.rotation = (last.rotation + 45) % 360;
+          clearBeams();
+          renderGrid();
+        }
+      }
+
+      function clearBeams() {
+        gameState.beams = [];
+        gameState.hitTargets = [];
+      }
+
+      function activateLight() {
+        const room = rooms[gameState.currentRoom];
+        gameState.beams = [];
+        gameState.hitTargets = [];
+
+        // Trace light beam
+        traceBeam(
+          room.lightSource.x,
+          room.lightSource.y,
+          room.lightSource.direction,
+          false,
+          10 // Max bounces
+        );
+
+        renderGrid();
+
+        // Check if all targets hit
+        if (gameState.hitTargets.length === room.targets.length) {
+          const uniqueHits = new Set(
+            gameState.hitTargets.map((t) => `${t.x},${t.y}`)
+          );
+          if (uniqueHits.size === room.targets.length) {
+            setTimeout(() => completeRoom(), 500);
+          }
         }
 
-        function selectTool(type) {
-            gameState.selectedTool = type;
-            renderTools();
-        }
+        document.getElementById('targets').textContent =
+          gameState.hitTargets.length;
+      }
 
-        function placeObject(x, y) {
-            if (!gameState.selectedTool) return;
+      function traceBeam(startX, startY, direction, rainbow, maxBounces) {
+        if (maxBounces <= 0) return;
 
-            const room = rooms[gameState.currentRoom];
+        const room = rooms[gameState.currentRoom];
+        let x = startX;
+        let y = startY;
+        let dir = direction;
 
-            // Check if can place more of this type
-            const toolDef = room.tools.find(t => t.type === gameState.selectedTool);
-            const usedCount = gameState.placedObjects.filter(o => o.type === gameState.selectedTool).length;
-            if (usedCount >= toolDef.count) return;
+        const dirVectors = {
+          right: { dx: 1, dy: 0 },
+          left: { dx: -1, dy: 0 },
+          down: { dx: 0, dy: 1 },
+          up: { dx: 0, dy: -1 },
+        };
 
-            // Check if cell is valid
-            if (room.lightSource.x === x && room.lightSource.y === y) return;
-            if (room.targets.some(t => t.x === x && t.y === y)) return;
-            if (room.walls.some(w => w.x === x && w.y === y)) return;
-            if (gameState.placedObjects.some(o => o.x === x && o.y === y)) return;
+        const vec = dirVectors[dir];
+        let endX = x;
+        let endY = y;
 
-            gameState.placedObjects.push({
-                type: gameState.selectedTool,
-                x: x,
-                y: y,
-                rotation: 0
-            });
+        // Move in direction until hitting something
+        while (true) {
+          const nextX = endX + vec.dx;
+          const nextY = endY + vec.dy;
 
-            clearBeams();
-            renderGrid();
-            renderTools();
-        }
+          // Check bounds
+          if (
+            nextX < 0 ||
+            nextX >= room.gridSize ||
+            nextY < 0 ||
+            nextY >= room.gridSize
+          ) {
+            break;
+          }
 
-        function removeObject(x, y) {
-            gameState.placedObjects = gameState.placedObjects.filter(o => !(o.x === x && o.y === y));
-            clearBeams();
-            renderGrid();
-            renderTools();
-        }
+          // Check wall
+          if (room.walls.some((w) => w.x === nextX && w.y === nextY)) {
+            break;
+          }
 
-        function rotateTool() {
-            // Rotate the last placed object
-            if (gameState.placedObjects.length > 0) {
-                const last = gameState.placedObjects[gameState.placedObjects.length - 1];
-                last.rotation = (last.rotation + 45) % 360;
-                clearBeams();
-                renderGrid();
-            }
-        }
+          endX = nextX;
+          endY = nextY;
 
-        function clearBeams() {
-            gameState.beams = [];
-            gameState.hitTargets = [];
-        }
+          // Check target
+          if (room.targets.some((t) => t.x === endX && t.y === endY)) {
+            gameState.hitTargets.push({ x: endX, y: endY });
+          }
 
-        function activateLight() {
-            const room = rooms[gameState.currentRoom];
-            gameState.beams = [];
-            gameState.hitTargets = [];
-
-            // Trace light beam
-            traceBeam(
-                room.lightSource.x,
-                room.lightSource.y,
-                room.lightSource.direction,
-                false,
-                10 // Max bounces
-            );
-
-            renderGrid();
-
-            // Check if all targets hit
-            if (gameState.hitTargets.length === room.targets.length) {
-                const uniqueHits = new Set(gameState.hitTargets.map(t => `${t.x},${t.y}`));
-                if (uniqueHits.size === room.targets.length) {
-                    setTimeout(() => completeRoom(), 500);
-                }
-            }
-
-            document.getElementById('targets').textContent = gameState.hitTargets.length;
-        }
-
-        function traceBeam(startX, startY, direction, rainbow, maxBounces) {
-            if (maxBounces <= 0) return;
-
-            const room = rooms[gameState.currentRoom];
-            let x = startX;
-            let y = startY;
-            let dir = direction;
-
-            const dirVectors = {
-                right: { dx: 1, dy: 0 },
-                left: { dx: -1, dy: 0 },
-                down: { dx: 0, dy: 1 },
-                up: { dx: 0, dy: -1 }
-            };
-
-            const vec = dirVectors[dir];
-            let endX = x;
-            let endY = y;
-
-            // Move in direction until hitting something
-            while (true) {
-                const nextX = endX + vec.dx;
-                const nextY = endY + vec.dy;
-
-                // Check bounds
-                if (nextX < 0 || nextX >= room.gridSize || nextY < 0 || nextY >= room.gridSize) {
-                    break;
-                }
-
-                // Check wall
-                if (room.walls.some(w => w.x === nextX && w.y === nextY)) {
-                    break;
-                }
-
-                endX = nextX;
-                endY = nextY;
-
-                // Check target
-                if (room.targets.some(t => t.x === endX && t.y === endY)) {
-                    gameState.hitTargets.push({ x: endX, y: endY });
-                }
-
-                // Check placed objects
-                const obj = gameState.placedObjects.find(o => o.x === endX && o.y === endY);
-                if (obj) {
-                    // Add beam segment
-                    gameState.beams.push({ x1: x, y1: y, x2: endX, y2: endY, rainbow });
-
-                    if (obj.type === 'mirror45') {
-                        // Reflect beam
-                        const newDir = reflectDirection(dir, obj.rotation);
-                        traceBeam(endX, endY, newDir, rainbow, maxBounces - 1);
-                    } else if (obj.type === 'prism') {
-                        // Split beam into multiple directions (simplified)
-                        const splitDirs = getPrismSplit(dir);
-                        splitDirs.forEach(newDir => {
-                            traceBeam(endX, endY, newDir, true, maxBounces - 1);
-                        });
-                    }
-                    return;
-                }
-            }
-
-            // Add final beam segment
+          // Check placed objects
+          const obj = gameState.placedObjects.find(
+            (o) => o.x === endX && o.y === endY
+          );
+          if (obj) {
+            // Add beam segment
             gameState.beams.push({ x1: x, y1: y, x2: endX, y2: endY, rainbow });
-        }
 
-        function reflectDirection(dir, rotation) {
-            // Simplified reflection logic based on 45-degree mirror
-            const reflects = {
-                right: rotation === 0 ? 'up' : 'down',
-                left: rotation === 0 ? 'down' : 'up',
-                down: rotation === 0 ? 'left' : 'right',
-                up: rotation === 0 ? 'right' : 'left'
-            };
-            return reflects[dir] || dir;
-        }
-
-        function getPrismSplit(dir) {
-            // Prism splits beam into 3 directions
-            const splits = {
-                right: ['up', 'right', 'down'],
-                left: ['up', 'left', 'down'],
-                down: ['left', 'down', 'right'],
-                up: ['left', 'up', 'right']
-            };
-            return splits[dir] || [dir];
-        }
-
-        function completeRoom() {
-            const room = rooms[gameState.currentRoom];
-            gameState.score += 100;
-
-            document.getElementById('score').textContent = gameState.score;
-            document.getElementById('completeText').textContent = `You've unlocked the door with ${gameState.placedObjects.length} tools!`;
-            document.getElementById('completeFact').textContent = room.fact;
-            document.getElementById('completeModal').classList.add('active');
-
-            // Celebration
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => createCelebration(['💡', '⭐', '🌈'][i % 3]), i * 100);
+            if (obj.type === 'mirror45') {
+              // Reflect beam
+              const newDir = reflectDirection(dir, obj.rotation);
+              traceBeam(endX, endY, newDir, rainbow, maxBounces - 1);
+            } else if (obj.type === 'prism') {
+              // Split beam into multiple directions (simplified)
+              const splitDirs = getPrismSplit(dir);
+              splitDirs.forEach((newDir) => {
+                traceBeam(endX, endY, newDir, true, maxBounces - 1);
+              });
             }
+            return;
+          }
         }
 
-        function nextRoom() {
-            document.getElementById('completeModal').classList.remove('active');
+        // Add final beam segment
+        gameState.beams.push({ x1: x, y1: y, x2: endX, y2: endY, rainbow });
+      }
 
-            if (gameState.currentRoom < rooms.length - 1) {
-                gameState.currentRoom++;
-                initRoom();
-            } else {
-                document.getElementById('finalStats').innerHTML = `
+      function reflectDirection(dir, rotation) {
+        // Simplified reflection logic based on 45-degree mirror
+        const reflects = {
+          right: rotation === 0 ? 'up' : 'down',
+          left: rotation === 0 ? 'down' : 'up',
+          down: rotation === 0 ? 'left' : 'right',
+          up: rotation === 0 ? 'right' : 'left',
+        };
+        return reflects[dir] || dir;
+      }
+
+      function getPrismSplit(dir) {
+        // Prism splits beam into 3 directions
+        const splits = {
+          right: ['up', 'right', 'down'],
+          left: ['up', 'left', 'down'],
+          down: ['left', 'down', 'right'],
+          up: ['left', 'up', 'right'],
+        };
+        return splits[dir] || [dir];
+      }
+
+      function completeRoom() {
+        const room = rooms[gameState.currentRoom];
+        gameState.score += 100;
+
+        document.getElementById('score').textContent = gameState.score;
+        document.getElementById('completeText').textContent =
+          `You've unlocked the door with ${gameState.placedObjects.length} tools!`;
+        document.getElementById('completeFact').textContent = room.fact;
+        document.getElementById('completeModal').classList.add('active');
+
+        // Celebration
+        for (let i = 0; i < 15; i++) {
+          setTimeout(
+            () => createCelebration(['💡', '⭐', '🌈'][i % 3]),
+            i * 100
+          );
+        }
+      }
+
+      function nextRoom() {
+        document.getElementById('completeModal').classList.remove('active');
+
+        if (gameState.currentRoom < rooms.length - 1) {
+          gameState.currentRoom++;
+          initRoom();
+        } else {
+          document.getElementById('finalStats').innerHTML = `
                     <strong>Final Score:</strong> ${gameState.score}<br>
                     <strong>Rooms Completed:</strong> ${rooms.length}
                 `;
-                document.getElementById('gameCompleteModal').classList.add('active');
-            }
+          document.getElementById('gameCompleteModal').classList.add('active');
         }
+      }
 
-        function resetRoom() {
-            initRoom();
-        }
+      function resetRoom() {
+        initRoom();
+      }
 
-        function createCelebration(emoji) {
-            const celebration = document.createElement('div');
-            celebration.className = 'celebration';
-            celebration.textContent = emoji;
-            celebration.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-            celebration.style.top = Math.random() * (window.innerHeight - 50) + 'px';
-            document.body.appendChild(celebration);
-            setTimeout(() => celebration.remove(), 1500);
-        }
+      function createCelebration(emoji) {
+        const celebration = document.createElement('div');
+        celebration.className = 'celebration';
+        celebration.textContent = emoji;
+        celebration.style.left =
+          Math.random() * (window.innerWidth - 50) + 'px';
+        celebration.style.top =
+          Math.random() * (window.innerHeight - 50) + 'px';
+        document.body.appendChild(celebration);
+        setTimeout(() => celebration.remove(), 1500);
+      }
 
-        function startGame() {
-            document.getElementById('startModal').classList.remove('active');
-            document.getElementById('gameCompleteModal').classList.remove('active');
-            gameState.currentRoom = 0;
-            gameState.score = 0;
-            initRoom();
-        }
+      function startGame() {
+        document.getElementById('startModal').classList.remove('active');
+        document.getElementById('gameCompleteModal').classList.remove('active');
+        gameState.currentRoom = 0;
+        gameState.score = 0;
+        initRoom();
+      }
 
-        // Initialize on load
-        window.onload = () => {
-            initRoom();
-        };
+      // Initialize on load
+      window.onload = () => {
+        initRoom();
+      };
     </script>
-</body>
+  </body>
 </html>

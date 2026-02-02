@@ -20,7 +20,7 @@ export async function PUT(
 
     // Check if event exists and belongs to user
     const existingEvent = await prisma.calendarEvent.findUnique({
-      where: { id: eventId }
+      where: { id: eventId },
     });
 
     if (!existingEvent) {
@@ -48,30 +48,43 @@ export async function PUT(
       where: { id: eventId },
       data: {
         ...(body.title && { title: body.title }),
-        ...(body.description !== undefined && { description: body.description }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
         ...(body.eventType && { eventType: body.eventType }),
         ...(body.category !== undefined && { category: body.category }),
         ...(body.startTime && { startTime: new Date(body.startTime) }),
         ...(body.endTime && { endTime: new Date(body.endTime) }),
         ...(body.allDay !== undefined && { allDay: body.allDay }),
-        ...(body.adventureId !== undefined && { adventureId: body.adventureId }),
+        ...(body.adventureId !== undefined && {
+          adventureId: body.adventureId,
+        }),
         ...(body.goalId !== undefined && { goalId: body.goalId }),
-        ...(body.classroomId !== undefined && { classroomId: body.classroomId }),
-        ...(body.isRecurring !== undefined && { isRecurring: body.isRecurring }),
-        ...(body.recurrenceRule !== undefined && { recurrenceRule: body.recurrenceRule }),
-        ...(body.recurrenceEnd && { recurrenceEnd: new Date(body.recurrenceEnd) }),
-        ...(body.reminderMinutes !== undefined && { reminderMinutes: body.reminderMinutes }),
+        ...(body.classroomId !== undefined && {
+          classroomId: body.classroomId,
+        }),
+        ...(body.isRecurring !== undefined && {
+          isRecurring: body.isRecurring,
+        }),
+        ...(body.recurrenceRule !== undefined && {
+          recurrenceRule: body.recurrenceRule,
+        }),
+        ...(body.recurrenceEnd && {
+          recurrenceEnd: new Date(body.recurrenceEnd),
+        }),
+        ...(body.reminderMinutes !== undefined && {
+          reminderMinutes: body.reminderMinutes,
+        }),
         ...(body.status && { status: body.status }),
         ...(body.color !== undefined && { color: body.color }),
         ...(body.icon !== undefined && { icon: body.icon }),
         ...(body.priority !== undefined && { priority: body.priority }),
         ...(body.location !== undefined && { location: body.location }),
-        ...(body.url !== undefined && { url: body.url })
-      }
+        ...(body.url !== undefined && { url: body.url }),
+      },
     });
 
     return NextResponse.json({ event: updatedEvent });
-
   } catch (error) {
     console.error('Error updating calendar event:', error);
     return NextResponse.json(
@@ -97,7 +110,7 @@ export async function DELETE(
 
     // Check if event exists and belongs to user
     const existingEvent = await prisma.calendarEvent.findUnique({
-      where: { id: eventId }
+      where: { id: eventId },
     });
 
     if (!existingEvent) {
@@ -109,11 +122,10 @@ export async function DELETE(
     }
 
     await prisma.calendarEvent.delete({
-      where: { id: eventId }
+      where: { id: eventId },
     });
 
     return NextResponse.json({ message: 'Event deleted successfully' });
-
   } catch (error) {
     console.error('Error deleting calendar event:', error);
     return NextResponse.json(

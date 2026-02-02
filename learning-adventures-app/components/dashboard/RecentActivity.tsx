@@ -28,7 +28,7 @@ interface RecentActivityProps {
 export default function RecentActivity({
   activities,
   isLoading = false,
-  maxItems = 10
+  maxItems = 10,
 }: RecentActivityProps) {
   const displayedActivities = activities.slice(0, maxItems);
 
@@ -76,16 +76,13 @@ export default function RecentActivity({
 
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   if (displayedActivities.length === 0 && !isLoading) {
     return (
-      <DashboardCard
-        title="Recent Activity"
-        icon={<Icon name="clock" />}
-      >
+      <DashboardCard title="Recent Activity" icon={<Icon name="clock" />}>
         <div className="text-center py-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
             <Icon name="info" className="text-gray-400 text-2xl" />
@@ -115,7 +112,7 @@ export default function RecentActivity({
       action={
         activities.length > maxItems ? (
           <Link
-            href={"/dashboard/activity" as any}
+            href={'/dashboard/activity' as any}
             className="text-sm text-brand-500 hover:text-brand-600 font-medium"
           >
             View All
@@ -190,11 +187,12 @@ export default function RecentActivity({
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">
-              Showing {displayedActivities.length} of {activities.length} activities
+              Showing {displayedActivities.length} of {activities.length}{' '}
+              activities
             </span>
             {activities.length > displayedActivities.length && (
               <Link
-                href={"/dashboard/activity" as any}
+                href={'/dashboard/activity' as any}
                 className="text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1"
               >
                 View All

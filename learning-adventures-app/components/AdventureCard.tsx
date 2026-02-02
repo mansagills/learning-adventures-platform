@@ -14,7 +14,7 @@ interface AdventureCardProps {
 export default function AdventureCard({
   adventure,
   className,
-  size = 'medium'
+  size = 'medium',
 }: AdventureCardProps) {
   const handleCardClick = () => {
     analytics.clickCTA(`View ${adventure.title}`, 'adventure-catalog');
@@ -53,13 +53,13 @@ export default function AdventureCard({
   const sizeClasses = {
     small: 'p-4',
     medium: 'p-6',
-    large: 'p-8'
+    large: 'p-8',
   };
 
   const titleSizes = {
     small: 'text-lg',
     medium: 'text-xl',
-    large: 'text-2xl'
+    large: 'text-2xl',
   };
 
   return (
@@ -91,29 +91,35 @@ export default function AdventureCard({
 
       {/* Type Badge */}
       <div className="flex items-center justify-between mb-4">
-        <div className={cn(
-          'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-          getTypeColor(adventure.type)
-        )}>
+        <div
+          className={cn(
+            'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+            getTypeColor(adventure.type)
+          )}
+        >
           <Icon name={getTypeIcon(adventure.type)} size={16} className="mr-2" />
           {adventure.type === 'game' ? 'Game' : 'Lesson'}
         </div>
 
         {/* Difficulty Badge */}
-        <div className={cn(
-          'px-2 py-1 rounded-full text-xs font-medium capitalize',
-          getDifficultyColor(adventure.difficulty)
-        )}>
+        <div
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium capitalize',
+            getDifficultyColor(adventure.difficulty)
+          )}
+        >
           {adventure.difficulty}
         </div>
       </div>
 
       {/* Content */}
       <div className="mb-4">
-        <h3 className={cn(
-          'font-display font-bold text-ink-900 mb-2 group-hover:text-brand-500 transition-colors duration-250',
-          titleSizes[size]
-        )}>
+        <h3
+          className={cn(
+            'font-display font-bold text-ink-900 mb-2 group-hover:text-brand-500 transition-colors duration-250',
+            titleSizes[size]
+          )}
+        >
           {adventure.title}
         </h3>
         <p className="text-ink-600 text-sm leading-relaxed overflow-hidden max-h-[60px]">
@@ -157,7 +163,7 @@ export default function AdventureCard({
       <div className="absolute inset-0 bg-gradient-to-t from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-250 pointer-events-none" />
 
       {/* Play Now Button or Interactive Arrow */}
-      {(adventure.htmlPath || adventure.componentGame) ? (
+      {adventure.htmlPath || adventure.componentGame ? (
         <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-250">
           <button
             className="bg-brand-500 hover:bg-brand-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-md"

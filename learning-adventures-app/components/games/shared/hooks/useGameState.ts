@@ -46,7 +46,7 @@ export function useGameState(options: UseGameStateOptions = {}) {
     if (gameState.isGameOver || gameState.isPaused) return;
 
     const interval = setInterval(() => {
-      setGameState(prev => ({
+      setGameState((prev) => ({
         ...prev,
         timeElapsed: prev.timeElapsed + 1,
       }));
@@ -56,14 +56,14 @@ export function useGameState(options: UseGameStateOptions = {}) {
   }, [gameState.isGameOver, gameState.isPaused]);
 
   const addScore = useCallback((points: number) => {
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       score: prev.score + points,
     }));
   }, []);
 
   const loseLife = useCallback(() => {
-    setGameState(prev => {
+    setGameState((prev) => {
       const newLives = prev.lives - 1;
       const isGameOver = newLives <= 0;
 
@@ -80,14 +80,14 @@ export function useGameState(options: UseGameStateOptions = {}) {
   }, [onGameOver]);
 
   const gainLife = useCallback(() => {
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       lives: Math.min(prev.lives + 1, maxLives),
     }));
   }, [maxLives]);
 
   const levelUp = useCallback(() => {
-    setGameState(prev => {
+    setGameState((prev) => {
       const newLevel = prev.level + 1;
       if (onLevelUp) {
         onLevelUp(newLevel);
@@ -100,11 +100,11 @@ export function useGameState(options: UseGameStateOptions = {}) {
   }, [onLevelUp]);
 
   const pauseGame = useCallback(() => {
-    setGameState(prev => ({ ...prev, isPaused: true }));
+    setGameState((prev) => ({ ...prev, isPaused: true }));
   }, []);
 
   const resumeGame = useCallback(() => {
-    setGameState(prev => ({ ...prev, isPaused: false }));
+    setGameState((prev) => ({ ...prev, isPaused: false }));
   }, []);
 
   const resetGame = useCallback(() => {
@@ -119,20 +119,23 @@ export function useGameState(options: UseGameStateOptions = {}) {
     });
   }, [initialScore, initialLevel, initialLives]);
 
-  const addAchievement = useCallback((achievement: string) => {
-    setGameState(prev => {
-      if (prev.achievements.includes(achievement)) return prev;
+  const addAchievement = useCallback(
+    (achievement: string) => {
+      setGameState((prev) => {
+        if (prev.achievements.includes(achievement)) return prev;
 
-      if (onAchievement) {
-        onAchievement(achievement);
-      }
+        if (onAchievement) {
+          onAchievement(achievement);
+        }
 
-      return {
-        ...prev,
-        achievements: [...prev.achievements, achievement],
-      };
-    });
-  }, [onAchievement]);
+        return {
+          ...prev,
+          achievements: [...prev.achievements, achievement],
+        };
+      });
+    },
+    [onAchievement]
+  );
 
   return {
     gameState,

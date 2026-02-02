@@ -14,9 +14,12 @@ type TabType = 'content-creator' | 'ai-agents' | 'workflows' | 'history';
 
 export default function InternalApp() {
   const [activeTab, setActiveTab] = useState<TabType>('content-creator');
-  const [currentStep, setCurrentStep] = useState<'create' | 'preview' | 'publish'>('create');
+  const [currentStep, setCurrentStep] = useState<
+    'create' | 'preview' | 'publish'
+  >('create');
   const [formData, setFormData] = useState<ContentFormData | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
+  const [generatedContent, setGeneratedContent] =
+    useState<GeneratedContent | null>(null);
 
   const handleFormSubmit = (data: ContentFormData) => {
     setFormData(data);
@@ -51,7 +54,9 @@ export default function InternalApp() {
           <div className="py-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Content Creation Studio</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Content Creation Studio
+                </h1>
                 <p className="mt-1 text-gray-600">
                   Create engaging educational games and interactive lessons
                   {formData?.uploadSource === 'uploaded' && (
@@ -77,24 +82,36 @@ export default function InternalApp() {
               {activeTab === 'content-creator' && (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'create' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    >
                       1
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Create</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Create
+                    </span>
                   </div>
                   <div className="w-8 h-px bg-gray-300"></div>
                   <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'preview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    >
                       2
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Preview</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Preview
+                    </span>
                   </div>
                   <div className="w-8 h-px bg-gray-300"></div>
                   <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'publish' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'publish' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    >
                       3
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Publish</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Publish
+                    </span>
                   </div>
                 </div>
               )}
@@ -155,19 +172,13 @@ export default function InternalApp() {
         )}
 
         {/* AI Agents Tab */}
-        {activeTab === 'ai-agents' && (
-          <AgentDiscovery />
-        )}
+        {activeTab === 'ai-agents' && <AgentDiscovery />}
 
         {/* Workflows Tab */}
-        {activeTab === 'workflows' && (
-          <WorkflowList />
-        )}
+        {activeTab === 'workflows' && <WorkflowList />}
 
         {/* History Tab */}
-        {activeTab === 'history' && (
-          <ConversationHistory />
-        )}
+        {activeTab === 'history' && <ConversationHistory />}
       </main>
     </div>
   );

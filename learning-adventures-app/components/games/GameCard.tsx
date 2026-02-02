@@ -2,7 +2,11 @@
 
 import Icon from '../Icon';
 import type { Adventure } from '@/lib/catalogData';
-import { getGameUrl, getSubjectDisplay, getDifficultyDisplay } from '@/lib/games/gameHelpers';
+import {
+  getGameUrl,
+  getSubjectDisplay,
+  getDifficultyDisplay,
+} from '@/lib/games/gameHelpers';
 
 interface UserProgress {
   id: string;
@@ -36,11 +40,16 @@ export default function GameCard({ game, progress }: GameCardProps) {
   const gameUrl = getGameUrl(game);
   const subjectDisplay = getSubjectDisplay(game.category);
   const difficultyDisplay = getDifficultyDisplay(game.difficulty);
-  const subjectColor = subjectColors[game.category] || 'bg-gradient-to-r from-gray-400 to-gray-500';
-  const difficultyColor = difficultyColors[game.difficulty] || 'bg-gray-100 text-gray-700';
+  const subjectColor =
+    subjectColors[game.category] ||
+    'bg-gradient-to-r from-gray-400 to-gray-500';
+  const difficultyColor =
+    difficultyColors[game.difficulty] || 'bg-gray-100 text-gray-700';
 
   // Calculate play count from timeSpent (rough estimate)
-  const playCount = progress ? Math.max(1, Math.floor(progress.timeSpent / 10)) : 0;
+  const playCount = progress
+    ? Math.max(1, Math.floor(progress.timeSpent / 10))
+    : 0;
 
   // Get status badge
   const getStatusBadge = () => {
@@ -94,12 +103,16 @@ export default function GameCard({ game, progress }: GameCardProps) {
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 mb-4 line-clamp-2">{game.description}</p>
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          {game.description}
+        </p>
 
         {/* Metadata Row */}
         <div className="flex items-center gap-2 mb-4 flex-wrap">
           {/* Difficulty Badge */}
-          <span className={`px-2 py-1 text-xs font-medium rounded flex items-center gap-1 ${difficultyColor}`}>
+          <span
+            className={`px-2 py-1 text-xs font-medium rounded flex items-center gap-1 ${difficultyColor}`}
+          >
             <span>{difficultyDisplay.emoji}</span>
             <span>{difficultyDisplay.label}</span>
           </span>
@@ -118,7 +131,9 @@ export default function GameCard({ game, progress }: GameCardProps) {
               <Icon name="clock" size={16} className="text-ocean-600" />
               <div>
                 <div className="text-xs text-gray-600">Time</div>
-                <div className="text-sm font-bold text-ink-900">{game.estimatedTime}</div>
+                <div className="text-sm font-bold text-ink-900">
+                  {game.estimatedTime}
+                </div>
               </div>
             </div>
           </div>
@@ -127,13 +142,19 @@ export default function GameCard({ game, progress }: GameCardProps) {
           {progress ? (
             <div className="bg-gradient-to-br from-brand-50 to-accent-50 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <Icon name={progress.status === 'COMPLETED' ? 'trophy' : 'star'} size={16} className="text-brand-600" />
+                <Icon
+                  name={progress.status === 'COMPLETED' ? 'trophy' : 'star'}
+                  size={16}
+                  className="text-brand-600"
+                />
                 <div>
                   <div className="text-xs text-gray-600">
                     {progress.score !== null ? 'Best Score' : 'Played'}
                   </div>
                   <div className="text-sm font-bold text-ink-900">
-                    {progress.score !== null ? `${progress.score}%` : `${playCount}x`}
+                    {progress.score !== null
+                      ? `${progress.score}%`
+                      : `${playCount}x`}
                   </div>
                 </div>
               </div>
@@ -157,7 +178,10 @@ export default function GameCard({ game, progress }: GameCardProps) {
             <div className="text-xs text-gray-600 mb-1">Skills:</div>
             <div className="flex flex-wrap gap-1">
               {game.skills.slice(0, 3).map((skill, idx) => (
-                <span key={idx} className="px-2 py-0.5 text-xs bg-gray-50 text-gray-600 rounded">
+                <span
+                  key={idx}
+                  className="px-2 py-0.5 text-xs bg-gray-50 text-gray-600 rounded"
+                >
                   {skill}
                 </span>
               ))}

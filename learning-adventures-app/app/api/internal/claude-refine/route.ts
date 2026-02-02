@@ -47,9 +47,9 @@ Keep suggestions practical and implementable in an HTML5 single-file format.`;
       messages: [
         {
           role: 'user',
-          content: prompt
-        }
-      ]
+          content: prompt,
+        },
+      ],
     });
 
     const content = response.content[0];
@@ -61,17 +61,19 @@ Keep suggestions practical and implementable in an HTML5 single-file format.`;
       content: content.text,
       usage: {
         input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens
-      }
+        output_tokens: response.usage.output_tokens,
+      },
     });
-
   } catch (error) {
     console.error('Error calling Claude API:', error);
 
     // Check if it's an API key issue
     if (error instanceof Error && error.message.includes('authentication')) {
       return NextResponse.json(
-        { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
+        {
+          error:
+            'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.',
+        },
         { status: 401 }
       );
     }

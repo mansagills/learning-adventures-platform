@@ -24,8 +24,14 @@ export async function GET(
     }
 
     // Verify ownership (or admin access)
-    if (courseRequest.userId !== session.user.id && session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized to view this request' }, { status: 403 });
+    if (
+      courseRequest.userId !== session.user.id &&
+      session.user.role !== 'ADMIN'
+    ) {
+      return NextResponse.json(
+        { error: 'Unauthorized to view this request' },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json(courseRequest);

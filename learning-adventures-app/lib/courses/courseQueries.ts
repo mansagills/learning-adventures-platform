@@ -55,7 +55,9 @@ export async function getCourses(
 
   // Filter by difficulty
   if (difficulty) {
-    where.difficulty = Array.isArray(difficulty) ? { in: difficulty } : difficulty;
+    where.difficulty = Array.isArray(difficulty)
+      ? { in: difficulty }
+      : difficulty;
   }
 
   // Filter by premium status
@@ -112,9 +114,7 @@ export async function getCoursesWithProgress(
   });
 
   // Create enrollment map for quick lookup
-  const enrollmentMap = new Map(
-    enrollments.map((e) => [e.courseId, e])
-  );
+  const enrollmentMap = new Map(enrollments.map((e) => [e.courseId, e]));
 
   // Enrich courses with progress data
   const coursesWithProgress: CourseWithProgress[] = await Promise.all(
@@ -124,10 +124,15 @@ export async function getCoursesWithProgress(
       const lessonsCompleted = enrollment?.completedLessons || 0;
       const totalLessons = lessons.length;
       const progressPercentage =
-        totalLessons > 0 ? Math.round((lessonsCompleted / totalLessons) * 100) : 0;
+        totalLessons > 0
+          ? Math.round((lessonsCompleted / totalLessons) * 100)
+          : 0;
 
       // Check prerequisites
-      const prerequisitesMet = await checkPrerequisites(userId, course.prerequisiteCourseIds);
+      const prerequisitesMet = await checkPrerequisites(
+        userId,
+        course.prerequisiteCourseIds
+      );
 
       return {
         ...course,
@@ -221,7 +226,10 @@ export async function getCourseWithProgress(
   const progressPercentage =
     totalLessons > 0 ? Math.round((lessonsCompleted / totalLessons) * 100) : 0;
 
-  const prerequisitesMet = await checkPrerequisites(userId, course.prerequisiteCourseIds);
+  const prerequisitesMet = await checkPrerequisites(
+    userId,
+    course.prerequisiteCourseIds
+  );
 
   return {
     ...course,
@@ -442,7 +450,9 @@ export async function getPaginatedCourses(
 /**
  * Get lesson by ID
  */
-export async function getLessonById(lessonId: string): Promise<CourseLesson | null> {
+export async function getLessonById(
+  lessonId: string
+): Promise<CourseLesson | null> {
   return prisma.courseLesson.findUnique({
     where: { id: lessonId },
     include: {
@@ -454,7 +464,9 @@ export async function getLessonById(lessonId: string): Promise<CourseLesson | nu
 /**
  * Get lessons for a course
  */
-export async function getCourseLessons(courseId: string): Promise<CourseLesson[]> {
+export async function getCourseLessons(
+  courseId: string
+): Promise<CourseLesson[]> {
   return prisma.courseLesson.findMany({
     where: { courseId },
     orderBy: { order: 'asc' },
@@ -536,7 +548,9 @@ export async function getMissingPrerequisites(
   });
 
   const completedIds = completed.map((e) => e.courseId);
-  const missingIds = prerequisiteCourseIds.filter((id) => !completedIds.includes(id));
+  const missingIds = prerequisiteCourseIds.filter(
+    (id) => !completedIds.includes(id)
+  );
 
   if (missingIds.length === 0) return [];
 

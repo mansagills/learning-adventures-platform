@@ -10,14 +10,17 @@ interface LivePreviewProps {
 
 type DeviceType = 'desktop' | 'tablet' | 'mobile';
 
-export default function LivePreview({ content, isLoading = false }: LivePreviewProps) {
+export default function LivePreview({
+  content,
+  isLoading = false,
+}: LivePreviewProps) {
   const [device, setDevice] = useState<DeviceType>('desktop');
   const [iframeKey, setIframeKey] = useState(0);
 
   useEffect(() => {
     if (content) {
       // Force iframe refresh when content changes
-      setIframeKey(prev => prev + 1);
+      setIframeKey((prev) => prev + 1);
     }
   }, [content]);
 
@@ -29,19 +32,20 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
           <div className="text-center text-ink-500">
             <div className="text-6xl mb-4">👁️</div>
             <p className="text-lg font-medium">No content to preview</p>
-            <p className="text-sm mt-2">
-              Generate a game to see the preview
-            </p>
+            <p className="text-sm mt-2">Generate a game to see the preview</p>
           </div>
         </div>
       </div>
     );
   }
 
-  const deviceDimensions: Record<DeviceType, { width: string; height: string; maxWidth: string }> = {
+  const deviceDimensions: Record<
+    DeviceType,
+    { width: string; height: string; maxWidth: string }
+  > = {
     desktop: { width: '100%', height: '600px', maxWidth: '100%' },
     tablet: { width: '768px', height: '600px', maxWidth: '100%' },
-    mobile: { width: '375px', height: '667px', maxWidth: '100%' }
+    mobile: { width: '375px', height: '667px', maxWidth: '100%' },
   };
 
   const dimensions = deviceDimensions[device];
@@ -91,9 +95,15 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
       <div className="relative border-4 border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center min-h-[600px]">
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
-            <Icon name="loader" size={48} className="animate-spin text-brand-500 mb-4" />
+            <Icon
+              name="loader"
+              size={48}
+              className="animate-spin text-brand-500 mb-4"
+            />
             <p className="text-ink-600">Generating your game...</p>
-            <p className="text-sm text-ink-500 mt-2">This may take 1-3 minutes</p>
+            <p className="text-sm text-ink-500 mt-2">
+              This may take 1-3 minutes
+            </p>
           </div>
         ) : null}
 
@@ -123,19 +133,27 @@ export default function LivePreview({ content, isLoading = false }: LivePreviewP
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Generation Time</p>
             <p className="text-lg font-semibold text-ink-900">
-              {content?.generationTime ? (content.generationTime / 1000).toFixed(1) : '0'}s
+              {content?.generationTime
+                ? (content.generationTime / 1000).toFixed(1)
+                : '0'}
+              s
             </p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Tokens Used</p>
             <p className="text-lg font-semibold text-ink-900">
-              {content?.tokens?.total ? content.tokens.total.toLocaleString() : '0'}
+              {content?.tokens?.total
+                ? content.tokens.total.toLocaleString()
+                : '0'}
             </p>
           </div>
           <div className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-ink-600">Cost</p>
             <p className="text-lg font-semibold text-ink-900">
-              ${content?.estimatedCost ? content.estimatedCost.toFixed(3) : '0.000'}
+              $
+              {content?.estimatedCost
+                ? content.estimatedCost.toFixed(3)
+                : '0.000'}
             </p>
           </div>
         </div>

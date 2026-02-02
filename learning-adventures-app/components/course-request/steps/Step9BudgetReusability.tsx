@@ -8,25 +8,27 @@ const budgetTierOptions = [
     label: 'Free/Low-Cost',
     value: 'FREE',
     icon: '🌱',
-    description: 'Use existing platform resources, minimal customization ($0-50)'
+    description:
+      'Use existing platform resources, minimal customization ($0-50)',
   },
   {
     label: 'Standard',
     value: 'STANDARD',
     icon: '⭐',
-    description: 'Custom-designed course with AI + human review ($100-250)'
+    description: 'Custom-designed course with AI + human review ($100-250)',
   },
   {
     label: 'Premium',
     value: 'PREMIUM',
     icon: '💎',
-    description: 'Fully custom with videos, advanced games, ongoing support ($300-500)'
+    description:
+      'Fully custom with videos, advanced games, ongoing support ($300-500)',
   },
   {
     label: 'Not Sure / Flexible',
     value: 'FLEXIBLE',
     icon: '🤷',
-    description: 'Open to recommendations based on needs'
+    description: 'Open to recommendations based on needs',
   },
 ];
 
@@ -35,25 +37,25 @@ const reuseOptions = [
     label: 'Yes - Make It Public',
     value: 'PUBLIC',
     icon: '🌍',
-    description: 'Share with all users (may reduce your cost!)'
+    description: 'Share with all users (may reduce your cost!)',
   },
   {
     label: 'Yes - Anonymously',
     value: 'ANONYMOUS',
     icon: '🎭',
-    description: 'Share without student-specific details'
+    description: 'Share without student-specific details',
   },
   {
     label: 'No - Keep Private',
     value: 'PRIVATE',
     icon: '🔒',
-    description: 'Exclusive access for my student(s) only'
+    description: 'Exclusive access for my student(s) only',
   },
   {
     label: 'Undecided',
     value: 'UNDECIDED',
     icon: '❓',
-    description: 'I need more information to decide'
+    description: 'I need more information to decide',
   },
 ];
 
@@ -107,23 +109,29 @@ export default function Step9BudgetReusability() {
               </h4>
               <div className="space-y-3 mt-2">
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">Free/Low-Cost</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Free/Low-Cost
+                  </p>
                   <p className="text-xs text-gray-700">
-                    Access to existing catalog games and lessons, curated playlist for your needs
+                    Access to existing catalog games and lessons, curated
+                    playlist for your needs
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">Standard</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    Standard
+                  </p>
                   <p className="text-xs text-gray-700">
-                    AI-generated custom content, human educator review, 5-10 unique activities,
-                    progress tracking, email support
+                    AI-generated custom content, human educator review, 5-10
+                    unique activities, progress tracking, email support
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Premium</p>
                   <p className="text-xs text-gray-700">
-                    Everything in Standard PLUS custom videos, advanced interactive games,
-                    printable materials, live tutoring sessions (optional), priority support
+                    Everything in Standard PLUS custom videos, advanced
+                    interactive games, printable materials, live tutoring
+                    sessions (optional), priority support
                   </p>
                 </div>
               </div>
@@ -143,14 +151,26 @@ export default function Step9BudgetReusability() {
                 When you allow us to share your custom course with others:
               </p>
               <ul className="text-sm text-gray-700 space-y-1 ml-4">
-                <li>• <strong>Reduced cost</strong> - Up to 50% off course development</li>
-                <li>• <strong>Help other families</strong> - Your investment benefits more students</li>
-                <li>• <strong>Build the library</strong> - Grow our platform's resources</li>
-                <li>• <strong>Anonymous option</strong> - Share content without personal details</li>
+                <li>
+                  • <strong>Reduced cost</strong> - Up to 50% off course
+                  development
+                </li>
+                <li>
+                  • <strong>Help other families</strong> - Your investment
+                  benefits more students
+                </li>
+                <li>
+                  • <strong>Build the library</strong> - Grow our platform's
+                  resources
+                </li>
+                <li>
+                  • <strong>Anonymous option</strong> - Share content without
+                  personal details
+                </li>
               </ul>
               <p className="text-sm text-gray-700 mt-2 italic">
-                Note: We always remove student names, specific accommodations, and personal
-                notes before making courses public.
+                Note: We always remove student names, specific accommodations,
+                and personal notes before making courses public.
               </p>
             </div>
           </div>
@@ -166,9 +186,10 @@ export default function Step9BudgetReusability() {
                   Private Course Option
                 </h4>
                 <p className="text-sm text-gray-700">
-                  We completely understand if you prefer to keep the course private!
-                  Your custom content will be accessible only to you and the students
-                  you designate. Full development cost will apply.
+                  We completely understand if you prefer to keep the course
+                  private! Your custom content will be accessible only to you
+                  and the students you designate. Full development cost will
+                  apply.
                 </p>
               </div>
             </div>
@@ -185,9 +206,9 @@ export default function Step9BudgetReusability() {
                   No Pressure to Decide Now
                 </h4>
                 <p className="text-sm text-gray-700">
-                  You can make this decision later! We'll reach out after reviewing
-                  your request to discuss options and pricing. You'll have full
-                  transparency before any course development begins.
+                  You can make this decision later! We'll reach out after
+                  reviewing your request to discuss options and pricing. You'll
+                  have full transparency before any course development begins.
                 </p>
               </div>
             </div>

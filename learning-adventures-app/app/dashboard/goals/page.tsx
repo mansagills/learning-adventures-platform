@@ -23,7 +23,7 @@ function GoalsDashboardContent() {
     updateGoal,
     deleteGoal,
     completeGoal,
-    updateProgress
+    updateProgress,
   } = useActiveGoals();
 
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -39,7 +39,7 @@ function GoalsDashboardContent() {
   }
 
   // Filter goals
-  const filteredGoals = goals.filter(goal => {
+  const filteredGoals = goals.filter((goal) => {
     // Type filter
     if (filterType !== 'all' && goal.type.toLowerCase() !== filterType) {
       return false;
@@ -57,16 +57,17 @@ function GoalsDashboardContent() {
   });
 
   // Group goals by type
-  const dailyGoals = filteredGoals.filter(g => g.type === 'DAILY');
-  const weeklyGoals = filteredGoals.filter(g => g.type === 'WEEKLY');
-  const monthlyGoals = filteredGoals.filter(g => g.type === 'MONTHLY');
-  const customGoals = filteredGoals.filter(g => g.type === 'CUSTOM');
+  const dailyGoals = filteredGoals.filter((g) => g.type === 'DAILY');
+  const weeklyGoals = filteredGoals.filter((g) => g.type === 'WEEKLY');
+  const monthlyGoals = filteredGoals.filter((g) => g.type === 'MONTHLY');
+  const customGoals = filteredGoals.filter((g) => g.type === 'CUSTOM');
 
   // Statistics
   const totalGoals = goals.length;
-  const activeGoals = goals.filter(g => g.status === 'ACTIVE').length;
-  const completedGoals = goals.filter(g => g.status === 'COMPLETED').length;
-  const completionRate = totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
+  const activeGoals = goals.filter((g) => g.status === 'ACTIVE').length;
+  const completedGoals = goals.filter((g) => g.status === 'COMPLETED').length;
+  const completionRate =
+    totalGoals > 0 ? Math.round((completedGoals / totalGoals) * 100) : 0;
 
   const handleUpdateProgress = async (goalId: string, increment: number) => {
     try {
@@ -132,8 +133,8 @@ function GoalsDashboardContent() {
                   { value: 'daily', label: 'Daily' },
                   { value: 'weekly', label: 'Weekly' },
                   { value: 'monthly', label: 'Monthly' },
-                  { value: 'custom', label: 'Custom' }
-                ].map(type => (
+                  { value: 'custom', label: 'Custom' },
+                ].map((type) => (
                   <button
                     key={type.value}
                     onClick={() => setFilterType(type.value as FilterType)}
@@ -157,11 +158,13 @@ function GoalsDashboardContent() {
                 {[
                   { value: 'all', label: 'All' },
                   { value: 'active', label: 'Active' },
-                  { value: 'completed', label: 'Completed' }
-                ].map(status => (
+                  { value: 'completed', label: 'Completed' },
+                ].map((status) => (
                   <button
                     key={status.value}
-                    onClick={() => setStatusFilter(status.value as StatusFilter)}
+                    onClick={() =>
+                      setStatusFilter(status.value as StatusFilter)
+                    }
                     className={cn(
                       'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                       statusFilter === status.value
@@ -180,9 +183,15 @@ function GoalsDashboardContent() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
-              <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <Icon
+                name="alert"
+                size={20}
+                className="text-red-600 flex-shrink-0 mt-0.5"
+              />
               <div>
-                <p className="text-sm font-medium text-red-800">Error loading goals</p>
+                <p className="text-sm font-medium text-red-800">
+                  Error loading goals
+                </p>
                 <p className="text-sm text-red-700 mt-1">{error}</p>
               </div>
             </div>
@@ -196,7 +205,9 @@ function GoalsDashboardContent() {
               <Icon name="target" size={40} className="text-gray-400" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              {statusFilter === 'completed' ? 'No completed goals yet' : 'No goals yet'}
+              {statusFilter === 'completed'
+                ? 'No completed goals yet'
+                : 'No goals yet'}
             </h3>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               {statusFilter === 'completed'
@@ -221,10 +232,12 @@ function GoalsDashboardContent() {
                 <h2 className="text-xl font-bold text-ink-800 mb-4 flex items-center space-x-2">
                   <span>📅</span>
                   <span>Daily Goals</span>
-                  <span className="text-sm font-normal text-gray-500">({dailyGoals.length})</span>
+                  <span className="text-sm font-normal text-gray-500">
+                    ({dailyGoals.length})
+                  </span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {dailyGoals.map(goal => (
+                  {dailyGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
                       goal={goal}
@@ -244,10 +257,12 @@ function GoalsDashboardContent() {
                 <h2 className="text-xl font-bold text-ink-800 mb-4 flex items-center space-x-2">
                   <span>📆</span>
                   <span>Weekly Goals</span>
-                  <span className="text-sm font-normal text-gray-500">({weeklyGoals.length})</span>
+                  <span className="text-sm font-normal text-gray-500">
+                    ({weeklyGoals.length})
+                  </span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {weeklyGoals.map(goal => (
+                  {weeklyGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
                       goal={goal}
@@ -267,10 +282,12 @@ function GoalsDashboardContent() {
                 <h2 className="text-xl font-bold text-ink-800 mb-4 flex items-center space-x-2">
                   <span>🗓️</span>
                   <span>Monthly Goals</span>
-                  <span className="text-sm font-normal text-gray-500">({monthlyGoals.length})</span>
+                  <span className="text-sm font-normal text-gray-500">
+                    ({monthlyGoals.length})
+                  </span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {monthlyGoals.map(goal => (
+                  {monthlyGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
                       goal={goal}
@@ -290,10 +307,12 @@ function GoalsDashboardContent() {
                 <h2 className="text-xl font-bold text-ink-800 mb-4 flex items-center space-x-2">
                   <span>🎯</span>
                   <span>Custom Goals</span>
-                  <span className="text-sm font-normal text-gray-500">({customGoals.length})</span>
+                  <span className="text-sm font-normal text-gray-500">
+                    ({customGoals.length})
+                  </span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {customGoals.map(goal => (
+                  {customGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
                       goal={goal}
@@ -310,7 +329,7 @@ function GoalsDashboardContent() {
             {/* Filtered view (not grouped) */}
             {filterType !== 'all' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredGoals.map(goal => (
+                {filteredGoals.map((goal) => (
                   <GoalCard
                     key={goal.id}
                     goal={goal}

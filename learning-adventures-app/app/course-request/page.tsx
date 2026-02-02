@@ -4,7 +4,8 @@ import CourseRequestWizard from '@/components/course-request/CourseRequestWizard
 
 export const metadata = {
   title: 'Request Custom Course | Learning Adventures',
-  description: 'Create a personalized learning course tailored to your student\'s needs',
+  description:
+    "Create a personalized learning course tailored to your student's needs",
 };
 
 export default function CourseRequestPage() {

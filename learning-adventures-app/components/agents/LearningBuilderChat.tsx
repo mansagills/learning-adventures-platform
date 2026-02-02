@@ -66,10 +66,11 @@ export default function LearningBuilderChat() {
 
   // Add welcome message on mount
   useEffect(() => {
-    setMessages([{
-      id: 'welcome',
-      role: 'assistant',
-      content: `👋 Hi! I'm the Learning Builder Agent. I can help you create interactive learning content and educational games.
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: `👋 Hi! I'm the Learning Builder Agent. I can help you create interactive learning content and educational games.
 
 I have 5 specialized skills:
 💡 **Game Ideation** - Brainstorm creative game concepts
@@ -85,8 +86,9 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
 - "Build an HTML game about fractions"
 - "Brainstorm science game ideas for photosynthesis"
 - "Check the accessibility of my game"`,
-      timestamp: new Date(),
-    }]);
+        timestamp: new Date(),
+      },
+    ]);
   }, []);
 
   const handleSend = async () => {
@@ -133,7 +135,10 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
       setMessages((prev) => [...prev, assistantMessage]);
 
       // Show suggested next steps if available
-      if (data.metadata?.suggestedNextSteps && data.metadata.suggestedNextSteps.length > 0) {
+      if (
+        data.metadata?.suggestedNextSteps &&
+        data.metadata.suggestedNextSteps.length > 0
+      ) {
         const suggestions = data.metadata.suggestedNextSteps.join('\n- ');
         const suggestionMessage: Message = {
           id: `msg-${Date.now()}-suggestions`,
@@ -165,10 +170,22 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
   };
 
   const quickActions = [
-    { label: '💡 Brainstorm game ideas', prompt: 'Brainstorm 3 math game ideas for 4th graders' },
-    { label: '🎮 Build HTML game', prompt: 'Build an HTML game for teaching multiplication' },
-    { label: '⚛️ Create React game', prompt: 'Create a React game about fractions' },
-    { label: '✅ Check accessibility', prompt: 'How can I check if my game is accessible?' },
+    {
+      label: '💡 Brainstorm game ideas',
+      prompt: 'Brainstorm 3 math game ideas for 4th graders',
+    },
+    {
+      label: '🎮 Build HTML game',
+      prompt: 'Build an HTML game for teaching multiplication',
+    },
+    {
+      label: '⚛️ Create React game',
+      prompt: 'Create a React game about fractions',
+    },
+    {
+      label: '✅ Check accessibility',
+      prompt: 'How can I check if my game is accessible?',
+    },
   ];
 
   return (
@@ -181,7 +198,9 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
           </div>
           <div>
             <h2 className="font-semibold text-white">Learning Builder Agent</h2>
-            <p className="text-xs text-white/80">Intelligent content creation assistant</p>
+            <p className="text-xs text-white/80">
+              Intelligent content creation assistant
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -206,14 +225,19 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
             >
               {message.role === 'assistant' && message.skillUsed && (
                 <div className="flex items-center gap-2 mb-2 pb-2 border-b border-neutral-200">
-                  <span className="text-lg">{skillIcons[message.skillUsed]}</span>
+                  <span className="text-lg">
+                    {skillIcons[message.skillUsed]}
+                  </span>
                   <span className="text-xs font-medium text-neutral-600">
-                    {skillNames[message.skillUsed]} · {message.confidence}% confidence
+                    {skillNames[message.skillUsed]} · {message.confidence}%
+                    confidence
                   </span>
                 </div>
               )}
               <div className="whitespace-pre-wrap">{message.content}</div>
-              <div className={`text-xs mt-2 ${message.role === 'user' ? 'text-white/70' : 'text-neutral-500'}`}>
+              <div
+                className={`text-xs mt-2 ${message.role === 'user' ? 'text-white/70' : 'text-neutral-500'}`}
+              >
                 {message.timestamp.toLocaleTimeString()}
               </div>
             </div>
@@ -224,10 +248,21 @@ Just tell me what you'd like to create, and I'll automatically use the right ski
           <div className="flex justify-start">
             <div className="bg-neutral-100 rounded-lg p-4">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-brand-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                <span className="text-sm text-neutral-600 ml-2">Thinking...</span>
+                <div
+                  className="w-2 h-2 bg-brand-500 rounded-full animate-bounce"
+                  style={{ animationDelay: '0ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-brand-500 rounded-full animate-bounce"
+                  style={{ animationDelay: '150ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-brand-500 rounded-full animate-bounce"
+                  style={{ animationDelay: '300ms' }}
+                ></div>
+                <span className="text-sm text-neutral-600 ml-2">
+                  Thinking...
+                </span>
               </div>
             </div>
           </div>

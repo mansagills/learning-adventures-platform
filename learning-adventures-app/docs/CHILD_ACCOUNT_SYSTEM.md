@@ -82,28 +82,28 @@ model ChildSession {
 
 ### Parent Child Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/parent/children` | List all children for parent |
-| POST | `/api/parent/children` | Create new child account |
-| GET | `/api/parent/children/[id]` | Get child details |
-| PUT | `/api/parent/children/[id]` | Update child (name, grade, avatar, PIN) |
-| DELETE | `/api/parent/children/[id]` | Delete child account |
+| Method | Endpoint                    | Description                             |
+| ------ | --------------------------- | --------------------------------------- |
+| GET    | `/api/parent/children`      | List all children for parent            |
+| POST   | `/api/parent/children`      | Create new child account                |
+| GET    | `/api/parent/children/[id]` | Get child details                       |
+| PUT    | `/api/parent/children/[id]` | Update child (name, grade, avatar, PIN) |
+| DELETE | `/api/parent/children/[id]` | Delete child account                    |
 
 ### Child Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/child/login` | Authenticate with username + PIN |
-| POST | `/api/child/logout` | End child session |
-| GET | `/api/child/session` | Get current child session info |
+| Method | Endpoint             | Description                      |
+| ------ | -------------------- | -------------------------------- |
+| POST   | `/api/child/login`   | Authenticate with username + PIN |
+| POST   | `/api/child/logout`  | End child session                |
+| GET    | `/api/child/session` | Get current child session info   |
 
 ### Parent Verification
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/parent/verify` | Mark parent as verified adult |
-| GET | `/api/parent/verify` | Check verification status |
+| Method | Endpoint             | Description                   |
+| ------ | -------------------- | ----------------------------- |
+| POST   | `/api/parent/verify` | Mark parent as verified adult |
+| GET    | `/api/parent/verify` | Check verification status     |
 
 ---
 
@@ -139,11 +139,13 @@ The middleware protects routes based on authentication type:
 Usernames are auto-generated in the format: `AdjectiveAnimal##`
 
 Examples:
+
 - BraveEagle42
 - HappyDolphin17
 - CleverFox03
 
 Components:
+
 - 24 adjectives (Brave, Happy, Clever, Swift, etc.)
 - 24 animals (Eagle, Dolphin, Fox, Tiger, etc.)
 - 2-digit number (00-99)
@@ -156,24 +158,24 @@ Total combinations: 24 × 24 × 100 = 57,600 unique usernames
 
 Children can choose from 16 avatars:
 
-| ID | Emoji | Name |
-|----|-------|------|
-| tiger | 🐯 | Tiger |
-| dragon | 🐉 | Dragon |
-| eagle | 🦅 | Eagle |
-| dolphin | 🐬 | Dolphin |
-| fox | 🦊 | Fox |
-| lion | 🦁 | Lion |
-| bear | 🐻 | Bear |
-| wolf | 🐺 | Wolf |
-| panda | 🐼 | Panda |
-| owl | 🦉 | Owl |
-| phoenix | 🔥 | Phoenix |
-| turtle | 🐢 | Turtle |
-| penguin | 🐧 | Penguin |
-| koala | 🐨 | Koala |
-| cheetah | 🐆 | Cheetah |
-| rocket | 🚀 | Rocket |
+| ID      | Emoji | Name    |
+| ------- | ----- | ------- |
+| tiger   | 🐯    | Tiger   |
+| dragon  | 🐉    | Dragon  |
+| eagle   | 🦅    | Eagle   |
+| dolphin | 🐬    | Dolphin |
+| fox     | 🦊    | Fox     |
+| lion    | 🦁    | Lion    |
+| bear    | 🐻    | Bear    |
+| wolf    | 🐺    | Wolf    |
+| panda   | 🐼    | Panda   |
+| owl     | 🦉    | Owl     |
+| phoenix | 🔥    | Phoenix |
+| turtle  | 🐢    | Turtle  |
+| penguin | 🐧    | Penguin |
+| koala   | 🐨    | Koala   |
+| cheetah | 🐆    | Cheetah |
+| rocket  | 🚀    | Rocket  |
 
 ---
 
@@ -188,13 +190,13 @@ CHILD_SESSION_SECRET=your-secret-key-here  # Generate with: openssl rand -base64
 
 ## Pages
 
-| Path | Description |
-|------|-------------|
-| `/parent/children` | Manage children (add, edit, delete) |
-| `/parent/dashboard` | View all children's progress |
-| `/parent/child/[id]` | Detailed progress for one child |
-| `/child/login` | Child login page (username + PIN) |
-| `/child/dashboard` | Child's learning dashboard |
+| Path                 | Description                         |
+| -------------------- | ----------------------------------- |
+| `/parent/children`   | Manage children (add, edit, delete) |
+| `/parent/dashboard`  | View all children's progress        |
+| `/parent/child/[id]` | Detailed progress for one child     |
+| `/child/login`       | Child login page (username + PIN)   |
+| `/child/dashboard`   | Child's learning dashboard          |
 
 ---
 
@@ -224,4 +226,4 @@ The current verification is a mock. For production, implement:
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

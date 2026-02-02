@@ -1,938 +1,1094 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Wizard Battle - Learning Adventures</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(180deg, #1a237e 0%, #3949ab 50%, #7986cb 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          180deg,
+          #1a237e 0%,
+          #3949ab 50%,
+          #7986cb 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
 
-        .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 900px;
-            padding: 20px;
-        }
+      .game-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 900px;
+        padding: 20px;
+      }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+      .game-header {
+        text-align: center;
+        margin-bottom: 15px;
+      }
 
-        .game-title {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(90deg, #ff9800, #2196f3, #9c27b0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px;
-        }
+      .game-title {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(90deg, #ff9800, #2196f3, #9c27b0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 5px;
+      }
 
-        .game-subtitle {
-            font-size: 1rem;
-            color: #666;
-        }
+      .game-subtitle {
+        font-size: 1rem;
+        color: #666;
+      }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            padding: 12px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border: 2px solid #2196f3;
-        }
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        padding: 12px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        border: 2px solid #2196f3;
+      }
 
-        .stat {
-            text-align: center;
-        }
+      .stat {
+        text-align: center;
+      }
 
-        .stat-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #1565c0;
-        }
+      .stat-value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #1565c0;
+      }
 
-        .stat-label {
-            font-size: 0.8rem;
-            color: #666;
+      .stat-label {
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      .weather-scene {
+        position: relative;
+        height: 250px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        transition: all 0.5s;
+      }
+
+      .scene-sky {
+        position: absolute;
+        width: 100%;
+        height: 70%;
+        background: linear-gradient(180deg, #87ceeb 0%, #b0e0e6 100%);
+        transition: all 0.5s;
+      }
+
+      .scene-sky.cloudy {
+        background: linear-gradient(180deg, #78909c 0%, #90a4ae 100%);
+      }
+
+      .scene-sky.rainy {
+        background: linear-gradient(180deg, #546e7a 0%, #78909c 100%);
+      }
+
+      .scene-sky.stormy {
+        background: linear-gradient(180deg, #37474f 0%, #546e7a 100%);
+      }
+
+      .scene-sky.snowy {
+        background: linear-gradient(180deg, #cfd8dc 0%, #eceff1 100%);
+      }
+
+      .scene-ground {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 30%;
+        background: linear-gradient(180deg, #8bc34a 0%, #689f38 100%);
+        transition: all 0.5s;
+      }
+
+      .scene-ground.snowy {
+        background: linear-gradient(180deg, #eceff1 0%, #cfd8dc 100%);
+      }
+
+      .weather-effects {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .sun {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        font-size: 4rem;
+        transition: all 0.5s;
+      }
+
+      .sun.hidden {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+
+      .cloud {
+        position: absolute;
+        font-size: 3rem;
+        transition: all 0.5s;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .raindrop {
+        position: absolute;
+        font-size: 1rem;
+        animation: fall 1s linear infinite;
+      }
+
+      @keyframes fall {
+        0% {
+          transform: translateY(-20px);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(250px);
+          opacity: 0;
+        }
+      }
+
+      .snowflake {
+        position: absolute;
+        font-size: 1.2rem;
+        animation: snow 3s linear infinite;
+      }
+
+      @keyframes snow {
+        0% {
+          transform: translateY(-20px) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(250px) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      .lightning {
+        position: absolute;
+        font-size: 3rem;
+        display: none;
+      }
+
+      .lightning.flash {
+        display: block;
+        animation: flash 0.3s;
+      }
+
+      @keyframes flash {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .challenge-panel {
+        background: #fff3e0;
+        border: 2px solid #ff9800;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .challenge-title {
+        font-weight: bold;
+        color: #e65100;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .challenge-request {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .request-item {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+      }
+
+      .request-emoji {
+        font-size: 1.5rem;
+      }
+
+      .weather-controls {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .weather-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 10px;
+        border: 3px solid #e0e0e0;
+        border-radius: 15px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .weather-btn:hover {
+        border-color: #2196f3;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+      }
+
+      .weather-btn.active {
+        border-color: #1565c0;
+        background: #e3f2fd;
+      }
+
+      .weather-btn.used {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .weather-btn-emoji {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+      }
+
+      .weather-btn-name {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .weather-btn-desc {
+        font-size: 0.7rem;
+        color: #666;
+      }
+
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .action-btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .action-btn.cast {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+      }
+
+      .action-btn.reset {
+        background: linear-gradient(135deg, #78909c, #546e7a);
+        color: white;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .result-display {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        display: none;
+      }
+
+      .result-display.success {
+        display: block;
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+
+      .result-display.error {
+        display: block;
+        background: #ffebee;
+        color: #c62828;
+      }
+
+      .fact-panel {
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .fact-panel strong {
+        color: #2e7d32;
+      }
+
+      /* Modals */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        max-width: 450px;
+        width: 90%;
+        animation: popIn 0.3s ease;
+      }
+
+      @keyframes popIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        background: linear-gradient(90deg, #ff9800, #2196f3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+      }
+
+      .modal-emoji {
+        font-size: 4rem;
+        margin-bottom: 15px;
+      }
+
+      .modal-text {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+        border: none;
+        padding: 15px 35px;
+        font-size: 1.1rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        margin: 5px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+      }
+
+      .weather-legend {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 15px 0;
+        text-align: left;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 600px) {
+        .weather-controls {
+          grid-template-columns: repeat(2, 1fr);
         }
 
         .weather-scene {
-            position: relative;
-            height: 250px;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            transition: all 0.5s;
+          height: 200px;
         }
 
-        .scene-sky {
-            position: absolute;
-            width: 100%;
-            height: 70%;
-            background: linear-gradient(180deg, #87CEEB 0%, #b0e0e6 100%);
-            transition: all 0.5s;
+        .game-title {
+          font-size: 1.5rem;
         }
-
-        .scene-sky.cloudy {
-            background: linear-gradient(180deg, #78909c 0%, #90a4ae 100%);
-        }
-
-        .scene-sky.rainy {
-            background: linear-gradient(180deg, #546e7a 0%, #78909c 100%);
-        }
-
-        .scene-sky.stormy {
-            background: linear-gradient(180deg, #37474f 0%, #546e7a 100%);
-        }
-
-        .scene-sky.snowy {
-            background: linear-gradient(180deg, #cfd8dc 0%, #eceff1 100%);
-        }
-
-        .scene-ground {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 30%;
-            background: linear-gradient(180deg, #8bc34a 0%, #689f38 100%);
-            transition: all 0.5s;
-        }
-
-        .scene-ground.snowy {
-            background: linear-gradient(180deg, #eceff1 0%, #cfd8dc 100%);
-        }
-
-        .weather-effects {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        .sun {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 4rem;
-            transition: all 0.5s;
-        }
-
-        .sun.hidden {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-
-        .cloud {
-            position: absolute;
-            font-size: 3rem;
-            transition: all 0.5s;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .raindrop {
-            position: absolute;
-            font-size: 1rem;
-            animation: fall 1s linear infinite;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(-20px); opacity: 1; }
-            100% { transform: translateY(250px); opacity: 0; }
-        }
-
-        .snowflake {
-            position: absolute;
-            font-size: 1.2rem;
-            animation: snow 3s linear infinite;
-        }
-
-        @keyframes snow {
-            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(250px) rotate(360deg); opacity: 0; }
-        }
-
-        .lightning {
-            position: absolute;
-            font-size: 3rem;
-            display: none;
-        }
-
-        .lightning.flash {
-            display: block;
-            animation: flash 0.3s;
-        }
-
-        @keyframes flash {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        .challenge-panel {
-            background: #fff3e0;
-            border: 2px solid #ff9800;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .challenge-title {
-            font-weight: bold;
-            color: #e65100;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        .challenge-request {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .request-item {
-            background: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1rem;
-        }
-
-        .request-emoji {
-            font-size: 1.5rem;
-        }
-
-        .weather-controls {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .weather-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 10px;
-            border: 3px solid #e0e0e0;
-            border-radius: 15px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .weather-btn:hover {
-            border-color: #2196f3;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
-        }
-
-        .weather-btn.active {
-            border-color: #1565c0;
-            background: #e3f2fd;
-        }
-
-        .weather-btn.used {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .weather-btn-emoji {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-        }
-
-        .weather-btn-name {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .weather-btn-desc {
-            font-size: 0.7rem;
-            color: #666;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .action-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .action-btn.cast {
-            background: linear-gradient(135deg, #ff9800, #f57c00);
-            color: white;
-        }
-
-        .action-btn.reset {
-            background: linear-gradient(135deg, #78909c, #546e7a);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .result-display {
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .result-display.success {
-            display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .result-display.error {
-            display: block;
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .fact-panel {
-            background: #e8f5e9;
-            border: 2px solid #4caf50;
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .fact-panel strong {
-            color: #2e7d32;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            max-width: 450px;
-            width: 90%;
-            animation: popIn 0.3s ease;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 1.8rem;
-            background: linear-gradient(90deg, #ff9800, #2196f3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 15px;
-        }
-
-        .modal-emoji {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
-        .modal-text {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #2196f3, #1976d2);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            font-size: 1.1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin: 5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
-        }
-
-        .weather-legend {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .weather-controls {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .weather-scene {
-                height: 200px;
-            }
-
-            .game-title {
-                font-size: 1.5rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <div class="game-header">
-            <h1 class="game-title">🧙‍♂️ Weather Wizard Battle ⚡</h1>
-            <p class="game-subtitle">Control the weather to help people and learn about climate!</p>
-        </div>
+      <div class="game-header">
+        <h1 class="game-title">🧙‍♂️ Weather Wizard Battle ⚡</h1>
+        <p class="game-subtitle">
+          Control the weather to help people and learn about climate!
+        </p>
+      </div>
 
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-value" id="scoreDisplay">0</div>
-                <div class="stat-label">Score</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="levelDisplay">1</div>
-                <div class="stat-label">Level</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="challengeDisplay">1/5</div>
-                <div class="stat-label">Challenge</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="streakDisplay">0</div>
-                <div class="stat-label">Streak</div>
-            </div>
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="scoreDisplay">0</div>
+          <div class="stat-label">Score</div>
         </div>
-
-        <div class="weather-scene" id="weatherScene">
-            <div class="scene-sky" id="sceneSky"></div>
-            <div class="scene-ground" id="sceneGround"></div>
-            <div class="weather-effects" id="weatherEffects">
-                <div class="sun" id="sun">☀️</div>
-            </div>
+        <div class="stat">
+          <div class="stat-value" id="levelDisplay">1</div>
+          <div class="stat-label">Level</div>
         </div>
-
-        <div class="challenge-panel">
-            <div class="challenge-title" id="challengeTitle">🎯 Weather Request from the Village!</div>
-            <div class="challenge-request" id="challengeRequest">
-                <div class="request-item">
-                    <span class="request-emoji">🌧️</span>
-                    <span>We need rain for crops!</span>
-                </div>
-            </div>
+        <div class="stat">
+          <div class="stat-value" id="challengeDisplay">1/5</div>
+          <div class="stat-label">Challenge</div>
         </div>
-
-        <div class="weather-controls" id="weatherControls">
-            <button class="weather-btn" data-weather="sun" onclick="selectWeather('sun')">
-                <span class="weather-btn-emoji">☀️</span>
-                <span class="weather-btn-name">Sunshine</span>
-                <span class="weather-btn-desc">Clear & warm</span>
-            </button>
-            <button class="weather-btn" data-weather="cloud" onclick="selectWeather('cloud')">
-                <span class="weather-btn-emoji">☁️</span>
-                <span class="weather-btn-name">Clouds</span>
-                <span class="weather-btn-desc">Blocks sun</span>
-            </button>
-            <button class="weather-btn" data-weather="rain" onclick="selectWeather('rain')">
-                <span class="weather-btn-emoji">🌧️</span>
-                <span class="weather-btn-name">Rain</span>
-                <span class="weather-btn-desc">Waters land</span>
-            </button>
-            <button class="weather-btn" data-weather="storm" onclick="selectWeather('storm')">
-                <span class="weather-btn-emoji">⛈️</span>
-                <span class="weather-btn-name">Storm</span>
-                <span class="weather-btn-desc">Thunder!</span>
-            </button>
-            <button class="weather-btn" data-weather="snow" onclick="selectWeather('snow')">
-                <span class="weather-btn-emoji">❄️</span>
-                <span class="weather-btn-name">Snow</span>
-                <span class="weather-btn-desc">Cold & white</span>
-            </button>
-            <button class="weather-btn" data-weather="wind" onclick="selectWeather('wind')">
-                <span class="weather-btn-emoji">💨</span>
-                <span class="weather-btn-name">Wind</span>
-                <span class="weather-btn-desc">Moves air</span>
-            </button>
-            <button class="weather-btn" data-weather="fog" onclick="selectWeather('fog')">
-                <span class="weather-btn-emoji">🌫️</span>
-                <span class="weather-btn-name">Fog</span>
-                <span class="weather-btn-desc">Low visibility</span>
-            </button>
-            <button class="weather-btn" data-weather="rainbow" onclick="selectWeather('rainbow')">
-                <span class="weather-btn-emoji">🌈</span>
-                <span class="weather-btn-name">Rainbow</span>
-                <span class="weather-btn-desc">After rain!</span>
-            </button>
+        <div class="stat">
+          <div class="stat-value" id="streakDisplay">0</div>
+          <div class="stat-label">Streak</div>
         </div>
+      </div>
 
-        <div class="action-buttons">
-            <button class="action-btn cast" id="castBtn" onclick="castWeather()" disabled>🪄 Cast Weather Spell!</button>
-            <button class="action-btn reset" onclick="resetSelection()">🔄 Reset</button>
+      <div class="weather-scene" id="weatherScene">
+        <div class="scene-sky" id="sceneSky"></div>
+        <div class="scene-ground" id="sceneGround"></div>
+        <div class="weather-effects" id="weatherEffects">
+          <div class="sun" id="sun">☀️</div>
         </div>
+      </div>
 
-        <div class="result-display" id="resultDisplay"></div>
-
-        <div class="fact-panel" id="factPanel">
-            <strong>🌍 Weather Fact:</strong> <span id="factText">The sun provides energy that powers Earth's weather systems!</span>
+      <div class="challenge-panel">
+        <div class="challenge-title" id="challengeTitle">
+          🎯 Weather Request from the Village!
         </div>
+        <div class="challenge-request" id="challengeRequest">
+          <div class="request-item">
+            <span class="request-emoji">🌧️</span>
+            <span>We need rain for crops!</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-controls" id="weatherControls">
+        <button
+          class="weather-btn"
+          data-weather="sun"
+          onclick="selectWeather('sun')"
+        >
+          <span class="weather-btn-emoji">☀️</span>
+          <span class="weather-btn-name">Sunshine</span>
+          <span class="weather-btn-desc">Clear & warm</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="cloud"
+          onclick="selectWeather('cloud')"
+        >
+          <span class="weather-btn-emoji">☁️</span>
+          <span class="weather-btn-name">Clouds</span>
+          <span class="weather-btn-desc">Blocks sun</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="rain"
+          onclick="selectWeather('rain')"
+        >
+          <span class="weather-btn-emoji">🌧️</span>
+          <span class="weather-btn-name">Rain</span>
+          <span class="weather-btn-desc">Waters land</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="storm"
+          onclick="selectWeather('storm')"
+        >
+          <span class="weather-btn-emoji">⛈️</span>
+          <span class="weather-btn-name">Storm</span>
+          <span class="weather-btn-desc">Thunder!</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="snow"
+          onclick="selectWeather('snow')"
+        >
+          <span class="weather-btn-emoji">❄️</span>
+          <span class="weather-btn-name">Snow</span>
+          <span class="weather-btn-desc">Cold & white</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="wind"
+          onclick="selectWeather('wind')"
+        >
+          <span class="weather-btn-emoji">💨</span>
+          <span class="weather-btn-name">Wind</span>
+          <span class="weather-btn-desc">Moves air</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="fog"
+          onclick="selectWeather('fog')"
+        >
+          <span class="weather-btn-emoji">🌫️</span>
+          <span class="weather-btn-name">Fog</span>
+          <span class="weather-btn-desc">Low visibility</span>
+        </button>
+        <button
+          class="weather-btn"
+          data-weather="rainbow"
+          onclick="selectWeather('rainbow')"
+        >
+          <span class="weather-btn-emoji">🌈</span>
+          <span class="weather-btn-name">Rainbow</span>
+          <span class="weather-btn-desc">After rain!</span>
+        </button>
+      </div>
+
+      <div class="action-buttons">
+        <button
+          class="action-btn cast"
+          id="castBtn"
+          onclick="castWeather()"
+          disabled
+        >
+          🪄 Cast Weather Spell!
+        </button>
+        <button class="action-btn reset" onclick="resetSelection()">
+          🔄 Reset
+        </button>
+      </div>
+
+      <div class="result-display" id="resultDisplay"></div>
+
+      <div class="fact-panel" id="factPanel">
+        <strong>🌍 Weather Fact:</strong>
+        <span id="factText"
+          >The sun provides energy that powers Earth's weather systems!</span
+        >
+      </div>
     </div>
 
     <!-- Start Modal -->
     <div class="modal active" id="startModal">
-        <div class="modal-content">
-            <div class="modal-emoji">🧙‍♂️⚡</div>
-            <h2 class="modal-title">Weather Wizard Battle</h2>
-            <p class="modal-text">You are a Weather Wizard! Use your powers to help people by creating the weather they need.</p>
+      <div class="modal-content">
+        <div class="modal-emoji">🧙‍♂️⚡</div>
+        <h2 class="modal-title">Weather Wizard Battle</h2>
+        <p class="modal-text">
+          You are a Weather Wizard! Use your powers to help people by creating
+          the weather they need.
+        </p>
 
-            <div class="weather-legend">
-                <div class="legend-item">☀️ Sunshine warms the land</div>
-                <div class="legend-item">🌧️ Rain waters crops</div>
-                <div class="legend-item">❄️ Snow cools things down</div>
-                <div class="legend-item">💨 Wind moves clouds</div>
-                <div class="legend-item">⛈️ Storms bring heavy rain</div>
-                <div class="legend-item">🌈 Rainbows after rain!</div>
-            </div>
-
-            <button class="btn" onclick="startGame()">Begin Training!</button>
+        <div class="weather-legend">
+          <div class="legend-item">☀️ Sunshine warms the land</div>
+          <div class="legend-item">🌧️ Rain waters crops</div>
+          <div class="legend-item">❄️ Snow cools things down</div>
+          <div class="legend-item">💨 Wind moves clouds</div>
+          <div class="legend-item">⛈️ Storms bring heavy rain</div>
+          <div class="legend-item">🌈 Rainbows after rain!</div>
         </div>
+
+        <button class="btn" onclick="startGame()">Begin Training!</button>
+      </div>
     </div>
 
     <!-- Level Complete Modal -->
     <div class="modal" id="levelModal">
-        <div class="modal-content">
-            <div class="modal-emoji">🌟</div>
-            <h2 class="modal-title">Level Complete!</h2>
-            <p class="modal-text" id="levelMessage"></p>
-            <button class="btn" onclick="nextLevel()">Next Level</button>
-        </div>
+      <div class="modal-content">
+        <div class="modal-emoji">🌟</div>
+        <h2 class="modal-title">Level Complete!</h2>
+        <p class="modal-text" id="levelMessage"></p>
+        <button class="btn" onclick="nextLevel()">Next Level</button>
+      </div>
     </div>
 
     <!-- Game Complete Modal -->
     <div class="modal" id="completeModal">
-        <div class="modal-content">
-            <div class="modal-emoji">🏆</div>
-            <h2 class="modal-title">Master Weather Wizard!</h2>
-            <p class="modal-text">You've mastered weather control!</p>
-            <div style="font-size: 2rem; color: #1565c0; margin: 15px 0;">
-                Final Score: <span id="finalScore">0</span>
-            </div>
-            <p class="modal-text" id="finalFact"></p>
-            <button class="btn" onclick="restartGame()">Play Again</button>
+      <div class="modal-content">
+        <div class="modal-emoji">🏆</div>
+        <h2 class="modal-title">Master Weather Wizard!</h2>
+        <p class="modal-text">You've mastered weather control!</p>
+        <div style="font-size: 2rem; color: #1565c0; margin: 15px 0">
+          Final Score: <span id="finalScore">0</span>
         </div>
+        <p class="modal-text" id="finalFact"></p>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+      </div>
     </div>
 
     <script>
-        // Weather facts
-        const weatherFacts = [
-            "☀️ The sun is about 93 million miles away from Earth!",
-            "🌧️ A single thunderstorm can produce 500 million gallons of water!",
-            "❄️ No two snowflakes are exactly alike - each is unique!",
-            "⚡ Lightning is 5 times hotter than the surface of the sun!",
-            "🌈 Rainbows are actually complete circles - we just see half!",
-            "💨 The fastest wind ever recorded was 253 mph during a tornado!",
-            "☁️ An average cloud weighs about 1.1 million pounds!",
-            "🌡️ The hottest temperature recorded on Earth was 134°F in Death Valley!",
-            "🌊 Hurricanes can release energy equal to 10 atomic bombs per second!",
-            "🌍 Earth's atmosphere has 5 main layers protecting us from space!"
-        ];
+      // Weather facts
+      const weatherFacts = [
+        '☀️ The sun is about 93 million miles away from Earth!',
+        '🌧️ A single thunderstorm can produce 500 million gallons of water!',
+        '❄️ No two snowflakes are exactly alike - each is unique!',
+        '⚡ Lightning is 5 times hotter than the surface of the sun!',
+        '🌈 Rainbows are actually complete circles - we just see half!',
+        '💨 The fastest wind ever recorded was 253 mph during a tornado!',
+        '☁️ An average cloud weighs about 1.1 million pounds!',
+        '🌡️ The hottest temperature recorded on Earth was 134°F in Death Valley!',
+        '🌊 Hurricanes can release energy equal to 10 atomic bombs per second!',
+        "🌍 Earth's atmosphere has 5 main layers protecting us from space!",
+      ];
 
-        // Challenges
-        const challenges = [
-            // Level 1 - Simple requests
-            [
-                { request: "Our crops need water! Make it rain! 🌾", answer: "rain", hint: "Farmers need rain for crops" },
-                { request: "It's too cold! We need sunshine! ☀️", answer: "sun", hint: "Sunshine warms the land" },
-                { request: "We want to play in the snow! ⛄", answer: "snow", hint: "Snow for winter fun!" },
-                { request: "Our windmills need power! 🌬️", answer: "wind", hint: "Wind turns windmills" },
-                { request: "Kids want to see a rainbow! 🌈", answer: "rainbow", hint: "Rainbows appear after rain with sun" }
-            ],
-            // Level 2 - Weather science
-            [
-                { request: "Help the forest recover from drought! 🌲", answer: "rain", hint: "Rain helps plants grow" },
-                { request: "Our solar panels need more power! ⚡", answer: "sun", hint: "Solar panels use sunlight" },
-                { request: "We need clouds to shade the festival! 🎪", answer: "cloud", hint: "Clouds block direct sun" },
-                { request: "Help cool down the hot city! 🏙️", answer: "snow", hint: "Snow brings cold temperatures" },
-                { request: "The sailors need wind for their ships! ⛵", answer: "wind", hint: "Wind powers sailboats" }
-            ],
-            // Level 3 - Challenging
-            [
-                { request: "The reservoir is almost empty! Help! 💧", answer: "storm", hint: "Storms bring heavy rainfall" },
-                { request: "Airport needs mystery - create low visibility! ✈️", answer: "fog", hint: "Fog reduces visibility" },
-                { request: "After all this rain, show us beauty! 🎨", answer: "rainbow", hint: "Rainbows need sun AND rain mist" },
-                { request: "The ski resort needs powder! 🎿", answer: "snow", hint: "Ski resorts need snow" },
-                { request: "Clear all these clouds for the parade! 🎉", answer: "sun", hint: "Sunshine clears clouds" }
-            ]
-        ];
+      // Challenges
+      const challenges = [
+        // Level 1 - Simple requests
+        [
+          {
+            request: 'Our crops need water! Make it rain! 🌾',
+            answer: 'rain',
+            hint: 'Farmers need rain for crops',
+          },
+          {
+            request: "It's too cold! We need sunshine! ☀️",
+            answer: 'sun',
+            hint: 'Sunshine warms the land',
+          },
+          {
+            request: 'We want to play in the snow! ⛄',
+            answer: 'snow',
+            hint: 'Snow for winter fun!',
+          },
+          {
+            request: 'Our windmills need power! 🌬️',
+            answer: 'wind',
+            hint: 'Wind turns windmills',
+          },
+          {
+            request: 'Kids want to see a rainbow! 🌈',
+            answer: 'rainbow',
+            hint: 'Rainbows appear after rain with sun',
+          },
+        ],
+        // Level 2 - Weather science
+        [
+          {
+            request: 'Help the forest recover from drought! 🌲',
+            answer: 'rain',
+            hint: 'Rain helps plants grow',
+          },
+          {
+            request: 'Our solar panels need more power! ⚡',
+            answer: 'sun',
+            hint: 'Solar panels use sunlight',
+          },
+          {
+            request: 'We need clouds to shade the festival! 🎪',
+            answer: 'cloud',
+            hint: 'Clouds block direct sun',
+          },
+          {
+            request: 'Help cool down the hot city! 🏙️',
+            answer: 'snow',
+            hint: 'Snow brings cold temperatures',
+          },
+          {
+            request: 'The sailors need wind for their ships! ⛵',
+            answer: 'wind',
+            hint: 'Wind powers sailboats',
+          },
+        ],
+        // Level 3 - Challenging
+        [
+          {
+            request: 'The reservoir is almost empty! Help! 💧',
+            answer: 'storm',
+            hint: 'Storms bring heavy rainfall',
+          },
+          {
+            request: 'Airport needs mystery - create low visibility! ✈️',
+            answer: 'fog',
+            hint: 'Fog reduces visibility',
+          },
+          {
+            request: 'After all this rain, show us beauty! 🎨',
+            answer: 'rainbow',
+            hint: 'Rainbows need sun AND rain mist',
+          },
+          {
+            request: 'The ski resort needs powder! 🎿',
+            answer: 'snow',
+            hint: 'Ski resorts need snow',
+          },
+          {
+            request: 'Clear all these clouds for the parade! 🎉',
+            answer: 'sun',
+            hint: 'Sunshine clears clouds',
+          },
+        ],
+      ];
 
-        // Game state
-        let gameState = {
-            score: 0,
-            level: 0,
-            challenge: 0,
-            streak: 0,
-            selectedWeather: null,
-            currentWeather: 'clear'
-        };
+      // Game state
+      let gameState = {
+        score: 0,
+        level: 0,
+        challenge: 0,
+        streak: 0,
+        selectedWeather: null,
+        currentWeather: 'clear',
+      };
 
-        function init() {
-            document.getElementById('startModal').classList.add('active');
-        }
+      function init() {
+        document.getElementById('startModal').classList.add('active');
+      }
 
-        function startGame() {
-            document.getElementById('startModal').classList.remove('active');
-            loadChallenge();
-            showRandomFact();
-        }
+      function startGame() {
+        document.getElementById('startModal').classList.remove('active');
+        loadChallenge();
+        showRandomFact();
+      }
 
-        function loadChallenge() {
-            const challenge = challenges[gameState.level][gameState.challenge];
+      function loadChallenge() {
+        const challenge = challenges[gameState.level][gameState.challenge];
 
-            document.getElementById('challengeRequest').innerHTML = `
+        document.getElementById('challengeRequest').innerHTML = `
                 <div class="request-item">
                     <span class="request-emoji">📣</span>
                     <span>${challenge.request}</span>
                 </div>
             `;
 
-            document.getElementById('levelDisplay').textContent = gameState.level + 1;
-            document.getElementById('challengeDisplay').textContent =
-                `${gameState.challenge + 1}/${challenges[gameState.level].length}`;
+        document.getElementById('levelDisplay').textContent =
+          gameState.level + 1;
+        document.getElementById('challengeDisplay').textContent =
+          `${gameState.challenge + 1}/${challenges[gameState.level].length}`;
 
-            // Reset weather scene
-            setWeatherScene('clear');
-            resetSelection();
+        // Reset weather scene
+        setWeatherScene('clear');
+        resetSelection();
+      }
+
+      function selectWeather(weather) {
+        gameState.selectedWeather = weather;
+
+        document.querySelectorAll('.weather-btn').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        document
+          .querySelector(`[data-weather="${weather}"]`)
+          .classList.add('active');
+        document.getElementById('castBtn').disabled = false;
+
+        // Preview weather
+        setWeatherScene(weather);
+      }
+
+      function setWeatherScene(weather) {
+        const sky = document.getElementById('sceneSky');
+        const ground = document.getElementById('sceneGround');
+        const effects = document.getElementById('weatherEffects');
+        const sun = document.getElementById('sun');
+
+        // Clear existing effects
+        effects
+          .querySelectorAll('.cloud, .raindrop, .snowflake, .lightning')
+          .forEach((el) => el.remove());
+
+        // Reset classes
+        sky.className = 'scene-sky';
+        ground.className = 'scene-ground';
+        sun.classList.remove('hidden');
+
+        gameState.currentWeather = weather;
+
+        switch (weather) {
+          case 'sun':
+            // Sunny - default
+            break;
+
+          case 'cloud':
+            sky.classList.add('cloudy');
+            sun.classList.add('hidden');
+            addClouds(5);
+            break;
+
+          case 'rain':
+            sky.classList.add('rainy');
+            sun.classList.add('hidden');
+            addClouds(4);
+            addRain(30);
+            break;
+
+          case 'storm':
+            sky.classList.add('stormy');
+            sun.classList.add('hidden');
+            addClouds(6);
+            addRain(50);
+            addLightning();
+            break;
+
+          case 'snow':
+            sky.classList.add('snowy');
+            ground.classList.add('snowy');
+            sun.classList.add('hidden');
+            addClouds(4);
+            addSnow(40);
+            break;
+
+          case 'wind':
+            addClouds(3, true);
+            break;
+
+          case 'fog':
+            sky.classList.add('cloudy');
+            sun.classList.add('hidden');
+            addFog();
+            break;
+
+          case 'rainbow':
+            addClouds(2);
+            addRainbow();
+            break;
         }
+      }
 
-        function selectWeather(weather) {
-            gameState.selectedWeather = weather;
-
-            document.querySelectorAll('.weather-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-weather="${weather}"]`).classList.add('active');
-            document.getElementById('castBtn').disabled = false;
-
-            // Preview weather
-            setWeatherScene(weather);
+      function addClouds(count, animated = false) {
+        const effects = document.getElementById('weatherEffects');
+        for (let i = 0; i < count; i++) {
+          const cloud = document.createElement('div');
+          cloud.className = 'cloud';
+          cloud.textContent = '☁️';
+          cloud.style.left = 10 + Math.random() * 70 + '%';
+          cloud.style.top = 10 + Math.random() * 30 + '%';
+          cloud.style.animationDelay = Math.random() * 2 + 's';
+          if (animated) {
+            cloud.style.animation =
+              'float 2s ease-in-out infinite, moveCloud 5s linear infinite';
+          }
+          effects.appendChild(cloud);
         }
+      }
 
-        function setWeatherScene(weather) {
-            const sky = document.getElementById('sceneSky');
-            const ground = document.getElementById('sceneGround');
-            const effects = document.getElementById('weatherEffects');
-            const sun = document.getElementById('sun');
-
-            // Clear existing effects
-            effects.querySelectorAll('.cloud, .raindrop, .snowflake, .lightning').forEach(el => el.remove());
-
-            // Reset classes
-            sky.className = 'scene-sky';
-            ground.className = 'scene-ground';
-            sun.classList.remove('hidden');
-
-            gameState.currentWeather = weather;
-
-            switch (weather) {
-                case 'sun':
-                    // Sunny - default
-                    break;
-
-                case 'cloud':
-                    sky.classList.add('cloudy');
-                    sun.classList.add('hidden');
-                    addClouds(5);
-                    break;
-
-                case 'rain':
-                    sky.classList.add('rainy');
-                    sun.classList.add('hidden');
-                    addClouds(4);
-                    addRain(30);
-                    break;
-
-                case 'storm':
-                    sky.classList.add('stormy');
-                    sun.classList.add('hidden');
-                    addClouds(6);
-                    addRain(50);
-                    addLightning();
-                    break;
-
-                case 'snow':
-                    sky.classList.add('snowy');
-                    ground.classList.add('snowy');
-                    sun.classList.add('hidden');
-                    addClouds(4);
-                    addSnow(40);
-                    break;
-
-                case 'wind':
-                    addClouds(3, true);
-                    break;
-
-                case 'fog':
-                    sky.classList.add('cloudy');
-                    sun.classList.add('hidden');
-                    addFog();
-                    break;
-
-                case 'rainbow':
-                    addClouds(2);
-                    addRainbow();
-                    break;
-            }
+      function addRain(count) {
+        const effects = document.getElementById('weatherEffects');
+        for (let i = 0; i < count; i++) {
+          const drop = document.createElement('div');
+          drop.className = 'raindrop';
+          drop.textContent = '💧';
+          drop.style.left = Math.random() * 100 + '%';
+          drop.style.animationDelay = Math.random() * 1 + 's';
+          effects.appendChild(drop);
         }
+      }
 
-        function addClouds(count, animated = false) {
-            const effects = document.getElementById('weatherEffects');
-            for (let i = 0; i < count; i++) {
-                const cloud = document.createElement('div');
-                cloud.className = 'cloud';
-                cloud.textContent = '☁️';
-                cloud.style.left = (10 + Math.random() * 70) + '%';
-                cloud.style.top = (10 + Math.random() * 30) + '%';
-                cloud.style.animationDelay = (Math.random() * 2) + 's';
-                if (animated) {
-                    cloud.style.animation = 'float 2s ease-in-out infinite, moveCloud 5s linear infinite';
-                }
-                effects.appendChild(cloud);
-            }
+      function addSnow(count) {
+        const effects = document.getElementById('weatherEffects');
+        for (let i = 0; i < count; i++) {
+          const flake = document.createElement('div');
+          flake.className = 'snowflake';
+          flake.textContent = '❄️';
+          flake.style.left = Math.random() * 100 + '%';
+          flake.style.animationDelay = Math.random() * 3 + 's';
+          effects.appendChild(flake);
         }
+      }
 
-        function addRain(count) {
-            const effects = document.getElementById('weatherEffects');
-            for (let i = 0; i < count; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'raindrop';
-                drop.textContent = '💧';
-                drop.style.left = Math.random() * 100 + '%';
-                drop.style.animationDelay = (Math.random() * 1) + 's';
-                effects.appendChild(drop);
-            }
+      function addLightning() {
+        const effects = document.getElementById('weatherEffects');
+        const lightning = document.createElement('div');
+        lightning.className = 'lightning';
+        lightning.textContent = '⚡';
+        lightning.style.left = '50%';
+        lightning.style.top = '20%';
+        effects.appendChild(lightning);
+
+        setInterval(() => {
+          lightning.classList.add('flash');
+          setTimeout(() => lightning.classList.remove('flash'), 300);
+        }, 3000);
+      }
+
+      function addFog() {
+        const effects = document.getElementById('weatherEffects');
+        for (let i = 0; i < 8; i++) {
+          const fog = document.createElement('div');
+          fog.className = 'cloud';
+          fog.textContent = '🌫️';
+          fog.style.left = Math.random() * 100 + '%';
+          fog.style.top = 40 + Math.random() * 40 + '%';
+          fog.style.fontSize = '4rem';
+          fog.style.opacity = '0.7';
+          effects.appendChild(fog);
         }
+      }
 
-        function addSnow(count) {
-            const effects = document.getElementById('weatherEffects');
-            for (let i = 0; i < count; i++) {
-                const flake = document.createElement('div');
-                flake.className = 'snowflake';
-                flake.textContent = '❄️';
-                flake.style.left = Math.random() * 100 + '%';
-                flake.style.animationDelay = (Math.random() * 3) + 's';
-                effects.appendChild(flake);
-            }
-        }
+      function addRainbow() {
+        const effects = document.getElementById('weatherEffects');
+        const rainbow = document.createElement('div');
+        rainbow.textContent = '🌈';
+        rainbow.style.position = 'absolute';
+        rainbow.style.fontSize = '6rem';
+        rainbow.style.left = '30%';
+        rainbow.style.top = '15%';
+        effects.appendChild(rainbow);
+      }
 
-        function addLightning() {
-            const effects = document.getElementById('weatherEffects');
-            const lightning = document.createElement('div');
-            lightning.className = 'lightning';
-            lightning.textContent = '⚡';
-            lightning.style.left = '50%';
-            lightning.style.top = '20%';
-            effects.appendChild(lightning);
+      function castWeather() {
+        if (!gameState.selectedWeather) return;
 
-            setInterval(() => {
-                lightning.classList.add('flash');
-                setTimeout(() => lightning.classList.remove('flash'), 300);
-            }, 3000);
-        }
+        const challenge = challenges[gameState.level][gameState.challenge];
+        const resultDisplay = document.getElementById('resultDisplay');
 
-        function addFog() {
-            const effects = document.getElementById('weatherEffects');
-            for (let i = 0; i < 8; i++) {
-                const fog = document.createElement('div');
-                fog.className = 'cloud';
-                fog.textContent = '🌫️';
-                fog.style.left = (Math.random() * 100) + '%';
-                fog.style.top = (40 + Math.random() * 40) + '%';
-                fog.style.fontSize = '4rem';
-                fog.style.opacity = '0.7';
-                effects.appendChild(fog);
-            }
-        }
+        if (gameState.selectedWeather === challenge.answer) {
+          // Correct!
+          gameState.streak++;
+          const points = 100 + gameState.streak * 20;
+          gameState.score += points;
 
-        function addRainbow() {
-            const effects = document.getElementById('weatherEffects');
-            const rainbow = document.createElement('div');
-            rainbow.textContent = '🌈';
-            rainbow.style.position = 'absolute';
-            rainbow.style.fontSize = '6rem';
-            rainbow.style.left = '30%';
-            rainbow.style.top = '15%';
-            effects.appendChild(rainbow);
-        }
+          document.getElementById('scoreDisplay').textContent = gameState.score;
+          document.getElementById('streakDisplay').textContent =
+            gameState.streak;
 
-        function castWeather() {
-            if (!gameState.selectedWeather) return;
+          resultDisplay.textContent = `🎉 Perfect! +${points} points! The village is happy!`;
+          resultDisplay.className = 'result-display success';
 
-            const challenge = challenges[gameState.level][gameState.challenge];
-            const resultDisplay = document.getElementById('resultDisplay');
+          showRandomFact();
 
-            if (gameState.selectedWeather === challenge.answer) {
-                // Correct!
-                gameState.streak++;
-                const points = 100 + (gameState.streak * 20);
-                gameState.score += points;
+          setTimeout(() => {
+            gameState.challenge++;
+            resultDisplay.className = 'result-display';
 
-                document.getElementById('scoreDisplay').textContent = gameState.score;
-                document.getElementById('streakDisplay').textContent = gameState.streak;
-
-                resultDisplay.textContent = `🎉 Perfect! +${points} points! The village is happy!`;
-                resultDisplay.className = 'result-display success';
-
-                showRandomFact();
-
-                setTimeout(() => {
-                    gameState.challenge++;
-                    resultDisplay.className = 'result-display';
-
-                    if (gameState.challenge >= challenges[gameState.level].length) {
-                        levelComplete();
-                    } else {
-                        loadChallenge();
-                    }
-                }, 2000);
+            if (gameState.challenge >= challenges[gameState.level].length) {
+              levelComplete();
             } else {
-                // Wrong
-                gameState.streak = 0;
-                document.getElementById('streakDisplay').textContent = 0;
-
-                resultDisplay.textContent = `❌ Not quite! Hint: ${challenge.hint}`;
-                resultDisplay.className = 'result-display error';
+              loadChallenge();
             }
+          }, 2000);
+        } else {
+          // Wrong
+          gameState.streak = 0;
+          document.getElementById('streakDisplay').textContent = 0;
+
+          resultDisplay.textContent = `❌ Not quite! Hint: ${challenge.hint}`;
+          resultDisplay.className = 'result-display error';
         }
+      }
 
-        function resetSelection() {
-            gameState.selectedWeather = null;
-            document.querySelectorAll('.weather-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById('castBtn').disabled = true;
-            setWeatherScene('clear');
+      function resetSelection() {
+        gameState.selectedWeather = null;
+        document.querySelectorAll('.weather-btn').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        document.getElementById('castBtn').disabled = true;
+        setWeatherScene('clear');
+      }
+
+      function showRandomFact() {
+        const fact =
+          weatherFacts[Math.floor(Math.random() * weatherFacts.length)];
+        document.getElementById('factText').textContent = fact;
+      }
+
+      function levelComplete() {
+        document.getElementById('levelMessage').textContent =
+          `Level ${gameState.level + 1} complete! Score: ${gameState.score}`;
+
+        if (gameState.level < challenges.length - 1) {
+          document.getElementById('levelModal').classList.add('active');
+        } else {
+          gameComplete();
         }
+      }
 
-        function showRandomFact() {
-            const fact = weatherFacts[Math.floor(Math.random() * weatherFacts.length)];
-            document.getElementById('factText').textContent = fact;
-        }
+      function nextLevel() {
+        document.getElementById('levelModal').classList.remove('active');
+        gameState.level++;
+        gameState.challenge = 0;
+        loadChallenge();
+      }
 
-        function levelComplete() {
-            document.getElementById('levelMessage').textContent =
-                `Level ${gameState.level + 1} complete! Score: ${gameState.score}`;
+      function gameComplete() {
+        document.getElementById('finalScore').textContent = gameState.score;
+        document.getElementById('finalFact').textContent =
+          weatherFacts[Math.floor(Math.random() * weatherFacts.length)];
+        document.getElementById('completeModal').classList.add('active');
+      }
 
-            if (gameState.level < challenges.length - 1) {
-                document.getElementById('levelModal').classList.add('active');
-            } else {
-                gameComplete();
-            }
-        }
+      function restartGame() {
+        gameState = {
+          score: 0,
+          level: 0,
+          challenge: 0,
+          streak: 0,
+          selectedWeather: null,
+          currentWeather: 'clear',
+        };
 
-        function nextLevel() {
-            document.getElementById('levelModal').classList.remove('active');
-            gameState.level++;
-            gameState.challenge = 0;
-            loadChallenge();
-        }
+        document.getElementById('scoreDisplay').textContent = 0;
+        document.getElementById('streakDisplay').textContent = 0;
+        document
+          .querySelectorAll('.modal')
+          .forEach((m) => m.classList.remove('active'));
+        document.getElementById('resultDisplay').className = 'result-display';
+        loadChallenge();
+      }
 
-        function gameComplete() {
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('finalFact').textContent =
-                weatherFacts[Math.floor(Math.random() * weatherFacts.length)];
-            document.getElementById('completeModal').classList.add('active');
-        }
-
-        function restartGame() {
-            gameState = {
-                score: 0,
-                level: 0,
-                challenge: 0,
-                streak: 0,
-                selectedWeather: null,
-                currentWeather: 'clear'
-            };
-
-            document.getElementById('scoreDisplay').textContent = 0;
-            document.getElementById('streakDisplay').textContent = 0;
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            document.getElementById('resultDisplay').className = 'result-display';
-            loadChallenge();
-        }
-
-        window.onload = init;
+      window.onload = init;
     </script>
-</body>
+  </body>
 </html>

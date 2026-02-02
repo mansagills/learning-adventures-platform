@@ -25,7 +25,8 @@ function DashboardContent() {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const { data: progressData, loading: progressLoading } = useUserProgress();
-  const { data: achievementData, loading: achievementsLoading } = useAchievements();
+  const { data: achievementData, loading: achievementsLoading } =
+    useAchievements();
 
   // Role-based redirect logic
   useEffect(() => {
@@ -76,7 +77,7 @@ function DashboardContent() {
       const dayName = weekDays[date.getDay()];
 
       // Count completions for this day
-      const count = progressData.progress.filter(p => {
+      const count = progressData.progress.filter((p) => {
         if (!p.completedAt) return false;
         const completedDate = new Date(p.completedAt);
         return completedDate.toDateString() === date.toDateString();
@@ -91,15 +92,17 @@ function DashboardContent() {
       science: '#10b981',
       english: '#8b5cf6',
       history: '#f97316',
-      interdisciplinary: '#ec4899'
+      interdisciplinary: '#ec4899',
     };
 
-    const subjectProgress = Object.entries(stats.byCategory).map(([subject, data]) => ({
-      subject: subject.charAt(0).toUpperCase() + subject.slice(1),
-      completed: data.completed,
-      total: data.total,
-      color: subjectColors[subject.toLowerCase()] || '#6b7280'
-    }));
+    const subjectProgress = Object.entries(stats.byCategory).map(
+      ([subject, data]) => ({
+        subject: subject.charAt(0).toUpperCase() + subject.slice(1),
+        completed: data.completed,
+        total: data.total,
+        color: subjectColors[subject.toLowerCase()] || '#6b7280',
+      })
+    );
 
     return {
       totalAdventures: stats.totalAdventures,
@@ -108,7 +111,7 @@ function DashboardContent() {
       averageScore: Math.round(stats.averageScore),
       streak: 3, // TODO: Calculate actual streak
       weeklyActivity,
-      subjectProgress
+      subjectProgress,
     };
   };
 
@@ -123,8 +126,10 @@ function DashboardContent() {
       icon: achievement.icon || '🏆',
       type: achievement.type || 'completion',
       rarity: achievement.rarity || 'common',
-      earnedAt: achievement.earnedAt ? new Date(achievement.earnedAt) : undefined,
-      progress: achievement.progress
+      earnedAt: achievement.earnedAt
+        ? new Date(achievement.earnedAt)
+        : undefined,
+      progress: achievement.progress,
     }));
   };
 
@@ -132,27 +137,33 @@ function DashboardContent() {
   const transformRecentActivity = () => {
     if (!progressData) return [];
 
-    return progressData.stats.recentActivity.slice(0, 10).map((activity: any) => {
-      const isCompleted = activity.status === 'COMPLETED' || activity.completedAt;
-      const adventure = getAdventureById(activity.adventureId);
+    return progressData.stats.recentActivity
+      .slice(0, 10)
+      .map((activity: any) => {
+        const isCompleted =
+          activity.status === 'COMPLETED' || activity.completedAt;
+        const adventure = getAdventureById(activity.adventureId);
 
-      return {
-        id: activity.id,
-        type: isCompleted ? 'completed' as const : 'started' as const,
-        title: adventure?.title || activity.adventureId.split('-').map((w: string) =>
-          w.charAt(0).toUpperCase() + w.slice(1)
-        ).join(' '),
-        description: isCompleted
-          ? `Completed ${adventure?.category || activity.category} adventure`
-          : `Started ${adventure?.category || activity.category} adventure`,
-        timestamp: new Date(activity.completedAt || activity.lastAccessed),
-        metadata: {
-          score: activity.score,
-          category: adventure?.category || activity.category,
-          adventureId: activity.adventureId
-        }
-      };
-    });
+        return {
+          id: activity.id,
+          type: isCompleted ? ('completed' as const) : ('started' as const),
+          title:
+            adventure?.title ||
+            activity.adventureId
+              .split('-')
+              .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(' '),
+          description: isCompleted
+            ? `Completed ${adventure?.category || activity.category} adventure`
+            : `Started ${adventure?.category || activity.category} adventure`,
+          timestamp: new Date(activity.completedAt || activity.lastAccessed),
+          metadata: {
+            score: activity.score,
+            category: adventure?.category || activity.category,
+            adventureId: activity.adventureId,
+          },
+        };
+      });
   };
 
   // Get recommended content based on user's progress
@@ -163,8 +174,8 @@ function DashboardContent() {
     // Get adventures not yet started or completed
     const completedIds = new Set(
       progressData.progress
-        .filter(p => p.status === 'COMPLETED')
-        .map(p => p.adventureId)
+        .filter((p) => p.status === 'COMPLETED')
+        .map((p) => p.adventureId)
     );
 
     // Filter out completed ones and prioritize user's favorite categories
@@ -174,7 +185,7 @@ function DashboardContent() {
       .map(([cat]) => cat);
 
     const recommended = allAdventures
-      .filter(adv => !completedIds.has(adv.id))
+      .filter((adv) => !completedIds.has(adv.id))
       .sort((a, b) => {
         // Prioritize user's favorite categories
         const aScore = userCategories.includes(a.category) ? 1 : 0;
@@ -205,7 +216,9 @@ function DashboardContent() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  My Dashboard
+                </h1>
                 <p className="mt-1 text-gray-600">
                   Welcome back, {session?.user?.name || 'Learner'}!
                 </p>
@@ -230,7 +243,8 @@ function DashboardContent() {
               Start Your Learning Journey!
             </h3>
             <p className="text-ink-600 mb-6 max-w-md mx-auto">
-              Explore our catalog of educational games and interactive lessons to begin earning achievements and tracking your progress.
+              Explore our catalog of educational games and interactive lessons
+              to begin earning achievements and tracking your progress.
             </p>
             <Link
               href="/catalog"

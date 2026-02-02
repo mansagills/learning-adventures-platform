@@ -65,7 +65,7 @@ export async function processGamePackage(
 
   // Check if game already exists in TestGame
   const existing = await prisma.testGame.findUnique({
-    where: { gameId }
+    where: { gameId },
   });
 
   if (existing) {
@@ -102,7 +102,8 @@ export async function processGamePackage(
     gradeLevel: manifest.gradeLevel || htmlMetadata?.gradeLevel || ['3'],
     difficulty: manifest.difficulty || htmlMetadata?.difficulty || 'medium',
     skills: manifest.skills || htmlMetadata?.skills || [],
-    estimatedTime: manifest.estimatedTime || htmlMetadata?.estimatedTime || '15-20 mins',
+    estimatedTime:
+      manifest.estimatedTime || htmlMetadata?.estimatedTime || '15-20 mins',
   };
 
   // Create TestGame entry
@@ -122,7 +123,7 @@ export async function processGamePackage(
       isReactComponent: false,
       createdBy: uploaderId,
       status: 'NOT_TESTED',
-    }
+    },
   });
 
   return {
@@ -166,7 +167,10 @@ export function isGamePackage(zip: AdmZip): boolean {
 /**
  * Validate game package structure before processing
  */
-export function validateGamePackage(zip: AdmZip): { valid: boolean; errors: string[] } {
+export function validateGamePackage(zip: AdmZip): {
+  valid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Check for metadata.json

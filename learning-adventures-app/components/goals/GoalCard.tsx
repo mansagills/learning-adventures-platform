@@ -17,15 +17,27 @@ const goalTypeConfig = {
   DAILY: { label: 'Daily', color: 'bg-blue-500', icon: '📅' },
   WEEKLY: { label: 'Weekly', color: 'bg-purple-500', icon: '📆' },
   MONTHLY: { label: 'Monthly', color: 'bg-pink-500', icon: '🗓️' },
-  CUSTOM: { label: 'Custom', color: 'bg-gray-500', icon: '🎯' }
+  CUSTOM: { label: 'Custom', color: 'bg-gray-500', icon: '🎯' },
 };
 
 const statusConfig = {
   ACTIVE: { label: 'Active', color: 'text-green-600', bgColor: 'bg-green-50' },
-  COMPLETED: { label: 'Completed', color: 'text-blue-600', bgColor: 'bg-blue-50' },
+  COMPLETED: {
+    label: 'Completed',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+  },
   EXPIRED: { label: 'Expired', color: 'text-red-600', bgColor: 'bg-red-50' },
-  PAUSED: { label: 'Paused', color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
-  ARCHIVED: { label: 'Archived', color: 'text-gray-600', bgColor: 'bg-gray-50' }
+  PAUSED: {
+    label: 'Paused',
+    color: 'text-yellow-600',
+    bgColor: 'bg-yellow-50',
+  },
+  ARCHIVED: {
+    label: 'Archived',
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-50',
+  },
 };
 
 export default function GoalCard({
@@ -33,7 +45,7 @@ export default function GoalCard({
   onUpdate,
   onDelete,
   onComplete,
-  onUpdateProgress
+  onUpdateProgress,
 }: GoalCardProps) {
   const [showActions, setShowActions] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,7 +81,8 @@ export default function GoalCard({
   };
 
   const handleDelete = async () => {
-    if (!onDelete || !confirm('Are you sure you want to delete this goal?')) return;
+    if (!onDelete || !confirm('Are you sure you want to delete this goal?'))
+      return;
     setLoading(true);
     try {
       await onDelete(goal.id);
@@ -110,7 +123,13 @@ export default function GoalCard({
               <p className="text-sm text-gray-600 mb-2">{goal.description}</p>
             )}
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className={cn('px-2 py-1 rounded-full font-medium', typeConfig.color, 'text-white')}>
+              <span
+                className={cn(
+                  'px-2 py-1 rounded-full font-medium',
+                  typeConfig.color,
+                  'text-white'
+                )}
+              >
                 {typeConfig.label}
               </span>
               {goal.category && (
@@ -119,12 +138,16 @@ export default function GoalCard({
                 </span>
               )}
               {deadlineText && (
-                <span className={cn(
-                  'px-2 py-1 rounded-full font-medium flex items-center space-x-1',
-                  deadlineText.includes('Overdue') ? 'bg-red-100 text-red-700' :
-                  deadlineText.includes('today') ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-blue-100 text-blue-700'
-                )}>
+                <span
+                  className={cn(
+                    'px-2 py-1 rounded-full font-medium flex items-center space-x-1',
+                    deadlineText.includes('Overdue')
+                      ? 'bg-red-100 text-red-700'
+                      : deadlineText.includes('today')
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-blue-100 text-blue-700'
+                  )}
+                >
                   <Icon name="clock" size={12} />
                   <span>{deadlineText}</span>
                 </span>
@@ -200,7 +223,9 @@ export default function GoalCard({
         <div className="flex items-center justify-between text-xs text-gray-600">
           <span>{progressPercent}% complete</span>
           {!isComplete && goal.targetValue > goal.currentValue && (
-            <span>{goal.targetValue - goal.currentValue} {goal.unit} to go</span>
+            <span>
+              {goal.targetValue - goal.currentValue} {goal.unit} to go
+            </span>
           )}
         </div>
       </div>
@@ -209,7 +234,9 @@ export default function GoalCard({
       {goal.status === 'ACTIVE' && !isComplete && onUpdateProgress && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Quick Update</span>
+            <span className="text-sm font-medium text-gray-700">
+              Quick Update
+            </span>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => onUpdateProgress(goal.id, 1)}

@@ -17,7 +17,8 @@ import { BaseAgent } from './BaseAgent';
 export class ContentAgentOrchestrator {
   private workflows: Map<string, AgentWorkflow> = new Map();
   private agents: Map<string, BaseAgent> = new Map();
-  private eventListeners: Map<string, ((event: WorkflowEvent) => void)[]> = new Map();
+  private eventListeners: Map<string, ((event: WorkflowEvent) => void)[]> =
+    new Map();
 
   /**
    * Register an agent with the orchestrator
@@ -93,10 +94,14 @@ export class ContentAgentOrchestrator {
       // All steps completed successfully
       workflow.status = 'completed';
       workflow.completedAt = new Date();
-      workflow.totalDuration = workflow.completedAt.getTime() - workflow.startedAt.getTime();
+      workflow.totalDuration =
+        workflow.completedAt.getTime() - workflow.startedAt.getTime();
 
-      this.emitEvent(workflowId, 'completed', `Workflow completed successfully`);
-
+      this.emitEvent(
+        workflowId,
+        'completed',
+        `Workflow completed successfully`
+      );
     } catch (error) {
       workflow.status = 'failed';
       workflow.completedAt = new Date();
@@ -110,7 +115,11 @@ export class ContentAgentOrchestrator {
       };
 
       workflow.errors.push(workflowError);
-      this.emitEvent(workflowId, 'failed', `Workflow failed: ${workflowError.message}`);
+      this.emitEvent(
+        workflowId,
+        'failed',
+        `Workflow failed: ${workflowError.message}`
+      );
     }
 
     return workflow;
@@ -119,7 +128,10 @@ export class ContentAgentOrchestrator {
   /**
    * Execute a single workflow step
    */
-  private async executeStep(workflowId: string, step: WorkflowStep): Promise<void> {
+  private async executeStep(
+    workflowId: string,
+    step: WorkflowStep
+  ): Promise<void> {
     const agent = this.agents.get(step.agentType);
     if (!agent) {
       throw new Error(`Agent ${step.agentType} not registered`);
@@ -127,12 +139,19 @@ export class ContentAgentOrchestrator {
 
     step.status = 'running';
     step.startedAt = new Date();
-    this.emitEvent(workflowId, 'step_started', `Executing step ${step.stepNumber}: ${step.description}`, step.stepNumber);
+    this.emitEvent(
+      workflowId,
+      'step_started',
+      `Executing step ${step.stepNumber}: ${step.description}`,
+      step.stepNumber
+    );
 
     try {
       // Resolve template strings in input using previous step outputs
       const workflow = this.workflows.get(workflowId);
-      const resolvedInput = workflow ? this.resolveTemplates(step.input, workflow) : step.input;
+      const resolvedInput = workflow
+        ? this.resolveTemplates(step.input, workflow)
+        : step.input;
 
       // Execute agent with resolved input
       const result = await agent.execute(resolvedInput);
@@ -140,7 +159,12 @@ export class ContentAgentOrchestrator {
       if (!result.success) {
         step.status = 'failed';
         step.error = result.errors.join('; ');
-        this.emitEvent(workflowId, 'step_failed', `Step ${step.stepNumber} failed`, step.stepNumber);
+        this.emitEvent(
+          workflowId,
+          'step_failed',
+          `Step ${step.stepNumber} failed`,
+          step.stepNumber
+        );
         return;
       }
 
@@ -150,13 +174,22 @@ export class ContentAgentOrchestrator {
       step.completedAt = new Date();
       step.duration = step.completedAt.getTime() - step.startedAt.getTime();
 
-      this.emitEvent(workflowId, 'step_completed', `Step ${step.stepNumber} completed`, step.stepNumber);
-
+      this.emitEvent(
+        workflowId,
+        'step_completed',
+        `Step ${step.stepNumber} completed`,
+        step.stepNumber
+      );
     } catch (error) {
       step.status = 'failed';
       step.error = (error as Error).message;
       step.completedAt = new Date();
-      this.emitEvent(workflowId, 'step_failed', `Step ${step.stepNumber} failed: ${step.error}`, step.stepNumber);
+      this.emitEvent(
+        workflowId,
+        'step_failed',
+        `Step ${step.stepNumber} failed: ${step.error}`,
+        step.stepNumber
+      );
     }
   }
 
@@ -174,7 +207,9 @@ export class ContentAgentOrchestrator {
     const workflow = this.workflows.get(workflowId);
     if (!workflow) return null;
 
-    const completedSteps = workflow.steps.filter(s => s.status === 'completed').length;
+    const completedSteps = workflow.steps.filter(
+      (s) => s.status === 'completed'
+    ).length;
     const percentComplete = (completedSteps / workflow.steps.length) * 100;
 
     const currentStep = workflow.steps[workflow.currentStep];
@@ -195,7 +230,10 @@ export class ContentAgentOrchestrator {
   /**
    * Event system for workflow monitoring
    */
-  addEventListener(workflowId: string, callback: (event: WorkflowEvent) => void): void {
+  addEventListener(
+    workflowId: string,
+    callback: (event: WorkflowEvent) => void
+  ): void {
     if (!this.eventListeners.has(workflowId)) {
       this.eventListeners.set(workflowId, []);
     }
@@ -219,7 +257,7 @@ export class ContentAgentOrchestrator {
     };
 
     const listeners = this.eventListeners.get(workflowId) || [];
-    listeners.forEach(callback => callback(event));
+    listeners.forEach((callback) => callback(event));
 
     // Also log to console
     console.log(`[Workflow ${workflowId}] ${type}: ${message}`);
@@ -292,7 +330,9 @@ export class ContentAgentOrchestrator {
    * Get workflows by status
    */
   getWorkflowsByStatus(status: WorkflowStatus): AgentWorkflow[] {
-    return Array.from(this.workflows.values()).filter(w => w.status === status);
+    return Array.from(this.workflows.values()).filter(
+      (w) => w.status === status
+    );
   }
 
   /**

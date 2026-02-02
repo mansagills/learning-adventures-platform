@@ -127,6 +127,7 @@ EMAIL_FROM=Learning Adventures <noreply@learningadventures.org>
    - **Domain Authentication** (better for production)
 
 #### Single Sender Verification:
+
 1. Click "Verify a Single Sender"
 2. Fill in your details:
    - From Name: Learning Adventures
@@ -146,6 +147,7 @@ EMAIL_FROM=Learning Adventures <noreply@learningadventures.org>
 ```
 
 ⚠️ **Important**:
+
 - `EMAIL_SERVER_USER` must be exactly `apikey`
 - `EMAIL_SERVER_PASSWORD` is your actual API key
 - `EMAIL_FROM` must match your verified sender
@@ -238,12 +240,14 @@ NextAuth.js uses default email templates. To customize them, you can override th
 Create a file: `lib/email-template.ts`
 
 ```typescript
-import { SendVerificationRequestParams } from "next-auth/providers/email"
+import { SendVerificationRequestParams } from 'next-auth/providers/email';
 
-export async function sendVerificationRequest(params: SendVerificationRequestParams) {
-  const { identifier: email, url, provider } = params
+export async function sendVerificationRequest(
+  params: SendVerificationRequestParams
+) {
+  const { identifier: email, url, provider } = params;
 
-  const { host } = new URL(url)
+  const { host } = new URL(url);
 
   const html = `
     <!DOCTYPE html>
@@ -279,12 +283,12 @@ export async function sendVerificationRequest(params: SendVerificationRequestPar
         </div>
       </body>
     </html>
-  `
+  `;
 
-  const text = `Sign in to Learning Adventures\n\nClick this link to sign in:\n${url}\n\nThis link will expire in 24 hours.\n\nIf you didn't request this email, you can safely ignore it.`
+  const text = `Sign in to Learning Adventures\n\nClick this link to sign in:\n${url}\n\nThis link will expire in 24 hours.\n\nIf you didn't request this email, you can safely ignore it.`;
 
-  const { createTransport } = require("nodemailer")
-  const transport = createTransport(provider.server)
+  const { createTransport } = require('nodemailer');
+  const transport = createTransport(provider.server);
 
   await transport.sendMail({
     to: email,
@@ -292,7 +296,7 @@ export async function sendVerificationRequest(params: SendVerificationRequestPar
     subject: `Sign in to Learning Adventures`,
     text,
     html,
-  })
+  });
 }
 ```
 
@@ -316,16 +320,19 @@ EmailProvider({
 ### Emails Not Sending
 
 **Gmail**:
+
 - Verify 2FA is enabled
 - Ensure you're using an App Password (not your regular password)
 - Check "Less secure app access" is NOT needed (App Passwords work around this)
 
 **SendGrid**:
+
 - Verify your sender email is verified in SendGrid
 - Check API key has "Mail Send" permissions
 - Verify `EMAIL_FROM` matches verified sender
 
 **AWS SES**:
+
 - If in sandbox mode, recipient email must be verified
 - Request production access for unrestricted sending
 - Check SMTP credentials are correct
@@ -340,7 +347,7 @@ EmailProvider({
 ### "Configuration error" in browser
 
 - **Cause**: Missing or incorrect environment variables
-- **Fix**: Check all EMAIL_* variables are set in `.env.local`
+- **Fix**: Check all EMAIL\_\* variables are set in `.env.local`
 - Restart development server after changing environment variables
 
 ---

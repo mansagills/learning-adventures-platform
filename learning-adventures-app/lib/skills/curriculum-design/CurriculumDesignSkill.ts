@@ -52,12 +52,13 @@ export class CurriculumDesignSkill extends BaseSkill {
     return {
       id: 'curriculum-design',
       name: 'Curriculum Design Specialist',
-      description: 'Designs comprehensive learning objectives, lesson sequences, and progression strategies for courses',
+      description:
+        'Designs comprehensive learning objectives, lesson sequences, and progression strategies for courses',
       triggers: [
         'design curriculum',
         'create lesson structure',
         'design learning objectives',
-        'plan course progression'
+        'plan course progression',
       ],
       capabilities: [
         'Create course title and description',
@@ -66,26 +67,31 @@ export class CurriculumDesignSkill extends BaseSkill {
         'Distribute lesson types following pedagogical ratios',
         'Assign XP rewards based on difficulty and engagement',
         'Define progression strategy with scaffolding',
-        'Apply Bloom\'s Taxonomy for learning objectives',
-        'Ensure lesson sequencing builds on prior knowledge'
+        "Apply Bloom's Taxonomy for learning objectives",
+        'Ensure lesson sequencing builds on prior knowledge',
       ],
       examples: [
         'Design curriculum for this course',
         'Create lesson structure from the design brief',
-        'Plan learning progression for math course'
+        'Plan learning progression for math course',
       ],
       version: '1.0.0',
-      guidanceFile: 'SKILL.md'
+      guidanceFile: 'SKILL.md',
     };
   }
 
-  async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const lowerRequest = userRequest.toLowerCase();
 
     // High confidence triggers
-    if (lowerRequest.includes('curriculum') ||
-        lowerRequest.includes('lesson structure') ||
-        lowerRequest.includes('learning objectives')) {
+    if (
+      lowerRequest.includes('curriculum') ||
+      lowerRequest.includes('lesson structure') ||
+      lowerRequest.includes('learning objectives')
+    ) {
       return 95;
     }
 
@@ -113,7 +119,9 @@ export class CurriculumDesignSkill extends BaseSkill {
         return this.buildErrorResult(
           'No design brief found in context',
           'MISSING_DATA',
-          { hint: 'Expected designBrief in previousOutputs from CourseDesignBriefSkill' }
+          {
+            hint: 'Expected designBrief in previousOutputs from CourseDesignBriefSkill',
+          }
         );
       }
 
@@ -124,7 +132,7 @@ export class CurriculumDesignSkill extends BaseSkill {
           'PENDING_CLARIFICATIONS',
           {
             clarifications: designBrief.clarifications,
-            hint: 'Resolve clarifications in design brief before proceeding to curriculum design'
+            hint: 'Resolve clarifications in design brief before proceeding to curriculum design',
           }
         );
       }
@@ -148,7 +156,9 @@ export class CurriculumDesignSkill extends BaseSkill {
       }
 
       // Validate lesson type distribution
-      const distributionWarnings = this.validateLessonTypeDistribution(curriculumData.curriculum.lessons);
+      const distributionWarnings = this.validateLessonTypeDistribution(
+        curriculumData.curriculum.lessons
+      );
 
       const executionTime = Date.now() - startTime;
 
@@ -159,7 +169,6 @@ export class CurriculumDesignSkill extends BaseSkill {
         95,
         ['interactive-content', 'narrative-integration'] // Suggest next skills
       );
-
     } catch (error) {
       return this.buildErrorResult(
         `Failed to design curriculum: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -184,12 +193,18 @@ export class CurriculumDesignSkill extends BaseSkill {
       return false;
     }
 
-    if (!curriculum.estimatedTotalMinutes || curriculum.estimatedTotalMinutes <= 0) {
+    if (
+      !curriculum.estimatedTotalMinutes ||
+      curriculum.estimatedTotalMinutes <= 0
+    ) {
       return false;
     }
 
     // Validate chapters
-    if (!Array.isArray(curriculum.chapters) || curriculum.chapters.length === 0) {
+    if (
+      !Array.isArray(curriculum.chapters) ||
+      curriculum.chapters.length === 0
+    ) {
       return false;
     }
 
@@ -217,7 +232,10 @@ export class CurriculumDesignSkill extends BaseSkill {
       if (!lesson.xpReward || lesson.xpReward <= 0) {
         return false;
       }
-      if (!Array.isArray(lesson.learningObjectives) || lesson.learningObjectives.length === 0) {
+      if (
+        !Array.isArray(lesson.learningObjectives) ||
+        lesson.learningObjectives.length === 0
+      ) {
         return false;
       }
     }
@@ -340,8 +358,14 @@ REQUIRED OUTPUT STRUCTURE:
 OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No markdown formatting, no explanations outside the JSON.`;
   }
 
-  private async callClaudeForCurriculum(prompt: string): Promise<CurriculumOutput> {
-    const { callClaudeWithRetry, extractTextFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+  private async callClaudeForCurriculum(
+    prompt: string
+  ): Promise<CurriculumOutput> {
+    const {
+      callClaudeWithRetry,
+      extractTextFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -351,9 +375,9 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No mark
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       // Extract text first to debug
@@ -368,7 +392,6 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No mark
       const curriculumOutput = JSON.parse(jsonMatch[0]) as CurriculumOutput;
 
       return curriculumOutput;
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for curriculum design: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -387,7 +410,7 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No mark
       QUIZ: 0,
       VIDEO: 0,
       READING: 0,
-      PROJECT: 0
+      PROJECT: 0,
     };
 
     for (const lesson of lessons) {
@@ -401,8 +424,8 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No mark
       GAME: (typeCounts.GAME / total) * 100,
       INTERACTIVE: (typeCounts.INTERACTIVE / total) * 100,
       QUIZ: (typeCounts.QUIZ / total) * 100,
-      VIDEO: (typeCounts.VIDEO + typeCounts.READING) / total * 100,
-      PROJECT: (typeCounts.PROJECT / total) * 100
+      VIDEO: ((typeCounts.VIDEO + typeCounts.READING) / total) * 100,
+      PROJECT: (typeCounts.PROJECT / total) * 100,
     };
 
     // Target ratios with ±10% tolerance
@@ -411,7 +434,7 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the curriculum structure. No mark
       INTERACTIVE: { target: 20, min: 10, max: 30 },
       QUIZ: { target: 20, min: 10, max: 30 },
       VIDEO: { target: 10, min: 0, max: 20 },
-      PROJECT: { target: 10, min: 0, max: 20 }
+      PROJECT: { target: 10, min: 0, max: 20 },
     };
 
     // Check each type

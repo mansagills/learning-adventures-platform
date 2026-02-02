@@ -98,36 +98,36 @@ export async function GET(req: Request) {
   const thisMonth = await prisma.geminiContent.count({
     where: {
       createdAt: {
-        gte: startOfMonth
-      }
-    }
+        gte: startOfMonth,
+      },
+    },
   });
 
   // Get published count
   const published = await prisma.geminiContent.count({
     where: {
-      status: 'PUBLISHED'
-    }
+      status: 'PUBLISHED',
+    },
   });
 
   // Get total cost this month
   const monthlyCost = await prisma.geminiUsage.aggregate({
     where: {
       createdAt: {
-        gte: startOfMonth
+        gte: startOfMonth,
       },
-      success: true
+      success: true,
     },
     _sum: {
-      estimatedCost: true
-    }
+      estimatedCost: true,
+    },
   });
 
   return Response.json({
     total,
     thisMonth,
     published,
-    monthlyCost: monthlyCost._sum.estimatedCost || 0
+    monthlyCost: monthlyCost._sum.estimatedCost || 0,
   });
 }
 ```
@@ -160,7 +160,9 @@ export interface SaveGameResult {
 /**
  * Save generated game code to the public/games directory
  */
-export async function saveGameToFile(options: SaveGameOptions): Promise<SaveGameResult> {
+export async function saveGameToFile(
+  options: SaveGameOptions
+): Promise<SaveGameResult> {
   const { code, title, category } = options;
 
   // Generate unique filename
@@ -188,7 +190,7 @@ export async function saveGameToFile(options: SaveGameOptions): Promise<SaveGame
     const uniqueFilename = `${filename}-${timestamp}`;
     return saveGameToFile({
       ...options,
-      title: uniqueFilename
+      title: uniqueFilename,
     });
   } catch {
     // File doesn't exist, proceed
@@ -200,7 +202,7 @@ export async function saveGameToFile(options: SaveGameOptions): Promise<SaveGame
   return {
     filename,
     filePath,
-    publicPath
+    publicPath,
   };
 }
 
@@ -243,7 +245,7 @@ import { saveGameToFile } from '@/lib/fileManager';
 const savedFile = await saveGameToFile({
   code: content.generatedCode,
   title: metadata.title,
-  category: content.category
+  category: content.category,
 });
 
 // Update GeminiContent with file path
@@ -251,8 +253,8 @@ await prisma.geminiContent.update({
   where: { id: contentId },
   data: {
     filePath: savedFile.publicPath,
-    publishedAt: new Date()
-  }
+    publishedAt: new Date(),
+  },
 });
 ```
 
@@ -267,18 +269,14 @@ await prisma.geminiContent.update({
  * Validate required environment variables
  */
 export function validateEnv() {
-  const required = [
-    'GEMINI_API_KEY',
-    'DATABASE_URL',
-    'NEXTAUTH_SECRET'
-  ];
+  const required = ['GEMINI_API_KEY', 'DATABASE_URL', 'NEXTAUTH_SECRET'];
 
-  const missing = required.filter(key => !process.env[key]);
+  const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}\n` +
-      `Please check your .env.local file.`
+        `Please check your .env.local file.`
     );
   }
 }
@@ -292,7 +290,7 @@ export function getGeminiApiKey(): string {
   if (!key) {
     throw new Error(
       'GEMINI_API_KEY is not set. ' +
-      'Get your API key from https://aistudio.google.com/app/apikey'
+        'Get your API key from https://aistudio.google.com/app/apikey'
     );
   }
 
@@ -350,8 +348,8 @@ export async function log(entry: LogEntry) {
           tokensOutput: 0,
           estimatedCost: 0,
           success: false,
-          errorMessage: JSON.stringify({ message, context })
-        }
+          errorMessage: JSON.stringify({ message, context }),
+        },
       });
     } catch (dbError) {
       console.error('Failed to log error to database:', dbError);
@@ -374,7 +372,7 @@ export function logGeneration(data: {
     level: data.success ? 'info' : 'error',
     message: `Gemini ${data.operation} ${data.success ? 'succeeded' : 'failed'}`,
     context: data,
-    userId: data.userId
+    userId: data.userId,
   });
 }
 ```
@@ -388,14 +386,18 @@ export function logGeneration(data: {
 **File**: `__tests__/gemini/fileManager.test.ts`
 
 ```typescript
-import { saveGameToFile, gameFileExists, deleteGameFile } from '@/lib/fileManager';
+import {
+  saveGameToFile,
+  gameFileExists,
+  deleteGameFile,
+} from '@/lib/fileManager';
 
 describe('FileManager', () => {
   it('should save game file successfully', async () => {
     const result = await saveGameToFile({
       code: '<html><body>Test</body></html>',
       title: 'Test Game',
-      category: 'math'
+      category: 'math',
     });
 
     expect(result.filename).toMatch(/^gemini-math-test-game-/);
@@ -424,17 +426,20 @@ import { POST as generatePost } from '@/app/api/gemini/generate/route';
 
 describe('Gemini API', () => {
   it('should generate content successfully', async () => {
-    const mockRequest = new Request('http://localhost:3000/api/gemini/generate', {
-      method: 'POST',
-      body: JSON.stringify({
-        prompt: 'Create a simple math game',
-        category: 'math',
-        gameType: 'HTML_2D',
-        gradeLevel: ['K', '1'],
-        difficulty: 'easy',
-        skills: ['Addition']
-      })
-    });
+    const mockRequest = new Request(
+      'http://localhost:3000/api/gemini/generate',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: 'Create a simple math game',
+          category: 'math',
+          gameType: 'HTML_2D',
+          gradeLevel: ['K', '1'],
+          difficulty: 'easy',
+          skills: ['Addition'],
+        }),
+      }
+    );
 
     // Mock authentication
     // Mock Gemini API
@@ -468,7 +473,8 @@ test.describe('Gemini Studio', () => {
     await page.goto('/internal/studio');
 
     // Fill prompt
-    await page.fill('textarea[placeholder*="Describe"]',
+    await page.fill(
+      'textarea[placeholder*="Describe"]',
       'Create a simple addition game for kindergarten'
     );
 
@@ -480,7 +486,7 @@ test.describe('Gemini Studio', () => {
 
     // Wait for generation
     await page.waitForSelector('iframe[title="Game Preview"]', {
-      timeout: 60000
+      timeout: 60000,
     });
 
     expect(await page.locator('iframe').count()).toBe(1);
@@ -491,9 +497,7 @@ test.describe('Gemini Studio', () => {
     // ... (from previous test)
 
     // Add iteration feedback
-    await page.fill('textarea[placeholder*="change"]',
-      'Add more colors'
-    );
+    await page.fill('textarea[placeholder*="change"]', 'Add more colors');
 
     await page.click('button:has-text("Iterate")');
 
@@ -509,7 +513,8 @@ test.describe('Gemini Studio', () => {
 
     // Fill metadata
     await page.fill('input[placeholder="Game Title"]', 'Test Math Game');
-    await page.fill('textarea[placeholder="Description"]',
+    await page.fill(
+      'textarea[placeholder="Description"]',
       'A simple addition game'
     );
 
@@ -565,9 +570,9 @@ const content = await prisma.geminiContent.findMany({
     // Don't fetch large 'generatedCode' field
   },
   orderBy: {
-    createdAt: 'desc'
+    createdAt: 'desc',
   },
-  take: 20
+  take: 20,
 });
 ```
 
@@ -633,6 +638,7 @@ export async function POST(req: Request) {
 ## ✅ Phase 4 Checklist
 
 ### Integration
+
 - [ ] Update AdminPanel with Gemini Studio link
 - [ ] Add Gemini stats to admin dashboard
 - [ ] Create file manager utility
@@ -641,6 +647,7 @@ export async function POST(req: Request) {
 - [ ] Implement error logging system
 
 ### Testing
+
 - [ ] Write unit tests for core functions
 - [ ] Write integration tests for API routes
 - [ ] Write E2E tests for user workflows
@@ -649,6 +656,7 @@ export async function POST(req: Request) {
 - [ ] Test rate limiting
 
 ### Performance
+
 - [ ] Add response caching
 - [ ] Optimize database queries
 - [ ] Implement rate limiting
@@ -656,12 +664,14 @@ export async function POST(req: Request) {
 - [ ] Monitor API response times
 
 ### Documentation
+
 - [ ] Update user documentation
 - [ ] Document API endpoints
 - [ ] Create troubleshooting guide
 - [ ] Add code comments
 
 ### Polish
+
 - [ ] Review UI/UX feedback
 - [ ] Fix any accessibility issues
 - [ ] Add loading animations
@@ -708,18 +718,21 @@ Before deploying to production:
 ## 📊 Post-Launch Monitoring
 
 ### Week 1
+
 - Monitor API usage and costs
 - Track error rates
 - Collect user feedback
 - Review generation quality
 
 ### Month 1
+
 - Analyze usage patterns
 - Optimize based on data
 - Plan feature improvements
 - Review ROI metrics
 
 ### Ongoing
+
 - Monthly cost reports
 - Quarterly feature reviews
 - Continuous optimization
@@ -738,6 +751,7 @@ Before deploying to production:
 With Phase 4 complete, you have a fully functional AI-powered content creation studio integrated into your Learning Adventures platform. You can now create educational games in minutes instead of hours, dramatically accelerating your content production pipeline.
 
 **Next Steps**:
+
 - Train your team on the new system
 - Start generating games for your catalog
 - Monitor usage and optimize based on data

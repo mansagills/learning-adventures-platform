@@ -44,7 +44,8 @@ export default function CourseCard({ course }: CourseCardProps) {
 
   const difficultyColors = {
     BEGINNER: 'bg-gradient-to-r from-grass-300 to-grass-400 text-white',
-    INTERMEDIATE: 'bg-gradient-to-r from-sunshine-300 to-sunshine-400 text-white',
+    INTERMEDIATE:
+      'bg-gradient-to-r from-sunshine-300 to-sunshine-400 text-white',
     ADVANCED: 'bg-gradient-to-r from-coral-300 to-coral-400 text-white',
   };
 
@@ -72,12 +73,18 @@ export default function CourseCard({ course }: CourseCardProps) {
       }`}
     >
       {/* Colorful header with subject indicator */}
-      <div className={`h-1 ${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-500'}`} />
+      <div
+        className={`h-1 ${subjectColors[subject as keyof typeof subjectColors] || 'bg-gray-500'}`}
+      />
 
       {/* Subject badge on top right */}
       <div className="absolute top-4 right-4 z-10">
-        <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full shadow-md text-white font-bold text-sm ${subjectColors[subject as keyof typeof subjectColors]}`}>
-          <span className="text-lg">{subjectEmojis[subject as keyof typeof subjectEmojis]}</span>
+        <div
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-full shadow-md text-white font-bold text-sm ${subjectColors[subject as keyof typeof subjectColors]}`}
+        >
+          <span className="text-lg">
+            {subjectEmojis[subject as keyof typeof subjectEmojis]}
+          </span>
           <span className="capitalize">{subject}</span>
         </div>
       </div>
@@ -85,7 +92,9 @@ export default function CourseCard({ course }: CourseCardProps) {
       <div className="p-6 pt-14">
         {/* Title and Premium Badge */}
         <div className="flex items-start justify-between mb-3">
-          <h3 className="text-2xl font-bold text-ink-900 flex-1 group-hover:text-brand-600 transition-colors">{title}</h3>
+          <h3 className="text-2xl font-bold text-ink-900 flex-1 group-hover:text-brand-600 transition-colors">
+            {title}
+          </h3>
           <div className="flex items-center gap-2 ml-2">
             {isPremium && <PremiumBadge size="sm" showLabel={false} />}
             {isLocked && (
@@ -97,7 +106,9 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-ink-600 text-base mb-4 line-clamp-2 leading-relaxed">{description}</p>
+        <p className="text-ink-600 text-base mb-4 line-clamp-2 leading-relaxed">
+          {description}
+        </p>
 
         {/* Metadata */}
         <div className="flex flex-wrap gap-2 mb-5">
@@ -168,7 +179,9 @@ export default function CourseCard({ course }: CourseCardProps) {
                 <>
                   <span className="text-lg">▶️</span>
                   <span>Continue Learning</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  <span className="group-hover:translate-x-1 transition-transform">
+                    →
+                  </span>
                 </>
               )}
             </span>
@@ -176,7 +189,9 @@ export default function CourseCard({ course }: CourseCardProps) {
             <span className="inline-flex items-center gap-2 text-ink-600 font-bold text-base group-hover:text-brand-600 group-hover:gap-3 transition-all">
               <span className="text-lg">👀</span>
               <span>View Course</span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <span className="group-hover:translate-x-1 transition-transform">
+                →
+              </span>
             </span>
           )}
         </div>

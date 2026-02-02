@@ -23,11 +23,11 @@ function CalendarDashboardContent() {
     createEvent,
     updateEvent,
     deleteEvent,
-    completeEvent
+    completeEvent,
   } = useCalendar({
     startDate: weekStart,
     endDate: weekEnd,
-    includeGoals: true
+    includeGoals: true,
   });
 
   const eventTypeColors: Record<string, string> = {
@@ -38,7 +38,7 @@ function CalendarDashboardContent() {
     LIVE_CLASS: 'bg-red-500',
     ASSESSMENT: 'bg-yellow-500',
     REMINDER: 'bg-gray-500',
-    CUSTOM: 'bg-pink-500'
+    CUSTOM: 'bg-pink-500',
   };
 
   const navigateWeek = (direction: 'prev' | 'next') => {
@@ -58,7 +58,7 @@ function CalendarDashboardContent() {
     const dayEnd = new Date(date);
     dayEnd.setHours(23, 59, 59, 999);
 
-    return events.filter(event => {
+    return events.filter((event) => {
       const eventStart = new Date(event.startTime);
       return eventStart >= dayStart && eventStart <= dayEnd;
     });
@@ -66,7 +66,11 @@ function CalendarDashboardContent() {
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -91,7 +95,9 @@ function CalendarDashboardContent() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-ink-800">Calendar</h1>
-              <p className="text-gray-600 mt-1">Schedule and track your learning activities</p>
+              <p className="text-gray-600 mt-1">
+                Schedule and track your learning activities
+              </p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -124,7 +130,10 @@ function CalendarDashboardContent() {
                 <Icon name="chevron-right" size={20} />
               </button>
               <h2 className="text-xl font-semibold text-ink-800">
-                {weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                {weekStart.toLocaleDateString('en-US', {
+                  month: 'long',
+                  year: 'numeric',
+                })}
               </h2>
             </div>
             <div className="text-sm text-gray-600">
@@ -138,9 +147,15 @@ function CalendarDashboardContent() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
-              <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <Icon
+                name="alert"
+                size={20}
+                className="text-red-600 flex-shrink-0 mt-0.5"
+              />
               <div>
-                <p className="text-sm font-medium text-red-800">Error loading calendar</p>
+                <p className="text-sm font-medium text-red-800">
+                  Error loading calendar
+                </p>
                 <p className="text-sm text-red-700 mt-1">{error}</p>
               </div>
             </div>
@@ -151,7 +166,7 @@ function CalendarDashboardContent() {
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           {/* Week Header */}
           <div className="grid grid-cols-7 border-b border-gray-200">
-            {weekDays.map(date => {
+            {weekDays.map((date) => {
               const isToday = date.toDateString() === new Date().toDateString();
               return (
                 <div
@@ -164,10 +179,12 @@ function CalendarDashboardContent() {
                   <div className="text-xs font-medium text-gray-600 uppercase">
                     {date.toLocaleDateString('en-US', { weekday: 'short' })}
                   </div>
-                  <div className={cn(
-                    'text-2xl font-bold mt-1',
-                    isToday ? 'text-brand-600' : 'text-ink-800'
-                  )}>
+                  <div
+                    className={cn(
+                      'text-2xl font-bold mt-1',
+                      isToday ? 'text-brand-600' : 'text-ink-800'
+                    )}
+                  >
                     {date.getDate()}
                   </div>
                 </div>
@@ -177,7 +194,7 @@ function CalendarDashboardContent() {
 
           {/* Events Grid */}
           <div className="grid grid-cols-7 divide-x divide-gray-200">
-            {weekDays.map(date => {
+            {weekDays.map((date) => {
               const dayEvents = getEventsForDay(date);
               const isToday = date.toDateString() === new Date().toDateString();
 
@@ -190,8 +207,11 @@ function CalendarDashboardContent() {
                   )}
                 >
                   <div className="space-y-1">
-                    {dayEvents.map(event => {
-                      const color = event.color || eventTypeColors[event.eventType] || 'bg-gray-500';
+                    {dayEvents.map((event) => {
+                      const color =
+                        event.color ||
+                        eventTypeColors[event.eventType] ||
+                        'bg-gray-500';
 
                       return (
                         <div
@@ -215,7 +235,9 @@ function CalendarDashboardContent() {
                             </div>
                           )}
                           {event.isGoal && (
-                            <div className="text-xs text-white/80 mt-1">Goal Deadline</div>
+                            <div className="text-xs text-white/80 mt-1">
+                              Goal Deadline
+                            </div>
                           )}
                         </div>
                       );
@@ -234,7 +256,9 @@ function CalendarDashboardContent() {
 
         {/* Event Legend */}
         <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Event Types</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            Event Types
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {Object.entries(eventTypeColors).map(([type, color]) => (
               <div key={type} className="flex items-center space-x-2">
@@ -255,7 +279,9 @@ function CalendarDashboardContent() {
                 <Icon name="calendar" size={24} className="text-blue-600" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-ink-800">{events.length}</div>
+                <div className="text-2xl font-bold text-ink-800">
+                  {events.length}
+                </div>
                 <div className="text-sm text-gray-600">Events This Week</div>
               </div>
             </div>
@@ -267,7 +293,7 @@ function CalendarDashboardContent() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-ink-800">
-                  {events.filter(e => e.status === 'COMPLETED').length}
+                  {events.filter((e) => e.status === 'COMPLETED').length}
                 </div>
                 <div className="text-sm text-gray-600">Completed</div>
               </div>
@@ -280,7 +306,7 @@ function CalendarDashboardContent() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-ink-800">
-                  {events.filter(e => e.eventType === 'GOAL_DEADLINE').length}
+                  {events.filter((e) => e.eventType === 'GOAL_DEADLINE').length}
                 </div>
                 <div className="text-sm text-gray-600">Goal Deadlines</div>
               </div>
@@ -303,9 +329,12 @@ function CalendarDashboardContent() {
               </button>
             </div>
             <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">Full event creation form coming soon!</p>
+              <p className="text-gray-600 mb-4">
+                Full event creation form coming soon!
+              </p>
               <p className="text-sm text-gray-500">
-                For now, you can view your scheduled events and goal deadlines on the calendar.
+                For now, you can view your scheduled events and goal deadlines
+                on the calendar.
               </p>
               <button
                 onClick={() => setShowCreateModal(false)}

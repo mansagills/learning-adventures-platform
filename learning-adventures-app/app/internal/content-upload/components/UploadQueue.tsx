@@ -18,7 +18,7 @@ export default function UploadQueue({ items }: { items: UploadItem[] }) {
     <div className="mt-8">
       <h3 className="text-lg font-semibold mb-4">Upload Queue</h3>
       <div className="space-y-3">
-        {items.map(item => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="bg-white border rounded-lg p-4 flex items-center gap-4"
@@ -37,7 +37,11 @@ export default function UploadQueue({ items }: { items: UploadItem[] }) {
               )}
               {(item.status === 'uploading' || item.status === 'pending') && (
                 <div className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center">
-                  <Icon name="loader" size={20} className="text-brand-600 animate-spin" />
+                  <Icon
+                    name="loader"
+                    size={20}
+                    className="text-brand-600 animate-spin"
+                  />
                 </div>
               )}
             </div>

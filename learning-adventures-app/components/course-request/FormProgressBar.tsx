@@ -66,8 +66,8 @@ export default function FormProgressBar({
                       isCompleted
                         ? 'bg-brand-500 text-white shadow-md'
                         : isCurrent
-                        ? 'bg-white border-4 border-brand-500 text-brand-600 shadow-lg ring-4 ring-brand-100'
-                        : 'bg-white border-2 border-gray-300 text-gray-400'
+                          ? 'bg-white border-4 border-brand-500 text-brand-600 shadow-lg ring-4 ring-brand-100'
+                          : 'bg-white border-2 border-gray-300 text-gray-400'
                     }
                     ${isClickable ? 'hover:scale-110' : ''}
                   `}

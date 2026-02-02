@@ -2,7 +2,11 @@
 
 import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { loadGameComponent, getGameMetadata, isGameRegistered } from '@/lib/gameLoader';
+import {
+  loadGameComponent,
+  getGameMetadata,
+  isGameRegistered,
+} from '@/lib/gameLoader';
 import { GameProps } from '@/components/games/shared/types';
 
 interface GamePageProps {
@@ -11,12 +15,17 @@ interface GamePageProps {
   };
 }
 
-function GameLoader({ gameId, onExit, onComplete }: {
+function GameLoader({
+  gameId,
+  onExit,
+  onComplete,
+}: {
   gameId: string;
   onExit: () => void;
   onComplete: (score: number) => void;
 }) {
-  const [GameComponent, setGameComponent] = useState<React.ComponentType<GameProps> | null>(null);
+  const [GameComponent, setGameComponent] =
+    useState<React.ComponentType<GameProps> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,7 +44,9 @@ function GameLoader({ gameId, onExit, onComplete }: {
         const LazyGameComponent = loadGameComponent(gameId);
         setGameComponent(() => LazyGameComponent);
       } catch (err) {
-        setError(`Failed to load game: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError(
+          `Failed to load game: ${err instanceof Error ? err.message : 'Unknown error'}`
+        );
       }
     };
 
@@ -47,7 +58,9 @@ function GameLoader({ gameId, onExit, onComplete }: {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
           <div className="text-6xl mb-4">🎮</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Game Not Found</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            Game Not Found
+          </h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={onExit}
@@ -72,14 +85,16 @@ function GameLoader({ gameId, onExit, onComplete }: {
   }
 
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading game...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading game...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <GameComponent onExit={onExit} onComplete={onComplete} />
     </Suspense>
   );

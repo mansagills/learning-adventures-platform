@@ -28,7 +28,8 @@ export function generateOrganizationSchema(): OrganizationSchema {
     name: 'Learning Adventures',
     url: 'https://learningadventures.org',
     logo: 'https://learningadventures.org/logo.png',
-    description: 'Interactive educational games and lessons for elementary and middle school students.',
+    description:
+      'Interactive educational games and lessons for elementary and middle school students.',
     foundingDate: '2024',
     sameAs: [
       'https://twitter.com/learningadventures',
@@ -44,7 +45,8 @@ export function generateWebSiteSchema(): WebSiteSchema {
     '@type': 'WebSite',
     name: 'Learning Adventures',
     url: 'https://learningadventures.org',
-    description: 'Transform your child\'s learning journey with engaging, interactive educational content designed for elementary and middle school students.',
+    description:
+      "Transform your child's learning journey with engaging, interactive educational content designed for elementary and middle school students.",
     publisher: {
       '@type': 'Organization',
       name: 'Learning Adventures',
@@ -52,14 +54,17 @@ export function generateWebSiteSchema(): WebSiteSchema {
   };
 }
 
-export function createJSONLD(schema: OrganizationSchema | WebSiteSchema): string {
+export function createJSONLD(
+  schema: OrganizationSchema | WebSiteSchema
+): string {
   return JSON.stringify(schema);
 }
 
 // SEO metadata helpers
 export const seoConfig = {
   defaultTitle: 'Learning Adventures - Interactive Education for Kids',
-  defaultDescription: 'Transform your child\'s learning journey with engaging, interactive educational games and lessons designed for elementary and middle school students.',
+  defaultDescription:
+    "Transform your child's learning journey with engaging, interactive educational games and lessons designed for elementary and middle school students.",
   defaultImage: '/hero-image.jpg',
   siteUrl: 'https://learningadventures.org',
   twitterHandle: '@learningadventures',

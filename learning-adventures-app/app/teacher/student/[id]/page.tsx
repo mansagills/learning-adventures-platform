@@ -24,7 +24,9 @@ function StatCard({ label, value, icon, iconColor, iconBg }: StatCardProps) {
           <p className="text-sm text-ink-500 mb-1">{label}</p>
           <p className="text-2xl font-bold text-ink-800">{value}</p>
         </div>
-        <div className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}>
+        <div
+          className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}
+        >
           <Icon name={icon} size={20} className={iconColor} />
         </div>
       </div>
@@ -56,7 +58,9 @@ function StudentDetailView() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <div className="flex items-center space-x-2 mb-4">
             <Icon name="info" size={24} className="text-red-600" />
-            <h3 className="text-lg font-semibold text-red-900">Error Loading Student</h3>
+            <h3 className="text-lg font-semibold text-red-900">
+              Error Loading Student
+            </h3>
           </div>
           <p className="text-red-800 mb-4">{error || 'Student not found'}</p>
           <button
@@ -91,7 +95,9 @@ function StudentDetailView() {
                 <span>Back</span>
               </button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{student.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {student.name}
+                </h1>
                 <div className="flex items-center space-x-4 mt-1">
                   <p className="text-gray-600">{student.email}</p>
                   <span className="text-gray-300">•</span>
@@ -149,47 +155,62 @@ function StudentDetailView() {
           <div className="lg:col-span-2 space-y-6">
             {/* Category Breakdown */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-ink-800 mb-4">Progress by Category</h2>
+              <h2 className="text-xl font-bold text-ink-800 mb-4">
+                Progress by Category
+              </h2>
               {Object.keys(student.stats.byCategory).length > 0 ? (
                 <div className="space-y-4">
-                  {Object.entries(student.stats.byCategory).map(([category, stats]) => {
-                    const completion = stats.total > 0
-                      ? Math.round((stats.completed / stats.total) * 100)
-                      : 0;
-                    const avgScore = stats.completed > 0
-                      ? Math.round(stats.totalScore / stats.completed)
-                      : 0;
+                  {Object.entries(student.stats.byCategory).map(
+                    ([category, stats]) => {
+                      const completion =
+                        stats.total > 0
+                          ? Math.round((stats.completed / stats.total) * 100)
+                          : 0;
+                      const avgScore =
+                        stats.completed > 0
+                          ? Math.round(stats.totalScore / stats.completed)
+                          : 0;
 
-                    return (
-                      <div key={category} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-semibold text-ink-800 capitalize">{category}</h3>
-                          <div className="flex items-center space-x-4 text-sm">
-                            <span className="text-ink-600">
-                              {stats.completed}/{stats.total} completed
-                            </span>
-                            <span className="text-amber-600">
-                              {avgScore}% avg
-                            </span>
+                      return (
+                        <div
+                          key={category}
+                          className="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold text-ink-800 capitalize">
+                              {category}
+                            </h3>
+                            <div className="flex items-center space-x-4 text-sm">
+                              <span className="text-ink-600">
+                                {stats.completed}/{stats.total} completed
+                              </span>
+                              <span className="text-amber-600">
+                                {avgScore}% avg
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-brand-600 h-2.5 rounded-full transition-all"
+                              style={{ width: `${completion}%` }}
+                            ></div>
+                          </div>
+                          <div className="flex items-center justify-between mt-2 text-xs text-ink-500">
+                            <span>{completion}% complete</span>
+                            <span>{formatTime(stats.totalTime)} spent</span>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div
-                            className="bg-brand-600 h-2.5 rounded-full transition-all"
-                            style={{ width: `${completion}%` }}
-                          ></div>
-                        </div>
-                        <div className="flex items-center justify-between mt-2 text-xs text-ink-500">
-                          <span>{completion}% complete</span>
-                          <span>{formatTime(stats.totalTime)} spent</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    }
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Icon name="chart" size={48} className="text-ink-300 mx-auto mb-2" />
+                  <Icon
+                    name="chart"
+                    size={48}
+                    className="text-ink-300 mx-auto mb-2"
+                  />
                   <p className="text-ink-500">No progress data yet</p>
                 </div>
               )}
@@ -197,23 +218,36 @@ function StudentDetailView() {
 
             {/* Recent Activity */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-ink-800 mb-4">Recent Activity</h2>
+              <h2 className="text-xl font-bold text-ink-800 mb-4">
+                Recent Activity
+              </h2>
               {student.recentActivity && student.recentActivity.length > 0 ? (
                 <div className="space-y-3">
                   {student.recentActivity.slice(0, 10).map((activity: any) => (
-                    <div key={activity.id} className="flex items-start space-x-3 pb-3 border-b border-gray-100 last:border-0">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        activity.status === 'COMPLETED' ? 'bg-green-100' :
-                        activity.status === 'IN_PROGRESS' ? 'bg-blue-100' :
-                        'bg-gray-100'
-                      }`}>
+                    <div
+                      key={activity.id}
+                      className="flex items-start space-x-3 pb-3 border-b border-gray-100 last:border-0"
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          activity.status === 'COMPLETED'
+                            ? 'bg-green-100'
+                            : activity.status === 'IN_PROGRESS'
+                              ? 'bg-blue-100'
+                              : 'bg-gray-100'
+                        }`}
+                      >
                         <Icon
-                          name={activity.status === 'COMPLETED' ? 'check' : 'play'}
+                          name={
+                            activity.status === 'COMPLETED' ? 'check' : 'play'
+                          }
                           size={16}
                           className={
-                            activity.status === 'COMPLETED' ? 'text-green-600' :
-                            activity.status === 'IN_PROGRESS' ? 'text-blue-600' :
-                            'text-gray-600'
+                            activity.status === 'COMPLETED'
+                              ? 'text-green-600'
+                              : activity.status === 'IN_PROGRESS'
+                                ? 'text-blue-600'
+                                : 'text-gray-600'
                           }
                         />
                       </div>
@@ -222,24 +256,34 @@ function StudentDetailView() {
                           {activity.adventureId}
                         </p>
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-ink-500 capitalize">{activity.category}</span>
+                          <span className="text-xs text-ink-500 capitalize">
+                            {activity.category}
+                          </span>
                           {activity.score > 0 && (
                             <>
                               <span className="text-ink-300">•</span>
-                              <span className="text-xs text-amber-600">{activity.score}% score</span>
+                              <span className="text-xs text-amber-600">
+                                {activity.score}% score
+                              </span>
                             </>
                           )}
                         </div>
                       </div>
                       <span className="text-xs text-ink-400 flex-shrink-0">
-                        {formatDistanceToNow(new Date(activity.lastAccessed), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(activity.lastAccessed), {
+                          addSuffix: true,
+                        })}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Icon name="clock" size={48} className="text-ink-300 mx-auto mb-2" />
+                  <Icon
+                    name="clock"
+                    size={48}
+                    className="text-ink-300 mx-auto mb-2"
+                  />
                   <p className="text-ink-500">No recent activity</p>
                 </div>
               )}
@@ -250,7 +294,9 @@ function StudentDetailView() {
           <div className="space-y-6">
             {/* Level & XP */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="font-semibold text-ink-800 mb-4">Level & Progress</h3>
+              <h3 className="font-semibold text-ink-800 mb-4">
+                Level & Progress
+              </h3>
               <div className="text-center mb-4">
                 <div className="w-20 h-20 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <span className="text-3xl font-bold text-brand-600">
@@ -286,20 +332,29 @@ function StudentDetailView() {
                 <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Icon name="star" size={32} className="text-amber-600" />
                 </div>
-                <p className="text-3xl font-bold text-ink-800">{student.achievements.length}</p>
+                <p className="text-3xl font-bold text-ink-800">
+                  {student.achievements.length}
+                </p>
                 <p className="text-sm text-ink-500">Badges Earned</p>
               </div>
               {student.achievements.length > 0 && (
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {student.achievements.slice(0, 5).map((achievement: any) => (
-                    <div key={achievement.id} className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
-                      <span className="text-2xl">{achievement.icon || '🏆'}</span>
+                    <div
+                      key={achievement.id}
+                      className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg"
+                    >
+                      <span className="text-2xl">
+                        {achievement.icon || '🏆'}
+                      </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-ink-800 truncate">
                           {achievement.achievementId}
                         </p>
                         <p className="text-xs text-ink-500">
-                          {formatDistanceToNow(new Date(achievement.earnedAt), { addSuffix: true })}
+                          {formatDistanceToNow(new Date(achievement.earnedAt), {
+                            addSuffix: true,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -310,7 +365,9 @@ function StudentDetailView() {
 
             {/* Active Goals */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="font-semibold text-ink-800 mb-4">Learning Goals</h3>
+              <h3 className="font-semibold text-ink-800 mb-4">
+                Learning Goals
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-ink-600">Active Goals</span>
@@ -331,10 +388,17 @@ function StudentDetailView() {
                     .filter((g: any) => g.status === 'ACTIVE')
                     .slice(0, 5)
                     .map((goal: any) => {
-                      const progress = Math.round((goal.currentValue / goal.targetValue) * 100);
+                      const progress = Math.round(
+                        (goal.currentValue / goal.targetValue) * 100
+                      );
                       return (
-                        <div key={goal.id} className="p-2 bg-gray-50 rounded-lg">
-                          <p className="text-sm font-medium text-ink-800 mb-1">{goal.title}</p>
+                        <div
+                          key={goal.id}
+                          className="p-2 bg-gray-50 rounded-lg"
+                        >
+                          <p className="text-sm font-medium text-ink-800 mb-1">
+                            {goal.title}
+                          </p>
                           <div className="w-full bg-gray-200 rounded-full h-1.5">
                             <div
                               className="bg-brand-600 h-1.5 rounded-full"
@@ -359,7 +423,9 @@ function StudentDetailView() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-ink-800">Progress Report</h2>
+              <h2 className="text-xl font-bold text-ink-800">
+                Progress Report
+              </h2>
               <button
                 onClick={() => setShowReport(false)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

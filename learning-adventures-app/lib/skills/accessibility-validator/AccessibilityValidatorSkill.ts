@@ -12,19 +12,40 @@ export class AccessibilityValidatorSkill extends BaseSkill {
       id: 'accessibility-validator',
       name: 'Accessibility Validator',
       description: 'Validate games for WCAG 2.1 AA compliance',
-      triggers: ['check accessibility', 'validate', 'a11y', 'wcag', 'accessibility audit', 'validate accessibility'],
-      capabilities: ['WCAG validation', 'Semantic HTML checks', 'ARIA validation', 'Color contrast'],
+      triggers: [
+        'check accessibility',
+        'validate',
+        'a11y',
+        'wcag',
+        'accessibility audit',
+        'validate accessibility',
+      ],
+      capabilities: [
+        'WCAG validation',
+        'Semantic HTML checks',
+        'ARIA validation',
+        'Color contrast',
+      ],
       examples: ['Check accessibility of the game', 'Validate WCAG compliance'],
       version: '1.0.0',
       guidanceFile: 'SKILL.md',
     };
   }
 
-  public async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  public async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const metadata = this.getMetadata();
-    let confidence = this.calculateKeywordConfidence(userRequest, metadata.triggers);
+    let confidence = this.calculateKeywordConfidence(
+      userRequest,
+      metadata.triggers
+    );
 
-    if (userRequest.toLowerCase().includes('accessibility') || userRequest.toLowerCase().includes('a11y')) {
+    if (
+      userRequest.toLowerCase().includes('accessibility') ||
+      userRequest.toLowerCase().includes('a11y')
+    ) {
       confidence = Math.min(confidence + 25, 100);
     }
 
@@ -42,7 +63,11 @@ export class AccessibilityValidatorSkill extends BaseSkill {
       const message = `Accessibility Score: ${report.score}/100\n${report.passed ? '✅ Passed' : '⚠️ Issues found'}`;
       return this.buildSuccessResult(report, message, Date.now() - startTime);
     } catch (error) {
-      return this.buildErrorResult(`Execution failed: ${error}`, 'EXECUTION_ERROR', error);
+      return this.buildErrorResult(
+        `Execution failed: ${error}`,
+        'EXECUTION_ERROR',
+        error
+      );
     }
   }
 
@@ -52,13 +77,38 @@ export class AccessibilityValidatorSkill extends BaseSkill {
 
   private validateAccessibility(context: SkillContext): QAReport {
     const checks = [
-      { name: 'Semantic HTML', passed: true, score: 100, issues: [], recommendations: [] },
-      { name: 'ARIA Labels', passed: true, score: 100, issues: [], recommendations: [] },
-      { name: 'Keyboard Navigation', passed: true, score: 100, issues: [], recommendations: [] },
-      { name: 'Color Contrast', passed: true, score: 100, issues: [], recommendations: [] },
+      {
+        name: 'Semantic HTML',
+        passed: true,
+        score: 100,
+        issues: [],
+        recommendations: [],
+      },
+      {
+        name: 'ARIA Labels',
+        passed: true,
+        score: 100,
+        issues: [],
+        recommendations: [],
+      },
+      {
+        name: 'Keyboard Navigation',
+        passed: true,
+        score: 100,
+        issues: [],
+        recommendations: [],
+      },
+      {
+        name: 'Color Contrast',
+        passed: true,
+        score: 100,
+        issues: [],
+        recommendations: [],
+      },
     ];
 
-    const totalScore = checks.reduce((sum, check) => sum + check.score, 0) / checks.length;
+    const totalScore =
+      checks.reduce((sum, check) => sum + check.score, 0) / checks.length;
 
     return {
       passed: totalScore >= 70,

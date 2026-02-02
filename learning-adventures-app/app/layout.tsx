@@ -6,7 +6,12 @@ import Footer from '@/components/Footer';
 import GameRegistryInitializer from '@/components/GameRegistryInitializer';
 import AppLayout from '@/components/navigation/AppLayout';
 import { Providers } from '@/components/Providers';
-import { generateMetadata, generateOrganizationSchema, generateWebSiteSchema, createJSONLD } from '@/lib/seo';
+import {
+  generateMetadata,
+  generateOrganizationSchema,
+  generateWebSiteSchema,
+  createJSONLD,
+} from '@/lib/seo';
 
 // Legacy fonts (keeping for compatibility)
 const nunito = Nunito({
@@ -48,7 +53,10 @@ export default function RootLayout({
   const websiteSchema = createJSONLD(generateWebSiteSchema());
 
   return (
-    <html lang="en" className={`${nunito.variable} ${inter.variable} ${outfit.variable} ${plusJakartaSans.variable}`}>
+    <html
+      lang="en"
+      className={`${nunito.variable} ${inter.variable} ${outfit.variable} ${plusJakartaSans.variable}`}
+    >
       <head>
         {/* JSON-LD Structured Data */}
         <script
@@ -61,11 +69,19 @@ export default function RootLayout({
         />
 
         {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         {/* Skip to main content link for accessibility */}

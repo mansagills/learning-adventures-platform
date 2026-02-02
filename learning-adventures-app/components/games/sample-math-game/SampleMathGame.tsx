@@ -94,7 +94,7 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
       actions.addScore(points);
 
       // Level up every 5 correct answers
-      if ((gameState.score + points) >= gameState.level * 50) {
+      if (gameState.score + points >= gameState.level * 50) {
         actions.levelUp();
       }
     } else {
@@ -148,7 +148,9 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
   }, []);
 
   // Generate answer options for current question
-  const answerOptions = currentQuestion ? generateAnswerOptions(currentQuestion.correctAnswer) : [];
+  const answerOptions = currentQuestion
+    ? generateAnswerOptions(currentQuestion.correctAnswer)
+    : [];
 
   return (
     <GameContainer
@@ -176,7 +178,8 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
           <div className="text-center">
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
               <h2 className="text-3xl font-bold text-gray-800 mb-8">
-                {currentQuestion.num1} {currentQuestion.operation} {currentQuestion.num2} = ?
+                {currentQuestion.num1} {currentQuestion.operation}{' '}
+                {currentQuestion.num2} = ?
               </h2>
 
               <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
@@ -189,10 +192,10 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
                       selectedAnswer === null
                         ? 'primary'
                         : option === currentQuestion.correctAnswer
-                        ? 'success'
-                        : option === selectedAnswer
-                        ? 'danger'
-                        : 'secondary'
+                          ? 'success'
+                          : option === selectedAnswer
+                            ? 'danger'
+                            : 'secondary'
                     }
                     size="lg"
                     className="h-16"
@@ -210,7 +213,8 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
                     </div>
                   ) : (
                     <div className="text-red-600 font-bold text-xl">
-                      ❌ Wrong! The correct answer was {currentQuestion.correctAnswer}
+                      ❌ Wrong! The correct answer was{' '}
+                      {currentQuestion.correctAnswer}
                     </div>
                   )}
                 </div>
@@ -227,7 +231,9 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
           showCloseButton={false}
         >
           <div className="text-center">
-            <p className="text-gray-600 mb-6">Take your time! Ready to continue?</p>
+            <p className="text-gray-600 mb-6">
+              Take your time! Ready to continue?
+            </p>
             <GameButton onClick={handlePauseToggle} variant="primary">
               Resume Game
             </GameButton>
@@ -245,7 +251,10 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
           <div className="text-center">
             <div className="text-4xl mb-4">🎮</div>
             <p className="text-gray-600 mb-4">
-              Final Score: <span className="font-bold text-purple-600">{gameState.score}</span>
+              Final Score:{' '}
+              <span className="font-bold text-purple-600">
+                {gameState.score}
+              </span>
             </p>
             <p className="text-gray-600 mb-6">
               You reached Level {gameState.level}!

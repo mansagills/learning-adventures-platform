@@ -12,7 +12,8 @@ const agents = [
   {
     id: 'game-idea-generator',
     name: 'Game Idea Generator',
-    description: 'Brainstorm creative educational game concepts aligned with curriculum standards',
+    description:
+      'Brainstorm creative educational game concepts aligned with curriculum standards',
     icon: '🎮',
     capabilities: [
       'Generate 3-5 unique game concepts per request',
@@ -26,7 +27,8 @@ const agents = [
   {
     id: 'content-builder',
     name: 'Content Builder',
-    description: 'Create complete functional games (HTML or React) following platform standards',
+    description:
+      'Create complete functional games (HTML or React) following platform standards',
     icon: '📝',
     capabilities: [
       'Build single-file HTML games',
@@ -54,7 +56,8 @@ const agents = [
   {
     id: 'quality-assurance',
     name: 'Quality Assurance',
-    description: 'Validate content quality, accessibility, and educational effectiveness',
+    description:
+      'Validate content quality, accessibility, and educational effectiveness',
     icon: '✅',
     capabilities: [
       'Run WCAG 2.1 AA compliance checks',
@@ -87,6 +90,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching agents:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

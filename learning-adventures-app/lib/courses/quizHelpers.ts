@@ -116,7 +116,9 @@ function checkAnswer(question: QuizQuestion, userAnswer: any): boolean {
   } else if (question.type === 'fill-blank') {
     // For fill-in-blank, case-insensitive string comparison
     const normalizedUser = String(userAnswer).toLowerCase().trim();
-    const normalizedCorrect = String(question.correctAnswer).toLowerCase().trim();
+    const normalizedCorrect = String(question.correctAnswer)
+      .toLowerCase()
+      .trim();
     return normalizedUser === normalizedCorrect;
   }
 
@@ -126,7 +128,10 @@ function checkAnswer(question: QuizQuestion, userAnswer: any): boolean {
 /**
  * Get the next hint for a question
  */
-function getNextHint(question: QuizQuestion, attemptNumber: number): string | null {
+function getNextHint(
+  question: QuizQuestion,
+  attemptNumber: number
+): string | null {
   if (!question.hints || question.hints.length === 0) {
     return null;
   }
@@ -217,7 +222,10 @@ export function getHintForQuestion(
 /**
  * Check if quiz allows retries
  */
-export function canRetryQuiz(quizData: QuizData, currentAttempts: number): boolean {
+export function canRetryQuiz(
+  quizData: QuizData,
+  currentAttempts: number
+): boolean {
   if (!quizData.allowRetry) {
     return false;
   }
@@ -241,7 +249,11 @@ export function validateQuizStructure(quizData: any): quizData is QuizData {
     return false;
   }
 
-  if (typeof quizData.passingScore !== 'number' || quizData.passingScore < 0 || quizData.passingScore > 100) {
+  if (
+    typeof quizData.passingScore !== 'number' ||
+    quizData.passingScore < 0 ||
+    quizData.passingScore > 100
+  ) {
     return false;
   }
 
@@ -251,7 +263,10 @@ export function validateQuizStructure(quizData: any): quizData is QuizData {
       return false;
     }
 
-    if (question.type === 'multiple-choice' && !Array.isArray(question.options)) {
+    if (
+      question.type === 'multiple-choice' &&
+      !Array.isArray(question.options)
+    ) {
       return false;
     }
 

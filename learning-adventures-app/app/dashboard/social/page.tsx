@@ -13,7 +13,11 @@ interface LeaderboardEntryProps {
   type: string;
 }
 
-function LeaderboardEntry({ entry, isCurrentUser, type }: LeaderboardEntryProps) {
+function LeaderboardEntry({
+  entry,
+  isCurrentUser,
+  type,
+}: LeaderboardEntryProps) {
   const getRankColor = (rank: number) => {
     if (rank === 1) return 'bg-amber-100 text-amber-800 border-amber-300';
     if (rank === 2) return 'bg-gray-100 text-gray-800 border-gray-300';
@@ -31,7 +35,9 @@ function LeaderboardEntry({ entry, isCurrentUser, type }: LeaderboardEntryProps)
   return (
     <div
       className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-        isCurrentUser ? 'bg-brand-50 border-brand-300' : getRankColor(entry.rank)
+        isCurrentUser
+          ? 'bg-brand-50 border-brand-300'
+          : getRankColor(entry.rank)
       }`}
     >
       <div className="flex items-center space-x-4">
@@ -41,7 +47,9 @@ function LeaderboardEntry({ entry, isCurrentUser, type }: LeaderboardEntryProps)
         <div>
           <p className="font-semibold text-ink-800">
             {entry.name}
-            {isCurrentUser && <span className="ml-2 text-xs text-brand-600">(You)</span>}
+            {isCurrentUser && (
+              <span className="ml-2 text-xs text-brand-600">(You)</span>
+            )}
           </p>
           <div className="flex items-center space-x-3 text-sm text-ink-600">
             <span>Level {entry.currentLevel}</span>
@@ -57,19 +65,25 @@ function LeaderboardEntry({ entry, isCurrentUser, type }: LeaderboardEntryProps)
       <div className="text-right">
         {type === 'xp' && (
           <>
-            <p className="text-2xl font-bold text-brand-600">{entry.totalXP.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-brand-600">
+              {entry.totalXP.toLocaleString()}
+            </p>
             <p className="text-xs text-ink-500">XP</p>
           </>
         )}
         {type === 'adventures' && (
           <>
-            <p className="text-2xl font-bold text-green-600">{entry.adventuresCompleted}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {entry.adventuresCompleted}
+            </p>
             <p className="text-xs text-ink-500">Adventures</p>
           </>
         )}
         {type === 'score' && (
           <>
-            <p className="text-2xl font-bold text-amber-600">{entry.averageScore}%</p>
+            <p className="text-2xl font-bold text-amber-600">
+              {entry.averageScore}%
+            </p>
             <p className="text-xs text-ink-500">Avg Score</p>
           </>
         )}
@@ -78,7 +92,13 @@ function LeaderboardEntry({ entry, isCurrentUser, type }: LeaderboardEntryProps)
   );
 }
 
-function FriendCard({ friend, onRemove }: { friend: any; onRemove?: () => void }) {
+function FriendCard({
+  friend,
+  onRemove,
+}: {
+  friend: any;
+  onRemove?: () => void;
+}) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all">
       <div className="flex items-center justify-between">
@@ -93,7 +113,9 @@ function FriendCard({ friend, onRemove }: { friend: any; onRemove?: () => void }
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right text-sm">
-            <p className="text-brand-600 font-semibold">{friend.totalXP.toLocaleString()} XP</p>
+            <p className="text-brand-600 font-semibold">
+              {friend.totalXP.toLocaleString()} XP
+            </p>
             {friend.currentStreak > 0 && (
               <p className="text-orange-600">🔥 {friend.currentStreak} days</p>
             )}
@@ -113,7 +135,11 @@ function FriendCard({ friend, onRemove }: { friend: any; onRemove?: () => void }
   );
 }
 
-function ChallengeCard({ challenge, onAccept, onDecline }: {
+function ChallengeCard({
+  challenge,
+  onAccept,
+  onDecline,
+}: {
   challenge: any;
   onAccept?: () => void;
   onDecline?: () => void;
@@ -121,16 +147,25 @@ function ChallengeCard({ challenge, onAccept, onDecline }: {
   const { data: session } = useSession();
   const isCreator = challenge.creatorId === session?.user?.id;
   const opponent = isCreator ? challenge.challenged : challenge.creator;
-  const myProgress = isCreator ? challenge.creatorProgress : challenge.challengedProgress;
-  const opponentProgress = isCreator ? challenge.challengedProgress : challenge.creatorProgress;
+  const myProgress = isCreator
+    ? challenge.creatorProgress
+    : challenge.challengedProgress;
+  const opponentProgress = isCreator
+    ? challenge.challengedProgress
+    : challenge.creatorProgress;
 
   const getChallengeTypeIcon = (type: string) => {
     switch (type) {
-      case 'ADVENTURE_RACE': return '🏃';
-      case 'XP_BATTLE': return '⚡';
-      case 'SCORE_SHOWDOWN': return '🎯';
-      case 'STREAK_CHALLENGE': return '🔥';
-      default: return '🏆';
+      case 'ADVENTURE_RACE':
+        return '🏃';
+      case 'XP_BATTLE':
+        return '⚡';
+      case 'SCORE_SHOWDOWN':
+        return '🎯';
+      case 'STREAK_CHALLENGE':
+        return '🔥';
+      default:
+        return '🏆';
     }
   };
 
@@ -139,21 +174,30 @@ function ChallengeCard({ challenge, onAccept, onDecline }: {
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-2xl">{getChallengeTypeIcon(challenge.type)}</span>
+            <span className="text-2xl">
+              {getChallengeTypeIcon(challenge.type)}
+            </span>
             <h3 className="font-semibold text-ink-800">
-              {challenge.type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
+              {challenge.type
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, (c: string) => c.toUpperCase())}
             </h3>
           </div>
           <p className="text-sm text-ink-600">
             vs {opponent.name} • Goal: {challenge.goalValue} {challenge.unit}
           </p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-          challenge.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-          challenge.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-          challenge.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            challenge.status === 'PENDING'
+              ? 'bg-yellow-100 text-yellow-800'
+              : challenge.status === 'ACTIVE'
+                ? 'bg-green-100 text-green-800'
+                : challenge.status === 'COMPLETED'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-gray-100 text-gray-800'
+          }`}
+        >
           {challenge.status}
         </span>
       </div>
@@ -163,24 +207,32 @@ function ChallengeCard({ challenge, onAccept, onDecline }: {
           <div>
             <div className="flex items-center justify-between text-sm mb-1">
               <span className="text-ink-600">You</span>
-              <span className="font-semibold text-brand-600">{myProgress}/{challenge.goalValue}</span>
+              <span className="font-semibold text-brand-600">
+                {myProgress}/{challenge.goalValue}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-brand-600 h-2 rounded-full transition-all"
-                style={{ width: `${Math.min((myProgress / challenge.goalValue) * 100, 100)}%` }}
+                style={{
+                  width: `${Math.min((myProgress / challenge.goalValue) * 100, 100)}%`,
+                }}
               ></div>
             </div>
           </div>
           <div>
             <div className="flex items-center justify-between text-sm mb-1">
               <span className="text-ink-600">{opponent.name}</span>
-              <span className="font-semibold text-red-600">{opponentProgress}/{challenge.goalValue}</span>
+              <span className="font-semibold text-red-600">
+                {opponentProgress}/{challenge.goalValue}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className="bg-red-600 h-2 rounded-full transition-all"
-                style={{ width: `${Math.min((opponentProgress / challenge.goalValue) * 100, 100)}%` }}
+                style={{
+                  width: `${Math.min((opponentProgress / challenge.goalValue) * 100, 100)}%`,
+                }}
               ></div>
             </div>
           </div>
@@ -216,19 +268,39 @@ function ChallengeCard({ challenge, onAccept, onDecline }: {
 
 function SocialDashboard() {
   const { data: session } = useSession();
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'friends' | 'challenges'>('leaderboard');
-  const [leaderboardPeriod, setLeaderboardPeriod] = useState<'weekly' | 'monthly' | 'all-time'>('all-time');
-  const [leaderboardType, setLeaderboardType] = useState<'xp' | 'adventures' | 'score'>('xp');
+  const [activeTab, setActiveTab] = useState<
+    'leaderboard' | 'friends' | 'challenges'
+  >('leaderboard');
+  const [leaderboardPeriod, setLeaderboardPeriod] = useState<
+    'weekly' | 'monthly' | 'all-time'
+  >('all-time');
+  const [leaderboardType, setLeaderboardType] = useState<
+    'xp' | 'adventures' | 'score'
+  >('xp');
 
-  const { leaderboard, currentUserRank, loading: leaderboardLoading } = useLeaderboard({
+  const {
+    leaderboard,
+    currentUserRank,
+    loading: leaderboardLoading,
+  } = useLeaderboard({
     period: leaderboardPeriod,
     type: leaderboardType,
-    limit: 50
+    limit: 50,
   });
 
-  const { friends, loading: friendsLoading, removeFriend } = useFriends('ACCEPTED');
-  const { friends: pendingRequests, acceptFriendRequest } = useFriends('PENDING');
-  const { challenges, loading: challengesLoading, acceptChallenge, declineChallenge } = useChallenges('ACTIVE');
+  const {
+    friends,
+    loading: friendsLoading,
+    removeFriend,
+  } = useFriends('ACCEPTED');
+  const { friends: pendingRequests, acceptFriendRequest } =
+    useFriends('PENDING');
+  const {
+    challenges,
+    loading: challengesLoading,
+    acceptChallenge,
+    declineChallenge,
+  } = useChallenges('ACTIVE');
   const { challenges: pendingChallenges } = useChallenges('PENDING');
 
   return (
@@ -237,7 +309,9 @@ function SocialDashboard() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Social & Competitions</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Social & Competitions
+            </h1>
             <p className="mt-1 text-gray-600">
               Compete with friends, climb the leaderboards, and challenge others
             </p>
@@ -326,7 +400,10 @@ function SocialDashboard() {
               </div>
               {currentUserRank && (
                 <div className="text-sm text-ink-600">
-                  Your rank: <span className="font-bold text-brand-600">#{currentUserRank}</span>
+                  Your rank:{' '}
+                  <span className="font-bold text-brand-600">
+                    #{currentUserRank}
+                  </span>
                 </div>
               )}
             </div>
@@ -338,7 +415,11 @@ function SocialDashboard() {
               </div>
             ) : leaderboard.length === 0 ? (
               <div className="text-center py-12">
-                <Icon name="chart" size={48} className="text-ink-300 mx-auto mb-4" />
+                <Icon
+                  name="chart"
+                  size={48}
+                  className="text-ink-300 mx-auto mb-4"
+                />
                 <p className="text-ink-500">No leaderboard data yet</p>
               </div>
             ) : (
@@ -366,11 +447,18 @@ function SocialDashboard() {
                 </h2>
                 <div className="space-y-3">
                   {pendingRequests.map((request) => (
-                    <div key={request.id} className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div
+                      key={request.id}
+                      className="bg-yellow-50 border border-yellow-200 rounded-lg p-4"
+                    >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-ink-800">{request.name}</p>
-                          <p className="text-sm text-ink-500">Grade {request.gradeLevel}</p>
+                          <p className="font-semibold text-ink-800">
+                            {request.name}
+                          </p>
+                          <p className="text-sm text-ink-500">
+                            Grade {request.gradeLevel}
+                          </p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
@@ -404,7 +492,11 @@ function SocialDashboard() {
                 </div>
               ) : friends.length === 0 ? (
                 <div className="text-center py-12">
-                  <Icon name="users" size={48} className="text-ink-300 mx-auto mb-4" />
+                  <Icon
+                    name="users"
+                    size={48}
+                    className="text-ink-300 mx-auto mb-4"
+                  />
                   <p className="text-ink-500 mb-2">No friends yet</p>
                   <p className="text-sm text-ink-400">
                     Send friend requests to connect with classmates
@@ -457,7 +549,11 @@ function SocialDashboard() {
                 </div>
               ) : challenges.length === 0 ? (
                 <div className="text-center py-12">
-                  <Icon name="star" size={48} className="text-ink-300 mx-auto mb-4" />
+                  <Icon
+                    name="star"
+                    size={48}
+                    className="text-ink-300 mx-auto mb-4"
+                  />
                   <p className="text-ink-500 mb-2">No active challenges</p>
                   <p className="text-sm text-ink-400">
                     Challenge your friends to learning competitions!

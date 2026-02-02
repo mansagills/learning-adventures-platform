@@ -17,12 +17,19 @@ export async function GET(
 
     const currentUser = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true }
+      select: { role: true },
     });
 
-    if (!currentUser || (currentUser.role !== 'TEACHER' && currentUser.role !== 'PARENT' && currentUser.role !== 'ADMIN')) {
+    if (
+      !currentUser ||
+      (currentUser.role !== 'TEACHER' &&
+        currentUser.role !== 'PARENT' &&
+        currentUser.role !== 'ADMIN')
+    ) {
       return NextResponse.json(
-        { error: 'Only teachers, parents, and admins can view student details' },
+        {
+          error: 'Only teachers, parents, and admins can view student details',
+        },
         { status: 403 }
       );
     }
@@ -39,8 +46,8 @@ export async function GET(
         gradeLevel: true,
         subjects: true,
         createdAt: true,
-        role: true
-      }
+        role: true,
+      },
     });
 
     if (!student || student.role !== 'STUDENT') {
@@ -48,55 +55,76 @@ export async function GET(
     }
 
     // Get all progress data
-    const [progress, achievements, goals, level, recentActivity] = await Promise.all([
-      prisma.userProgress.findMany({
-        where: { userId: studentId },
-        orderBy: { lastAccessed: 'desc' }
-      }),
-      prisma.userAchievement.findMany({
-        where: { userId: studentId },
-        orderBy: { earnedAt: 'desc' }
-      }),
-      prisma.learningGoal.findMany({
-        where: { userId: studentId },
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.userLevel.findUnique({
-        where: { userId: studentId }
-      }),
-      prisma.userProgress.findMany({
-        where: { userId: studentId },
-        orderBy: { lastAccessed: 'desc' },
-        take: 10
-      })
-    ]);
+    const [progress, achievements, goals, level, recentActivity] =
+      await Promise.all([
+        prisma.userProgress.findMany({
+          where: { userId: studentId },
+          orderBy: { lastAccessed: 'desc' },
+        }),
+        prisma.userAchievement.findMany({
+          where: { userId: studentId },
+          orderBy: { earnedAt: 'desc' },
+        }),
+        prisma.learningGoal.findMany({
+          where: { userId: studentId },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.userLevel.findUnique({
+          where: { userId: studentId },
+        }),
+        prisma.userProgress.findMany({
+          where: { userId: studentId },
+          orderBy: { lastAccessed: 'desc' },
+          take: 10,
+        }),
+      ]);
 
     // Calculate stats by category
-    const statsByCategory = progress.reduce((acc, p) => {
-      if (!acc[p.category]) {
-        acc[p.category] = { total: 0, completed: 0, totalScore: 0, totalTime: 0 };
-      }
-      acc[p.category].total++;
-      if (p.status === 'COMPLETED') {
-        acc[p.category].completed++;
-        acc[p.category].totalScore += p.score || 0;
-        acc[p.category].totalTime += p.timeSpent || 0;
-      }
-      return acc;
-    }, {} as Record<string, any>);
+    const statsByCategory = progress.reduce(
+      (acc, p) => {
+        if (!acc[p.category]) {
+          acc[p.category] = {
+            total: 0,
+            completed: 0,
+            totalScore: 0,
+            totalTime: 0,
+          };
+        }
+        acc[p.category].total++;
+        if (p.status === 'COMPLETED') {
+          acc[p.category].completed++;
+          acc[p.category].totalScore += p.score || 0;
+          acc[p.category].totalTime += p.timeSpent || 0;
+        }
+        return acc;
+      },
+      {} as Record<string, any>
+    );
 
     // Calculate overall stats
     const totalAdventures = progress.length;
-    const completedAdventures = progress.filter(p => p.status === 'COMPLETED').length;
-    const inProgressAdventures = progress.filter(p => p.status === 'IN_PROGRESS').length;
-    const totalTimeSpent = progress.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
-    const averageScore = completedAdventures > 0
-      ? Math.round(progress.reduce((sum, p) => sum + (p.score || 0), 0) / completedAdventures)
-      : 0;
+    const completedAdventures = progress.filter(
+      (p) => p.status === 'COMPLETED'
+    ).length;
+    const inProgressAdventures = progress.filter(
+      (p) => p.status === 'IN_PROGRESS'
+    ).length;
+    const totalTimeSpent = progress.reduce(
+      (sum, p) => sum + (p.timeSpent || 0),
+      0
+    );
+    const averageScore =
+      completedAdventures > 0
+        ? Math.round(
+            progress.reduce((sum, p) => sum + (p.score || 0), 0) /
+              completedAdventures
+          )
+        : 0;
 
-    const completionRate = totalAdventures > 0
-      ? Math.round((completedAdventures / totalAdventures) * 100)
-      : 0;
+    const completionRate =
+      totalAdventures > 0
+        ? Math.round((completedAdventures / totalAdventures) * 100)
+        : 0;
 
     return NextResponse.json({
       student,
@@ -108,20 +136,19 @@ export async function GET(
         averageScore,
         totalTimeSpent,
         achievements: achievements.length,
-        activeGoals: goals.filter(g => g.status === 'ACTIVE').length,
-        completedGoals: goals.filter(g => g.status === 'COMPLETED').length,
+        activeGoals: goals.filter((g) => g.status === 'ACTIVE').length,
+        completedGoals: goals.filter((g) => g.status === 'COMPLETED').length,
         currentLevel: level?.currentLevel || 1,
         totalXP: level?.totalXP || 0,
         currentStreak: level?.currentStreak || 0,
-        byCategory: statsByCategory
+        byCategory: statsByCategory,
       },
       progress,
       achievements,
       goals,
       level,
-      recentActivity
+      recentActivity,
     });
-
   } catch (error) {
     console.error('Error fetching student details:', error);
     return NextResponse.json(

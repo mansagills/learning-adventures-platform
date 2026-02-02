@@ -1,725 +1,772 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Virtual Fraction Pizza Party | Learning Adventures</title>
-    <meta name="description" content="Learn fractions by creating and serving pizzas! Interactive visual lesson for elementary students.">
+    <meta
+      name="description"
+      content="Learn fractions by creating and serving pizzas! Interactive visual lesson for elementary students."
+    />
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #FFD166 0%, #FF8C42 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+      body {
+        font-family: 'Comic Sans MS', cursive, sans-serif;
+        background: linear-gradient(135deg, #ffd166 0%, #ff8c42 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
 
-        .game-container {
-            max-width: 1000px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
+      .game-container {
+        max-width: 1000px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #6C5CE7 0%, #5A4ED1 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+      .header {
+        background: linear-gradient(135deg, #6c5ce7 0%, #5a4ed1 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
 
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .lesson-content {
+        padding: 30px;
+      }
+
+      .lesson-section {
+        margin-bottom: 40px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: #6c5ce7;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .pizza-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 30px 0;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .pizza {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: #d4a574;
+        border: 8px solid #8b4513;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pizza:hover {
+        transform: scale(1.05);
+      }
+
+      .pizza-slice {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        border-radius: 0 100% 0 0;
+        transform-origin: bottom left;
+        border: 2px solid #8b4513;
+        background: #ff6b35;
+        transition: all 0.3s ease;
+      }
+
+      .pizza-slice.eaten {
+        background: transparent;
+        border-color: transparent;
+      }
+
+      .pizza-slice:nth-child(1) {
+        transform: rotate(0deg);
+      }
+      .pizza-slice:nth-child(2) {
+        transform: rotate(45deg);
+      }
+      .pizza-slice:nth-child(3) {
+        transform: rotate(90deg);
+      }
+      .pizza-slice:nth-child(4) {
+        transform: rotate(135deg);
+      }
+      .pizza-slice:nth-child(5) {
+        transform: rotate(180deg);
+      }
+      .pizza-slice:nth-child(6) {
+        transform: rotate(225deg);
+      }
+      .pizza-slice:nth-child(7) {
+        transform: rotate(270deg);
+      }
+      .pizza-slice:nth-child(8) {
+        transform: rotate(315deg);
+      }
+
+      .fraction-display {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        z-index: 10;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #00c2a8 0%, #00a085 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 194, 168, 0.3);
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 194, 168, 0.4);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .problem-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 3px solid #6c5ce7;
+      }
+
+      .problem-text {
+        font-size: 1.4rem;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .answer-options {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .answer-btn {
+        padding: 15px 25px;
+        font-size: 1.2rem;
+        border: 3px solid #6c5ce7;
+        background: white;
+        color: #6c5ce7;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 80px;
+      }
+
+      .answer-btn:hover {
+        background: #6c5ce7;
+        color: white;
+      }
+
+      .answer-btn.correct {
+        background: #28a745;
+        color: white;
+        border-color: #28a745;
+      }
+
+      .answer-btn.incorrect {
+        background: #dc3545;
+        color: white;
+        border-color: #dc3545;
+      }
+
+      .feedback {
+        text-align: center;
+        margin: 20px 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        min-height: 30px;
+      }
+
+      .feedback.correct {
+        color: #28a745;
+      }
+
+      .feedback.incorrect {
+        color: #dc3545;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 20px 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.5s ease;
+        border-radius: 10px;
+      }
+
+      .score-display {
+        text-align: center;
+        font-size: 1.3rem;
+        color: #6c5ce7;
+        margin: 20px 0;
+      }
+
+      .completion-message {
+        text-align: center;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .completion-message h2 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      @media (max-width: 768px) {
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .lesson-content {
-            padding: 30px;
-        }
-
-        .lesson-section {
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-size: 1.8rem;
-            color: #6C5CE7;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .pizza-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            gap: 20px;
+          font-size: 2rem;
         }
 
         .pizza {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #D4A574;
-            border: 8px solid #8B4513;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+          width: 150px;
+          height: 150px;
         }
-
-        .pizza:hover {
-            transform: scale(1.05);
-        }
-
-        .pizza-slice {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            border-radius: 0 100% 0 0;
-            transform-origin: bottom left;
-            border: 2px solid #8B4513;
-            background: #FF6B35;
-            transition: all 0.3s ease;
-        }
-
-        .pizza-slice.eaten {
-            background: transparent;
-            border-color: transparent;
-        }
-
-        .pizza-slice:nth-child(1) { transform: rotate(0deg); }
-        .pizza-slice:nth-child(2) { transform: rotate(45deg); }
-        .pizza-slice:nth-child(3) { transform: rotate(90deg); }
-        .pizza-slice:nth-child(4) { transform: rotate(135deg); }
-        .pizza-slice:nth-child(5) { transform: rotate(180deg); }
-        .pizza-slice:nth-child(6) { transform: rotate(225deg); }
-        .pizza-slice:nth-child(7) { transform: rotate(270deg); }
-        .pizza-slice:nth-child(8) { transform: rotate(315deg); }
 
         .fraction-display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            z-index: 10;
+          font-size: 1.5rem;
         }
 
         .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+          flex-direction: column;
         }
 
-        .btn {
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #00C2A8 0%, #00A085 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0,194,168,0.3);
+        .lesson-content {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .pizza {
+          width: 120px;
+          height: 120px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,194,168,0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .problem-section {
-            background: #F8F9FA;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            border: 3px solid #6C5CE7;
-        }
-
-        .problem-text {
-            font-size: 1.4rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+        .fraction-display {
+          font-size: 1.2rem;
         }
 
         .answer-options {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+          flex-direction: column;
+          align-items: center;
         }
+      }
 
-        .answer-btn {
-            padding: 15px 25px;
-            font-size: 1.2rem;
-            border: 3px solid #6C5CE7;
-            background: white;
-            color: #6C5CE7;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 80px;
+      /* Accessibility styles */
+      .pizza:focus {
+        outline: 3px solid #6c5ce7;
+        outline-offset: 4px;
+      }
+
+      .btn:focus,
+      .answer-btn:focus {
+        outline: 3px solid #6c5ce7;
+        outline-offset: 2px;
+      }
+
+      /* Animation for slice eating */
+      @keyframes eatSlice {
+        0% {
+          opacity: 1;
+          transform: scale(1);
         }
-
-        .answer-btn:hover {
-            background: #6C5CE7;
-            color: white;
+        50% {
+          opacity: 0.5;
+          transform: scale(0.8);
         }
-
-        .answer-btn.correct {
-            background: #28A745;
-            color: white;
-            border-color: #28A745;
+        100% {
+          opacity: 0;
+          transform: scale(0);
         }
+      }
 
-        .answer-btn.incorrect {
-            background: #DC3545;
-            color: white;
-            border-color: #DC3545;
-        }
-
-        .feedback {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            min-height: 30px;
-        }
-
-        .feedback.correct {
-            color: #28A745;
-        }
-
-        .feedback.incorrect {
-            color: #DC3545;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #E9ECEF;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #28A745, #20C997);
-            transition: width 0.5s ease;
-            border-radius: 10px;
-        }
-
-        .score-display {
-            text-align: center;
-            font-size: 1.3rem;
-            color: #6C5CE7;
-            margin: 20px 0;
-        }
-
-        .completion-message {
-            text-align: center;
-            background: linear-gradient(135deg, #28A745 0%, #20C997 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .completion-message h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .pizza {
-                width: 150px;
-                height: 150px;
-            }
-
-            .fraction-display {
-                font-size: 1.5rem;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .lesson-content {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .pizza {
-                width: 120px;
-                height: 120px;
-            }
-
-            .fraction-display {
-                font-size: 1.2rem;
-            }
-
-            .answer-options {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        /* Accessibility styles */
-        .pizza:focus {
-            outline: 3px solid #6C5CE7;
-            outline-offset: 4px;
-        }
-
-        .btn:focus, .answer-btn:focus {
-            outline: 3px solid #6C5CE7;
-            outline-offset: 2px;
-        }
-
-        /* Animation for slice eating */
-        @keyframes eatSlice {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-            100% { opacity: 0; transform: scale(0); }
-        }
-
-        .pizza-slice.eating {
-            animation: eatSlice 0.5s ease-out forwards;
-        }
+      .pizza-slice.eating {
+        animation: eatSlice 0.5s ease-out forwards;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <div class="header">
-            <h1>🍕 Virtual Fraction Pizza Party 🍕</h1>
-            <p>Learn fractions by creating and sharing pizzas with friends!</p>
+      <div class="header">
+        <h1>🍕 Virtual Fraction Pizza Party 🍕</h1>
+        <p>Learn fractions by creating and sharing pizzas with friends!</p>
+      </div>
+
+      <div class="lesson-content">
+        <!-- Introduction Section -->
+        <div class="lesson-section" id="intro-section">
+          <h2 class="section-title">Welcome to the Pizza Party!</h2>
+          <p style="text-align: center; font-size: 1.1rem; margin-bottom: 20px">
+            Today we'll learn about fractions using delicious pizzas! A fraction
+            shows us parts of a whole pizza.
+          </p>
+
+          <div class="pizza-container">
+            <div class="pizza" id="demo-pizza">
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="pizza-slice"></div>
+              <div class="fraction-display" id="demo-fraction">8/8</div>
+            </div>
+          </div>
+
+          <p style="text-align: center; font-size: 1.1rem">
+            Click on the pizza slices to "eat" them and see how fractions
+            change!
+          </p>
+
+          <div class="controls">
+            <button class="btn" onclick="resetDemoPizza()">Reset Pizza</button>
+            <button class="btn" onclick="startLesson()">Start Learning!</button>
+          </div>
         </div>
 
-        <div class="lesson-content">
-            <!-- Introduction Section -->
-            <div class="lesson-section" id="intro-section">
-                <h2 class="section-title">Welcome to the Pizza Party!</h2>
-                <p style="text-align: center; font-size: 1.1rem; margin-bottom: 20px;">
-                    Today we'll learn about fractions using delicious pizzas!
-                    A fraction shows us parts of a whole pizza.
-                </p>
+        <!-- Learning Section -->
+        <div class="lesson-section" id="learning-section" style="display: none">
+          <h2 class="section-title">Fraction Problems</h2>
 
-                <div class="pizza-container">
-                    <div class="pizza" id="demo-pizza">
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="pizza-slice"></div>
-                        <div class="fraction-display" id="demo-fraction">8/8</div>
-                    </div>
-                </div>
+          <div class="score-display">Score: <span id="score">0</span>/10</div>
 
-                <p style="text-align: center; font-size: 1.1rem;">
-                    Click on the pizza slices to "eat" them and see how fractions change!
-                </p>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+          </div>
 
-                <div class="controls">
-                    <button class="btn" onclick="resetDemoPizza()">Reset Pizza</button>
-                    <button class="btn" onclick="startLesson()">Start Learning!</button>
-                </div>
+          <div class="problem-section">
+            <div class="problem-text" id="problem-text">Loading problem...</div>
+
+            <div class="pizza-container">
+              <div class="pizza" id="problem-pizza">
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="pizza-slice"></div>
+                <div class="fraction-display" id="problem-fraction">8/8</div>
+              </div>
             </div>
 
-            <!-- Learning Section -->
-            <div class="lesson-section" id="learning-section" style="display: none;">
-                <h2 class="section-title">Fraction Problems</h2>
-
-                <div class="score-display">
-                    Score: <span id="score">0</span>/10
-                </div>
-
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress" style="width: 0%;"></div>
-                </div>
-
-                <div class="problem-section">
-                    <div class="problem-text" id="problem-text">
-                        Loading problem...
-                    </div>
-
-                    <div class="pizza-container">
-                        <div class="pizza" id="problem-pizza">
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="pizza-slice"></div>
-                            <div class="fraction-display" id="problem-fraction">8/8</div>
-                        </div>
-                    </div>
-
-                    <div class="answer-options" id="answer-options">
-                        <!-- Answer buttons will be dynamically generated -->
-                    </div>
-
-                    <div class="feedback" id="feedback"></div>
-
-                    <div class="controls">
-                        <button class="btn" id="next-btn" onclick="nextProblem()" style="display: none;">Next Problem</button>
-                    </div>
-                </div>
+            <div class="answer-options" id="answer-options">
+              <!-- Answer buttons will be dynamically generated -->
             </div>
 
-            <!-- Completion Section -->
-            <div class="completion-message" id="completion">
-                <h2>🎉 Congratulations! 🎉</h2>
-                <p>You've completed the Virtual Fraction Pizza Party!</p>
-                <p>Final Score: <span id="final-score">0</span>/10</p>
-                <button class="btn" onclick="restartLesson()" style="margin-top: 20px;">Play Again</button>
+            <div class="feedback" id="feedback"></div>
+
+            <div class="controls">
+              <button
+                class="btn"
+                id="next-btn"
+                onclick="nextProblem()"
+                style="display: none"
+              >
+                Next Problem
+              </button>
             </div>
+          </div>
         </div>
+
+        <!-- Completion Section -->
+        <div class="completion-message" id="completion">
+          <h2>🎉 Congratulations! 🎉</h2>
+          <p>You've completed the Virtual Fraction Pizza Party!</p>
+          <p>Final Score: <span id="final-score">0</span>/10</p>
+          <button
+            class="btn"
+            onclick="restartLesson()"
+            style="margin-top: 20px"
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Game state
-        let currentProblem = 0;
-        let score = 0;
-        let totalProblems = 10;
-        let isAnswered = false;
+      // Game state
+      let currentProblem = 0;
+      let score = 0;
+      let totalProblems = 10;
+      let isAnswered = false;
 
-        // Fraction problems
-        const problems = [
-            {
-                text: "If you eat 2 slices of a pizza cut into 8 pieces, what fraction did you eat?",
-                eatenSlices: 2,
-                totalSlices: 8,
-                correct: "2/8",
-                options: ["1/8", "2/8", "3/8", "4/8"]
-            },
-            {
-                text: "Half of the pizza is gone! What fraction is left?",
-                eatenSlices: 4,
-                totalSlices: 8,
-                correct: "4/8",
-                options: ["2/8", "4/8", "6/8", "8/8"]
-            },
-            {
-                text: "You ate 3 out of 4 pizza slices. What fraction did you eat?",
-                eatenSlices: 3,
-                totalSlices: 4,
-                correct: "3/4",
-                options: ["1/4", "2/4", "3/4", "4/4"]
-            },
-            {
-                text: "If 6 slices out of 8 are eaten, what fraction is left?",
-                eatenSlices: 6,
-                totalSlices: 8,
-                correct: "2/8",
-                options: ["1/8", "2/8", "6/8", "8/8"]
-            },
-            {
-                text: "You have a pizza cut into 6 pieces and eat 1 slice. What fraction did you eat?",
-                eatenSlices: 1,
-                totalSlices: 6,
-                correct: "1/6",
-                options: ["1/6", "2/6", "5/6", "6/6"]
-            },
-            {
-                text: "Three friends share a pizza equally. Each gets what fraction?",
-                eatenSlices: 1,
-                totalSlices: 3,
-                correct: "1/3",
-                options: ["1/3", "2/3", "3/3", "1/2"]
-            },
-            {
-                text: "If 5 out of 8 pizza slices are eaten, what fraction remains?",
-                eatenSlices: 5,
-                totalSlices: 8,
-                correct: "3/8",
-                options: ["3/8", "5/8", "2/8", "8/8"]
-            },
-            {
-                text: "A whole pizza is cut into 4 pieces. What fraction is the whole pizza?",
-                eatenSlices: 0,
-                totalSlices: 4,
-                correct: "4/4",
-                options: ["1/4", "2/4", "3/4", "4/4"]
-            },
-            {
-                text: "You eat 2 slices from a pizza cut into 6 pieces. What fraction is left?",
-                eatenSlices: 2,
-                totalSlices: 6,
-                correct: "4/6",
-                options: ["2/6", "4/6", "6/6", "1/6"]
-            },
-            {
-                text: "If you eat 7 out of 8 pizza slices, what tiny fraction is left?",
-                eatenSlices: 7,
-                totalSlices: 8,
-                correct: "1/8",
-                options: ["1/8", "7/8", "2/8", "8/8"]
+      // Fraction problems
+      const problems = [
+        {
+          text: 'If you eat 2 slices of a pizza cut into 8 pieces, what fraction did you eat?',
+          eatenSlices: 2,
+          totalSlices: 8,
+          correct: '2/8',
+          options: ['1/8', '2/8', '3/8', '4/8'],
+        },
+        {
+          text: 'Half of the pizza is gone! What fraction is left?',
+          eatenSlices: 4,
+          totalSlices: 8,
+          correct: '4/8',
+          options: ['2/8', '4/8', '6/8', '8/8'],
+        },
+        {
+          text: 'You ate 3 out of 4 pizza slices. What fraction did you eat?',
+          eatenSlices: 3,
+          totalSlices: 4,
+          correct: '3/4',
+          options: ['1/4', '2/4', '3/4', '4/4'],
+        },
+        {
+          text: 'If 6 slices out of 8 are eaten, what fraction is left?',
+          eatenSlices: 6,
+          totalSlices: 8,
+          correct: '2/8',
+          options: ['1/8', '2/8', '6/8', '8/8'],
+        },
+        {
+          text: 'You have a pizza cut into 6 pieces and eat 1 slice. What fraction did you eat?',
+          eatenSlices: 1,
+          totalSlices: 6,
+          correct: '1/6',
+          options: ['1/6', '2/6', '5/6', '6/6'],
+        },
+        {
+          text: 'Three friends share a pizza equally. Each gets what fraction?',
+          eatenSlices: 1,
+          totalSlices: 3,
+          correct: '1/3',
+          options: ['1/3', '2/3', '3/3', '1/2'],
+        },
+        {
+          text: 'If 5 out of 8 pizza slices are eaten, what fraction remains?',
+          eatenSlices: 5,
+          totalSlices: 8,
+          correct: '3/8',
+          options: ['3/8', '5/8', '2/8', '8/8'],
+        },
+        {
+          text: 'A whole pizza is cut into 4 pieces. What fraction is the whole pizza?',
+          eatenSlices: 0,
+          totalSlices: 4,
+          correct: '4/4',
+          options: ['1/4', '2/4', '3/4', '4/4'],
+        },
+        {
+          text: 'You eat 2 slices from a pizza cut into 6 pieces. What fraction is left?',
+          eatenSlices: 2,
+          totalSlices: 6,
+          correct: '4/6',
+          options: ['2/6', '4/6', '6/6', '1/6'],
+        },
+        {
+          text: 'If you eat 7 out of 8 pizza slices, what tiny fraction is left?',
+          eatenSlices: 7,
+          totalSlices: 8,
+          correct: '1/8',
+          options: ['1/8', '7/8', '2/8', '8/8'],
+        },
+      ];
+
+      // Initialize demo pizza interaction
+      function initializeDemoPizza() {
+        const demoPizza = document.getElementById('demo-pizza');
+        const slices = demoPizza.querySelectorAll('.pizza-slice');
+
+        slices.forEach((slice, index) => {
+          slice.addEventListener('click', () => eatDemoSlice(index));
+          slice.setAttribute('tabindex', '0');
+          slice.setAttribute('role', 'button');
+          slice.setAttribute('aria-label', `Pizza slice ${index + 1}`);
+
+          slice.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              eatDemoSlice(index);
             }
-        ];
+          });
+        });
+      }
 
-        // Initialize demo pizza interaction
-        function initializeDemoPizza() {
-            const demoPizza = document.getElementById('demo-pizza');
-            const slices = demoPizza.querySelectorAll('.pizza-slice');
-
-            slices.forEach((slice, index) => {
-                slice.addEventListener('click', () => eatDemoSlice(index));
-                slice.setAttribute('tabindex', '0');
-                slice.setAttribute('role', 'button');
-                slice.setAttribute('aria-label', `Pizza slice ${index + 1}`);
-
-                slice.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        eatDemoSlice(index);
-                    }
-                });
-            });
+      function eatDemoSlice(index) {
+        const slice = document.querySelector(
+          `#demo-pizza .pizza-slice:nth-child(${index + 1})`
+        );
+        if (!slice.classList.contains('eaten')) {
+          slice.classList.add('eating');
+          setTimeout(() => {
+            slice.classList.add('eaten');
+            slice.classList.remove('eating');
+            updateDemoFraction();
+          }, 500);
         }
+      }
 
-        function eatDemoSlice(index) {
-            const slice = document.querySelector(`#demo-pizza .pizza-slice:nth-child(${index + 1})`);
-            if (!slice.classList.contains('eaten')) {
-                slice.classList.add('eating');
-                setTimeout(() => {
-                    slice.classList.add('eaten');
-                    slice.classList.remove('eating');
-                    updateDemoFraction();
-                }, 500);
-            }
-        }
+      function updateDemoFraction() {
+        const demoPizza = document.getElementById('demo-pizza');
+        const slices = demoPizza.querySelectorAll('.pizza-slice');
+        const eatenSlices =
+          demoPizza.querySelectorAll('.pizza-slice.eaten').length;
+        const remainingSlices = 8 - eatenSlices;
 
-        function updateDemoFraction() {
-            const demoPizza = document.getElementById('demo-pizza');
-            const slices = demoPizza.querySelectorAll('.pizza-slice');
-            const eatenSlices = demoPizza.querySelectorAll('.pizza-slice.eaten').length;
-            const remainingSlices = 8 - eatenSlices;
+        document.getElementById('demo-fraction').textContent =
+          `${remainingSlices}/8`;
+      }
 
-            document.getElementById('demo-fraction').textContent = `${remainingSlices}/8`;
-        }
+      function resetDemoPizza() {
+        const demoPizza = document.getElementById('demo-pizza');
+        const slices = demoPizza.querySelectorAll('.pizza-slice');
 
-        function resetDemoPizza() {
-            const demoPizza = document.getElementById('demo-pizza');
-            const slices = demoPizza.querySelectorAll('.pizza-slice');
-
-            slices.forEach(slice => {
-                slice.classList.remove('eaten', 'eating');
-            });
-
-            document.getElementById('demo-fraction').textContent = '8/8';
-        }
-
-        function startLesson() {
-            document.getElementById('intro-section').style.display = 'none';
-            document.getElementById('learning-section').style.display = 'block';
-            loadProblem();
-        }
-
-        function loadProblem() {
-            if (currentProblem >= totalProblems) {
-                showCompletion();
-                return;
-            }
-
-            isAnswered = false;
-            const problem = problems[currentProblem];
-
-            // Update problem text
-            document.getElementById('problem-text').textContent = problem.text;
-
-            // Set up pizza visual
-            setupProblemPizza(problem.eatenSlices, problem.totalSlices);
-
-            // Create answer options
-            createAnswerOptions(problem.options, problem.correct);
-
-            // Clear feedback and hide next button
-            document.getElementById('feedback').textContent = '';
-            document.getElementById('next-btn').style.display = 'none';
-
-            // Update progress
-            updateProgress();
-        }
-
-        function setupProblemPizza(eatenSlices, totalSlices) {
-            const pizza = document.getElementById('problem-pizza');
-            const fractionDisplay = document.getElementById('problem-fraction');
-
-            // Clear existing slices
-            pizza.innerHTML = '';
-
-            // Create the correct number of slices
-            for (let i = 0; i < totalSlices; i++) {
-                const slice = document.createElement('div');
-                slice.className = 'pizza-slice';
-                slice.style.transform = `rotate(${(360 / totalSlices) * i}deg)`;
-
-                if (i < eatenSlices) {
-                    slice.classList.add('eaten');
-                }
-
-                pizza.appendChild(slice);
-            }
-
-            // Add fraction display
-            const fractionDiv = document.createElement('div');
-            fractionDiv.className = 'fraction-display';
-            fractionDiv.id = 'problem-fraction';
-
-            if (problems[currentProblem].text.includes('what fraction did you eat') ||
-                problems[currentProblem].text.includes('What fraction did you eat')) {
-                fractionDiv.textContent = `${eatenSlices}/${totalSlices}`;
-            } else if (problems[currentProblem].text.includes('what fraction is left') ||
-                       problems[currentProblem].text.includes('what fraction remains')) {
-                fractionDiv.textContent = `${totalSlices - eatenSlices}/${totalSlices}`;
-            } else {
-                fractionDiv.textContent = `${totalSlices - eatenSlices}/${totalSlices}`;
-            }
-
-            pizza.appendChild(fractionDiv);
-        }
-
-        function createAnswerOptions(options, correct) {
-            const container = document.getElementById('answer-options');
-            container.innerHTML = '';
-
-            options.forEach(option => {
-                const btn = document.createElement('button');
-                btn.className = 'answer-btn';
-                btn.textContent = option;
-                btn.onclick = () => selectAnswer(option, correct, btn);
-                btn.setAttribute('aria-label', `Answer option: ${option}`);
-                container.appendChild(btn);
-            });
-        }
-
-        function selectAnswer(selected, correct, btnElement) {
-            if (isAnswered) return;
-
-            isAnswered = true;
-            const feedback = document.getElementById('feedback');
-            const nextBtn = document.getElementById('next-btn');
-
-            if (selected === correct) {
-                btnElement.classList.add('correct');
-                feedback.textContent = '🎉 Correct! Great job!';
-                feedback.className = 'feedback correct';
-                score++;
-
-                // Update score display
-                document.getElementById('score').textContent = score;
-            } else {
-                btnElement.classList.add('incorrect');
-                feedback.textContent = `❌ Not quite! The correct answer is ${correct}`;
-                feedback.className = 'feedback incorrect';
-
-                // Highlight correct answer
-                const answerBtns = document.querySelectorAll('.answer-btn');
-                answerBtns.forEach(btn => {
-                    if (btn.textContent === correct) {
-                        btn.classList.add('correct');
-                    }
-                });
-            }
-
-            // Disable all answer buttons
-            const answerBtns = document.querySelectorAll('.answer-btn');
-            answerBtns.forEach(btn => {
-                btn.disabled = true;
-            });
-
-            nextBtn.style.display = 'block';
-        }
-
-        function nextProblem() {
-            currentProblem++;
-            loadProblem();
-        }
-
-        function updateProgress() {
-            const progress = (currentProblem / totalProblems) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
-        }
-
-        function showCompletion() {
-            document.getElementById('learning-section').style.display = 'none';
-            document.getElementById('completion').style.display = 'block';
-            document.getElementById('final-score').textContent = score;
-        }
-
-        function restartLesson() {
-            currentProblem = 0;
-            score = 0;
-            document.getElementById('score').textContent = score;
-            document.getElementById('completion').style.display = 'none';
-            document.getElementById('intro-section').style.display = 'block';
-            resetDemoPizza();
-        }
-
-        // Initialize the lesson when page loads
-        window.addEventListener('load', () => {
-            initializeDemoPizza();
+        slices.forEach((slice) => {
+          slice.classList.remove('eaten', 'eating');
         });
 
-        // Keyboard navigation for accessibility
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                // Allow users to restart with Escape key
-                if (confirm('Do you want to restart the lesson?')) {
-                    restartLesson();
-                }
-            }
+        document.getElementById('demo-fraction').textContent = '8/8';
+      }
+
+      function startLesson() {
+        document.getElementById('intro-section').style.display = 'none';
+        document.getElementById('learning-section').style.display = 'block';
+        loadProblem();
+      }
+
+      function loadProblem() {
+        if (currentProblem >= totalProblems) {
+          showCompletion();
+          return;
+        }
+
+        isAnswered = false;
+        const problem = problems[currentProblem];
+
+        // Update problem text
+        document.getElementById('problem-text').textContent = problem.text;
+
+        // Set up pizza visual
+        setupProblemPizza(problem.eatenSlices, problem.totalSlices);
+
+        // Create answer options
+        createAnswerOptions(problem.options, problem.correct);
+
+        // Clear feedback and hide next button
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('next-btn').style.display = 'none';
+
+        // Update progress
+        updateProgress();
+      }
+
+      function setupProblemPizza(eatenSlices, totalSlices) {
+        const pizza = document.getElementById('problem-pizza');
+        const fractionDisplay = document.getElementById('problem-fraction');
+
+        // Clear existing slices
+        pizza.innerHTML = '';
+
+        // Create the correct number of slices
+        for (let i = 0; i < totalSlices; i++) {
+          const slice = document.createElement('div');
+          slice.className = 'pizza-slice';
+          slice.style.transform = `rotate(${(360 / totalSlices) * i}deg)`;
+
+          if (i < eatenSlices) {
+            slice.classList.add('eaten');
+          }
+
+          pizza.appendChild(slice);
+        }
+
+        // Add fraction display
+        const fractionDiv = document.createElement('div');
+        fractionDiv.className = 'fraction-display';
+        fractionDiv.id = 'problem-fraction';
+
+        if (
+          problems[currentProblem].text.includes('what fraction did you eat') ||
+          problems[currentProblem].text.includes('What fraction did you eat')
+        ) {
+          fractionDiv.textContent = `${eatenSlices}/${totalSlices}`;
+        } else if (
+          problems[currentProblem].text.includes('what fraction is left') ||
+          problems[currentProblem].text.includes('what fraction remains')
+        ) {
+          fractionDiv.textContent = `${totalSlices - eatenSlices}/${totalSlices}`;
+        } else {
+          fractionDiv.textContent = `${totalSlices - eatenSlices}/${totalSlices}`;
+        }
+
+        pizza.appendChild(fractionDiv);
+      }
+
+      function createAnswerOptions(options, correct) {
+        const container = document.getElementById('answer-options');
+        container.innerHTML = '';
+
+        options.forEach((option) => {
+          const btn = document.createElement('button');
+          btn.className = 'answer-btn';
+          btn.textContent = option;
+          btn.onclick = () => selectAnswer(option, correct, btn);
+          btn.setAttribute('aria-label', `Answer option: ${option}`);
+          container.appendChild(btn);
         });
+      }
+
+      function selectAnswer(selected, correct, btnElement) {
+        if (isAnswered) return;
+
+        isAnswered = true;
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+
+        if (selected === correct) {
+          btnElement.classList.add('correct');
+          feedback.textContent = '🎉 Correct! Great job!';
+          feedback.className = 'feedback correct';
+          score++;
+
+          // Update score display
+          document.getElementById('score').textContent = score;
+        } else {
+          btnElement.classList.add('incorrect');
+          feedback.textContent = `❌ Not quite! The correct answer is ${correct}`;
+          feedback.className = 'feedback incorrect';
+
+          // Highlight correct answer
+          const answerBtns = document.querySelectorAll('.answer-btn');
+          answerBtns.forEach((btn) => {
+            if (btn.textContent === correct) {
+              btn.classList.add('correct');
+            }
+          });
+        }
+
+        // Disable all answer buttons
+        const answerBtns = document.querySelectorAll('.answer-btn');
+        answerBtns.forEach((btn) => {
+          btn.disabled = true;
+        });
+
+        nextBtn.style.display = 'block';
+      }
+
+      function nextProblem() {
+        currentProblem++;
+        loadProblem();
+      }
+
+      function updateProgress() {
+        const progress = (currentProblem / totalProblems) * 100;
+        document.getElementById('progress').style.width = `${progress}%`;
+      }
+
+      function showCompletion() {
+        document.getElementById('learning-section').style.display = 'none';
+        document.getElementById('completion').style.display = 'block';
+        document.getElementById('final-score').textContent = score;
+      }
+
+      function restartLesson() {
+        currentProblem = 0;
+        score = 0;
+        document.getElementById('score').textContent = score;
+        document.getElementById('completion').style.display = 'none';
+        document.getElementById('intro-section').style.display = 'block';
+        resetDemoPizza();
+      }
+
+      // Initialize the lesson when page loads
+      window.addEventListener('load', () => {
+        initializeDemoPizza();
+      });
+
+      // Keyboard navigation for accessibility
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          // Allow users to restart with Escape key
+          if (confirm('Do you want to restart the lesson?')) {
+            restartLesson();
+          }
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

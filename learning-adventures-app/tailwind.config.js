@@ -118,10 +118,25 @@ module.exports = {
 
       fontFamily: {
         // New Playful Geometric fonts
-        display: ['var(--font-outfit)', 'var(--font-nunito)', 'system-ui', 'sans-serif'],
-        body: ['var(--font-plus-jakarta)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: [
+          'var(--font-outfit)',
+          'var(--font-nunito)',
+          'system-ui',
+          'sans-serif',
+        ],
+        body: [
+          'var(--font-plus-jakarta)',
+          'var(--font-inter)',
+          'system-ui',
+          'sans-serif',
+        ],
         // Keep old fonts for compatibility during transition
-        heading: ['var(--font-outfit)', 'var(--font-nunito)', 'system-ui', 'sans-serif'],
+        heading: [
+          'var(--font-outfit)',
+          'var(--font-nunito)',
+          'system-ui',
+          'sans-serif',
+        ],
         // Direct font family names for Playful Geometric
         outfit: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
         'plus-jakarta': ['var(--font-plus-jakarta)', 'system-ui', 'sans-serif'],
@@ -141,28 +156,28 @@ module.exports = {
       },
 
       borderRadius: {
-        'sm': '8px',
-        'md': '16px',
-        'lg': '24px',
-        'xl': '1rem',
+        sm: '8px',
+        md: '16px',
+        lg: '24px',
+        xl: '1rem',
         '2xl': '1.5rem',
         '3xl': '2rem',
         '4xl': '2.5rem',
         // Playful Geometric specific
-        'pg': '16px',
+        pg: '16px',
         'pg-lg': '24px',
       },
 
       borderWidth: {
         // Chunky borders for Playful Geometric
-        'pg': '2px',
-        '3': '3px',
+        pg: '2px',
+        3: '3px',
       },
 
       boxShadow: {
         // ===== PLAYFUL GEOMETRIC HARD SHADOWS =====
         // The "Pop" Shadow - No blur, solid offset
-        'pop': '4px 4px 0px 0px #1E293B',
+        pop: '4px 4px 0px 0px #1E293B',
         'pop-hover': '6px 6px 0px 0px #1E293B',
         'pop-active': '2px 2px 0px 0px #1E293B',
 
@@ -181,9 +196,11 @@ module.exports = {
         'pop-focus': '0 0 0 2px #8B5CF6, 4px 4px 0px 0px #8B5CF6',
 
         // Legacy shadows (keeping for compatibility)
-        'fun': '0 10px 25px -5px rgba(139, 92, 246, 0.3), 0 8px 10px -6px rgba(139, 92, 246, 0.2)',
-        'fun-lg': '0 20px 35px -5px rgba(139, 92, 246, 0.4), 0 10px 15px -6px rgba(139, 92, 246, 0.3)',
-        'colorful': '0 10px 30px -5px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(20, 184, 166, 0.1)',
+        fun: '0 10px 25px -5px rgba(139, 92, 246, 0.3), 0 8px 10px -6px rgba(139, 92, 246, 0.2)',
+        'fun-lg':
+          '0 20px 35px -5px rgba(139, 92, 246, 0.4), 0 10px 15px -6px rgba(139, 92, 246, 0.3)',
+        colorful:
+          '0 10px 30px -5px rgba(139, 92, 246, 0.3), 0 0 0 1px rgba(20, 184, 166, 0.1)',
       },
 
       animation: {
@@ -195,11 +212,11 @@ module.exports = {
         'wiggle-hover': 'wiggleHover 0.4s ease-in-out',
 
         // Card lift
-        'lift': 'lift 0.2s ease-out forwards',
-        'unlift': 'unlift 0.2s ease-out forwards',
+        lift: 'lift 0.2s ease-out forwards',
+        unlift: 'unlift 0.2s ease-out forwards',
 
         // Marquee for logos
-        'marquee': 'marquee 30s linear infinite',
+        marquee: 'marquee 30s linear infinite',
         'marquee-reverse': 'marquee 30s linear infinite reverse',
 
         // Legacy animations (keeping)
@@ -207,12 +224,12 @@ module.exports = {
         'slide-up': 'slideUp 0.3s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
         'bounce-in': 'bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-        'wiggle': 'wiggle 0.5s ease-in-out',
-        'float': 'float 3s ease-in-out infinite',
+        wiggle: 'wiggle 0.5s ease-in-out',
+        float: 'float 3s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'shimmer': 'shimmer 2s linear infinite',
-        'confetti': 'confetti 0.6s ease-out',
+        shimmer: 'shimmer 2s linear infinite',
+        confetti: 'confetti 0.6s ease-out',
       },
 
       keyframes: {
@@ -273,23 +290,26 @@ module.exports = {
         },
         confetti: {
           '0%': { transform: 'translateY(0) rotate(0deg)', opacity: '1' },
-          '100%': { transform: 'translateY(-100px) rotate(360deg)', opacity: '0' },
+          '100%': {
+            transform: 'translateY(-100px) rotate(360deg)',
+            opacity: '0',
+          },
         },
       },
 
       transitionTimingFunction: {
         // Bouncy easing for Playful Geometric
-        'bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        bounce: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
         'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
 
       transitionDuration: {
-        '250': '250ms',
+        250: '250ms',
       },
 
       spacing: {
-        '18': '4.5rem',
-        '22': '5.5rem',
+        18: '4.5rem',
+        22: '5.5rem',
       },
     },
   },

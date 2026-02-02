@@ -56,7 +56,8 @@ export default function ContentStudioPage() {
                 ✨ Gemini 3 Content Studio
               </h1>
               <p className="text-ink-600">
-                Create 2D and 3D educational games using natural language powered by Google Gemini 3
+                Create 2D and 3D educational games using natural language
+                powered by Google Gemini 3
               </p>
             </div>
 
@@ -65,9 +66,7 @@ export default function ContentStudioPage() {
               <p className="text-sm font-semibold text-brand-700">
                 AI-Powered Game Creation
               </p>
-              <p className="text-xs text-brand-600">
-                ~$0.30 per game
-              </p>
+              <p className="text-xs text-brand-600">~$0.30 per game</p>
             </div>
           </div>
         </div>
@@ -82,10 +81,7 @@ export default function ContentStudioPage() {
               onGenerationError={handleGenerationError}
               isGenerating={isGenerating}
             />
-            <LivePreview
-              content={currentContent}
-              isLoading={isGenerating}
-            />
+            <LivePreview content={currentContent} isLoading={isGenerating} />
           </div>
 
           {/* Iteration & Publishing */}
@@ -111,35 +107,43 @@ export default function ContentStudioPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <div className="text-3xl mb-2">1️⃣</div>
-                  <h4 className="font-semibold text-ink-800 mb-1">Describe Your Game</h4>
+                  <h4 className="font-semibold text-ink-800 mb-1">
+                    Describe Your Game
+                  </h4>
                   <p className="text-sm text-ink-600">
-                    Use natural language to describe the educational game you want to create.
-                    Choose subject, grade level, and difficulty.
+                    Use natural language to describe the educational game you
+                    want to create. Choose subject, grade level, and difficulty.
                   </p>
                 </div>
                 <div>
                   <div className="text-3xl mb-2">2️⃣</div>
-                  <h4 className="font-semibold text-ink-800 mb-1">Preview & Iterate</h4>
+                  <h4 className="font-semibold text-ink-800 mb-1">
+                    Preview & Iterate
+                  </h4>
                   <p className="text-sm text-ink-600">
-                    See your game instantly in a live preview. Make improvements with simple
-                    feedback like "add sound effects" or "make it 3D".
+                    See your game instantly in a live preview. Make improvements
+                    with simple feedback like "add sound effects" or "make it
+                    3D".
                   </p>
                 </div>
                 <div>
                   <div className="text-3xl mb-2">3️⃣</div>
-                  <h4 className="font-semibold text-ink-800 mb-1">Publish to Platform</h4>
+                  <h4 className="font-semibold text-ink-800 mb-1">
+                    Publish to Platform
+                  </h4>
                   <p className="text-sm text-ink-600">
-                    Save to Test Games for review or publish directly to the catalog.
-                    Your game is ready for students!
+                    Save to Test Games for review or publish directly to the
+                    catalog. Your game is ready for students!
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 p-4 bg-white rounded-lg border border-brand-200">
                 <p className="text-sm text-ink-700">
-                  <strong>💡 Pro Tip:</strong> Be specific in your descriptions. Instead of
-                  "make a math game", try "create a 3D space adventure where students solve
-                  multiplication problems (2-12 tables) to navigate through asteroid fields".
+                  <strong>💡 Pro Tip:</strong> Be specific in your descriptions.
+                  Instead of "make a math game", try "create a 3D space
+                  adventure where students solve multiplication problems (2-12
+                  tables) to navigate through asteroid fields".
                 </p>
               </div>
             </div>
@@ -151,16 +155,19 @@ export default function ContentStudioPage() {
           <div className="flex items-start space-x-2 text-sm text-ink-600">
             <span className="text-lg">ℹ️</span>
             <div>
-              <p className="font-medium text-ink-800 mb-1">About Gemini 3 Content Studio</p>
+              <p className="font-medium text-ink-800 mb-1">
+                About Gemini 3 Content Studio
+              </p>
               <p>
-                This tool uses Google's latest Gemini 3 Pro model with "vibe coding" capabilities
-                to generate complete, working educational games from natural language descriptions.
-                All games are created as standalone HTML files with embedded CSS and JavaScript,
+                This tool uses Google's latest Gemini 3 Pro model with "vibe
+                coding" capabilities to generate complete, working educational
+                games from natural language descriptions. All games are created
+                as standalone HTML files with embedded CSS and JavaScript,
                 making them easy to deploy and maintain.
               </p>
               <p className="mt-2">
-                <strong>Requirements:</strong> Admin access required. Gemini API key must be
-                configured in environment variables.
+                <strong>Requirements:</strong> Admin access required. Gemini API
+                key must be configured in environment variables.
               </p>
             </div>
           </div>

@@ -20,7 +20,8 @@ export const completeCourseRequest = {
   gradeLevel: '3rd Grade',
   numberOfStudents: '1',
   learningAccommodations: ['Visual aids', 'Extra time'],
-  accommodationNotes: 'Benefits from color-coded materials and step-by-step instructions',
+  accommodationNotes:
+    'Benefits from color-coded materials and step-by-step instructions',
 
   // Subject & Focus
   primarySubject: 'MATH',
@@ -29,8 +30,12 @@ export const completeCourseRequest = {
   learningGoal: 'REINFORCE',
 
   // Learning Challenges
-  learningChallenges: ['Difficulty with abstract concepts', 'Needs concrete examples'],
-  challengeObservations: 'Struggles with multi-step word problems but excels with visual representations',
+  learningChallenges: [
+    'Difficulty with abstract concepts',
+    'Needs concrete examples',
+  ],
+  challengeObservations:
+    'Struggles with multi-step word problems but excels with visual representations',
 
   // Learning Style & Interests
   learningStyles: ['Visual', 'Hands-on', 'Story-based'],
@@ -57,7 +62,8 @@ export const completeCourseRequest = {
   allowCourseReuse: 'YES_ANONYMIZED',
 
   // Additional Info
-  additionalNotes: 'Emma loves animals and responds well to gamification. Please include animal-themed examples.',
+  additionalNotes:
+    'Emma loves animals and responds well to gamification. Please include animal-themed examples.',
   consentGiven: true,
 
   // Status fields
@@ -65,7 +71,7 @@ export const completeCourseRequest = {
   aiProcessingStatus: 'NOT_STARTED',
   submittedAt: new Date(),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 export const vagueTopicsCourseRequest = {
@@ -121,7 +127,7 @@ export const vagueTopicsCourseRequest = {
   aiProcessingStatus: 'NOT_STARTED',
   submittedAt: new Date(),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 export const ageMismatchCourseRequest = {
@@ -177,7 +183,7 @@ export const ageMismatchCourseRequest = {
   aiProcessingStatus: 'NOT_STARTED',
   submittedAt: new Date(),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 export const contradictoryPreferencesCourseRequest = {
@@ -233,7 +239,7 @@ export const contradictoryPreferencesCourseRequest = {
   aiProcessingStatus: 'NOT_STARTED',
   submittedAt: new Date(),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 export const genericInterestsCourseRequest = {
@@ -289,7 +295,7 @@ export const genericInterestsCourseRequest = {
   aiProcessingStatus: 'NOT_STARTED',
   submittedAt: new Date(),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 // Export all test cases as an array for easy iteration
@@ -297,6 +303,12 @@ export const allTestCases = [
   { name: 'Complete Request (No Clarifications)', data: completeCourseRequest },
   { name: 'Vague Topics (Should Flag)', data: vagueTopicsCourseRequest },
   { name: 'Age/Grade Mismatch (Should Flag)', data: ageMismatchCourseRequest },
-  { name: 'Contradictory Preferences (Should Flag)', data: contradictoryPreferencesCourseRequest },
-  { name: 'Generic Interests (Should Flag)', data: genericInterestsCourseRequest }
+  {
+    name: 'Contradictory Preferences (Should Flag)',
+    data: contradictoryPreferencesCourseRequest,
+  },
+  {
+    name: 'Generic Interests (Should Flag)',
+    data: genericInterestsCourseRequest,
+  },
 ];
