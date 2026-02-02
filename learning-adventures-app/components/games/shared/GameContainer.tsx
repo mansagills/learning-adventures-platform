@@ -18,7 +18,9 @@ export function GameContainer({
   className = '',
 }: GameContainerProps) {
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 ${className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 ${className}`}
+    >
       {/* Game Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -30,7 +32,9 @@ export function GameContainer({
                 <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                    style={{
+                      width: `${Math.min(100, Math.max(0, progress))}%`,
+                    }}
                   />
                 </div>
                 <span className="text-sm font-medium text-gray-700">
@@ -51,9 +55,7 @@ export function GameContainer({
       </div>
 
       {/* Game Content */}
-      <div className="flex-1">
-        {children}
-      </div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

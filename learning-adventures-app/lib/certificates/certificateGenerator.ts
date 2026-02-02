@@ -5,7 +5,10 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { generateCertificateNumber, generateVerificationCode } from './certificateUtils';
+import {
+  generateCertificateNumber,
+  generateVerificationCode,
+} from './certificateUtils';
 
 export interface CertificateData {
   id: string;
@@ -232,5 +235,8 @@ async function calculateTotalTimeSpent(enrollmentId: string): Promise<number> {
     where: { enrollmentId },
   });
 
-  return lessonProgress.reduce((total, progress) => total + progress.timeSpent, 0);
+  return lessonProgress.reduce(
+    (total, progress) => total + progress.timeSpent,
+    0
+  );
 }

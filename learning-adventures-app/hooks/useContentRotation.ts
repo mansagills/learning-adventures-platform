@@ -15,7 +15,7 @@ export function useContentRotation({
   itemsPerPage,
   autoRotate = true,
   rotationInterval = 5000,
-  pauseOnHover = true
+  pauseOnHover = true,
 }: UseContentRotationOptions) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -31,11 +31,14 @@ export function useContentRotation({
     setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   }, [totalPages]);
 
-  const goToPage = useCallback((page: number) => {
-    if (page >= 0 && page < totalPages) {
-      setCurrentPage(page);
-    }
-  }, [totalPages]);
+  const goToPage = useCallback(
+    (page: number) => {
+      if (page >= 0 && page < totalPages) {
+        setCurrentPage(page);
+      }
+    },
+    [totalPages]
+  );
 
   const pause = useCallback(() => {
     setIsPaused(true);
@@ -64,14 +67,25 @@ export function useContentRotation({
     }, rotationInterval);
 
     return () => clearInterval(interval);
-  }, [autoRotate, isPaused, isHovered, pauseOnHover, rotationInterval, nextPage, totalPages]);
+  }, [
+    autoRotate,
+    isPaused,
+    isHovered,
+    pauseOnHover,
+    rotationInterval,
+    nextPage,
+    totalPages,
+  ]);
 
   // Calculate visible items
-  const getVisibleItems = useCallback((items: any[]) => {
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, items.length);
-    return items.slice(startIndex, endIndex);
-  }, [currentPage, itemsPerPage]);
+  const getVisibleItems = useCallback(
+    (items: any[]) => {
+      const startIndex = currentPage * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, items.length);
+      return items.slice(startIndex, endIndex);
+    },
+    [currentPage, itemsPerPage]
+  );
 
   return {
     currentPage,
@@ -85,6 +99,6 @@ export function useContentRotation({
     isHovered,
     handleMouseEnter,
     handleMouseLeave,
-    getVisibleItems
+    getVisibleItems,
   };
 }

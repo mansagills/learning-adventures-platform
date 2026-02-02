@@ -13,7 +13,11 @@ import type {
   EnrollmentWithDetails,
   CompletionRequirements,
 } from './types';
-import { checkPrerequisites, getMissingPrerequisites, getCourseById } from './courseQueries';
+import {
+  checkPrerequisites,
+  getMissingPrerequisites,
+  getCourseById,
+} from './courseQueries';
 import { hasActivePremiumSubscription } from './subscriptionHelpers';
 
 // ============================================================================
@@ -87,7 +91,10 @@ export async function checkEnrollmentEligibility(
   }
 
   // Check prerequisites
-  const prerequisitesMet = await checkPrerequisites(userId, course.prerequisiteCourseIds);
+  const prerequisitesMet = await checkPrerequisites(
+    userId,
+    course.prerequisiteCourseIds
+  );
 
   if (!prerequisitesMet) {
     const missingPrerequisites = await getMissingPrerequisites(
@@ -201,7 +208,10 @@ export async function enrollInCourse(
       userId,
       enrollmentId: enrollment.id,
       lessonId: lesson.id,
-      status: index === 0 ? LessonProgressStatus.NOT_STARTED : LessonProgressStatus.LOCKED,
+      status:
+        index === 0
+          ? LessonProgressStatus.NOT_STARTED
+          : LessonProgressStatus.LOCKED,
     }));
 
     await prisma.courseLessonProgress.createMany({
@@ -216,7 +226,8 @@ export async function enrollInCourse(
     console.error('Error enrolling in course:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to create enrollment',
+      error:
+        error instanceof Error ? error.message : 'Failed to create enrollment',
     };
   }
 }
@@ -411,14 +422,18 @@ export async function getEnrollmentWithDetails(
 /**
  * Get in-progress courses for a user
  */
-export async function getInProgressCourses(userId: string): Promise<CourseEnrollment[]> {
+export async function getInProgressCourses(
+  userId: string
+): Promise<CourseEnrollment[]> {
   return getUserEnrollments(userId, CourseStatus.IN_PROGRESS);
 }
 
 /**
  * Get completed courses for a user
  */
-export async function getCompletedCourses(userId: string): Promise<CourseEnrollment[]> {
+export async function getCompletedCourses(
+  userId: string
+): Promise<CourseEnrollment[]> {
   return getUserEnrollments(userId, CourseStatus.COMPLETED);
 }
 
@@ -495,9 +510,7 @@ export async function checkCompletionRequirements(
 /**
  * Mark course as completed and award certificate
  */
-export async function completeCourse(
-  enrollmentId: string
-): Promise<{
+export async function completeCourse(enrollmentId: string): Promise<{
   success: boolean;
   certificateEarned: boolean;
   error?: string;
@@ -530,7 +543,9 @@ export async function completeCourse(
 /**
  * Update last activity timestamp
  */
-export async function updateEnrollmentActivity(enrollmentId: string): Promise<void> {
+export async function updateEnrollmentActivity(
+  enrollmentId: string
+): Promise<void> {
   await prisma.courseEnrollment.update({
     where: { id: enrollmentId },
     data: {
@@ -546,7 +561,9 @@ export async function updateEnrollmentActivity(enrollmentId: string): Promise<vo
 /**
  * Get enrollment count for a course
  */
-export async function getCourseEnrollmentCount(courseId: string): Promise<number> {
+export async function getCourseEnrollmentCount(
+  courseId: string
+): Promise<number> {
   return prisma.courseEnrollment.count({
     where: { courseId },
   });
@@ -555,7 +572,9 @@ export async function getCourseEnrollmentCount(courseId: string): Promise<number
 /**
  * Get course completion rate
  */
-export async function getCourseCompletionRate(courseId: string): Promise<number> {
+export async function getCourseCompletionRate(
+  courseId: string
+): Promise<number> {
   const totalEnrollments = await prisma.courseEnrollment.count({
     where: { courseId },
   });

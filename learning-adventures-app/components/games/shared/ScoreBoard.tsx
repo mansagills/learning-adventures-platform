@@ -24,19 +24,27 @@ export function ScoreBoard({
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg p-4 border-2 border-gray-100 ${className}`}>
+    <div
+      className={`bg-white rounded-xl shadow-lg p-4 border-2 border-gray-100 ${className}`}
+    >
       <div className="flex items-center justify-between gap-6">
         {/* Score */}
         <div className="text-center">
-          <div className="text-2xl font-bold text-purple-600">{score.toLocaleString()}</div>
-          <div className="text-xs text-gray-500 uppercase tracking-wide">Score</div>
+          <div className="text-2xl font-bold text-purple-600">
+            {score.toLocaleString()}
+          </div>
+          <div className="text-xs text-gray-500 uppercase tracking-wide">
+            Score
+          </div>
         </div>
 
         {/* Level */}
         {level !== undefined && (
           <div className="text-center">
             <div className="text-xl font-bold text-blue-600">{level}</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Level</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              Level
+            </div>
           </div>
         )}
 
@@ -53,17 +61,23 @@ export function ScoreBoard({
                 />
               ))}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Lives</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              Lives
+            </div>
           </div>
         )}
 
         {/* Time */}
         {timeRemaining !== undefined && (
           <div className="text-center">
-            <div className={`text-xl font-bold ${timeRemaining <= 30 ? 'text-red-600' : 'text-green-600'}`}>
+            <div
+              className={`text-xl font-bold ${timeRemaining <= 30 ? 'text-red-600' : 'text-green-600'}`}
+            >
               {formatTime(timeRemaining)}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Time</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              Time
+            </div>
           </div>
         )}
 
@@ -86,7 +100,9 @@ export function ScoreBoard({
                 </div>
               )}
             </div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Badges</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              Badges
+            </div>
           </div>
         )}
       </div>

@@ -13,7 +13,11 @@ import type {
   LessonAccessCheck,
   UserCourseStats,
 } from './types';
-import { getCourseLessons, getLessonById, getNextLesson } from './courseQueries';
+import {
+  getCourseLessons,
+  getLessonById,
+  getNextLesson,
+} from './courseQueries';
 import {
   awardXP,
   recordDailyXP,
@@ -139,7 +143,10 @@ export async function checkLessonAccess(
   );
 
   // Check if previous lesson is completed
-  if (!previousProgress || previousProgress.status !== LessonProgressStatus.COMPLETED) {
+  if (
+    !previousProgress ||
+    previousProgress.status !== LessonProgressStatus.COMPLETED
+  ) {
     return {
       canAccess: false,
       reason: 'Previous lesson not completed',
@@ -200,7 +207,9 @@ export async function getLessonWithProgress(
     },
   });
 
-  const progress = enrollment?.lessonProgress.find((p) => p.lessonId === lessonId);
+  const progress = enrollment?.lessonProgress.find(
+    (p) => p.lessonId === lessonId
+  );
   const accessCheck = await checkLessonAccess(userId, lessonId);
 
   // Check if passed (met required score)
@@ -242,7 +251,9 @@ export async function getCourseLessonsWithProgress(
   const lessonsWithProgress: LessonWithProgress[] = [];
 
   for (const lesson of lessons) {
-    const progress = enrollment?.lessonProgress.find((p) => p.lessonId === lesson.id);
+    const progress = enrollment?.lessonProgress.find(
+      (p) => p.lessonId === lesson.id
+    );
     const accessCheck = await checkLessonAccess(userId, lesson.id);
 
     const isPassed =
@@ -478,9 +489,10 @@ export async function completeLesson(
   }
 
   // Update enrollment
-  const completedCount = enrollment.lessonProgress.filter(
-    (p) => p.status === LessonProgressStatus.COMPLETED
-  ).length + 1;
+  const completedCount =
+    enrollment.lessonProgress.filter(
+      (p) => p.status === LessonProgressStatus.COMPLETED
+    ).length + 1;
 
   await prisma.courseEnrollment.update({
     where: { id: enrollment.id },
@@ -571,7 +583,9 @@ export async function retryLesson(
 /**
  * Get user's overall course statistics
  */
-export async function getUserCourseStats(userId: string): Promise<UserCourseStats> {
+export async function getUserCourseStats(
+  userId: string
+): Promise<UserCourseStats> {
   const enrollments = await prisma.courseEnrollment.findMany({
     where: { userId },
     include: {
@@ -583,9 +597,16 @@ export async function getUserCourseStats(userId: string): Promise<UserCourseStat
   const coursesInProgress = enrollments.filter(
     (e) => e.status === 'IN_PROGRESS'
   ).length;
-  const coursesCompleted = enrollments.filter((e) => e.status === 'COMPLETED').length;
-  const totalXPEarned = enrollments.reduce((sum, e) => sum + e.totalXPEarned, 0);
-  const certificatesEarned = enrollments.filter((e) => e.certificateEarned).length;
+  const coursesCompleted = enrollments.filter(
+    (e) => e.status === 'COMPLETED'
+  ).length;
+  const totalXPEarned = enrollments.reduce(
+    (sum, e) => sum + e.totalXPEarned,
+    0
+  );
+  const certificatesEarned = enrollments.filter(
+    (e) => e.certificateEarned
+  ).length;
 
   // Calculate average score
   const allProgress = enrollments.flatMap((e) => e.lessonProgress);
@@ -623,7 +644,9 @@ export async function getUserCourseStats(userId: string): Promise<UserCourseStat
 /**
  * Get progress percentage for a specific enrollment
  */
-export async function getEnrollmentProgress(enrollmentId: string): Promise<number> {
+export async function getEnrollmentProgress(
+  enrollmentId: string
+): Promise<number> {
   const enrollment = await prisma.courseEnrollment.findUnique({
     where: { id: enrollmentId },
     include: {

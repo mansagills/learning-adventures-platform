@@ -14,7 +14,12 @@ interface AuthModalProps {
   callbackUrl?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', callbackUrl = '/' }: AuthModalProps) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  defaultMode = 'signin',
+  callbackUrl = '/',
+}: AuthModalProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -162,7 +167,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
             className="w-full flex items-center justify-center space-x-2 bg-black text-white hover:bg-gray-800"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
             </svg>
             <span>Continue with Apple</span>
           </Button>
@@ -179,7 +184,10 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
           {mode === 'signup' && (
             <>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-ink-700 mb-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-ink-700 mb-1"
+                >
                   Full Name
                 </label>
                 <input
@@ -187,20 +195,27 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
                   id="name"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                   placeholder="Enter your full name"
                 />
               </div>
 
               <div>
-                <label htmlFor="role" className="block text-sm font-medium text-ink-700 mb-1">
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-medium text-ink-700 mb-1"
+                >
                   I am a...
                 </label>
                 <select
                   id="role"
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="STUDENT">Student</option>
@@ -211,13 +226,18 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
 
               {formData.role === 'STUDENT' && (
                 <div>
-                  <label htmlFor="gradeLevel" className="block text-sm font-medium text-ink-700 mb-1">
+                  <label
+                    htmlFor="gradeLevel"
+                    className="block text-sm font-medium text-ink-700 mb-1"
+                  >
                     Grade Level
                   </label>
                   <select
                     id="gradeLevel"
                     value={formData.gradeLevel}
-                    onChange={(e) => setFormData({ ...formData, gradeLevel: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, gradeLevel: e.target.value })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
                     <option value="">Select Grade Level</option>
@@ -234,7 +254,10 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-ink-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-ink-700 mb-1"
+            >
               Email
             </label>
             <input
@@ -242,14 +265,19 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
               id="email"
               required
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-ink-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-ink-700 mb-1"
+            >
               Password
             </label>
             <input
@@ -258,7 +286,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
               required
               minLength={6}
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder="Enter your password"
             />
@@ -266,7 +296,10 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
 
           {mode === 'signup' && (
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-ink-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-ink-700 mb-1"
+              >
                 Confirm Password
               </label>
               <input
@@ -275,7 +308,9 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
                 required
                 minLength={6}
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder="Confirm your password"
               />
@@ -295,7 +330,11 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
             size="lg"
             className="w-full"
           >
-            {isLoading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+            {isLoading
+              ? 'Loading...'
+              : mode === 'signin'
+                ? 'Sign In'
+                : 'Create Account'}
           </Button>
         </form>
 
@@ -307,8 +346,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin', cal
           >
             {mode === 'signin'
               ? "Don't have an account? Sign up"
-              : 'Already have an account? Sign in'
-            }
+              : 'Already have an account? Sign in'}
           </button>
         </div>
       </div>

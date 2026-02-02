@@ -10,25 +10,25 @@ const urgencyOptions = [
     label: 'No Rush',
     value: 'LOW',
     icon: '🐢',
-    description: '4-6 weeks delivery time'
+    description: '4-6 weeks delivery time',
   },
   {
     label: 'Standard',
     value: 'STANDARD',
     icon: '📅',
-    description: '2-3 weeks delivery time (most common)'
+    description: '2-3 weeks delivery time (most common)',
   },
   {
     label: 'Priority',
     value: 'HIGH',
     icon: '⚡',
-    description: '1-2 weeks delivery time'
+    description: '1-2 weeks delivery time',
   },
   {
     label: 'Urgent',
     value: 'URGENT',
     icon: '🚨',
-    description: 'Less than 1 week (additional fees may apply)'
+    description: 'Less than 1 week (additional fees may apply)',
   },
 ];
 
@@ -36,27 +36,27 @@ const deviceOptions = [
   {
     label: 'Desktop/Laptop Computer',
     value: 'DESKTOP',
-    description: 'Full browser access, keyboard & mouse'
+    description: 'Full browser access, keyboard & mouse',
   },
   {
     label: 'Tablet (iPad, Android)',
     value: 'TABLET',
-    description: 'Touch-friendly interface'
+    description: 'Touch-friendly interface',
   },
   {
     label: 'Smartphone',
     value: 'SMARTPHONE',
-    description: 'Mobile-optimized experience'
+    description: 'Mobile-optimized experience',
   },
   {
     label: 'Chromebook',
     value: 'CHROMEBOOK',
-    description: 'School-issued device'
+    description: 'School-issued device',
   },
   {
     label: 'Smart TV / Large Screen',
     value: 'TV',
-    description: 'Display content on TV'
+    description: 'Display content on TV',
   },
 ];
 
@@ -65,19 +65,19 @@ const offlineOptions = [
     label: 'No, Digital Only',
     value: 'NO',
     icon: '💻',
-    description: 'All activities online'
+    description: 'All activities online',
   },
   {
     label: 'Yes, Some Printables',
     value: 'SOME',
     icon: '🖨️',
-    description: 'Include worksheets and activities to print'
+    description: 'Include worksheets and activities to print',
   },
   {
     label: 'Yes, Full Offline Option',
     value: 'FULL',
     icon: '📦',
-    description: 'Complete course available as printable packet'
+    description: 'Complete course available as printable packet',
   },
 ];
 
@@ -152,7 +152,8 @@ export default function Step8DeliveryLogistics() {
                 Course Development Timeline
               </h4>
               <p className="text-sm text-gray-700">
-                <strong>Standard delivery (2-3 weeks)</strong> allows our team to:
+                <strong>Standard delivery (2-3 weeks)</strong> allows our team
+                to:
               </p>
               <ul className="text-sm text-gray-700 space-y-1 ml-4 mt-1">
                 <li>• Generate AI-powered content tailored to your needs</li>
@@ -161,7 +162,8 @@ export default function Step8DeliveryLogistics() {
                 <li>• Create engaging visuals and multimedia</li>
               </ul>
               <p className="text-sm text-gray-700 mt-2">
-                Rush orders are available but may have limited customization options.
+                Rush orders are available but may have limited customization
+                options.
               </p>
             </div>
           </div>
@@ -176,32 +178,33 @@ export default function Step8DeliveryLogistics() {
                 Multi-Device Compatibility
               </h4>
               <p className="text-sm text-gray-700">
-                All courses are designed to work across devices. Knowing your primary
-                devices helps us optimize the experience (e.g., larger touch targets
-                for tablets, keyboard shortcuts for desktops).
+                All courses are designed to work across devices. Knowing your
+                primary devices helps us optimize the experience (e.g., larger
+                touch targets for tablets, keyboard shortcuts for desktops).
               </p>
             </div>
           </div>
         </div>
 
         {/* Offline Options */}
-        {formData.offlinePacketsNeeded && formData.offlinePacketsNeeded !== 'NO' && (
-          <div className="p-4 bg-brand-50 border border-brand-200 rounded-lg">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 text-2xl">🖨️</div>
-              <div>
-                <h4 className="font-semibold text-ink-900 mb-1">
-                  Printable Materials
-                </h4>
-                <p className="text-sm text-gray-700">
-                  We'll include downloadable PDFs with worksheets, activity guides,
-                  and offline alternatives for key lessons. Great for students with
-                  limited screen time or internet access!
-                </p>
+        {formData.offlinePacketsNeeded &&
+          formData.offlinePacketsNeeded !== 'NO' && (
+            <div className="p-4 bg-brand-50 border border-brand-200 rounded-lg">
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 text-2xl">🖨️</div>
+                <div>
+                  <h4 className="font-semibold text-ink-900 mb-1">
+                    Printable Materials
+                  </h4>
+                  <p className="text-sm text-gray-700">
+                    We'll include downloadable PDFs with worksheets, activity
+                    guides, and offline alternatives for key lessons. Great for
+                    students with limited screen time or internet access!
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

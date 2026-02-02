@@ -30,8 +30,12 @@ export function useCourseRequestAutoSave(
   const isFirstRenderRef = useRef(true);
 
   // Manual save function
-  const saveDraft = async (): Promise<{ success: boolean; draftId?: string; error?: string }> => {
-    setState(prev => ({ ...prev, isSaving: true, saveError: null }));
+  const saveDraft = async (): Promise<{
+    success: boolean;
+    draftId?: string;
+    error?: string;
+  }> => {
+    setState((prev) => ({ ...prev, isSaving: true, saveError: null }));
 
     try {
       const response = await fetch('/api/course-requests/draft', {
@@ -63,7 +67,8 @@ export function useCourseRequestAutoSave(
 
       return { success: true, draftId: data.id };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save draft';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to save draft';
 
       setState({
         isSaving: false,

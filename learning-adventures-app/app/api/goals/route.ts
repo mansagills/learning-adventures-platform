@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const type = searchParams.get('type');
 
     const where: any = {
-      userId: session.user.id
+      userId: session.user.id,
     };
 
     if (status) {
@@ -33,25 +33,28 @@ export async function GET(request: Request) {
       orderBy: [
         { priority: 'desc' },
         { deadline: 'asc' },
-        { createdAt: 'desc' }
-      ]
+        { createdAt: 'desc' },
+      ],
     });
 
     // Calculate progress percentage for each goal
-    const goalsWithProgress = goals.map(goal => ({
+    const goalsWithProgress = goals.map((goal) => ({
       ...goal,
-      progressPercent: goal.targetValue > 0
-        ? Math.round((goal.currentValue / goal.targetValue) * 100)
-        : 0,
+      progressPercent:
+        goal.targetValue > 0
+          ? Math.round((goal.currentValue / goal.targetValue) * 100)
+          : 0,
       isComplete: goal.currentValue >= goal.targetValue,
-      isExpired: goal.deadline && new Date(goal.deadline) < new Date() && goal.status === 'ACTIVE'
+      isExpired:
+        goal.deadline &&
+        new Date(goal.deadline) < new Date() &&
+        goal.status === 'ACTIVE',
     }));
 
     return NextResponse.json({
       goals: goalsWithProgress,
-      count: goals.length
+      count: goals.length,
     });
-
   } catch (error) {
     console.error('Error fetching goals:', error);
     return NextResponse.json(
@@ -82,7 +85,7 @@ export async function POST(request: Request) {
       deadline,
       icon,
       color,
-      priority
+      priority,
     } = body;
 
     // Validation
@@ -133,12 +136,11 @@ export async function POST(request: Request) {
         icon: icon || null,
         color: color || null,
         priority: priority || 0,
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
 
     return NextResponse.json({ goal }, { status: 201 });
-
   } catch (error) {
     console.error('Error creating goal:', error);
     return NextResponse.json(

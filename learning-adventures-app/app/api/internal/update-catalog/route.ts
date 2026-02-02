@@ -7,10 +7,7 @@ export async function POST(request: NextRequest) {
     const { metadata } = await request.json();
 
     if (!metadata) {
-      return NextResponse.json(
-        { error: 'Missing metadata' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
     }
 
     // Read the current catalog data
@@ -36,7 +33,7 @@ export async function POST(request: NextRequest) {
       subscriptionTier: metadata.subscriptionTier || 'free',
       uploadedContent: metadata.uploadedContent || false,
       platform: metadata.platform,
-      sourceCodeUrl: metadata.sourceCodeUrl
+      sourceCodeUrl: metadata.sourceCodeUrl,
     };
 
     // Format the new adventure as a string with optional premium fields
@@ -53,7 +50,10 @@ export async function POST(request: NextRequest) {
     featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
 
     // Add premium/uploaded content fields if applicable
-    if (newAdventure.subscriptionTier && newAdventure.subscriptionTier !== 'free') {
+    if (
+      newAdventure.subscriptionTier &&
+      newAdventure.subscriptionTier !== 'free'
+    ) {
       adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
     }
 
@@ -72,7 +72,10 @@ export async function POST(request: NextRequest) {
     adventureString += `\n  }`;
 
     // Find the array and add the new adventure
-    const arrayRegex = new RegExp(`(const ${arrayName}: Adventure\\[\\] = \\[)([\\s\\S]*?)(\\];)`, 'm');
+    const arrayRegex = new RegExp(
+      `(const ${arrayName}: Adventure\\[\\] = \\[)([\\s\\S]*?)(\\];)`,
+      'm'
+    );
     const match = catalogContent.match(arrayRegex);
 
     if (!match) {
@@ -85,9 +88,9 @@ export async function POST(request: NextRequest) {
     const [fullMatch, arrayStart, arrayContent, arrayEnd] = match;
 
     // Add the new adventure to the array
-    const updatedArrayContent = arrayContent.trim() ?
-      arrayContent + ',\n' + adventureString :
-      '\n' + adventureString + '\n';
+    const updatedArrayContent = arrayContent.trim()
+      ? arrayContent + ',\n' + adventureString
+      : '\n' + adventureString + '\n';
 
     const updatedCatalog = catalogContent.replace(
       fullMatch,
@@ -99,9 +102,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Added ${metadata.title} to ${arrayName} array`
+      message: `Added ${metadata.title} to ${arrayName} array`,
     });
-
   } catch (error) {
     console.error('Error updating catalog:', error);
     return NextResponse.json(

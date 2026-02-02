@@ -38,7 +38,7 @@ const subjectConfig = {
     color: 'blue',
     gradient: 'from-blue-500 to-blue-600',
     lightBg: 'bg-blue-50',
-    description: 'Master numbers, patterns, and problem-solving'
+    description: 'Master numbers, patterns, and problem-solving',
   },
   science: {
     name: 'Science',
@@ -46,7 +46,7 @@ const subjectConfig = {
     color: 'green',
     gradient: 'from-green-500 to-green-600',
     lightBg: 'bg-green-50',
-    description: 'Explore the natural world through experiments'
+    description: 'Explore the natural world through experiments',
   },
   english: {
     name: 'English',
@@ -54,7 +54,7 @@ const subjectConfig = {
     color: 'purple',
     gradient: 'from-purple-500 to-purple-600',
     lightBg: 'bg-purple-50',
-    description: 'Develop reading, writing, and communication skills'
+    description: 'Develop reading, writing, and communication skills',
   },
   history: {
     name: 'History',
@@ -62,7 +62,7 @@ const subjectConfig = {
     color: 'orange',
     gradient: 'from-orange-500 to-orange-600',
     lightBg: 'bg-orange-50',
-    description: 'Discover the past and understand the present'
+    description: 'Discover the past and understand the present',
   },
   interdisciplinary: {
     name: 'Interdisciplinary',
@@ -70,8 +70,8 @@ const subjectConfig = {
     color: 'pink',
     gradient: 'from-pink-500 to-pink-600',
     lightBg: 'bg-pink-50',
-    description: 'Connect ideas across multiple subjects'
-  }
+    description: 'Connect ideas across multiple subjects',
+  },
 };
 
 export default function SubjectDashboard({
@@ -82,19 +82,22 @@ export default function SubjectDashboard({
   recommendedAdventures,
   recentActivity,
   isLoading,
-  className
+  className,
 }: SubjectDashboardProps) {
   const config = subjectConfig[subject];
-  const completionRate = metrics.totalAdventures > 0
-    ? Math.round((metrics.completedAdventures / metrics.totalAdventures) * 100)
-    : 0;
+  const completionRate =
+    metrics.totalAdventures > 0
+      ? Math.round(
+          (metrics.completedAdventures / metrics.totalAdventures) * 100
+        )
+      : 0;
 
   if (isLoading) {
     return (
       <div className={cn('animate-pulse space-y-6', className)}>
         <div className="h-48 bg-gray-200 rounded-lg"></div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
           ))}
         </div>
@@ -105,10 +108,12 @@ export default function SubjectDashboard({
   return (
     <div className={cn('space-y-6', className)}>
       {/* Subject Hero Section */}
-      <div className={cn(
-        'relative overflow-hidden rounded-xl bg-gradient-to-r text-white p-8',
-        config.gradient
-      )}>
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-xl bg-gradient-to-r text-white p-8',
+          config.gradient
+        )}
+      >
         <div className="relative z-10">
           <div className="flex items-center space-x-3 mb-4">
             <span className="text-6xl">{config.icon}</span>
@@ -123,8 +128,12 @@ export default function SubjectDashboard({
               <div className="text-sm text-white/80 mt-1">Completion Rate</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <div className="text-3xl font-bold">{metrics.completedAdventures}</div>
-              <div className="text-sm text-white/80 mt-1">Adventures Completed</div>
+              <div className="text-3xl font-bold">
+                {metrics.completedAdventures}
+              </div>
+              <div className="text-sm text-white/80 mt-1">
+                Adventures Completed
+              </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <div className="text-3xl font-bold">{metrics.skillsMastered}</div>
@@ -138,10 +147,14 @@ export default function SubjectDashboard({
         </div>
         {/* Decorative background pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
-          }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle, white 1px, transparent 1px)',
+              backgroundSize: '20px 20px',
+            }}
+          />
         </div>
       </div>
 
@@ -154,7 +167,9 @@ export default function SubjectDashboard({
           <div className="text-3xl font-bold text-blue-600">{`${Math.floor(metrics.timeSpent / 60)}h ${metrics.timeSpent % 60}m`}</div>
         </DashboardCard>
         <DashboardCard title="In Progress">
-          <div className="text-3xl font-bold text-green-600">{metrics.inProgressAdventures}</div>
+          <div className="text-3xl font-bold text-green-600">
+            {metrics.inProgressAdventures}
+          </div>
         </DashboardCard>
         <DashboardCard title="Skill Progress">
           <div className="text-3xl font-bold text-purple-600">{`${metrics.skillsMastered}/${metrics.totalSkills}`}</div>
@@ -192,14 +207,18 @@ export default function SubjectDashboard({
             </h3>
             {recommendedAdventures.length === 0 ? (
               <div className="text-center py-8">
-                <Icon name="check" size={48} className="text-gray-300 mx-auto mb-3" />
+                <Icon
+                  name="check"
+                  size={48}
+                  className="text-gray-300 mx-auto mb-3"
+                />
                 <p className="text-sm text-gray-600">
                   You've completed all available adventures!
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {recommendedAdventures.slice(0, 5).map(adventure => (
+                {recommendedAdventures.slice(0, 5).map((adventure) => (
                   <Link
                     key={adventure.id}
                     href={`/adventures/${adventure.id}` as any}
@@ -237,11 +256,16 @@ export default function SubjectDashboard({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-700">Completion Rate</span>
-                <span className="font-semibold text-ink-800">{completionRate}%</span>
+                <span className="font-semibold text-ink-800">
+                  {completionRate}%
+                </span>
               </div>
               <div className="w-full bg-white rounded-full h-2 overflow-hidden">
                 <div
-                  className={cn('h-full transition-all duration-500 bg-gradient-to-r', config.gradient)}
+                  className={cn(
+                    'h-full transition-all duration-500 bg-gradient-to-r',
+                    config.gradient
+                  )}
                   style={{ width: `${completionRate}%` }}
                 />
               </div>

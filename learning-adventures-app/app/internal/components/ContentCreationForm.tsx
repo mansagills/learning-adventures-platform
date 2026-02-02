@@ -8,7 +8,9 @@ interface ContentCreationFormProps {
   onSubmit: (data: ContentFormData) => void;
 }
 
-export default function ContentCreationForm({ onSubmit }: ContentCreationFormProps) {
+export default function ContentCreationForm({
+  onSubmit,
+}: ContentCreationFormProps) {
   const [formData, setFormData] = useState<ContentFormData>({
     type: 'game',
     subject: 'math',
@@ -79,7 +81,7 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
         // Pre-fill form with extracted metadata
         if (metadataResult.metadata) {
           const meta = metadataResult.metadata;
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             title: meta.title || prev.title,
             gameIdea: meta.description || prev.gameIdea,
@@ -95,7 +97,7 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
           }));
         } else {
           // No metadata found, just store the path
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             uploadedZipPath: result.path,
             projectType: metadataResult.projectType,
@@ -136,7 +138,12 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
         return;
       }
     } else {
-      if (!formData.title || !formData.gameIdea || !formData.concept || formData.gradeLevel.length === 0) {
+      if (
+        !formData.title ||
+        !formData.gameIdea ||
+        !formData.concept ||
+        formData.gradeLevel.length === 0
+      ) {
         alert('Please fill in all required fields');
         return;
       }
@@ -147,15 +154,22 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
       ...formData,
       additionalRequirements: refinements
         ? `${formData.additionalRequirements || ''}\n\nAI Refinements:\n${refinements}`
-        : formData.additionalRequirements
+        : formData.additionalRequirements,
     };
 
     onSubmit(finalFormData);
   };
 
   const handleRefine = async () => {
-    if (!formData.title || !formData.gameIdea || !formData.concept || formData.gradeLevel.length === 0) {
-      alert('Please fill in the basic information first (Title, Game Idea, Concept, and Grade Levels)');
+    if (
+      !formData.title ||
+      !formData.gameIdea ||
+      !formData.concept ||
+      formData.gradeLevel.length === 0
+    ) {
+      alert(
+        'Please fill in the basic information first (Title, Game Idea, Concept, and Grade Levels)'
+      );
       return;
     }
 
@@ -165,41 +179,43 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
       // Create a temporary formData with gameIdea as description for the API
       const tempFormData = {
         ...formData,
-        description: formData.gameIdea
+        description: formData.gameIdea,
       };
       const response = await refineContentIdea(tempFormData);
       setRefinements(response.content);
       setShowRefinements(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to get refinements');
+      setError(
+        err instanceof Error ? err.message : 'Failed to get refinements'
+      );
     } finally {
       setIsRefining(false);
     }
   };
 
   const handleGradeLevelChange = (grade: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       gradeLevel: prev.gradeLevel.includes(grade)
-        ? prev.gradeLevel.filter(g => g !== grade)
-        : [...prev.gradeLevel, grade]
+        ? prev.gradeLevel.filter((g) => g !== grade)
+        : [...prev.gradeLevel, grade],
     }));
   };
 
   const addSkill = () => {
     if (skillInput.trim() && !formData.skills.includes(skillInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skillInput.trim()]
+        skills: [...prev.skills, skillInput.trim()],
       }));
       setSkillInput('');
     }
   };
 
   const removeSkill = (skill: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(s => s !== skill)
+      skills: prev.skills.filter((s) => s !== skill),
     }));
   };
 
@@ -209,8 +225,12 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Create New Content</h2>
-          <p className="mt-1 text-gray-600">Fill in the details for your educational content</p>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Create New Content
+          </h2>
+          <p className="mt-1 text-gray-600">
+            Fill in the details for your educational content
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -222,7 +242,12 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, uploadSource: 'ai-generated' }))}
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    uploadSource: 'ai-generated',
+                  }))
+                }
                 className={`p-4 border-2 rounded-lg text-left transition-colors ${
                   formData.uploadSource === 'ai-generated'
                     ? 'border-purple-500 bg-purple-50 text-purple-700'
@@ -233,11 +258,15 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                   <span className="text-2xl mr-2">🤖</span>
                   <h3 className="font-semibold">Generate with AI</h3>
                 </div>
-                <p className="text-sm text-gray-600">Use Claude AI to create content from your idea</p>
+                <p className="text-sm text-gray-600">
+                  Use Claude AI to create content from your idea
+                </p>
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, uploadSource: 'uploaded' }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, uploadSource: 'uploaded' }))
+                }
                 className={`p-4 border-2 rounded-lg text-left transition-colors ${
                   formData.uploadSource === 'uploaded'
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
@@ -248,7 +277,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                   <span className="text-2xl mr-2">📦</span>
                   <h3 className="font-semibold">Upload Zip File</h3>
                 </div>
-                <p className="text-sm text-gray-600">Upload game built with Base44, V0.dev, Replit, or Bolt</p>
+                <p className="text-sm text-gray-600">
+                  Upload game built with Base44, V0.dev, Replit, or Bolt
+                </p>
               </button>
             </div>
           </div>
@@ -256,7 +287,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
           {/* Zip Upload Section */}
           {formData.uploadSource === 'uploaded' && (
             <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload Your Game</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Upload Your Game
+              </h3>
 
               {!uploadedFile ? (
                 <div
@@ -273,7 +306,8 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                     or click to browse
                   </p>
                   <p className="text-xs text-gray-500">
-                    Supported: .zip files from Base44, V0.dev, Replit, Bolt (Max: 100MB)
+                    Supported: .zip files from Base44, V0.dev, Replit, Bolt
+                    (Max: 100MB)
                   </p>
                   {isUploading && (
                     <div className="mt-4">
@@ -302,10 +336,13 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                     <div className="flex items-center space-x-3">
                       <span className="text-3xl">✅</span>
                       <div>
-                        <p className="font-medium text-gray-900">{uploadedFile.name}</p>
+                        <p className="font-medium text-gray-900">
+                          {uploadedFile.name}
+                        </p>
                         <p className="text-sm text-gray-500">
                           {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                          {formData.projectType && ` • ${formData.projectType === 'react-nextjs' ? 'React/Next.js' : 'HTML'} Project`}
+                          {formData.projectType &&
+                            ` • ${formData.projectType === 'react-nextjs' ? 'React/Next.js' : 'HTML'} Project`}
                         </p>
                       </div>
                     </div>
@@ -313,7 +350,10 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                       type="button"
                       onClick={() => {
                         setUploadedFile(null);
-                        setFormData(prev => ({ ...prev, uploadedZipPath: undefined }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          uploadedZipPath: undefined,
+                        }));
                       }}
                       className="text-red-600 hover:text-red-800"
                     >
@@ -329,33 +369,48 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                   Built with
                 </label>
                 <div className="grid grid-cols-5 gap-2">
-                  {['base44', 'v0', 'replit', 'bolt', 'other'].map((platform) => (
-                    <button
-                      key={platform}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, uploadPlatform: platform as any }))}
-                      className={`px-3 py-2 rounded-md border text-sm transition-colors ${
-                        formData.uploadPlatform === platform
-                          ? 'bg-blue-500 text-white border-blue-500'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                    </button>
-                  ))}
+                  {['base44', 'v0', 'replit', 'bolt', 'other'].map(
+                    (platform) => (
+                      <button
+                        key={platform}
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            uploadPlatform: platform as any,
+                          }))
+                        }
+                        className={`px-3 py-2 rounded-md border text-sm transition-colors ${
+                          formData.uploadPlatform === platform
+                            ? 'bg-blue-500 text-white border-blue-500'
+                            : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                      </button>
+                    )
+                  )}
                 </div>
               </div>
 
               {/* Source Code URL (Optional) */}
               <div className="mt-4">
-                <label htmlFor="sourceCodeUrl" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="sourceCodeUrl"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Source Code URL (Optional)
                 </label>
                 <input
                   type="url"
                   id="sourceCodeUrl"
                   value={formData.sourceCodeUrl || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sourceCodeUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      sourceCodeUrl: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://replit.com/@yourname/project"
                 />
@@ -376,15 +431,40 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
             </label>
             <div className="grid grid-cols-4 gap-3">
               {[
-                { value: 'free', label: 'Free', desc: 'Available to all users', color: 'green' },
-                { value: 'premium', label: 'Premium', desc: 'Subscription required', color: 'blue' },
-                { value: 'custom', label: 'Custom', desc: 'Custom-built for client', color: 'purple' },
-                { value: 'course', label: 'Course', desc: 'Full learning path', color: 'orange' },
+                {
+                  value: 'free',
+                  label: 'Free',
+                  desc: 'Available to all users',
+                  color: 'green',
+                },
+                {
+                  value: 'premium',
+                  label: 'Premium',
+                  desc: 'Subscription required',
+                  color: 'blue',
+                },
+                {
+                  value: 'custom',
+                  label: 'Custom',
+                  desc: 'Custom-built for client',
+                  color: 'purple',
+                },
+                {
+                  value: 'course',
+                  label: 'Course',
+                  desc: 'Full learning path',
+                  color: 'orange',
+                },
               ].map((tier) => (
                 <button
                   key={tier.value}
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, subscriptionTier: tier.value as any }))}
+                  onClick={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      subscriptionTier: tier.value as any,
+                    }))
+                  }
                   className={`p-3 border-2 rounded-lg text-left transition-colors ${
                     formData.subscriptionTier === tier.value
                       ? `border-${tier.color}-500 bg-${tier.color}-50`
@@ -397,7 +477,8 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               ))}
             </div>
             <p className="mt-2 text-sm text-gray-500">
-              💡 Uploaded games default to <strong>Premium</strong>. Admins can change tier after publishing.
+              💡 Uploaded games default to <strong>Premium</strong>. Admins can
+              change tier after publishing.
             </p>
           </div>
 
@@ -409,7 +490,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, type: 'game' }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, type: 'game' }))
+                }
                 className={`p-4 border-2 rounded-lg text-left transition-colors ${
                   formData.type === 'game'
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
@@ -417,11 +500,15 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                 }`}
               >
                 <h3 className="font-semibold">Educational Game</h3>
-                <p className="text-sm text-gray-600 mt-1">Interactive games that make learning fun</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Interactive games that make learning fun
+                </p>
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, type: 'lesson' }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, type: 'lesson' }))
+                }
                 className={`p-4 border-2 rounded-lg text-left transition-colors ${
                   formData.type === 'lesson'
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
@@ -429,7 +516,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                 }`}
               >
                 <h3 className="font-semibold">Interactive Lesson</h3>
-                <p className="text-sm text-gray-600 mt-1">Structured learning activities</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Structured learning activities
+                </p>
               </button>
             </div>
           </div>
@@ -442,7 +531,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, subject: 'math' }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, subject: 'math' }))
+                }
                 className={`p-3 border-2 rounded-lg text-center transition-colors ${
                   formData.subject === 'math'
                     ? 'border-green-500 bg-green-50 text-green-700'
@@ -453,7 +544,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, subject: 'science' }))}
+                onClick={() =>
+                  setFormData((prev) => ({ ...prev, subject: 'science' }))
+                }
                 className={`p-3 border-2 rounded-lg text-center transition-colors ${
                   formData.subject === 'science'
                     ? 'border-green-500 bg-green-50 text-green-700'
@@ -467,14 +560,19 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Title *
             </label>
             <input
               type="text"
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter a catchy title for your content"
             />
@@ -482,32 +580,43 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
 
           {/* Game/Lesson Idea */}
           <div>
-            <label htmlFor="gameIdea" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="gameIdea"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               {formData.type === 'game' ? 'Game Idea' : 'Lesson Idea'} *
             </label>
             <textarea
               id="gameIdea"
               value={formData.gameIdea}
-              onChange={(e) => setFormData(prev => ({ ...prev, gameIdea: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, gameIdea: e.target.value }))
+              }
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder={formData.type === 'game'
-                ? "Describe your game idea... What's the core gameplay? How do students learn while playing? What makes it engaging?"
-                : "Describe your lesson idea... What activities will students do? How will they interact with the content? What's the learning progression?"
+              placeholder={
+                formData.type === 'game'
+                  ? "Describe your game idea... What's the core gameplay? How do students learn while playing? What makes it engaging?"
+                  : "Describe your lesson idea... What activities will students do? How will they interact with the content? What's the learning progression?"
               }
             />
           </div>
 
           {/* Concept */}
           <div>
-            <label htmlFor="concept" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="concept"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Main Concept/Topic *
             </label>
             <input
               type="text"
               id="concept"
               value={formData.concept}
-              onChange={(e) => setFormData(prev => ({ ...prev, concept: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, concept: e.target.value }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., fractions, photosynthesis, multiplication tables"
             />
@@ -519,7 +628,7 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               Grade Levels * (select all that apply)
             </label>
             <div className="flex flex-wrap gap-2">
-              {grades.map(grade => (
+              {grades.map((grade) => (
                 <button
                   key={grade}
                   type="button"
@@ -538,9 +647,12 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
 
           {/* AI Refinements Section */}
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-purple-900 mb-2">🤖 AI Assistance</h3>
+            <h3 className="text-sm font-medium text-purple-900 mb-2">
+              🤖 AI Assistance
+            </h3>
             <p className="text-sm text-purple-700 mb-3">
-              Get AI-powered suggestions to improve your {formData.type} idea before generating content.
+              Get AI-powered suggestions to improve your {formData.type} idea
+              before generating content.
             </p>
             <button
               type="button"
@@ -561,7 +673,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
           {/* Refinements Display */}
           {showRefinements && (
             <div className="bg-white border border-purple-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">🤖 AI Suggestions for Improvement</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                🤖 AI Suggestions for Improvement
+              </h3>
               <div className="prose prose-sm max-w-none mb-4">
                 <div className="bg-gray-50 p-4 rounded-md text-sm border">
                   <pre className="whitespace-pre-wrap">{refinements}</pre>
@@ -573,9 +687,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                   type="button"
                   onClick={() => {
                     // Apply refinements to the game idea
-                    setFormData(prev => ({
+                    setFormData((prev) => ({
                       ...prev,
-                      gameIdea: `${prev.gameIdea}\n\n--- AI IMPROVEMENTS ---\n${refinements}`
+                      gameIdea: `${prev.gameIdea}\n\n--- AI IMPROVEMENTS ---\n${refinements}`,
                     }));
                     setShowRefinements(false);
                   }}
@@ -588,11 +702,11 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                   type="button"
                   onClick={() => {
                     // Apply refinements to additional requirements
-                    setFormData(prev => ({
+                    setFormData((prev) => ({
                       ...prev,
                       additionalRequirements: prev.additionalRequirements
                         ? `${prev.additionalRequirements}\n\nAI Refinements:\n${refinements}`
-                        : `AI Refinements:\n${refinements}`
+                        : `AI Refinements:\n${refinements}`,
                     }));
                     setShowRefinements(false);
                   }}
@@ -619,7 +733,12 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
             </label>
             <select
               value={formData.difficulty}
-              onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value as 'easy' | 'medium' | 'hard' }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  difficulty: e.target.value as 'easy' | 'medium' | 'hard',
+                }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="easy">Easy</option>
@@ -638,7 +757,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
                 type="text"
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                onKeyPress={(e) =>
+                  e.key === 'Enter' && (e.preventDefault(), addSkill())
+                }
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter a skill and press Enter"
               />
@@ -651,7 +772,7 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {formData.skills.map(skill => (
+              {formData.skills.map((skill) => (
                 <span
                   key={skill}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
@@ -671,14 +792,22 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
 
           {/* Estimated Time */}
           <div>
-            <label htmlFor="estimatedTime" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="estimatedTime"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Estimated Time
             </label>
             <input
               type="text"
               id="estimatedTime"
               value={formData.estimatedTime}
-              onChange={(e) => setFormData(prev => ({ ...prev, estimatedTime: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  estimatedTime: e.target.value,
+                }))
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., 15-20 mins"
             />
@@ -686,13 +815,21 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
 
           {/* Additional Requirements */}
           <div>
-            <label htmlFor="additionalRequirements" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="additionalRequirements"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Additional Requirements (Optional)
             </label>
             <textarea
               id="additionalRequirements"
               value={formData.additionalRequirements}
-              onChange={(e) => setFormData(prev => ({ ...prev, additionalRequirements: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  additionalRequirements: e.target.value,
+                }))
+              }
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Any specific features, themes, or requirements..."
@@ -704,7 +841,9 @@ export default function ContentCreationForm({ onSubmit }: ContentCreationFormPro
               type="submit"
               className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
             >
-              {formData.uploadSource === 'uploaded' ? 'Continue to Preview' : 'Generate Content'}
+              {formData.uploadSource === 'uploaded'
+                ? 'Continue to Preview'
+                : 'Generate Content'}
             </button>
           </div>
         </form>

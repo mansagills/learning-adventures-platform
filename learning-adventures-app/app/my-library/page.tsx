@@ -55,7 +55,8 @@ function MyLibraryContent() {
                 Fractions & Decimals Mastery
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Master fractions and decimals through interactive lessons and games
+                Master fractions and decimals through interactive lessons and
+                games
               </p>
 
               {/* Progress Bar */}
@@ -65,7 +66,10 @@ function MyLibraryContent() {
                   <span className="text-xs font-medium text-gray-900">75%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-brand-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                  <div
+                    className="bg-brand-500 h-2 rounded-full"
+                    style={{ width: '75%' }}
+                  ></div>
                 </div>
               </div>
 
@@ -98,7 +102,8 @@ function MyLibraryContent() {
                 Plant Life Cycles
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Explore how plants grow and reproduce through interactive simulations
+                Explore how plants grow and reproduce through interactive
+                simulations
               </p>
 
               {/* Progress Bar */}
@@ -108,7 +113,10 @@ function MyLibraryContent() {
                   <span className="text-xs font-medium text-gray-900">30%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '30%' }}></div>
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: '30%' }}
+                  ></div>
                 </div>
               </div>
 

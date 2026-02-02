@@ -17,7 +17,7 @@ export default function ViewMoreButton({
   categoryName,
   className = '',
   variant = 'outline',
-  size = 'sm'
+  size = 'sm',
 }: ViewMoreButtonProps) {
   const handleClick = () => {
     analytics.clickCTA(`View More ${categoryName}`, 'homepage-preview');

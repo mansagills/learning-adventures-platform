@@ -32,12 +32,13 @@ export class NarrativeIntegrationSkill extends BaseSkill {
     return {
       id: 'narrative-integration',
       name: 'Narrative Integration Specialist',
-      description: 'Creates engaging story arcs, characters, and narrative elements to enhance course engagement',
+      description:
+        'Creates engaging story arcs, characters, and narrative elements to enhance course engagement',
       triggers: [
         'add narrative',
         'create story arc',
         'integrate narrative',
-        'add storytelling'
+        'add storytelling',
       ],
       capabilities: [
         'Design overarching course narrative',
@@ -47,25 +48,30 @@ export class NarrativeIntegrationSkill extends BaseSkill {
         'Create age-appropriate conflict and resolution',
         'Build emotional engagement through story',
         'Connect learning objectives to narrative goals',
-        'Design narrative rewards and progression'
+        'Design narrative rewards and progression',
       ],
       examples: [
         'Create narrative arc for this course',
         'Add storytelling elements to the curriculum',
-        'Integrate favorite characters into the course story'
+        'Integrate favorite characters into the course story',
       ],
       version: '1.0.0',
-      guidanceFile: 'SKILL.md'
+      guidanceFile: 'SKILL.md',
     };
   }
 
-  async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const lowerRequest = userRequest.toLowerCase();
 
     // High confidence triggers
-    if (lowerRequest.includes('narrative') ||
-        lowerRequest.includes('story arc') ||
-        lowerRequest.includes('storytelling')) {
+    if (
+      lowerRequest.includes('narrative') ||
+      lowerRequest.includes('story arc') ||
+      lowerRequest.includes('storytelling')
+    ) {
       return 95;
     }
 
@@ -94,7 +100,9 @@ export class NarrativeIntegrationSkill extends BaseSkill {
         return this.buildErrorResult(
           'No curriculum found in context',
           'MISSING_DATA',
-          { hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill' }
+          {
+            hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill',
+          }
         );
       }
 
@@ -125,7 +133,6 @@ export class NarrativeIntegrationSkill extends BaseSkill {
         95,
         ['assessment-generation'] // Suggest final skill
       );
-
     } catch (error) {
       return this.buildErrorResult(
         `Failed to create narrative: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -143,11 +150,16 @@ export class NarrativeIntegrationSkill extends BaseSkill {
 
     // Validate required fields
     if (!storyArc.courseNarrative || !storyArc.protagonist) return false;
-    if (!storyArc.protagonist.name || !storyArc.protagonist.description) return false;
-    if (!storyArc.setting || !storyArc.conflict || !storyArc.resolution) return false;
+    if (!storyArc.protagonist.name || !storyArc.protagonist.description)
+      return false;
+    if (!storyArc.setting || !storyArc.conflict || !storyArc.resolution)
+      return false;
 
     // Validate chapter arcs
-    if (!Array.isArray(storyArc.chapterArcs) || storyArc.chapterArcs.length === 0) {
+    if (
+      !Array.isArray(storyArc.chapterArcs) ||
+      storyArc.chapterArcs.length === 0
+    ) {
       return false;
     }
 
@@ -191,10 +203,15 @@ export class NarrativeIntegrationSkill extends BaseSkill {
     return null;
   }
 
-  private buildPrompt(curriculum: any, designBrief: any, guidance: string): string {
+  private buildPrompt(
+    curriculum: any,
+    designBrief: any,
+    guidance: string
+  ): string {
     const studentAge = designBrief?.student?.age || 10;
     const interests = designBrief?.student?.learningProfile?.interests || [];
-    const favoriteCharacters = designBrief?.student?.learningProfile?.favoriteCharacters || '';
+    const favoriteCharacters =
+      designBrief?.student?.learningProfile?.favoriteCharacters || '';
     const studentName = designBrief?.student?.name || 'the student';
 
     return `You are a master storyteller for educational content. Create an engaging narrative arc that ties together this entire course.
@@ -205,9 +222,9 @@ Description: ${curriculum.courseDescription}
 Chapters: ${curriculum.chapters.length}
 
 CHAPTER STRUCTURE:
-${curriculum.chapters.map((ch: any, i: number) =>
-  `${i + 1}. ${ch.title} - ${ch.description}`
-).join('\n')}
+${curriculum.chapters
+  .map((ch: any, i: number) => `${i + 1}. ${ch.title} - ${ch.description}`)
+  .join('\n')}
 
 STUDENT PROFILE:
 - Name: ${studentName}
@@ -262,8 +279,14 @@ REQUIRED OUTPUT STRUCTURE:
 OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown formatting, no explanations outside the JSON.`;
   }
 
-  private async callClaudeForNarrative(prompt: string): Promise<NarrativeOutput> {
-    const { callClaudeWithRetry, extractTextFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+  private async callClaudeForNarrative(
+    prompt: string
+  ): Promise<NarrativeOutput> {
+    const {
+      callClaudeWithRetry,
+      extractTextFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -273,9 +296,9 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       const text = extractTextFromResponse(response);
@@ -288,7 +311,6 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
       const narrativeOutput = JSON.parse(jsonMatch[0]) as NarrativeOutput;
 
       return narrativeOutput;
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for narrative design: ${error instanceof Error ? error.message : 'Unknown error'}`

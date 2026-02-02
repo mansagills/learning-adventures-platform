@@ -53,12 +53,13 @@ export class CourseDesignBriefSkill extends BaseSkill {
     return {
       id: 'course-design-brief',
       name: 'Course Design Brief Normalizer',
-      description: 'Normalizes custom course intake form data (60+ fields) into structured design brief for course generation',
+      description:
+        'Normalizes custom course intake form data (60+ fields) into structured design brief for course generation',
       triggers: [
         'normalize course request',
         'create design brief',
         'process course intake',
-        'analyze course request data'
+        'analyze course request data',
       ],
       capabilities: [
         'Extract and normalize course request data',
@@ -66,37 +67,46 @@ export class CourseDesignBriefSkill extends BaseSkill {
         'Determine difficulty level based on student profile',
         'Identify ambiguous or missing critical data',
         'Suggest specific topics from vague requests',
-        'Flag contradictory preferences for clarification'
+        'Flag contradictory preferences for clarification',
       ],
       examples: [
         'Normalize this course request into a design brief',
         'Create a design brief from the intake form data',
-        'Process course request ID 123 and extract learning requirements'
+        'Process course request ID 123 and extract learning requirements',
       ],
       version: '1.0.0',
-      guidanceFile: 'SKILL.md'
+      guidanceFile: 'SKILL.md',
     };
   }
 
-  async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const lowerRequest = userRequest.toLowerCase();
 
     // High confidence triggers
-    if (lowerRequest.includes('design brief') ||
-        lowerRequest.includes('normalize course request') ||
-        lowerRequest.includes('course intake')) {
+    if (
+      lowerRequest.includes('design brief') ||
+      lowerRequest.includes('normalize course request') ||
+      lowerRequest.includes('course intake')
+    ) {
       return 95;
     }
 
     // Medium confidence triggers
-    if (lowerRequest.includes('course request') &&
-        (lowerRequest.includes('analyze') || lowerRequest.includes('process'))) {
+    if (
+      lowerRequest.includes('course request') &&
+      (lowerRequest.includes('analyze') || lowerRequest.includes('process'))
+    ) {
       return 75;
     }
 
     // Check if CourseRequest data is in context
-    if (context?.previousOutputs?.has('courseRequest') ||
-        context?.userRequest?.includes('CourseRequest')) {
+    if (
+      context?.previousOutputs?.has('courseRequest') ||
+      context?.userRequest?.includes('CourseRequest')
+    ) {
       return 85;
     }
 
@@ -114,7 +124,9 @@ export class CourseDesignBriefSkill extends BaseSkill {
         return this.buildErrorResult(
           'No course request data found in context',
           'MISSING_DATA',
-          { hint: 'Expected courseRequest in previousOutputs or as JSON in userRequest' }
+          {
+            hint: 'Expected courseRequest in previousOutputs or as JSON in userRequest',
+          }
         );
       }
 
@@ -137,7 +149,8 @@ export class CourseDesignBriefSkill extends BaseSkill {
       }
 
       // Check if clarifications are needed
-      const hasClarifications = normalizedData.designBrief.clarifications.length > 0;
+      const hasClarifications =
+        normalizedData.designBrief.clarifications.length > 0;
       const executionTime = Date.now() - startTime;
 
       if (hasClarifications) {
@@ -157,7 +170,6 @@ export class CourseDesignBriefSkill extends BaseSkill {
         95,
         ['curriculum-design'] // Suggest next skill in chain
       );
-
     } catch (error) {
       return this.buildErrorResult(
         `Failed to create design brief: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -195,7 +207,11 @@ export class CourseDesignBriefSkill extends BaseSkill {
 
     // Validate clarification structure if any exist
     for (const clarification of brief.clarifications) {
-      if (!clarification.question || !clarification.field || !clarification.reason) {
+      if (
+        !clarification.question ||
+        !clarification.field ||
+        !clarification.reason
+      ) {
         return false;
       }
     }
@@ -302,8 +318,14 @@ REQUIRED OUTPUT STRUCTURE:
 OUTPUT FORMAT: Return ONLY valid JSON matching the designBrief structure. No markdown formatting, no explanations outside the JSON.`;
   }
 
-  private async callClaudeForNormalization(prompt: string): Promise<DesignBriefOutput> {
-    const { callClaudeWithRetry, extractJSONFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+  private async callClaudeForNormalization(
+    prompt: string
+  ): Promise<DesignBriefOutput> {
+    const {
+      callClaudeWithRetry,
+      extractJSONFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -313,16 +335,16 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the designBrief structure. No mar
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       // Extract and parse JSON from response
-      const designBriefOutput = extractJSONFromResponse<DesignBriefOutput>(response);
+      const designBriefOutput =
+        extractJSONFromResponse<DesignBriefOutput>(response);
 
       return designBriefOutput;
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for course normalization: ${error instanceof Error ? error.message : 'Unknown error'}`

@@ -65,25 +65,25 @@ const learningGoalOptions = [
     label: 'Catch Up',
     value: 'CATCH_UP',
     icon: '🎯',
-    description: 'Review and master foundational concepts'
+    description: 'Review and master foundational concepts',
   },
   {
     label: 'Reinforce',
     value: 'REINFORCE',
     icon: '💪',
-    description: 'Practice and strengthen current grade-level skills'
+    description: 'Practice and strengthen current grade-level skills',
   },
   {
     label: 'Get Ahead',
     value: 'ENRICH',
     icon: '🚀',
-    description: 'Explore advanced concepts and challenge skills'
+    description: 'Explore advanced concepts and challenge skills',
   },
   {
     label: 'Explore Interest',
     value: 'EXPLORE',
     icon: '🔍',
-    description: 'Dive deep into a topic of personal interest'
+    description: 'Dive deep into a topic of personal interest',
   },
 ];
 
@@ -118,9 +118,7 @@ export default function Step3SubjectFocus() {
         <h2 className="text-2xl font-bold text-ink-900 mb-2">
           Subject & Focus Area
         </h2>
-        <p className="text-gray-600">
-          What should this course focus on?
-        </p>
+        <p className="text-gray-600">What should this course focus on?</p>
       </div>
 
       {/* Primary Subject */}
@@ -191,7 +189,8 @@ export default function Step3SubjectFocus() {
               Building Your Custom Curriculum
             </h4>
             <p className="text-sm text-gray-700 mb-2">
-              Based on your selections, our AI will generate a personalized learning path with:
+              Based on your selections, our AI will generate a personalized
+              learning path with:
             </p>
             <ul className="text-sm text-gray-700 space-y-1 ml-4">
               <li>• Interactive games aligned to your chosen topics</li>

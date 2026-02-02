@@ -20,7 +20,11 @@ function TutorialsContent() {
         {/* Search and Filters */}
         <div className="mb-6 flex gap-4">
           <div className="flex-1 relative">
-            <Icon name="search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Icon
+              name="search"
+              size={20}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               placeholder="Search tutorials..."
@@ -40,7 +44,7 @@ function TutorialsContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Tutorial Card */}
           <Link
-            href={"/tutorials/fractions-intro" as any}
+            href={'/tutorials/fractions-intro' as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
@@ -65,7 +69,8 @@ function TutorialsContent() {
                 Introduction to Fractions
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Learn what fractions are and how to identify numerators and denominators
+                Learn what fractions are and how to identify numerators and
+                denominators
               </p>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-600">6 steps</span>
@@ -79,7 +84,7 @@ function TutorialsContent() {
 
           {/* More Tutorial Cards */}
           <Link
-            href={"/tutorials/plant-photosynthesis" as any}
+            href={'/tutorials/plant-photosynthesis' as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center relative">
@@ -104,7 +109,8 @@ function TutorialsContent() {
                 How Photosynthesis Works
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Discover how plants make their own food using sunlight, water, and CO₂
+                Discover how plants make their own food using sunlight, water,
+                and CO₂
               </p>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-600">8 steps</span>
@@ -117,7 +123,7 @@ function TutorialsContent() {
           </Link>
 
           <Link
-            href={"/tutorials/sentence-structure" as any}
+            href={'/tutorials/sentence-structure' as any}
             className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow group"
           >
             <div className="h-32 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center relative">
@@ -142,7 +148,8 @@ function TutorialsContent() {
                 Building Better Sentences
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Master the basics of sentence structure with subjects, verbs, and objects
+                Master the basics of sentence structure with subjects, verbs,
+                and objects
               </p>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-600">5 steps</span>
@@ -157,23 +164,32 @@ function TutorialsContent() {
 
         {/* Continue Learning */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Continue Learning</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Continue Learning
+          </h2>
           <div className="space-y-4">
             <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Icon name="lightbulb" size={24} className="text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-ink-900">Introduction to Fractions</h3>
-                <p className="text-sm text-gray-600">Step 3 of 6 • 5 min remaining</p>
+                <h3 className="font-medium text-ink-900">
+                  Introduction to Fractions
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Step 3 of 6 • 5 min remaining
+                </p>
                 <div className="mt-2">
                   <div className="w-full bg-gray-200 rounded-full h-1.5">
-                    <div className="bg-brand-500 h-1.5 rounded-full" style={{ width: '50%' }}></div>
+                    <div
+                      className="bg-brand-500 h-1.5 rounded-full"
+                      style={{ width: '50%' }}
+                    ></div>
                   </div>
                 </div>
               </div>
               <Link
-                href={"/tutorials/fractions-intro" as any}
+                href={'/tutorials/fractions-intro' as any}
                 className="px-4 py-2 bg-brand-500 text-white font-medium text-sm rounded-lg hover:bg-brand-600 transition-colors"
               >
                 Continue
@@ -184,14 +200,18 @@ function TutorialsContent() {
 
         {/* Popular Tutorials */}
         <div>
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Popular Tutorials</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Popular Tutorials
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center gap-4 hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Icon name="calculator" size={24} className="text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-ink-900">Multiplication Tables</h3>
+                <h3 className="font-medium text-ink-900">
+                  Multiplication Tables
+                </h3>
                 <p className="text-sm text-gray-600">12 steps • 20 min</p>
               </div>
               <div className="flex items-center gap-1 text-amber-500">
@@ -205,7 +225,9 @@ function TutorialsContent() {
                 <Icon name="globe" size={24} className="text-white" />
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-ink-900">Water Cycle Explained</h3>
+                <h3 className="font-medium text-ink-900">
+                  Water Cycle Explained
+                </h3>
                 <p className="text-sm text-gray-600">7 steps • 12 min</p>
               </div>
               <div className="flex items-center gap-1 text-amber-500">

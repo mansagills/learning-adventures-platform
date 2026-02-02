@@ -25,7 +25,9 @@ export function useSaveForLater() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setSavedAdventures(parsed.map((item: SavedAdventure) => item.adventureId));
+        setSavedAdventures(
+          parsed.map((item: SavedAdventure) => item.adventureId)
+        );
       } catch (error) {
         console.error('Error loading saved adventures:', error);
       }
@@ -44,9 +46,9 @@ export function useSaveForLater() {
     setSavedAdventures(newSaved);
 
     // Save to localStorage with metadata
-    const savedData: SavedAdventure[] = newSaved.map(id => ({
+    const savedData: SavedAdventure[] = newSaved.map((id) => ({
       adventureId: id,
-      savedAt: new Date()
+      savedAt: new Date(),
     }));
 
     localStorage.setItem(storageKey, JSON.stringify(savedData));
@@ -62,13 +64,13 @@ export function useSaveForLater() {
       ? `savedAdventures_${session.user.email}`
       : 'savedAdventures_guest';
 
-    const newSaved = savedAdventures.filter(id => id !== adventureId);
+    const newSaved = savedAdventures.filter((id) => id !== adventureId);
     setSavedAdventures(newSaved);
 
     // Update localStorage
-    const savedData: SavedAdventure[] = newSaved.map(id => ({
+    const savedData: SavedAdventure[] = newSaved.map((id) => ({
       adventureId: id,
-      savedAt: new Date()
+      savedAt: new Date(),
     }));
 
     localStorage.setItem(storageKey, JSON.stringify(savedData));
@@ -102,6 +104,6 @@ export function useSaveForLater() {
     toggleSave,
     isSaved,
     getSavedCount,
-    isLoading
+    isLoading,
   };
 }

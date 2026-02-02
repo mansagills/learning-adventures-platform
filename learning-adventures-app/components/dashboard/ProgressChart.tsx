@@ -20,14 +20,28 @@ export default function ProgressChart({
   type = 'bar',
   height = 200,
   showLabels = true,
-  showValues = true
+  showValues = true,
 }: ProgressChartProps) {
   if (type === 'bar') {
-    return <BarChart data={data} height={height} showLabels={showLabels} showValues={showValues} />;
+    return (
+      <BarChart
+        data={data}
+        height={height}
+        showLabels={showLabels}
+        showValues={showValues}
+      />
+    );
   }
 
   // Add other chart types as needed
-  return <BarChart data={data} height={height} showLabels={showLabels} showValues={showValues} />;
+  return (
+    <BarChart
+      data={data}
+      height={height}
+      showLabels={showLabels}
+      showValues={showValues}
+    />
+  );
 }
 
 // Bar Chart Component
@@ -35,9 +49,11 @@ function BarChart({
   data,
   height,
   showLabels,
-  showValues
-}: Omit<ProgressChartProps, 'type'> & { data: NonNullable<ProgressChartProps['data']> }) {
-  const maxValue = Math.max(...data.map(item => item.value));
+  showValues,
+}: Omit<ProgressChartProps, 'type'> & {
+  data: NonNullable<ProgressChartProps['data']>;
+}) {
+  const maxValue = Math.max(...data.map((item) => item.value));
 
   return (
     <div className="space-y-4">
@@ -55,13 +71,17 @@ function BarChart({
                 <span className="font-medium text-ink-800">{item.label}</span>
                 {showValues && (
                   <span className="text-ink-600">
-                    {item.value}{item.max ? `/${item.max}` : ''}
+                    {item.value}
+                    {item.max ? `/${item.max}` : ''}
                   </span>
                 )}
               </div>
             )}
 
-            <div className="relative w-full bg-gray-200 rounded-full overflow-hidden" style={{ height: '12px' }}>
+            <div
+              className="relative w-full bg-gray-200 rounded-full overflow-hidden"
+              style={{ height: '12px' }}
+            >
               <div
                 className={cn(
                   'h-full rounded-full transition-all duration-500 ease-out',
@@ -93,7 +113,7 @@ export function DonutChart({
   data,
   size = 200,
   centerLabel,
-  centerValue
+  centerValue,
 }: DonutChartProps) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   let cumulativePercentage = 0;
@@ -121,7 +141,7 @@ export function DonutChart({
           {data.map((item, index) => {
             const percentage = (item.value / total) * 100;
             const segmentLength = (percentage / 100) * circumference;
-            const offset = cumulativePercentage * circumference / 100;
+            const offset = (cumulativePercentage * circumference) / 100;
 
             cumulativePercentage += percentage;
 
@@ -146,7 +166,9 @@ export function DonutChart({
         {(centerLabel || centerValue) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             {centerValue && (
-              <div className="text-3xl font-bold text-ink-800">{centerValue}</div>
+              <div className="text-3xl font-bold text-ink-800">
+                {centerValue}
+              </div>
             )}
             {centerLabel && (
               <div className="text-sm text-ink-600 mt-1">{centerLabel}</div>

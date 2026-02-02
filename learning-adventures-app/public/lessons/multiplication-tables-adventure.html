@@ -1,462 +1,492 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multiplication Tables Adventure | Learning Adventures</title>
-    <meta name="description" content="Master multiplication tables through an exciting adventure! Practice times tables from 1-12.">
+    <meta
+      name="description"
+      content="Master multiplication tables through an exciting adventure! Practice times tables from 1-12."
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
 
-        .game-container {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+      .game-container {
+        max-width: 800px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
+      .header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 25px;
+        text-align: center;
+      }
 
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
+      .header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: #f8f9fa;
-            padding: 15px;
-            border-bottom: 2px solid #eee;
-        }
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        background: #f8f9fa;
+        padding: 15px;
+        border-bottom: 2px solid #eee;
+      }
 
-        .stat {
-            text-align: center;
-        }
+      .stat {
+        text-align: center;
+      }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+      }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
+      .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+      }
 
-        .lesson-content {
-            padding: 30px;
-        }
+      .lesson-content {
+        padding: 30px;
+      }
 
-        .intro-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+      .intro-section {
+        text-align: center;
+        margin-bottom: 30px;
+      }
 
-        .intro-section p {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 20px;
-        }
+      .intro-section p {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 20px;
+      }
 
-        .table-selector {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
+      .table-selector {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
 
-        .table-btn {
-            width: 60px;
-            height: 60px;
-            border: 3px solid #667eea;
-            border-radius: 12px;
-            background: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .table-btn {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #667eea;
+        border-radius: 12px;
+        background: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .table-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.1);
-        }
+      .table-btn:hover {
+        background: #667eea;
+        color: white;
+        transform: scale(1.1);
+      }
 
-        .table-btn.active {
-            background: #667eea;
-            color: white;
-        }
+      .table-btn.active {
+        background: #667eea;
+        color: white;
+      }
 
-        .table-btn.mastered {
-            background: #2ecc71;
-            border-color: #2ecc71;
-            color: white;
-        }
+      .table-btn.mastered {
+        background: #2ecc71;
+        border-color: #2ecc71;
+        color: white;
+      }
 
-        .practice-area {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-        }
+      .practice-area {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+      }
 
+      .question {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .answer-input {
+        width: 150px;
+        height: 60px;
+        font-size: 2rem;
+        text-align: center;
+        border: 3px solid #ddd;
+        border-radius: 10px;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+
+      .answer-input:focus {
+        border-color: #667eea;
+      }
+
+      .answer-input.correct {
+        border-color: #2ecc71;
+        background: #d4edda;
+      }
+
+      .answer-input.incorrect {
+        border-color: #e74c3c;
+        background: #f8d7da;
+      }
+
+      .btn {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 10px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .feedback {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .feedback.correct {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .feedback.incorrect {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .progress-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #fff;
+        border-radius: 15px;
+        border: 2px solid #eee;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.5s ease;
+      }
+
+      .celebration {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 1000;
+        display: none;
+      }
+
+      .celebration h2 {
+        color: #2ecc71;
+        font-size: 2rem;
+        margin-bottom: 15px;
+      }
+
+      .stars {
+        font-size: 3rem;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 600px) {
         .question {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
+          font-size: 1.8rem;
         }
-
         .answer-input {
-            width: 150px;
-            height: 60px;
-            font-size: 2rem;
-            text-align: center;
-            border: 3px solid #ddd;
-            border-radius: 10px;
-            outline: none;
-            transition: border-color 0.3s;
+          width: 120px;
+          height: 50px;
+          font-size: 1.5rem;
         }
-
-        .answer-input:focus {
-            border-color: #667eea;
+        .table-btn {
+          width: 50px;
+          height: 50px;
+          font-size: 1.2rem;
         }
-
-        .answer-input.correct {
-            border-color: #2ecc71;
-            background: #d4edda;
-        }
-
-        .answer-input.incorrect {
-            border-color: #e74c3c;
-            background: #f8d7da;
-        }
-
-        .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .feedback {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .feedback.correct {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .feedback.incorrect {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .progress-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 15px;
-            border: 2px solid #eee;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #eee;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.5s ease;
-        }
-
-        .celebration {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 1000;
-            display: none;
-        }
-
-        .celebration h2 {
-            color: #2ecc71;
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .stars {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .question {
-                font-size: 1.8rem;
-            }
-            .answer-input {
-                width: 120px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-            .table-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <div class="header">
-            <h1>Multiplication Tables Adventure</h1>
-            <p>Master your times tables and become a math champion!</p>
+      <div class="header">
+        <h1>Multiplication Tables Adventure</h1>
+        <p>Master your times tables and become a math champion!</p>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="score">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="streak">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="tables-mastered">0/12</div>
+          <div class="stat-label">Tables Mastered</div>
+        </div>
+      </div>
+
+      <div class="lesson-content">
+        <div class="intro-section">
+          <p>
+            Select a multiplication table to practice, then answer as many
+            questions as you can!
+          </p>
         </div>
 
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">Score</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="streak">0</div>
-                <div class="stat-label">Streak</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="tables-mastered">0/12</div>
-                <div class="stat-label">Tables Mastered</div>
-            </div>
+        <div class="table-selector" id="table-selector">
+          <!-- Generated by JavaScript -->
         </div>
 
-        <div class="lesson-content">
-            <div class="intro-section">
-                <p>Select a multiplication table to practice, then answer as many questions as you can!</p>
-            </div>
-
-            <div class="table-selector" id="table-selector">
-                <!-- Generated by JavaScript -->
-            </div>
-
-            <div class="practice-area" id="practice-area">
-                <div class="question" id="question">Select a table to start!</div>
-                <div id="input-area" style="display: none;">
-                    <input type="number" class="answer-input" id="answer" placeholder="?" autocomplete="off">
-                    <br>
-                    <button class="btn btn-primary" onclick="checkAnswer()">Check Answer</button>
-                </div>
-                <div class="feedback" id="feedback" style="display: none;"></div>
-            </div>
-
-            <div class="progress-section">
-                <h3 style="margin-bottom: 10px; color: #333;">Current Table Progress</h3>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-                </div>
-                <p style="margin-top: 10px; color: #666;" id="progress-text">Answer 10 questions correctly to master this table!</p>
-            </div>
+        <div class="practice-area" id="practice-area">
+          <div class="question" id="question">Select a table to start!</div>
+          <div id="input-area" style="display: none">
+            <input
+              type="number"
+              class="answer-input"
+              id="answer"
+              placeholder="?"
+              autocomplete="off"
+            />
+            <br />
+            <button class="btn btn-primary" onclick="checkAnswer()">
+              Check Answer
+            </button>
+          </div>
+          <div class="feedback" id="feedback" style="display: none"></div>
         </div>
+
+        <div class="progress-section">
+          <h3 style="margin-bottom: 10px; color: #333">
+            Current Table Progress
+          </h3>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progress-fill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <p style="margin-top: 10px; color: #666" id="progress-text">
+            Answer 10 questions correctly to master this table!
+          </p>
+        </div>
+      </div>
     </div>
 
     <div class="celebration" id="celebration">
-        <div class="stars">⭐⭐⭐</div>
-        <h2>Table Mastered!</h2>
-        <p id="celebration-text">You've mastered the 5 times table!</p>
-        <button class="btn btn-primary" onclick="closeCelebration()">Keep Practicing!</button>
+      <div class="stars">⭐⭐⭐</div>
+      <h2>Table Mastered!</h2>
+      <p id="celebration-text">You've mastered the 5 times table!</p>
+      <button class="btn btn-primary" onclick="closeCelebration()">
+        Keep Practicing!
+      </button>
     </div>
 
     <script>
-        let currentTable = null;
-        let currentQuestion = null;
-        let score = 0;
-        let streak = 0;
-        let tableProgress = {};
-        let masteredTables = new Set();
+      let currentTable = null;
+      let currentQuestion = null;
+      let score = 0;
+      let streak = 0;
+      let tableProgress = {};
+      let masteredTables = new Set();
 
-        // Initialize table selector buttons
-        function initTableSelector() {
-            const selector = document.getElementById('table-selector');
-            for (let i = 1; i <= 12; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'table-btn';
-                btn.textContent = i;
-                btn.onclick = () => selectTable(i);
-                btn.id = `table-btn-${i}`;
-                selector.appendChild(btn);
-            }
+      // Initialize table selector buttons
+      function initTableSelector() {
+        const selector = document.getElementById('table-selector');
+        for (let i = 1; i <= 12; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'table-btn';
+          btn.textContent = i;
+          btn.onclick = () => selectTable(i);
+          btn.id = `table-btn-${i}`;
+          selector.appendChild(btn);
         }
+      }
 
-        function selectTable(num) {
-            // Update button styles
-            document.querySelectorAll('.table-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`table-btn-${num}`).classList.add('active');
-
-            currentTable = num;
-            if (!tableProgress[num]) {
-                tableProgress[num] = 0;
-            }
-            updateProgress();
-            generateQuestion();
-
-            document.getElementById('input-area').style.display = 'block';
-            document.getElementById('feedback').style.display = 'none';
-        }
-
-        function generateQuestion() {
-            const multiplier = Math.floor(Math.random() * 12) + 1;
-            currentQuestion = {
-                num1: currentTable,
-                num2: multiplier,
-                answer: currentTable * multiplier
-            };
-
-            document.getElementById('question').textContent = 
-                `${currentQuestion.num1} × ${currentQuestion.num2} = ?`;
-            document.getElementById('answer').value = '';
-            document.getElementById('answer').className = 'answer-input';
-            document.getElementById('answer').focus();
-        }
-
-        function checkAnswer() {
-            const userAnswer = parseInt(document.getElementById('answer').value);
-            const feedback = document.getElementById('feedback');
-            const answerInput = document.getElementById('answer');
-
-            if (isNaN(userAnswer)) {
-                feedback.textContent = 'Please enter a number!';
-                feedback.className = 'feedback incorrect';
-                feedback.style.display = 'block';
-                return;
-            }
-
-            if (userAnswer === currentQuestion.answer) {
-                // Correct!
-                score += 10 + streak;
-                streak++;
-                tableProgress[currentTable]++;
-
-                answerInput.className = 'answer-input correct';
-                feedback.textContent = `Correct! ${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`;
-                feedback.className = 'feedback correct';
-
-                updateStats();
-                updateProgress();
-
-                // Check if table is mastered
-                if (tableProgress[currentTable] >= 10 && !masteredTables.has(currentTable)) {
-                    masteredTables.add(currentTable);
-                    document.getElementById(`table-btn-${currentTable}`).classList.add('mastered');
-                    showCelebration();
-                }
-
-                setTimeout(() => {
-                    generateQuestion();
-                    feedback.style.display = 'none';
-                }, 1000);
-            } else {
-                // Incorrect
-                streak = 0;
-                answerInput.className = 'answer-input incorrect';
-                feedback.textContent = `Not quite! ${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`;
-                feedback.className = 'feedback incorrect';
-                updateStats();
-            }
-
-            feedback.style.display = 'block';
-        }
-
-        function updateStats() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('streak').textContent = streak;
-            document.getElementById('tables-mastered').textContent = `${masteredTables.size}/12`;
-        }
-
-        function updateProgress() {
-            const progress = tableProgress[currentTable] || 0;
-            const percentage = Math.min((progress / 10) * 100, 100);
-            document.getElementById('progress-fill').style.width = `${percentage}%`;
-            document.getElementById('progress-text').textContent = 
-                progress >= 10 
-                    ? 'Table mastered! Keep practicing to build speed!'
-                    : `${10 - progress} more correct answers to master this table!`;
-        }
-
-        function showCelebration() {
-            document.getElementById('celebration-text').textContent = 
-                `You've mastered the ${currentTable} times table!`;
-            document.getElementById('celebration').style.display = 'block';
-        }
-
-        function closeCelebration() {
-            document.getElementById('celebration').style.display = 'none';
-        }
-
-        // Handle Enter key
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && currentTable) {
-                checkAnswer();
-            }
+      function selectTable(num) {
+        // Update button styles
+        document.querySelectorAll('.table-btn').forEach((btn) => {
+          btn.classList.remove('active');
         });
+        document.getElementById(`table-btn-${num}`).classList.add('active');
 
-        // Initialize
-        initTableSelector();
+        currentTable = num;
+        if (!tableProgress[num]) {
+          tableProgress[num] = 0;
+        }
+        updateProgress();
+        generateQuestion();
+
+        document.getElementById('input-area').style.display = 'block';
+        document.getElementById('feedback').style.display = 'none';
+      }
+
+      function generateQuestion() {
+        const multiplier = Math.floor(Math.random() * 12) + 1;
+        currentQuestion = {
+          num1: currentTable,
+          num2: multiplier,
+          answer: currentTable * multiplier,
+        };
+
+        document.getElementById('question').textContent =
+          `${currentQuestion.num1} × ${currentQuestion.num2} = ?`;
+        document.getElementById('answer').value = '';
+        document.getElementById('answer').className = 'answer-input';
+        document.getElementById('answer').focus();
+      }
+
+      function checkAnswer() {
+        const userAnswer = parseInt(document.getElementById('answer').value);
+        const feedback = document.getElementById('feedback');
+        const answerInput = document.getElementById('answer');
+
+        if (isNaN(userAnswer)) {
+          feedback.textContent = 'Please enter a number!';
+          feedback.className = 'feedback incorrect';
+          feedback.style.display = 'block';
+          return;
+        }
+
+        if (userAnswer === currentQuestion.answer) {
+          // Correct!
+          score += 10 + streak;
+          streak++;
+          tableProgress[currentTable]++;
+
+          answerInput.className = 'answer-input correct';
+          feedback.textContent = `Correct! ${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`;
+          feedback.className = 'feedback correct';
+
+          updateStats();
+          updateProgress();
+
+          // Check if table is mastered
+          if (
+            tableProgress[currentTable] >= 10 &&
+            !masteredTables.has(currentTable)
+          ) {
+            masteredTables.add(currentTable);
+            document
+              .getElementById(`table-btn-${currentTable}`)
+              .classList.add('mastered');
+            showCelebration();
+          }
+
+          setTimeout(() => {
+            generateQuestion();
+            feedback.style.display = 'none';
+          }, 1000);
+        } else {
+          // Incorrect
+          streak = 0;
+          answerInput.className = 'answer-input incorrect';
+          feedback.textContent = `Not quite! ${currentQuestion.num1} × ${currentQuestion.num2} = ${currentQuestion.answer}`;
+          feedback.className = 'feedback incorrect';
+          updateStats();
+        }
+
+        feedback.style.display = 'block';
+      }
+
+      function updateStats() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('streak').textContent = streak;
+        document.getElementById('tables-mastered').textContent =
+          `${masteredTables.size}/12`;
+      }
+
+      function updateProgress() {
+        const progress = tableProgress[currentTable] || 0;
+        const percentage = Math.min((progress / 10) * 100, 100);
+        document.getElementById('progress-fill').style.width = `${percentage}%`;
+        document.getElementById('progress-text').textContent =
+          progress >= 10
+            ? 'Table mastered! Keep practicing to build speed!'
+            : `${10 - progress} more correct answers to master this table!`;
+      }
+
+      function showCelebration() {
+        document.getElementById('celebration-text').textContent =
+          `You've mastered the ${currentTable} times table!`;
+        document.getElementById('celebration').style.display = 'block';
+      }
+
+      function closeCelebration() {
+        document.getElementById('celebration').style.display = 'none';
+      }
+
+      // Handle Enter key
+      document.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && currentTable) {
+          checkAnswer();
+        }
+      });
+
+      // Initialize
+      initTableSelector();
     </script>
-</body>
+  </body>
 </html>

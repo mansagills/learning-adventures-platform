@@ -66,9 +66,12 @@ function CourseRequestSuccessContent() {
                     1
                   </div>
                   <div>
-                    <p className="font-semibold text-ink-900">Confirmation Email</p>
+                    <p className="font-semibold text-ink-900">
+                      Confirmation Email
+                    </p>
                     <p className="text-sm text-gray-600">
-                      You'll receive an email confirmation within the next few minutes
+                      You'll receive an email confirmation within the next few
+                      minutes
                     </p>
                   </div>
                 </li>
@@ -77,9 +80,12 @@ function CourseRequestSuccessContent() {
                     2
                   </div>
                   <div>
-                    <p className="font-semibold text-ink-900">Review (24-48 hours)</p>
+                    <p className="font-semibold text-ink-900">
+                      Review (24-48 hours)
+                    </p>
                     <p className="text-sm text-gray-600">
-                      Our team will review your request and may reach out with questions
+                      Our team will review your request and may reach out with
+                      questions
                     </p>
                   </div>
                 </li>
@@ -88,9 +94,12 @@ function CourseRequestSuccessContent() {
                     3
                   </div>
                   <div>
-                    <p className="font-semibold text-ink-900">Quote & Timeline</p>
+                    <p className="font-semibold text-ink-900">
+                      Quote & Timeline
+                    </p>
                     <p className="text-sm text-gray-600">
-                      We'll send a detailed quote and development timeline for approval
+                      We'll send a detailed quote and development timeline for
+                      approval
                     </p>
                   </div>
                 </li>
@@ -99,7 +108,9 @@ function CourseRequestSuccessContent() {
                     4
                   </div>
                   <div>
-                    <p className="font-semibold text-ink-900">Course Creation</p>
+                    <p className="font-semibold text-ink-900">
+                      Course Creation
+                    </p>
                     <p className="text-sm text-gray-600">
                       Our AI + human team will create your custom content
                     </p>
@@ -110,9 +121,12 @@ function CourseRequestSuccessContent() {
                     5
                   </div>
                   <div>
-                    <p className="font-semibold text-ink-900">Delivery & Support</p>
+                    <p className="font-semibold text-ink-900">
+                      Delivery & Support
+                    </p>
                     <p className="text-sm text-gray-600">
-                      You'll receive your course with ongoing support and updates
+                      You'll receive your course with ongoing support and
+                      updates
                     </p>
                   </div>
                 </li>
@@ -176,7 +190,10 @@ function CourseRequestSuccessContent() {
                     </h3>
                     <p className="text-sm text-gray-700">
                       View request status anytime in{' '}
-                      <Link href="/my-requests" className="text-sunshine-700 hover:underline font-semibold">
+                      <Link
+                        href="/my-requests"
+                        className="text-sunshine-700 hover:underline font-semibold"
+                      >
                         My Requests
                       </Link>
                     </p>

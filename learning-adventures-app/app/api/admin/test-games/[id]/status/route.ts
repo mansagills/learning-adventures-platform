@@ -23,7 +23,7 @@ export async function PATCH(
       TestGameStatus.IN_TESTING,
       TestGameStatus.APPROVED,
       TestGameStatus.REJECTED,
-      TestGameStatus.NEEDS_REVISION
+      TestGameStatus.NEEDS_REVISION,
     ];
     if (!validStatuses.includes(status as TestGameStatus)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -31,7 +31,7 @@ export async function PATCH(
 
     const game = await prisma.testGame.update({
       where: { id: params.id },
-      data: { status: status as TestGameStatus }
+      data: { status: status as TestGameStatus },
     });
 
     return NextResponse.json({ game });

@@ -1,20 +1,23 @@
+import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import React from 'react';
 
-declare global {
-  var jest: any;
-}
+// Make jest compatible with vitest
+globalThis.jest = vi;
+
+// Make React available globally for tests
+globalThis.React = React;
 
 // Mock Next.js router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter() {
     return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
+      push: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
     };
   },
   useSearchParams() {
@@ -26,7 +29,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock Next.js image
-jest.mock('next/image', () => ({
+vi.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     // eslint-disable-next-line @next/next/no-img-element
@@ -35,14 +38,14 @@ jest.mock('next/image', () => ({
 }));
 
 // Mock analytics
-jest.mock('@/lib/analytics', () => ({
-  track: jest.fn(),
+vi.mock('@/lib/analytics', () => ({
+  track: vi.fn(),
   analytics: {
-    clickCTA: jest.fn(),
-    viewSection: jest.fn(),
-    openFAQ: jest.fn(),
-    submitForm: jest.fn(),
-    clickPartnerLogo: jest.fn(),
+    clickCTA: vi.fn(),
+    viewSection: vi.fn(),
+    openFAQ: vi.fn(),
+    submitForm: vi.fn(),
+    clickPartnerLogo: vi.fn(),
   },
 }));
 
@@ -62,14 +65,14 @@ jest.mock('@/lib/analytics', () => ({
 // Mock matchMedia for responsive tests
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query: string) => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
