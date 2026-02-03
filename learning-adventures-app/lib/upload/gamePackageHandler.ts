@@ -61,7 +61,10 @@ export async function processGamePackage(
   }
 
   // Generate unique game ID if not provided
-  const gameId = manifest.id || generateGameId(manifest.title);
+  let gameId = manifest.id || generateGameId(manifest.title);
+
+  // Sanitize gameId to prevent path traversal (Critical Security Fix)
+  gameId = sanitizeId(gameId);
 
   // Check if game already exists in TestGame
   const existing = await prisma.testGame.findUnique({
@@ -142,6 +145,16 @@ function generateGameId(title: string): string {
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+    .trim();
+}
+
+/**
+ * Sanitize ID to prevent path traversal
+ * Allows only alphanumeric characters, hyphens, and underscores
+ */
+function sanitizeId(id: string): string {
+  return id
+    .replace(/[^a-zA-Z0-9\-_]/g, '')
     .trim();
 }
 

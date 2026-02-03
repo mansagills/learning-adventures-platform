@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 import React from 'react';
+import { vi } from 'vitest';
+
+globalThis.jest = vi;
 
 declare global {
   var jest: any;
