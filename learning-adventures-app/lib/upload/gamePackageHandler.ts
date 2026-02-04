@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import path from 'path';
 import fs from 'fs/promises';
 import { extractMetadata } from './metadataExtractor';
+import { validateIdentifier } from '@/lib/security';
 
 interface GameManifest {
   id: string;
@@ -65,6 +66,9 @@ export async function processGamePackage(
 
   // Sanitize gameId to prevent path traversal (Critical Security Fix)
   gameId = sanitizeId(gameId);
+
+  // Validate game ID to prevent path traversal
+  validateIdentifier(gameId, 'Game ID');
 
   // Check if game already exists in TestGame
   const existing = await prisma.testGame.findUnique({

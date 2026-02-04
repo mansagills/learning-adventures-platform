@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import path from 'path';
 import fs from 'fs/promises';
 import { Difficulty, LessonType } from '@prisma/client';
+import { validateIdentifier } from '@/lib/security';
 
 export interface CourseManifest {
   title: string;
@@ -71,6 +72,9 @@ export async function processCoursePackage(
 
   // Sanitize slug to prevent path traversal (Critical Security Fix)
   slug = sanitizeSlug(slug);
+
+  // Validate slug to prevent path traversal
+  validateIdentifier(slug, 'Course Slug');
 
   // Check if course already exists in TestCourse
   const existing = await prisma.testCourse.findUnique({
