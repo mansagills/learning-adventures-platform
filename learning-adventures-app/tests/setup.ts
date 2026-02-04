@@ -1,9 +1,14 @@
 import '@testing-library/jest-dom';
 import React from 'react';
+import { vi } from 'vitest';
 
 declare global {
   var jest: any;
+  var React: any;
 }
+
+globalThis.jest = vi;
+globalThis.React = React;
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
