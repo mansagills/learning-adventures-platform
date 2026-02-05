@@ -18,6 +18,17 @@ export async function routeFileUpload(
   file: File,
   targetPath: string
 ): Promise<{ url: string; storageType: 'LOCAL' | 'BLOB' }> {
+  // Security check: Prevent path traversal
+  // Resolve the absolute path of where we want to store things
+  const publicDir = path.resolve(process.cwd(), 'public');
+  // Resolve the absolute path of the requested target
+  const resolvedTarget = path.resolve(publicDir, targetPath);
+
+  // Check if the resolved target is still inside the public directory
+  if (!resolvedTarget.startsWith(publicDir)) {
+    throw new Error('Security Error: Path traversal detected');
+  }
+
   const fileExt = path.extname(file.name).toLowerCase();
   const useBlob =
     file.size > STORAGE_RULES.LOCAL_MAX_SIZE ||
@@ -29,11 +40,11 @@ export async function routeFileUpload(
     return { url, storageType: 'BLOB' };
   } else {
     // Save to local /public directory
-    const publicPath = path.join(process.cwd(), 'public', targetPath);
-    await fs.mkdir(path.dirname(publicPath), { recursive: true });
+    // Use resolvedTarget which we know is safe
+    await fs.mkdir(path.dirname(resolvedTarget), { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(publicPath, buffer);
+    await fs.writeFile(resolvedTarget, buffer);
 
     // Return relative URL (accessible via /public)
     return { url: `/${targetPath}`, storageType: 'LOCAL' };
