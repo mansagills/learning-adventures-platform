@@ -64,8 +64,8 @@ export default function AdminPanel() {
   useEffect(() => {
     // Fetch Gemini stats
     fetch('/api/gemini/stats')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
         if (data) {
           setGeminiStats({ total: data.total, thisMonth: data.thisMonth });
         }
@@ -97,9 +97,10 @@ export default function AdminPanel() {
                 href={item.href as any}
                 className={`
                   flex items-start space-x-3 px-3 py-3 rounded-lg transition-all duration-200
-                  ${isActive
-                    ? 'bg-brand-50 text-brand-700 shadow-sm'
-                    : 'text-ink-600 hover:bg-gray-50 hover:text-brand-600'
+                  ${
+                    isActive
+                      ? 'bg-brand-50 text-brand-700 shadow-sm'
+                      : 'text-ink-600 hover:bg-gray-50 hover:text-brand-600'
                   }
                 `}
               >
@@ -109,10 +110,14 @@ export default function AdminPanel() {
                   className={`flex-shrink-0 mt-0.5 ${isActive ? 'text-brand-600' : 'text-ink-400'}`}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${isActive ? 'text-brand-700' : 'text-ink-700'}`}>
+                  <p
+                    className={`text-sm font-medium ${isActive ? 'text-brand-700' : 'text-ink-700'}`}
+                  >
                     {item.label}
                   </p>
-                  <p className={`text-xs mt-0.5 ${isActive ? 'text-brand-600' : 'text-ink-500'}`}>
+                  <p
+                    className={`text-xs mt-0.5 ${isActive ? 'text-brand-600' : 'text-ink-500'}`}
+                  >
                     {item.description}
                   </p>
                 </div>
@@ -135,7 +140,9 @@ export default function AdminPanel() {
           {geminiStats.total > 0 && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-ink-600">Gemini Games</span>
-              <span className="text-sm font-semibold text-brand-600">{geminiStats.total}</span>
+              <span className="text-sm font-semibold text-brand-600">
+                {geminiStats.total}
+              </span>
             </div>
           )}
           <div className="flex items-center justify-between">

@@ -7,7 +7,9 @@ interface WelcomeBackBannerProps {
   userName?: string | null;
 }
 
-export default function WelcomeBackBanner({ userName }: WelcomeBackBannerProps) {
+export default function WelcomeBackBanner({
+  userName,
+}: WelcomeBackBannerProps) {
   const displayName = userName?.split(' ')[0] || 'Adventurer';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
 
@@ -22,7 +24,11 @@ export default function WelcomeBackBanner({ userName }: WelcomeBackBannerProps) 
             </p>
           </div>
           <Link href={`${appUrl}/dashboard`}>
-            <Button variant="candy" size="md" className="bg-white text-pg-violet hover:bg-pg-yellow hover:text-foreground">
+            <Button
+              variant="candy"
+              size="md"
+              className="bg-white text-pg-violet hover:bg-pg-yellow hover:text-foreground"
+            >
               Continue to Dashboard →
             </Button>
           </Link>

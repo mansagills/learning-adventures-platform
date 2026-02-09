@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useStartAdventure, useUpdateProgress, useCompleteAdventure, useUserProgress } from '@/hooks/useProgress';
+import {
+  useStartAdventure,
+  useUpdateProgress,
+  useCompleteAdventure,
+  useUserProgress,
+} from '@/hooks/useProgress';
 import { useAchievements } from '@/hooks/useAchievements';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,13 +16,23 @@ import ProgressStats from '@/components/progress/ProgressStats';
 
 function ProgressTestContent() {
   const { data: session } = useSession();
-  const [adventureId, setAdventureId] = useState('test-adventure-' + Date.now());
+  const [adventureId, setAdventureId] = useState(
+    'test-adventure-' + Date.now()
+  );
   const [score, setScore] = useState(85);
   const [timeSpent, setTimeSpent] = useState(15);
   const [message, setMessage] = useState('');
 
-  const { data: progressData, loading: progressLoading, refetch: refetchProgress } = useUserProgress();
-  const { data: achievementData, loading: achievementsLoading, refetch: refetchAchievements } = useAchievements();
+  const {
+    data: progressData,
+    loading: progressLoading,
+    refetch: refetchProgress,
+  } = useUserProgress();
+  const {
+    data: achievementData,
+    loading: achievementsLoading,
+    refetch: refetchAchievements,
+  } = useAchievements();
   const { startAdventure } = useStartAdventure();
   const { updateProgress } = useUpdateProgress();
   const { completeAdventure } = useCompleteAdventure();
@@ -45,7 +60,9 @@ function ProgressTestContent() {
   const handleComplete = async () => {
     try {
       const result = await completeAdventure(adventureId, score, timeSpent);
-      setMessage(`✅ Completed! Earned ${result.newAchievements?.length || 0} new achievements!`);
+      setMessage(
+        `✅ Completed! Earned ${result.newAchievements?.length || 0} new achievements!`
+      );
       await refetchProgress();
       await refetchAchievements();
     } catch (error: any) {
@@ -65,15 +82,20 @@ function ProgressTestContent() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-ink-800 mb-2">Progress Tracking Test Page</h1>
+          <h1 className="text-3xl font-bold text-ink-800 mb-2">
+            Progress Tracking Test Page
+          </h1>
           <p className="text-ink-600">
-            Logged in as: <span className="font-medium">{session?.user?.email}</span>
+            Logged in as:{' '}
+            <span className="font-medium">{session?.user?.email}</span>
           </p>
         </div>
 
         {/* Test Controls */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-bold text-ink-800 mb-4">Test Progress Tracking</h2>
+          <h2 className="text-xl font-bold text-ink-800 mb-4">
+            Test Progress Tracking
+          </h2>
 
           <div className="space-y-4">
             {/* Adventure ID */}
@@ -154,7 +176,9 @@ function ProgressTestContent() {
         {/* Current Progress Stats */}
         {progressData && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-ink-800 mb-4">Your Current Progress</h2>
+            <h2 className="text-2xl font-bold text-ink-800 mb-4">
+              Your Current Progress
+            </h2>
             <ProgressStats stats={progressData.stats} showCategories={true} />
           </div>
         )}
@@ -177,37 +201,68 @@ function ProgressTestContent() {
         {/* Recent Activity */}
         {progressData && progressData.progress.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-ink-800 mb-4">All Progress Records</h2>
+            <h2 className="text-xl font-bold text-ink-800 mb-4">
+              All Progress Records
+            </h2>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Adventure ID</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Category</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Status</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Score</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Time</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">Completed</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Adventure ID
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Category
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Score
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Time
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-ink-700">
+                      Completed
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {progressData.progress.map((p) => (
-                    <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-sm text-ink-800">{p.adventureId}</td>
-                      <td className="py-3 px-4 text-sm text-ink-600">{p.category}</td>
+                    <tr
+                      key={p.id}
+                      className="border-b border-gray-100 hover:bg-gray-50"
+                    >
+                      <td className="py-3 px-4 text-sm text-ink-800">
+                        {p.adventureId}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-ink-600">
+                        {p.category}
+                      </td>
                       <td className="py-3 px-4">
-                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
-                          p.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                          p.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
+                        <span
+                          className={`inline-block px-2 py-1 text-xs font-medium rounded ${
+                            p.status === 'COMPLETED'
+                              ? 'bg-green-100 text-green-700'
+                              : p.status === 'IN_PROGRESS'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
                           {p.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm text-ink-800">{p.score || '-'}%</td>
-                      <td className="py-3 px-4 text-sm text-ink-600">{p.timeSpent}m</td>
+                      <td className="py-3 px-4 text-sm text-ink-800">
+                        {p.score || '-'}%
+                      </td>
                       <td className="py-3 px-4 text-sm text-ink-600">
-                        {p.completedAt ? new Date(p.completedAt).toLocaleDateString() : '-'}
+                        {p.timeSpent}m
+                      </td>
+                      <td className="py-3 px-4 text-sm text-ink-600">
+                        {p.completedAt
+                          ? new Date(p.completedAt).toLocaleDateString()
+                          : '-'}
                       </td>
                     </tr>
                   ))}
@@ -219,14 +274,26 @@ function ProgressTestContent() {
 
         {/* Instructions */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-blue-900 mb-2">How to Use This Test Page</h3>
+          <h3 className="text-lg font-bold text-blue-900 mb-2">
+            How to Use This Test Page
+          </h3>
           <ol className="space-y-2 text-blue-800">
-            <li><strong>1. Start Adventure:</strong> Creates a new progress record with IN_PROGRESS status</li>
-            <li><strong>2. Update Progress:</strong> Updates score and time spent (optional step)</li>
-            <li><strong>3. Complete Adventure:</strong> Marks as COMPLETED and checks for new achievements!</li>
+            <li>
+              <strong>1. Start Adventure:</strong> Creates a new progress record
+              with IN_PROGRESS status
+            </li>
+            <li>
+              <strong>2. Update Progress:</strong> Updates score and time spent
+              (optional step)
+            </li>
+            <li>
+              <strong>3. Complete Adventure:</strong> Marks as COMPLETED and
+              checks for new achievements!
+            </li>
             <li className="mt-4 pt-4 border-t border-blue-200">
-              💡 <strong>Tip:</strong> Try completing adventures with different scores (100% for Perfect Score achievement!)
-              or complete multiple adventures to earn milestone achievements.
+              💡 <strong>Tip:</strong> Try completing adventures with different
+              scores (100% for Perfect Score achievement!) or complete multiple
+              adventures to earn milestone achievements.
             </li>
           </ol>
         </div>

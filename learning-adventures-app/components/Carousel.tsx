@@ -29,7 +29,7 @@ export default function Carousel({
   autoPlayInterval = 5000,
   showDots = true,
   showArrows = true,
-  gap = 'gap-4'
+  gap = 'gap-4',
 }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
@@ -136,7 +136,7 @@ export default function Carousel({
           )}
           style={{
             transform: getTransform(),
-            width: `${(totalItems * 100) / itemsPerView.desktop}%`
+            width: `${(totalItems * 100) / itemsPerView.desktop}%`,
           }}
           role="region"
           aria-label={title ? `${title} carousel` : 'Content carousel'}
@@ -148,7 +148,7 @@ export default function Carousel({
               key={index}
               className="flex-shrink-0"
               style={{
-                width: `${100 / totalItems}%`
+                width: `${100 / totalItems}%`,
               }}
               role="group"
               aria-label={`${index + 1} of ${totalItems}`}
@@ -203,7 +203,9 @@ export default function Carousel({
 
       {/* Screen Reader Status */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        Showing items {currentIndex + 1} to {Math.min(currentIndex + itemsPerView.desktop, totalItems)} of {totalItems}
+        Showing items {currentIndex + 1} to{' '}
+        {Math.min(currentIndex + itemsPerView.desktop, totalItems)} of{' '}
+        {totalItems}
       </div>
     </div>
   );

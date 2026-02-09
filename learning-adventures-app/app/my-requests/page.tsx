@@ -6,16 +6,42 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Container from '@/components/Container';
 import { useCourseRequests } from '@/hooks/useCourseRequests';
 
-type StatusFilter = 'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+type StatusFilter =
+  | 'all'
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'REJECTED';
 
 const statusConfig = {
   DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700', icon: '📝' },
-  SUBMITTED: { label: 'Submitted', color: 'bg-blue-100 text-blue-700', icon: '📬' },
-  UNDER_REVIEW: { label: 'Under Review', color: 'bg-purple-100 text-purple-700', icon: '👀' },
-  IN_PROGRESS: { label: 'In Progress', color: 'bg-yellow-100 text-yellow-700', icon: '⚙️' },
-  COMPLETED: { label: 'Completed', color: 'bg-green-100 text-green-700', icon: '✅' },
+  SUBMITTED: {
+    label: 'Submitted',
+    color: 'bg-blue-100 text-blue-700',
+    icon: '📬',
+  },
+  UNDER_REVIEW: {
+    label: 'Under Review',
+    color: 'bg-purple-100 text-purple-700',
+    icon: '👀',
+  },
+  IN_PROGRESS: {
+    label: 'In Progress',
+    color: 'bg-yellow-100 text-yellow-700',
+    icon: '⚙️',
+  },
+  COMPLETED: {
+    label: 'Completed',
+    color: 'bg-green-100 text-green-700',
+    icon: '✅',
+  },
   REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: '❌' },
-  CANCELLED: { label: 'Cancelled', color: 'bg-gray-100 text-gray-700', icon: '🚫' },
+  CANCELLED: {
+    label: 'Cancelled',
+    color: 'bg-gray-100 text-gray-700',
+    icon: '🚫',
+  },
 };
 
 const urgencyConfig = {
@@ -109,9 +135,10 @@ export default function MyRequestsPage() {
                   onClick={() => setStatusFilter('all')}
                   className={`
                     px-4 py-2 rounded-lg font-medium transition-all
-                    ${statusFilter === 'all'
-                      ? 'bg-brand-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-brand-300'
+                    ${
+                      statusFilter === 'all'
+                        ? 'bg-brand-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-brand-300'
                     }
                   `}
                 >
@@ -121,9 +148,10 @@ export default function MyRequestsPage() {
                   onClick={() => setStatusFilter('SUBMITTED')}
                   className={`
                     px-4 py-2 rounded-lg font-medium transition-all
-                    ${statusFilter === 'SUBMITTED'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300'
+                    ${
+                      statusFilter === 'SUBMITTED'
+                        ? 'bg-blue-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300'
                     }
                   `}
                 >
@@ -133,9 +161,10 @@ export default function MyRequestsPage() {
                   onClick={() => setStatusFilter('UNDER_REVIEW')}
                   className={`
                     px-4 py-2 rounded-lg font-medium transition-all
-                    ${statusFilter === 'UNDER_REVIEW'
-                      ? 'bg-purple-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-purple-300'
+                    ${
+                      statusFilter === 'UNDER_REVIEW'
+                        ? 'bg-purple-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-purple-300'
                     }
                   `}
                 >
@@ -145,9 +174,10 @@ export default function MyRequestsPage() {
                   onClick={() => setStatusFilter('IN_PROGRESS')}
                   className={`
                     px-4 py-2 rounded-lg font-medium transition-all
-                    ${statusFilter === 'IN_PROGRESS'
-                      ? 'bg-yellow-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-yellow-300'
+                    ${
+                      statusFilter === 'IN_PROGRESS'
+                        ? 'bg-yellow-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-yellow-300'
                     }
                   `}
                 >
@@ -157,9 +187,10 @@ export default function MyRequestsPage() {
                   onClick={() => setStatusFilter('COMPLETED')}
                   className={`
                     px-4 py-2 rounded-lg font-medium transition-all
-                    ${statusFilter === 'COMPLETED'
-                      ? 'bg-green-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-green-300'
+                    ${
+                      statusFilter === 'COMPLETED'
+                        ? 'bg-green-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-green-300'
                     }
                   `}
                 >
@@ -179,7 +210,9 @@ export default function MyRequestsPage() {
             {/* Error State */}
             {error && (
               <div className="bg-coral-50 border-2 border-coral-200 rounded-xl p-6 text-center">
-                <p className="text-coral-700 font-semibold mb-2">Failed to load requests</p>
+                <p className="text-coral-700 font-semibold mb-2">
+                  Failed to load requests
+                </p>
                 <p className="text-gray-600 mb-4">{error}</p>
                 <button
                   onClick={refetch}
@@ -228,8 +261,12 @@ export default function MyRequestsPage() {
             {!isLoading && !error && requests.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {requests.map((request: any) => {
-                  const status = statusConfig[request.status as keyof typeof statusConfig];
-                  const urgency = urgencyConfig[request.urgencyLevel as keyof typeof urgencyConfig];
+                  const status =
+                    statusConfig[request.status as keyof typeof statusConfig];
+                  const urgency =
+                    urgencyConfig[
+                      request.urgencyLevel as keyof typeof urgencyConfig
+                    ];
 
                   return (
                     <Link
@@ -252,7 +289,9 @@ export default function MyRequestsPage() {
                           {status?.icon} {status?.label}
                         </span>
                         {urgency && request.urgencyLevel !== 'STANDARD' && (
-                          <span className={`text-sm font-semibold ${urgency.color}`}>
+                          <span
+                            className={`text-sm font-semibold ${urgency.color}`}
+                          >
                             ⚡ {urgency.label}
                           </span>
                         )}
@@ -263,7 +302,8 @@ export default function MyRequestsPage() {
                         {request.studentName}
                       </h3>
                       <p className="text-gray-600 text-sm mb-4">
-                        {request.primarySubject?.replace('_', ' ')} • Age {request.studentAge}
+                        {request.primarySubject?.replace('_', ' ')} • Age{' '}
+                        {request.studentAge}
                       </p>
 
                       {/* Dates */}

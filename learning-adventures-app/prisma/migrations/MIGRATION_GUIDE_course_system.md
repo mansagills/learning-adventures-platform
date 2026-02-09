@@ -1,9 +1,11 @@
 # Database Migration - Course System
 
 ## Overview
+
 This migration adds the complete Course System to the Learning Adventures platform.
 
 ## New Models Added
+
 1. **Course** - Course definitions with metadata
 2. **CourseLesson** - Individual lessons within courses
 3. **CourseEnrollment** - User's course progress
@@ -12,6 +14,7 @@ This migration adds the complete Course System to the Learning Adventures platfo
 6. **UserLevel** - User level and streak system
 
 ## New Enums
+
 - `Difficulty` (BEGINNER, INTERMEDIATE, ADVANCED)
 - `LessonType` (VIDEO, INTERACTIVE, GAME, QUIZ, READING, PROJECT)
 - `CourseStatus` (NOT_STARTED, IN_PROGRESS, COMPLETED)
@@ -20,6 +23,7 @@ This migration adds the complete Course System to the Learning Adventures platfo
 ## Migration Commands
 
 ### Development (Local)
+
 ```bash
 cd learning-adventures-app
 
@@ -37,6 +41,7 @@ npm run db:seed
 ```
 
 ### Production
+
 ```bash
 # Run migration
 npx prisma migrate deploy
@@ -48,6 +53,7 @@ npm run db:seed:production
 ## Post-Migration Steps
 
 1. **Verify tables created:**
+
    ```sql
    SELECT table_name FROM information_schema.tables
    WHERE table_schema = 'public'
@@ -55,6 +61,7 @@ npm run db:seed:production
    ```
 
 2. **Check sample courses seeded:**
+
    ```sql
    SELECT id, title, subject, "isPremium" FROM "Course";
    ```
@@ -91,6 +98,7 @@ DROP TYPE IF EXISTS "LessonProgressStatus";
 ## Data Validation
 
 After migration, verify:
+
 - [ ] All tables created successfully
 - [ ] Indexes created on key fields
 - [ ] Foreign key constraints work
@@ -108,6 +116,7 @@ After migration, verify:
 ## Seeded Data
 
 The migration includes seed data for:
+
 - 3 sample courses (Multiplication Mastery, Fractions Foundations, Science Lab Basics)
 - 25+ lessons across all courses
 - Ready for testing enrollment and progress tracking

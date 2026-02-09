@@ -11,17 +11,23 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    return NextResponse.json({
-      session: session,
-      hasSession: !!session,
-      user: session?.user || null,
-      role: session?.user?.role || null,
-      roleType: typeof session?.user?.role,
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        session: session,
+        hasSession: !!session,
+        user: session?.user || null,
+        role: session?.user?.role || null,
+        roleType: typeof session?.user?.role,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({
-      error: 'Error fetching session',
-      details: String(error)
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Error fetching session',
+        details: String(error),
+      },
+      { status: 500 }
+    );
   }
 }

@@ -58,14 +58,17 @@ Course Request Intake Form (60+ fields)
 ## Phase 1: CourseDesignBriefSkill ✅
 
 ### Purpose
+
 Normalizes custom course intake forms and identifies ambiguous data requiring human clarification.
 
 ### Implementation
+
 - **File**: `lib/skills/course-design-brief/CourseDesignBriefSkill.ts`
 - **Lines of Code**: ~330
 - **Dependencies**: Anthropic SDK, BaseSkill
 
 ### Key Features
+
 1. **Data Normalization**: Transforms 60+ form fields into structured JSON
 2. **Intelligent Inference**: Calculates total lessons from course length (SHORT=5-10, MEDIUM=12-20, LONG=25-40)
 3. **Clarification Detection**: Identifies 5 types of ambiguous data:
@@ -76,11 +79,13 @@ Normalizes custom course intake forms and identifies ambiguous data requiring hu
    - Unfeasible accommodations
 
 ### Test Results
+
 - **Test Cases**: 5 scenarios
 - **Execution Time**: 10-18 seconds per request
 - **Success Rate**: 100%
 
 **Sample Output**:
+
 ```typescript
 {
   designBrief: {
@@ -93,6 +98,7 @@ Normalizes custom course intake forms and identifies ambiguous data requiring hu
 ```
 
 ### Production Quality
+
 - ✅ Retry logic with exponential backoff
 - ✅ JSON extraction handles markdown code blocks
 - ✅ Comprehensive validation
@@ -103,14 +109,17 @@ Normalizes custom course intake forms and identifies ambiguous data requiring hu
 ## Phase 2: CurriculumDesignSkill ✅
 
 ### Purpose
+
 Designs complete curriculum structure with pedagogically sound lesson sequencing.
 
 ### Implementation
+
 - **File**: `lib/skills/curriculum-design/CurriculumDesignSkill.ts`
 - **Lines of Code**: ~410
 - **Dependencies**: Anthropic SDK, BaseSkill
 
 ### Key Features
+
 1. **Chapter Organization**: Creates 3-5 thematic chapters
 2. **Lesson Planning**: Detailed plans with Bloom's Taxonomy objectives
 3. **Type Distribution**: Optimal mix (40% games, 20% interactive, 20% quizzes, 10% video, 10% projects)
@@ -118,11 +127,13 @@ Designs complete curriculum structure with pedagogically sound lesson sequencing
 5. **Progression Strategy**: Scaffolding from easy to hard with spiral reinforcement
 
 ### Test Results
+
 - **Test Cases**: 2 courses (12 lessons, 30 lessons)
 - **Execution Time**: 61-108 seconds
 - **Success Rate**: 100%
 
 **Sample Output** (12-lesson math course):
+
 ```
 Course: "Animal Adventure Math: Multiplication & Division Safari"
 Chapters: 4
@@ -132,6 +143,7 @@ Difficulty: 25% easy, 50% medium, 25% hard
 ```
 
 ### Production Quality
+
 - ✅ Lesson type distribution within ±10% of targets
 - ✅ All learning objectives use Bloom's Taxonomy verbs
 - ✅ Scaffolded difficulty progression
@@ -142,14 +154,17 @@ Difficulty: 25% easy, 50% medium, 25% hard
 ## Phase 3: InteractiveContentSkill ✅
 
 ### Purpose
+
 Generates actual playable content - HTML games, interactive widgets, and quiz JSON.
 
 ### Implementation
+
 - **File**: `lib/skills/interactive-content/InteractiveContentSkill.ts`
 - **Lines of Code**: ~460
 - **Dependencies**: Anthropic SDK, BaseSkill, fs/promises
 
 ### Key Features
+
 1. **Standalone HTML Games**: Complete files with embedded CSS/JavaScript
 2. **Mobile-Responsive Design**: Viewport meta tags, flexible layouts
 3. **Accessibility**: Semantic HTML, ARIA-ready, keyboard navigation
@@ -157,6 +172,7 @@ Generates actual playable content - HTML games, interactive widgets, and quiz JS
 5. **Quiz JSON**: Structured question data with explanations
 
 ### Test Results
+
 - **Test Cases**: 3 lessons (Interactive, Game, Quiz)
 - **Execution Time**: 188 seconds for 3 files
 - **Generated Files**:
@@ -165,28 +181,35 @@ Generates actual playable content - HTML games, interactive widgets, and quiz JS
   - `lesson-4-quiz.json` (8KB)
 
 **Sample HTML Game Features**:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-        /* Comic Sans MS, bright colors, child-friendly */
-        body { background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%); }
-        .button { min-width: 44px; min-height: 44px; } /* Touch-friendly */
+      /* Comic Sans MS, bright colors, child-friendly */
+      body {
+        background: linear-gradient(135deg, #87ceeb 0%, #98fb98 100%);
+      }
+      .button {
+        min-width: 44px;
+        min-height: 44px;
+      } /* Touch-friendly */
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Game HTML with progress tracking, score, feedback -->
     <script>
-        // Embedded JavaScript with game logic
+      // Embedded JavaScript with game logic
     </script>
-</body>
+  </body>
 </html>
 ```
 
 **Sample Quiz JSON**:
+
 ```json
 {
   "quiz": {
@@ -205,6 +228,7 @@ Generates actual playable content - HTML games, interactive widgets, and quiz JS
 ```
 
 ### Production Quality
+
 - ✅ Valid HTML5 (DOCTYPE, semantic tags)
 - ✅ All CSS/JS embedded (no external dependencies)
 - ✅ Student interests themed throughout (animal word problems for animal lover)
@@ -216,14 +240,17 @@ Generates actual playable content - HTML games, interactive widgets, and quiz JS
 ## Phase 4: NarrativeIntegrationSkill ✅
 
 ### Purpose
+
 Creates engaging story arcs that connect all lessons through narrative for increased engagement.
 
 ### Implementation
+
 - **File**: `lib/skills/narrative-integration/NarrativeIntegrationSkill.ts`
 - **Lines of Code**: ~280
 - **Dependencies**: Anthropic SDK, BaseSkill
 
 ### Key Features
+
 1. **Protagonist Creation**: Relatable character based on student age and interests
 2. **Favorite Character Integration**: Student's favorite characters as mentors (not heroes)
 3. **Three-Act Structure**: Beginning (setup), middle (challenges), end (resolution)
@@ -231,11 +258,13 @@ Creates engaging story arcs that connect all lessons through narrative for incre
 5. **Emotional Arc**: Maps student's learning journey to character growth
 
 ### Test Results
+
 - **Test Case**: 4-chapter math course
 - **Execution Time**: 61 seconds
 - **Success Rate**: 100%
 
 **Sample Narrative Arc**:
+
 ```
 Protagonist: Maya Chen (8-year-old wildlife artist)
 Mentors: Kratt Brothers (student's favorite characters)
@@ -253,6 +282,7 @@ Nervousness → Excitement → Challenge → Breakthrough → Triumph
 ```
 
 ### Production Quality
+
 - ✅ Perfect interest alignment (animals, art, nature all integrated)
 - ✅ Favorite characters as mentors (Wild Kratts)
 - ✅ Age-appropriate conflict (helping, not fighting)
@@ -264,14 +294,17 @@ Nervousness → Excitement → Challenge → Breakthrough → Triumph
 ## Phase 5: AssessmentGenerationSkill ✅
 
 ### Purpose
+
 Generates comprehensive assessment materials beyond basic quizzes.
 
 ### Implementation
+
 - **File**: `lib/skills/assessment-generation/AssessmentGenerationSkill.ts`
 - **Lines of Code**: ~340
 - **Dependencies**: Anthropic SDK, BaseSkill
 
 ### Key Features
+
 1. **Diagnostic Pre-Test**: 10 questions to establish baseline
 2. **Diagnostic Post-Test**: 12 questions to measure growth
 3. **Project Rubrics**: 4-level performance scales (Advanced, Proficient, Developing, Emerging)
@@ -279,6 +312,7 @@ Generates comprehensive assessment materials beyond basic quizzes.
 5. **Assessment Strategy**: Formative and summative approaches
 
 ### Test Results
+
 - **Test Case**: 4-chapter course with 2 quizzes, 1 project
 - **Execution Time**: 145 seconds
 - **Generated Assets**:
@@ -288,6 +322,7 @@ Generates comprehensive assessment materials beyond basic quizzes.
   - 40 additional quiz questions (20 per quiz)
 
 **Sample Rubric**:
+
 ```
 Safari Math Master Project Rubric (100 points)
 
@@ -301,6 +336,7 @@ Criterion: Problem Accuracy (30 points)
 ```
 
 ### Production Quality
+
 - ✅ Pre-test designed for baseline (not graded)
 - ✅ Post-test aligned to all course objectives
 - ✅ Rubrics use student-friendly language
@@ -312,6 +348,7 @@ Criterion: Problem Accuracy (30 points)
 ## Complete Workflow Metrics
 
 ### Development Stats
+
 - **Total Files Created**: 25+ (skill implementations, tests, documentation)
 - **Total Code**: ~5,000+ lines
 - **Documentation**: ~10,000+ words across all SKILL.md files
@@ -319,21 +356,23 @@ Criterion: Problem Accuracy (30 points)
 
 ### Performance Metrics
 
-| Phase | Execution Time | Token Usage | Output |
-|-------|----------------|-------------|--------|
-| 1. Design Brief | 10-18s | 2,000-4,000 | Design brief JSON |
-| 2. Curriculum | 60-110s | 8,000-15,000 | 12-30 lessons |
+| Phase                  | Execution Time | Token Usage            | Output            |
+| ---------------------- | -------------- | ---------------------- | ----------------- |
+| 1. Design Brief        | 10-18s         | 2,000-4,000            | Design brief JSON |
+| 2. Curriculum          | 60-110s        | 8,000-15,000           | 12-30 lessons     |
 | 3. Interactive Content | 60s per lesson | 12,000-15,000 per game | HTML + JSON files |
-| 4. Narrative (opt) | 60s | 2,500-3,500 | Story arc |
-| 5. Assessment (opt) | 145s | 8,000-14,000 | Tests + rubrics |
+| 4. Narrative (opt)     | 60s            | 2,500-3,500            | Story arc         |
+| 5. Assessment (opt)    | 145s           | 8,000-14,000           | Tests + rubrics   |
 
 **Total Time for Complete Course** (12 lessons):
+
 - Required (Phases 1-3): ~8-10 minutes
 - With Optional (Phases 4-5): ~12-15 minutes
 
 ### Cost Estimates (Anthropic API)
 
 **12-Lesson Course**:
+
 - Phase 1: ~3,000 tokens = $0.01
 - Phase 2: ~10,000 tokens = $0.03
 - Phase 3: ~120,000 tokens (10 lessons × 12K) = $0.36
@@ -343,13 +382,14 @@ Criterion: Problem Accuracy (30 points)
 **Total**: ~$0.44 per 12-lesson course
 **30-Lesson Course**: ~$1.00
 
-*(Based on Sonnet 4.5 pricing: $3/M input, $15/M output tokens)*
+_(Based on Sonnet 4.5 pricing: $3/M input, $15/M output tokens)_
 
 ---
 
 ## Generated Course Example
 
 ### Input
+
 ```
 Student: Emma Johnson, Age 8, 3rd Grade
 Interests: Animals, Art, Nature
@@ -367,12 +407,14 @@ Session Duration: 30 minutes
 **Protagonist**: Maya Chen (8-year-old wildlife artist)
 
 **Chapters**: 4
+
 1. Multiplication Safari: Building the Foundation
 2. Advanced Multiplication Trails
 3. Division Discovery: Sharing in the Wild
 4. Problem-Solving Prairie: Real-World Adventures
 
 **Lessons**: 12 total
+
 - 4 GAME lessons (HTML)
 - 3 INTERACTIVE lessons (HTML)
 - 2 VIDEO lessons (external content)
@@ -384,6 +426,7 @@ Session Duration: 30 minutes
 **Narrative Arc**: Maya joins Kratt Brothers to help safari animals using math
 
 **Assessments**:
+
 - Pre-test (10 questions, baseline)
 - Post-test (12 questions, mastery)
 - Project rubric (100 points, 4 criteria)
@@ -416,6 +459,7 @@ export abstract class BaseSkill {
 ### Skill Context & Results
 
 **Input** (SkillContext):
+
 ```typescript
 {
   userRequest: string;
@@ -429,6 +473,7 @@ export abstract class BaseSkill {
 ```
 
 **Output** (SkillResult):
+
 ```typescript
 {
   success: boolean;
@@ -447,10 +492,11 @@ export abstract class BaseSkill {
 ### Anthropic Client Configuration
 
 **Singleton Pattern**:
+
 ```typescript
 // lib/anthropic/client.ts
 export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 export const COURSE_GENERATION_MODEL = 'claude-sonnet-4-5-20250929';
@@ -464,6 +510,7 @@ export async function callClaudeWithRetry(
 ```
 
 **Temperature Settings**:
+
 - Design Brief: 0.3 (structured output)
 - Curriculum: 0.4 (balanced)
 - Interactive Content: 0.6 (creative HTML/CSS/JS)
@@ -477,25 +524,27 @@ export async function callClaudeWithRetry(
 ### Database Schema Required
 
 **Course Table**:
+
 ```typescript
 {
   id: string;
   title: string;
   description: string;
-  introduction: string;  // From NarrativeIntegrationSkill
-  conclusion: string;    // From NarrativeIntegrationSkill
-  narrativeData: JSON;   // Complete story arc
-  preTestData: JSON;     // Diagnostic pre-test
-  postTestData: JSON;    // Diagnostic post-test
+  introduction: string; // From NarrativeIntegrationSkill
+  conclusion: string; // From NarrativeIntegrationSkill
+  narrativeData: JSON; // Complete story arc
+  preTestData: JSON; // Diagnostic pre-test
+  postTestData: JSON; // Diagnostic post-test
   assessmentStrategy: JSON;
   totalXP: number;
   estimatedMinutes: number;
-  isPublished: boolean;  // false until admin approves
-  aiMetadata: JSON;      // Store all skill outputs for audit
+  isPublished: boolean; // false until admin approves
+  aiMetadata: JSON; // Store all skill outputs for audit
 }
 ```
 
 **CourseLesson Table**:
+
 ```typescript
 {
   id: string;
@@ -600,11 +649,13 @@ lib/anthropic/
 ### Validation at Each Phase
 
 **Phase 1**:
+
 - ✅ All required fields present
 - ✅ Calculations correct (total lessons, etc.)
 - ✅ Clarifications properly formatted
 
 **Phase 2**:
+
 - ✅ Chapter count 3-5
 - ✅ Lesson count matches design brief
 - ✅ XP totals sum correctly
@@ -612,6 +663,7 @@ lib/anthropic/
 - ✅ Lesson type distribution within targets
 
 **Phase 3**:
+
 - ✅ HTML starts with DOCTYPE
 - ✅ All CSS/JS embedded
 - ✅ Mobile-responsive meta tags
@@ -619,12 +671,14 @@ lib/anthropic/
 - ✅ Files saved to filesystem
 
 **Phase 4**:
+
 - ✅ Protagonist age-appropriate
 - ✅ Favorite characters integrated as mentors
 - ✅ Story beats for each chapter
 - ✅ Emotional arc defined
 
 **Phase 5**:
+
 - ✅ Pre-test covers prerequisites
 - ✅ Post-test covers all objectives
 - ✅ Rubrics total 100 points
@@ -633,6 +687,7 @@ lib/anthropic/
 ### Error Handling
 
 All skills implement:
+
 1. **Retry Logic**: Up to 3 attempts with exponential backoff
 2. **Validation**: Output structure checked before returning
 3. **Clear Errors**: Specific error codes and helpful messages
@@ -645,6 +700,7 @@ All skills implement:
 ### Immediate: CourseGenerationAgent
 
 Build orchestrator that:
+
 1. Manages workflow state (which phase is running)
 2. Executes skills in sequence
 3. Passes outputs between skills
@@ -653,12 +709,17 @@ Build orchestrator that:
 6. Updates CourseRequest status
 
 **Pseudo-code**:
+
 ```typescript
 async function generateCourse(courseRequestId: string) {
-  const request = await prisma.courseRequest.findUnique({ where: { id: courseRequestId } });
+  const request = await prisma.courseRequest.findUnique({
+    where: { id: courseRequestId },
+  });
 
   // Phase 1
-  const designBrief = await executeSkill('course-design-brief', { courseRequest: request });
+  const designBrief = await executeSkill('course-design-brief', {
+    courseRequest: request,
+  });
   if (designBrief.clarifications.length > 0) {
     await updateStatus('CLARIFICATION_NEEDED');
     return;
@@ -668,13 +729,22 @@ async function generateCourse(courseRequestId: string) {
   const curriculum = await executeSkill('curriculum-design', { designBrief });
 
   // Phase 3
-  const content = await executeSkill('interactive-content', { curriculum, designBrief });
+  const content = await executeSkill('interactive-content', {
+    curriculum,
+    designBrief,
+  });
 
   // Phase 4 (optional)
-  const narrative = await executeSkill('narrative-integration', { curriculum, designBrief });
+  const narrative = await executeSkill('narrative-integration', {
+    curriculum,
+    designBrief,
+  });
 
   // Phase 5 (optional)
-  const assessments = await executeSkill('assessment-generation', { curriculum, designBrief });
+  const assessments = await executeSkill('assessment-generation', {
+    curriculum,
+    designBrief,
+  });
 
   // Create Course record
   const course = await prisma.course.create({
@@ -682,8 +752,8 @@ async function generateCourse(courseRequestId: string) {
       title: curriculum.courseTitle,
       introduction: narrative.courseIntroduction,
       // ... map all fields
-      isPublished: false
-    }
+      isPublished: false,
+    },
   });
 
   // Create CourseLesson records
@@ -693,7 +763,7 @@ async function generateCourse(courseRequestId: string) {
         courseId: course.id,
         order: lesson.order,
         // ... map all fields
-      }
+      },
     });
   }
 
@@ -717,12 +787,14 @@ async function generateCourse(courseRequestId: string) {
 ## Success Metrics
 
 ### System Performance
+
 - ✅ All 5 skills implemented and tested
 - ✅ 100% test success rate
 - ✅ Average generation time: 10-15 minutes per course
 - ✅ Cost per course: $0.44-$1.00 (depending on length)
 
 ### Content Quality
+
 - ✅ Learning objectives aligned to Bloom's Taxonomy
 - ✅ Student interests integrated throughout
 - ✅ Age-appropriate language and design
@@ -730,6 +802,7 @@ async function generateCourse(courseRequestId: string) {
 - ✅ Narrative engagement elements
 
 ### Production Readiness
+
 - ✅ Error handling and retry logic
 - ✅ Comprehensive validation
 - ✅ Clear documentation (10,000+ words)

@@ -1,164 +1,353 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Math Jeopardy Junior | Game Show Math</title>
-    <meta name="description" content="Game show format with math categories! Answer questions for points.">
+    <meta
+      name="description"
+      content="Game show format with math categories! Answer questions for points."
+    />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
-        .skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }
-        .skip-link:focus { top: 0; }
-        .game-container { background: #1a1a2e; border-radius: 20px; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-width: 1200px; width: 100%; }
-        h1 { color: #ffd700; text-align: center; margin-bottom: 1rem; font-size: 3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        #instructions { background: #0f3460; color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 2px solid #ffd700; }
-        .score-display { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; padding: 1rem 2rem; border-radius: 12px; font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 2rem; }
-        .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-        .category { background: #0f3460; color: #ffd700; padding: 1rem; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.1rem; border: 2px solid #ffd700; }
-        .question-box { background: #16213e; color: white; padding: 1.5rem; border-radius: 8px; text-align: center; cursor: pointer; font-size: 2rem; font-weight: bold; border: 2px solid #0f3460; transition: all 0.3s; }
-        .question-box:hover:not(.used), .question-box:focus:not(.used) { background: #0f3460; transform: scale(1.05); border-color: #ffd700; outline: 2px solid #ffd700; }
-        .question-box.used { background: #1a1a2e; color: #555; cursor: not-allowed; }
-        .question-area { background: #0f3460; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .question-text { color: white; font-size: 1.8rem; margin-bottom: 2rem; text-align: center; }
-        .answer-input { width: 100%; max-width: 300px; padding: 1rem; font-size: 1.5rem; text-align: center; border: 2px solid #ffd700; border-radius: 8px; margin-bottom: 1rem; }
-        .btn { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #000; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s; margin: 0.5rem; }
-        .btn:hover, .btn:focus { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255,215,0,0.4); }
-        .feedback { text-align: center; font-size: 1.5rem; font-weight: bold; padding: 1rem; border-radius: 12px; margin: 1rem 0; }
-        .feedback.correct { background: #c6f6d5; color: #22543d; }
-        .feedback.incorrect { background: #fed7d7; color: #742a2a; }
-        .hidden { display: none !important; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f2027 0%,
+          #203a43 50%,
+          #2c5364 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #000;
+        color: #fff;
+        padding: 8px;
+        z-index: 100;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
+      .game-container {
+        background: #1a1a2e;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        max-width: 1200px;
+        width: 100%;
+      }
+      h1 {
+        color: #ffd700;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 3rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      #instructions {
+        background: #0f3460;
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 2px solid #ffd700;
+      }
+      .score-display {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .category {
+        background: #0f3460;
+        color: #ffd700;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border: 2px solid #ffd700;
+      }
+      .question-box {
+        background: #16213e;
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 2rem;
+        font-weight: bold;
+        border: 2px solid #0f3460;
+        transition: all 0.3s;
+      }
+      .question-box:hover:not(.used),
+      .question-box:focus:not(.used) {
+        background: #0f3460;
+        transform: scale(1.05);
+        border-color: #ffd700;
+        outline: 2px solid #ffd700;
+      }
+      .question-box.used {
+        background: #1a1a2e;
+        color: #555;
+        cursor: not-allowed;
+      }
+      .question-area {
+        background: #0f3460;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .question-text {
+        color: white;
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+      .answer-input {
+        width: 100%;
+        max-width: 300px;
+        padding: 1rem;
+        font-size: 1.5rem;
+        text-align: center;
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      .btn {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #000;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 0.5rem;
+      }
+      .btn:hover,
+      .btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+      }
+      .feedback {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .feedback.correct {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .feedback.incorrect {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .hidden {
+        display: none !important;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <a href="#main-game" class="skip-link">Skip to game</a>
     <div class="game-container">
-        <h1>🎬 Math Jeopardy Junior! 🎬</h1>
-        <div id="instructions">
-            <h2 style="color: #ffd700; margin-bottom: 1rem;">How to Play</h2>
-            <ul style="margin-left: 1.5rem;">
-                <li>Choose a category and point value</li>
-                <li>Answer the math question correctly to earn points</li>
-                <li>Wrong answers lose those points!</li>
-                <li>Answer all questions to win!</li>
-            </ul>
-            <div style="text-align: center; margin-top: 1rem;">
-                <button class="btn" onclick="startGame()">Start Game!</button>
-            </div>
+      <h1>🎬 Math Jeopardy Junior! 🎬</h1>
+      <div id="instructions">
+        <h2 style="color: #ffd700; margin-bottom: 1rem">How to Play</h2>
+        <ul style="margin-left: 1.5rem">
+          <li>Choose a category and point value</li>
+          <li>Answer the math question correctly to earn points</li>
+          <li>Wrong answers lose those points!</li>
+          <li>Answer all questions to win!</li>
+        </ul>
+        <div style="text-align: center; margin-top: 1rem">
+          <button class="btn" onclick="startGame()">Start Game!</button>
         </div>
-        <div id="main-game" class="hidden">
-            <div class="score-display">💰 Score: $<span id="score">0</span></div>
-            <div id="board-view">
-                <div class="board" id="categories"></div>
-                <div class="board" id="questions-100"></div>
-                <div class="board" id="questions-200"></div>
-                <div class="board" id="questions-300"></div>
-            </div>
-            <div id="question-view" class="hidden">
-                <div class="question-area">
-                    <div class="question-text" id="current-question"></div>
-                    <input type="number" id="answer-input" class="answer-input" placeholder="Your answer">
-                    <div class="feedback hidden" id="feedback"></div>
-                    <button class="btn" onclick="submitAnswer()">Submit Answer</button>
-                    <button class="btn" style="background: #e53e3e;" onclick="backToBoard()">Back to Board</button>
-                </div>
-            </div>
+      </div>
+      <div id="main-game" class="hidden">
+        <div class="score-display">💰 Score: $<span id="score">0</span></div>
+        <div id="board-view">
+          <div class="board" id="categories"></div>
+          <div class="board" id="questions-100"></div>
+          <div class="board" id="questions-200"></div>
+          <div class="board" id="questions-300"></div>
         </div>
-        <div id="game-over" class="hidden" style="text-align: center; color: white;">
-            <h2 style="color: #ffd700; font-size: 3rem; margin-bottom: 1rem;">Game Complete! 🎉</h2>
-            <p style="font-size: 2rem; margin: 1rem 0;">Final Score: $<span id="final-score">0</span></p>
-            <button class="btn" onclick="location.reload()">Play Again</button>
+        <div id="question-view" class="hidden">
+          <div class="question-area">
+            <div class="question-text" id="current-question"></div>
+            <input
+              type="number"
+              id="answer-input"
+              class="answer-input"
+              placeholder="Your answer"
+            />
+            <div class="feedback hidden" id="feedback"></div>
+            <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+            <button
+              class="btn"
+              style="background: #e53e3e"
+              onclick="backToBoard()"
+            >
+              Back to Board
+            </button>
+          </div>
         </div>
+      </div>
+      <div
+        id="game-over"
+        class="hidden"
+        style="text-align: center; color: white"
+      >
+        <h2 style="color: #ffd700; font-size: 3rem; margin-bottom: 1rem">
+          Game Complete! 🎉
+        </h2>
+        <p style="font-size: 2rem; margin: 1rem 0">
+          Final Score: $<span id="final-score">0</span>
+        </p>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+      </div>
     </div>
     <script>
-        let score = 0, currentQ = null, usedQuestions = new Set();
-        const categories = [
-            { name: 'Addition', id: 'add', gen: () => {
-                const a = Math.floor(Math.random() * 20) + 1, b = Math.floor(Math.random() * 20) + 1;
-                return { q: `${a} + ${b}`, a: a + b };
-            }},
-            { name: 'Subtraction', id: 'sub', gen: () => {
-                const a = Math.floor(Math.random() * 20) + 10, b = Math.floor(Math.random() * 10) + 1;
-                return { q: `${a} - ${b}`, a: a - b };
-            }},
-            { name: 'Multiplication', id: 'mul', gen: () => {
-                const a = Math.floor(Math.random() * 10) + 2, b = Math.floor(Math.random() * 10) + 2;
-                return { q: `${a} × ${b}`, a: a * b };
-            }},
-            { name: 'Division', id: 'div', gen: () => {
-                const b = Math.floor(Math.random() * 10) + 2, a = b * (Math.floor(Math.random() * 10) + 1);
-                return { q: `${a} ÷ ${b}`, a: a / b };
-            }}
-        ];
-        function startGame() {
-            document.getElementById('instructions').classList.add('hidden');
-            document.getElementById('main-game').classList.remove('hidden');
-            renderBoard();
-        }
-        function renderBoard() {
-            document.getElementById('categories').innerHTML = categories.map(c => 
-                `<div class="category">${c.name}</div>`
-            ).join('');
-            [100, 200, 300].forEach(points => {
-                document.getElementById(`questions-${points}`).innerHTML = categories.map(c =>
-                    `<div class="question-box ${usedQuestions.has(`${c.id}-${points}`) ? 'used' : ''}" 
+      let score = 0,
+        currentQ = null,
+        usedQuestions = new Set();
+      const categories = [
+        {
+          name: 'Addition',
+          id: 'add',
+          gen: () => {
+            const a = Math.floor(Math.random() * 20) + 1,
+              b = Math.floor(Math.random() * 20) + 1;
+            return { q: `${a} + ${b}`, a: a + b };
+          },
+        },
+        {
+          name: 'Subtraction',
+          id: 'sub',
+          gen: () => {
+            const a = Math.floor(Math.random() * 20) + 10,
+              b = Math.floor(Math.random() * 10) + 1;
+            return { q: `${a} - ${b}`, a: a - b };
+          },
+        },
+        {
+          name: 'Multiplication',
+          id: 'mul',
+          gen: () => {
+            const a = Math.floor(Math.random() * 10) + 2,
+              b = Math.floor(Math.random() * 10) + 2;
+            return { q: `${a} × ${b}`, a: a * b };
+          },
+        },
+        {
+          name: 'Division',
+          id: 'div',
+          gen: () => {
+            const b = Math.floor(Math.random() * 10) + 2,
+              a = b * (Math.floor(Math.random() * 10) + 1);
+            return { q: `${a} ÷ ${b}`, a: a / b };
+          },
+        },
+      ];
+      function startGame() {
+        document.getElementById('instructions').classList.add('hidden');
+        document.getElementById('main-game').classList.remove('hidden');
+        renderBoard();
+      }
+      function renderBoard() {
+        document.getElementById('categories').innerHTML = categories
+          .map((c) => `<div class="category">${c.name}</div>`)
+          .join('');
+        [100, 200, 300].forEach((points) => {
+          document.getElementById(`questions-${points}`).innerHTML = categories
+            .map(
+              (c) =>
+                `<div class="question-box ${usedQuestions.has(`${c.id}-${points}`) ? 'used' : ''}"
                           onclick="${usedQuestions.has(`${c.id}-${points}`) ? '' : `selectQuestion('${c.id}', ${points})`}">
                         $${points}
                     </div>`
-                ).join('');
-            });
+            )
+            .join('');
+        });
+      }
+      function selectQuestion(catId, points) {
+        const cat = categories.find((c) => c.id === catId);
+        const problem = cat.gen();
+        currentQ = { catId, points, answer: problem.a };
+        document.getElementById('current-question').textContent =
+          `For $${points}: ${problem.q} = ?`;
+        document.getElementById('answer-input').value = '';
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('board-view').classList.add('hidden');
+        document.getElementById('question-view').classList.remove('hidden');
+        document.getElementById('answer-input').focus();
+      }
+      function submitAnswer() {
+        const userAnswer = parseFloat(
+          document.getElementById('answer-input').value
+        );
+        const feedback = document.getElementById('feedback');
+        feedback.classList.remove('hidden', 'correct', 'incorrect');
+        if (userAnswer === currentQ.answer) {
+          score += currentQ.points;
+          feedback.classList.add('correct');
+          feedback.textContent = `✅ Correct! +$${currentQ.points}`;
+        } else {
+          score -= currentQ.points;
+          feedback.classList.add('incorrect');
+          feedback.textContent = `❌ Wrong! Answer: ${currentQ.answer}. -$${currentQ.points}`;
         }
-        function selectQuestion(catId, points) {
-            const cat = categories.find(c => c.id === catId);
-            const problem = cat.gen();
-            currentQ = { catId, points, answer: problem.a };
-            document.getElementById('current-question').textContent = `For $${points}: ${problem.q} = ?`;
-            document.getElementById('answer-input').value = '';
-            document.getElementById('feedback').classList.add('hidden');
-            document.getElementById('board-view').classList.add('hidden');
-            document.getElementById('question-view').classList.remove('hidden');
-            document.getElementById('answer-input').focus();
+        usedQuestions.add(`${currentQ.catId}-${currentQ.points}`);
+        document.getElementById('score').textContent = score;
+        if (usedQuestions.size === 12) {
+          setTimeout(() => gameOver(), 2000);
         }
-        function submitAnswer() {
-            const userAnswer = parseFloat(document.getElementById('answer-input').value);
-            const feedback = document.getElementById('feedback');
-            feedback.classList.remove('hidden', 'correct', 'incorrect');
-            if (userAnswer === currentQ.answer) {
-                score += currentQ.points;
-                feedback.classList.add('correct');
-                feedback.textContent = `✅ Correct! +$${currentQ.points}`;
-            } else {
-                score -= currentQ.points;
-                feedback.classList.add('incorrect');
-                feedback.textContent = `❌ Wrong! Answer: ${currentQ.answer}. -$${currentQ.points}`;
-            }
-            usedQuestions.add(`${currentQ.catId}-${currentQ.points}`);
-            document.getElementById('score').textContent = score;
-            if (usedQuestions.size === 12) {
-                setTimeout(() => gameOver(), 2000);
-            }
-        }
-        function backToBoard() {
-            document.getElementById('question-view').classList.add('hidden');
-            document.getElementById('board-view').classList.remove('hidden');
-            renderBoard();
-        }
-        function gameOver() {
-            document.getElementById('main-game').classList.add('hidden');
-            document.getElementById('game-over').classList.remove('hidden');
-            document.getElementById('final-score').textContent = score;
-        }
-        document.getElementById('answer-input')?.addEventListener('keypress', e => {
-            if (e.key === 'Enter') submitAnswer();
+      }
+      function backToBoard() {
+        document.getElementById('question-view').classList.add('hidden');
+        document.getElementById('board-view').classList.remove('hidden');
+        renderBoard();
+      }
+      function gameOver() {
+        document.getElementById('main-game').classList.add('hidden');
+        document.getElementById('game-over').classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+      }
+      document
+        .getElementById('answer-input')
+        ?.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') submitAnswer();
         });
     </script>
-</body>
+  </body>
 </html>

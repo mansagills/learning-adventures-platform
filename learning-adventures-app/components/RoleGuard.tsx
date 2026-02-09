@@ -54,8 +54,9 @@ export default function RoleGuard({
   };
 
   // Check if user has permission
-  const hasPermission = allowedRoles.some(role => {
-    const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
+  const hasPermission = allowedRoles.some((role) => {
+    const userLevel =
+      roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
     const requiredLevel = roleHierarchy[role];
     // Users with higher or equal role level have access
     return userLevel >= requiredLevel;
@@ -71,7 +72,13 @@ export default function RoleGuard({
 /**
  * Convenience components for specific roles
  */
-export function AdminOnly({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+export function AdminOnly({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   return (
     <RoleGuard allowedRoles={['ADMIN']} fallback={fallback}>
       {children}
@@ -79,7 +86,13 @@ export function AdminOnly({ children, fallback }: { children: ReactNode; fallbac
   );
 }
 
-export function TeacherOnly({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+export function TeacherOnly({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   return (
     <RoleGuard allowedRoles={['TEACHER']} fallback={fallback}>
       {children}
@@ -87,7 +100,13 @@ export function TeacherOnly({ children, fallback }: { children: ReactNode; fallb
   );
 }
 
-export function ParentOnly({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+export function ParentOnly({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   return (
     <RoleGuard allowedRoles={['PARENT']} fallback={fallback}>
       {children}
@@ -95,7 +114,13 @@ export function ParentOnly({ children, fallback }: { children: ReactNode; fallba
   );
 }
 
-export function StudentOnly({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+export function StudentOnly({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   return (
     <RoleGuard allowedRoles={['STUDENT']} fallback={fallback}>
       {children}
@@ -106,7 +131,13 @@ export function StudentOnly({ children, fallback }: { children: ReactNode; fallb
 /**
  * TeacherAndAdmin - Shows content to both teachers and admins
  */
-export function TeacherAndAdmin({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+export function TeacherAndAdmin({
+  children,
+  fallback,
+}: {
+  children: ReactNode;
+  fallback?: ReactNode;
+}) {
   return (
     <RoleGuard allowedRoles={['ADMIN', 'TEACHER']} fallback={fallback}>
       {children}

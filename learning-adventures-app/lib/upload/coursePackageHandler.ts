@@ -78,7 +78,7 @@ export async function processCoursePackage(
 
   // Check if course already exists in TestCourse
   const existing = await prisma.testCourse.findUnique({
-    where: { slug }
+    where: { slug },
   });
 
   if (existing) {
@@ -86,12 +86,19 @@ export async function processCoursePackage(
   }
 
   // Create staging directory for this course
-  const stagingDir = path.join(process.cwd(), 'public', 'staging', 'lessons', 'courses', slug);
+  const stagingDir = path.join(
+    process.cwd(),
+    'public',
+    'staging',
+    'lessons',
+    'courses',
+    slug
+  );
   await fs.mkdir(stagingDir, { recursive: true });
 
   // Process and stage each lesson file
   const stagedLessons: CourseManifest['lessons'] = [];
-  
+
   for (const lessonMeta of manifest.lessons) {
     const lessonEntry = zip.getEntry(lessonMeta.file);
     if (!lessonEntry) {
@@ -142,7 +149,7 @@ export async function processCoursePackage(
       lessonsData: stagedLessons, // Store lessons as JSON
       createdBy: uploaderId,
       status: 'NOT_TESTED',
-    }
+    },
   });
 
   return {
@@ -166,7 +173,7 @@ export async function promoteCourseToProduction(
 ) {
   // Get the test course
   const testCourse = await prisma.testCourse.findUnique({
-    where: { id: testCourseId }
+    where: { id: testCourseId },
   });
 
   if (!testCourse) {
@@ -192,14 +199,28 @@ export async function promoteCourseToProduction(
     hard: 'ADVANCED',
     advanced: 'ADVANCED',
   };
-  const difficulty = difficultyMap[testCourse.difficulty.toLowerCase()] || 'INTERMEDIATE';
+  const difficulty =
+    difficultyMap[testCourse.difficulty.toLowerCase()] || 'INTERMEDIATE';
 
   // Create production directory
-  const productionDir = path.join(process.cwd(), 'public', 'lessons', 'courses', testCourse.slug);
+  const productionDir = path.join(
+    process.cwd(),
+    'public',
+    'lessons',
+    'courses',
+    testCourse.slug
+  );
   await fs.mkdir(productionDir, { recursive: true });
 
   // Move files from staging to production
-  const stagingDir = path.join(process.cwd(), 'public', 'staging', 'lessons', 'courses', testCourse.slug);
+  const stagingDir = path.join(
+    process.cwd(),
+    'public',
+    'staging',
+    'lessons',
+    'courses',
+    testCourse.slug
+  );
 
   // Copy all files from staging to production
   const stagingFiles = await fs.readdir(stagingDir);
@@ -227,14 +248,14 @@ export async function promoteCourseToProduction(
   });
 
   // Create CourseLesson entries
-    const typeMap: Record<string, LessonType> = {
-      video: 'VIDEO',
-      interactive: 'INTERACTIVE',
-      game: 'GAME',
-      quiz: 'QUIZ',
-      reading: 'READING',
-      project: 'PROJECT',
-    };
+  const typeMap: Record<string, LessonType> = {
+    video: 'VIDEO',
+    interactive: 'INTERACTIVE',
+    game: 'GAME',
+    quiz: 'QUIZ',
+    reading: 'READING',
+    project: 'PROJECT',
+  };
 
   for (const lessonMeta of lessonsData) {
     const lessonType = typeMap[lessonMeta.type.toLowerCase()] || 'INTERACTIVE';
@@ -262,7 +283,7 @@ export async function promoteCourseToProduction(
       promotedToCourseId: course.id,
       promotedAt: new Date(),
       promotedBy: promoterId,
-    }
+    },
   });
 
   // Optionally clean up staging directory
@@ -293,9 +314,7 @@ function generateSlug(title: string): string {
  * Allows only alphanumeric characters, hyphens, and underscores
  */
 function sanitizeSlug(slug: string): string {
-  return slug
-    .replace(/[^a-zA-Z0-9\-_]/g, '')
-    .trim();
+  return slug.replace(/[^a-zA-Z0-9\-_]/g, '').trim();
 }
 
 /**
@@ -316,7 +335,10 @@ export function isCoursePackage(zip: AdmZip): boolean {
 /**
  * Validate course package structure before processing
  */
-export function validateCoursePackage(zip: AdmZip): { valid: boolean; errors: string[] } {
+export function validateCoursePackage(zip: AdmZip): {
+  valid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Check for metadata.json
@@ -336,7 +358,8 @@ export function validateCoursePackage(zip: AdmZip): { valid: boolean; errors: st
 
   // Required fields
   if (!manifestData.title) errors.push('Missing required field: title');
-  if (!manifestData.description) errors.push('Missing required field: description');
+  if (!manifestData.description)
+    errors.push('Missing required field: description');
   if (!manifestData.subject) errors.push('Missing required field: subject');
   if (!manifestData.lessons || manifestData.lessons.length === 0) {
     errors.push('Missing or empty lessons array');
@@ -345,9 +368,10 @@ export function validateCoursePackage(zip: AdmZip): { valid: boolean; errors: st
   // Validate each lesson
   if (manifestData.lessons) {
     for (const lesson of manifestData.lessons) {
-      if (!lesson.title) errors.push(`Lesson at order ${lesson.order}: missing title`);
+      if (!lesson.title)
+        errors.push(`Lesson at order ${lesson.order}: missing title`);
       if (!lesson.file) errors.push(`Lesson "${lesson.title}": missing file`);
-      
+
       // Check if lesson file exists in ZIP
       if (lesson.file) {
         const lessonFile = zip.getEntry(lesson.file);

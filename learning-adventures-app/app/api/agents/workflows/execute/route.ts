@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     const { workflowId, input, fileIds } = await request.json();
 
     if (!workflowId) {
-      return NextResponse.json({ error: 'Workflow ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Workflow ID required' },
+        { status: 400 }
+      );
     }
 
     // Create workflow execution record
@@ -53,19 +56,14 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         try {
           // Execute the workflow
-          await executor.execute(
-            workflowId,
-            input,
-            fileIds,
-            (progress) => {
-              // Send progress updates to client
-              const data = JSON.stringify({
-                type: 'progress',
-                ...progress,
-              });
-              controller.enqueue(encoder.encode(`data: ${data}\n\n`));
-            }
-          );
+          await executor.execute(workflowId, input, fileIds, (progress) => {
+            // Send progress updates to client
+            const data = JSON.stringify({
+              type: 'progress',
+              ...progress,
+            });
+            controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+          });
 
           // Send completion message
           const completionData = JSON.stringify({
@@ -78,7 +76,10 @@ export async function POST(request: NextRequest) {
           console.error('Workflow execution error:', error);
           const errorData = JSON.stringify({
             type: 'error',
-            error: error instanceof Error ? error.message : 'Workflow execution failed',
+            error:
+              error instanceof Error
+                ? error.message
+                : 'Workflow execution failed',
           });
           controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
           controller.close();
@@ -88,7 +89,8 @@ export async function POST(request: NextRequest) {
             where: { id: execution.id },
             data: {
               status: 'FAILED',
-              errorMessage: error instanceof Error ? error.message : 'Unknown error',
+              errorMessage:
+                error instanceof Error ? error.message : 'Unknown error',
             },
           });
         }

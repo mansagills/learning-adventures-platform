@@ -84,7 +84,8 @@ export default function AppSideNav() {
         <nav className="flex-1 py-6 overflow-y-auto">
           <ul className="space-y-1 px-3">
             {navigationItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isActive =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
 
               return (
                 <li key={item.name}>
@@ -93,9 +94,10 @@ export default function AppSideNav() {
                     className={`
                       flex items-center gap-3 px-3 py-2.5 rounded-lg
                       transition-all duration-200
-                      ${isActive
-                        ? 'bg-brand-50 text-brand-600 font-medium'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ${
+                        isActive
+                          ? 'bg-brand-50 text-brand-600 font-medium'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                       }
                       ${isCollapsed ? 'justify-center' : ''}
                     `}
@@ -132,7 +134,7 @@ export default function AppSideNav() {
                 Unlock all courses and features
               </p>
               <Link
-                href={"/upgrade" as any}
+                href={'/upgrade' as any}
                 className="block w-full px-3 py-2 text-center text-sm font-medium bg-white text-brand-600 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Learn More
@@ -146,7 +148,8 @@ export default function AppSideNav() {
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
         <ul className="flex justify-around items-center h-16">
           {navigationItems.slice(0, 5).map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <li key={item.name} className="flex-1">
@@ -171,7 +174,7 @@ export default function AppSideNav() {
           })}
           <li className="flex-1">
             <Link
-              href={"/more" as any}
+              href={'/more' as any}
               className="flex flex-col items-center justify-center h-full gap-1 text-gray-500"
             >
               <Icon name="menu" size={20} />

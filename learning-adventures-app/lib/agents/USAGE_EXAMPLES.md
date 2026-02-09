@@ -32,14 +32,15 @@ const factory = new WorkflowFactory();
 ```typescript
 // Define game requirements
 const input = {
-  gameIdea: 'A multiplication racing game where students race cars by solving multiplication problems. Correct answers make the car go faster!',
+  gameIdea:
+    'A multiplication racing game where students race cars by solving multiplication problems. Correct answers make the car go faster!',
   subject: 'math' as const,
   gradeLevel: '3-5',
   skills: ['multiplication', 'mental math', 'speed calculation'],
   learningObjectives: [
     'Master multiplication facts 1-10',
     'Improve mental math speed',
-    'Build confidence in arithmetic'
+    'Build confidence in arithmetic',
   ],
 };
 
@@ -65,16 +66,23 @@ if (result.status === 'completed') {
 
 ```typescript
 const input = {
-  gameIdea: 'An interactive plant growth simulator where students adjust sunlight, water, and nutrients to see how plants grow over time.',
+  gameIdea:
+    'An interactive plant growth simulator where students adjust sunlight, water, and nutrients to see how plants grow over time.',
   subject: 'science' as const,
   gradeLevel: '4-6',
-  skills: ['scientific method', 'observation', 'data collection', 'cause and effect'],
+  skills: [
+    'scientific method',
+    'observation',
+    'data collection',
+    'cause and effect',
+  ],
   learningObjectives: [
     'Understand factors affecting plant growth',
     'Learn to control variables in experiments',
-    'Practice data observation and recording'
+    'Practice data observation and recording',
   ],
-  additionalRequirements: 'Include a timer to show growth over days, and charts showing growth progress',
+  additionalRequirements:
+    'Include a timer to show growth over days, and charts showing growth progress',
 };
 
 const workflowId = await factory.createHTMLGameWorkflow(input);
@@ -89,7 +97,8 @@ const result = await factory.executeWorkflow(workflowId);
 
 ```typescript
 const input = {
-  gameIdea: 'A vocabulary quiz game with multiple choice questions, hints, and progress tracking',
+  gameIdea:
+    'A vocabulary quiz game with multiple choice questions, hints, and progress tracking',
   subject: 'english',
   gradeLevel: '5-7',
   complexity: 'moderate' as const,
@@ -98,13 +107,13 @@ const input = {
     'hint system',
     'score tracking',
     'timer',
-    'progress bar'
+    'progress bar',
   ],
   skills: ['vocabulary', 'reading comprehension', 'word usage'],
   learningObjectives: [
     'Expand vocabulary knowledge',
     'Understand word meanings in context',
-    'Improve reading comprehension'
+    'Improve reading comprehension',
   ],
 };
 
@@ -124,7 +133,8 @@ if (result.status === 'completed') {
 
 ```typescript
 const input = {
-  gameIdea: 'Drag-and-drop timeline game where students place historical events in chronological order',
+  gameIdea:
+    'Drag-and-drop timeline game where students place historical events in chronological order',
   subject: 'history',
   gradeLevel: '6-8',
   complexity: 'complex' as const,
@@ -133,13 +143,13 @@ const input = {
     'visual timeline',
     'feedback system',
     'difficulty levels',
-    'achievements'
+    'achievements',
   ],
   skills: ['chronological thinking', 'historical analysis', 'sequencing'],
   learningObjectives: [
     'Understand chronological order of historical events',
     'Recognize cause and effect in history',
-    'Develop timeline analysis skills'
+    'Develop timeline analysis skills',
   ],
 };
 
@@ -170,7 +180,10 @@ const existingGameCode = `
 `;
 
 // Create validation-only workflow
-const workflowId = await factory.createValidationWorkflow(existingGameCode, 'html');
+const workflowId = await factory.createValidationWorkflow(
+  existingGameCode,
+  'html'
+);
 
 // Execute
 const result = await factory.executeWorkflow(workflowId);
@@ -184,8 +197,8 @@ if (result.status === 'completed') {
   console.log('Issues Found:', report.issues.length);
 
   // Print critical issues
-  const criticalIssues = report.issues.filter(i => i.severity === 'critical');
-  criticalIssues.forEach(issue => {
+  const criticalIssues = report.issues.filter((i) => i.severity === 'critical');
+  criticalIssues.forEach((issue) => {
     console.log(`CRITICAL: ${issue.description}`);
     console.log(`Fix: ${issue.suggestedFix}`);
   });
@@ -351,7 +364,7 @@ try {
 
   if (result.status === 'failed') {
     console.error('Workflow failed!');
-    result.errors.forEach(error => {
+    result.errors.forEach((error) => {
       console.error(`Step ${error.step}: ${error.message}`);
     });
 

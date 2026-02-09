@@ -15,7 +15,11 @@ import {
   checkEnrollmentEligibility,
 } from '@/lib/courses';
 import { requireAuth } from '@/lib/auth';
-import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
+import {
+  successResponse,
+  errorResponse,
+  handleApiError,
+} from '@/lib/responses';
 
 export async function POST(
   request: NextRequest,
@@ -48,7 +52,11 @@ export async function POST(
     const result = await enrollInCourse(user.id, courseId);
 
     if (!result.success) {
-      return errorResponse(result.error || 'Failed to enroll', 'ENROLLMENT_FAILED', 500);
+      return errorResponse(
+        result.error || 'Failed to enroll',
+        'ENROLLMENT_FAILED',
+        500
+      );
     }
 
     return successResponse(
@@ -74,7 +82,11 @@ export async function DELETE(
     const result = await unenrollFromCourse(user.id, courseId);
 
     if (!result.success) {
-      return errorResponse(result.error || 'Failed to unenroll', 'UNENROLL_FAILED', 500);
+      return errorResponse(
+        result.error || 'Failed to unenroll',
+        'UNENROLL_FAILED',
+        500
+      );
     }
 
     return successResponse({

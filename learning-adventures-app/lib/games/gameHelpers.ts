@@ -105,7 +105,10 @@ export function shouldOpenInNewTab(game: Adventure): boolean {
 /**
  * Get subject display name with emoji
  */
-export function getSubjectDisplay(subject: string): { name: string; emoji: string } {
+export function getSubjectDisplay(subject: string): {
+  name: string;
+  emoji: string;
+} {
   const subjectMap: Record<string, { name: string; emoji: string }> = {
     math: { name: 'Mathematics', emoji: '🔢' },
     science: { name: 'Science', emoji: '🔬' },
@@ -120,7 +123,10 @@ export function getSubjectDisplay(subject: string): { name: string; emoji: strin
 /**
  * Get difficulty display with emoji
  */
-export function getDifficultyDisplay(difficulty: string): { label: string; emoji: string } {
+export function getDifficultyDisplay(difficulty: string): {
+  label: string;
+  emoji: string;
+} {
   const difficultyMap: Record<string, { label: string; emoji: string }> = {
     easy: { label: 'Easy', emoji: '🌱' },
     medium: { label: 'Medium', emoji: '☀️' },

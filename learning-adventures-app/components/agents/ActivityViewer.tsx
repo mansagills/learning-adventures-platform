@@ -60,7 +60,10 @@ export default function ActivityViewer({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-neutral-700">{activity}</p>
                   <span className="text-xs text-neutral-400">
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date().toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </span>
                 </div>
               </div>
@@ -78,7 +81,9 @@ export default function ActivityViewer({
           </div>
           <div className="flex justify-between">
             <span>Status:</span>
-            <span className={`font-medium ${isActive ? 'text-green-600' : 'text-neutral-400'}`}>
+            <span
+              className={`font-medium ${isActive ? 'text-green-600' : 'text-neutral-400'}`}
+            >
               {isActive ? 'Processing' : 'Idle'}
             </span>
           </div>

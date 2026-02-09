@@ -29,7 +29,10 @@ export async function POST(
     const { message, conversationId, history, fileIds } = await request.json();
 
     if (!message || typeof message !== 'string') {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Message is required' },
+        { status: 400 }
+      );
     }
 
     // Fetch uploaded files if fileIds provided
@@ -59,7 +62,12 @@ export async function POST(
     }
 
     // Validate agent ID
-    const validAgents = ['game-idea-generator', 'content-builder', 'catalog-manager', 'quality-assurance'];
+    const validAgents = [
+      'game-idea-generator',
+      'content-builder',
+      'catalog-manager',
+      'quality-assurance',
+    ];
     if (!validAgents.includes(params.agentId)) {
       return NextResponse.json({ error: 'Invalid agent ID' }, { status: 400 });
     }
@@ -74,7 +82,10 @@ export async function POST(
       });
 
       if (!conversation || conversation.userId !== session.user.id) {
-        return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+        return NextResponse.json(
+          { error: 'Conversation not found' },
+          { status: 404 }
+        );
       }
     } else {
       // Create new conversation
@@ -126,7 +137,9 @@ export async function POST(
         for (let i = 0; i < words.length; i++) {
           const chunk = words[i] + ' ';
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ type: 'content', content: chunk })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({ type: 'content', content: chunk })}\n\n`
+            )
           );
           // Simulate delay
           await new Promise((resolve) => setTimeout(resolve, 50));
@@ -147,7 +160,9 @@ export async function POST(
           }
         }
 
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`)
+        );
 
         // Save assistant response
         await prisma.conversationMessage.create({
@@ -183,6 +198,9 @@ export async function POST(
     });
   } catch (error) {
     console.error('Error in agent chat:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

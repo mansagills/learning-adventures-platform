@@ -22,21 +22,39 @@ function InterdisciplinaryDashboardContent() {
   }
 
   const allAdventures = getAllAdventures();
-  const interdisciplinaryAdventures = allAdventures.filter(adv => adv.category === 'interdisciplinary');
+  const interdisciplinaryAdventures = allAdventures.filter(
+    (adv) => adv.category === 'interdisciplinary'
+  );
 
-  const interdisciplinaryProgress = progressData?.progress.filter(p => {
-    const adventure = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-    return !!adventure;
-  }) || [];
+  const interdisciplinaryProgress =
+    progressData?.progress.filter((p) => {
+      const adventure = interdisciplinaryAdventures.find(
+        (a) => a.id === p.adventureId
+      );
+      return !!adventure;
+    }) || [];
 
-  const completedInterdisciplinary = interdisciplinaryProgress.filter(p => p.status === 'COMPLETED');
-  const inProgressInterdisciplinary = interdisciplinaryProgress.filter(p => p.status === 'IN_PROGRESS');
+  const completedInterdisciplinary = interdisciplinaryProgress.filter(
+    (p) => p.status === 'COMPLETED'
+  );
+  const inProgressInterdisciplinary = interdisciplinaryProgress.filter(
+    (p) => p.status === 'IN_PROGRESS'
+  );
 
-  const averageScore = completedInterdisciplinary.length > 0
-    ? Math.round(completedInterdisciplinary.reduce((sum, p) => sum + (p.score || 0), 0) / completedInterdisciplinary.length)
-    : 0;
+  const averageScore =
+    completedInterdisciplinary.length > 0
+      ? Math.round(
+          completedInterdisciplinary.reduce(
+            (sum, p) => sum + (p.score || 0),
+            0
+          ) / completedInterdisciplinary.length
+        )
+      : 0;
 
-  const totalTimeSpent = interdisciplinaryProgress.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
+  const totalTimeSpent = interdisciplinaryProgress.reduce(
+    (sum, p) => sum + (p.timeSpent || 0),
+    0
+  );
 
   // Interdisciplinary-specific skills
   const interdisciplinarySkills: Skill[] = [
@@ -44,92 +62,183 @@ function InterdisciplinaryDashboardContent() {
       id: 'cross-subject-connections',
       name: 'Cross-Subject Connections',
       category: 'Integration',
-      progress: Math.min(100, (completedInterdisciplinary.length / Math.max(1, interdisciplinaryAdventures.length)) * 100),
-      level: completedInterdisciplinary.length < 3 ? 'beginner' : completedInterdisciplinary.length < 7 ? 'intermediate' : 'advanced',
+      progress: Math.min(
+        100,
+        (completedInterdisciplinary.length /
+          Math.max(1, interdisciplinaryAdventures.length)) *
+          100
+      ),
+      level:
+        completedInterdisciplinary.length < 3
+          ? 'beginner'
+          : completedInterdisciplinary.length < 7
+            ? 'intermediate'
+            : 'advanced',
       completedActivities: completedInterdisciplinary.length,
       totalActivities: interdisciplinaryAdventures.length,
-      mastered: completedInterdisciplinary.length >= 10
+      mastered: completedInterdisciplinary.length >= 10,
     },
     {
       id: 'creative-problem-solving',
       name: 'Creative Problem Solving',
       category: 'Innovation',
-      progress: Math.min(100, (completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('problem') || s.toLowerCase().includes('creative'));
-      }).length / Math.max(1, interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('problem') || s.toLowerCase().includes('creative'))
-      ).length)) * 100),
-      level: completedInterdisciplinary.length < 5 ? 'beginner' : 'intermediate',
-      completedActivities: completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('problem'));
+      progress: Math.min(
+        100,
+        (completedInterdisciplinary.filter((p) => {
+          const adv = interdisciplinaryAdventures.find(
+            (a) => a.id === p.adventureId
+          );
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('problem') ||
+              s.toLowerCase().includes('creative')
+          );
+        }).length /
+          Math.max(
+            1,
+            interdisciplinaryAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('problem') ||
+                  s.toLowerCase().includes('creative')
+              )
+            ).length
+          )) *
+          100
+      ),
+      level:
+        completedInterdisciplinary.length < 5 ? 'beginner' : 'intermediate',
+      completedActivities: completedInterdisciplinary.filter((p) => {
+        const adv = interdisciplinaryAdventures.find(
+          (a) => a.id === p.adventureId
+        );
+        return adv?.skills.some((s) => s.toLowerCase().includes('problem'));
       }).length,
-      totalActivities: interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('problem'))
+      totalActivities: interdisciplinaryAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('problem'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'systems-thinking',
       name: 'Systems Thinking',
       category: 'Holistic Understanding',
-      progress: Math.min(100, (completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('systems') || s.toLowerCase().includes('connections'));
-      }).length / Math.max(1, interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('systems') || s.toLowerCase().includes('connections'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedInterdisciplinary.filter((p) => {
+          const adv = interdisciplinaryAdventures.find(
+            (a) => a.id === p.adventureId
+          );
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('systems') ||
+              s.toLowerCase().includes('connections')
+          );
+        }).length /
+          Math.max(
+            1,
+            interdisciplinaryAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('systems') ||
+                  s.toLowerCase().includes('connections')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: 'beginner',
-      completedActivities: completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('systems'));
+      completedActivities: completedInterdisciplinary.filter((p) => {
+        const adv = interdisciplinaryAdventures.find(
+          (a) => a.id === p.adventureId
+        );
+        return adv?.skills.some((s) => s.toLowerCase().includes('systems'));
       }).length,
-      totalActivities: interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('systems'))
+      totalActivities: interdisciplinaryAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('systems'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'project-based-learning',
       name: 'Project-Based Learning',
       category: 'Applied Knowledge',
-      progress: Math.min(100, (completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('project') || s.toLowerCase().includes('design'));
-      }).length / Math.max(1, interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('project') || s.toLowerCase().includes('design'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedInterdisciplinary.filter((p) => {
+          const adv = interdisciplinaryAdventures.find(
+            (a) => a.id === p.adventureId
+          );
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('project') ||
+              s.toLowerCase().includes('design')
+          );
+        }).length /
+          Math.max(
+            1,
+            interdisciplinaryAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('project') ||
+                  s.toLowerCase().includes('design')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: 'beginner',
-      completedActivities: completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('project'));
+      completedActivities: completedInterdisciplinary.filter((p) => {
+        const adv = interdisciplinaryAdventures.find(
+          (a) => a.id === p.adventureId
+        );
+        return adv?.skills.some((s) => s.toLowerCase().includes('project'));
       }).length,
-      totalActivities: interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('project'))
+      totalActivities: interdisciplinaryAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('project'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'global-awareness',
       name: 'Global Awareness',
       category: '21st Century Skills',
-      progress: Math.min(100, (completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('global') || s.toLowerCase().includes('culture'));
-      }).length / Math.max(1, interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('global') || s.toLowerCase().includes('culture'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedInterdisciplinary.filter((p) => {
+          const adv = interdisciplinaryAdventures.find(
+            (a) => a.id === p.adventureId
+          );
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('global') ||
+              s.toLowerCase().includes('culture')
+          );
+        }).length /
+          Math.max(
+            1,
+            interdisciplinaryAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('global') ||
+                  s.toLowerCase().includes('culture')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: 'beginner',
-      completedActivities: completedInterdisciplinary.filter(p => {
-        const adv = interdisciplinaryAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('global'));
+      completedActivities: completedInterdisciplinary.filter((p) => {
+        const adv = interdisciplinaryAdventures.find(
+          (a) => a.id === p.adventureId
+        );
+        return adv?.skills.some((s) => s.toLowerCase().includes('global'));
       }).length,
-      totalActivities: interdisciplinaryAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('global'))
+      totalActivities: interdisciplinaryAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('global'))
       ).length,
-      mastered: false
-    }
+      mastered: false,
+    },
   ];
 
   // Interdisciplinary learning path
@@ -141,53 +250,91 @@ function InterdisciplinaryDashboardContent() {
       type: completedInterdisciplinary.length > 0 ? 'completed' : 'current',
       skills: ['Critical Thinking', 'Pattern Recognition', 'Integration'],
       estimatedTime: 35,
-      adventureId: interdisciplinaryAdventures.find(a => a.difficulty === 'easy')?.id
+      adventureId: interdisciplinaryAdventures.find(
+        (a) => a.difficulty === 'easy'
+      )?.id,
     },
     {
       id: 'real-world-applications',
       title: 'Real-World Applications',
       description: 'Apply knowledge from multiple subjects to real scenarios',
-      type: completedInterdisciplinary.length >= 3 ? (completedInterdisciplinary.length >= 5 ? 'completed' : 'current') : (completedInterdisciplinary.length > 0 ? 'available' : 'locked'),
+      type:
+        completedInterdisciplinary.length >= 3
+          ? completedInterdisciplinary.length >= 5
+            ? 'completed'
+            : 'current'
+          : completedInterdisciplinary.length > 0
+            ? 'available'
+            : 'locked',
       skills: ['Application', 'Problem Solving', 'Synthesis'],
       estimatedTime: 40,
-      adventureId: interdisciplinaryAdventures.find(a => a.difficulty === 'medium')?.id,
-      prerequisiteIds: ['connections-intro']
+      adventureId: interdisciplinaryAdventures.find(
+        (a) => a.difficulty === 'medium'
+      )?.id,
+      prerequisiteIds: ['connections-intro'],
     },
     {
       id: 'stem-steam-projects',
       title: 'STEM & STEAM Projects',
       description: 'Combine science, technology, engineering, arts, and math',
-      type: completedInterdisciplinary.length >= 5 ? (completedInterdisciplinary.length >= 8 ? 'completed' : 'current') : (completedInterdisciplinary.length >= 3 ? 'available' : 'locked'),
+      type:
+        completedInterdisciplinary.length >= 5
+          ? completedInterdisciplinary.length >= 8
+            ? 'completed'
+            : 'current'
+          : completedInterdisciplinary.length >= 3
+            ? 'available'
+            : 'locked',
       skills: ['STEM', 'STEAM', 'Innovation', 'Design'],
       estimatedTime: 50,
-      adventureId: interdisciplinaryAdventures.find(a => a.skills.some(s => s.toLowerCase().includes('stem')))?.id,
-      prerequisiteIds: ['real-world-applications']
+      adventureId: interdisciplinaryAdventures.find((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('stem'))
+      )?.id,
+      prerequisiteIds: ['real-world-applications'],
     },
     {
       id: 'complex-challenges',
       title: 'Complex Challenge Solving',
       description: 'Tackle multi-faceted problems requiring diverse knowledge',
-      type: completedInterdisciplinary.length >= 8 ? (completedInterdisciplinary.length >= 12 ? 'completed' : 'current') : (completedInterdisciplinary.length >= 5 ? 'available' : 'locked'),
+      type:
+        completedInterdisciplinary.length >= 8
+          ? completedInterdisciplinary.length >= 12
+            ? 'completed'
+            : 'current'
+          : completedInterdisciplinary.length >= 5
+            ? 'available'
+            : 'locked',
       skills: ['Systems Thinking', 'Collaboration', 'Communication'],
       estimatedTime: 55,
-      adventureId: interdisciplinaryAdventures.find(a => a.skills.some(s => s.toLowerCase().includes('complex')))?.id,
-      prerequisiteIds: ['stem-steam-projects']
+      adventureId: interdisciplinaryAdventures.find((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('complex'))
+      )?.id,
+      prerequisiteIds: ['stem-steam-projects'],
     },
     {
       id: 'capstone-project',
       title: 'Capstone Innovation Project',
       description: 'Design and execute an original interdisciplinary project',
-      type: completedInterdisciplinary.length >= 12 ? 'current' : (completedInterdisciplinary.length >= 8 ? 'available' : 'locked'),
+      type:
+        completedInterdisciplinary.length >= 12
+          ? 'current'
+          : completedInterdisciplinary.length >= 8
+            ? 'available'
+            : 'locked',
       skills: ['Innovation', 'Research', 'Presentation', 'Leadership'],
       estimatedTime: 90,
-      adventureId: interdisciplinaryAdventures.find(a => a.difficulty === 'hard')?.id,
-      prerequisiteIds: ['complex-challenges']
-    }
+      adventureId: interdisciplinaryAdventures.find(
+        (a) => a.difficulty === 'hard'
+      )?.id,
+      prerequisiteIds: ['complex-challenges'],
+    },
   ];
 
-  const completedIds = new Set(completedInterdisciplinary.map(p => p.adventureId));
+  const completedIds = new Set(
+    completedInterdisciplinary.map((p) => p.adventureId)
+  );
   const recommendedAdventures = interdisciplinaryAdventures
-    .filter(adv => !completedIds.has(adv.id))
+    .filter((adv) => !completedIds.has(adv.id))
     .sort((a, b) => {
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
@@ -201,9 +348,9 @@ function InterdisciplinaryDashboardContent() {
     inProgressAdventures: inProgressInterdisciplinary.length,
     averageScore,
     timeSpent: totalTimeSpent,
-    skillsMastered: interdisciplinarySkills.filter(s => s.mastered).length,
+    skillsMastered: interdisciplinarySkills.filter((s) => s.mastered).length,
     totalSkills: interdisciplinarySkills.length,
-    currentStreak: 0
+    currentStreak: 0,
   };
 
   return (

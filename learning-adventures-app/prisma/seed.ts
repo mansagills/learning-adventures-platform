@@ -23,18 +23,18 @@ async function main() {
           'demo.parent@learningadventures.io',
           'demo.teacher@learningadventures.io',
           'demo.admin@learningadventures.io',
-        ]
-      }
-    }
+        ],
+      },
+    },
   });
 
   // Clean existing demo child profiles
   await prisma.childProfile.deleteMany({
     where: {
       username: {
-        in: ['DemoChild1', 'DemoChild2']
-      }
-    }
+        in: ['DemoChild1', 'DemoChild2'],
+      },
+    },
   });
 
   // Create Student test user
@@ -275,7 +275,9 @@ async function main() {
   console.log('\n🎯 DEMO ACCOUNTS (For Investors/Grant Reviewers):');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('👨‍👩‍👧 Demo Parent: demo.parent@learningadventures.io / demo2024');
-  console.log('   - Shows: Parent dashboard, child management, progress monitoring');
+  console.log(
+    '   - Shows: Parent dashboard, child management, progress monitoring'
+  );
   console.log('   - Subscription: PREMIUM\n');
 
   console.log('👩‍🏫 Demo Teacher: demo.teacher@learningadventures.io / demo2024');
@@ -288,7 +290,9 @@ async function main() {
 
   console.log('👧 Demo Children (Child Login Flow):');
   console.log('   Child 1: DemoChild1 / PIN: 1234 (Emma, Grade 3, Fox avatar)');
-  console.log('   Child 2: DemoChild2 / PIN: 1234 (Liam, Grade 5, Dragon avatar)');
+  console.log(
+    '   Child 2: DemoChild2 / PIN: 1234 (Liam, Grade 5, Dragon avatar)'
+  );
   console.log('   Login at: /child/login\n');
 
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -380,7 +384,8 @@ async function main() {
     create: {
       title: 'Multiplication Mastery',
       slug: 'multiplication-mastery',
-      description: 'Master multiplication from basic concepts to advanced word problems. Perfect for grades 3-5 students learning their times tables and building confidence in mental math.',
+      description:
+        'Master multiplication from basic concepts to advanced word problems. Perfect for grades 3-5 students learning their times tables and building confidence in mental math.',
       subject: 'math',
       gradeLevel: ['3-5'],
       difficulty: Difficulty.BEGINNER,
@@ -395,7 +400,8 @@ async function main() {
           {
             order: 1,
             title: 'What is Multiplication?',
-            description: 'Learn the basics of multiplication and how it relates to repeated addition. Understand why multiplication is useful in everyday life.',
+            description:
+              'Learn the basics of multiplication and how it relates to repeated addition. Understand why multiplication is useful in everyday life.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/multiplication/intro.html',
             duration: 15,
@@ -405,7 +411,8 @@ async function main() {
           {
             order: 2,
             title: 'Times Tables 1-5',
-            description: 'Practice multiplication tables from 1 to 5 through fun interactive games and exercises.',
+            description:
+              'Practice multiplication tables from 1 to 5 through fun interactive games and exercises.',
             type: LessonType.GAME,
             contentPath: 'times-tables-1-5',
             duration: 20,
@@ -415,7 +422,8 @@ async function main() {
           {
             order: 3,
             title: 'Times Tables 6-10',
-            description: 'Master the higher multiplication tables with practice games and challenges.',
+            description:
+              'Master the higher multiplication tables with practice games and challenges.',
             type: LessonType.GAME,
             contentPath: 'times-tables-6-10',
             duration: 20,
@@ -425,7 +433,8 @@ async function main() {
           {
             order: 4,
             title: 'Multiplication Strategies',
-            description: 'Learn helpful strategies and tricks for solving multiplication problems quickly.',
+            description:
+              'Learn helpful strategies and tricks for solving multiplication problems quickly.',
             type: LessonType.READING,
             contentPath: '/lessons/multiplication/strategies.html',
             duration: 15,
@@ -435,7 +444,8 @@ async function main() {
           {
             order: 5,
             title: 'Word Problems: Level 1',
-            description: 'Apply multiplication skills to solve real-world word problems.',
+            description:
+              'Apply multiplication skills to solve real-world word problems.',
             type: LessonType.QUIZ,
             contentPath: '/lessons/multiplication/word-problems-1.html',
             duration: 25,
@@ -445,7 +455,8 @@ async function main() {
           {
             order: 6,
             title: 'Multiplication Speed Challenge',
-            description: 'Test your speed and accuracy with timed multiplication challenges.',
+            description:
+              'Test your speed and accuracy with timed multiplication challenges.',
             type: LessonType.GAME,
             contentPath: 'multiplication-speed-challenge',
             duration: 20,
@@ -455,7 +466,8 @@ async function main() {
           {
             order: 7,
             title: 'Final Assessment',
-            description: 'Complete the final assessment to show your multiplication mastery and earn your certificate!',
+            description:
+              'Complete the final assessment to show your multiplication mastery and earn your certificate!',
             type: LessonType.PROJECT,
             contentPath: '/lessons/multiplication/final-assessment.html',
             duration: 30,
@@ -477,7 +489,8 @@ async function main() {
     create: {
       title: 'Fractions Foundations',
       slug: 'fractions-foundations',
-      description: 'Build a solid understanding of fractions through interactive lessons and games. Learn to identify, compare, add, and subtract fractions with confidence.',
+      description:
+        'Build a solid understanding of fractions through interactive lessons and games. Learn to identify, compare, add, and subtract fractions with confidence.',
       subject: 'math',
       gradeLevel: ['4-6'],
       difficulty: Difficulty.INTERMEDIATE,
@@ -492,7 +505,8 @@ async function main() {
           {
             order: 1,
             title: 'Introduction to Fractions',
-            description: 'Understand what fractions are and how they represent parts of a whole.',
+            description:
+              'Understand what fractions are and how they represent parts of a whole.',
             type: LessonType.VIDEO,
             contentPath: '/lessons/fractions/intro-video.html',
             duration: 12,
@@ -502,7 +516,8 @@ async function main() {
           {
             order: 2,
             title: 'Identifying Fractions',
-            description: 'Practice recognizing and naming fractions in different visual representations.',
+            description:
+              'Practice recognizing and naming fractions in different visual representations.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/fractions/identifying.html',
             duration: 20,
@@ -512,7 +527,8 @@ async function main() {
           {
             order: 3,
             title: 'Equivalent Fractions',
-            description: 'Learn how different fractions can represent the same value.',
+            description:
+              'Learn how different fractions can represent the same value.',
             type: LessonType.GAME,
             contentPath: 'equivalent-fractions-game',
             duration: 25,
@@ -522,7 +538,8 @@ async function main() {
           {
             order: 4,
             title: 'Comparing Fractions',
-            description: 'Master comparing fractions using visual models and common denominators.',
+            description:
+              'Master comparing fractions using visual models and common denominators.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/fractions/comparing.html',
             duration: 20,
@@ -532,7 +549,8 @@ async function main() {
           {
             order: 5,
             title: 'Adding Fractions',
-            description: 'Learn to add fractions with like and unlike denominators.',
+            description:
+              'Learn to add fractions with like and unlike denominators.',
             type: LessonType.GAME,
             contentPath: 'fraction-addition-game',
             duration: 30,
@@ -542,7 +560,8 @@ async function main() {
           {
             order: 6,
             title: 'Subtracting Fractions',
-            description: 'Practice subtracting fractions through interactive exercises.',
+            description:
+              'Practice subtracting fractions through interactive exercises.',
             type: LessonType.GAME,
             contentPath: 'fraction-subtraction-game',
             duration: 30,
@@ -552,7 +571,8 @@ async function main() {
           {
             order: 7,
             title: 'Mixed Numbers',
-            description: 'Understand mixed numbers and how to convert between mixed numbers and improper fractions.',
+            description:
+              'Understand mixed numbers and how to convert between mixed numbers and improper fractions.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/fractions/mixed-numbers.html',
             duration: 25,
@@ -562,7 +582,8 @@ async function main() {
           {
             order: 8,
             title: 'Fractions in Real Life',
-            description: 'Apply fraction skills to solve real-world problems involving cooking, measurements, and more.',
+            description:
+              'Apply fraction skills to solve real-world problems involving cooking, measurements, and more.',
             type: LessonType.QUIZ,
             contentPath: '/lessons/fractions/real-world.html',
             duration: 25,
@@ -572,7 +593,8 @@ async function main() {
           {
             order: 9,
             title: 'Final Project: Fraction Master',
-            description: 'Complete a comprehensive project to demonstrate your fraction mastery!',
+            description:
+              'Complete a comprehensive project to demonstrate your fraction mastery!',
             type: LessonType.PROJECT,
             contentPath: '/lessons/fractions/final-project.html',
             duration: 40,
@@ -594,7 +616,8 @@ async function main() {
     create: {
       title: 'Science Lab Basics',
       slug: 'science-lab-basics',
-      description: 'Learn the fundamentals of scientific inquiry and lab safety. Explore the scientific method through virtual experiments and interactive simulations.',
+      description:
+        'Learn the fundamentals of scientific inquiry and lab safety. Explore the scientific method through virtual experiments and interactive simulations.',
       subject: 'science',
       gradeLevel: ['3-6'],
       difficulty: Difficulty.BEGINNER,
@@ -609,7 +632,8 @@ async function main() {
           {
             order: 1,
             title: 'Welcome to the Science Lab',
-            description: 'Introduction to scientific thinking and the exciting world of discovery.',
+            description:
+              'Introduction to scientific thinking and the exciting world of discovery.',
             type: LessonType.VIDEO,
             contentPath: '/lessons/science/welcome.html',
             duration: 10,
@@ -619,7 +643,8 @@ async function main() {
           {
             order: 2,
             title: 'Lab Safety Rules',
-            description: 'Learn essential safety procedures for conducting experiments safely.',
+            description:
+              'Learn essential safety procedures for conducting experiments safely.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/science/safety.html',
             duration: 15,
@@ -629,7 +654,8 @@ async function main() {
           {
             order: 3,
             title: 'The Scientific Method',
-            description: 'Understand the steps scientists use to investigate questions and solve problems.',
+            description:
+              'Understand the steps scientists use to investigate questions and solve problems.',
             type: LessonType.READING,
             contentPath: '/lessons/science/scientific-method.html',
             duration: 20,
@@ -639,7 +665,8 @@ async function main() {
           {
             order: 4,
             title: 'Making Observations',
-            description: 'Practice using your senses to make detailed scientific observations.',
+            description:
+              'Practice using your senses to make detailed scientific observations.',
             type: LessonType.GAME,
             contentPath: 'observation-game',
             duration: 20,
@@ -649,7 +676,8 @@ async function main() {
           {
             order: 5,
             title: 'Asking Scientific Questions',
-            description: 'Learn how to ask testable questions that can be answered through experiments.',
+            description:
+              'Learn how to ask testable questions that can be answered through experiments.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/science/asking-questions.html',
             duration: 15,
@@ -659,7 +687,8 @@ async function main() {
           {
             order: 6,
             title: 'Virtual Experiment: Plant Growth',
-            description: 'Conduct a virtual experiment to investigate factors affecting plant growth.',
+            description:
+              'Conduct a virtual experiment to investigate factors affecting plant growth.',
             type: LessonType.GAME,
             contentPath: 'plant-experiment',
             duration: 30,
@@ -669,7 +698,8 @@ async function main() {
           {
             order: 7,
             title: 'Analyzing Data',
-            description: 'Learn to organize and interpret data from experiments using charts and graphs.',
+            description:
+              'Learn to organize and interpret data from experiments using charts and graphs.',
             type: LessonType.INTERACTIVE,
             contentPath: '/lessons/science/data-analysis.html',
             duration: 20,
@@ -679,7 +709,8 @@ async function main() {
           {
             order: 8,
             title: 'Final Project: Design Your Own Experiment',
-            description: 'Apply everything you\'ve learned to design and conduct your own scientific investigation!',
+            description:
+              "Apply everything you've learned to design and conduct your own scientific investigation!",
             type: LessonType.PROJECT,
             contentPath: '/lessons/science/design-experiment.html',
             duration: 35,
@@ -701,11 +732,17 @@ async function main() {
   console.log('📊 Course Summary:');
   console.log(`   - Total Courses: ${courseCount}`);
   console.log(`   - Total Lessons: ${lessonCount}`);
-  console.log(`   - Free Courses: 2 (Multiplication Mastery, Science Lab Basics)`);
+  console.log(
+    `   - Free Courses: 2 (Multiplication Mastery, Science Lab Basics)`
+  );
   console.log(`   - Premium Courses: 1 (Fractions Foundations)`);
-  console.log(`   - Total XP Available: ${multiplicationCourse.totalXP + fractionsCourse.totalXP + scienceCourse.totalXP} XP\n`);
+  console.log(
+    `   - Total XP Available: ${multiplicationCourse.totalXP + fractionsCourse.totalXP + scienceCourse.totalXP} XP\n`
+  );
 
-  console.log('💡 Pro Tip: You can run "npm run db:reset" to clear and re-seed the database anytime.');
+  console.log(
+    '💡 Pro Tip: You can run "npm run db:reset" to clear and re-seed the database anytime.'
+  );
 }
 
 main()

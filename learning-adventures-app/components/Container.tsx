@@ -10,14 +10,11 @@ interface ContainerProps {
 export default function Container({
   children,
   size = 'lg',
-  className
+  className,
 }: ContainerProps) {
   return (
     <div
-      className={cn(
-        size === 'sm' ? 'container-sm' : 'container-lg',
-        className
-      )}
+      className={cn(size === 'sm' ? 'container-sm' : 'container-lg', className)}
     >
       {children}
     </div>

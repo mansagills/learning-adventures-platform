@@ -1,17 +1,20 @@
 # Interactive Content Skill
 
 ## Purpose
+
 Generates standalone HTML games, interactive widgets, and quiz JSON files for curriculum lessons using Claude's code generation capabilities.
 
 ## What This Skill Does
 
 This skill is the **third step** in the course generation pipeline. It takes the curriculum structure and creates actual playable content:
+
 - Standalone HTML games with embedded CSS/JavaScript
 - Interactive educational widgets
 - Quiz questions in JSON format
 - Age-appropriate, themed content
 
 ### Key Responsibilities:
+
 1. **HTML Game Generation**: Create complete, playable games in single HTML files
 2. **Interactive Widget Creation**: Build exploratory learning experiences
 3. **Quiz JSON Generation**: Create assessment questions with explanations
@@ -22,15 +25,18 @@ This skill is the **third step** in the course generation pipeline. It takes the
 ## Input Format
 
 Expects:
+
 - **curriculum** object from CurriculumDesignSkill
 - **designBrief** object (optional but recommended for theming)
 
 The skill processes lessons with these types:
+
 - `GAME` → HTML game file
 - `INTERACTIVE` → HTML interactive widget
 - `QUIZ` → JSON quiz data
 
 Lesson types NOT processed (handled elsewhere):
+
 - `VIDEO` → video content managed separately
 - `READING` → text content managed separately
 - `PROJECT` → project templates managed separately
@@ -95,28 +101,30 @@ Returns `generatedContent` array with lesson content:
 ### Technical Specifications
 
 **Single File Structure**:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lesson Title</title>
     <style>
-        /* All CSS embedded here */
+      /* All CSS embedded here */
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Game HTML structure -->
 
     <script>
-        // All JavaScript embedded here
+      // All JavaScript embedded here
     </script>
-</body>
+  </body>
 </html>
 ```
 
 **Mobile-Responsive Design**:
+
 - Viewport meta tag required
 - Flexible layouts (flexbox or grid)
 - Min touch target size: 44x44px
@@ -124,6 +132,7 @@ Returns `generatedContent` array with lesson content:
 - Test on 320px width minimum
 
 **Accessibility Features**:
+
 - Semantic HTML (`<button>`, `<input>`, etc.)
 - ARIA labels for screen readers
 - Keyboard navigation support (tab, enter, arrow keys)
@@ -131,6 +140,7 @@ Returns `generatedContent` array with lesson content:
 - Sufficient color contrast (WCAG AA minimum)
 
 **Interactive Elements**:
+
 - Clear instructions at top
 - Progress indicator (if multi-step)
 - Immediate feedback on interactions
@@ -141,6 +151,7 @@ Returns `generatedContent` array with lesson content:
 ### Design Guidelines by Age
 
 **Ages 5-7 (Early Elementary)**:
+
 - Very large buttons (60px+)
 - Bright primary colors
 - Simple, bold fonts
@@ -149,6 +160,7 @@ Returns `generatedContent` array with lesson content:
 - Simple drag-drop or click interactions
 
 **Ages 8-10 (Middle Elementary)**:
+
 - Large buttons (50px)
 - Colorful but slightly more sophisticated palette
 - Mix of text and images
@@ -156,6 +168,7 @@ Returns `generatedContent` array with lesson content:
 - Can include timers (optional pressure)
 
 **Ages 11-13 (Upper Elementary/Middle School)**:
+
 - Standard button sizes (44px min)
 - More subdued color schemes acceptable
 - Text-heavy content OK
@@ -165,36 +178,42 @@ Returns `generatedContent` array with lesson content:
 ### Game Type Examples
 
 **Drag-and-Drop Games**:
+
 ```javascript
 // Drag items to correct categories
 // Example: Sort animals by habitat
 ```
 
 **Multiple Choice Games**:
+
 ```javascript
 // Questions with 4 options
 // Track score, show explanations
 ```
 
 **Matching Games**:
+
 ```javascript
 // Match pairs (e.g., multiplication fact to answer)
 // Flip cards, memory-style
 ```
 
 **Fill-in-the-Blank**:
+
 ```javascript
 // Type answers into blanks
 // Validate input, show hints
 ```
 
 **Timed Challenges**:
+
 ```javascript
 // Answer as many questions as possible in time limit
 // Progressive difficulty
 ```
 
 **Simulations**:
+
 ```javascript
 // Interactive science labs
 // Virtual manipulatives (fraction bars, balance scales)
@@ -231,27 +250,32 @@ Returns `generatedContent` array with lesson content:
 ### Question Guidelines
 
 **Question Count**:
+
 - Easy quizzes: 6-8 questions
 - Medium quizzes: 8-10 questions
 - Hard quizzes: 10-12 questions
 
 **Question Types**:
+
 - **Multiple Choice**: 4 options (a, b, c, d)
 - **True/False**: 2 options
 - **Short Answer**: Accept multiple correct variations
 
 **Difficulty Distribution**:
+
 - Easy quiz: 60% easy, 30% medium, 10% hard questions
 - Medium quiz: 30% easy, 50% medium, 20% hard questions
 - Hard quiz: 20% easy, 40% medium, 40% hard questions
 
 **Explanation Quality**:
+
 - Clear reasoning for correct answer
 - Explain why wrong answers are incorrect (when helpful)
 - Use age-appropriate language
 - Reference lesson concepts
 
 **Points Distribution**:
+
 - Standard question: 10 points
 - Complex/multi-step: 15-20 points
 - Total points should sum to 100
@@ -263,6 +287,7 @@ Returns `generatedContent` array with lesson content:
 **Example: Student loves "Animals"**
 
 Math Game:
+
 ```
 Theme: Safari Adventure
 Characters: Animal guides (elephant for big numbers, mouse for small)
@@ -271,6 +296,7 @@ Setting: Jungle, savanna, ocean
 ```
 
 Science Game:
+
 ```
 Theme: Wildlife Scientist
 Characters: Different animals demonstrating concepts
@@ -281,6 +307,7 @@ Setting: Natural habitats
 **Example: Student loves "Space"**
 
 Math Game:
+
 ```
 Theme: Space Explorer
 Characters: Astronaut, alien friends
@@ -291,6 +318,7 @@ Setting: Solar system, spacecraft
 **Example: Student loves "Gaming"**
 
 All Games:
+
 ```
 Style: Video game aesthetic
 Features: Levels, power-ups, achievements
@@ -301,12 +329,14 @@ Setting: Retro pixel art or modern 3D-style graphics
 ### Applying Favorite Characters
 
 **When student mentions specific characters**:
+
 - Reference character traits in game narrative
 - Use similar visual style
 - Include character-inspired rewards
 - Example: "Wild Kratts fan" → use creature powers concept in biology games
 
 **When no characters specified**:
+
 - Create original mascot for the course
 - Base on course theme (e.g., math wizard, science detective)
 
@@ -317,6 +347,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 **Purpose**: Practice skills through play
 
 **Required Elements**:
+
 - Clear game objective
 - Multiple rounds/attempts
 - Score tracking
@@ -324,6 +355,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 - Replay option
 
 **Example Game Types**:
+
 - **Drag-Drop**: Sort items into categories
 - **Multiple Choice**: Racing game, answer to advance
 - **Matching**: Memory card flip
@@ -335,6 +367,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 **Purpose**: Guided exploration and discovery
 
 **Required Elements**:
+
 - Scaffolded hints/guidance
 - Self-paced progression
 - Experimentation encouraged
@@ -342,6 +375,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 - "Aha!" moments
 
 **Example Interactive Types**:
+
 - **Simulations**: Virtual science lab, adjust variables
 - **Virtual Manipulatives**: Fraction bars, number lines, geometric shapes
 - **Choose-Your-Path**: Story branches based on choices
@@ -353,6 +387,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 **Purpose**: Assess understanding
 
 **Required Elements**:
+
 - Clear passing threshold
 - Explanations for all answers
 - Retry option (with different questions ideally)
@@ -360,6 +395,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 - Final score display
 
 **Question Distribution**:
+
 - Cover all learning objectives
 - Mix of recall, application, analysis questions (Bloom's)
 - Varied difficulty (not all hard at end)
@@ -367,6 +403,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 ## Validation Criteria
 
 ### For HTML Games:
+
 - ✅ Valid HTML5 (starts with `<!DOCTYPE html>`)
 - ✅ All CSS embedded in `<style>` tag
 - ✅ All JavaScript embedded in `<script>` tag
@@ -375,6 +412,7 @@ Setting: Retro pixel art or modern 3D-style graphics
 - ✅ File size < 500KB (ideally < 200KB)
 
 ### For Quiz JSON:
+
 - ✅ Valid JSON structure
 - ✅ All questions have explanations
 - ✅ Points sum to ~100
@@ -391,14 +429,22 @@ const skill = new InteractiveContentSkill();
 const result = await skill.execute({
   userRequest: 'Generate interactive content',
   previousOutputs: new Map([
-    ['curriculum', {
-      courseTitle: 'Animal Math Safari',
-      lessons: [/* lesson objects */]
-    }],
-    ['designBrief', {
-      student: { age: 8, learningProfile: { interests: ['Animals'] } }
-    }]
-  ])
+    [
+      'curriculum',
+      {
+        courseTitle: 'Animal Math Safari',
+        lessons: [
+          /* lesson objects */
+        ],
+      },
+    ],
+    [
+      'designBrief',
+      {
+        student: { age: 8, learningProfile: { interests: ['Animals'] } },
+      },
+    ],
+  ]),
 });
 
 if (result.success) {
@@ -421,10 +467,12 @@ if (result.success) {
 ## Integration Points
 
 ### Input Sources:
+
 - **CurriculumDesignSkill**: Lesson structure and requirements
 - **CourseDesignBriefSkill**: Student profile for theming
 
 ### Output Consumers:
+
 - **NarrativeIntegrationSkill**: May enhance HTML with story elements
 - **CourseGenerationAgent**: Stores file paths in CourseLesson records
 - **File System**: HTML files saved to `public/lessons/`

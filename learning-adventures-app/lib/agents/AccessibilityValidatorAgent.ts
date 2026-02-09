@@ -4,9 +4,7 @@
  */
 
 import { BaseAgent } from './BaseAgent';
-import {
-  AgentResult,
-} from './types';
+import { AgentResult } from './types';
 
 // TODO: Move these types to ./types.ts
 interface AccessibilityReport {
@@ -66,7 +64,9 @@ export class AccessibilityValidatorAgent extends BaseAgent {
   /**
    * Execute accessibility validation task
    */
-  async execute(input: { game: GameFile } | { code: string; format: 'html' | 'react' }): Promise<AgentResult> {
+  async execute(
+    input: { game: GameFile } | { code: string; format: 'html' | 'react' }
+  ): Promise<AgentResult> {
     try {
       // Load skills
       await this.loadSkills();
@@ -96,8 +96,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
       const report: AccessibilityReport = {
         score,
         issuesFound: issues.length,
-        criticalIssues: issues.filter(i => i.severity === 'critical').length,
-        warningsFound: issues.filter(i => i.severity === 'warning').length,
+        criticalIssues: issues.filter((i) => i.severity === 'critical').length,
+        warningsFound: issues.filter((i) => i.severity === 'warning').length,
         overallScore: score,
         wcagCompliant: score >= 95,
         issues,
@@ -108,7 +108,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
       const response: AccessibilityValidatorResponse = {
         report,
         passedValidation: score >= 95,
-        criticalIssuesCount: issues.filter(i => i.severity === 'critical').length,
+        criticalIssuesCount: issues.filter((i) => i.severity === 'critical')
+          .length,
         recommendedFixes: recommendations,
       };
 
@@ -116,14 +117,14 @@ export class AccessibilityValidatorAgent extends BaseAgent {
         success: true,
         output: response,
         errors: [],
-        warnings: score < 95 ? ['Accessibility score below threshold (95%)'] : [],
+        warnings:
+          score < 95 ? ['Accessibility score below threshold (95%)'] : [],
         metadata: {
           duration: 0,
           timestamp: new Date(),
           version: '1.0.0',
         },
       };
-
     } catch (error) {
       return {
         success: false,
@@ -142,7 +143,10 @@ export class AccessibilityValidatorAgent extends BaseAgent {
   /**
    * Validate accessibility of code
    */
-  private async validateAccessibility(code: string, format: 'html' | 'react'): Promise<AccessibilityIssue[]> {
+  private async validateAccessibility(
+    code: string,
+    format: 'html' | 'react'
+  ): Promise<AccessibilityIssue[]> {
     const issues: AccessibilityIssue[] = [];
 
     // Check 1: Semantic HTML
@@ -189,13 +193,18 @@ export class AccessibilityValidatorAgent extends BaseAgent {
         severity: 'high',
         category: 'Semantic HTML',
         description: 'Missing main landmark',
-        suggestedFix: 'Add <main> element or role="main" to primary content area',
+        suggestedFix:
+          'Add <main> element or role="main" to primary content area',
         wcagCriterion: 'WCAG 2.1 - 1.3.1 Info and Relationships',
       });
     }
 
     // Check for navigation
-    if (code.includes('nav') && !code.includes('role="navigation"') && !code.includes('<nav')) {
+    if (
+      code.includes('nav') &&
+      !code.includes('role="navigation"') &&
+      !code.includes('<nav')
+    ) {
       issues.push({
         severity: 'medium',
         category: 'Semantic HTML',
@@ -225,7 +234,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
           category: 'ARIA',
           description: 'Button without accessible name',
           element: button.substring(0, 50),
-          suggestedFix: 'Add aria-label attribute or visible text content to button',
+          suggestedFix:
+            'Add aria-label attribute or visible text content to button',
           wcagCriterion: 'WCAG 2.1 - 4.1.2 Name, Role, Value',
         });
       }
@@ -238,7 +248,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
           severity: 'medium',
           category: 'ARIA',
           description: 'Dynamic content without screen reader announcements',
-          suggestedFix: 'Add aria-live="polite" to score/timer elements for screen reader updates',
+          suggestedFix:
+            'Add aria-live="polite" to score/timer elements for screen reader updates',
           wcagCriterion: 'WCAG 2.1 - 4.1.3 Status Messages',
         });
       }
@@ -254,12 +265,17 @@ export class AccessibilityValidatorAgent extends BaseAgent {
     const issues: AccessibilityIssue[] = [];
 
     // Check for keyboard event handlers
-    if (code.includes('onClick') && !code.includes('onKeyDown') && !code.includes('onKeyPress')) {
+    if (
+      code.includes('onClick') &&
+      !code.includes('onKeyDown') &&
+      !code.includes('onKeyPress')
+    ) {
       issues.push({
         severity: 'critical',
         category: 'Keyboard Navigation',
         description: 'Interactive elements not keyboard accessible',
-        suggestedFix: 'Add keyboard event handlers (onKeyDown/onKeyPress) to all interactive elements',
+        suggestedFix:
+          'Add keyboard event handlers (onKeyDown/onKeyPress) to all interactive elements',
         wcagCriterion: 'WCAG 2.1 - 2.1.1 Keyboard',
       });
     }
@@ -270,7 +286,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
         severity: 'medium',
         category: 'Keyboard Navigation',
         description: 'Elements removed from tab order',
-        suggestedFix: 'Avoid using tabindex="-1" unless specifically needed for focus management',
+        suggestedFix:
+          'Avoid using tabindex="-1" unless specifically needed for focus management',
         wcagCriterion: 'WCAG 2.1 - 2.4.3 Focus Order',
       });
     }
@@ -281,7 +298,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
         severity: 'medium',
         category: 'Keyboard Navigation',
         description: 'Missing skip navigation link',
-        suggestedFix: 'Add skip navigation link for keyboard users to bypass repeated content',
+        suggestedFix:
+          'Add skip navigation link for keyboard users to bypass repeated content',
         wcagCriterion: 'WCAG 2.1 - 2.4.1 Bypass Blocks',
       });
     }
@@ -306,7 +324,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
           category: 'Images',
           description: 'Image missing alt attribute',
           element: img.substring(0, 50),
-          suggestedFix: 'Add alt attribute to all images (use empty string for decorative images)',
+          suggestedFix:
+            'Add alt attribute to all images (use empty string for decorative images)',
           wcagCriterion: 'WCAG 2.1 - 1.1.1 Non-text Content',
         });
       }
@@ -323,8 +342,14 @@ export class AccessibilityValidatorAgent extends BaseAgent {
 
     // Basic check for common low-contrast combinations
     const lowContrastPatterns = [
-      { pattern: /color:\s*#[a-fA-F0-9]{3,6}[^;]*gray/i, message: 'Possible low contrast: gray on gray' },
-      { pattern: /background:\s*white[^;]*color:\s*#[fF]{3,6}/i, message: 'Possible low contrast: light text on white' },
+      {
+        pattern: /color:\s*#[a-fA-F0-9]{3,6}[^;]*gray/i,
+        message: 'Possible low contrast: gray on gray',
+      },
+      {
+        pattern: /background:\s*white[^;]*color:\s*#[fF]{3,6}/i,
+        message: 'Possible low contrast: light text on white',
+      },
     ];
 
     for (const { pattern, message } of lowContrastPatterns) {
@@ -333,7 +358,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
           severity: 'high',
           category: 'Color Contrast',
           description: message,
-          suggestedFix: 'Ensure color contrast ratio is at least 4.5:1 for normal text and 3:1 for large text',
+          suggestedFix:
+            'Ensure color contrast ratio is at least 4.5:1 for normal text and 3:1 for large text',
           wcagCriterion: 'WCAG 2.1 - 1.4.3 Contrast (Minimum)',
         });
       }
@@ -359,7 +385,8 @@ export class AccessibilityValidatorAgent extends BaseAgent {
           category: 'Forms',
           description: 'Form input without label',
           element: input.substring(0, 50),
-          suggestedFix: 'Add <label> element or aria-label attribute to form inputs',
+          suggestedFix:
+            'Add <label> element or aria-label attribute to form inputs',
           wcagCriterion: 'WCAG 2.1 - 3.3.2 Labels or Instructions',
         });
       }
@@ -376,7 +403,9 @@ export class AccessibilityValidatorAgent extends BaseAgent {
 
     // Extract heading levels
     const headingRegex = /<h([1-6])[^>]*>/g;
-    const headings = Array.from(code.matchAll(headingRegex)).map(match => parseInt(match[1]));
+    const headings = Array.from(code.matchAll(headingRegex)).map((match) =>
+      parseInt(match[1])
+    );
 
     if (headings.length > 0) {
       // Check if starts with h1
@@ -491,18 +520,22 @@ export class AccessibilityValidatorAgent extends BaseAgent {
     const recommendations: string[] = [];
 
     // Group by severity
-    const critical = issues.filter(i => i.severity === 'critical');
-    const high = issues.filter(i => i.severity === 'high');
+    const critical = issues.filter((i) => i.severity === 'critical');
+    const high = issues.filter((i) => i.severity === 'high');
 
     if (critical.length > 0) {
-      recommendations.push(`Fix ${critical.length} critical accessibility issue(s) immediately`);
-      critical.forEach(issue => {
+      recommendations.push(
+        `Fix ${critical.length} critical accessibility issue(s) immediately`
+      );
+      critical.forEach((issue) => {
         recommendations.push(`- ${issue.description}: ${issue.suggestedFix}`);
       });
     }
 
     if (high.length > 0) {
-      recommendations.push(`Address ${high.length} high-priority accessibility issue(s)`);
+      recommendations.push(
+        `Address ${high.length} high-priority accessibility issue(s)`
+      );
     }
 
     // General recommendations
@@ -511,7 +544,9 @@ export class AccessibilityValidatorAgent extends BaseAgent {
     } else {
       recommendations.push('Test with screen readers (NVDA, JAWS, VoiceOver)');
       recommendations.push('Verify keyboard navigation flow');
-      recommendations.push('Use automated tools like axe DevTools for additional checks');
+      recommendations.push(
+        'Use automated tools like axe DevTools for additional checks'
+      );
     }
 
     return recommendations;

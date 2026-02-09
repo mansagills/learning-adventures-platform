@@ -1,589 +1,704 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ancient Egypt Explorer | Learning Adventures</title>
-    <meta name="description" content="Journey back in time to explore Ancient Egypt! Learn about pyramids, pharaohs, and hieroglyphics.">
+    <meta
+      name="description"
+      content="Journey back in time to explore Ancient Egypt! Learn about pyramids, pharaohs, and hieroglyphics."
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #d4a574 0%, #c4956a 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #d4a574 0%, #c4956a 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff8f0;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff8f0;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
-            color: #FFD700;
-            padding: 25px;
-            text-align: center;
-            border-bottom: 5px solid #FFD700;
-        }
+      .header {
+        background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+        color: #ffd700;
+        padding: 25px;
+        text-align: center;
+        border-bottom: 5px solid #ffd700;
+      }
 
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+      .header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-        .nav-tabs {
-            display: flex;
-            background: #5D4037;
-            padding: 0;
-        }
+      .nav-tabs {
+        display: flex;
+        background: #5d4037;
+        padding: 0;
+      }
 
+      .nav-tab {
+        flex: 1;
+        padding: 15px;
+        text-align: center;
+        color: #ffd700;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        font-weight: bold;
+      }
+
+      .nav-tab:hover {
+        background: rgba(255, 215, 0, 0.1);
+      }
+
+      .nav-tab.active {
+        background: #ffd700;
+        color: #5d4037;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .topic-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #ffd700;
+      }
+
+      .topic-card h2 {
+        color: #8b4513;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .topic-card p {
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 15px;
+      }
+
+      .image-placeholder {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, #d4a574 0%, #c4956a 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        margin-bottom: 15px;
+      }
+
+      .fact-box {
+        background: #fff8dc;
+        border: 2px dashed #ffd700;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 15px;
+      }
+
+      .fact-box h4 {
+        color: #8b4513;
+        margin-bottom: 10px;
+      }
+
+      .hieroglyph-chart {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .hieroglyph-item {
+        background: #fff8dc;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 2px solid #d2691e;
+      }
+
+      .hieroglyph-item .symbol {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .hieroglyph-item .letter {
+        font-weight: bold;
+        color: #8b4513;
+      }
+
+      .quiz-section {
+        background: #fff8dc;
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 20px;
+      }
+
+      .quiz-question {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #5d4037;
+        margin-bottom: 20px;
+      }
+
+      .quiz-options {
+        display: grid;
+        gap: 10px;
+      }
+
+      .quiz-option {
+        padding: 15px 20px;
+        background: white;
+        border: 2px solid #d2691e;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      .quiz-option:hover {
+        background: #ffd700;
+        border-color: #8b4513;
+      }
+
+      .quiz-option.correct {
+        background: #d4edda;
+        border-color: #28a745;
+      }
+
+      .quiz-option.incorrect {
+        background: #f8d7da;
+        border-color: #dc3545;
+      }
+
+      .quiz-option.disabled {
+        pointer-events: none;
+      }
+
+      .progress-tracker {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .progress-dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #ddd;
+      }
+
+      .progress-dot.completed {
+        background: #ffd700;
+      }
+
+      .progress-dot.current {
+        background: #8b4513;
+      }
+
+      .btn {
+        padding: 12px 30px;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+        color: #ffd700;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(139, 69, 19, 0.4);
+      }
+
+      .score-display {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #8b4513 0%, #d2691e 100%);
+        color: #ffd700;
+        border-radius: 15px;
+        margin-top: 20px;
+      }
+
+      .score-display h2 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 30px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #d2691e;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding-left: 20px;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -34px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        background: #ffd700;
+        border-radius: 50%;
+        border: 3px solid #8b4513;
+      }
+
+      .timeline-item h4 {
+        color: #8b4513;
+        margin-bottom: 5px;
+      }
+
+      .timeline-item p {
+        color: #666;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 600px) {
         .nav-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            color: #FFD700;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            background: transparent;
-            font-size: 1rem;
-            font-weight: bold;
+          padding: 10px 5px;
+          font-size: 0.85rem;
         }
-
-        .nav-tab:hover {
-            background: rgba(255,215,0,0.1);
-        }
-
-        .nav-tab.active {
-            background: #FFD700;
-            color: #5D4037;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .topic-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-left: 5px solid #FFD700;
-        }
-
-        .topic-card h2 {
-            color: #8B4513;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .topic-card p {
-            color: #555;
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        .image-placeholder {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #d4a574 0%, #c4956a 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 5rem;
-            margin-bottom: 15px;
-        }
-
-        .fact-box {
-            background: #FFF8DC;
-            border: 2px dashed #FFD700;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .fact-box h4 {
-            color: #8B4513;
-            margin-bottom: 10px;
-        }
-
         .hieroglyph-chart {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
         }
-
-        .hieroglyph-item {
-            background: #FFF8DC;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            border: 2px solid #D2691E;
-        }
-
-        .hieroglyph-item .symbol {
-            font-size: 2.5rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .hieroglyph-item .letter {
-            font-weight: bold;
-            color: #8B4513;
-        }
-
-        .quiz-section {
-            background: #FFF8DC;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-        }
-
-        .quiz-question {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #5D4037;
-            margin-bottom: 20px;
-        }
-
-        .quiz-options {
-            display: grid;
-            gap: 10px;
-        }
-
-        .quiz-option {
-            padding: 15px 20px;
-            background: white;
-            border: 2px solid #D2691E;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-
-        .quiz-option:hover {
-            background: #FFD700;
-            border-color: #8B4513;
-        }
-
-        .quiz-option.correct {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-
-        .quiz-option.incorrect {
-            background: #f8d7da;
-            border-color: #dc3545;
-        }
-
-        .quiz-option.disabled {
-            pointer-events: none;
-        }
-
-        .progress-tracker {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .progress-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #ddd;
-        }
-
-        .progress-dot.completed {
-            background: #FFD700;
-        }
-
-        .progress-dot.current {
-            background: #8B4513;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
-            color: #FFD700;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(139, 69, 19, 0.4);
-        }
-
-        .score-display {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
-            color: #FFD700;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-
-        .score-display h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #D2691E;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 20px;
-            padding-left: 20px;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -34px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            background: #FFD700;
-            border-radius: 50%;
-            border: 3px solid #8B4513;
-        }
-
-        .timeline-item h4 {
-            color: #8B4513;
-            margin-bottom: 5px;
-        }
-
-        .timeline-item p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 600px) {
-            .nav-tab {
-                padding: 10px 5px;
-                font-size: 0.85rem;
-            }
-            .hieroglyph-chart {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Ancient Egypt Explorer</h1>
-            <p>Journey back 5,000 years to the land of pharaohs!</p>
+      <div class="header">
+        <h1>Ancient Egypt Explorer</h1>
+        <p>Journey back 5,000 years to the land of pharaohs!</p>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showTab('pyramids')">
+          Pyramids
+        </button>
+        <button class="nav-tab" onclick="showTab('pharaohs')">Pharaohs</button>
+        <button class="nav-tab" onclick="showTab('hieroglyphics')">
+          Hieroglyphics
+        </button>
+        <button class="nav-tab" onclick="showTab('quiz')">Quiz</button>
+      </div>
+
+      <div class="content">
+        <!-- Pyramids Tab -->
+        <div class="tab-content active" id="pyramids">
+          <div class="topic-card">
+            <div class="image-placeholder">🔺</div>
+            <h2>The Great Pyramids</h2>
+            <p>
+              The pyramids of Egypt are some of the most amazing structures ever
+              built! The Great Pyramid of Giza was built around 2560 BCE and
+              stood as the tallest building in the world for over 3,800 years.
+            </p>
+            <p>
+              These massive stone structures were built as tombs for pharaohs.
+              The ancient Egyptians believed that the pyramid shape helped the
+              pharaoh's spirit rise to heaven.
+            </p>
+
+            <div class="fact-box">
+              <h4>Amazing Facts!</h4>
+              <ul style="margin-left: 20px; color: #555">
+                <li>
+                  The Great Pyramid contains about 2.3 million stone blocks
+                </li>
+                <li>Each block weighs an average of 2.5 tons</li>
+                <li>It took about 20 years to build</li>
+                <li>
+                  The pyramid was originally covered in white limestone that
+                  sparkled in the sun
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="topic-card">
+            <h2>🏗️ How Were They Built?</h2>
+            <p>
+              Scientists still debate exactly how the pyramids were built, but
+              we know that thousands of workers moved massive stone blocks using
+              ramps, levers, and rollers. The workers were not slaves but
+              skilled laborers who were well-fed and respected.
+            </p>
+          </div>
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('pyramids')">Pyramids</button>
-            <button class="nav-tab" onclick="showTab('pharaohs')">Pharaohs</button>
-            <button class="nav-tab" onclick="showTab('hieroglyphics')">Hieroglyphics</button>
-            <button class="nav-tab" onclick="showTab('quiz')">Quiz</button>
+        <!-- Pharaohs Tab -->
+        <div class="tab-content" id="pharaohs">
+          <div class="topic-card">
+            <div class="image-placeholder">👑</div>
+            <h2>The Pharaohs of Egypt</h2>
+            <p>
+              Pharaohs were the kings and queens of ancient Egypt. They were
+              believed to be living gods on Earth! The word "pharaoh" means
+              "great house" in ancient Egyptian.
+            </p>
+          </div>
+
+          <div class="topic-card">
+            <h2>⏳ Famous Pharaohs Timeline</h2>
+            <div class="timeline">
+              <div class="timeline-item">
+                <h4>Khufu (2589-2566 BCE)</h4>
+                <p>
+                  Built the Great Pyramid of Giza, the oldest and largest of the
+                  three pyramids.
+                </p>
+              </div>
+              <div class="timeline-item">
+                <h4>Hatshepsut (1479-1458 BCE)</h4>
+                <p>
+                  One of the most successful female pharaohs. She brought great
+                  wealth to Egypt through trade.
+                </p>
+              </div>
+              <div class="timeline-item">
+                <h4>Tutankhamun (1334-1325 BCE)</h4>
+                <p>
+                  The "Boy King" who became pharaoh at age 9. His tomb was
+                  discovered in 1922 filled with treasures!
+                </p>
+              </div>
+              <div class="timeline-item">
+                <h4>Cleopatra VII (51-30 BCE)</h4>
+                <p>
+                  The last pharaoh of Egypt. She was known for her intelligence
+                  and spoke many languages.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="content">
-            <!-- Pyramids Tab -->
-            <div class="tab-content active" id="pyramids">
-                <div class="topic-card">
-                    <div class="image-placeholder">🔺</div>
-                    <h2>The Great Pyramids</h2>
-                    <p>The pyramids of Egypt are some of the most amazing structures ever built! The Great Pyramid of Giza was built around 2560 BCE and stood as the tallest building in the world for over 3,800 years.</p>
-                    <p>These massive stone structures were built as tombs for pharaohs. The ancient Egyptians believed that the pyramid shape helped the pharaoh's spirit rise to heaven.</p>
-                    
-                    <div class="fact-box">
-                        <h4>Amazing Facts!</h4>
-                        <ul style="margin-left: 20px; color: #555;">
-                            <li>The Great Pyramid contains about 2.3 million stone blocks</li>
-                            <li>Each block weighs an average of 2.5 tons</li>
-                            <li>It took about 20 years to build</li>
-                            <li>The pyramid was originally covered in white limestone that sparkled in the sun</li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Hieroglyphics Tab -->
+        <div class="tab-content" id="hieroglyphics">
+          <div class="topic-card">
+            <div class="image-placeholder">𓂀</div>
+            <h2>Ancient Egyptian Writing</h2>
+            <p>
+              Hieroglyphics were the writing system of ancient Egypt. The word
+              means "sacred carvings" in Greek. There were over 700 different
+              symbols!
+            </p>
+            <p>
+              For thousands of years, no one could read hieroglyphics. Then in
+              1799, the Rosetta Stone was discovered, which helped scholars
+              decode this ancient language.
+            </p>
+          </div>
 
-                <div class="topic-card">
-                    <h2>🏗️ How Were They Built?</h2>
-                    <p>Scientists still debate exactly how the pyramids were built, but we know that thousands of workers moved massive stone blocks using ramps, levers, and rollers. The workers were not slaves but skilled laborers who were well-fed and respected.</p>
-                </div>
+          <div class="topic-card">
+            <h2>📝 Simple Hieroglyphic Alphabet</h2>
+            <p>Here are some hieroglyphic symbols that represent letters:</p>
+            <div class="hieroglyph-chart">
+              <div class="hieroglyph-item">
+                <span class="symbol">𓄿</span><span class="letter">A</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓃀</span><span class="letter">B</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓎡</span><span class="letter">C</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓂧</span><span class="letter">D</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓇋</span><span class="letter">E</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓆑</span><span class="letter">F</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓎼</span><span class="letter">G</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓉔</span><span class="letter">H</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓏭</span><span class="letter">I</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓆓</span><span class="letter">J</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓎡</span><span class="letter">K</span>
+              </div>
+              <div class="hieroglyph-item">
+                <span class="symbol">𓃭</span><span class="letter">L</span>
+              </div>
             </div>
 
-            <!-- Pharaohs Tab -->
-            <div class="tab-content" id="pharaohs">
-                <div class="topic-card">
-                    <div class="image-placeholder">👑</div>
-                    <h2>The Pharaohs of Egypt</h2>
-                    <p>Pharaohs were the kings and queens of ancient Egypt. They were believed to be living gods on Earth! The word "pharaoh" means "great house" in ancient Egyptian.</p>
-                </div>
-
-                <div class="topic-card">
-                    <h2>⏳ Famous Pharaohs Timeline</h2>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <h4>Khufu (2589-2566 BCE)</h4>
-                            <p>Built the Great Pyramid of Giza, the oldest and largest of the three pyramids.</p>
-                        </div>
-                        <div class="timeline-item">
-                            <h4>Hatshepsut (1479-1458 BCE)</h4>
-                            <p>One of the most successful female pharaohs. She brought great wealth to Egypt through trade.</p>
-                        </div>
-                        <div class="timeline-item">
-                            <h4>Tutankhamun (1334-1325 BCE)</h4>
-                            <p>The "Boy King" who became pharaoh at age 9. His tomb was discovered in 1922 filled with treasures!</p>
-                        </div>
-                        <div class="timeline-item">
-                            <h4>Cleopatra VII (51-30 BCE)</h4>
-                            <p>The last pharaoh of Egypt. She was known for her intelligence and spoke many languages.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="fact-box" style="margin-top: 20px">
+              <h4>Try It!</h4>
+              <p>
+                Can you write your name using these hieroglyphic symbols? Draw
+                them on paper!
+              </p>
             </div>
-
-            <!-- Hieroglyphics Tab -->
-            <div class="tab-content" id="hieroglyphics">
-                <div class="topic-card">
-                    <div class="image-placeholder">𓂀</div>
-                    <h2>Ancient Egyptian Writing</h2>
-                    <p>Hieroglyphics were the writing system of ancient Egypt. The word means "sacred carvings" in Greek. There were over 700 different symbols!</p>
-                    <p>For thousands of years, no one could read hieroglyphics. Then in 1799, the Rosetta Stone was discovered, which helped scholars decode this ancient language.</p>
-                </div>
-
-                <div class="topic-card">
-                    <h2>📝 Simple Hieroglyphic Alphabet</h2>
-                    <p>Here are some hieroglyphic symbols that represent letters:</p>
-                    <div class="hieroglyph-chart">
-                        <div class="hieroglyph-item"><span class="symbol">𓄿</span><span class="letter">A</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓃀</span><span class="letter">B</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓎡</span><span class="letter">C</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓂧</span><span class="letter">D</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓇋</span><span class="letter">E</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓆑</span><span class="letter">F</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓎼</span><span class="letter">G</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓉔</span><span class="letter">H</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓏭</span><span class="letter">I</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓆓</span><span class="letter">J</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓎡</span><span class="letter">K</span></div>
-                        <div class="hieroglyph-item"><span class="symbol">𓃭</span><span class="letter">L</span></div>
-                    </div>
-                    
-                    <div class="fact-box" style="margin-top: 20px;">
-                        <h4>Try It!</h4>
-                        <p>Can you write your name using these hieroglyphic symbols? Draw them on paper!</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quiz Tab -->
-            <div class="tab-content" id="quiz">
-                <h2 style="text-align: center; color: #8B4513; margin-bottom: 20px;">Test Your Knowledge!</h2>
-                
-                <div class="progress-tracker" id="quiz-progress">
-                    <div class="progress-dot current"></div>
-                    <div class="progress-dot"></div>
-                    <div class="progress-dot"></div>
-                    <div class="progress-dot"></div>
-                    <div class="progress-dot"></div>
-                </div>
-
-                <div class="quiz-section" id="quiz-container">
-                    <div class="quiz-question" id="quiz-question"></div>
-                    <div class="quiz-options" id="quiz-options"></div>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
-                    </div>
-                </div>
-
-                <div class="score-display" id="score-display" style="display: none;">
-                    <h2>Quiz Complete!</h2>
-                    <p id="final-score"></p>
-                    <button class="btn btn-primary" onclick="restartQuiz()" style="margin-top: 15px;">Try Again</button>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <!-- Quiz Tab -->
+        <div class="tab-content" id="quiz">
+          <h2 style="text-align: center; color: #8b4513; margin-bottom: 20px">
+            Test Your Knowledge!
+          </h2>
+
+          <div class="progress-tracker" id="quiz-progress">
+            <div class="progress-dot current"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+          </div>
+
+          <div class="quiz-section" id="quiz-container">
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div style="text-align: center; margin-top: 20px">
+              <button
+                class="btn btn-primary"
+                id="next-btn"
+                onclick="nextQuestion()"
+                style="display: none"
+              >
+                Next Question
+              </button>
+            </div>
+          </div>
+
+          <div class="score-display" id="score-display" style="display: none">
+            <h2>Quiz Complete!</h2>
+            <p id="final-score"></p>
+            <button
+              class="btn btn-primary"
+              onclick="restartQuiz()"
+              style="margin-top: 15px"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        const quizQuestions = [
-            {
-                question: "How old is the Great Pyramid of Giza?",
-                options: ["About 500 years", "About 2,000 years", "About 4,500 years", "About 10,000 years"],
-                correct: 2
-            },
-            {
-                question: "What were the pyramids used for?",
-                options: ["Homes for pharaohs", "Tombs for pharaohs", "Temples for worship", "Storage for grain"],
-                correct: 1
-            },
-            {
-                question: "What does the word 'pharaoh' mean?",
-                options: ["Great king", "Sun god", "Great house", "Powerful ruler"],
-                correct: 2
-            },
-            {
-                question: "Which pharaoh built the Great Pyramid?",
-                options: ["Tutankhamun", "Cleopatra", "Khufu", "Hatshepsut"],
-                correct: 2
-            },
-            {
-                question: "What helped scholars decode hieroglyphics?",
-                options: ["An ancient book", "The Rosetta Stone", "A pharaoh's diary", "Cave paintings"],
-                correct: 1
-            }
-        ];
+      const quizQuestions = [
+        {
+          question: 'How old is the Great Pyramid of Giza?',
+          options: [
+            'About 500 years',
+            'About 2,000 years',
+            'About 4,500 years',
+            'About 10,000 years',
+          ],
+          correct: 2,
+        },
+        {
+          question: 'What were the pyramids used for?',
+          options: [
+            'Homes for pharaohs',
+            'Tombs for pharaohs',
+            'Temples for worship',
+            'Storage for grain',
+          ],
+          correct: 1,
+        },
+        {
+          question: "What does the word 'pharaoh' mean?",
+          options: ['Great king', 'Sun god', 'Great house', 'Powerful ruler'],
+          correct: 2,
+        },
+        {
+          question: 'Which pharaoh built the Great Pyramid?',
+          options: ['Tutankhamun', 'Cleopatra', 'Khufu', 'Hatshepsut'],
+          correct: 2,
+        },
+        {
+          question: 'What helped scholars decode hieroglyphics?',
+          options: [
+            'An ancient book',
+            'The Rosetta Stone',
+            "A pharaoh's diary",
+            'Cave paintings',
+          ],
+          correct: 1,
+        },
+      ];
 
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
+      let currentQuestion = 0;
+      let score = 0;
+      let answered = false;
 
-        function showTab(tabId) {
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+      function showTab(tabId) {
+        document
+          .querySelectorAll('.nav-tab')
+          .forEach((tab) => tab.classList.remove('active'));
+        document
+          .querySelectorAll('.tab-content')
+          .forEach((content) => content.classList.remove('active'));
 
-            if (tabId === 'quiz') {
-                loadQuestion();
-            }
+        document
+          .querySelector(`[onclick="showTab('${tabId}')"]`)
+          .classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+
+        if (tabId === 'quiz') {
+          loadQuestion();
+        }
+      }
+
+      function loadQuestion() {
+        if (currentQuestion >= quizQuestions.length) {
+          showResults();
+          return;
         }
 
-        function loadQuestion() {
-            if (currentQuestion >= quizQuestions.length) {
-                showResults();
-                return;
-            }
+        const q = quizQuestions[currentQuestion];
+        document.getElementById('quiz-question').textContent = q.question;
 
-            const q = quizQuestions[currentQuestion];
-            document.getElementById('quiz-question').textContent = q.question;
-            
-            const optionsContainer = document.getElementById('quiz-options');
-            optionsContainer.innerHTML = q.options.map((opt, i) => 
-                `<div class="quiz-option" onclick="checkAnswer(${i})">${opt}</div>`
-            ).join('');
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = q.options
+          .map(
+            (opt, i) =>
+              `<div class="quiz-option" onclick="checkAnswer(${i})">${opt}</div>`
+          )
+          .join('');
 
-            document.getElementById('next-btn').style.display = 'none';
-            answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+        answered = false;
 
-            updateProgress();
-        }
+        updateProgress();
+      }
 
-        function checkAnswer(selected) {
-            if (answered) return;
-            answered = true;
+      function checkAnswer(selected) {
+        if (answered) return;
+        answered = true;
 
-            const options = document.querySelectorAll('.quiz-option');
-            const correct = quizQuestions[currentQuestion].correct;
+        const options = document.querySelectorAll('.quiz-option');
+        const correct = quizQuestions[currentQuestion].correct;
 
-            options.forEach((opt, i) => {
-                opt.classList.add('disabled');
-                if (i === correct) {
-                    opt.classList.add('correct');
-                } else if (i === selected && i !== correct) {
-                    opt.classList.add('incorrect');
-                }
-            });
-
-            if (selected === correct) {
-                score++;
-            }
-
-            document.getElementById('next-btn').style.display = 'inline-block';
-        }
-
-        function nextQuestion() {
-            currentQuestion++;
-            loadQuestion();
-        }
-
-        function updateProgress() {
-            const dots = document.querySelectorAll('.progress-dot');
-            dots.forEach((dot, i) => {
-                dot.classList.remove('current', 'completed');
-                if (i < currentQuestion) {
-                    dot.classList.add('completed');
-                } else if (i === currentQuestion) {
-                    dot.classList.add('current');
-                }
-            });
-        }
-
-        function showResults() {
-            document.getElementById('quiz-container').style.display = 'none';
-            document.getElementById('quiz-progress').style.display = 'none';
-            
-            const scoreDisplay = document.getElementById('score-display');
-            scoreDisplay.style.display = 'block';
-            
-            const percentage = Math.round((score / quizQuestions.length) * 100);
-            let message = '';
-            if (percentage === 100) message = 'Perfect! You\'re an Egypt expert!';
-            else if (percentage >= 80) message = 'Excellent! Great knowledge!';
-            else if (percentage >= 60) message = 'Good job! Keep learning!';
-            else message = 'Keep exploring ancient Egypt!';
-            
-            document.getElementById('final-score').innerHTML = 
-                `You got ${score} out of ${quizQuestions.length} correct!<br>${message}`;
-        }
-
-        function restartQuiz() {
-            currentQuestion = 0;
-            score = 0;
-            document.getElementById('quiz-container').style.display = 'block';
-            document.getElementById('quiz-progress').style.display = 'flex';
-            document.getElementById('score-display').style.display = 'none';
-            loadQuestion();
-        }
-
-        // Initialize quiz when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Quiz will be loaded when tab is clicked
+        options.forEach((opt, i) => {
+          opt.classList.add('disabled');
+          if (i === correct) {
+            opt.classList.add('correct');
+          } else if (i === selected && i !== correct) {
+            opt.classList.add('incorrect');
+          }
         });
+
+        if (selected === correct) {
+          score++;
+        }
+
+        document.getElementById('next-btn').style.display = 'inline-block';
+      }
+
+      function nextQuestion() {
+        currentQuestion++;
+        loadQuestion();
+      }
+
+      function updateProgress() {
+        const dots = document.querySelectorAll('.progress-dot');
+        dots.forEach((dot, i) => {
+          dot.classList.remove('current', 'completed');
+          if (i < currentQuestion) {
+            dot.classList.add('completed');
+          } else if (i === currentQuestion) {
+            dot.classList.add('current');
+          }
+        });
+      }
+
+      function showResults() {
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('quiz-progress').style.display = 'none';
+
+        const scoreDisplay = document.getElementById('score-display');
+        scoreDisplay.style.display = 'block';
+
+        const percentage = Math.round((score / quizQuestions.length) * 100);
+        let message = '';
+        if (percentage === 100) message = "Perfect! You're an Egypt expert!";
+        else if (percentage >= 80) message = 'Excellent! Great knowledge!';
+        else if (percentage >= 60) message = 'Good job! Keep learning!';
+        else message = 'Keep exploring ancient Egypt!';
+
+        document.getElementById('final-score').innerHTML =
+          `You got ${score} out of ${quizQuestions.length} correct!<br>${message}`;
+      }
+
+      function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        document.getElementById('quiz-container').style.display = 'block';
+        document.getElementById('quiz-progress').style.display = 'flex';
+        document.getElementById('score-display').style.display = 'none';
+        loadQuestion();
+      }
+
+      // Initialize quiz when page loads
+      document.addEventListener('DOMContentLoaded', function () {
+        // Quiz will be loaded when tab is clicked
+      });
     </script>
-</body>
+  </body>
 </html>

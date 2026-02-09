@@ -17,11 +17,7 @@ export abstract class BaseAgent {
   protected maxRetries: number = 3;
   protected retryDelay: number = 1000; // ms
 
-  constructor(
-    agentId: string,
-    skillPaths: string[],
-    systemPrompt: string
-  ) {
+  constructor(agentId: string, skillPaths: string[], systemPrompt: string) {
     this.agentId = agentId;
     this.skillPaths = skillPaths;
     this.systemPrompt = systemPrompt;
@@ -101,7 +97,7 @@ In a production environment, this would use the Claude SDK to generate actual re
    * Stream Claude response (placeholder)
    * TODO: Implement streaming with Claude SDK
    */
-  protected async* streamClaude(params: {
+  protected async *streamClaude(params: {
     system: string;
     messages: Array<{ role: string; content: string }>;
     maxTokens?: number;

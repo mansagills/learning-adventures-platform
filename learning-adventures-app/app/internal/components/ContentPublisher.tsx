@@ -12,10 +12,12 @@ interface ContentPublisherProps {
 export default function ContentPublisher({
   content,
   formData,
-  onStartOver
+  onStartOver,
 }: ContentPublisherProps) {
   const [isPublishing, setIsPublishing] = useState(false);
-  const [publishStatus, setPublishStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [publishStatus, setPublishStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [error, setError] = useState('');
 
   const handlePublish = async () => {
@@ -37,8 +39,8 @@ export default function ContentPublisher({
           type: formData.type,
           subscriptionTier: formData.subscriptionTier,
           uploadedZipPath: formData.uploadedZipPath,
-          uploadSource: formData.uploadSource
-        })
+          uploadSource: formData.uploadSource,
+        }),
       });
 
       if (!saveResponse.ok) {
@@ -61,9 +63,9 @@ export default function ContentPublisher({
             subscriptionTier: formData.subscriptionTier,
             uploadedContent: formData.uploadSource === 'uploaded',
             platform: formData.uploadPlatform,
-            sourceCodeUrl: formData.sourceCodeUrl
-          }
-        })
+            sourceCodeUrl: formData.sourceCodeUrl,
+          },
+        }),
       });
 
       if (!catalogResponse.ok) {
@@ -73,7 +75,9 @@ export default function ContentPublisher({
 
       setPublishStatus('success');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to publish content');
+      setError(
+        err instanceof Error ? err.message : 'Failed to publish content'
+      );
       setPublishStatus('error');
     } finally {
       setIsPublishing(false);
@@ -84,15 +88,20 @@ export default function ContentPublisher({
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Publish Content</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          Publish Content
+        </h2>
         <p className="text-gray-600">
-          Ready to publish "{content.metadata.title}" to the Learning Adventures catalog?
+          Ready to publish "{content.metadata.title}" to the Learning Adventures
+          catalog?
         </p>
       </div>
 
       {/* Content Summary */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Content Summary</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Content Summary
+        </h3>
 
         {/* Upload/Tier Badges */}
         <div className="flex flex-wrap gap-2 mb-4">
@@ -106,24 +115,34 @@ export default function ContentPublisher({
               🤖 AI-Generated
             </span>
           )}
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-            formData.subscriptionTier === 'free' ? 'bg-green-100 text-green-800' :
-            formData.subscriptionTier === 'premium' ? 'bg-blue-100 text-blue-800' :
-            formData.subscriptionTier === 'custom' ? 'bg-purple-100 text-purple-800' :
-            'bg-orange-100 text-orange-800'
-          }`}>
-            {formData.subscriptionTier.charAt(0).toUpperCase() + formData.subscriptionTier.slice(1)} Tier
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+              formData.subscriptionTier === 'free'
+                ? 'bg-green-100 text-green-800'
+                : formData.subscriptionTier === 'premium'
+                  ? 'bg-blue-100 text-blue-800'
+                  : formData.subscriptionTier === 'custom'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-orange-100 text-orange-800'
+            }`}
+          >
+            {formData.subscriptionTier.charAt(0).toUpperCase() +
+              formData.subscriptionTier.slice(1)}{' '}
+            Tier
           </span>
           {formData.uploadPlatform && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-              {formData.uploadPlatform.charAt(0).toUpperCase() + formData.uploadPlatform.slice(1)}
+              {formData.uploadPlatform.charAt(0).toUpperCase() +
+                formData.uploadPlatform.slice(1)}
             </span>
           )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Basic Information</h4>
+            <h4 className="font-medium text-gray-700 mb-2">
+              Basic Information
+            </h4>
             <dl className="space-y-1 text-sm">
               <div>
                 <dt className="inline font-medium text-gray-600">Title:</dt>
@@ -131,21 +150,32 @@ export default function ContentPublisher({
               </div>
               <div>
                 <dt className="inline font-medium text-gray-600">Type:</dt>
-                <dd className="inline ml-1 capitalize">{content.metadata.type}</dd>
+                <dd className="inline ml-1 capitalize">
+                  {content.metadata.type}
+                </dd>
               </div>
               <div>
                 <dt className="inline font-medium text-gray-600">Subject:</dt>
-                <dd className="inline ml-1 capitalize">{content.metadata.category}</dd>
+                <dd className="inline ml-1 capitalize">
+                  {content.metadata.category}
+                </dd>
               </div>
               <div>
                 <dt className="inline font-medium text-gray-600">ID:</dt>
-                <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">{content.metadata.id}</dd>
+                <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">
+                  {content.metadata.id}
+                </dd>
               </div>
               {formData.sourceCodeUrl && (
                 <div>
                   <dt className="inline font-medium text-gray-600">Source:</dt>
                   <dd className="inline ml-1">
-                    <a href={formData.sourceCodeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-xs underline">
+                    <a
+                      href={formData.sourceCodeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-xs underline"
+                    >
                       View Code
                     </a>
                   </dd>
@@ -155,28 +185,50 @@ export default function ContentPublisher({
           </div>
 
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Educational Details</h4>
+            <h4 className="font-medium text-gray-700 mb-2">
+              Educational Details
+            </h4>
             <dl className="space-y-1 text-sm">
               <div>
-                <dt className="inline font-medium text-gray-600">Grade Levels:</dt>
-                <dd className="inline ml-1">{content.metadata.gradeLevel.join(', ')}</dd>
+                <dt className="inline font-medium text-gray-600">
+                  Grade Levels:
+                </dt>
+                <dd className="inline ml-1">
+                  {content.metadata.gradeLevel.join(', ')}
+                </dd>
               </div>
               <div>
-                <dt className="inline font-medium text-gray-600">Difficulty:</dt>
-                <dd className="inline ml-1 capitalize">{content.metadata.difficulty}</dd>
+                <dt className="inline font-medium text-gray-600">
+                  Difficulty:
+                </dt>
+                <dd className="inline ml-1 capitalize">
+                  {content.metadata.difficulty}
+                </dd>
               </div>
               <div>
-                <dt className="inline font-medium text-gray-600">Estimated Time:</dt>
-                <dd className="inline ml-1">{content.metadata.estimatedTime}</dd>
+                <dt className="inline font-medium text-gray-600">
+                  Estimated Time:
+                </dt>
+                <dd className="inline ml-1">
+                  {content.metadata.estimatedTime}
+                </dd>
               </div>
               <div>
                 <dt className="inline font-medium text-gray-600">File Path:</dt>
-                <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">{content.metadata.htmlPath}</dd>
+                <dd className="inline ml-1 font-mono text-xs bg-gray-100 px-1 rounded">
+                  {content.metadata.htmlPath}
+                </dd>
               </div>
               {formData.projectType && (
                 <div>
-                  <dt className="inline font-medium text-gray-600">Project Type:</dt>
-                  <dd className="inline ml-1">{formData.projectType === 'react-nextjs' ? 'React/Next.js' : 'HTML'}</dd>
+                  <dt className="inline font-medium text-gray-600">
+                    Project Type:
+                  </dt>
+                  <dd className="inline ml-1">
+                    {formData.projectType === 'react-nextjs'
+                      ? 'React/Next.js'
+                      : 'HTML'}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -186,7 +238,7 @@ export default function ContentPublisher({
         <div className="mt-4">
           <h4 className="font-medium text-gray-700 mb-2">Skills Taught</h4>
           <div className="flex flex-wrap gap-2">
-            {content.metadata.skills.map(skill => (
+            {content.metadata.skills.map((skill) => (
               <span
                 key={skill}
                 className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
@@ -199,18 +251,23 @@ export default function ContentPublisher({
 
         <div className="mt-4">
           <h4 className="font-medium text-gray-700 mb-2">Description</h4>
-          <p className="text-sm text-gray-600">{content.metadata.description}</p>
+          <p className="text-sm text-gray-600">
+            {content.metadata.description}
+          </p>
         </div>
       </div>
 
       {/* Publishing Actions */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Publishing Actions</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Publishing Actions
+        </h3>
 
         {publishStatus === 'idle' && (
           <div className="space-y-4">
             <p className="text-gray-600">
-              This will save the HTML file to the public directory and add the content to the catalog.
+              This will save the HTML file to the public directory and add the
+              content to the catalog.
             </p>
             <div className="flex gap-3">
               <button
@@ -235,14 +292,25 @@ export default function ContentPublisher({
             <div className="p-4 bg-green-50 border border-green-200 rounded-md">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-green-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">Successfully Published!</h3>
+                  <h3 className="text-sm font-medium text-green-800">
+                    Successfully Published!
+                  </h3>
                   <p className="text-sm text-green-700 mt-1">
-                    Your content has been added to the Learning Adventures catalog.
+                    Your content has been added to the Learning Adventures
+                    catalog.
                   </p>
                 </div>
               </div>
@@ -279,12 +347,22 @@ export default function ContentPublisher({
             <div className="p-4 bg-red-50 border border-red-200 rounded-md">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-red-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Publishing Failed</h3>
+                  <h3 className="text-sm font-medium text-red-800">
+                    Publishing Failed
+                  </h3>
                   <p className="text-sm text-red-700 mt-1">{error}</p>
                 </div>
               </div>

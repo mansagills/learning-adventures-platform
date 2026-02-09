@@ -17,7 +17,8 @@ async function deployGeneratedGame() {
 
   // Define game
   const gameInput: ReactGameWorkflowInput = {
-    gameIdea: 'Space Multiplication Adventure - Help a space explorer collect stars by solving multiplication problems',
+    gameIdea:
+      'Space Multiplication Adventure - Help a space explorer collect stars by solving multiplication problems',
     subject: 'math',
     gradeLevel: '3-5',
     complexity: 'moderate',

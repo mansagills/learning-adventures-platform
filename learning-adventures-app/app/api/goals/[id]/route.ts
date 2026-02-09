@@ -20,7 +20,7 @@ export async function PUT(
 
     // Check if goal exists and belongs to user
     const existingGoal = await prisma.learningGoal.findUnique({
-      where: { id: goalId }
+      where: { id: goalId },
     });
 
     if (!existingGoal) {
@@ -36,19 +36,22 @@ export async function PUT(
       where: { id: goalId },
       data: {
         ...(body.title && { title: body.title }),
-        ...(body.description !== undefined && { description: body.description }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
         ...(body.targetValue && { targetValue: parseInt(body.targetValue) }),
-        ...(body.currentValue !== undefined && { currentValue: parseInt(body.currentValue) }),
+        ...(body.currentValue !== undefined && {
+          currentValue: parseInt(body.currentValue),
+        }),
         ...(body.deadline && { deadline: new Date(body.deadline) }),
         ...(body.status && { status: body.status }),
         ...(body.priority !== undefined && { priority: body.priority }),
         ...(body.icon !== undefined && { icon: body.icon }),
-        ...(body.color !== undefined && { color: body.color })
-      }
+        ...(body.color !== undefined && { color: body.color }),
+      },
     });
 
     return NextResponse.json({ goal: updatedGoal });
-
   } catch (error) {
     console.error('Error updating goal:', error);
     return NextResponse.json(
@@ -74,7 +77,7 @@ export async function DELETE(
 
     // Check if goal exists and belongs to user
     const existingGoal = await prisma.learningGoal.findUnique({
-      where: { id: goalId }
+      where: { id: goalId },
     });
 
     if (!existingGoal) {
@@ -86,11 +89,10 @@ export async function DELETE(
     }
 
     await prisma.learningGoal.delete({
-      where: { id: goalId }
+      where: { id: goalId },
     });
 
     return NextResponse.json({ message: 'Goal deleted successfully' });
-
   } catch (error) {
     console.error('Error deleting goal:', error);
     return NextResponse.json(

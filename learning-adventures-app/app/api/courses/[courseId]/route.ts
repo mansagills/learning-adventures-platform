@@ -29,7 +29,11 @@ export async function GET(
     const user = await getAuthenticatedUser(request);
     const userId = user?.id;
 
-    const includeProgress = getQueryParamAsBoolean(url, 'includeProgress', false);
+    const includeProgress = getQueryParamAsBoolean(
+      url,
+      'includeProgress',
+      false
+    );
 
     // If user progress requested and user is authenticated
     if (includeProgress && userId) {

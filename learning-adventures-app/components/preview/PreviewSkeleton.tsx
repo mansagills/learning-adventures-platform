@@ -47,7 +47,10 @@ function SkeletonCard() {
   );
 }
 
-export function PreviewCardSkeleton({ count = 5, className = '' }: PreviewSkeletonProps) {
+export function PreviewCardSkeleton({
+  count = 5,
+  className = '',
+}: PreviewSkeletonProps) {
   return (
     <div className={`flex space-x-4 overflow-hidden ${className}`}>
       {Array.from({ length: count }).map((_, index) => (

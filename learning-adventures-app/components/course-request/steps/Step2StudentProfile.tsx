@@ -27,25 +27,25 @@ const studentCountOptions = [
     label: 'Single Student',
     value: 'SINGLE',
     icon: '👤',
-    description: 'Course for one learner'
+    description: 'Course for one learner',
   },
   {
     label: 'Small Group (2-5)',
     value: 'SMALL_GROUP',
     icon: '👥',
-    description: 'Perfect for siblings or friends'
+    description: 'Perfect for siblings or friends',
   },
   {
     label: 'Classroom (6-15)',
     value: 'CLASSROOM_SMALL',
     icon: '👨‍👩‍👧‍👦',
-    description: 'Small classroom setting'
+    description: 'Small classroom setting',
   },
   {
     label: 'Large Class (16+)',
     value: 'CLASSROOM_LARGE',
     icon: '🏫',
-    description: 'Full classroom'
+    description: 'Full classroom',
   },
 ];
 
@@ -53,42 +53,43 @@ const accommodationOptions = [
   {
     label: 'ADHD Support',
     value: 'ADHD',
-    description: 'Short activities, frequent breaks, clear structure'
+    description: 'Short activities, frequent breaks, clear structure',
   },
   {
     label: 'Dyslexia-Friendly',
     value: 'DYSLEXIA',
-    description: 'Font choices, audio support, multi-sensory learning'
+    description: 'Font choices, audio support, multi-sensory learning',
   },
   {
     label: 'Visual Impairment',
     value: 'VISUAL',
-    description: 'Screen reader compatible, high contrast, audio descriptions'
+    description: 'Screen reader compatible, high contrast, audio descriptions',
   },
   {
     label: 'Hearing Impairment',
     value: 'HEARING',
-    description: 'Captions, visual cues, text alternatives'
+    description: 'Captions, visual cues, text alternatives',
   },
   {
     label: 'Gifted/Advanced',
     value: 'GIFTED',
-    description: 'Challenge activities, deeper exploration, faster pace'
+    description: 'Challenge activities, deeper exploration, faster pace',
   },
   {
     label: 'English Language Learner',
     value: 'ELL',
-    description: 'Simplified language, visual aids, vocabulary support'
+    description: 'Simplified language, visual aids, vocabulary support',
   },
   {
     label: 'Autism Spectrum',
     value: 'AUTISM',
-    description: 'Predictable routines, clear expectations, sensory considerations'
+    description:
+      'Predictable routines, clear expectations, sensory considerations',
   },
   {
     label: 'Other',
     value: 'OTHER',
-    description: 'Please describe in notes below'
+    description: 'Please describe in notes below',
   },
 ];
 
@@ -122,9 +123,10 @@ export default function Step2StudentProfile() {
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all
             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-            ${errors.studentName
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white hover:border-brand-300'
+            ${
+              errors.studentName
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white hover:border-brand-300'
             }
           `}
         />
@@ -152,9 +154,10 @@ export default function Step2StudentProfile() {
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all
             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-            ${errors.studentAge
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white hover:border-brand-300'
+            ${
+              errors.studentAge
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white hover:border-brand-300'
             }
           `}
         />
@@ -175,14 +178,15 @@ export default function Step2StudentProfile() {
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all
             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-            ${errors.gradeLevel
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white hover:border-brand-300'
+            ${
+              errors.gradeLevel
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white hover:border-brand-300'
             }
           `}
         >
           <option value="">Select grade level</option>
-          {gradeLevelOptions.map(grade => (
+          {gradeLevelOptions.map((grade) => (
             <option key={grade.value} value={grade.value}>
               {grade.label}
             </option>
@@ -214,18 +218,19 @@ export default function Step2StudentProfile() {
       />
 
       {/* Accommodation Notes */}
-      {formData.learningAccommodations && formData.learningAccommodations.length > 0 && (
-        <TextAreaField
-          label="Additional Accommodation Details"
-          value={formData.accommodationNotes || ''}
-          onChange={(value) => updateField('accommodationNotes', value)}
-          placeholder="Please provide any specific details about accommodations needed..."
-          helpText="Help us understand how to best support your learner"
-          rows={4}
-          maxLength={500}
-          showCharacterCount
-        />
-      )}
+      {formData.learningAccommodations &&
+        formData.learningAccommodations.length > 0 && (
+          <TextAreaField
+            label="Additional Accommodation Details"
+            value={formData.accommodationNotes || ''}
+            onChange={(value) => updateField('accommodationNotes', value)}
+            placeholder="Please provide any specific details about accommodations needed..."
+            helpText="Help us understand how to best support your learner"
+            rows={4}
+            maxLength={500}
+            showCharacterCount
+          />
+        )}
 
       {/* Help Text */}
       <div className="mt-6 p-4 bg-sunshine-50 border border-sunshine-200 rounded-lg">
@@ -236,9 +241,9 @@ export default function Step2StudentProfile() {
               Privacy & Personalization
             </h4>
             <p className="text-sm text-gray-700">
-              This information helps us tailor content to the right developmental level
-              and learning needs. All details remain confidential and are used only for
-              course design.
+              This information helps us tailor content to the right
+              developmental level and learning needs. All details remain
+              confidential and are used only for course design.
             </p>
           </div>
         </div>

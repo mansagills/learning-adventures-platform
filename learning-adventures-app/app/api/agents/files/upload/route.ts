@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
     // Validate file
     if (!isAllowedFileType(file.name)) {
       return NextResponse.json(
-        { error: 'File type not supported. Please upload MD, PDF, or DOCX files.' },
+        {
+          error:
+            'File type not supported. Please upload MD, PDF, or DOCX files.',
+        },
         { status: 400 }
       );
     }

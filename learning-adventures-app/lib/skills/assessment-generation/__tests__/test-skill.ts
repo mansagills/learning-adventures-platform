@@ -16,7 +16,8 @@ import type { SkillContext } from '../../types';
 // Sample curriculum with PROJECT and QUIZ lessons
 const sampleCurriculum = {
   courseTitle: 'Animal Adventure Math: Multiplication & Division Safari',
-  courseDescription: 'Master multiplication and division through animal-themed adventures',
+  courseDescription:
+    'Master multiplication and division through animal-themed adventures',
   estimatedTotalMinutes: 360,
   totalXP: 1740,
   chapters: [
@@ -27,8 +28,8 @@ const sampleCurriculum = {
       learningObjectives: [
         'Understand multiplication as repeated addition',
         'Recall multiplication facts for tables 2-5',
-        'Apply skip counting strategies'
-      ]
+        'Apply skip counting strategies',
+      ],
     },
     {
       number: 2,
@@ -37,8 +38,8 @@ const sampleCurriculum = {
       learningObjectives: [
         'Master multiplication tables 6-10',
         'Identify patterns in multiplication',
-        'Apply strategies to multi-step problems'
-      ]
+        'Apply strategies to multi-step problems',
+      ],
     },
     {
       number: 3,
@@ -47,8 +48,8 @@ const sampleCurriculum = {
       learningObjectives: [
         'Understand division as sharing equally',
         'Explain relationship between multiplication and division',
-        'Solve basic division problems'
-      ]
+        'Solve basic division problems',
+      ],
     },
     {
       number: 4,
@@ -57,9 +58,9 @@ const sampleCurriculum = {
       learningObjectives: [
         'Analyze word problems to determine operations',
         'Apply multiplication and division to real-world scenarios',
-        'Create and justify solution strategies'
-      ]
-    }
+        'Create and justify solution strategies',
+      ],
+    },
   ],
   lessons: [
     {
@@ -69,12 +70,12 @@ const sampleCurriculum = {
       type: 'QUIZ',
       learningObjectives: [
         'Demonstrate understanding of multiplication concept',
-        'Solve basic multiplication problems accurately'
+        'Solve basic multiplication problems accurately',
       ],
       difficulty: 'easy',
       duration: 15,
       xpReward: 100,
-      requiredScore: 70
+      requiredScore: 70,
     },
     {
       order: 7,
@@ -83,12 +84,12 @@ const sampleCurriculum = {
       type: 'QUIZ',
       learningObjectives: [
         'Demonstrate mastery of all multiplication facts 2-9',
-        'Solve multiplication problems accurately and efficiently'
+        'Solve multiplication problems accurately and efficiently',
       ],
       difficulty: 'hard',
       duration: 30,
       xpReward: 180,
-      requiredScore: 80
+      requiredScore: 80,
     },
     {
       order: 12,
@@ -98,18 +99,18 @@ const sampleCurriculum = {
       learningObjectives: [
         'Create original word problems using multiplication and division',
         'Demonstrate mastery of all course concepts in authentic contexts',
-        'Explain mathematical reasoning clearly'
+        'Explain mathematical reasoning clearly',
       ],
       difficulty: 'hard',
       duration: 40,
-      xpReward: 250
-    }
+      xpReward: 250,
+    },
   ],
   progression: {
     scaffolding: 'Spiral progression from concrete to abstract',
     reinforcement: 'Distributed practice',
-    assessmentStrategy: 'Formative quizzes every 4 lessons'
-  }
+    assessmentStrategy: 'Formative quizzes every 4 lessons',
+  },
 };
 
 const sampleDesignBrief = {
@@ -120,20 +121,20 @@ const sampleDesignBrief = {
     accommodations: ['Visual aids'],
     learningProfile: {
       styles: ['Visual', 'Hands-on', 'Story-based'],
-      interests: ['Animals', 'Art', 'Nature']
-    }
+      interests: ['Animals', 'Art', 'Nature'],
+    },
   },
   course: {
     subject: 'MATH',
     topics: ['Multiplication tables', 'Division basics'],
     difficulty: 'medium',
-    gradeLevel: ['3rd Grade']
+    gradeLevel: ['3rd Grade'],
   },
   assessment: {
     masteryThreshold: 70,
     successIndicators: ['Improved test scores', 'Increased confidence'],
-    reportingPreferences: ['Weekly progress reports']
-  }
+    reportingPreferences: ['Weekly progress reports'],
+  },
 };
 
 async function testSkill() {
@@ -155,7 +156,9 @@ async function testSkill() {
   console.log(`${'='.repeat(80)}\n`);
 
   console.log(`Course: ${sampleCurriculum.courseTitle}`);
-  console.log(`Student: ${sampleDesignBrief.student.name} (Age ${sampleDesignBrief.student.age})`);
+  console.log(
+    `Student: ${sampleDesignBrief.student.name} (Age ${sampleDesignBrief.student.age})`
+  );
   console.log(`Chapters: ${sampleCurriculum.chapters.length}`);
   console.log(`Quiz Lessons: 2`);
   console.log(`Project Lessons: 1`);
@@ -165,8 +168,8 @@ async function testSkill() {
   const confidence = await skill.canHandle('Generate assessments', {
     previousOutputs: new Map([
       ['curriculum', sampleCurriculum],
-      ['designBrief', sampleDesignBrief]
-    ])
+      ['designBrief', sampleDesignBrief],
+    ]),
   });
   console.log(`✓ canHandle confidence: ${confidence}%\n`);
 
@@ -182,9 +185,9 @@ async function testSkill() {
     userRequest: 'Generate comprehensive assessments for this curriculum',
     previousOutputs: new Map([
       ['curriculum', sampleCurriculum],
-      ['designBrief', sampleDesignBrief]
+      ['designBrief', sampleDesignBrief],
     ]),
-    conversationHistory: []
+    conversationHistory: [],
   };
 
   try {
@@ -192,7 +195,9 @@ async function testSkill() {
 
     if (result.success) {
       console.log('✅ Execution successful!');
-      console.log(`   Execution time: ${result.metadata.executionTime}ms (${Math.round(result.metadata.executionTime / 1000)}s)`);
+      console.log(
+        `   Execution time: ${result.metadata.executionTime}ms (${Math.round(result.metadata.executionTime / 1000)}s)`
+      );
       console.log(`   Confidence: ${result.metadata.confidence}%\n`);
 
       const {
@@ -200,7 +205,7 @@ async function testSkill() {
         diagnosticPostTest,
         projectRubrics,
         additionalQuizQuestions,
-        assessmentStrategy
+        assessmentStrategy,
       } = result.output;
 
       // Diagnostic Pre-Test
@@ -212,9 +217,11 @@ async function testSkill() {
         console.log(`   Passing Score: ${diagnosticPreTest.passingScore}%`);
 
         console.log(`\n   Sample Questions:`);
-        diagnosticPreTest.questions.slice(0, 2).forEach(q => {
+        diagnosticPreTest.questions.slice(0, 2).forEach((q) => {
           console.log(`      - ${q.question}`);
-          console.log(`        Skill: ${q.skillAssessed} | Difficulty: ${q.difficulty}`);
+          console.log(
+            `        Skill: ${q.skillAssessed} | Difficulty: ${q.difficulty}`
+          );
         });
         console.log('');
       }
@@ -230,8 +237,10 @@ async function testSkill() {
       // Project Rubrics
       if (projectRubrics.length > 0) {
         console.log('📊 Project Rubrics:');
-        projectRubrics.forEach(rubric => {
-          console.log(`\n   Lesson ${rubric.lessonOrder}: ${rubric.lessonTitle}`);
+        projectRubrics.forEach((rubric) => {
+          console.log(
+            `\n   Lesson ${rubric.lessonOrder}: ${rubric.lessonTitle}`
+          );
           console.log(`   Rubric: ${rubric.rubricTitle}`);
           console.log(`   Total Points: ${rubric.totalPoints}`);
           console.log(`   Criteria: ${rubric.criteria.length}`);
@@ -239,10 +248,14 @@ async function testSkill() {
           // Show first criterion in detail
           if (rubric.criteria.length > 0) {
             const criterion = rubric.criteria[0];
-            console.log(`\n   Sample Criterion: ${criterion.dimension} (${criterion.points} points)`);
+            console.log(
+              `\n   Sample Criterion: ${criterion.dimension} (${criterion.points} points)`
+            );
             console.log(`      ${criterion.description}`);
-            criterion.levels.forEach(level => {
-              console.log(`      ${level.level} (${level.score} pts): ${level.description.substring(0, 60)}...`);
+            criterion.levels.forEach((level) => {
+              console.log(
+                `      ${level.level} (${level.score} pts): ${level.description.substring(0, 60)}...`
+              );
             });
           }
         });
@@ -252,42 +265,61 @@ async function testSkill() {
       // Additional Quiz Questions
       if (additionalQuizQuestions.length > 0) {
         console.log('❓ Additional Quiz Questions:');
-        additionalQuizQuestions.forEach(quiz => {
+        additionalQuizQuestions.forEach((quiz) => {
           console.log(`   Lesson ${quiz.lessonOrder}: ${quiz.lessonTitle}`);
-          console.log(`   Question Bank Size: ${quiz.questionBank.length} questions`);
+          console.log(
+            `   Question Bank Size: ${quiz.questionBank.length} questions`
+          );
 
           // Count by difficulty
           const difficulties = quiz.questionBank.reduce((acc: any, q: any) => {
             acc[q.difficulty] = (acc[q.difficulty] || 0) + 1;
             return acc;
           }, {});
-          console.log(`   Distribution: Easy: ${difficulties.easy || 0}, Medium: ${difficulties.medium || 0}, Hard: ${difficulties.hard || 0}`);
+          console.log(
+            `   Distribution: Easy: ${difficulties.easy || 0}, Medium: ${difficulties.medium || 0}, Hard: ${difficulties.hard || 0}`
+          );
         });
         console.log('');
       }
 
       // Assessment Strategy
       console.log('🎯 Assessment Strategy:');
-      console.log(`   Formative Approach: ${assessmentStrategy.formativeApproach.substring(0, 100)}...`);
-      console.log(`   Summative Approach: ${assessmentStrategy.summativeApproach.substring(0, 100)}...`);
-      console.log(`   Feedback Guidelines: ${assessmentStrategy.feedbackGuidelines.substring(0, 100)}...`);
-      console.log(`   Retake Policy: ${assessmentStrategy.retakePolicy.substring(0, 100)}...\n`);
+      console.log(
+        `   Formative Approach: ${assessmentStrategy.formativeApproach.substring(0, 100)}...`
+      );
+      console.log(
+        `   Summative Approach: ${assessmentStrategy.summativeApproach.substring(0, 100)}...`
+      );
+      console.log(
+        `   Feedback Guidelines: ${assessmentStrategy.feedbackGuidelines.substring(0, 100)}...`
+      );
+      console.log(
+        `   Retake Policy: ${assessmentStrategy.retakePolicy.substring(0, 100)}...\n`
+      );
 
-      if (result.metadata.suggestedNextSkills && result.metadata.suggestedNextSkills.length > 0) {
-        console.log(`🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`);
+      if (
+        result.metadata.suggestedNextSkills &&
+        result.metadata.suggestedNextSkills.length > 0
+      ) {
+        console.log(
+          `🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`
+        );
       } else {
-        console.log('✅ Final skill in pipeline - ready for CourseGenerationAgent!');
+        console.log(
+          '✅ Final skill in pipeline - ready for CourseGenerationAgent!'
+        );
       }
-
     } else {
       console.log('❌ Execution failed!');
       console.log(`   Error code: ${result.error?.code}`);
       console.log(`   Error message: ${result.error?.message}`);
       if (result.error?.details) {
-        console.log(`   Details: ${JSON.stringify(result.error.details, null, 2)}`);
+        console.log(
+          `   Details: ${JSON.stringify(result.error.details, null, 2)}`
+        );
       }
     }
-
   } catch (error) {
     console.log('💥 Unexpected error during execution:');
     console.log(error);
@@ -299,7 +331,7 @@ async function testSkill() {
 }
 
 // Run tests
-testSkill().catch(error => {
+testSkill().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

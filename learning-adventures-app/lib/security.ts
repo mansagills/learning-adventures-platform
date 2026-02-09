@@ -10,7 +10,10 @@
  * @param identifier The identifier to validate
  * @param context Optional context for the error message (e.g., "Game ID")
  */
-export function validateIdentifier(identifier: string, context: string = 'Identifier'): void {
+export function validateIdentifier(
+  identifier: string,
+  context: string = 'Identifier'
+): void {
   if (!identifier) {
     throw new Error(`${context} cannot be empty`);
   }

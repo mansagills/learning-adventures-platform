@@ -19,18 +19,36 @@ describe('FAQ Component', () => {
     render(<Faq />);
 
     expect(screen.getByText('Frequently Asked Questions')).toBeInTheDocument();
-    expect(screen.getByText('Is Learning Adventures accessible for children with special needs?')).toBeInTheDocument();
-    expect(screen.getByText('How much does Learning Adventures cost?')).toBeInTheDocument();
-    expect(screen.getByText('Can my child use Learning Adventures without an internet connection?')).toBeInTheDocument();
-    expect(screen.getByText('How do I track my child\'s learning progress?')).toBeInTheDocument();
-    expect(screen.getByText('How does the AI personalization work?')).toBeInTheDocument();
-    expect(screen.getByText('How do you protect my child\'s privacy and data?')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Is Learning Adventures accessible for children with special needs?'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How much does Learning Adventures cost?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Can my child use Learning Adventures without an internet connection?'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("How do I track my child's learning progress?")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How does the AI personalization work?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("How do you protect my child's privacy and data?")
+    ).toBeInTheDocument();
   });
 
   it('expands and collapses FAQ items when clicked', async () => {
     render(<Faq />);
 
-    const firstQuestion = screen.getByText('Is Learning Adventures accessible for children with special needs?');
+    const firstQuestion = screen.getByText(
+      'Is Learning Adventures accessible for children with special needs?'
+    );
     const firstButton = firstQuestion.closest('button');
 
     expect(firstButton).toHaveAttribute('aria-expanded', 'false');
@@ -42,7 +60,9 @@ describe('FAQ Component', () => {
       expect(firstButton).toHaveAttribute('aria-expanded', 'true');
     });
 
-    expect(screen.getByText(/Yes! Our platform is designed with accessibility/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Yes! Our platform is designed with accessibility/)
+    ).toBeInTheDocument();
 
     // Click to collapse
     fireEvent.click(firstButton!);
@@ -55,13 +75,17 @@ describe('FAQ Component', () => {
   it('tracks analytics when FAQ items are opened', async () => {
     render(<Faq />);
 
-    const firstQuestion = screen.getByText('Is Learning Adventures accessible for children with special needs?');
+    const firstQuestion = screen.getByText(
+      'Is Learning Adventures accessible for children with special needs?'
+    );
     const firstButton = firstQuestion.closest('button');
 
     fireEvent.click(firstButton!);
 
     await waitFor(() => {
-      expect(analytics.openFAQ).toHaveBeenCalledWith('Is Learning Adventures accessible for children with special needs?');
+      expect(analytics.openFAQ).toHaveBeenCalledWith(
+        'Is Learning Adventures accessible for children with special needs?'
+      );
     });
   });
 
@@ -136,7 +160,7 @@ describe('FAQ Component', () => {
     const buttons = screen.getAllByRole('button');
 
     // All FAQ buttons should be focusable
-    buttons.slice(0, 6).forEach(button => {
+    buttons.slice(0, 6).forEach((button) => {
       expect(button).not.toHaveAttribute('tabindex', '-1');
     });
   });

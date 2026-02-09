@@ -51,7 +51,9 @@ export default function XPWidget() {
 
   const progressPercentage = Math.min(
     100,
-    (levelData.xpInCurrentLevel / (levelData.xpInCurrentLevel + levelData.xpToNextLevel)) * 100
+    (levelData.xpInCurrentLevel /
+      (levelData.xpInCurrentLevel + levelData.xpToNextLevel)) *
+      100
   );
 
   return (
@@ -83,7 +85,9 @@ export default function XPWidget() {
 
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-purple-100">Progress to Level {levelData.currentLevel + 1}</span>
+          <span className="text-purple-100">
+            Progress to Level {levelData.currentLevel + 1}
+          </span>
           <span className="font-medium">{Math.round(progressPercentage)}%</span>
         </div>
         <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">

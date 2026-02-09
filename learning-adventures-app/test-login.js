@@ -38,8 +38,13 @@ async function testLogin() {
 
     // Test password
     if (user.password) {
-      const isPasswordValid = await bcrypt.compare('password123', user.password);
-      console.log(`🔒 Password verification: ${isPasswordValid ? '✅ VALID' : '❌ INVALID'}\n`);
+      const isPasswordValid = await bcrypt.compare(
+        'password123',
+        user.password
+      );
+      console.log(
+        `🔒 Password verification: ${isPasswordValid ? '✅ VALID' : '❌ INVALID'}\n`
+      );
 
       if (isPasswordValid) {
         console.log('🎉 Login credentials are working correctly!');
@@ -47,7 +52,9 @@ async function testLogin() {
         console.log('1. Go to: http://localhost:3000');
         console.log('2. Click "Sign In"');
         console.log('3. Use: student@test.com / password123');
-        console.log('4. Should successfully log in as Alex Student (Grade 3)\n');
+        console.log(
+          '4. Should successfully log in as Alex Student (Grade 3)\n'
+        );
       } else {
         console.log('❌ Password verification failed');
       }
@@ -60,24 +67,27 @@ async function testLogin() {
     const allTestUsers = await prisma.user.findMany({
       where: {
         email: {
-          in: ['teacher@test.com', 'parent@test.com', 'admin@test.com']
-        }
+          in: ['teacher@test.com', 'parent@test.com', 'admin@test.com'],
+        },
       },
       select: {
         email: true,
         name: true,
         role: true,
         password: true,
-      }
+      },
     });
 
     for (const testUser of allTestUsers) {
-      const passwordOk = testUser.password ? await bcrypt.compare('password123', testUser.password) : false;
-      console.log(`   ${passwordOk ? '✅' : '❌'} ${testUser.email} (${testUser.role})`);
+      const passwordOk = testUser.password
+        ? await bcrypt.compare('password123', testUser.password)
+        : false;
+      console.log(
+        `   ${passwordOk ? '✅' : '❌'} ${testUser.email} (${testUser.role})`
+      );
     }
 
     console.log('\n✨ All test accounts are ready for use!');
-
   } catch (error) {
     console.error('❌ Test failed:', error.message);
   } finally {

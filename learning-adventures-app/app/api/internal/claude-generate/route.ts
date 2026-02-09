@@ -104,9 +104,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const promptTemplate = formData.type === 'game'
-      ? getGamePromptTemplate()
-      : getLessonPromptTemplate();
+    const promptTemplate =
+      formData.type === 'game'
+        ? getGamePromptTemplate()
+        : getLessonPromptTemplate();
 
     const enhancedRequirements = refinements
       ? `${formData.additionalRequirements || ''}\n\nRefinements based on expert suggestions:\n${refinements}`
@@ -143,9 +144,9 @@ Return only the complete HTML file content.`;
       messages: [
         {
           role: 'user',
-          content: prompt
-        }
-      ]
+          content: prompt,
+        },
+      ],
     });
 
     const content = response.content[0];
@@ -154,16 +155,18 @@ Return only the complete HTML file content.`;
     }
 
     return NextResponse.json({
-      content: content.text
+      content: content.text,
     });
-
   } catch (error) {
     console.error('Error generating content:', error);
 
     // Check if it's an API key issue
     if (error instanceof Error && error.message.includes('authentication')) {
       return NextResponse.json(
-        { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
+        {
+          error:
+            'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.',
+        },
         { status: 401 }
       );
     }

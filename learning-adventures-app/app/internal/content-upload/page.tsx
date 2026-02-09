@@ -17,18 +17,20 @@ type UploadItem = {
 };
 
 function ContentUploadPage() {
-  const [activeTab, setActiveTab] = useState<'upload' | 'library' | 'courses'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'library' | 'courses'>(
+    'upload'
+  );
   const [uploadQueue, setUploadQueue] = useState<UploadItem[]>([]);
 
   const handleFilesAdded = async (files: File[]) => {
-    const newItems: UploadItem[] = files.map(file => ({
+    const newItems: UploadItem[] = files.map((file) => ({
       id: `${Date.now()}-${file.name}`,
       file,
       progress: 0,
       status: 'pending' as const,
     }));
 
-    setUploadQueue(prev => [...prev, ...newItems]);
+    setUploadQueue((prev) => [...prev, ...newItems]);
 
     // Start uploads
     for (const item of newItems) {
@@ -37,8 +39,10 @@ function ContentUploadPage() {
   };
 
   const uploadFile = async (item: UploadItem) => {
-    setUploadQueue(prev =>
-      prev.map(i => i.id === item.id ? { ...i, status: 'uploading' as const } : i)
+    setUploadQueue((prev) =>
+      prev.map((i) =>
+        i.id === item.id ? { ...i, status: 'uploading' as const } : i
+      )
     );
 
     try {
@@ -63,18 +67,22 @@ function ContentUploadPage() {
 
       const result = await response.json();
 
-      setUploadQueue(prev =>
-        prev.map(i =>
+      setUploadQueue((prev) =>
+        prev.map((i) =>
           i.id === item.id
             ? { ...i, status: 'success' as const, progress: 100, result }
             : i
         )
       );
     } catch (error) {
-      setUploadQueue(prev =>
-        prev.map(i =>
+      setUploadQueue((prev) =>
+        prev.map((i) =>
           i.id === item.id
-            ? { ...i, status: 'error' as const, error: error instanceof Error ? error.message : 'Upload failed' }
+            ? {
+                ...i,
+                status: 'error' as const,
+                error: error instanceof Error ? error.message : 'Upload failed',
+              }
             : i
         )
       );
@@ -86,7 +94,8 @@ function ContentUploadPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-ink-900 mb-2">Content Upload</h1>
         <p className="text-gray-600">
-          Upload games, lessons, or course packages. Files are published immediately.
+          Upload games, lessons, or course packages. Files are published
+          immediately.
         </p>
       </div>
 

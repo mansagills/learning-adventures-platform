@@ -1,7 +1,9 @@
 # Learning Builder Agent Fixes
 
 ## Problem
+
 The Learning Builder Agent was unable to build games in response to user requests:
+
 1. **Skill detection too weak** - Confidence scores of 56-57% weren't high enough
 2. **Mock implementations** - Skills returned placeholder content instead of real games
 3. **No Claude API integration** - Skills had TODO comments instead of actual AI generation
@@ -11,6 +13,7 @@ The Learning Builder Agent was unable to build games in response to user request
 ### 1. Improved Skill Detection Algorithm
 
 **Before** ([BaseSkill.ts:120-126](../lib/skills/BaseSkill.ts)):
+
 ```typescript
 // Old algorithm: matchedCount / totalTriggers * 100
 // Problem: With 9 triggers, 1 match = 11% confidence
@@ -20,6 +23,7 @@ return Math.min(baseScore + bonusScore, 100);
 ```
 
 **After** ([BaseSkill.ts:119-139](../lib/skills/BaseSkill.ts)):
+
 ```typescript
 // New tier-based algorithm:
 // - 1 match: 65% base (above 50% threshold, will execute)
@@ -43,16 +47,17 @@ return Math.min(confidence + coverageBonus, 98);
 ### 2. Added More Trigger Keywords
 
 **Game Builder Skill** - Added common build phrases:
+
 ```typescript
 triggers: [
   // ... existing triggers
-  'build',        // Generic "build" command
-  'build one',    // "build one of these"
-  'build it',     // "build it"
-  'build this',   // "build this game"
-  'create it',    // "create it"
-  'make it',      // "make it"
-]
+  'build', // Generic "build" command
+  'build one', // "build one of these"
+  'build it', // "build it"
+  'build this', // "build this game"
+  'create it', // "create it"
+  'make it', // "make it"
+];
 ```
 
 **Result**: Phrases like "build the first one" now match and trigger the skill
@@ -62,6 +67,7 @@ triggers: [
 Created shared Claude client utility:
 
 **[lib/claude-client.ts](../lib/claude-client.ts)** - New file:
+
 ```typescript
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -83,6 +89,7 @@ export async function callClaude(
 ```
 
 **Integrated into Game Builder** ([game-builder/GameBuilderSkill.ts:334-376](../lib/skills/game-builder/GameBuilderSkill.ts)):
+
 ```typescript
 private async generateGameCode(prompt: string, guidance: string, concept: GameConcept): Promise<string> {
   // Check if API key configured
@@ -111,6 +118,7 @@ private async generateGameCode(prompt: string, guidance: string, concept: GameCo
 ```
 
 **Integrated into Game Ideation** ([game-ideation/GameIdeationSkill.ts:305-365](../lib/skills/game-ideation/GameIdeationSkill.ts)):
+
 ```typescript
 private async generateGameConcepts(prompt: string, guidance: string, request: GameIdeaRequest): Promise<GameConcept[]> {
   // Similar pattern: Check API → Call Claude → Parse JSON → Fallback if needed
@@ -125,19 +133,24 @@ private async generateGameConcepts(prompt: string, guidance: string, request: Ga
 ### Set ANTHROPIC_API_KEY
 
 Add to [.env.local](../.env.local):
+
 ```bash
 ANTHROPIC_API_KEY=sk-ant-api03-...your-key-here...
 ```
 
 ### Without API Key (Development)
+
 The agent will work with mock responses:
+
 - ⚠️ Warning logged to console
 - Mock game templates returned
 - Skills still execute and respond
 - Good for testing UI/UX without API costs
 
 ### With API Key (Production)
+
 Real AI-generated content:
+
 - ✅ Claude generates actual games and concepts
 - 🎮 Unique, custom-tailored educational content
 - 📊 Quality varies with prompt engineering
@@ -149,11 +162,13 @@ Real AI-generated content:
 **Request**: `"Create 3 math game ideas for 4th graders"`
 
 **Expected**:
+
 - ✅ Skill detection logs: `game-ideation (80%+)`
 - ✅ Agent executes game-ideation skill
 - ✅ Returns 3-5 game concepts (mock or real depending on API key)
 
 **Check logs**:
+
 ```
 🔍 Skill Detection Results:
   game-ideation: 80% - Matched keywords: create, game
@@ -166,11 +181,13 @@ Real AI-generated content:
 **Request**: `"Build the first one"` (after ideation)
 
 **Expected**:
+
 - ✅ Skill detection: `game-builder (75%+)`
 - ✅ Uses previous game concept from ideation skill
 - ✅ Generates complete HTML game (mock or real)
 
 **Check logs**:
+
 ```
 🔍 Skill Detection Results:
   game-builder: 75% - Matched keywords: build
@@ -181,6 +198,7 @@ Real AI-generated content:
 ### 3. Test Claude API Integration
 
 **With API Key**:
+
 ```bash
 # Set API key
 echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env.local
@@ -194,6 +212,7 @@ npm run dev
 ```
 
 **Without API Key**:
+
 ```bash
 # Remove API key temporarily
 # Restart server
@@ -203,13 +222,14 @@ npm run dev
 
 ## Thresholds and Confidence Levels
 
-| Confidence | Behavior |
-|------------|----------|
-| 0-49% | Skill not detected, won't show in results |
-| 50-79% | Skill detected and suggested, will execute if top match |
-| 80-100% | Auto-selected with high confidence |
+| Confidence | Behavior                                                |
+| ---------- | ------------------------------------------------------- |
+| 0-49%      | Skill not detected, won't show in results               |
+| 50-79%     | Skill detected and suggested, will execute if top match |
+| 80-100%    | Auto-selected with high confidence                      |
 
 **Current typical scores**:
+
 - `"Create math game ideas"` → 80-85% (game-ideation)
 - `"Build the game"` → 75-80% (game-builder)
 - `"Build"` alone → 65-70% (game-builder)
@@ -224,6 +244,7 @@ npm run dev
 ## Next Steps
 
 ### Additional Improvements Needed:
+
 - [ ] Add React Component skill Claude integration
 - [ ] Add Metadata Formatter skill Claude integration
 - [ ] Add Accessibility Validator skill Claude integration
@@ -232,6 +253,7 @@ npm run dev
 - [ ] Add skill chaining UI (show which skills will execute)
 
 ### Known Limitations:
+
 - **Skill guidance files not created yet** - loadGuidance() returns empty string
 - **Context building incomplete** - Previous outputs not fully preserved
 - **No streaming responses** - Games take 10-20s to generate

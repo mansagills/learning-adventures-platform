@@ -1,3 +1,255 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Counting Carnival | Carnival Games</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#ff6b6b 0%,#feca57 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:1rem}.game-container{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:900px;width:100%}h1{color:#ee5a6f;text-align:center;margin-bottom:1rem;font-size:2.5rem}#instructions{background:#ffebee;padding:1.5rem;border-radius:12px;margin-bottom:2rem;border-left:4px solid #ee5a6f}.stats{display:flex;justify-content:space-around;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}.stat-box{background:linear-gradient(135deg,#ee5a6f 0%,#ff6b6b 100%);color:#fff;padding:1rem 1.5rem;border-radius:12px;font-size:1.2rem;font-weight:700}.game-booth{background:linear-gradient(135deg,#ffeaa7 0%,#fdcb6e 100%);border:4px solid#d63031;border-radius:12px;padding:2rem;margin-bottom:2rem;min-height:300px;text-align:center}.booth-title{font-size:2rem;color:#d63031;margin-bottom:1.5rem;font-weight:700}.items-display{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin:2rem 0;min-height:100px}.item{font-size:3rem;animation:bounce 1s infinite}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}.question{font-size:1.8rem;color:#2d3748;margin:1.5rem 0;font-weight:700}.answer-input{width:150px;padding:1rem;font-size:2rem;text-align:center;border:3px solid #ee5a6f;border-radius:12px;margin:1rem}.feedback{text-align:center;font-size:1.5rem;font-weight:700;padding:1rem;border-radius:12px;margin:1rem 0}.feedback.correct{background:#c6f6d5;color:#22543d}.feedback.incorrect{background:#fed7d7;color:#742a2a}.btn{background:linear-gradient(135deg,#ee5a6f 0%,#ff6b6b 100%);color:#fff;border:none;padding:1rem 2rem;border-radius:12px;font-size:1.2rem;font-weight:700;cursor:pointer;margin:.5rem}.btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.25)}.hidden{display:none!important}</style></head><body><div class="game-container"><h1>🎪 Counting Carnival 🎪</h1><div id="instructions"><h2 style="color:#ee5a6f;margin-bottom:.5rem">How to Play</h2><ul style="margin-left:1.5rem;color:#424242"><li>Visit different carnival game booths</li><li>Count the items shown</li><li>Type your answer and submit!</li><li>Earn tickets for correct counts!</li></ul><div style="text-align:center;margin-top:1rem"><button class="btn" onclick="startGame()">Enter Carnival!</button></div></div><div id="main-game" class="hidden"><div class="stats"><div class="stat-box">🎟️ Tickets: <span id="tickets">0</span></div><div class="stat-box">🎯 Correct: <span id="correct">0</span></div><div class="stat-box">🎪 Booth: <span id="booth">1</span></div></div><div class="game-booth"><div class="booth-title" id="booth-name">🎯 Ring Toss</div><div class="items-display" id="items-display"></div><div class="question">How many items do you see?</div><input type="number" id="answer-input" class="answer-input" placeholder="?"><div class="feedback hidden" id="feedback"></div><button class="btn" onclick="checkAnswer()">Submit Count</button></div></div><div id="game-over" class="hidden" style="text-align:center"><h2 style="color:#ee5a6f;font-size:2.5rem">Carnival Champion! 🎉</h2><p style="font-size:1.5rem;margin:1rem 0">Tickets: <span id="final-tickets">0</span></p><button class="btn" onclick="location.reload()">Play Again</button></div></div><script>let tickets=0,correct=0,booth=1,currentCount=0;const booths=[{name:'🎯 Ring Toss',items:['🎯','🎪','🎨','🎭']},{name:'🦆 Duck Pond',items:['🦆','🐤','🦢','🐥']},{name:'⚾ Ball Throw',items:['⚾','🏀','⚽','🎾']},{name:'🎈 Balloon Pop',items:['🎈','🎉','🎊','✨']}];function startGame(){document.getElementById('instructions').classList.add('hidden');document.getElementById('main-game').classList.remove('hidden');updateDisplay();generateBooth()}function updateDisplay(){document.getElementById('tickets').textContent=tickets;document.getElementById('correct').textContent=correct;document.getElementById('booth').textContent=booth}function generateBooth(){document.getElementById('feedback').classList.add('hidden');document.getElementById('answer-input').value='';const currentBooth=booths[(booth-1)%booths.length];document.getElementById('booth-name').textContent=currentBooth.name;currentCount=Math.floor(Math.random()*10)+5;const items=[];for(let i=0;i<currentCount;i++){items.push(currentBooth.items[Math.floor(Math.random()*currentBooth.items.length)])}document.getElementById('items-display').innerHTML=items.map(item=>`<span class="item">${item}</span>`).join('')}function checkAnswer(){const userAnswer=parseInt(document.getElementById('answer-input').value);const feedback=document.getElementById('feedback');feedback.classList.remove('hidden','correct','incorrect');if(userAnswer===currentCount){tickets+=10;correct++;feedback.classList.add('correct');feedback.textContent=`✅ Correct! You counted ${currentCount} items! +10 tickets`;booth++;setTimeout(()=>generateBooth(),1500)}else{feedback.classList.add('incorrect');feedback.textContent=`❌ Not quite! There were ${currentCount} items. Try the next booth!`;setTimeout(()=>generateBooth(),2000)}updateDisplay()}document.getElementById('answer-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')checkAnswer()})</script></body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Counting Carnival | Carnival Games</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+      .game-container {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 900px;
+        width: 100%;
+      }
+      h1 {
+        color: #ee5a6f;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+      #instructions {
+        background: #ffebee;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #ee5a6f;
+      }
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .stat-box {
+        background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+        color: #fff;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      .game-booth {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        border: 4px solid#d63031;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        min-height: 300px;
+        text-align: center;
+      }
+      .booth-title {
+        font-size: 2rem;
+        color: #d63031;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+      }
+      .items-display {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem 0;
+        min-height: 100px;
+      }
+      .item {
+        font-size: 3rem;
+        animation: bounce 1s infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .question {
+        font-size: 1.8rem;
+        color: #2d3748;
+        margin: 1.5rem 0;
+        font-weight: 700;
+      }
+      .answer-input {
+        width: 150px;
+        padding: 1rem;
+        font-size: 2rem;
+        text-align: center;
+        border: 3px solid #ee5a6f;
+        border-radius: 12px;
+        margin: 1rem;
+      }
+      .feedback {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .feedback.correct {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .feedback.incorrect {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .btn {
+        background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+        color: #fff;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 0.5rem;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>🎪 Counting Carnival 🎪</h1>
+      <div id="instructions">
+        <h2 style="color: #ee5a6f; margin-bottom: 0.5rem">How to Play</h2>
+        <ul style="margin-left: 1.5rem; color: #424242">
+          <li>Visit different carnival game booths</li>
+          <li>Count the items shown</li>
+          <li>Type your answer and submit!</li>
+          <li>Earn tickets for correct counts!</li>
+        </ul>
+        <div style="text-align: center; margin-top: 1rem">
+          <button class="btn" onclick="startGame()">Enter Carnival!</button>
+        </div>
+      </div>
+      <div id="main-game" class="hidden">
+        <div class="stats">
+          <div class="stat-box">🎟️ Tickets: <span id="tickets">0</span></div>
+          <div class="stat-box">🎯 Correct: <span id="correct">0</span></div>
+          <div class="stat-box">🎪 Booth: <span id="booth">1</span></div>
+        </div>
+        <div class="game-booth">
+          <div class="booth-title" id="booth-name">🎯 Ring Toss</div>
+          <div class="items-display" id="items-display"></div>
+          <div class="question">How many items do you see?</div>
+          <input
+            type="number"
+            id="answer-input"
+            class="answer-input"
+            placeholder="?"
+          />
+          <div class="feedback hidden" id="feedback"></div>
+          <button class="btn" onclick="checkAnswer()">Submit Count</button>
+        </div>
+      </div>
+      <div id="game-over" class="hidden" style="text-align: center">
+        <h2 style="color: #ee5a6f; font-size: 2.5rem">Carnival Champion! 🎉</h2>
+        <p style="font-size: 1.5rem; margin: 1rem 0">
+          Tickets: <span id="final-tickets">0</span>
+        </p>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+      </div>
+    </div>
+    <script>
+      let tickets = 0,
+        correct = 0,
+        booth = 1,
+        currentCount = 0;
+      const booths = [
+        { name: '🎯 Ring Toss', items: ['🎯', '🎪', '🎨', '🎭'] },
+        { name: '🦆 Duck Pond', items: ['🦆', '🐤', '🦢', '🐥'] },
+        { name: '⚾ Ball Throw', items: ['⚾', '🏀', '⚽', '🎾'] },
+        { name: '🎈 Balloon Pop', items: ['🎈', '🎉', '🎊', '✨'] },
+      ];
+      function startGame() {
+        document.getElementById('instructions').classList.add('hidden');
+        document.getElementById('main-game').classList.remove('hidden');
+        updateDisplay();
+        generateBooth();
+      }
+      function updateDisplay() {
+        document.getElementById('tickets').textContent = tickets;
+        document.getElementById('correct').textContent = correct;
+        document.getElementById('booth').textContent = booth;
+      }
+      function generateBooth() {
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('answer-input').value = '';
+        const currentBooth = booths[(booth - 1) % booths.length];
+        document.getElementById('booth-name').textContent = currentBooth.name;
+        currentCount = Math.floor(Math.random() * 10) + 5;
+        const items = [];
+        for (let i = 0; i < currentCount; i++) {
+          items.push(
+            currentBooth.items[
+              Math.floor(Math.random() * currentBooth.items.length)
+            ]
+          );
+        }
+        document.getElementById('items-display').innerHTML = items
+          .map((item) => `<span class="item">${item}</span>`)
+          .join('');
+      }
+      function checkAnswer() {
+        const userAnswer = parseInt(
+          document.getElementById('answer-input').value
+        );
+        const feedback = document.getElementById('feedback');
+        feedback.classList.remove('hidden', 'correct', 'incorrect');
+        if (userAnswer === currentCount) {
+          tickets += 10;
+          correct++;
+          feedback.classList.add('correct');
+          feedback.textContent = `✅ Correct! You counted ${currentCount} items! +10 tickets`;
+          booth++;
+          setTimeout(() => generateBooth(), 1500);
+        } else {
+          feedback.classList.add('incorrect');
+          feedback.textContent = `❌ Not quite! There were ${currentCount} items. Try the next booth!`;
+          setTimeout(() => generateBooth(), 2000);
+        }
+        updateDisplay();
+      }
+      document
+        .getElementById('answer-input')
+        ?.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') checkAnswer();
+        });
+    </script>
+  </body>
+</html>

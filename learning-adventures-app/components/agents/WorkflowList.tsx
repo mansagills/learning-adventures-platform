@@ -13,11 +13,15 @@ const workflows = [
   {
     id: 'html-game-creation',
     name: 'HTML Game Creation',
-    description: 'Complete pipeline to create a single-file HTML educational game',
+    description:
+      'Complete pipeline to create a single-file HTML educational game',
     steps: [
       { agent: 'Game Idea Generator', action: 'Brainstorm game concepts' },
       { agent: 'Content Builder', action: 'Build HTML game file' },
-      { agent: 'Quality Assurance', action: 'Validate accessibility and quality' },
+      {
+        agent: 'Quality Assurance',
+        action: 'Validate accessibility and quality',
+      },
       { agent: 'Content Builder', action: 'Apply fixes if needed' },
       { agent: 'Catalog Manager', action: 'Format catalog metadata' },
     ],
@@ -28,7 +32,8 @@ const workflows = [
   {
     id: 'react-game-creation',
     name: 'React Component Game Creation',
-    description: 'Create a React-based educational game with platform integration',
+    description:
+      'Create a React-based educational game with platform integration',
     steps: [
       { agent: 'Game Idea Generator', action: 'Generate game concept' },
       { agent: 'Content Builder', action: 'Build React component' },
@@ -42,11 +47,15 @@ const workflows = [
   {
     id: 'validation-only',
     name: 'Quality Validation',
-    description: 'Validate existing content for accessibility and quality standards',
+    description:
+      'Validate existing content for accessibility and quality standards',
     steps: [
       { agent: 'Quality Assurance', action: 'Run accessibility checks' },
       { agent: 'Quality Assurance', action: 'Generate QA report' },
-      { agent: 'Content Builder', action: 'Apply recommended fixes (optional)' },
+      {
+        agent: 'Content Builder',
+        action: 'Apply recommended fixes (optional)',
+      },
     ],
     estimatedTime: '2-3 minutes',
     icon: '✅',
@@ -188,8 +197,12 @@ export default function WorkflowList() {
                   {workflow.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-neutral-900">{workflow.name}</h3>
-                  <p className="text-sm text-neutral-500 mt-1">⏱️ {workflow.estimatedTime}</p>
+                  <h3 className="text-xl font-bold text-neutral-900">
+                    {workflow.name}
+                  </h3>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    ⏱️ {workflow.estimatedTime}
+                  </p>
                 </div>
               </div>
             </div>
@@ -197,12 +210,18 @@ export default function WorkflowList() {
             <p className="text-neutral-700 mb-4">{workflow.description}</p>
 
             <div className="space-y-2 mb-4">
-              <div className="text-sm font-semibold text-neutral-900">Workflow Steps:</div>
+              <div className="text-sm font-semibold text-neutral-900">
+                Workflow Steps:
+              </div>
               {workflow.steps.map((step, index) => (
                 <div key={index} className="flex items-start gap-2 text-sm">
-                  <span className="font-semibold text-brand-500">{index + 1}.</span>
+                  <span className="font-semibold text-brand-500">
+                    {index + 1}.
+                  </span>
                   <div>
-                    <span className="font-medium text-neutral-700">{step.agent}</span>
+                    <span className="font-medium text-neutral-700">
+                      {step.agent}
+                    </span>
                     <span className="text-neutral-500"> → {step.action}</span>
                   </div>
                 </div>
@@ -235,7 +254,9 @@ export default function WorkflowList() {
             <h3 className="text-2xl font-bold text-neutral-900 mb-2">
               {selectedWorkflowData.icon} {selectedWorkflowData.name}
             </h3>
-            <p className="text-neutral-600 mb-6">{selectedWorkflowData.description}</p>
+            <p className="text-neutral-600 mb-6">
+              {selectedWorkflowData.description}
+            </p>
 
             <div className="space-y-4 mb-6">
               <div>
@@ -246,7 +267,10 @@ export default function WorkflowList() {
                   type="text"
                   value={workflowInput.topic}
                   onChange={(e) =>
-                    setWorkflowInput({ ...workflowInput, topic: e.target.value })
+                    setWorkflowInput({
+                      ...workflowInput,
+                      topic: e.target.value,
+                    })
                   }
                   placeholder="e.g., Fractions, Solar System, Grammar"
                   className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -262,7 +286,10 @@ export default function WorkflowList() {
                     type="text"
                     value={workflowInput.gradeLevel}
                     onChange={(e) =>
-                      setWorkflowInput({ ...workflowInput, gradeLevel: e.target.value })
+                      setWorkflowInput({
+                        ...workflowInput,
+                        gradeLevel: e.target.value,
+                      })
                     }
                     placeholder="e.g., 3-5"
                     className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -275,7 +302,10 @@ export default function WorkflowList() {
                   <select
                     value={workflowInput.subject}
                     onChange={(e) =>
-                      setWorkflowInput({ ...workflowInput, subject: e.target.value })
+                      setWorkflowInput({
+                        ...workflowInput,
+                        subject: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
@@ -322,7 +352,9 @@ export default function WorkflowList() {
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="font-medium text-neutral-900">{progress.agent}</span>
+              <span className="font-medium text-neutral-900">
+                {progress.agent}
+              </span>
             </div>
             <p className="text-sm text-neutral-600 ml-6">{progress.stepName}</p>
           </div>
@@ -340,7 +372,9 @@ export default function WorkflowList() {
           {/* Results So Far */}
           {executionResults.length > 0 && (
             <div className="mt-4 space-y-2">
-              <div className="text-sm font-semibold text-neutral-900">Completed Steps:</div>
+              <div className="text-sm font-semibold text-neutral-900">
+                Completed Steps:
+              </div>
               {executionResults.map((result, index) => (
                 <div
                   key={index}
@@ -352,7 +386,9 @@ export default function WorkflowList() {
                       {result.agent}
                     </span>
                   </div>
-                  <p className="text-xs text-neutral-600 ml-6">{result.stepName}</p>
+                  <p className="text-xs text-neutral-600 ml-6">
+                    {result.stepName}
+                  </p>
                 </div>
               ))}
             </div>
@@ -365,12 +401,17 @@ export default function WorkflowList() {
         <div className="mt-8 p-6 bg-white rounded-xl border-2 border-green-300 shadow-lg">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">✅</span>
-            <h3 className="text-lg font-semibold text-neutral-900">Workflow Completed!</h3>
+            <h3 className="text-lg font-semibold text-neutral-900">
+              Workflow Completed!
+            </h3>
           </div>
 
           <div className="space-y-4">
             {executionResults.map((result, index) => (
-              <div key={index} className="p-4 bg-neutral-50 rounded-lg border border-neutral-200">
+              <div
+                key={index}
+                className="p-4 bg-neutral-50 rounded-lg border border-neutral-200"
+              >
                 <div className="font-medium text-neutral-900 mb-2">
                   Step {index + 1}: {result.agent}
                 </div>
@@ -396,11 +437,14 @@ export default function WorkflowList() {
 
       {/* Info Section */}
       <div className="mt-12 p-6 bg-white rounded-xl border border-neutral-200">
-        <h3 className="text-lg font-semibold text-neutral-900 mb-2">What are workflows?</h3>
+        <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+          What are workflows?
+        </h3>
         <p className="text-neutral-600 mb-4">
-          Workflows are pre-configured sequences of AI agents working together to complete
-          complex tasks. Instead of manually coordinating multiple agents, workflows automate
-          the entire process from concept to finished content.
+          Workflows are pre-configured sequences of AI agents working together
+          to complete complex tasks. Instead of manually coordinating multiple
+          agents, workflows automate the entire process from concept to finished
+          content.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="p-4 bg-brand-50 rounded-lg">
@@ -413,7 +457,9 @@ export default function WorkflowList() {
             </ul>
           </div>
           <div className="p-4 bg-accent-50 rounded-lg">
-            <div className="font-semibold text-accent-900 mb-1">🎯 Use Cases</div>
+            <div className="font-semibold text-accent-900 mb-1">
+              🎯 Use Cases
+            </div>
             <ul className="space-y-1 text-accent-700">
               <li>• Rapid content creation</li>
               <li>• Quality validation</li>

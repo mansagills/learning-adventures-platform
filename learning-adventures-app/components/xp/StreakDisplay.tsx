@@ -63,7 +63,7 @@ export default function StreakDisplay() {
   const getStreakMessage = (streak: number) => {
     if (streak === 0) return 'Start your streak today!';
     if (streak === 1) return 'Great start! Keep it going!';
-    if (streak < 7) return 'You\'re on fire!';
+    if (streak < 7) return "You're on fire!";
     if (streak < 30) return 'Amazing streak!';
     return 'Legendary dedication!';
   };
@@ -73,7 +73,9 @@ export default function StreakDisplay() {
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-3xl">{getStreakEmoji(streakData.currentStreak)}</span>
+            <span className="text-3xl">
+              {getStreakEmoji(streakData.currentStreak)}
+            </span>
             <h3 className="text-sm font-medium text-gray-600">Daily Streak</h3>
           </div>
           <div className="flex items-baseline gap-2">
@@ -84,7 +86,9 @@ export default function StreakDisplay() {
               {streakData.currentStreak === 1 ? 'day' : 'days'}
             </span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">{getStreakMessage(streakData.currentStreak)}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {getStreakMessage(streakData.currentStreak)}
+          </p>
         </div>
 
         {streakData.longestStreak > streakData.currentStreak && (
@@ -105,8 +109,8 @@ export default function StreakDisplay() {
               {streakData.currentStreak >= 30
                 ? '2x'
                 : streakData.currentStreak >= 7
-                ? '1.5x'
-                : '1.2x'}
+                  ? '1.5x'
+                  : '1.2x'}
             </span>{' '}
             XP on all lessons!
           </div>
