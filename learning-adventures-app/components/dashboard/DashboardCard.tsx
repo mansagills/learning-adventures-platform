@@ -11,10 +11,12 @@ interface DashboardCardProps {
   icon?: ReactNode;
   iconColor?: string;
   children: ReactNode;
-  action?: ReactNode | {
-    label: string;
-    href: string;
-  };
+  action?:
+    | ReactNode
+    | {
+        label: string;
+        href: string;
+      };
   className?: string;
   variant?: 'default' | 'gradient' | 'outlined';
   isLoading?: boolean;
@@ -29,15 +31,17 @@ export default function DashboardCard({
   action,
   className,
   variant = 'default',
-  isLoading = false
+  isLoading = false,
 }: DashboardCardProps) {
   const cardStyles = {
-    default: 'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700',
+    default:
+      'bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700',
     gradient: 'bg-gradient-to-br from-brand-500 to-accent-500 border-none',
-    outlined: 'bg-transparent border-2 border-gray-300 dark:border-gray-600'
+    outlined: 'bg-transparent border-2 border-gray-300 dark:border-gray-600',
   };
 
-  const isActionObject = action && typeof action === 'object' && 'href' in action;
+  const isActionObject =
+    action && typeof action === 'object' && 'href' in action;
 
   return (
     <div
@@ -61,17 +65,25 @@ export default function DashboardCard({
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className={cn(
-              "text-lg font-bold truncate",
-              variant === 'gradient' ? 'text-white' : 'text-gray-800 dark:text-gray-200'
-            )}>
+            <h3
+              className={cn(
+                'text-lg font-bold truncate',
+                variant === 'gradient'
+                  ? 'text-white'
+                  : 'text-gray-800 dark:text-gray-200'
+              )}
+            >
               {title}
             </h3>
             {description && (
-              <p className={cn(
-                "text-sm mt-1",
-                variant === 'gradient' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
-              )}>
+              <p
+                className={cn(
+                  'text-sm mt-1',
+                  variant === 'gradient'
+                    ? 'text-white/80'
+                    : 'text-gray-600 dark:text-gray-400'
+                )}
+              >
                 {description}
               </p>
             )}
@@ -128,7 +140,7 @@ export function MetricCard({
   icon,
   trend,
   className,
-  isLoading = false
+  isLoading = false,
 }: MetricCardProps) {
   return (
     <div
@@ -150,7 +162,9 @@ export function MetricCard({
             {icon}
           </div>
           <div className="flex items-end justify-between">
-            <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{value}</p>
+            <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+              {value}
+            </p>
             {trend && (
               <div
                 className={cn(

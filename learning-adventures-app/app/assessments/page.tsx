@@ -19,7 +19,9 @@ function AssessmentsContent() {
 
         {/* Available Assessments */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Available Assessments</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Available Assessments
+          </h2>
           <div className="space-y-4">
             {/* Assessment Item */}
             <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
@@ -27,19 +29,28 @@ function AssessmentsContent() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Icon name="clipboard" size={24} className="text-blue-600" />
+                      <Icon
+                        name="clipboard"
+                        size={24}
+                        className="text-blue-600"
+                      />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-ink-900">Math Fundamentals Assessment</h3>
-                      <p className="text-sm text-gray-600">Grade 4-6 • 15 questions • 30 minutes</p>
+                      <h3 className="font-bold text-lg text-ink-900">
+                        Math Fundamentals Assessment
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Grade 4-6 • 15 questions • 30 minutes
+                      </p>
                     </div>
                   </div>
                   <p className="text-gray-700 mb-4">
-                    Evaluate your understanding of basic arithmetic, fractions, and problem-solving skills.
+                    Evaluate your understanding of basic arithmetic, fractions,
+                    and problem-solving skills.
                   </p>
                   <div className="flex items-center gap-4">
                     <Link
-                      href={"/assessments/math-fundamentals" as any}
+                      href={'/assessments/math-fundamentals' as any}
                       className="px-6 py-2 bg-brand-500 text-white font-medium rounded-lg hover:bg-brand-600 transition-colors"
                     >
                       Start Assessment
@@ -63,16 +74,21 @@ function AssessmentsContent() {
                       <Icon name="check" size={24} className="text-green-600" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-ink-900">Science Basics Assessment</h3>
-                      <p className="text-sm text-gray-600">Grade 3-5 • 12 questions • 20 minutes</p>
+                      <h3 className="font-bold text-lg text-ink-900">
+                        Science Basics Assessment
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Grade 3-5 • 12 questions • 20 minutes
+                      </p>
                     </div>
                   </div>
                   <p className="text-gray-700 mb-4">
-                    Test your knowledge of basic scientific concepts, experiments, and observations.
+                    Test your knowledge of basic scientific concepts,
+                    experiments, and observations.
                   </p>
                   <div className="flex items-center gap-4">
                     <Link
-                      href={"/assessments/science-basics" as any}
+                      href={'/assessments/science-basics' as any}
                       className="px-6 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       Retake
@@ -99,12 +115,17 @@ function AssessmentsContent() {
                       <Icon name="lock" size={24} className="text-gray-500" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg text-ink-900">Advanced Math Assessment</h3>
-                      <p className="text-sm text-gray-600">Grade 7-8 • 20 questions • 45 minutes</p>
+                      <h3 className="font-bold text-lg text-ink-900">
+                        Advanced Math Assessment
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Grade 7-8 • 20 questions • 45 minutes
+                      </p>
                     </div>
                   </div>
                   <p className="text-gray-700 mb-4">
-                    Complete Math Fundamentals Assessment to unlock this advanced assessment.
+                    Complete Math Fundamentals Assessment to unlock this
+                    advanced assessment.
                   </p>
                   <div className="flex items-center gap-4">
                     <button
@@ -113,7 +134,9 @@ function AssessmentsContent() {
                     >
                       Locked
                     </button>
-                    <span className="text-sm text-gray-500">Complete prerequisites first</span>
+                    <span className="text-sm text-gray-500">
+                      Complete prerequisites first
+                    </span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -129,7 +152,9 @@ function AssessmentsContent() {
 
         {/* Assessment History */}
         <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Recent Attempts</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Recent Attempts
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div className="flex items-center gap-3">
@@ -137,8 +162,12 @@ function AssessmentsContent() {
                   <Icon name="check" size={20} className="text-green-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-ink-900">Science Basics Assessment</p>
-                  <p className="text-sm text-gray-600">Completed on Dec 20, 2024</p>
+                  <p className="font-medium text-ink-900">
+                    Science Basics Assessment
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Completed on Dec 20, 2024
+                  </p>
                 </div>
               </div>
               <div className="text-right">
@@ -153,8 +182,12 @@ function AssessmentsContent() {
                   <Icon name="clipboard" size={20} className="text-amber-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-ink-900">English Grammar Assessment</p>
-                  <p className="text-sm text-gray-600">Completed on Dec 15, 2024</p>
+                  <p className="font-medium text-ink-900">
+                    English Grammar Assessment
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Completed on Dec 15, 2024
+                  </p>
                 </div>
               </div>
               <div className="text-right">

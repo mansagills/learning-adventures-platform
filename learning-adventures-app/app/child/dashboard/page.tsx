@@ -14,10 +14,22 @@ interface ChildData {
 }
 
 const AVATAR_EMOJIS: Record<string, string> = {
-  tiger: '🐯', dragon: '🐉', eagle: '🦅', dolphin: '🐬',
-  fox: '🦊', lion: '🦁', bear: '🐻', wolf: '🐺',
-  panda: '🐼', owl: '🦉', phoenix: '🔥', turtle: '🐢',
-  penguin: '🐧', koala: '🐨', cheetah: '🐆', rocket: '🚀',
+  tiger: '🐯',
+  dragon: '🐉',
+  eagle: '🦅',
+  dolphin: '🐬',
+  fox: '🦊',
+  lion: '🦁',
+  bear: '🐻',
+  wolf: '🐺',
+  panda: '🐼',
+  owl: '🦉',
+  phoenix: '🔥',
+  turtle: '🐢',
+  penguin: '🐧',
+  koala: '🐨',
+  cheetah: '🐆',
+  rocket: '🚀',
 };
 
 export default function ChildDashboardPage() {
@@ -33,7 +45,7 @@ export default function ChildDashboardPage() {
     try {
       const res = await fetch('/api/child/session');
       const data = await res.json();
-      
+
       if (data.authenticated && data.child) {
         setChild(data.child);
       } else {
@@ -84,7 +96,9 @@ export default function ChildDashboardPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold">Hi, {child.displayName}!</h1>
-                <p className="text-brand-100">Grade {child.gradeLevel} Explorer</p>
+                <p className="text-brand-100">
+                  Grade {child.gradeLevel} Explorer
+                </p>
               </div>
             </div>
             <button
@@ -104,8 +118,12 @@ export default function ChildDashboardPage() {
         <div className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-3xl p-8 mb-8 text-white shadow-xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Ready for an Adventure?</h2>
-              <p className="text-white/90 text-lg">Choose a subject below to start learning!</p>
+              <h2 className="text-3xl font-bold mb-2">
+                Ready for an Adventure?
+              </h2>
+              <p className="text-white/90 text-lg">
+                Choose a subject below to start learning!
+              </p>
             </div>
             <div className="text-8xl">🚀</div>
           </div>
@@ -159,7 +177,9 @@ export default function ChildDashboardPage() {
 
         {/* Quick Stats (Placeholder) */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Your Progress</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-4">
+            Your Progress
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <StatCard label="Adventures" value="0" emoji="🎯" />
             <StatCard label="Badges" value="0" emoji="🏆" />
@@ -175,13 +195,13 @@ export default function ChildDashboardPage() {
   );
 }
 
-function SubjectCard({ 
-  title, 
-  emoji, 
-  description, 
-  color, 
-  href 
-}: { 
+function SubjectCard({
+  title,
+  emoji,
+  description,
+  color,
+  href,
+}: {
   title: string;
   emoji: string;
   description: string;
@@ -200,7 +220,15 @@ function SubjectCard({
   );
 }
 
-function StatCard({ label, value, emoji }: { label: string; value: string; emoji: string }) {
+function StatCard({
+  label,
+  value,
+  emoji,
+}: {
+  label: string;
+  value: string;
+  emoji: string;
+}) {
   return (
     <div className="text-center p-4 bg-gray-50 rounded-xl">
       <div className="text-3xl mb-1">{emoji}</div>

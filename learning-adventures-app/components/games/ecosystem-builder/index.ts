@@ -5,7 +5,8 @@ createGameRegistration(
   'ecosystem-builder',
   {
     name: 'Ecosystem Builder',
-    description: 'Build a balanced ecosystem by adding producers, consumers, and decomposers. Learn how organisms interact in nature!',
+    description:
+      'Build a balanced ecosystem by adding producers, consumers, and decomposers. Learn how organisms interact in nature!',
     category: 'science',
     difficulty: 'medium',
     estimatedTime: 15,
@@ -15,7 +16,7 @@ createGameRegistration(
       'Producers and Consumers',
       'Decomposers',
       'Energy Flow',
-      'Scientific Observation'
+      'Scientific Observation',
     ],
     gradeLevel: '3rd-6th Grade',
   },

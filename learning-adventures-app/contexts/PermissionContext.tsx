@@ -25,7 +25,9 @@ interface PermissionContextType {
   userRole: 'ADMIN' | 'TEACHER' | 'PARENT' | 'STUDENT' | null;
 }
 
-const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
+const PermissionContext = createContext<PermissionContextType | undefined>(
+  undefined
+);
 
 /**
  * Get permissions based on user role
@@ -100,7 +102,12 @@ function getPermissionsForRole(role: string | undefined): Permissions {
  */
 export function PermissionProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
-  const userRole = session?.user?.role as 'ADMIN' | 'TEACHER' | 'PARENT' | 'STUDENT' | null;
+  const userRole = session?.user?.role as
+    | 'ADMIN'
+    | 'TEACHER'
+    | 'PARENT'
+    | 'STUDENT'
+    | null;
   const permissions = getPermissionsForRole(userRole || undefined);
 
   const hasPermission = (permission: keyof Permissions): boolean => {
@@ -108,11 +115,13 @@ export function PermissionProvider({ children }: { children: ReactNode }) {
   };
 
   const hasAnyPermission = (permissionList: (keyof Permissions)[]): boolean => {
-    return permissionList.some(permission => permissions[permission]);
+    return permissionList.some((permission) => permissions[permission]);
   };
 
-  const hasAllPermissions = (permissionList: (keyof Permissions)[]): boolean => {
-    return permissionList.every(permission => permissions[permission]);
+  const hasAllPermissions = (
+    permissionList: (keyof Permissions)[]
+  ): boolean => {
+    return permissionList.every((permission) => permissions[permission]);
   };
 
   const value: PermissionContextType = {

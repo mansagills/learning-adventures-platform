@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
 
     if (!adventureId || !adventureType || !category) {
       return NextResponse.json(
-        { error: 'Missing required fields: adventureId, adventureType, category' },
+        {
+          error:
+            'Missing required fields: adventureId, adventureType, category',
+        },
         { status: 400 }
       );
     }
@@ -36,10 +39,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Check if progress already exists
@@ -63,7 +63,10 @@ export async function POST(request: NextRequest) {
         },
         data: {
           lastAccessed: new Date(),
-          status: existingProgress.status === 'NOT_STARTED' ? 'IN_PROGRESS' : existingProgress.status,
+          status:
+            existingProgress.status === 'NOT_STARTED'
+              ? 'IN_PROGRESS'
+              : existingProgress.status,
         },
       });
 

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     // 4. Fetch existing content
     const content = await prisma.geminiContent.findUnique({
       where: { id: contentId },
-      include: { iterations_history: true }
+      include: { iterations_history: true },
     });
 
     if (!content) {
@@ -58,8 +58,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: 'Gemini API key not configured',
-          message: 'Please add your GEMINI_API_KEY to .env.local. Get one at https://aistudio.google.com/app/apikey',
-          code: 'MISSING_API_KEY'
+          message:
+            'Please add your GEMINI_API_KEY to .env.local. Get one at https://aistudio.google.com/app/apikey',
+          code: 'MISSING_API_KEY',
         },
         { status: 503 }
       );
@@ -105,8 +106,8 @@ Start your response with: <!DOCTYPE html>
     const generationTime = Date.now() - startTime;
 
     // 10. Extract changes summary
-    const changesSummary = extractChangesSummary(updatedCode) ||
-                          'Code updated based on feedback';
+    const changesSummary =
+      extractChangesSummary(updatedCode) || 'Code updated based on feedback';
 
     // 11. Save iteration to history
     await prisma.geminiIteration.create({
@@ -118,8 +119,8 @@ Start your response with: <!DOCTYPE html>
         newCode: updatedCode,
         changesSummary,
         tokensUsed: response.usageMetadata?.totalTokenCount || 0,
-        generationTime
-      }
+        generationTime,
+      },
     });
 
     // 12. Update main content
@@ -129,11 +130,11 @@ Start your response with: <!DOCTYPE html>
         generatedCode: updatedCode,
         iterations: newIterationNumber,
         iterationNotes: {
-          push: feedback
+          push: feedback,
         },
         status: 'ITERATING',
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     // 13. Track usage
@@ -150,8 +151,8 @@ Start your response with: <!DOCTYPE html>
         tokensOutput,
         estimatedCost,
         geminiContentId: contentId,
-        success: true
-      }
+        success: true,
+      },
     });
 
     // 14. Create preview URL
@@ -167,13 +168,12 @@ Start your response with: <!DOCTYPE html>
       tokens: {
         input: tokensInput,
         output: tokensOutput,
-        total: tokensInput + tokensOutput
+        total: tokensInput + tokensOutput,
       },
       estimatedCost,
       generationTime,
-      previewUrl
+      previewUrl,
     });
-
   } catch (error: any) {
     console.error('Iteration error:', error);
 
@@ -190,8 +190,8 @@ Start your response with: <!DOCTYPE html>
             tokensOutput: 0,
             estimatedCost: 0,
             success: false,
-            errorMessage: error.message
-          }
+            errorMessage: error.message,
+          },
         });
       }
     } catch (dbError) {

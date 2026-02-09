@@ -42,7 +42,6 @@ export default function Header() {
     setIsAuthModalOpen(true);
   };
 
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -70,14 +69,17 @@ export default function Header() {
             >
               Adventure Catalog
             </Link>
-            {session && (session.user.role === 'PARENT' || session.user.role === 'TEACHER' || session.user.role === 'ADMIN') && (
-              <Link
-                href="/course-request"
-                className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
-              >
-                Request Custom Course
-              </Link>
-            )}
+            {session &&
+              (session.user.role === 'PARENT' ||
+                session.user.role === 'TEACHER' ||
+                session.user.role === 'ADMIN') && (
+                <Link
+                  href="/course-request"
+                  className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
+                >
+                  Request Custom Course
+                </Link>
+              )}
             <Link
               href="#benefits"
               className="text-ink-600 hover:text-brand-500 transition-colors duration-250"

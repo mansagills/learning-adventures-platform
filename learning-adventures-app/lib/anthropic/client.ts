@@ -52,27 +52,37 @@ export async function callClaudeWithRetry(
       lastError = error as Error;
 
       // Don't retry on client errors (400s)
-      if (error instanceof Anthropic.APIError && error.status && error.status >= 400 && error.status < 500) {
+      if (
+        error instanceof Anthropic.APIError &&
+        error.status &&
+        error.status >= 400 &&
+        error.status < 500
+      ) {
         throw error;
       }
 
       // Exponential backoff for retries
       if (attempt < maxRetries) {
         const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-        console.warn(`Claude API call failed (attempt ${attempt}/${maxRetries}), retrying in ${delay}ms...`, error);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        console.warn(
+          `Claude API call failed (attempt ${attempt}/${maxRetries}), retrying in ${delay}ms...`,
+          error
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
 
-  throw new Error(`Claude API call failed after ${maxRetries} attempts: ${lastError?.message}`);
+  throw new Error(
+    `Claude API call failed after ${maxRetries} attempts: ${lastError?.message}`
+  );
 }
 
 /**
  * Extract text content from Claude response
  */
 export function extractTextFromResponse(response: Anthropic.Message): string {
-  const textBlock = response.content.find(block => block.type === 'text');
+  const textBlock = response.content.find((block) => block.type === 'text');
   if (!textBlock || textBlock.type !== 'text') {
     throw new Error('No text content found in Claude response');
   }
@@ -83,7 +93,9 @@ export function extractTextFromResponse(response: Anthropic.Message): string {
  * Extract and parse JSON from Claude response
  * Handles responses that may have markdown code blocks
  */
-export function extractJSONFromResponse<T = any>(response: Anthropic.Message): T {
+export function extractJSONFromResponse<T = any>(
+  response: Anthropic.Message
+): T {
   const text = extractTextFromResponse(response);
 
   // Try to extract JSON from markdown code blocks
@@ -93,6 +105,8 @@ export function extractJSONFromResponse<T = any>(response: Anthropic.Message): T
   try {
     return JSON.parse(jsonText.trim());
   } catch (error) {
-    throw new Error(`Failed to parse JSON from Claude response: ${error instanceof Error ? error.message : 'Unknown error'}\n\nResponse text: ${text.substring(0, 500)}...`);
+    throw new Error(
+      `Failed to parse JSON from Claude response: ${error instanceof Error ? error.message : 'Unknown error'}\n\nResponse text: ${text.substring(0, 500)}...`
+    );
   }
 }

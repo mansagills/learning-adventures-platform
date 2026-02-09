@@ -19,12 +19,12 @@ export async function GET(
       where: { id: params.id },
       include: {
         approvals: {
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         },
         feedback: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
 
     if (!course) {
@@ -34,7 +34,7 @@ export async function GET(
     return NextResponse.json({
       course,
       approvals: course.approvals,
-      feedback: course.feedback
+      feedback: course.feedback,
     });
   } catch (error) {
     console.error('Error fetching test course:', error);
@@ -60,7 +60,7 @@ export async function DELETE(
     // Note: Files in staging directory should be cleaned up too
     // This is handled by cascading deletes for related records
     await prisma.testCourse.delete({
-      where: { id: params.id }
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });

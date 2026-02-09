@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import {
   getPreviewAdventuresForAllCategories,
   getCategoryMetadata,
-  Adventure
+  Adventure,
 } from '@/lib/catalogData';
 import Container from '../Container';
 import SubjectPreviewSection from './SubjectPreviewSection';
@@ -45,18 +45,21 @@ export default function AdventurePreviewGrid() {
 
         // Get category metadata and preview adventures
         const metadata = getCategoryMetadata();
-        const previewAdventures = getPreviewAdventuresForAllCategories(previewLimit);
+        const previewAdventures =
+          getPreviewAdventuresForAllCategories(previewLimit);
 
         // Combine metadata with preview data
-        const combinedData: CategoryPreviewData[] = metadata.map(category => ({
-          id: category.id,
-          name: category.name,
-          description: category.description,
-          icon: category.icon,
-          adventures: previewAdventures[category.id] || [],
-          totalAdventures: category.totalAdventures,
-          featuredAdventures: category.featuredAdventures
-        }));
+        const combinedData: CategoryPreviewData[] = metadata.map(
+          (category) => ({
+            id: category.id,
+            name: category.name,
+            description: category.description,
+            icon: category.icon,
+            adventures: previewAdventures[category.id] || [],
+            totalAdventures: category.totalAdventures,
+            featuredAdventures: category.featuredAdventures,
+          })
+        );
 
         setCategoryData(combinedData);
       } catch (err) {
@@ -92,7 +95,9 @@ export default function AdventurePreviewGrid() {
       <section className="py-16 bg-gray-50">
         <Container>
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-ink-800 mb-4">Explore Learning Adventures</h2>
+            <h2 className="text-3xl font-bold text-ink-800 mb-4">
+              Explore Learning Adventures
+            </h2>
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
               <p className="text-red-600">{error}</p>
               <button
@@ -108,8 +113,14 @@ export default function AdventurePreviewGrid() {
     );
   }
 
-  const totalAdventures = categoryData.reduce((sum, category) => sum + category.totalAdventures, 0);
-  const totalFeatured = categoryData.reduce((sum, category) => sum + category.featuredAdventures, 0);
+  const totalAdventures = categoryData.reduce(
+    (sum, category) => sum + category.totalAdventures,
+    0
+  );
+  const totalFeatured = categoryData.reduce(
+    (sum, category) => sum + category.featuredAdventures,
+    0
+  );
 
   return (
     <section className="py-16 bg-gray-50">
@@ -120,24 +131,31 @@ export default function AdventurePreviewGrid() {
             Explore Learning Adventures
           </h2>
           <p className="text-lg text-ink-600 max-w-2xl mx-auto mb-6">
-            Discover interactive games and lessons across all subjects. Each adventure is designed
-            to make learning engaging and fun for students of all grade levels.
+            Discover interactive games and lessons across all subjects. Each
+            adventure is designed to make learning engaging and fun for students
+            of all grade levels.
           </p>
 
           {/* Stats */}
           <div className="flex items-center justify-center space-x-6 text-sm text-ink-500">
             <div className="flex items-center space-x-1">
-              <span className="font-medium text-brand-600">{totalAdventures}</span>
+              <span className="font-medium text-brand-600">
+                {totalAdventures}
+              </span>
               <span>Total Adventures</span>
             </div>
             <span>•</span>
             <div className="flex items-center space-x-1">
-              <span className="font-medium text-accent-600">{totalFeatured}</span>
+              <span className="font-medium text-accent-600">
+                {totalFeatured}
+              </span>
               <span>Featured</span>
             </div>
             <span>•</span>
             <div className="flex items-center space-x-1">
-              <span className="font-medium text-green-600">{categoryData.length}</span>
+              <span className="font-medium text-green-600">
+                {categoryData.length}
+              </span>
               <span>Subject Areas</span>
             </div>
           </div>
@@ -165,13 +183,16 @@ export default function AdventurePreviewGrid() {
                 Sign In to Unlock All Adventures!
               </h3>
               <p className="text-ink-600 mb-6 max-w-xl mx-auto">
-                You're viewing a limited preview. Create a free account to access our complete catalog
-                of {totalAdventures} educational adventures, track your progress, and earn achievements.
+                You're viewing a limited preview. Create a free account to
+                access our complete catalog of {totalAdventures} educational
+                adventures, track your progress, and earn achievements.
               </p>
               <div className="flex items-center justify-center space-x-4">
                 <button
                   onClick={() => {
-                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'signup' } });
+                    const event = new CustomEvent('openAuthModal', {
+                      detail: { defaultTab: 'signup' },
+                    });
                     window.dispatchEvent(event);
                   }}
                   className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
@@ -180,7 +201,9 @@ export default function AdventurePreviewGrid() {
                 </button>
                 <button
                   onClick={() => {
-                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'login' } });
+                    const event = new CustomEvent('openAuthModal', {
+                      detail: { defaultTab: 'login' },
+                    });
                     window.dispatchEvent(event);
                   }}
                   className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
@@ -189,7 +212,8 @@ export default function AdventurePreviewGrid() {
                 </button>
               </div>
               <p className="text-sm text-ink-500 mt-4">
-                Already have an account? Sign in to see more adventures and continue your learning journey.
+                Already have an account? Sign in to see more adventures and
+                continue your learning journey.
               </p>
             </>
           ) : (
@@ -198,8 +222,9 @@ export default function AdventurePreviewGrid() {
                 Ready to Start Learning?
               </h3>
               <p className="text-ink-600 mb-6 max-w-xl mx-auto">
-                Browse our complete catalog of educational adventures, or jump right into
-                a featured game or lesson to begin your learning journey.
+                Browse our complete catalog of educational adventures, or jump
+                right into a featured game or lesson to begin your learning
+                journey.
               </p>
               <div className="flex items-center justify-center space-x-4">
                 <a

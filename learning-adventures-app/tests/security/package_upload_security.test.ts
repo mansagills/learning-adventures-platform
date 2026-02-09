@@ -9,7 +9,7 @@ vi.mock('fs/promises', () => ({
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
-  }
+  },
 }));
 
 // Mock prisma
@@ -18,13 +18,13 @@ vi.mock('@/lib/prisma', () => ({
     testGame: {
       findUnique: vi.fn(),
       create: vi.fn(),
-    }
-  }
+    },
+  },
 }));
 
 // Mock extractMetadata
 vi.mock('@/lib/upload/metadataExtractor', () => ({
-  extractMetadata: vi.fn().mockResolvedValue({})
+  extractMetadata: vi.fn().mockResolvedValue({}),
 }));
 
 // Mock adm-zip
@@ -35,23 +35,26 @@ vi.mock('adm-zip', () => {
       getEntry(name: string) {
         if (name === 'metadata.json') {
           return {
-            getData: () => Buffer.from(JSON.stringify({
-              id: '../../../../tmp/hacked',
-              title: 'Hacked Game',
-              description: 'This is a test',
-              gameFile: 'index.html'
-            }))
+            getData: () =>
+              Buffer.from(
+                JSON.stringify({
+                  id: '../../../../tmp/hacked',
+                  title: 'Hacked Game',
+                  description: 'This is a test',
+                  gameFile: 'index.html',
+                })
+              ),
           };
         }
         if (name === 'index.html') {
           return {
-            getData: () => Buffer.from('<h1>You have been hacked</h1>')
+            getData: () => Buffer.from('<h1>You have been hacked</h1>'),
           };
         }
         return null;
       }
-    }
-  }
+    },
+  };
 });
 
 describe('Security: Package Upload', () => {
@@ -62,15 +65,15 @@ describe('Security: Package Upload', () => {
   it('should sanitize game ID preventing path traversal', async () => {
     // Create a mock File object
     const file = {
-        arrayBuffer: async () => Buffer.from('fake zip content'),
-        name: 'game.zip'
+      arrayBuffer: async () => Buffer.from('fake zip content'),
+      name: 'game.zip',
     } as unknown as File;
 
     // Mock prisma responses
     (prisma.testGame.findUnique as any).mockResolvedValue(null);
     (prisma.testGame.create as any).mockResolvedValue({
       id: 'test-id',
-      gameId: 'tmphacked' // Expect sanitized ID
+      gameId: 'tmphacked', // Expect sanitized ID
     });
 
     try {

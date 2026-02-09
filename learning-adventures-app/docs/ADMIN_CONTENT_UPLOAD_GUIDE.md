@@ -72,6 +72,7 @@ Package your game or course as a ZIP file (see [ZIP File Formats](#zip-file-form
 ### Step 4: Review the Result
 
 After upload, you'll see a success message with:
+
 - The type detected (game or course)
 - The staging path where files are stored
 - A link to the Testing page for review
@@ -111,18 +112,18 @@ my-game.zip
 
 **Field Reference:**
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | No | Unique identifier (auto-generated from title if not provided) |
-| `title` | Yes | Display name of the game |
-| `description` | Yes | Brief description for the catalog |
-| `category` | Yes | Subject: `math`, `science`, `english`, `history`, `interdisciplinary` |
-| `type` | Yes | `game` or `lesson` |
-| `gradeLevel` | Yes | Array of grade levels: `["K", "1", "2", ...]` |
-| `difficulty` | Yes | `easy`, `medium`, or `hard` |
-| `skills` | Yes | Array of learning skills/objectives |
-| `estimatedTime` | Yes | Approximate completion time |
-| `gameFile` | Yes | Name of the HTML file in the ZIP |
+| Field           | Required | Description                                                           |
+| --------------- | -------- | --------------------------------------------------------------------- |
+| `id`            | No       | Unique identifier (auto-generated from title if not provided)         |
+| `title`         | Yes      | Display name of the game                                              |
+| `description`   | Yes      | Brief description for the catalog                                     |
+| `category`      | Yes      | Subject: `math`, `science`, `english`, `history`, `interdisciplinary` |
+| `type`          | Yes      | `game` or `lesson`                                                    |
+| `gradeLevel`    | Yes      | Array of grade levels: `["K", "1", "2", ...]`                         |
+| `difficulty`    | Yes      | `easy`, `medium`, or `hard`                                           |
+| `skills`        | Yes      | Array of learning skills/objectives                                   |
+| `estimatedTime` | Yes      | Approximate completion time                                           |
+| `gameFile`      | Yes      | Name of the HTML file in the ZIP                                      |
 
 ---
 
@@ -186,6 +187,7 @@ my-course.zip
 ```
 
 **Lesson Types:**
+
 - `interactive` - Interactive HTML lesson
 - `video` - Video content
 - `quiz` - Assessment/quiz
@@ -211,9 +213,11 @@ my-course.zip
 ### Step 3: Preview the Content
 
 **Inline Preview:**
+
 - Click the **Preview Game** or **Preview Course** button to see an embedded preview
 
 **Staging URL:**
+
 - Click **Open Staging URL** to preview in a new tab
 - Games: `/staging/games/[game-id]`
 - Courses: `/staging/courses/[course-slug]`
@@ -237,6 +241,7 @@ my-course.zip
 ### Step 5: Add Feedback (Optional)
 
 Use the **Add Feedback** button to leave detailed notes:
+
 - Bug reports
 - Suggestions
 - Content errors
@@ -287,13 +292,13 @@ Once content is **APPROVED**, it can be promoted to production:
 
 ## Status Reference
 
-| Status | Meaning |
-|--------|---------|
-| `NOT_TESTED` | Just uploaded, hasn't been reviewed yet |
-| `IN_TESTING` | Currently being reviewed by the team |
-| `APPROVED` | Passed review, ready for production |
-| `NEEDS_REVISION` | Changes requested before approval |
-| `REJECTED` | Not suitable for the platform |
+| Status           | Meaning                                 |
+| ---------------- | --------------------------------------- |
+| `NOT_TESTED`     | Just uploaded, hasn't been reviewed yet |
+| `IN_TESTING`     | Currently being reviewed by the team    |
+| `APPROVED`       | Passed review, ready for production     |
+| `NEEDS_REVISION` | Changes requested before approval       |
+| `REJECTED`       | Not suitable for the platform           |
 
 ---
 
@@ -320,6 +325,7 @@ Once content is **APPROVED**, it can be promoted to production:
 ## Questions?
 
 Contact the platform team if you have questions about:
+
 - Getting admin access
 - ZIP file formatting
 - Review criteria
@@ -327,4 +333,4 @@ Contact the platform team if you have questions about:
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

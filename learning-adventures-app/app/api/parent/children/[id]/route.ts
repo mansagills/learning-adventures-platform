@@ -5,8 +5,22 @@ import { prisma } from '@/lib/prisma';
 import { hashPIN } from '@/lib/childAuth';
 
 const AVATARS = [
-  'tiger', 'dragon', 'eagle', 'dolphin', 'fox', 'lion', 'bear', 'wolf',
-  'panda', 'owl', 'phoenix', 'turtle', 'penguin', 'koala', 'cheetah', 'rocket'
+  'tiger',
+  'dragon',
+  'eagle',
+  'dolphin',
+  'fox',
+  'lion',
+  'bear',
+  'wolf',
+  'panda',
+  'owl',
+  'phoenix',
+  'turtle',
+  'penguin',
+  'koala',
+  'cheetah',
+  'rocket',
 ];
 
 /**
@@ -40,14 +54,11 @@ export async function GET(
         avatarId: true,
         createdAt: true,
         lastLoginAt: true,
-      }
+      },
     });
 
     if (!child) {
-      return NextResponse.json(
-        { error: 'Child not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Child not found' }, { status: 404 });
     }
 
     return NextResponse.json({ child });
@@ -83,14 +94,11 @@ export async function PUT(
       where: {
         id: params.id,
         parentId: session.user.id,
-      }
+      },
     });
 
     if (!existingChild) {
-      return NextResponse.json(
-        { error: 'Child not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Child not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -104,7 +112,21 @@ export async function PUT(
     }
 
     if (gradeLevel) {
-      const validGrades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+      const validGrades = [
+        'K',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+      ];
       if (!validGrades.includes(gradeLevel)) {
         return NextResponse.json(
           { error: 'Invalid grade level' },
@@ -116,10 +138,7 @@ export async function PUT(
 
     if (avatarId) {
       if (!AVATARS.includes(avatarId)) {
-        return NextResponse.json(
-          { error: 'Invalid avatar' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Invalid avatar' }, { status: 400 });
       }
       updateData.avatarId = avatarId;
     }
@@ -152,7 +171,7 @@ export async function PUT(
         avatarId: true,
         createdAt: true,
         lastLoginAt: true,
-      }
+      },
     });
 
     return NextResponse.json({
@@ -191,24 +210,21 @@ export async function DELETE(
       where: {
         id: params.id,
         parentId: session.user.id,
-      }
+      },
     });
 
     if (!existingChild) {
-      return NextResponse.json(
-        { error: 'Child not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Child not found' }, { status: 404 });
     }
 
     // Delete all sessions first (cascade should handle this, but being explicit)
     await prisma.childSession.deleteMany({
-      where: { childId: params.id }
+      where: { childId: params.id },
     });
 
     // Delete child profile
     await prisma.childProfile.delete({
-      where: { id: params.id }
+      where: { id: params.id },
     });
 
     return NextResponse.json({

@@ -16,7 +16,7 @@ export default function ProgressReport({
   student,
   reportType = 'detailed',
   periodStart,
-  periodEnd
+  periodEnd,
 }: ProgressReportProps) {
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -45,16 +45,19 @@ export default function ProgressReport({
   };
 
   const reportDate = format(new Date(), 'MMMM dd, yyyy');
-  const periodLabel = periodStart && periodEnd
-    ? `${format(periodStart, 'MMM dd')} - ${format(periodEnd, 'MMM dd, yyyy')}`
-    : 'All Time';
+  const periodLabel =
+    periodStart && periodEnd
+      ? `${format(periodStart, 'MMM dd')} - ${format(periodEnd, 'MMM dd, yyyy')}`
+      : 'All Time';
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
       {/* Action Bar (hidden when printing) */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 print:hidden">
         <div>
-          <h3 className="text-lg font-semibold text-ink-800">Progress Report</h3>
+          <h3 className="text-lg font-semibold text-ink-800">
+            Progress Report
+          </h3>
           <p className="text-sm text-ink-500">Export or print this report</p>
         </div>
         <div className="flex items-center space-x-3">
@@ -133,10 +136,14 @@ export default function ProgressReport({
         {/* Progress & Achievements */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div>
-            <h3 className="text-lg font-bold text-ink-900 mb-3">Progress Metrics</h3>
+            <h3 className="text-lg font-bold text-ink-900 mb-3">
+              Progress Metrics
+            </h3>
             <div className="space-y-3 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-ink-600">In Progress Adventures</span>
+                <span className="text-sm text-ink-600">
+                  In Progress Adventures
+                </span>
                 <span className="text-lg font-semibold text-ink-800">
                   {student.stats.inProgressAdventures}
                 </span>
@@ -163,7 +170,9 @@ export default function ProgressReport({
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-ink-900 mb-3">Goals & Achievements</h3>
+            <h3 className="text-lg font-bold text-ink-900 mb-3">
+              Goals & Achievements
+            </h3>
             <div className="space-y-3 border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-ink-600">Badges Earned</span>
@@ -194,49 +203,60 @@ export default function ProgressReport({
               Performance by Subject
             </h2>
             <div className="space-y-4">
-              {Object.entries(student.stats.byCategory).map(([category, stats]) => {
-                const completion = stats.total > 0
-                  ? Math.round((stats.completed / stats.total) * 100)
-                  : 0;
-                const avgScore = stats.completed > 0
-                  ? Math.round(stats.totalScore / stats.completed)
-                  : 0;
+              {Object.entries(student.stats.byCategory).map(
+                ([category, stats]) => {
+                  const completion =
+                    stats.total > 0
+                      ? Math.round((stats.completed / stats.total) * 100)
+                      : 0;
+                  const avgScore =
+                    stats.completed > 0
+                      ? Math.round(stats.totalScore / stats.completed)
+                      : 0;
 
-                return (
-                  <div key={category} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-ink-800 capitalize">
-                        {category}
-                      </h3>
-                      <div className="flex items-center space-x-6 text-sm">
-                        <div>
-                          <span className="text-ink-500">Completed: </span>
-                          <span className="font-semibold text-ink-800">
-                            {stats.completed}/{stats.total}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-ink-500">Avg Score: </span>
-                          <span className="font-semibold text-amber-600">{avgScore}%</span>
-                        </div>
-                        <div>
-                          <span className="text-ink-500">Time: </span>
-                          <span className="font-semibold text-blue-600">
-                            {formatTime(stats.totalTime)}
-                          </span>
+                  return (
+                    <div
+                      key={category}
+                      className="border border-gray-200 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-ink-800 capitalize">
+                          {category}
+                        </h3>
+                        <div className="flex items-center space-x-6 text-sm">
+                          <div>
+                            <span className="text-ink-500">Completed: </span>
+                            <span className="font-semibold text-ink-800">
+                              {stats.completed}/{stats.total}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-ink-500">Avg Score: </span>
+                            <span className="font-semibold text-amber-600">
+                              {avgScore}%
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-ink-500">Time: </span>
+                            <span className="font-semibold text-blue-600">
+                              {formatTime(stats.totalTime)}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-brand-600 h-3 rounded-full"
+                          style={{ width: `${completion}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-ink-600 mt-2">
+                        {completion}% complete
+                      </p>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-brand-600 h-3 rounded-full"
-                        style={{ width: `${completion}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-ink-600 mt-2">{completion}% complete</p>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
           </div>
         )}
@@ -244,7 +264,9 @@ export default function ProgressReport({
         {/* Recent Achievements */}
         {reportType === 'detailed' && student.achievements.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-ink-900 mb-4">Recent Achievements</h2>
+            <h2 className="text-xl font-bold text-ink-900 mb-4">
+              Recent Achievements
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {student.achievements.slice(0, 6).map((achievement: any) => (
                 <div
@@ -268,7 +290,9 @@ export default function ProgressReport({
 
         {/* Recommendations */}
         <div className="border-t-2 border-gray-200 pt-6 mt-8">
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Recommendations</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Recommendations
+          </h2>
           <div className="space-y-2 text-sm text-ink-700">
             {generateRecommendations(student).map((rec, index) => (
               <div key={index} className="flex items-start space-x-2">
@@ -282,10 +306,12 @@ export default function ProgressReport({
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-ink-500">
           <p>
-            This report was generated by Learning Adventures Platform on {reportDate}
+            This report was generated by Learning Adventures Platform on{' '}
+            {reportDate}
           </p>
           <p className="mt-1">
-            For questions or concerns, please contact your teacher or administrator
+            For questions or concerns, please contact your teacher or
+            administrator
           </p>
         </div>
       </div>
@@ -316,16 +342,21 @@ function generateCSV(student: DetailedStudent): string {
     ['Completed Goals', student.stats.completedGoals.toString()],
     [''],
     ['Subject Breakdown'],
-    ['Subject', 'Completed', 'Total', 'Completion %', 'Avg Score %', 'Time (minutes)']
+    [
+      'Subject',
+      'Completed',
+      'Total',
+      'Completion %',
+      'Avg Score %',
+      'Time (minutes)',
+    ],
   ];
 
   Object.entries(student.stats.byCategory).forEach(([category, stats]) => {
-    const completion = stats.total > 0
-      ? Math.round((stats.completed / stats.total) * 100)
-      : 0;
-    const avgScore = stats.completed > 0
-      ? Math.round(stats.totalScore / stats.completed)
-      : 0;
+    const completion =
+      stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    const avgScore =
+      stats.completed > 0 ? Math.round(stats.totalScore / stats.completed) : 0;
 
     lines.push([
       category,
@@ -333,11 +364,11 @@ function generateCSV(student: DetailedStudent): string {
       stats.total.toString(),
       completion.toString(),
       avgScore.toString(),
-      stats.totalTime.toString()
+      stats.totalTime.toString(),
     ]);
   });
 
-  return lines.map(row => row.join(',')).join('\n');
+  return lines.map((row) => row.join(',')).join('\n');
 }
 
 function generateRecommendations(student: DetailedStudent): string[] {
@@ -366,10 +397,12 @@ function generateRecommendations(student: DetailedStudent): string[] {
   }
 
   // Based on subject performance
-  const categoryScores = Object.entries(student.stats.byCategory).map(([cat, stats]) => ({
-    category: cat,
-    avgScore: stats.completed > 0 ? stats.totalScore / stats.completed : 0
-  }));
+  const categoryScores = Object.entries(student.stats.byCategory).map(
+    ([cat, stats]) => ({
+      category: cat,
+      avgScore: stats.completed > 0 ? stats.totalScore / stats.completed : 0,
+    })
+  );
 
   const weakest = categoryScores.sort((a, b) => a.avgScore - b.avgScore)[0];
   const strongest = categoryScores.sort((a, b) => b.avgScore - a.avgScore)[0];

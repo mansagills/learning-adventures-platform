@@ -25,35 +25,35 @@ const sampleDesignBriefs = {
       learningProfile: {
         styles: ['Visual', 'Hands-on', 'Story-based'],
         interests: ['Animals', 'Art', 'Nature'],
-        favoriteCharacters: 'Wild Kratts and Bluey'
-      }
+        favoriteCharacters: 'Wild Kratts and Bluey',
+      },
     },
     course: {
       subject: 'MATH',
       topics: ['Multiplication tables', 'Division basics', 'Word problems'],
       learningGoals: 'REINFORCE',
       difficulty: 'medium',
-      gradeLevel: ['3rd Grade']
+      gradeLevel: ['3rd Grade'],
     },
     format: {
       totalLessons: 12,
       lessonsPerWeek: 3,
       sessionDuration: 30,
       components: ['Interactive games', 'Practice quizzes'],
-      deliveryModes: ['online']
+      deliveryModes: ['online'],
     },
     assessment: {
       successIndicators: ['Improved test scores', 'Increased confidence'],
       reportingPreferences: ['Weekly progress reports'],
-      masteryThreshold: 70
+      masteryThreshold: 70,
     },
     flags: {
       requiresOfflinePackets: false,
       urgencyLevel: 'STANDARD',
       budgetTier: 'FREE',
-      allowReuse: true
+      allowReuse: true,
     },
-    clarifications: []
+    clarifications: [],
   },
 
   scienceLongCourse: {
@@ -66,36 +66,49 @@ const sampleDesignBriefs = {
       learningProfile: {
         styles: ['Hands-on', 'Visual'],
         interests: ['Space', 'Technology', 'Gaming'],
-        favoriteCharacters: 'Iron Man and Spider-Man'
-      }
+        favoriteCharacters: 'Iron Man and Spider-Man',
+      },
     },
     course: {
       subject: 'SCIENCE',
-      topics: ['Solar System', 'Planetary Motion', 'Gravity', 'Space Exploration'],
+      topics: [
+        'Solar System',
+        'Planetary Motion',
+        'Gravity',
+        'Space Exploration',
+      ],
       learningGoals: 'GET_AHEAD',
       difficulty: 'hard',
-      gradeLevel: ['6th Grade']
+      gradeLevel: ['6th Grade'],
     },
     format: {
       totalLessons: 30,
       lessonsPerWeek: 5,
       sessionDuration: 45,
-      components: ['Interactive games', 'Video lessons', 'Practice quizzes', 'Projects'],
-      deliveryModes: ['online']
+      components: [
+        'Interactive games',
+        'Video lessons',
+        'Practice quizzes',
+        'Projects',
+      ],
+      deliveryModes: ['online'],
     },
     assessment: {
       successIndicators: ['Advanced placement readiness', 'Project completion'],
-      reportingPreferences: ['Bi-weekly progress reports', 'Skill mastery updates'],
-      masteryThreshold: 85
+      reportingPreferences: [
+        'Bi-weekly progress reports',
+        'Skill mastery updates',
+      ],
+      masteryThreshold: 85,
     },
     flags: {
       requiresOfflinePackets: false,
       urgencyLevel: 'HIGH',
       budgetTier: 'PREMIUM',
-      allowReuse: true
+      allowReuse: true,
     },
-    clarifications: []
-  }
+    clarifications: [],
+  },
 };
 
 async function testSkill() {
@@ -118,16 +131,20 @@ async function testSkill() {
     console.log(`📝 Test Case: ${testName}`);
     console.log(`${'='.repeat(80)}\n`);
 
-    console.log(`Student: ${designBrief.student.name} (Age ${designBrief.student.age}, ${designBrief.student.grade})`);
+    console.log(
+      `Student: ${designBrief.student.name} (Age ${designBrief.student.age}, ${designBrief.student.grade})`
+    );
     console.log(`Subject: ${designBrief.course.subject}`);
     console.log(`Topics: ${designBrief.course.topics.join(', ')}`);
     console.log(`Total Lessons: ${designBrief.format.totalLessons}`);
-    console.log(`Session Duration: ${designBrief.format.sessionDuration} minutes`);
+    console.log(
+      `Session Duration: ${designBrief.format.sessionDuration} minutes`
+    );
     console.log('');
 
     // Test canHandle
     const confidence = await skill.canHandle('Design curriculum', {
-      previousOutputs: new Map([['designBrief', designBrief]])
+      previousOutputs: new Map([['designBrief', designBrief]]),
     });
     console.log(`✓ canHandle confidence: ${confidence}%`);
 
@@ -142,7 +159,7 @@ async function testSkill() {
     const context: SkillContext = {
       userRequest: 'Design curriculum for this course',
       previousOutputs: new Map([['designBrief', designBrief]]),
-      conversationHistory: []
+      conversationHistory: [],
     };
 
     try {
@@ -157,24 +174,32 @@ async function testSkill() {
 
         console.log('\n📊 Curriculum Summary:');
         console.log(`   Title: ${curriculum.courseTitle}`);
-        console.log(`   Description: ${curriculum.courseDescription.substring(0, 100)}...`);
+        console.log(
+          `   Description: ${curriculum.courseDescription.substring(0, 100)}...`
+        );
         console.log(`   Total Chapters: ${curriculum.chapters.length}`);
         console.log(`   Total Lessons: ${curriculum.lessons.length}`);
-        console.log(`   Total Duration: ${curriculum.estimatedTotalMinutes} minutes`);
+        console.log(
+          `   Total Duration: ${curriculum.estimatedTotalMinutes} minutes`
+        );
         console.log(`   Total XP: ${curriculum.totalXP}`);
 
         // Chapter breakdown
         console.log('\n📚 Chapters:');
-        curriculum.chapters.forEach(chapter => {
-          const chapterLessons = curriculum.lessons.filter(l => l.chapterNumber === chapter.number);
-          console.log(`   ${chapter.number}. ${chapter.title} (${chapterLessons.length} lessons)`);
+        curriculum.chapters.forEach((chapter) => {
+          const chapterLessons = curriculum.lessons.filter(
+            (l) => l.chapterNumber === chapter.number
+          );
+          console.log(
+            `   ${chapter.number}. ${chapter.title} (${chapterLessons.length} lessons)`
+          );
           console.log(`      ${chapter.description.substring(0, 80)}...`);
         });
 
         // Lesson type distribution
         console.log('\n🎮 Lesson Type Distribution:');
         const typeCounts: Record<string, number> = {};
-        curriculum.lessons.forEach(lesson => {
+        curriculum.lessons.forEach((lesson) => {
           typeCounts[lesson.type] = (typeCounts[lesson.type] || 0) + 1;
         });
 
@@ -187,8 +212,9 @@ async function testSkill() {
         // Difficulty distribution
         console.log('\n⚡ Difficulty Distribution:');
         const difficultyCounts: Record<string, number> = {};
-        curriculum.lessons.forEach(lesson => {
-          difficultyCounts[lesson.difficulty] = (difficultyCounts[lesson.difficulty] || 0) + 1;
+        curriculum.lessons.forEach((lesson) => {
+          difficultyCounts[lesson.difficulty] =
+            (difficultyCounts[lesson.difficulty] || 0) + 1;
         });
 
         for (const [difficulty, count] of Object.entries(difficultyCounts)) {
@@ -198,8 +224,10 @@ async function testSkill() {
 
         // XP distribution
         console.log('\n💎 XP Statistics:');
-        const xpValues = curriculum.lessons.map(l => l.xpReward);
-        const avgXP = Math.round(xpValues.reduce((a, b) => a + b, 0) / xpValues.length);
+        const xpValues = curriculum.lessons.map((l) => l.xpReward);
+        const avgXP = Math.round(
+          xpValues.reduce((a, b) => a + b, 0) / xpValues.length
+        );
         const minXP = Math.min(...xpValues);
         const maxXP = Math.max(...xpValues);
         console.log(`   Average: ${avgXP} XP per lesson`);
@@ -211,34 +239,49 @@ async function testSkill() {
         const sampleLessons = [
           curriculum.lessons[0], // First
           curriculum.lessons[Math.floor(curriculum.lessons.length / 2)], // Middle
-          curriculum.lessons[curriculum.lessons.length - 1] // Last
+          curriculum.lessons[curriculum.lessons.length - 1], // Last
         ];
 
-        sampleLessons.forEach(lesson => {
+        sampleLessons.forEach((lesson) => {
           console.log(`\n   Lesson ${lesson.order}: ${lesson.title}`);
-          console.log(`      Type: ${lesson.type} | Difficulty: ${lesson.difficulty} | Duration: ${lesson.duration} min | XP: ${lesson.xpReward}`);
-          console.log(`      Objectives: ${lesson.learningObjectives.slice(0, 2).join('; ')}...`);
+          console.log(
+            `      Type: ${lesson.type} | Difficulty: ${lesson.difficulty} | Duration: ${lesson.duration} min | XP: ${lesson.xpReward}`
+          );
+          console.log(
+            `      Objectives: ${lesson.learningObjectives.slice(0, 2).join('; ')}...`
+          );
         });
 
         // Progression strategy
         console.log('\n🎯 Progression Strategy:');
-        console.log(`   Scaffolding: ${curriculum.progression.scaffolding.substring(0, 100)}...`);
-        console.log(`   Reinforcement: ${curriculum.progression.reinforcement.substring(0, 100)}...`);
-        console.log(`   Assessment: ${curriculum.progression.assessmentStrategy.substring(0, 100)}...`);
+        console.log(
+          `   Scaffolding: ${curriculum.progression.scaffolding.substring(0, 100)}...`
+        );
+        console.log(
+          `   Reinforcement: ${curriculum.progression.reinforcement.substring(0, 100)}...`
+        );
+        console.log(
+          `   Assessment: ${curriculum.progression.assessmentStrategy.substring(0, 100)}...`
+        );
 
-        if (result.metadata.suggestedNextSkills && result.metadata.suggestedNextSkills.length > 0) {
-          console.log(`\n🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`);
+        if (
+          result.metadata.suggestedNextSkills &&
+          result.metadata.suggestedNextSkills.length > 0
+        ) {
+          console.log(
+            `\n🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`
+          );
         }
-
       } else {
         console.log('❌ Execution failed!');
         console.log(`   Error code: ${result.error?.code}`);
         console.log(`   Error message: ${result.error?.message}`);
         if (result.error?.details) {
-          console.log(`   Details: ${JSON.stringify(result.error.details, null, 2)}`);
+          console.log(
+            `   Details: ${JSON.stringify(result.error.details, null, 2)}`
+          );
         }
       }
-
     } catch (error) {
       console.log('💥 Unexpected error during execution:');
       console.log(error);
@@ -253,7 +296,7 @@ async function testSkill() {
 }
 
 // Run tests
-testSkill().catch(error => {
+testSkill().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

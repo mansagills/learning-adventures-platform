@@ -63,7 +63,9 @@ export default function PremiumPaywallModal({
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement;
 
     const handleTabKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
@@ -84,7 +86,8 @@ export default function PremiumPaywallModal({
     };
 
     modal.addEventListener('keydown', handleTabKey as EventListener);
-    return () => modal.removeEventListener('keydown', handleTabKey as EventListener);
+    return () =>
+      modal.removeEventListener('keydown', handleTabKey as EventListener);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -119,7 +122,13 @@ export default function PremiumPaywallModal({
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 rounded"
             aria-label="Close dialog"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -131,8 +140,15 @@ export default function PremiumPaywallModal({
 
           {/* Icon */}
           <div className="mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto" aria-hidden="true">
-              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div
+              className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto"
+              aria-hidden="true"
+            >
+              <svg
+                className="w-8 h-8 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
@@ -146,34 +162,47 @@ export default function PremiumPaywallModal({
           <div className="text-center mb-6">
             {isPremiumRequired && (
               <>
-                <h2 id={titleId} className="text-2xl font-bold text-gray-900 mb-3">
+                <h2
+                  id={titleId}
+                  className="text-2xl font-bold text-gray-900 mb-3"
+                >
                   Premium Course
                 </h2>
                 <p id={descriptionId} className="text-gray-600 mb-2">
                   {courseTitle ? (
                     <>
-                      <span className="font-semibold">{courseTitle}</span> is a premium course.
+                      <span className="font-semibold">{courseTitle}</span> is a
+                      premium course.
                     </>
                   ) : (
                     'This is a premium course.'
                   )}
                 </p>
                 <p className="text-gray-600">
-                  Upgrade to Premium to unlock access to all premium courses and exclusive content!
+                  Upgrade to Premium to unlock access to all premium courses and
+                  exclusive content!
                 </p>
               </>
             )}
 
             {isFreeLimitReached && (
               <>
-                <h2 id={titleId} className="text-2xl font-bold text-gray-900 mb-3">
+                <h2
+                  id={titleId}
+                  className="text-2xl font-bold text-gray-900 mb-3"
+                >
                   Free Course Limit Reached
                 </h2>
                 <p id={descriptionId} className="text-gray-600 mb-2">
-                  You're currently enrolled in <span className="font-semibold">{freeCoursesEnrolled} free courses</span>.
+                  You're currently enrolled in{' '}
+                  <span className="font-semibold">
+                    {freeCoursesEnrolled} free courses
+                  </span>
+                  .
                 </p>
                 <p className="text-gray-600">
-                  Free users can enroll in up to {freeCourseLimit} free courses. Upgrade to Premium for unlimited access!
+                  Free users can enroll in up to {freeCourseLimit} free courses.
+                  Upgrade to Premium for unlimited access!
                 </p>
               </>
             )}
@@ -182,39 +211,89 @@ export default function PremiumPaywallModal({
           {/* Benefits */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 mb-6">
             <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <svg
+                className="w-5 h-5 text-orange-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               Premium Benefits
             </h3>
             <ul className="space-y-2 text-sm text-gray-700" role="list">
               <li className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Unlimited course enrollments</span>
               </li>
               <li className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Access to all premium courses</span>
               </li>
               <li className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Exclusive content and features</span>
               </li>
               <li className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Priority support</span>
               </li>
               <li className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg
+                  className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>Downloadable certificates</span>
               </li>
@@ -224,7 +303,7 @@ export default function PremiumPaywallModal({
           {/* Actions */}
           <div className="space-y-3">
             <Link
-              href={"/pricing" as any}
+              href={'/pricing' as any}
               className="block w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md hover:shadow-lg text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
               Upgrade to Premium

@@ -39,13 +39,14 @@ function WizardContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Auto-save hook
-  const { isSaving, lastSaved, saveError, saveDraft } = useCourseRequestAutoSave(
-    state.formData,
-    state.draftId,
-    { debounceMs: 2000, enabled: true }
-  );
+  const { isSaving, lastSaved, saveError, saveDraft } =
+    useCourseRequestAutoSave(state.formData, state.draftId, {
+      debounceMs: 2000,
+      enabled: true,
+    });
 
-  const CurrentStepComponent = stepComponents[state.currentStep as keyof typeof stepComponents];
+  const CurrentStepComponent =
+    stepComponents[state.currentStep as keyof typeof stepComponents];
 
   // Update last saved in context when auto-save completes
   useEffect(() => {
@@ -60,7 +61,8 @@ function WizardContent() {
 
     switch (state.currentStep) {
       case 1:
-        if (!state.formData.fullName?.trim()) errors.fullName = 'Full name is required';
+        if (!state.formData.fullName?.trim())
+          errors.fullName = 'Full name is required';
         if (!state.formData.email?.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
           errors.email = 'Valid email is required';
         }
@@ -68,35 +70,45 @@ function WizardContent() {
         break;
 
       case 2:
-        if (!state.formData.studentName?.trim()) errors.studentName = 'Student name is required';
+        if (!state.formData.studentName?.trim())
+          errors.studentName = 'Student name is required';
         if (!state.formData.studentAge || state.formData.studentAge < 1) {
           errors.studentAge = 'Valid student age is required';
         }
-        if (!state.formData.gradeLevel) errors.gradeLevel = 'Grade level is required';
+        if (!state.formData.gradeLevel)
+          errors.gradeLevel = 'Grade level is required';
         break;
 
       case 3:
-        if (!state.formData.primarySubject) errors.primarySubject = 'Primary subject is required';
-        if (!state.formData.learningGoal) errors.learningGoal = 'Learning goal is required';
+        if (!state.formData.primarySubject)
+          errors.primarySubject = 'Primary subject is required';
+        if (!state.formData.learningGoal)
+          errors.learningGoal = 'Learning goal is required';
         break;
 
       case 6:
-        if (!state.formData.courseLength) errors.courseLength = 'Course length is required';
-        if (!state.formData.sessionDuration) errors.sessionDuration = 'Session duration is required';
+        if (!state.formData.courseLength)
+          errors.courseLength = 'Course length is required';
+        if (!state.formData.sessionDuration)
+          errors.sessionDuration = 'Session duration is required';
         break;
 
       case 8:
-        if (!state.formData.urgencyLevel) errors.urgencyLevel = 'Urgency level is required';
+        if (!state.formData.urgencyLevel)
+          errors.urgencyLevel = 'Urgency level is required';
         break;
 
       case 9:
-        if (!state.formData.budgetTier) errors.budgetTier = 'Budget tier is required';
-        if (!state.formData.allowCourseReuse) errors.allowCourseReuse = 'Please select a reuse option';
+        if (!state.formData.budgetTier)
+          errors.budgetTier = 'Budget tier is required';
+        if (!state.formData.allowCourseReuse)
+          errors.allowCourseReuse = 'Please select a reuse option';
         break;
 
       case 10:
         if (!state.formData.consentGiven) {
-          errors.consentGiven = 'You must provide consent to submit the request';
+          errors.consentGiven =
+            'You must provide consent to submit the request';
         }
         break;
     }
@@ -131,7 +143,11 @@ function WizardContent() {
 
     if (result.success && result.draftId && !state.draftId) {
       // Update draft ID in context if this was first save
-      dispatch({ type: 'LOAD_DRAFT', draftData: state.formData, draftId: result.draftId });
+      dispatch({
+        type: 'LOAD_DRAFT',
+        draftData: state.formData,
+        draftId: result.draftId,
+      });
     }
 
     if (!result.success) {
@@ -168,7 +184,11 @@ function WizardContent() {
       router.push(`/course-request/success?requestId=${data.requestId}`);
     } catch (error) {
       console.error('Error submitting request:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit request. Please try again.');
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Failed to submit request. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -182,7 +202,11 @@ function WizardContent() {
         if (response.ok) {
           const draft = await response.json();
           if (draft && draft.id) {
-            dispatch({ type: 'LOAD_DRAFT', draftData: draft, draftId: draft.id });
+            dispatch({
+              type: 'LOAD_DRAFT',
+              draftData: draft,
+              draftId: draft.id,
+            });
             console.log('Draft loaded successfully');
           }
         }
@@ -202,14 +226,30 @@ function WizardContent() {
           Custom Course Request
         </h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Help us create the perfect learning experience for your student.
-          This form takes about 10-15 minutes to complete, and you can save your progress anytime.
+          Help us create the perfect learning experience for your student. This
+          form takes about 10-15 minutes to complete, and you can save your
+          progress anytime.
         </p>
         {isSaving && (
           <p className="text-sm text-gray-500 mt-2 flex items-center justify-center gap-2">
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            <svg
+              className="w-4 h-4 animate-spin"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
             </svg>
             Saving draft...
           </p>
@@ -220,9 +260,7 @@ function WizardContent() {
           </p>
         )}
         {saveError && (
-          <p className="text-sm text-coral-600 mt-2">
-            ⚠️ {saveError}
-          </p>
+          <p className="text-sm text-coral-600 mt-2">⚠️ {saveError}</p>
         )}
       </div>
 
@@ -257,7 +295,10 @@ function WizardContent() {
       <div className="mt-8 text-center text-sm text-gray-600">
         <p>
           Need help?{' '}
-          <a href="mailto:support@learningadventures.org" className="text-brand-600 hover:underline">
+          <a
+            href="mailto:support@learningadventures.org"
+            className="text-brand-600 hover:underline"
+          >
             Contact Support
           </a>
         </p>

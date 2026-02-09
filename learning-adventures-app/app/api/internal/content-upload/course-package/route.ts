@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import AdmZip from 'adm-zip';
-import { processCoursePackage, isCoursePackage, validateCoursePackage } from '@/lib/upload/coursePackageHandler';
-import { processGamePackage, isGamePackage, validateGamePackage } from '@/lib/upload/gamePackageHandler';
+import {
+  processCoursePackage,
+  isCoursePackage,
+  validateCoursePackage,
+} from '@/lib/upload/coursePackageHandler';
+import {
+  processGamePackage,
+  isGamePackage,
+  validateGamePackage,
+} from '@/lib/upload/gamePackageHandler';
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -28,20 +36,29 @@ export async function POST(request: NextRequest) {
     const isCourse = isCoursePackage(zip);
 
     if (!isGame && !isCourse) {
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid package: metadata.json must have either "gameFile" (for games) or "lessons" array (for courses)',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'Invalid package: metadata.json must have either "gameFile" (for games) or "lessons" array (for courses)',
+        },
+        { status: 400 }
+      );
     }
 
     // Validate package structure
-    const validation = isGame ? validateGamePackage(zip) : validateCoursePackage(zip);
+    const validation = isGame
+      ? validateGamePackage(zip)
+      : validateCoursePackage(zip);
     if (!validation.valid) {
-      return NextResponse.json({
-        success: false,
-        error: 'Package validation failed',
-        validationErrors: validation.errors,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Package validation failed',
+          validationErrors: validation.errors,
+        },
+        { status: 400 }
+      );
     }
 
     // Process the package - need to recreate File since we consumed the buffer
@@ -53,17 +70,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         ...result,
         type: 'game',
-        message: 'Game uploaded to staging successfully. Visit the Testing page to review and approve.',
+        message:
+          'Game uploaded to staging successfully. Visit the Testing page to review and approve.',
       });
     } else {
       result = await processCoursePackage(newFile, session.user.id);
       return NextResponse.json({
         ...result,
         type: 'course',
-        message: 'Course uploaded to staging successfully. Visit the Testing page to review and approve.',
+        message:
+          'Course uploaded to staging successfully. Visit the Testing page to review and approve.',
       });
     }
-
   } catch (error) {
     console.error('Package upload error:', error);
     return NextResponse.json(

@@ -23,10 +23,7 @@ export async function POST(
     // Authenticate user
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Parse request body
@@ -47,10 +44,7 @@ export async function POST(
     });
 
     if (!lesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
     }
 
     if (!lesson.quizData) {
@@ -78,16 +72,14 @@ export async function POST(
 
     // Calculate XP cost if not provided
     const finalXpCost =
-      xpCost || calculateRevealCost(question.points, userLevel?.currentLevel || 1);
+      xpCost ||
+      calculateRevealCost(question.points, userLevel?.currentLevel || 1);
 
     // Deduct XP and reveal answer
     const result = await revealAnswerWithXP(session.user.id, finalXpCost);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.reason },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: result.reason }, { status: 400 });
     }
 
     // Return correct answer and explanation

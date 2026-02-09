@@ -60,8 +60,10 @@ export function useCalendar(options: UseCalendarOptions = {}) {
       setError(null);
 
       const params = new URLSearchParams();
-      if (options.startDate) params.append('startDate', options.startDate.toISOString());
-      if (options.endDate) params.append('endDate', options.endDate.toISOString());
+      if (options.startDate)
+        params.append('startDate', options.startDate.toISOString());
+      if (options.endDate)
+        params.append('endDate', options.endDate.toISOString());
       if (options.eventType) params.append('eventType', options.eventType);
       if (options.includeGoals) params.append('includeGoals', 'true');
 
@@ -79,7 +81,13 @@ export function useCalendar(options: UseCalendarOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [session, options.startDate, options.endDate, options.eventType, options.includeGoals]);
+  }, [
+    session,
+    options.startDate,
+    options.endDate,
+    options.eventType,
+    options.includeGoals,
+  ]);
 
   useEffect(() => {
     fetchEvents();
@@ -114,8 +122,8 @@ export function useCalendar(options: UseCalendarOptions = {}) {
           ...eventData,
           startTime: eventData.startTime.toISOString(),
           endTime: eventData.endTime.toISOString(),
-          recurrenceEnd: eventData.recurrenceEnd?.toISOString()
-        })
+          recurrenceEnd: eventData.recurrenceEnd?.toISOString(),
+        }),
       });
 
       if (!response.ok) {
@@ -131,12 +139,15 @@ export function useCalendar(options: UseCalendarOptions = {}) {
     }
   };
 
-  const updateEvent = async (eventId: string, updates: Partial<CalendarEvent>) => {
+  const updateEvent = async (
+    eventId: string,
+    updates: Partial<CalendarEvent>
+  ) => {
     try {
       const response = await fetch(`/api/calendar/${eventId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(updates),
       });
 
       if (!response.ok) {
@@ -155,7 +166,7 @@ export function useCalendar(options: UseCalendarOptions = {}) {
   const deleteEvent = async (eventId: string) => {
     try {
       const response = await fetch(`/api/calendar/${eventId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (!response.ok) {
@@ -172,7 +183,7 @@ export function useCalendar(options: UseCalendarOptions = {}) {
   const completeEvent = async (eventId: string) => {
     try {
       const response = await fetch(`/api/calendar/${eventId}/complete`, {
-        method: 'POST'
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -196,7 +207,7 @@ export function useCalendar(options: UseCalendarOptions = {}) {
     createEvent,
     updateEvent,
     deleteEvent,
-    completeEvent
+    completeEvent,
   };
 }
 

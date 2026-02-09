@@ -85,10 +85,7 @@ export abstract class BaseSkill {
       console.warn(`Guidance file not found for skill: ${metadata.id}`);
       return '';
     } catch (error) {
-      console.error(
-        `Error loading guidance for skill ${metadata.id}:`,
-        error
-      );
+      console.error(`Error loading guidance for skill ${metadata.id}:`, error);
       return '';
     }
   }
@@ -286,7 +283,13 @@ export abstract class BaseSkill {
     const parsed: any = {};
 
     // Extract subject
-    const subjects = ['math', 'science', 'english', 'history', 'social studies'];
+    const subjects = [
+      'math',
+      'science',
+      'english',
+      'history',
+      'social studies',
+    ];
     for (const subject of subjects) {
       if (lowerRequest.includes(subject)) {
         parsed.subject = subject.charAt(0).toUpperCase() + subject.slice(1);
@@ -309,16 +312,26 @@ export abstract class BaseSkill {
     // Extract difficulty
     if (lowerRequest.includes('easy') || lowerRequest.includes('beginner')) {
       parsed.difficulty = 'easy';
-    } else if (lowerRequest.includes('hard') || lowerRequest.includes('advanced') || lowerRequest.includes('challenging')) {
+    } else if (
+      lowerRequest.includes('hard') ||
+      lowerRequest.includes('advanced') ||
+      lowerRequest.includes('challenging')
+    ) {
       parsed.difficulty = 'hard';
-    } else if (lowerRequest.includes('medium') || lowerRequest.includes('intermediate')) {
+    } else if (
+      lowerRequest.includes('medium') ||
+      lowerRequest.includes('intermediate')
+    ) {
       parsed.difficulty = 'medium';
     }
 
     // Extract game type
     if (lowerRequest.includes('html')) {
       parsed.gameType = 'html';
-    } else if (lowerRequest.includes('react') || lowerRequest.includes('component')) {
+    } else if (
+      lowerRequest.includes('react') ||
+      lowerRequest.includes('component')
+    ) {
       parsed.gameType = 'react';
     }
 

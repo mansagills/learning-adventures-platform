@@ -22,38 +22,38 @@ export async function GET(req: NextRequest) {
     const thisMonth = await prisma.geminiContent.count({
       where: {
         createdAt: {
-          gte: startOfMonth
-        }
-      }
+          gte: startOfMonth,
+        },
+      },
     });
 
     // 4. Get published count
     const published = await prisma.geminiContent.count({
       where: {
-        status: 'PUBLISHED'
-      }
+        status: 'PUBLISHED',
+      },
     });
 
     // 5. Get testing count
     const testing = await prisma.geminiContent.count({
       where: {
-        status: 'TESTING'
-      }
+        status: 'TESTING',
+      },
     });
 
     // 6. Get total cost this month
     const monthlyCostData = await prisma.geminiUsage.aggregate({
       where: {
         createdAt: {
-          gte: startOfMonth
+          gte: startOfMonth,
         },
-        success: true
+        success: true,
       },
       _sum: {
         estimatedCost: true,
         tokensInput: true,
-        tokensOutput: true
-      }
+        tokensOutput: true,
+      },
     });
 
     const monthlyCost = monthlyCostData._sum.estimatedCost || 0;
@@ -64,16 +64,16 @@ export async function GET(req: NextRequest) {
     const byCategory = await prisma.geminiContent.groupBy({
       by: ['category'],
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     // 8. Get stats by status
     const byStatus = await prisma.geminiContent.groupBy({
       by: ['status'],
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     // 9. Get recent generations (last 5)
@@ -84,23 +84,23 @@ export async function GET(req: NextRequest) {
         category: true,
         gameType: true,
         status: true,
-        createdAt: true
+        createdAt: true,
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
-      take: 5
+      take: 5,
     });
 
     // 10. Get average cost per generation
     const avgCostData = await prisma.geminiUsage.aggregate({
       where: {
         operation: 'generate',
-        success: true
+        success: true,
       },
       _avg: {
-        estimatedCost: true
-      }
+        estimatedCost: true,
+      },
     });
 
     const avgCostPerGeneration = avgCostData._avg.estimatedCost || 0;
@@ -115,20 +115,19 @@ export async function GET(req: NextRequest) {
       monthlyTokens: {
         input: monthlyTokensInput,
         output: monthlyTokensOutput,
-        total: monthlyTokensInput + monthlyTokensOutput
+        total: monthlyTokensInput + monthlyTokensOutput,
       },
       avgCostPerGeneration: Number(avgCostPerGeneration.toFixed(4)),
-      byCategory: byCategory.map(item => ({
+      byCategory: byCategory.map((item) => ({
         category: item.category,
-        count: item._count.id
+        count: item._count.id,
       })),
-      byStatus: byStatus.map(item => ({
+      byStatus: byStatus.map((item) => ({
         status: item.status,
-        count: item._count.id
+        count: item._count.id,
       })),
-      recentGenerations
+      recentGenerations,
     });
-
   } catch (error: any) {
     console.error('Stats error:', error);
     return NextResponse.json(

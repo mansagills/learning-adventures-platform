@@ -13,29 +13,55 @@ interface PromptInputProps {
 const TEMPLATES = [
   {
     name: 'Math Racing Game',
-    prompt: 'Create a multiplication racing game where students control a race car by solving multiplication problems (2-12 tables). The faster they answer correctly, the faster their car goes. Include power-ups for streaks.',
-    config: { category: 'math', gameType: 'HTML_2D', gradeLevel: ['3', '4', '5'], difficulty: 'medium', skills: ['Multiplication', 'Speed Math'] }
+    prompt:
+      'Create a multiplication racing game where students control a race car by solving multiplication problems (2-12 tables). The faster they answer correctly, the faster their car goes. Include power-ups for streaks.',
+    config: {
+      category: 'math',
+      gameType: 'HTML_2D',
+      gradeLevel: ['3', '4', '5'],
+      difficulty: 'medium',
+      skills: ['Multiplication', 'Speed Math'],
+    },
   },
   {
     name: '3D Science Simulator',
-    prompt: 'Create a 3D solar system simulator where students can explore planets, adjust orbital speed, and see realistic physics. Include planet facts and interactive controls.',
-    config: { category: 'science', gameType: 'HTML_3D', gradeLevel: ['5', '6', '7'], difficulty: 'medium', skills: ['Astronomy', 'Physics', 'Space Science'] }
+    prompt:
+      'Create a 3D solar system simulator where students can explore planets, adjust orbital speed, and see realistic physics. Include planet facts and interactive controls.',
+    config: {
+      category: 'science',
+      gameType: 'HTML_3D',
+      gradeLevel: ['5', '6', '7'],
+      difficulty: 'medium',
+      skills: ['Astronomy', 'Physics', 'Space Science'],
+    },
   },
   {
     name: 'Vocabulary Adventure',
-    prompt: 'Create a vocabulary building game where students help a character navigate an adventure by choosing the correct synonym or antonym. Include visual word cards and progressive difficulty.',
-    config: { category: 'english', gameType: 'INTERACTIVE', gradeLevel: ['3', '4', '5'], difficulty: 'easy', skills: ['Vocabulary', 'Synonyms', 'Antonyms'] }
-  }
+    prompt:
+      'Create a vocabulary building game where students help a character navigate an adventure by choosing the correct synonym or antonym. Include visual word cards and progressive difficulty.',
+    config: {
+      category: 'english',
+      gameType: 'INTERACTIVE',
+      gradeLevel: ['3', '4', '5'],
+      difficulty: 'easy',
+      skills: ['Vocabulary', 'Synonyms', 'Antonyms'],
+    },
+  },
 ];
 
-export default function PromptInput({ onGenerationStart, onGenerate, onGenerationError, isGenerating = false }: PromptInputProps) {
+export default function PromptInput({
+  onGenerationStart,
+  onGenerate,
+  onGenerationError,
+  isGenerating = false,
+}: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
   const [config, setConfig] = useState({
     category: 'math',
     gameType: 'HTML_2D',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
-    skills: [] as string[]
+    skills: [] as string[],
   });
   const [skillInput, setSkillInput] = useState('');
   const [error, setError] = useState('');
@@ -67,7 +93,7 @@ export default function PromptInput({ onGenerationStart, onGenerate, onGeneratio
       const response = await fetch('/api/gemini/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, ...config })
+        body: JSON.stringify({ prompt, ...config }),
       });
 
       const data = await response.json();
@@ -91,7 +117,7 @@ export default function PromptInput({ onGenerationStart, onGenerate, onGeneratio
     }
   };
 
-  const handleTemplateSelect = (template: typeof TEMPLATES[0]) => {
+  const handleTemplateSelect = (template: (typeof TEMPLATES)[0]) => {
     setPrompt(template.prompt);
     setConfig({ ...config, ...template.config } as any);
   };
@@ -104,12 +130,12 @@ export default function PromptInput({ onGenerationStart, onGenerate, onGeneratio
   };
 
   const handleRemoveSkill = (skill: string) => {
-    setConfig({ ...config, skills: config.skills.filter(s => s !== skill) });
+    setConfig({ ...config, skills: config.skills.filter((s) => s !== skill) });
   };
 
   const toggleGradeLevel = (grade: string) => {
     const newGrades = config.gradeLevel.includes(grade)
-      ? config.gradeLevel.filter(g => g !== grade)
+      ? config.gradeLevel.filter((g) => g !== grade)
       : [...config.gradeLevel, grade];
     setConfig({ ...config, gradeLevel: newGrades });
   };
@@ -225,7 +251,9 @@ export default function PromptInput({ onGenerationStart, onGenerate, onGeneratio
             {['easy', 'medium', 'hard'].map((level) => (
               <button
                 key={level}
-                onClick={() => setConfig({ ...config, difficulty: level as any })}
+                onClick={() =>
+                  setConfig({ ...config, difficulty: level as any })
+                }
                 disabled={isGenerating}
                 className={`flex-1 py-2 rounded-lg border-2 capitalize transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   config.difficulty === level

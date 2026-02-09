@@ -328,10 +328,13 @@ Please generate a complete, production-ready HTML file that meets all these requ
     concept: GameConcept
   ): Promise<string> {
     // Check if Claude API is configured
-    const { isClaudeConfigured, callClaude } = await import('../../claude-client');
+    const { isClaudeConfigured, callClaude } =
+      await import('../../claude-client');
 
     if (!isClaudeConfigured()) {
-      console.warn('⚠️  ANTHROPIC_API_KEY not configured, using mock game template');
+      console.warn(
+        '⚠️  ANTHROPIC_API_KEY not configured, using mock game template'
+      );
       return this.getMockGameTemplate(concept);
     }
 
@@ -357,12 +360,17 @@ Return ONLY the HTML code, no markdown formatting or explanations.`;
       }
 
       // Return as-is if it looks like HTML
-      if (gameCode.trim().startsWith('<!DOCTYPE') || gameCode.trim().startsWith('<html')) {
+      if (
+        gameCode.trim().startsWith('<!DOCTYPE') ||
+        gameCode.trim().startsWith('<html')
+      ) {
         return gameCode.trim();
       }
 
       // Fallback to mock if response doesn't look like HTML
-      console.warn('⚠️  Claude response does not appear to be valid HTML, using mock template');
+      console.warn(
+        '⚠️  Claude response does not appear to be valid HTML, using mock template'
+      );
       return this.getMockGameTemplate(concept);
     } catch (error) {
       console.error('❌ Error calling Claude API:', error);

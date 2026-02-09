@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         gradeLevel: true,
         avatarId: true,
         lastLoginAt: true,
-      }
+      },
     });
 
     if (!child) {

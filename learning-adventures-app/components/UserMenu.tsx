@@ -33,7 +33,10 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
   }
 
   const user = session.user;
-  const userInitial = user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U';
+  const userInitial =
+    user.name?.charAt(0).toUpperCase() ||
+    user.email?.charAt(0).toUpperCase() ||
+    'U';
 
   const handleSignOut = async () => {
     setIsOpen(false);
@@ -64,7 +67,11 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
   ];
 
   // Add course request menu items for PARENT and TEACHER
-  if (user.role === 'PARENT' || user.role === 'TEACHER' || user.role === 'ADMIN') {
+  if (
+    user.role === 'PARENT' ||
+    user.role === 'TEACHER' ||
+    user.role === 'ADMIN'
+  ) {
     menuItems.splice(1, 0, {
       label: 'Request Custom Course',
       href: '/course-request',
@@ -125,7 +132,9 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
-            <span className="text-white text-sm font-medium">{userInitial}</span>
+            <span className="text-white text-sm font-medium">
+              {userInitial}
+            </span>
           )}
         </div>
         <Icon
@@ -158,7 +167,11 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center px-4 py-2 text-sm text-ink-700 hover:bg-gray-50 hover:text-brand-600 transition-colors duration-150"
               >
-                <Icon name={item.icon} size={16} className="mr-3 text-ink-400" />
+                <Icon
+                  name={item.icon}
+                  size={16}
+                  className="mr-3 text-ink-400"
+                />
                 {item.label}
               </Link>
             ))}

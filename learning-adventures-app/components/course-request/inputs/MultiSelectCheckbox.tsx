@@ -32,7 +32,7 @@ export default function MultiSelectCheckbox({
 
     if (currentValues.includes(optionValue)) {
       // Remove if already selected
-      onChange(currentValues.filter(v => v !== optionValue));
+      onChange(currentValues.filter((v) => v !== optionValue));
     } else {
       // Add if not selected
       onChange([...currentValues, optionValue]);
@@ -50,16 +50,18 @@ export default function MultiSelectCheckbox({
       {/* Checkbox Options */}
       <div className="space-y-2">
         {options.map((option) => {
-          const isChecked = Array.isArray(value) && value.includes(option.value);
+          const isChecked =
+            Array.isArray(value) && value.includes(option.value);
 
           return (
             <label
               key={option.value}
               className={`
                 flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all
-                ${isChecked
-                  ? 'border-brand-500 bg-brand-50'
-                  : 'border-gray-200 bg-white hover:border-brand-300'
+                ${
+                  isChecked
+                    ? 'border-brand-500 bg-brand-50'
+                    : 'border-gray-200 bg-white hover:border-brand-300'
                 }
                 ${error ? 'border-coral-500' : ''}
               `}
@@ -95,11 +97,7 @@ export default function MultiSelectCheckbox({
       {/* Error Message */}
       {error && (
         <p className="text-sm text-coral-600 flex items-center gap-1">
-          <svg
-            className="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"

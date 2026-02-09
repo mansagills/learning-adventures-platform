@@ -16,13 +16,15 @@ interface UserProgress {
 
 export default function ContinueLearningSection() {
   const { data: session, status } = useSession();
-  const [recentAdventures, setRecentAdventures] = useState<Array<{adventure: Adventure, progress: number}>>([]);
+  const [recentAdventures, setRecentAdventures] = useState<
+    Array<{ adventure: Adventure; progress: number }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Intersection observer for fade-in animation
   const [sectionRef, isInView] = useInView<HTMLDivElement>({
     threshold: 0.1,
-    triggerOnce: true
+    triggerOnce: true,
   });
 
   useEffect(() => {
@@ -46,8 +48,10 @@ export default function ContinueLearningSection() {
         // Get in-progress adventures (not completed, progress > 0)
         const inProgress = data.progress
           .filter((p: UserProgress) => p.progress > 0 && p.progress < 100)
-          .sort((a: UserProgress, b: UserProgress) =>
-            new Date(b.lastAccessedAt).getTime() - new Date(a.lastAccessedAt).getTime()
+          .sort(
+            (a: UserProgress, b: UserProgress) =>
+              new Date(b.lastAccessedAt).getTime() -
+              new Date(a.lastAccessedAt).getTime()
           )
           .slice(0, 5); // Show top 5 recent
 
@@ -55,11 +59,18 @@ export default function ContinueLearningSection() {
         const adventuresWithProgress = inProgress
           .map((p: UserProgress) => ({
             adventure: getAdventureById(p.adventureId),
-            progress: p.progress
+            progress: p.progress,
           }))
-          .filter((item: {adventure: Adventure | null}) => item.adventure !== null);
+          .filter(
+            (item: { adventure: Adventure | null }) => item.adventure !== null
+          );
 
-        setRecentAdventures(adventuresWithProgress as Array<{adventure: Adventure, progress: number}>);
+        setRecentAdventures(
+          adventuresWithProgress as Array<{
+            adventure: Adventure;
+            progress: number;
+          }>
+        );
       } catch (error) {
         console.error('Error loading recent progress:', error);
       } finally {
@@ -71,7 +82,10 @@ export default function ContinueLearningSection() {
   }, [session?.user?.id, status]);
 
   // Don't show section if user is not logged in or has no in-progress adventures
-  if (status !== 'authenticated' || (!isLoading && recentAdventures.length === 0)) {
+  if (
+    status !== 'authenticated' ||
+    (!isLoading && recentAdventures.length === 0)
+  ) {
     return null;
   }
 
@@ -83,7 +97,10 @@ export default function ContinueLearningSection() {
             <div className="h-8 bg-gray-200 rounded w-64 mb-6"></div>
             <div className="flex space-x-4 overflow-hidden">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-72 h-40 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                <div
+                  key={i}
+                  className="w-72 h-40 bg-gray-200 rounded-lg flex-shrink-0"
+                ></div>
               ))}
             </div>
           </div>
@@ -107,7 +124,9 @@ export default function ContinueLearningSection() {
               <Icon name="play" size={24} className="text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-ink-800">Continue Learning</h2>
+              <h2 className="text-2xl font-bold text-ink-800">
+                Continue Learning
+              </h2>
               <p className="text-ink-600">Pick up where you left off</p>
             </div>
           </div>
@@ -136,7 +155,9 @@ export default function ContinueLearningSection() {
         {/* Helper text */}
         <div className="mt-6 text-center">
           <p className="text-sm text-ink-500">
-            {recentAdventures.length} {recentAdventures.length === 1 ? 'adventure' : 'adventures'} in progress
+            {recentAdventures.length}{' '}
+            {recentAdventures.length === 1 ? 'adventure' : 'adventures'} in
+            progress
           </p>
         </div>
       </Container>

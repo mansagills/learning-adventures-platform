@@ -41,7 +41,7 @@ export default function ChildLoginPage() {
   const handlePinChange = (index: number, value: string) => {
     // Only allow digits
     const digit = value.replace(/\D/g, '').slice(-1);
-    
+
     const newPin = [...pin];
     newPin[index] = digit;
     setPin(newPin);
@@ -53,7 +53,7 @@ export default function ChildLoginPage() {
     }
 
     // Auto-submit when all digits entered
-    if (digit && index === 3 && newPin.every(d => d)) {
+    if (digit && index === 3 && newPin.every((d) => d)) {
       handleLogin(newPin.join(''));
     }
   };
@@ -67,7 +67,7 @@ export default function ChildLoginPage() {
 
   const handleLogin = async (pinCode?: string) => {
     const finalPin = pinCode || pin.join('');
-    
+
     if (!username.trim()) {
       setError('Please enter your username');
       return;
@@ -155,7 +155,10 @@ export default function ChildLoginPage() {
               <input
                 type="text"
                 value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(null); }}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setError(null);
+                }}
                 className="w-full px-4 py-4 text-xl border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all text-center font-mono"
                 placeholder="BraveEagle42"
                 autoComplete="off"
@@ -196,7 +199,7 @@ export default function ChildLoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={loading || !username || pin.some(d => !d)}
+              disabled={loading || !username || pin.some((d) => !d)}
               className="w-full py-4 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xl font-bold rounded-xl hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
             >
               {loading ? (

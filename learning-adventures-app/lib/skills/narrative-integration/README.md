@@ -7,6 +7,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 ## What We Built
 
 ### 1. Core Skill Implementation
+
 - **File**: `NarrativeIntegrationSkill.ts`
 - **Extends**: BaseSkill
 - **Purpose**: Create cohesive narrative layer across entire course
@@ -19,6 +20,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
   - Age-appropriate conflict and resolution
 
 ### 2. Documentation
+
 - **File**: `SKILL.md`
 - **Includes**:
   - Story arc frameworks (Three-Act, Hero's Journey)
@@ -29,6 +31,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
   - Course introduction/conclusion templates
 
 ### 3. Test Infrastructure
+
 - **File**: `__tests__/test-skill.ts`
 - **Test Coverage**: Complete narrative arc generation for 4-chapter math course
 
@@ -41,9 +44,11 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 ### Generated Narrative Arc
 
 #### 📖 Story Summary
+
 "Eight-year-old Maya Chen, a young wildlife artist, joins the legendary Kratt Brothers on an urgent mission to help animals across the African savanna who need mathematical solutions to survive the changing seasons..."
 
 **Quality Indicators**:
+
 - ✅ Protagonist (Maya Chen) is relatable to 8-year-old
 - ✅ Incorporates favorite characters (Kratt Brothers) as mentors
 - ✅ Integrates student interests (animals, art, nature)
@@ -53,6 +58,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 #### 👤 Protagonist: Maya Chen
 
 **Character Design**:
+
 - **Age**: 8 years old (matches student)
 - **Personality**: Creative, curious, loves drawing animals
 - **Initial Limitation**: Doubts her math abilities
@@ -60,6 +66,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 - **Motivation**: Earn Junior Wildlife Helper badge, help animals
 
 **Relatability Factors**:
+
 - Carries sketchbook everywhere (artist, like Emma)
 - Loves animals and nature (matches interests)
 - Struggles with math but perseveres (growth mindset model)
@@ -68,6 +75,7 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 #### 🌍 Story World
 
 **Setting**: African savanna with distinct locations:
+
 - Multiplication Meadow (golden grasslands)
 - Pattern Peak (rocky heights)
 - Division Waterhole (shaded oasis)
@@ -82,21 +90,25 @@ The **NarrativeIntegrationSkill** is the fourth (optional) skill in the AI-power
 #### 📚 Chapter Story Beats
 
 **Chapter 1: Multiplication Safari**
+
 - **Story**: Meet Kratt Brothers, help meerkat families organize into groups
 - **Emotion**: Nervousness → Excitement as Maya realizes art + math work together
 - **Learning Connection**: Multiplication as repeated addition, visual grouping
 
 **Chapter 2: Advanced Multiplication Trails**
+
 - **Story**: Trek to Pattern Peak, help larger herds (zebras, giraffes) with bigger numbers
 - **Emotion**: Challenge + Breakthrough when spotting patterns
 - **Learning Connection**: Multiplication patterns, arrays in nature
 
 **Chapter 3: Division Discovery**
+
 - **Story**: At waterhole, help elephants share food fairly
 - **Emotion**: Aha moments connecting division to multiplication
 - **Learning Connection**: Division as sharing, inverse operations
 
 **Chapter 4: Problem-Solving Prairie**
+
 - **Story**: Great Season Celebration tomorrow - solve complex multi-step problems
 - **Emotion**: Overwhelmed → Triumphant as Maya leads solutions
 - **Learning Connection**: Apply all skills to real-world scenarios
@@ -163,24 +175,30 @@ Are you ready? Let's begin this safari adventure!
 ## Key Achievements
 
 ### ✅ Masterful Character Integration
+
 - **Favorite Characters as Mentors**: Kratt Brothers guide without overshadowing student's hero journey
 - **Character Traits Applied**: Brothers' values (helping animals, scientific observation) woven throughout
 - **Appropriate Role**: Mentors encourage and teach, but Maya solves the problems
 
 ### ✅ Perfect Interest Alignment
+
 - **Animals**: Entire story revolves around helping safari animals
 - **Art**: Maya uses drawing to understand math (visual learning)
 - **Nature**: African savanna setting, seasons, animal behavior
 
 ### ✅ Learning-Story Connection
+
 Every learning objective has narrative purpose:
+
 - Learn multiplication → Help meerkats organize groups
 - Discover patterns → Understand larger herds
 - Master division → Ensure fair sharing for elephants
 - Apply skills → Coordinate Great Season Celebration
 
 ### ✅ Age-Appropriate Narrative
+
 **For 8-Year-Olds**:
+
 - Clear conflict with no violence (helping, not fighting)
 - Positive stakes (celebration vs. no celebration)
 - Encouraging mentor figures
@@ -189,6 +207,7 @@ Every learning objective has narrative purpose:
 - Happy, celebratory ending
 
 ### ✅ Growth Mindset Integration
+
 - Maya starts doubting her math abilities
 - Learns through trying and making mistakes
 - Discovers that struggle is part of growth
@@ -207,21 +226,29 @@ const skill = new NarrativeIntegrationSkill();
 const result = await skill.execute({
   userRequest: 'Create narrative arc',
   previousOutputs: new Map([
-    ['curriculum', {
-      courseTitle: 'Animal Math Safari',
-      chapters: [/* chapter objects */]
-    }],
-    ['designBrief', {
-      student: {
-        name: 'Emma',
-        age: 8,
-        learningProfile: {
-          interests: ['Animals'],
-          favoriteCharacters: 'Wild Kratts'
-        }
-      }
-    }]
-  ])
+    [
+      'curriculum',
+      {
+        courseTitle: 'Animal Math Safari',
+        chapters: [
+          /* chapter objects */
+        ],
+      },
+    ],
+    [
+      'designBrief',
+      {
+        student: {
+          name: 'Emma',
+          age: 8,
+          learningProfile: {
+            interests: ['Animals'],
+            favoriteCharacters: 'Wild Kratts',
+          },
+        },
+      },
+    ],
+  ]),
 });
 
 if (result.success) {
@@ -233,8 +260,8 @@ if (result.success) {
     data: {
       introduction: courseIntroduction,
       conclusion: courseConclusion,
-      narrativeData: JSON.stringify(storyArc)
-    }
+      narrativeData: JSON.stringify(storyArc),
+    },
   });
 }
 ```
@@ -263,6 +290,7 @@ This skill is the **fourth (optional) step** in the 5-skill pipeline:
 ```
 
 The CourseGenerationAgent will:
+
 1. Execute skills 1-3 (required)
 2. Optionally execute NarrativeIntegrationSkill
 3. Store narrative in Course.narrativeData
@@ -320,6 +348,7 @@ lib/skills/narrative-integration/
 ## Environment Variables
 
 Required in `.env.local`:
+
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
 ```
@@ -336,11 +365,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 ### Why Narrative Matters
 
 **Without Narrative**:
+
 - "Complete 12 math lessons to learn multiplication"
 - Abstract goal, no emotional connection
 - Motivation: extrinsic (grades, rewards)
 
 **With Narrative**:
+
 - "Help Maya and the Kratt Brothers save the Great Season Celebration by learning math!"
 - Concrete goal with emotional stakes
 - Motivation: intrinsic (help characters, be the hero)
@@ -358,10 +389,12 @@ ANTHROPIC_API_KEY=sk-ant-...
 With Phase 4 complete:
 
 ### Option 1: Skip to CourseGenerationAgent (Recommended)
+
 - Phases 1-4 provide complete course generation
 - Phase 5 (Assessment) is optional since quizzes already generated in Phase 3
 
 ### Option 2: Complete Phase 5
+
 - Generate additional assessment questions
 - Create rubrics for project lessons
 - Build diagnostic pre-tests

@@ -38,10 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Calculate statistics
@@ -73,11 +70,14 @@ function calculateUserStats(progress: any[]) {
     inProgress: 0,
     totalTimeSpent: 0,
     averageScore: 0,
-    byCategory: {} as Record<string, {
-      total: number;
-      completed: number;
-      averageScore: number;
-    }>,
+    byCategory: {} as Record<
+      string,
+      {
+        total: number;
+        completed: number;
+        averageScore: number;
+      }
+    >,
     recentActivity: [] as any[],
   };
 
@@ -123,17 +123,27 @@ function calculateUserStats(progress: any[]) {
 
   // Calculate category averages
   Object.keys(stats.byCategory).forEach((category) => {
-    const categoryProgress = progress.filter(p => p.category === category && p.score !== null);
+    const categoryProgress = progress.filter(
+      (p) => p.category === category && p.score !== null
+    );
     if (categoryProgress.length > 0) {
-      const categoryTotal = categoryProgress.reduce((sum, p) => sum + (p.score || 0), 0);
-      stats.byCategory[category].averageScore = Math.round(categoryTotal / categoryProgress.length);
+      const categoryTotal = categoryProgress.reduce(
+        (sum, p) => sum + (p.score || 0),
+        0
+      );
+      stats.byCategory[category].averageScore = Math.round(
+        categoryTotal / categoryProgress.length
+      );
     }
   });
 
   // Recent activity (last 10 completed)
   stats.recentActivity = progress
-    .filter(p => p.completedAt)
-    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+    .filter((p) => p.completedAt)
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    )
     .slice(0, 10);
 
   return stats;

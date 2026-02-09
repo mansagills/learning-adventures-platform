@@ -24,13 +24,16 @@ export async function POST(
       technicalQuality,
       accessibilityCompliant,
       ageAppropriate,
-      engagementLevel
+      engagementLevel,
     } = await req.json();
 
     // Validate decision
     if (!['APPROVE', 'REJECT', 'REQUEST_CHANGES'].includes(decision)) {
       return NextResponse.json(
-        { error: 'Invalid decision. Must be APPROVE, REJECT, or REQUEST_CHANGES' },
+        {
+          error:
+            'Invalid decision. Must be APPROVE, REJECT, or REQUEST_CHANGES',
+        },
         { status: 400 }
       );
     }
@@ -48,8 +51,8 @@ export async function POST(
         technicalQuality,
         accessibilityCompliant,
         ageAppropriate,
-        engagementLevel
-      }
+        engagementLevel,
+      },
     });
 
     // Update course status based on decision
@@ -64,7 +67,7 @@ export async function POST(
 
     await prisma.testCourse.update({
       where: { id: params.id },
-      data: { status: newStatus }
+      data: { status: newStatus },
     });
 
     return NextResponse.json({ approval, newStatus });

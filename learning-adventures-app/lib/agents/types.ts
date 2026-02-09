@@ -18,13 +18,25 @@ export interface AgentResult {
 }
 
 // Workflow status types
-export type WorkflowStatus = 'pending' | 'running' | 'completed' | 'failed' | 'paused' | 'cancelled';
+export type WorkflowStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'paused'
+  | 'cancelled';
 export type StepStatus = 'pending' | 'running' | 'completed' | 'failed';
 
 // Workflow event
 export interface WorkflowEvent {
   workflowId: string;
-  type: 'started' | 'step_started' | 'step_completed' | 'step_failed' | 'completed' | 'failed';
+  type:
+    | 'started'
+    | 'step_started'
+    | 'step_completed'
+    | 'step_failed'
+    | 'completed'
+    | 'failed';
   message: string;
   step?: number;
   timestamp: Date;
@@ -44,7 +56,11 @@ export interface WorkflowProgress {
 // Workflow step definition
 export interface WorkflowStep {
   stepNumber: number;
-  agentType: 'game-builder' | 'react-component' | 'metadata-formatter' | 'accessibility-validator';
+  agentType:
+    | 'game-builder'
+    | 'react-component'
+    | 'metadata-formatter'
+    | 'accessibility-validator';
   skillName: string;
   description?: string;
   input: any;

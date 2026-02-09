@@ -76,12 +76,13 @@ export class AssessmentGenerationSkill extends BaseSkill {
     return {
       id: 'assessment-generation',
       name: 'Assessment Generation Specialist',
-      description: 'Generates diagnostic tests, project rubrics, and additional quiz questions for comprehensive course assessment',
+      description:
+        'Generates diagnostic tests, project rubrics, and additional quiz questions for comprehensive course assessment',
       triggers: [
         'generate assessments',
         'create diagnostic test',
         'create rubrics',
-        'generate quiz questions'
+        'generate quiz questions',
       ],
       capabilities: [
         'Create diagnostic pre/post tests',
@@ -91,25 +92,30 @@ export class AssessmentGenerationSkill extends BaseSkill {
         'Design formative and summative assessments',
         'Create age-appropriate rubric language',
         'Define mastery criteria and scoring',
-        'Provide actionable feedback guidelines'
+        'Provide actionable feedback guidelines',
       ],
       examples: [
         'Generate assessments for this curriculum',
         'Create diagnostic tests and rubrics',
-        'Build question bank for quizzes'
+        'Build question bank for quizzes',
       ],
       version: '1.0.0',
-      guidanceFile: 'SKILL.md'
+      guidanceFile: 'SKILL.md',
     };
   }
 
-  async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const lowerRequest = userRequest.toLowerCase();
 
     // High confidence triggers
-    if (lowerRequest.includes('assessment') ||
-        lowerRequest.includes('diagnostic') ||
-        lowerRequest.includes('rubric')) {
+    if (
+      lowerRequest.includes('assessment') ||
+      lowerRequest.includes('diagnostic') ||
+      lowerRequest.includes('rubric')
+    ) {
       return 95;
     }
 
@@ -138,7 +144,9 @@ export class AssessmentGenerationSkill extends BaseSkill {
         return this.buildErrorResult(
           'No curriculum found in context',
           'MISSING_DATA',
-          { hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill' }
+          {
+            hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill',
+          }
         );
       }
 
@@ -146,7 +154,11 @@ export class AssessmentGenerationSkill extends BaseSkill {
       const guidance = this.loadGuidance();
 
       // Generate assessments
-      const assessmentData = await this.generateAssessments(curriculum, designBrief, guidance);
+      const assessmentData = await this.generateAssessments(
+        curriculum,
+        designBrief,
+        guidance
+      );
 
       // Validate output structure
       if (!this.validate(assessmentData)) {
@@ -168,7 +180,6 @@ export class AssessmentGenerationSkill extends BaseSkill {
         95,
         [] // Final skill - no suggestions
       );
-
     } catch (error) {
       return this.buildErrorResult(
         `Failed to generate assessments: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -206,21 +217,28 @@ export class AssessmentGenerationSkill extends BaseSkill {
     designBrief: any,
     guidance: string
   ): Promise<AssessmentOutput> {
-
     const prompt = this.buildPrompt(curriculum, designBrief, guidance);
     const assessmentData = await this.callClaudeForAssessments(prompt);
 
     return assessmentData;
   }
 
-  private buildPrompt(curriculum: any, designBrief: any, guidance: string): string {
+  private buildPrompt(
+    curriculum: any,
+    designBrief: any,
+    guidance: string
+  ): string {
     const studentAge = designBrief?.student?.age || 10;
     const gradeLevel = designBrief?.student?.grade || 'Elementary';
     const masteryThreshold = designBrief?.assessment?.masteryThreshold || 70;
 
     // Identify project lessons
-    const projectLessons = curriculum.lessons.filter((l: any) => l.type === 'PROJECT');
-    const quizLessons = curriculum.lessons.filter((l: any) => l.type === 'QUIZ');
+    const projectLessons = curriculum.lessons.filter(
+      (l: any) => l.type === 'PROJECT'
+    );
+    const quizLessons = curriculum.lessons.filter(
+      (l: any) => l.type === 'QUIZ'
+    );
 
     return `You are an educational assessment expert. Create comprehensive assessments for this course.
 
@@ -230,9 +248,11 @@ Total Lessons: ${curriculum.lessons.length}
 Chapters: ${curriculum.chapters.length}
 
 LEARNING OBJECTIVES (All):
-${curriculum.chapters.map((ch: any) =>
-  ch.learningObjectives.map((obj: string) => `- ${obj}`).join('\n')
-).join('\n')}
+${curriculum.chapters
+  .map((ch: any) =>
+    ch.learningObjectives.map((obj: string) => `- ${obj}`).join('\n')
+  )
+  .join('\n')}
 
 STUDENT PROFILE:
 - Age: ${studentAge}
@@ -240,14 +260,21 @@ STUDENT PROFILE:
 - Mastery Threshold: ${masteryThreshold}%
 
 PROJECT LESSONS (need rubrics):
-${projectLessons.map((l: any) =>
-  `Lesson ${l.order}: ${l.title} - ${l.description}`
-).join('\n') || 'None'}
+${
+  projectLessons
+    .map((l: any) => `Lesson ${l.order}: ${l.title} - ${l.description}`)
+    .join('\n') || 'None'
+}
 
 QUIZ LESSONS (need additional questions):
-${quizLessons.map((l: any) =>
-  `Lesson ${l.order}: ${l.title} - ${l.learningObjectives.join(', ')}`
-).join('\n') || 'None'}
+${
+  quizLessons
+    .map(
+      (l: any) =>
+        `Lesson ${l.order}: ${l.title} - ${l.learningObjectives.join(', ')}`
+    )
+    .join('\n') || 'None'
+}
 
 ASSESSMENT REQUIREMENTS:
 
@@ -339,8 +366,14 @@ REQUIRED OUTPUT STRUCTURE:
 OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown formatting, no explanations outside the JSON.`;
   }
 
-  private async callClaudeForAssessments(prompt: string): Promise<AssessmentOutput> {
-    const { callClaudeWithRetry, extractTextFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+  private async callClaudeForAssessments(
+    prompt: string
+  ): Promise<AssessmentOutput> {
+    const {
+      callClaudeWithRetry,
+      extractTextFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -350,9 +383,9 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       const text = extractTextFromResponse(response);
@@ -365,7 +398,6 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
       const assessmentOutput = JSON.parse(jsonMatch[0]) as AssessmentOutput;
 
       return assessmentOutput;
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for assessment generation: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -377,11 +409,15 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
     const parts = [];
 
     if (data.diagnosticPreTest) {
-      parts.push(`Pre-test: ${data.diagnosticPreTest.questions.length} questions`);
+      parts.push(
+        `Pre-test: ${data.diagnosticPreTest.questions.length} questions`
+      );
     }
 
     if (data.diagnosticPostTest) {
-      parts.push(`Post-test: ${data.diagnosticPostTest.questions.length} questions`);
+      parts.push(
+        `Post-test: ${data.diagnosticPostTest.questions.length} questions`
+      );
     }
 
     if (data.projectRubrics.length > 0) {
@@ -389,7 +425,10 @@ OUTPUT FORMAT: Return ONLY valid JSON matching the structure above. No markdown 
     }
 
     if (data.additionalQuizQuestions.length > 0) {
-      const totalQuestions = data.additionalQuizQuestions.reduce((sum, quiz) => sum + quiz.questionBank.length, 0);
+      const totalQuestions = data.additionalQuizQuestions.reduce(
+        (sum, quiz) => sum + quiz.questionBank.length,
+        0
+      );
       parts.push(`${totalQuestions} additional quiz questions`);
     }
 

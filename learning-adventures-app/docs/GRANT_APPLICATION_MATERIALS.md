@@ -45,6 +45,7 @@ These barriers create a cycle of educational inequality. Students who fall behin
 Research consistently shows that gamified learning increases engagement by up to 50% and improves retention by 40%. When children are engaged, they learn more effectively. Similarly, parental involvement is one of the strongest predictors of academic success.
 
 Learning Adventures addresses these challenges by providing:
+
 - Affordable access (free tier available, premium at $9.99/month)
 - Device-agnostic web platform (works on any internet-connected device)
 - Real-time parent dashboard for monitoring and involvement
@@ -63,6 +64,7 @@ Learning Adventures is a comprehensive K-8 educational platform that makes learn
 
 **Adventure Catalog**
 Our catalog contains 85+ educational adventures across five subject areas:
+
 - Mathematics (25 adventures)
 - Science (30 adventures)
 - English Language Arts (10 adventures)
@@ -73,6 +75,7 @@ Content is organized by grade level (K-8) and difficulty, allowing students to f
 
 **Interactive Content**
 Adventures include:
+
 - HTML5 games with immediate feedback
 - Interactive lessons with quizzes
 - Structured courses with multiple lessons
@@ -80,12 +83,14 @@ Adventures include:
 
 **Gamification System**
 Our gamification approach includes:
+
 - Experience Points (XP) earned for completing activities
 - Achievement badges for milestones and mastery
 - Streak tracking to encourage consistent practice
 - Progress indicators showing advancement
 
 **Role-Based Dashboards**
+
 - **Student Dashboard**: Personal progress, achievements, recommended content
 - **Parent Dashboard**: Child progress monitoring, goal tracking, activity logs
 - **Teacher Dashboard**: Classroom management, student oversight, performance analytics
@@ -93,6 +98,7 @@ Our gamification approach includes:
 
 **COPPA-Compliant Child Accounts**
 Our unique child account system:
+
 - No email required for children
 - Anonymous usernames (auto-generated, e.g., "BraveEagle42")
 - 4-digit PIN authentication
@@ -102,6 +108,7 @@ Our unique child account system:
 ### Technical Implementation
 
 The platform is built on modern, scalable technology:
+
 - **Frontend**: Next.js (React) for responsive web application
 - **Backend**: Node.js with Prisma ORM
 - **Database**: PostgreSQL for reliable data storage
@@ -110,40 +117,44 @@ The platform is built on modern, scalable technology:
 
 ### Current Status
 
-| Component | Status |
-|-----------|--------|
-| Core Platform | Complete |
+| Component             | Status   |
+| --------------------- | -------- |
+| Core Platform         | Complete |
 | Authentication System | Complete |
-| Progress Tracking | Complete |
-| Achievement System | Complete |
-| Parent Dashboard | Complete |
-| Teacher Dashboard | Complete |
-| Admin Tools | Complete |
-| 33+ Games | Live |
-| 7 Interactive Lessons | Live |
-| 3 Structured Courses | Live |
-| AI Content Studio | Complete |
+| Progress Tracking     | Complete |
+| Achievement System    | Complete |
+| Parent Dashboard      | Complete |
+| Teacher Dashboard     | Complete |
+| Admin Tools           | Complete |
+| 33+ Games             | Live     |
+| 7 Interactive Lessons | Live     |
+| 3 Structured Courses  | Live     |
+| AI Content Studio     | Complete |
 
 ### Pilot Program Design
 
 We propose a 12-week pilot with 50 families and 10 teachers:
 
 **Phase 1: Setup (Weeks 1-2)**
+
 - Recruit participants through community partnerships
 - Onboard users with training sessions
 - Establish baseline measurements
 
 **Phase 2: Active Use (Weeks 3-8)**
+
 - Weekly platform engagement
 - Bi-weekly check-ins with participants
 - Support and troubleshooting
 
 **Phase 3: Assessment (Weeks 9-10)**
+
 - User surveys and interviews
 - Usage data analysis
 - Preliminary impact assessment
 
 **Phase 4: Reporting (Weeks 11-12)**
+
 - Data compilation
 - Impact report creation
 - Recommendations for improvement
@@ -153,19 +164,21 @@ We propose a 12-week pilot with 50 families and 10 teachers:
 ## 4. Goals and Objectives
 
 ### Primary Goal
+
 Demonstrate that Learning Adventures increases student engagement with educational content while improving parent visibility and involvement in their child's learning.
 
 ### Objectives
 
-| Objective | Metric | Target |
-|-----------|--------|--------|
-| User Engagement | Weekly Active Users | 70%+ of participants |
-| Content Completion | Adventures Completed | 50%+ completion rate |
-| Parent Satisfaction | Net Promoter Score | NPS > 40 |
-| Teacher Satisfaction | Satisfaction Survey | 80%+ positive |
-| Platform Reliability | Uptime | 99%+ |
+| Objective            | Metric               | Target               |
+| -------------------- | -------------------- | -------------------- |
+| User Engagement      | Weekly Active Users  | 70%+ of participants |
+| Content Completion   | Adventures Completed | 50%+ completion rate |
+| Parent Satisfaction  | Net Promoter Score   | NPS > 40             |
+| Teacher Satisfaction | Satisfaction Survey  | 80%+ positive        |
+| Platform Reliability | Uptime               | 99%+                 |
 
 ### Long-Term Impact Goals
+
 1. Improve student attitudes toward learning
 2. Increase parent involvement in education
 3. Provide teachers with engaging supplemental tools
@@ -178,18 +191,21 @@ Demonstrate that Learning Adventures increases student engagement with education
 ### Quantitative Metrics
 
 **Platform Usage**
+
 - Sessions per user per week
 - Average session duration
 - Adventures started vs. completed
 - Features used (catalog, games, lessons, courses)
 
 **Learning Progress**
+
 - Adventures completed per user
 - Average scores on quizzes
 - XP earned over time
 - Achievement badges unlocked
 
 **Retention**
+
 - Week-over-week retention
 - Day streak maintenance
 - Return visit frequency
@@ -197,11 +213,13 @@ Demonstrate that Learning Adventures increases student engagement with education
 ### Qualitative Assessment
 
 **Surveys**
+
 - Pre-pilot baseline survey
 - Mid-pilot check-in survey
 - Post-pilot comprehensive survey
 
 **Interviews**
+
 - 10 parent interviews
 - 5 teacher interviews
 - Focus group with students (with parental consent)
@@ -209,6 +227,7 @@ Demonstrate that Learning Adventures increases student engagement with education
 ### Data Collection
 
 All data collected via:
+
 - Built-in platform analytics
 - Survey tools (e.g., Typeform, Google Forms)
 - Interview recordings and transcripts
@@ -216,6 +235,7 @@ All data collected via:
 ### Reporting
 
 Final report will include:
+
 - Executive summary
 - Methodology description
 - Quantitative findings
@@ -229,26 +249,26 @@ Final report will include:
 
 ### Minimal Pilot Budget ($35,000)
 
-| Category | Amount | Description |
-|----------|--------|-------------|
-| Platform Development | $15,000 | Polish, bug fixes, mobile optimization |
-| Content Creation | $10,000 | 10-15 new adventures |
-| Pilot Execution | $5,000 | Participant incentives ($50/family), onboarding materials |
-| Evaluation | $3,000 | Survey tools, data analysis, report writing |
-| Marketing/Outreach | $2,000 | Recruitment, communications |
-| **Total** | **$35,000** | |
+| Category             | Amount      | Description                                               |
+| -------------------- | ----------- | --------------------------------------------------------- |
+| Platform Development | $15,000     | Polish, bug fixes, mobile optimization                    |
+| Content Creation     | $10,000     | 10-15 new adventures                                      |
+| Pilot Execution      | $5,000      | Participant incentives ($50/family), onboarding materials |
+| Evaluation           | $3,000      | Survey tools, data analysis, report writing               |
+| Marketing/Outreach   | $2,000      | Recruitment, communications                               |
+| **Total**            | **$35,000** |                                                           |
 
 ### Expanded Pilot Budget ($75,000)
 
-| Category | Amount | Description |
-|----------|--------|-------------|
-| Platform Development | $25,000 | Feature completion, mobile apps |
-| Content Creation | $20,000 | 30+ new adventures, course expansion |
-| Pilot Execution | $12,000 | 100 families, enhanced incentives |
-| Evaluation | $10,000 | External evaluation consultant |
-| Marketing/Outreach | $5,000 | Enhanced recruitment, materials |
-| Administrative | $3,000 | Project management, reporting |
-| **Total** | **$75,000** | |
+| Category             | Amount      | Description                          |
+| -------------------- | ----------- | ------------------------------------ |
+| Platform Development | $25,000     | Feature completion, mobile apps      |
+| Content Creation     | $20,000     | 30+ new adventures, course expansion |
+| Pilot Execution      | $12,000     | 100 families, enhanced incentives    |
+| Evaluation           | $10,000     | External evaluation consultant       |
+| Marketing/Outreach   | $5,000      | Enhanced recruitment, materials      |
+| Administrative       | $3,000      | Project management, reporting        |
+| **Total**            | **$75,000** |                                      |
 
 ---
 
@@ -257,11 +277,13 @@ Final report will include:
 ### Post-Grant Revenue Model
 
 **Freemium Subscription**
+
 - Free tier: Limited adventures, basic progress tracking
 - Premium ($9.99/month): Full access, unlimited children, detailed analytics
 - Annual discount: $79.99/year (33% savings)
 
 **School Licenses**
+
 - Per-student pricing for classroom use
 - Teacher dashboard and rostering
 - District-level reporting
@@ -275,13 +297,13 @@ Final report will include:
 
 ### Path to Sustainability
 
-| Timeline | Milestone |
-|----------|-----------|
-| Pilot completion | Validated product-market fit |
-| Month 6 | 500 active users, first paid subscribers |
-| Month 12 | 2,000 users, $10K MRR |
-| Month 18 | School pilot partnerships |
-| Month 24 | Sustainable growth trajectory |
+| Timeline         | Milestone                                |
+| ---------------- | ---------------------------------------- |
+| Pilot completion | Validated product-market fit             |
+| Month 6          | 500 active users, first paid subscribers |
+| Month 12         | 2,000 users, $10K MRR                    |
+| Month 18         | School pilot partnerships                |
+| Month 24         | Sustainable growth trajectory            |
 
 ---
 
@@ -317,6 +339,7 @@ Available upon request
 ### A. Platform Screenshots
 
 [Include screenshots of:
+
 - Homepage/catalog view
 - Game example
 - Parent dashboard
@@ -325,23 +348,25 @@ Available upon request
 
 ### B. Sample Adventures
 
-| Adventure | Subject | Grade | Type |
-|-----------|---------|-------|------|
-| Fraction Pizza Party | Math | 2-4 | Lesson |
-| Multiplication Tables | Math | 3-5 | Lesson |
-| Water Cycle Journey | Science | 3-5 | Lesson |
-| Simple Machines Lab | Science | 3-6 | Lesson |
-| Spelling Bee Challenge | English | 3-5 | Lesson |
-| Ancient Egypt Explorer | History | 3-6 | Lesson |
+| Adventure              | Subject | Grade | Type   |
+| ---------------------- | ------- | ----- | ------ |
+| Fraction Pizza Party   | Math    | 2-4   | Lesson |
+| Multiplication Tables  | Math    | 3-5   | Lesson |
+| Water Cycle Journey    | Science | 3-5   | Lesson |
+| Simple Machines Lab    | Science | 3-6   | Lesson |
+| Spelling Bee Challenge | English | 3-5   | Lesson |
+| Ancient Egypt Explorer | History | 3-6   | Lesson |
 
 ### C. Technical Specifications
 
 **Minimum Requirements:**
+
 - Modern web browser (Chrome, Firefox, Safari, Edge)
 - Internet connection
 - Any device (desktop, tablet, smartphone)
 
 **Accessibility:**
+
 - Responsive design for all screen sizes
 - Keyboard navigation support
 - Screen reader compatibility (in progress)
@@ -349,6 +374,7 @@ Available upon request
 ### D. COPPA Compliance Documentation
 
 Our platform maintains COPPA compliance through:
+
 - No collection of child email addresses
 - Parental consent required for child accounts
 - Parent verification process
@@ -358,4 +384,4 @@ Our platform maintains COPPA compliance through:
 
 ---
 
-*Last Updated: January 2026*
+_Last Updated: January 2026_

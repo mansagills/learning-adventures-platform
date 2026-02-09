@@ -1,3 +1,211 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Time Attack Clock | Tell Time Game</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:1rem}.game-container{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:800px;width:100%}h1{color:#5a67d8;text-align:center;margin-bottom:1rem;font-size:2.5rem}#instructions{background:#edf2f7;padding:1.5rem;border-radius:12px;margin-bottom:2rem;border-left:4px solid #5a67d8}.stats{display:flex;justify-content:space-around;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}.stat-box{background:linear-gradient(135deg,#5a67d8 0%,#667eea 100%);color:#fff;padding:1rem 1.5rem;border-radius:12px;font-size:1.2rem;font-weight:700}.clock-display{width:300px;height:300px;margin:0 auto 2rem;background:#fff;border:8px solid#2d3748;border-radius:50%;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.2)}.clock-center{width:20px;height:20px;background:#2d3748;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3}.clock-hand{position:absolute;background:#2d3748;transform-origin:bottom center;bottom:50%;left:50%;border-radius:4px}.hour-hand{width:8px;height:80px;background:#e53e3e;transform:translateX(-50%)}.minute-hand{width:6px;height:110px;background:#4299e1;transform:translateX(-50%)}.clock-number{position:absolute;font-size:1.5rem;font-weight:700;color:#2d3748}.question{font-size:1.8rem;text-align:center;margin:1.5rem 0;color:#2d3748;font-weight:700}.time-options{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem}.time-btn{background:linear-gradient(135deg,#4299e1 0%,#3182ce 100%);color:#fff;border:none;padding:1.5rem;border-radius:12px;font-size:1.5rem;font-weight:700;cursor:pointer;transition:all .3s}.time-btn:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.25)}.btn{background:linear-gradient(135deg,#5a67d8 0%,#667eea 100%);color:#fff;border:none;padding:1rem 2rem;border-radius:12px;font-size:1.2rem;font-weight:700;cursor:pointer;margin:.5rem}.btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.25)}.feedback{text-align:center;font-size:1.5rem;font-weight:700;padding:1rem;border-radius:12px;margin:1rem 0}.feedback.correct{background:#c6f6d5;color:#22543d}.feedback.incorrect{background:#fed7d7;color:#742a2a}.hidden{display:none!important}</style></head><body><div class="game-container"><h1>⏰ Time Attack Clock ⏰</h1><div id="instructions"><h2 style="color:#5a67d8;margin-bottom:.5rem">How to Play</h2><ul style="margin-left:1.5rem;color:#2d3748"><li>Look at the clock shown</li><li>Click the correct time</li><li>Match analog clocks to digital times!</li><li>Learn to read time like a pro!</li></ul><div style="text-align:center;margin-top:1rem"><button class="btn" onclick="startGame()">Start Learning!</button></div></div><div id="main-game" class="hidden"><div class="stats"><div class="stat-box">⭐ Score: <span id="score">0</span></div><div class="stat-box">✅ Correct: <span id="correct">0</span></div><div class="stat-box">⏱️ Timer: <span id="timer">60</span>s</div></div><div class="clock-display" id="clock-display"><div class="clock-center"></div><div class="clock-hand hour-hand" id="hour-hand"></div><div class="clock-hand minute-hand" id="minute-hand"></div></div><div class="question">What time is shown on the clock?</div><div class="feedback hidden" id="feedback"></div><div class="time-options" id="time-options"></div></div><div id="game-over" class="hidden" style="text-align:center"><h2 style="color:#5a67d8;font-size:2.5rem">Time Master! 🎉</h2><p style="font-size:1.5rem;margin:1rem 0">Score: <span id="final-score">0</span></p><button class="btn" onclick="location.reload()">Play Again</button></div></div><script>let score=0,correct=0,timeLeft=60,timerInterval,currentHour,currentMinute;function startGame(){document.getElementById('instructions').classList.add('hidden');document.getElementById('main-game').classList.remove('hidden');updateDisplay();startTimer();generateTime()}function startTimer(){timerInterval=setInterval(()=>{timeLeft--;document.getElementById('timer').textContent=timeLeft;if(timeLeft<=0){clearInterval(timerInterval);gameOver()}},1000)}function updateDisplay(){document.getElementById('score').textContent=score;document.getElementById('correct').textContent=correct}function generateTime(){document.getElementById('feedback').classList.add('hidden');currentHour=Math.floor(Math.random()*12)+1;currentMinute=Math.floor(Math.random()*12)*5;setClockHands();generateOptions()}function setClockHands(){const hourDeg=(currentHour%12)*30+(currentMinute/60)*30;const minuteDeg=currentMinute*6;document.getElementById('hour-hand').style.transform=`translateX(-50%) rotate(${hourDeg}deg)`;document.getElementById('minute-hand').style.transform=`translateX(-50%) rotate(${minuteDeg}deg)`}function generateOptions(){const correctTime=`${currentHour}:${currentMinute.toString().padStart(2,'0')}`;const options=new Set([correctTime]);while(options.size<4){const h=Math.floor(Math.random()*12)+1;const m=Math.floor(Math.random()*12)*5;options.add(`${h}:${m.toString().padStart(2,'0')}`)}const optArr=Array.from(options).sort(()=>Math.random()-.5);document.getElementById('time-options').innerHTML=optArr.map(time=>`<button class="time-btn" onclick="checkTime('${time}')">${time}</button>`).join('')}function checkTime(selected){const correct Time=`${currentHour}:${currentMinute.toString().padStart(2,'0')}`;const feedback=document.getElementById('feedback');feedback.classList.remove('hidden','correct','incorrect');if(selected===correctTime){score+=10;correct++;feedback.classList.add('correct');feedback.textContent='✅ Correct time!';setTimeout(()=>generateTime(),1200)}else{feedback.classList.add('incorrect');feedback.textContent=`❌ Wrong! Time was ${correctTime}`;setTimeout(()=>generateTime(),1800)}updateDisplay()}function gameOver(){clearInterval(timerInterval);document.getElementById('main-game').classList.add('hidden');document.getElementById('game-over').classList.remove('hidden');document.getElementById('final-score').textContent=score}</script></body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Time Attack Clock | Tell Time Game</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+      .game-container {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        width: 100%;
+      }
+      h1 {
+        color: #5a67d8;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+      #instructions {
+        background: #edf2f7;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #5a67d8;
+      }
+      .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .stat-box {
+        background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+        color: #fff;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      .clock-display {
+        width: 300px;
+        height: 300px;
+        margin: 0 auto 2rem;
+        background: #fff;
+        border: 8px solid#2d3748;
+        border-radius: 50%;
+        position: relative;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+      .clock-center {
+        width: 20px;
+        height: 20px;
+        background: #2d3748;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+      }
+      .clock-hand {
+        position: absolute;
+        background: #2d3748;
+        transform-origin: bottom center;
+        bottom: 50%;
+        left: 50%;
+        border-radius: 4px;
+      }
+      .hour-hand {
+        width: 8px;
+        height: 80px;
+        background: #e53e3e;
+        transform: translateX(-50%);
+      }
+      .minute-hand {
+        width: 6px;
+        height: 110px;
+        background: #4299e1;
+        transform: translateX(-50%);
+      }
+      .clock-number {
+        position: absolute;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+      .question {
+        font-size: 1.8rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        color: #2d3748;
+        font-weight: 700;
+      }
+      .time-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .time-btn {
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: #fff;
+        border: none;
+        padding: 1.5rem;
+        border-radius: 12px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .time-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      }
+      .btn {
+        background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+        color: #fff;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 0.5rem;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+      }
+      .feedback {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .feedback.correct {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .feedback.incorrect {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>⏰ Time Attack Clock ⏰</h1>
+      <div id="instructions">
+        <h2 style="color: #5a67d8; margin-bottom: 0.5rem">How to Play</h2>
+        <ul style="margin-left: 1.5rem; color: #2d3748">
+          <li>Look at the clock shown</li>
+          <li>Click the correct time</li>
+          <li>Match analog clocks to digital times!</li>
+          <li>Learn to read time like a pro!</li>
+        </ul>
+        <div style="text-align: center; margin-top: 1rem">
+          <button class="btn" onclick="startGame()">Start Learning!</button>
+        </div>
+      </div>
+      <div id="main-game" class="hidden">
+        <div class="stats">
+          <div class="stat-box">⭐ Score: <span id="score">0</span></div>
+          <div class="stat-box">✅ Correct: <span id="correct">0</span></div>
+          <div class="stat-box">⏱️ Timer: <span id="timer">60</span>s</div>
+        </div>
+        <div class="clock-display" id="clock-display">
+          <div class="clock-center"></div>
+          <div class="clock-hand hour-hand" id="hour-hand"></div>
+          <div class="clock-hand minute-hand" id="minute-hand"></div>
+        </div>
+        <div class="question">What time is shown on the clock?</div>
+        <div class="feedback hidden" id="feedback"></div>
+        <div class="time-options" id="time-options"></div>
+      </div>
+      <div id="game-over" class="hidden" style="text-align: center">
+        <h2 style="color: #5a67d8; font-size: 2.5rem">Time Master! 🎉</h2>
+        <p style="font-size: 1.5rem; margin: 1rem 0">
+          Score: <span id="final-score">0</span>
+        </p>
+        <button class="btn" onclick="location.reload()">Play Again</button>
+      </div>
+    </div>
+    <script>
+      let score=0,correct=0,timeLeft=60,timerInterval,currentHour,currentMinute;function startGame(){document.getElementById('instructions').classList.add('hidden');document.getElementById('main-game').classList.remove('hidden');updateDisplay();startTimer();generateTime()}function startTimer(){timerInterval=setInterval(()=>{timeLeft--;document.getElementById('timer').textContent=timeLeft;if(timeLeft<=0){clearInterval(timerInterval);gameOver()}},1000)}function updateDisplay(){document.getElementById('score').textContent=score;document.getElementById('correct').textContent=correct}function generateTime(){document.getElementById('feedback').classList.add('hidden');currentHour=Math.floor(Math.random()*12)+1;currentMinute=Math.floor(Math.random()*12)*5;setClockHands();generateOptions()}function setClockHands(){const hourDeg=(currentHour%12)*30+(currentMinute/60)*30;const minuteDeg=currentMinute*6;document.getElementById('hour-hand').style.transform=`translateX(-50%) rotate(${hourDeg}deg)`;document.getElementById('minute-hand').style.transform=`translateX(-50%) rotate(${minuteDeg}deg)`}function generateOptions(){const correctTime=`${currentHour}:${currentMinute.toString().padStart(2,'0')}`;const options=new Set([correctTime]);while(options.size<4){const h=Math.floor(Math.random()*12)+1;const m=Math.floor(Math.random()*12)*5;options.add(`${h}:${m.toString().padStart(2,'0')}`)}const optArr=Array.from(options).sort(()=>Math.random()-.5);document.getElementById('time-options').innerHTML=optArr.map(time=>`<button class="time-btn" onclick="checkTime('${time}')">${time}</button>`).join('')}function checkTime(selected){const correct Time=`${currentHour}:${currentMinute.toString().padStart(2,'0')}`;const feedback=document.getElementById('feedback');feedback.classList.remove('hidden','correct','incorrect');if(selected===correctTime){score+=10;correct++;feedback.classList.add('correct');feedback.textContent='✅ Correct time!';setTimeout(()=>generateTime(),1200)}else{feedback.classList.add('incorrect');feedback.textContent=`❌ Wrong! Time was ${correctTime}`;setTimeout(()=>generateTime(),1800)}updateDisplay()}function gameOver(){clearInterval(timerInterval);document.getElementById('main-game').classList.add('hidden');document.getElementById('game-over').classList.remove('hidden');document.getElementById('final-score').textContent=score}
+    </script>
+  </body>
+</html>

@@ -5,6 +5,7 @@
 This guide covers the manual configuration steps required to deploy the Learning Adventures Platform with subdomain-based routing. All code changes have been completed - these are external configuration tasks.
 
 **Architecture**:
+
 - Marketing Site: `learningadventures.org` (separate codebase)
 - App Platform: `app.learningadventures.org` (this Next.js app)
 
@@ -15,6 +16,7 @@ This guide covers the manual configuration steps required to deploy the Learning
 ## Prerequisites
 
 Before starting, ensure you have:
+
 - [ ] Access to Google Cloud Console (for OAuth)
 - [ ] Access to Apple Developer Portal (for OAuth)
 - [ ] Access to Vercel dashboard
@@ -25,6 +27,7 @@ Before starting, ensure you have:
 ## Step 1: Configure Google OAuth
 
 ### Location
+
 [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials)
 
 ### Steps
@@ -36,6 +39,7 @@ Before starting, ensure you have:
 2. **Update Authorized JavaScript Origins**
 
    Add these origins:
+
    ```
    https://app.learningadventures.org
    http://localhost:3000
@@ -46,6 +50,7 @@ Before starting, ensure you have:
 3. **Update Authorized Redirect URIs**
 
    Add these redirect URIs:
+
    ```
    https://app.learningadventures.org/api/auth/callback/google
    http://localhost:3000/api/auth/callback/google
@@ -58,6 +63,7 @@ Before starting, ensure you have:
 ### Verification
 
 Test OAuth by:
+
 - Visiting `https://app.learningadventures.org`
 - Clicking "Sign In" → "Continue with Google"
 - Confirming successful redirect to dashboard
@@ -67,6 +73,7 @@ Test OAuth by:
 ## Step 2: Configure Apple OAuth
 
 ### Location
+
 [Apple Developer Portal → Certificates, Identifiers & Profiles → Sign in with Apple](https://developer.apple.com/account/resources/identifiers/list/serviceId)
 
 ### Steps
@@ -78,6 +85,7 @@ Test OAuth by:
 2. **Configure Return URLs**
 
    Add these return URLs:
+
    ```
    https://app.learningadventures.org/api/auth/callback/apple
    http://localhost:3000/api/auth/callback/apple
@@ -90,6 +98,7 @@ Test OAuth by:
 ### Verification
 
 Test OAuth by:
+
 - Visiting `https://app.learningadventures.org`
 - Clicking "Sign In" → "Continue with Apple"
 - Confirming successful redirect to dashboard
@@ -99,6 +108,7 @@ Test OAuth by:
 ## Step 3: Configure Vercel Domain
 
 ### Location
+
 [Vercel Dashboard → Your Project → Settings → Domains](https://vercel.com/dashboard)
 
 ### Steps
@@ -114,6 +124,7 @@ Test OAuth by:
    Vercel will provide DNS records. Add to your DNS provider:
 
    **Option A: CNAME Record (Recommended)**
+
    ```
    Type: CNAME
    Name: app
@@ -121,6 +132,7 @@ Test OAuth by:
    ```
 
    **Option B: A Record**
+
    ```
    Type: A
    Name: app
@@ -143,25 +155,26 @@ Test OAuth by:
 ## Step 4: Configure Vercel Environment Variables
 
 ### Location
+
 [Vercel Dashboard → Your Project → Settings → Environment Variables](https://vercel.com/dashboard)
 
 ### Production Environment Variables
 
 Add these variables for **Production** environment:
 
-| Variable Name | Value | Notes |
-|--------------|-------|-------|
-| `NEXT_PUBLIC_APP_URL` | `https://app.learningadventures.org` | App subdomain URL |
-| `NEXT_PUBLIC_MARKETING_URL` | `https://learningadventures.org` | Marketing site URL |
-| `NEXTAUTH_URL` | `https://app.learningadventures.org` | NextAuth base URL |
-| `NEXTAUTH_SECRET` | `[generate new secret]` | See below for generation |
-| `DATABASE_URL` | `[your production DB URL]` | PostgreSQL connection string |
-| `GOOGLE_CLIENT_ID` | `[from Google Console]` | OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | `[from Google Console]` | OAuth client secret |
-| `APPLE_CLIENT_ID` | `[from Apple Portal]` | OAuth client ID |
-| `APPLE_CLIENT_SECRET` | `[from Apple Portal]` | OAuth client secret |
-| `ANTHROPIC_API_KEY` | `[your API key]` | Content generation |
-| `GEMINI_API_KEY` | `[your API key]` | Content generation |
+| Variable Name               | Value                                | Notes                        |
+| --------------------------- | ------------------------------------ | ---------------------------- |
+| `NEXT_PUBLIC_APP_URL`       | `https://app.learningadventures.org` | App subdomain URL            |
+| `NEXT_PUBLIC_MARKETING_URL` | `https://learningadventures.org`     | Marketing site URL           |
+| `NEXTAUTH_URL`              | `https://app.learningadventures.org` | NextAuth base URL            |
+| `NEXTAUTH_SECRET`           | `[generate new secret]`              | See below for generation     |
+| `DATABASE_URL`              | `[your production DB URL]`           | PostgreSQL connection string |
+| `GOOGLE_CLIENT_ID`          | `[from Google Console]`              | OAuth client ID              |
+| `GOOGLE_CLIENT_SECRET`      | `[from Google Console]`              | OAuth client secret          |
+| `APPLE_CLIENT_ID`           | `[from Apple Portal]`                | OAuth client ID              |
+| `APPLE_CLIENT_SECRET`       | `[from Apple Portal]`                | OAuth client secret          |
+| `ANTHROPIC_API_KEY`         | `[your API key]`                     | Content generation           |
+| `GEMINI_API_KEY`            | `[your API key]`                     | Content generation           |
 
 ### Generate NextAuth Secret
 
@@ -312,7 +325,7 @@ To open signin modal directly:
 <a href="https://app.learningadventures.org?mode=signin">Sign In</a>
 ```
 
-*Note: This requires adding query param handling in `app/page.tsx` - not currently implemented*
+_Note: This requires adding query param handling in `app/page.tsx` - not currently implemented_
 
 ---
 
@@ -323,6 +336,7 @@ To open signin modal directly:
 **Error**: "redirect_uri_mismatch" in OAuth flow
 
 **Solution**:
+
 1. Check OAuth console has exact URL: `https://app.learningadventures.org/api/auth/callback/google`
 2. Verify `NEXTAUTH_URL` in Vercel matches: `https://app.learningadventures.org`
 3. Ensure no trailing slashes in URLs
@@ -333,6 +347,7 @@ To open signin modal directly:
 **Error**: Browser shows "too many redirects" error
 
 **Solution**:
+
 1. Check `NEXT_PUBLIC_MARKETING_URL` is set correctly in Vercel
 2. Verify marketing site doesn't redirect back to app
 3. Clear browser cookies and try again
@@ -343,6 +358,7 @@ To open signin modal directly:
 **Error**: User gets logged out between page navigations
 
 **Solution**:
+
 1. Verify `NEXTAUTH_SECRET` is set in production environment
 2. Check `NEXTAUTH_URL` matches your app domain exactly
 3. Ensure cookies are not being blocked by browser
@@ -353,6 +369,7 @@ To open signin modal directly:
 **Error**: Unauthenticated users stay on app subdomain
 
 **Solution**:
+
 1. Check `NEXT_PUBLIC_MARKETING_URL` is set in Vercel environment variables
 2. Verify you redeployed after adding environment variables
 3. Check browser console for JavaScript errors
@@ -363,6 +380,7 @@ To open signin modal directly:
 **Error**: Admin users get "Unauthorized" when accessing `/internal/content-upload`
 
 **Solution**:
+
 1. Verify user role in database is set to `ADMIN`
 2. Check session token includes role (inspect in browser DevTools → Application → Cookies)
 3. Re-login to refresh session token
@@ -414,6 +432,7 @@ If issues arise in production:
 ### Team Communication
 
 **After completing deployment**:
+
 - [ ] Notify team of new app URL: `app.learningadventures.org`
 - [ ] Share admin credentials for content upload access
 - [ ] Update any internal documentation with new URLs
@@ -426,6 +445,7 @@ If issues arise in production:
 Use this checklist to track deployment progress:
 
 ### Pre-Deployment
+
 - [ ] Google OAuth console configured
 - [ ] Apple OAuth console configured
 - [ ] DNS records ready to update
@@ -433,6 +453,7 @@ Use this checklist to track deployment progress:
 - [ ] All API keys collected
 
 ### Vercel Configuration
+
 - [ ] Custom domain `app.learningadventures.org` added
 - [ ] DNS records configured
 - [ ] SSL certificate provisioned (status: Valid)
@@ -440,6 +461,7 @@ Use this checklist to track deployment progress:
 - [ ] Application redeployed with new variables
 
 ### Testing
+
 - [ ] HTTPS redirect working
 - [ ] Login flow redirects to dashboard
 - [ ] Google OAuth working in production
@@ -450,10 +472,12 @@ Use this checklist to track deployment progress:
 - [ ] Admin upload page accessible for team
 
 ### Marketing Site
+
 - [ ] Login/signup links updated to `app.learningadventures.org`
 - [ ] Marketing site not causing redirect loops
 
 ### Team Communication
+
 - [ ] Team notified of new app URL
 - [ ] Admin credentials distributed
 - [ ] Documentation updated
