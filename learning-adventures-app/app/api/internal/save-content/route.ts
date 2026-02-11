@@ -3,6 +3,7 @@ import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
       }
 
       const zip = new AdmZip(zipFullPath);
-      zip.extractAllTo(gameDir, true);
+      await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
         success: true,
