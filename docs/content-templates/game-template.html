@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Title Here</title>
+    <meta name="description" content="Brief description of the game and what children will learn">
+    <meta name="grade-level" content="2,3,4">
+    <meta name="difficulty" content="medium">
+    <meta name="skills" content="Problem Solving,Critical Thinking">
+    <meta name="estimated-time" content="15-20 mins">
+    <meta name="category" content="math">
+    <style>
+        /* === Reset & Base Styles === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* === Game Container === */
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        /* === Header === */
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .game-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* === Score & Progress === */
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* === Game Area === */
+        .game-area {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* === Question Display === */
+        .question {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* === Answer Options === */
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: 3px solid #667eea;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .option-btn.correct {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+
+        .option-btn.incorrect {
+            background: #f44336;
+            border-color: #f44336;
+            color: white;
+        }
+
+        /* === Feedback === */
+        .feedback {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        /* === Control Buttons === */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* === Start Screen === */
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .start-screen p {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        /* === End Screen === */
+        .end-screen {
+            text-align: center;
+            display: none;
+        }
+
+        .end-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 600px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+
+            .question {
+                font-size: 1.5rem;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .option-btn {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <h1 class="game-title">Game Title</h1>
+            <p class="game-subtitle">Brief instructions for the player</p>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="level">1</div>
+                <div class="stat-label">Level</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Streak</div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea">
+            <!-- Start Screen -->
+            <div class="start-screen" id="startScreen">
+                <h2>Welcome to the Game!</h2>
+                <p>Explain what the player will learn and how to play.</p>
+                <button class="btn btn-primary" onclick="startGame()">Start Playing</button>
+            </div>
+
+            <!-- Question Area (hidden initially) -->
+            <div id="questionArea" style="display: none; width: 100%;">
+                <div class="question" id="question">Question will appear here</div>
+                <div class="options" id="options">
+                    <!-- Options generated by JavaScript -->
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <!-- End Screen -->
+            <div class="end-screen" id="endScreen">
+                <h2>Great Job!</h2>
+                <div class="final-score" id="finalScore">0</div>
+                <p>You completed all the questions!</p>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="restartGame()">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================
+        // GAME CONFIGURATION
+        // =====================
+        const CONFIG = {
+            totalQuestions: 10,
+            pointsPerCorrect: 10,
+            streakBonus: 5
+        };
+
+        // =====================
+        // GAME STATE
+        // =====================
+        let gameState = {
+            score: 0,
+            level: 1,
+            streak: 0,
+            currentQuestion: 0,
+            questions: []
+        };
+
+        // =====================
+        // QUESTION GENERATOR
+        // =====================
+        function generateQuestions() {
+            // CUSTOMIZE: Generate your own questions here
+            const questions = [];
+            for (let i = 0; i < CONFIG.totalQuestions; i++) {
+                // Example: Simple addition questions
+                const num1 = Math.floor(Math.random() * 10) + 1;
+                const num2 = Math.floor(Math.random() * 10) + 1;
+                const correctAnswer = num1 + num2;
+
+                // Generate wrong answers
+                const options = [correctAnswer];
+                while (options.length < 4) {
+                    const wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
+                    if (!options.includes(wrongAnswer) && wrongAnswer > 0) {
+                        options.push(wrongAnswer);
+                    }
+                }
+
+                // Shuffle options
+                options.sort(() => Math.random() - 0.5);
+
+                questions.push({
+                    text: `What is ${num1} + ${num2}?`,
+                    options: options,
+                    correct: correctAnswer
+                });
+            }
+            return questions;
+        }
+
+        // =====================
+        // GAME FUNCTIONS
+        // =====================
+        function startGame() {
+            gameState = {
+                score: 0,
+                level: 1,
+                streak: 0,
+                currentQuestion: 0,
+                questions: generateQuestions()
+            };
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('questionArea').style.display = 'block';
+
+            updateStats();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = gameState.questions[gameState.currentQuestion];
+            document.getElementById('question').textContent = question.text;
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').style.display = 'none';
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(option, question.correct, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, correct, btn) {
+            const isCorrect = selected === correct;
+            const feedback = document.getElementById('feedback');
+
+            // Disable all buttons
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.onclick = null;
+                if (parseInt(b.textContent) === correct) {
+                    b.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                gameState.streak++;
+                gameState.score += CONFIG.pointsPerCorrect + (gameState.streak * CONFIG.streakBonus);
+                feedback.textContent = 'Correct! Great job!';
+                feedback.className = 'feedback correct';
+            } else {
+                btn.classList.add('incorrect');
+                gameState.streak = 0;
+                feedback.textContent = `Not quite. The answer is ${correct}.`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            updateStats();
+
+            // Move to next question after delay
+            setTimeout(() => {
+                gameState.currentQuestion++;
+                if (gameState.currentQuestion >= gameState.questions.length) {
+                    endGame();
+                } else {
+                    showQuestion();
+                }
+            }, 1500);
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('streak').textContent = gameState.streak;
+        }
+
+        function endGame() {
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'block';
+            document.getElementById('finalScore').textContent = gameState.score;
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        // =====================
+        // INITIALIZATION
+        // =====================
+        // Game starts with start screen visible
+    </script>
+</body>
+</html>

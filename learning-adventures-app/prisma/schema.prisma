@@ -90,6 +90,8 @@ model User {
   // Custom course request relations
   courseRequests CourseRequest[] @relation("CourseRequests")
   assignedCourseRequests CourseRequest[] @relation("AssignedCourseRequests")
+  // 2D World character relation
+  character Character?
 }
 
 model VerificationToken {
@@ -1536,4 +1538,50 @@ model CourseFeedback {
 
   @@index([testCourseId])
   @@index([userId])
+}
+
+// ============================================
+// 2D WORLD GAME MODELS (Phase 2)
+// ============================================
+
+// Character - Player avatar and world state for 2D game
+model Character {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  
+  // Appearance
+  avatarId    String   // 'robot-blue', 'human-1', 'cat-orange', etc.
+  name        String   // Character display name
+  
+  // World State
+  position    Json     // { x, y, scene }
+  lastScene   String   @default("WorldScene")
+  
+  // Equipment (cosmetics)
+  equipment   Json?    // { hat, shirt, accessory, pet }
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventory   Inventory?
+  
+  @@index([userId])
+}
+
+// Inventory - Item storage for 2D game
+model Inventory {
+  id          String   @id @default(cuid())
+  characterId String   @unique
+  
+  items       Json     // Array of InventoryItem: { id, type, name, quantity, metadata }
+  capacity    Int      @default(20)
+  
+  updatedAt   DateTime @updatedAt
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  @@index([characterId])
 }
