@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { validateIdentifier } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,12 +13,24 @@ export async function POST(request: NextRequest) {
       type,
       subscriptionTier = 'free',
       uploadedZipPath,
-      uploadSource
+      uploadSource,
     } = await request.json();
 
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate fileName to prevent path traversal
+    if (
+      fileName.includes('/') ||
+      fileName.includes('\\') ||
+      fileName.includes('..')
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid filename: contains path traversal characters' },
         { status: 400 }
       );
     }
@@ -51,7 +64,18 @@ export async function POST(request: NextRequest) {
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // Create directory for the game/lesson
-      const gameId = fileName.replace('.html', '');
+      const gameId = fileName.replace(/\.html$/, '');
+
+      // Security: Validate gameId is a safe directory name
+      try {
+        validateIdentifier(gameId, 'Game ID');
+      } catch (error) {
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Invalid Game ID' },
+          { status: 400 }
+        );
+      }
+
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
@@ -98,14 +122,21 @@ export async function POST(request: NextRequest) {
         success: true,
         filePath: `/${type}s/${subscriptionTier}/${gameId}/`,
         isDirectory: true,
-        message: 'Zip file extracted successfully'
+        message: 'Zip file extracted successfully',
       });
-
     } else {
       // Handle AI-generated HTML content
       if (!content) {
         return NextResponse.json(
           { error: 'Missing content for AI-generated game' },
+          { status: 400 }
+        );
+      }
+
+      // Security: double check that fileName is safe (already checked for separators above)
+      if (fileName !== basename(fileName)) {
+        return NextResponse.json(
+          { error: 'Invalid filename: must be a base filename' },
           { status: 400 }
         );
       }
@@ -118,14 +149,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         filePath: `/${type}s/${subscriptionTier}/${fileName}`,
-        isDirectory: false
+        isDirectory: false,
       });
     }
-
   } catch (error) {
     console.error('Error saving content:', error);
     return NextResponse.json(
-      { error: 'Failed to save content file', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to save content file',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
