@@ -3,6 +3,7 @@ import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join, resolve, sep } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { validateIdentifier } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +40,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate fileName/gameId to prevent path traversal
+    // We derive gameId by stripping .html extension, effectively enforcing it
+    const gameId = fileName.replace('.html', '');
+    try {
+      validateIdentifier(gameId, 'Game ID');
+    } catch (e) {
+      return NextResponse.json(
+        { error: (e as Error).message },
+        { status: 400 }
+      );
+    }
+
     const publicDir = join(process.cwd(), 'public');
     const typeDir = join(publicDir, `${type}s`);
     const tierDir = join(typeDir, subscriptionTier);
@@ -51,7 +64,6 @@ export async function POST(request: NextRequest) {
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // Create directory for the game/lesson
-      const gameId = fileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
