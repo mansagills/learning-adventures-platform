@@ -14,6 +14,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY: Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY: Password strength validation
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY: Prevent registration of admin domain emails to avoid privilege escalation
+    if (email.endsWith('@learningadventures.org')) {
+      return NextResponse.json(
+        { error: 'Registration with this domain is restricted. Please contact your administrator.' },
+        { status: 403 }
+      );
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
