@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 
-const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
+const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
+  mockGetServerSession: vi.fn(),
 }));
 
 // Mock fs/promises and fs
@@ -28,6 +29,19 @@ vi.mock('fs', () => ({
   default: {
     existsSync: vi.fn().mockReturnValue(true),
   },
+}));
+
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: mockGetServerSession,
+  default: {
+    getServerSession: mockGetServerSession,
+  },
+}));
+
+// Mock authOptions
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
 }));
 
 // Mock AdmZip
@@ -68,6 +82,14 @@ describe('Security: Zip Slip Vulnerability in save-content', () => {
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
+    // Mock ADMIN session
+    mockGetServerSession.mockResolvedValue({
+      user: {
+        role: 'ADMIN',
+        id: 'admin-123',
+      },
+    });
+
     const req = new NextRequest(
       'http://localhost:3000/api/internal/save-content',
       {

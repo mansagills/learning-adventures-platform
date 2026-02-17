@@ -1,23 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication and authorization
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin role required.' },
+        { status: 403 }
+      );
+    }
+
     const {
       content,
       fileName,
       type,
       subscriptionTier = 'free',
       uploadedZipPath,
-      uploadSource
+      uploadSource,
     } = await request.json();
 
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Validate fileName to prevent path traversal
+    if (fileName !== basename(fileName)) {
+      return NextResponse.json(
+        { error: 'Invalid fileName. Path components are not allowed.' },
         { status: 400 }
       );
     }
@@ -55,8 +75,19 @@ export async function POST(request: NextRequest) {
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
-      // Extract zip to the game directory
-      const zipFullPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      // Prevent path traversal in uploadedZipPath
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^\//, '')
+      );
+      if (!zipFullPath.startsWith(publicDir)) {
+        return NextResponse.json(
+          {
+            error: 'Invalid uploadedZipPath. Must be within public directory.',
+          },
+          { status: 400 }
+        );
+      }
 
       if (!existsSync(zipFullPath)) {
         return NextResponse.json(
@@ -98,9 +129,8 @@ export async function POST(request: NextRequest) {
         success: true,
         filePath: `/${type}s/${subscriptionTier}/${gameId}/`,
         isDirectory: true,
-        message: 'Zip file extracted successfully'
+        message: 'Zip file extracted successfully',
       });
-
     } else {
       // Handle AI-generated HTML content
       if (!content) {
@@ -118,14 +148,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         filePath: `/${type}s/${subscriptionTier}/${fileName}`,
-        isDirectory: false
+        isDirectory: false,
       });
     }
-
   } catch (error) {
     console.error('Error saving content:', error);
     return NextResponse.json(
-      { error: 'Failed to save content file', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to save content file',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
