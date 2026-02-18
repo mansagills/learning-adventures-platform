@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
+}));
 
 const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -68,6 +74,11 @@ describe('Security: Zip Slip Vulnerability in save-content', () => {
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
+    // Mock admin session
+    (getServerSession as any).mockResolvedValue({
+      user: { role: 'ADMIN', id: 'admin' },
+    });
+
     const req = new NextRequest(
       'http://localhost:3000/api/internal/save-content',
       {
@@ -77,7 +88,7 @@ describe('Security: Zip Slip Vulnerability in save-content', () => {
           type: 'game',
           subscriptionTier: 'free',
           uploadSource: 'uploaded',
-          uploadedZipPath: '/uploads/test.zip',
+          uploadedZipPath: '/uploads/temp/test.zip',
         }),
       }
     );

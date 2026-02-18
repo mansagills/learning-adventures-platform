@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 403 }
+      );
+    }
+
     const {
       content,
       fileName,
@@ -18,6 +29,15 @@ export async function POST(request: NextRequest) {
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate fileName (path traversal prevention)
+    const safeFileName = basename(fileName);
+    if (fileName !== safeFileName || !/^[a-zA-Z0-9._-]+$/.test(fileName)) {
+      return NextResponse.json(
+        { error: 'Invalid filename. Only alphanumeric, dots, underscores, and hyphens are allowed.' },
         { status: 400 }
       );
     }
@@ -50,6 +70,14 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
+      // Security: Validate uploadedZipPath to prevent path traversal
+      if (uploadedZipPath.includes('..') || !uploadedZipPath.startsWith('/uploads/temp/')) {
+        return NextResponse.json(
+          { error: 'Invalid zip path. Must be a relative path in /uploads/temp/' },
+          { status: 400 }
+        );
+      }
+
       // Create directory for the game/lesson
       const gameId = fileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
