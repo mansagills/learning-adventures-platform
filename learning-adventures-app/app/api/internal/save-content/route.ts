@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const {
       content,
       fileName,
@@ -18,6 +26,16 @@ export async function POST(request: NextRequest) {
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Security: Prevent path traversal by using basename
+    // This ensures fileName is just a filename, not a path
+    const safeFileName = basename(fileName);
+    if (safeFileName !== fileName) {
+      return NextResponse.json(
+        { error: 'Invalid file name. Path traversal detected.' },
         { status: 400 }
       );
     }
@@ -51,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // Create directory for the game/lesson
-      const gameId = fileName.replace('.html', '');
+      const gameId = safeFileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
@@ -110,14 +128,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const filePath = join(tierDir, fileName);
+      const filePath = join(tierDir, safeFileName);
 
       // Write the HTML content to file
       await writeFile(filePath, content, 'utf8');
 
       return NextResponse.json({
         success: true,
-        filePath: `/${type}s/${subscriptionTier}/${fileName}`,
+        filePath: `/${type}s/${subscriptionTier}/${safeFileName}`,
         isDirectory: false
       });
     }
