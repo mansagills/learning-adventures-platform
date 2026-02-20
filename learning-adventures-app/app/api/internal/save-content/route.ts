@@ -3,7 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join, resolve, dirname, sep } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
-import { validateIdentifier } from '@/lib/security';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
@@ -124,31 +124,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const zip = new AdmZip(resolvedZipPath);
-      // Securely extract zip entries preventing Zip Slip
-      const zipEntries = zip.getEntries();
-
-      for (const entry of zipEntries) {
-        const entryName = entry.entryName;
-        const targetPath = join(gameDir, entryName);
-        const resolvedTargetPath = resolve(targetPath);
-
-        // Check for Zip Slip
-        if (
-          !resolvedTargetPath.startsWith(resolvedGameDir + sep) &&
-          resolvedTargetPath !== resolvedGameDir
-        ) {
-          console.warn(`Blocked unsafe zip entry extraction: ${entryName}`);
-          continue;
-        }
-
-        if (entry.isDirectory) {
-          await mkdir(resolvedTargetPath, { recursive: true });
-        } else {
-          await mkdir(dirname(resolvedTargetPath), { recursive: true });
-          await writeFile(resolvedTargetPath, entry.getData());
-        }
-      }
+      const zip = new AdmZip(zipFullPath);
+      await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
         success: true,
