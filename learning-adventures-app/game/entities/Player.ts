@@ -17,6 +17,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lastSaveTime: number = 0;
   private saveInterval: number = 10000; // Save position every 10 seconds
   private currentDirection: 'up' | 'down' | 'left' | 'right' = 'down';
+  private handleTeleport!: (data: { x: number; y: number; scene?: string }) => void;
+  private handleSpeedChange!: (data: { speed: number }) => void;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
@@ -70,19 +72,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private setupEventListeners(): void {
-    // Listen for teleport commands from React
-    EventBus.on('teleport-player', (data: { x: number; y: number; scene?: string }) => {
+    // Store bound callbacks so they can be removed precisely in destroy()
+    this.handleTeleport = (data: { x: number; y: number; scene?: string }) => {
       if (data.scene && data.scene !== this.scene.scene.key) {
-        // Scene change requested - let scene manager handle it
         return;
       }
       this.setPosition(data.x, data.y);
-    });
+    };
 
-    // Listen for speed changes (e.g., speed boost items)
-    EventBus.on('player-speed-change', (data: { speed: number }) => {
+    this.handleSpeedChange = (data: { speed: number }) => {
       this.speed = data.speed;
-    });
+    };
+
+    EventBus.on('teleport-player', this.handleTeleport);
+    EventBus.on('player-speed-change', this.handleSpeedChange);
   }
 
   public update(time: number, delta: number): void {
@@ -162,9 +165,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   public destroy(fromScene?: boolean): void {
-    // Clean up event listeners
-    EventBus.off('teleport-player');
-    EventBus.off('player-speed-change');
+    // Remove only this instance's listeners (not all listeners for these events)
+    EventBus.off('teleport-player', this.handleTeleport);
+    EventBus.off('player-speed-change', this.handleSpeedChange);
 
     super.destroy(fromScene);
   }

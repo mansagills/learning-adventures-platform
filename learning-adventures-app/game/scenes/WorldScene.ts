@@ -248,9 +248,4 @@ export class WorldScene extends Phaser.Scene {
     this.interactables = [];
   }
 
-  destroy(): void {
-    // Clean up event listeners
-    EventBus.off('save-player-position');
-    super.destroy();
-  }
 }
