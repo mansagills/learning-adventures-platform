@@ -34,7 +34,9 @@ export default function UnauthorizedPage() {
               <p className="text-sm text-ink-500 mb-1">Logged in as:</p>
               <p className="font-medium text-ink-800">{session.user.email}</p>
               <p className="text-sm text-brand-600 font-medium mt-1">
-                Role: {session.user.role?.charAt(0) + session.user.role?.slice(1).toLowerCase()}
+                Role:{' '}
+                {session.user.role?.charAt(0) +
+                  session.user.role?.slice(1).toLowerCase()}
               </p>
             </div>
           )}
@@ -74,13 +76,18 @@ export default function UnauthorizedPage() {
         {/* Additional Info */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start space-x-3">
-            <Icon name="info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <Icon
+              name="info"
+              size={20}
+              className="text-blue-600 flex-shrink-0 mt-0.5"
+            />
             <div>
               <h3 className="text-sm font-semibold text-blue-900 mb-1">
                 Need different access?
               </h3>
               <p className="text-sm text-blue-800">
-                Contact your administrator to request access to this feature or to change your role permissions.
+                Contact your administrator to request access to this feature or
+                to change your role permissions.
               </p>
             </div>
           </div>

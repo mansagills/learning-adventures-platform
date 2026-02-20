@@ -6,8 +6,22 @@ import { hashPIN } from '@/lib/childAuth';
 import { generateUniqueUsername } from '@/lib/usernameGenerator';
 
 const AVATARS = [
-  'tiger', 'dragon', 'eagle', 'dolphin', 'fox', 'lion', 'bear', 'wolf',
-  'panda', 'owl', 'phoenix', 'turtle', 'penguin', 'koala', 'cheetah', 'rocket'
+  'tiger',
+  'dragon',
+  'eagle',
+  'dolphin',
+  'fox',
+  'lion',
+  'bear',
+  'wolf',
+  'panda',
+  'owl',
+  'phoenix',
+  'turtle',
+  'penguin',
+  'koala',
+  'cheetah',
+  'rocket',
 ];
 
 /**
@@ -28,7 +42,7 @@ export async function GET(request: NextRequest) {
     // Verify user is a parent and is verified
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, isVerifiedAdult: true }
+      select: { role: true, isVerifiedAdult: true },
     });
 
     if (user?.role !== 'PARENT') {
@@ -50,7 +64,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         lastLoginAt: true,
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json({
@@ -85,7 +99,7 @@ export async function POST(request: NextRequest) {
     // Verify user is a verified parent
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, isVerifiedAdult: true }
+      select: { role: true, isVerifiedAdult: true },
     });
 
     if (user?.role !== 'PARENT') {
@@ -122,7 +136,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate grade level
-    const validGrades = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+    const validGrades = [
+      'K',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+    ];
     if (!validGrades.includes(gradeLevel)) {
       return NextResponse.json(
         { error: 'Invalid grade level' },
@@ -156,13 +184,16 @@ export async function POST(request: NextRequest) {
         gradeLevel: true,
         avatarId: true,
         createdAt: true,
-      }
+      },
     });
 
-    return NextResponse.json({
-      child,
-      message: `Child account created! Username: ${username}`,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        child,
+        message: `Child account created! Username: ${username}`,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error('Error creating child:', error);
     return NextResponse.json(

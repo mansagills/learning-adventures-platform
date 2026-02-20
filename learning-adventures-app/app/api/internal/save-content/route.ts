@@ -50,13 +50,26 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
+      // SECURITY: Prevent path traversal in uploadedZipPath
+      // Ensure path doesn't contain '..', and is within allowed directory
+      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+
+      // Strict check: must be in uploads/temp/ and no traversal attempts
+      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
+         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+         return NextResponse.json(
+           { error: 'Invalid path. Path traversal detected.' },
+           { status: 400 }
+         );
+      }
+
       // Create directory for the game/lesson
       const gameId = fileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
       // Extract zip to the game directory
-      const zipFullPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      const zipFullPath = join(publicDir, normalizedZipPath);
 
       if (!existsSync(zipFullPath)) {
         return NextResponse.json(

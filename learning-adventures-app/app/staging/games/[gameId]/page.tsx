@@ -26,14 +26,14 @@ export default function StagingGamePreviewPage() {
   const params = useParams();
   const router = useRouter();
   const gameId = params.gameId as string;
-  
+
   const [game, setGame] = useState<TestGame | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session || session.user?.role !== 'ADMIN') {
       router.push('/unauthorized');
       return;
@@ -46,7 +46,7 @@ export default function StagingGamePreviewPage() {
     try {
       const res = await fetch(`/api/admin/test-games?gameId=${gameId}`);
       const data = await res.json();
-      
+
       if (data.games && data.games.length > 0) {
         setGame(data.games.find((g: TestGame) => g.gameId === gameId) || null);
       } else {
@@ -75,9 +75,13 @@ export default function StagingGamePreviewPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="text-6xl mb-4">🎮</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Game Not Found</h1>
-          <p className="text-gray-600 mb-4">{error || 'This game does not exist in staging.'}</p>
-          <Link 
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Game Not Found
+          </h1>
+          <p className="text-gray-600 mb-4">
+            {error || 'This game does not exist in staging.'}
+          </p>
+          <Link
             href="/internal/testing"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
@@ -116,11 +120,22 @@ export default function StagingGamePreviewPage() {
       {/* Game Info Bar */}
       <div className="bg-white border-b px-4 py-2">
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm text-gray-600">
-          <span><strong>Category:</strong> {game.category}</span>
-          <span><strong>Grade:</strong> {game.gradeLevel.join(', ')}</span>
-          <span><strong>Difficulty:</strong> {game.difficulty}</span>
-          <span><strong>Time:</strong> {game.estimatedTime}</span>
-          <span><strong>Skills:</strong> {game.skills.slice(0, 3).join(', ')}{game.skills.length > 3 ? '...' : ''}</span>
+          <span>
+            <strong>Category:</strong> {game.category}
+          </span>
+          <span>
+            <strong>Grade:</strong> {game.gradeLevel.join(', ')}
+          </span>
+          <span>
+            <strong>Difficulty:</strong> {game.difficulty}
+          </span>
+          <span>
+            <strong>Time:</strong> {game.estimatedTime}
+          </span>
+          <span>
+            <strong>Skills:</strong> {game.skills.slice(0, 3).join(', ')}
+            {game.skills.length > 3 ? '...' : ''}
+          </span>
         </div>
       </div>
 
@@ -140,7 +155,10 @@ export default function StagingGamePreviewPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Staging path: <code className="bg-gray-100 px-2 py-1 rounded">{game.filePath}</code>
+            Staging path:{' '}
+            <code className="bg-gray-100 px-2 py-1 rounded">
+              {game.filePath}
+            </code>
           </p>
           <div className="flex items-center gap-3">
             <Link

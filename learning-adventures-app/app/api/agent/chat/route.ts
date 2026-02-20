@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   return NextResponse.json({
     message: 'Learning Builder Agent Chat API',
-    description: 'Intelligent agent for creating interactive learning content and educational games',
+    description:
+      'Intelligent agent for creating interactive learning content and educational games',
     usage: 'POST /api/agent/chat with { message, conversationId?, context? }',
   });
 }

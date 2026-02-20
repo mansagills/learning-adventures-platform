@@ -30,7 +30,8 @@ const mathLessons: Adventure[] = [
   {
     id: 'fraction-pizza-party',
     title: 'Virtual Fraction Pizza Party',
-    description: 'Interactive pizza slicing to learn fractions with visual comparisons',
+    description:
+      'Interactive pizza slicing to learn fractions with visual comparisons',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['2', '3', '4'],
@@ -38,12 +39,13 @@ const mathLessons: Adventure[] = [
     skills: ['Fractions', 'Visual Math', 'Comparison'],
     estimatedTime: '15-20 mins',
     featured: true,
-    htmlPath: '/lessons/fraction-pizza-party.html'
+    htmlPath: '/lessons/fraction-pizza-party.html',
   },
   {
     id: 'multiplication-tables-adventure',
     title: 'Multiplication Tables Adventure',
-    description: 'Master multiplication tables through an exciting interactive adventure with progress tracking',
+    description:
+      'Master multiplication tables through an exciting interactive adventure with progress tracking',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
@@ -51,51 +53,55 @@ const mathLessons: Adventure[] = [
     skills: ['Multiplication', 'Times Tables', 'Mental Math'],
     estimatedTime: '20-30 mins',
     featured: true,
-    htmlPath: '/lessons/multiplication-tables-adventure.html'
+    htmlPath: '/lessons/multiplication-tables-adventure.html',
   },
   {
     id: 'number-line-adventure',
     title: 'Number Line Adventure',
-    description: 'Animated character jumps along number line for addition and subtraction',
+    description:
+      'Animated character jumps along number line for addition and subtraction',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['1', '2', '3'],
     difficulty: 'easy',
     skills: ['Addition', 'Subtraction', 'Number Sense'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'shape-detective',
     title: 'Shape Detective',
-    description: 'Interactive geometry exploration with drag-and-drop shape creation',
+    description:
+      'Interactive geometry exploration with drag-and-drop shape creation',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['2', '3', '4', '5'],
     difficulty: 'medium',
     skills: ['Geometry', 'Shapes', 'Measurement'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'money-counting-store',
     title: 'Money Counting Store',
-    description: 'Virtual store with interactive cash register for money skills',
+    description:
+      'Virtual store with interactive cash register for money skills',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Money', 'Addition', 'Real-world Math'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'pattern-builder',
     title: 'Pattern Builder',
-    description: 'Interactive pattern completion with shapes, colors, and numbers',
+    description:
+      'Interactive pattern completion with shapes, colors, and numbers',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['K', '1', '2', '3'],
     difficulty: 'easy',
     skills: ['Patterns', 'Logic', 'Sequencing'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'multiplication-garden',
@@ -106,40 +112,43 @@ const mathLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Multiplication', 'Arrays', 'Visual Math'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'time-travel-clock',
     title: 'Time Travel Clock',
-    description: 'Interactive analog and digital clock practice with story problems',
+    description:
+      'Interactive analog and digital clock practice with story problems',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Time', 'Clock Reading', 'Problem Solving'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'measurement-laboratory',
     title: 'Measurement Laboratory',
-    description: 'Virtual rulers, scales, and measuring tools for hands-on practice',
+    description:
+      'Virtual rulers, scales, and measuring tools for hands-on practice',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Measurement', 'Units', 'Comparison'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'data-detective',
     title: 'Data Detective',
-    description: 'Interactive graph creation from data with multiple chart types',
+    description:
+      'Interactive graph creation from data with multiple chart types',
     type: 'lesson',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Data Analysis', 'Graphs', 'Statistics'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'place-value-city',
@@ -150,15 +159,16 @@ const mathLessons: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Place Value', 'Number Sense', 'Base 10'],
-    estimatedTime: '15-20 mins'
-  }
+    estimatedTime: '15-20 mins',
+  },
 ];
 
 const mathGames: Adventure[] = [
   {
     id: 'sample-math-game',
     title: 'Math Challenge',
-    description: 'Test your math skills with addition, subtraction, and multiplication!',
+    description:
+      'Test your math skills with addition, subtraction, and multiplication!',
     type: 'game',
     category: 'math',
     gradeLevel: ['2', '3', '4', '5'],
@@ -166,12 +176,13 @@ const mathGames: Adventure[] = [
     skills: ['Addition', 'Subtraction', 'Multiplication', 'Mental Math'],
     estimatedTime: '10 mins',
     featured: true,
-    componentGame: true
+    componentGame: true,
   },
   {
     id: 'math-race-rally',
     title: 'Math Race Rally',
-    description: 'Solve problems to move your race car forward in this exciting racing game',
+    description:
+      'Solve problems to move your race car forward in this exciting racing game',
     type: 'game',
     category: 'math',
     gradeLevel: ['2', '3', '4', '5'],
@@ -179,51 +190,55 @@ const mathGames: Adventure[] = [
     skills: ['Addition', 'Subtraction', 'Speed Math'],
     estimatedTime: '10-15 mins',
     featured: true,
-    htmlPath: '/games/math-race-rally.html'
+    htmlPath: '/games/math-race-rally.html',
   },
   {
     id: 'number-monster-feeding',
     title: 'Number Monster Feeding',
-    description: 'Feed hungry monsters the correct numbers in this adorable counting game',
+    description:
+      'Feed hungry monsters the correct numbers in this adorable counting game',
     type: 'game',
     category: 'math',
     gradeLevel: ['K', '1', '2'],
     difficulty: 'easy',
     skills: ['Counting', 'Number Recognition', 'Addition'],
-    estimatedTime: '8-12 mins'
+    estimatedTime: '8-12 mins',
   },
   {
     id: 'treasure-hunt-calculator',
     title: 'Treasure Hunt Calculator',
-    description: 'Solve math problems to find buried treasure on an interactive map',
+    description:
+      'Solve math problems to find buried treasure on an interactive map',
     type: 'game',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Problem Solving', 'Mixed Operations', 'Logic'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'pizza-fraction-frenzy',
     title: 'Pizza Fraction Frenzy',
-    description: 'Fast-paced fraction ordering game serving pizza slices to customers',
+    description:
+      'Fast-paced fraction ordering game serving pizza slices to customers',
     type: 'game',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Fractions', 'Time Pressure', 'Comparison'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'multiplication-bingo',
     title: 'Multiplication Bingo Bonanza',
-    description: 'Interactive bingo with multiplication tables and multiple difficulty levels',
+    description:
+      'Interactive bingo with multiplication tables and multiple difficulty levels',
     type: 'game',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Multiplication', 'Memory', 'Speed'],
-    estimatedTime: '12-18 mins'
+    estimatedTime: '12-18 mins',
   },
   {
     id: 'shape-sorting-arcade',
@@ -234,18 +249,19 @@ const mathGames: Adventure[] = [
     gradeLevel: ['K', '1', '2', '3'],
     difficulty: 'easy',
     skills: ['Geometry', 'Classification', 'Reaction Time'],
-    estimatedTime: '8-12 mins'
+    estimatedTime: '8-12 mins',
   },
   {
     id: 'math-jeopardy-junior',
     title: 'Math Jeopardy Junior',
-    description: 'Game show format with age-appropriate math categories and challenges',
+    description:
+      'Game show format with age-appropriate math categories and challenges',
     type: 'game',
     category: 'math',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Mixed Math', 'Strategy', 'Knowledge'],
-    estimatedTime: '15-25 mins'
+    estimatedTime: '15-25 mins',
   },
   {
     id: 'number-line-ninja',
@@ -256,40 +272,43 @@ const mathGames: Adventure[] = [
     gradeLevel: ['1', '2', '3'],
     difficulty: 'medium',
     skills: ['Number Line', 'Addition', 'Coordination'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'equation-balance-scale',
     title: 'Equation Balance Scale',
-    description: 'Visual representation of algebraic concepts with animated balance',
+    description:
+      'Visual representation of algebraic concepts with animated balance',
     type: 'game',
     category: 'math',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Algebra', 'Balance', 'Equations'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'counting-carnival',
     title: 'Counting Carnival',
-    description: 'Carnival-themed mini-games practicing different counting skills',
+    description:
+      'Carnival-themed mini-games practicing different counting skills',
     type: 'game',
     category: 'math',
     gradeLevel: ['K', '1', '2'],
     difficulty: 'easy',
     skills: ['Counting', 'Carnival Fun', 'Variety'],
-    estimatedTime: '12-18 mins'
+    estimatedTime: '12-18 mins',
   },
   {
     id: 'geometry-builder-challenge',
     title: 'Geometry Builder Challenge',
-    description: 'Build structures using geometric shapes with calculation constraints',
+    description:
+      'Build structures using geometric shapes with calculation constraints',
     type: 'game',
     category: 'math',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Geometry', 'Engineering', 'Problem Solving'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'money-market-madness',
@@ -300,7 +319,7 @@ const mathGames: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Money', 'Business', 'Real-world Math'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'time-attack-clock',
@@ -311,7 +330,7 @@ const mathGames: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Time', 'Speed', 'Clock Reading'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'math-memory-match',
@@ -322,8 +341,8 @@ const mathGames: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Memory', 'Problem Solving', 'Matching'],
-    estimatedTime: '8-12 mins'
-  }
+    estimatedTime: '8-12 mins',
+  },
 ];
 
 // Science Adventures Data
@@ -331,19 +350,21 @@ const scienceLessons: Adventure[] = [
   {
     id: 'plant-growth-lab',
     title: 'Virtual Plant Growth Lab',
-    description: 'Interactive plant growing simulation with environmental controls',
+    description:
+      'Interactive plant growing simulation with environmental controls',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['2', '3', '4', '5'],
     difficulty: 'medium',
     skills: ['Biology', 'Plant Science', 'Scientific Method'],
     estimatedTime: '20-25 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'volcano-explorer-lab',
     title: 'Volcano Explorer Lab',
-    description: 'Interactive volcano exploration with eruption simulations and geological learning',
+    description:
+      'Interactive volcano exploration with eruption simulations and geological learning',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['3', '4', '5'],
@@ -351,12 +372,13 @@ const scienceLessons: Adventure[] = [
     skills: ['Earth Science', 'Volcanoes', 'Geology'],
     estimatedTime: '25-30 mins',
     featured: true,
-    htmlPath: '/lessons/volcano-explorer-lab.html'
+    htmlPath: '/lessons/volcano-explorer-lab.html',
   },
   {
     id: 'water-cycle-journey',
     title: 'The Water Cycle Journey',
-    description: 'Follow a water droplet through evaporation, condensation, precipitation, and collection',
+    description:
+      'Follow a water droplet through evaporation, condensation, precipitation, and collection',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['3', '4', '5'],
@@ -364,12 +386,13 @@ const scienceLessons: Adventure[] = [
     skills: ['Earth Science', 'Water Cycle', 'Weather'],
     estimatedTime: '20-25 mins',
     featured: true,
-    htmlPath: '/lessons/water-cycle-journey.html'
+    htmlPath: '/lessons/water-cycle-journey.html',
   },
   {
     id: 'simple-machines-lab',
     title: 'Simple Machines Lab',
-    description: 'Discover the six simple machines and how they make work easier',
+    description:
+      'Discover the six simple machines and how they make work easier',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['3', '4', '5', '6'],
@@ -377,7 +400,7 @@ const scienceLessons: Adventure[] = [
     skills: ['Physics', 'Simple Machines', 'Engineering'],
     estimatedTime: '25-30 mins',
     featured: true,
-    htmlPath: '/lessons/simple-machines-lab.html'
+    htmlPath: '/lessons/simple-machines-lab.html',
   },
   {
     id: 'weather-station-simulator',
@@ -388,29 +411,31 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Weather', 'Data Collection', 'Prediction'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'animal-habitat-explorer',
     title: 'Animal Habitat Explorer',
-    description: 'Clickable world map exploring ecosystems and animal adaptations',
+    description:
+      'Clickable world map exploring ecosystems and animal adaptations',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Ecology', 'Animals', 'Habitats'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'states-of-matter-kitchen',
     title: 'States of Matter Kitchen',
-    description: 'Interactive cooking simulation exploring solid, liquid, and gas',
+    description:
+      'Interactive cooking simulation exploring solid, liquid, and gas',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Chemistry', 'States of Matter', 'Cooking'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'solar-system-journey',
@@ -421,7 +446,7 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Astronomy', 'Space', 'Comparison'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'human-body-adventure',
@@ -432,29 +457,31 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['4', '5'],
     difficulty: 'medium',
     skills: ['Human Biology', 'Body Systems', 'Health'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'rock-cycle-simulator',
     title: 'Rock Cycle Simulator',
-    description: 'Interactive geological processes with heat and pressure controls',
+    description:
+      'Interactive geological processes with heat and pressure controls',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Geology', 'Earth Science', 'Processes'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'simple-machines-workshop',
     title: 'Simple Machines Workshop',
-    description: 'Build and experiment with levers, pulleys, and inclined planes',
+    description:
+      'Build and experiment with levers, pulleys, and inclined planes',
     type: 'lesson',
     category: 'science',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Physics', 'Engineering', 'Machines'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'ecosystem-balance-game',
@@ -465,7 +492,7 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
     skills: ['Ecology', 'Food Webs', 'Balance'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'light-shadow-laboratory',
@@ -476,7 +503,7 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Physics', 'Light', 'Optics'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'magnet-explorer',
@@ -487,7 +514,7 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Physics', 'Magnetism', 'Materials'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'sound-wave-studio',
@@ -498,15 +525,16 @@ const scienceLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Physics', 'Sound', 'Music'],
-    estimatedTime: '20-25 mins'
-  }
+    estimatedTime: '20-25 mins',
+  },
 ];
 
 const scienceGames: Adventure[] = [
   {
     id: 'planet-explorer-quest',
     title: 'Planet Explorer Quest',
-    description: 'Navigate spaceship through solar system answering planet facts',
+    description:
+      'Navigate spaceship through solar system answering planet facts',
     type: 'game',
     category: 'science',
     gradeLevel: ['3', '4', '5'],
@@ -514,12 +542,13 @@ const scienceGames: Adventure[] = [
     skills: ['Astronomy', 'Space Facts', 'Navigation'],
     estimatedTime: '15-20 mins',
     featured: true,
-    htmlPath: '/games/planet-explorer-quest.html'
+    htmlPath: '/games/planet-explorer-quest.html',
   },
   {
     id: 'ocean-conservation-heroes',
     title: 'Ocean Conservation Heroes',
-    description: 'Dive deep and clean up ocean pollution while learning about marine ecosystems',
+    description:
+      'Dive deep and clean up ocean pollution while learning about marine ecosystems',
     type: 'game',
     category: 'science',
     gradeLevel: ['2', '3', '4', '5'],
@@ -527,19 +556,20 @@ const scienceGames: Adventure[] = [
     skills: ['Marine Biology', 'Environmental Science', 'Conservation'],
     estimatedTime: '15-20 mins',
     featured: true,
-    htmlPath: '/games/ocean-conservation-heroes.html'
+    htmlPath: '/games/ocean-conservation-heroes.html',
   },
   {
     id: 'animal-kingdom-match',
     title: 'Animal Kingdom Match',
-    description: 'Match animals to habitats with time challenges and fun sounds',
+    description:
+      'Match animals to habitats with time challenges and fun sounds',
     type: 'game',
     category: 'science',
     gradeLevel: ['1', '2', '3', '4'],
     difficulty: 'easy',
     skills: ['Animals', 'Habitats', 'Speed'],
     estimatedTime: '10-15 mins',
-    htmlPath: '/games/animal-kingdom-match.html'
+    htmlPath: '/games/animal-kingdom-match.html',
   },
   {
     id: 'weather-wizard-battle',
@@ -551,7 +581,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Weather', 'Problem Solving', 'Strategy'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/weather-wizard-battle.html'
+    htmlPath: '/games/weather-wizard-battle.html',
   },
   {
     id: 'body-system-heroes',
@@ -563,31 +593,33 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Human Biology', 'Health', 'Adventure'],
     estimatedTime: '20-25 mins',
-    htmlPath: '/games/body-system-heroes.html'
+    htmlPath: '/games/body-system-heroes.html',
   },
   {
     id: 'ecosystem-building-tycoon',
     title: 'Ecosystem Building Tycoon',
-    description: 'Build and balance virtual ecosystems with environmental challenges',
+    description:
+      'Build and balance virtual ecosystems with environmental challenges',
     type: 'game',
     category: 'science',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Ecology', 'Management', 'Strategy'],
     estimatedTime: '25-30 mins',
-    htmlPath: '/games/ecosystem-building-tycoon.html'
+    htmlPath: '/games/ecosystem-building-tycoon.html',
   },
   {
     id: 'states-of-matter-mixer',
     title: 'States of Matter Mixer',
-    description: 'Transform materials between states with cooking-themed challenges',
+    description:
+      'Transform materials between states with cooking-themed challenges',
     type: 'game',
     category: 'science',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Chemistry', 'States of Matter', 'Cooking'],
     estimatedTime: '12-18 mins',
-    htmlPath: '/games/states-of-matter-mixer.html'
+    htmlPath: '/games/states-of-matter-mixer.html',
   },
   {
     id: 'fossil-dig-adventure',
@@ -599,7 +631,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Paleontology', 'Archaeology', 'History'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/fossil-dig-adventure.html'
+    htmlPath: '/games/fossil-dig-adventure.html',
   },
   {
     id: 'magnet-power-puzzle',
@@ -611,7 +643,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Physics', 'Magnetism', 'Problem Solving'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/magnet-power-puzzle.html'
+    htmlPath: '/games/magnet-power-puzzle.html',
   },
   {
     id: 'light-laboratory-escape',
@@ -623,19 +655,20 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Physics', 'Optics', 'Logic'],
     estimatedTime: '20-25 mins',
-    htmlPath: '/games/light-laboratory-escape.html'
+    htmlPath: '/games/light-laboratory-escape.html',
   },
   {
     id: 'plant-growing-championship',
     title: 'Plant Growing Championship',
-    description: 'Competition to grow the healthiest plants with different species',
+    description:
+      'Competition to grow the healthiest plants with different species',
     type: 'game',
     category: 'science',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Biology', 'Competition', 'Plant Care'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/plant-growing-championship.html'
+    htmlPath: '/games/plant-growing-championship.html',
   },
   {
     id: 'rock-cycle-racing',
@@ -647,7 +680,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Geology', 'Earth Science', 'Racing'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/rock-cycle-racing.html'
+    htmlPath: '/games/rock-cycle-racing.html',
   },
   {
     id: 'sound-wave-surfer',
@@ -659,7 +692,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Physics', 'Sound', 'Music'],
     estimatedTime: '12-18 mins',
-    htmlPath: '/games/sound-wave-surfer.html'
+    htmlPath: '/games/sound-wave-surfer.html',
   },
   {
     id: 'ocean-depth-diver',
@@ -671,7 +704,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Marine Biology', 'Ocean Science', 'Exploration'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/ocean-depth-diver.html'
+    htmlPath: '/games/ocean-depth-diver.html',
   },
   {
     id: 'simple-machines-construction',
@@ -683,7 +716,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Engineering', 'Physics', 'Construction'],
     estimatedTime: '20-25 mins',
-    htmlPath: '/games/simple-machines-construction.html'
+    htmlPath: '/games/simple-machines-construction.html',
   },
   {
     id: 'pollution-solution-squad',
@@ -695,7 +728,7 @@ const scienceGames: Adventure[] = [
     difficulty: 'medium',
     skills: ['Environmental Science', 'Conservation', 'Action'],
     estimatedTime: '15-20 mins',
-    htmlPath: '/games/pollution-solution-squad.html'
+    htmlPath: '/games/pollution-solution-squad.html',
   },
   {
     id: 'crystal-cave-chemistry',
@@ -707,8 +740,8 @@ const scienceGames: Adventure[] = [
     difficulty: 'hard',
     skills: ['Chemistry', 'Crystals', 'Experiments'],
     estimatedTime: '18-25 mins',
-    htmlPath: '/games/crystal-cave-chemistry.html'
-  }
+    htmlPath: '/games/crystal-cave-chemistry.html',
+  },
 ];
 
 // English Adventures Data
@@ -716,19 +749,21 @@ const englishLessons: Adventure[] = [
   {
     id: 'creative-writing-workshop',
     title: 'Creative Writing Workshop',
-    description: 'Interactive story building with character development and plot creation tools',
+    description:
+      'Interactive story building with character development and plot creation tools',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Creative Writing', 'Storytelling', 'Character Development'],
     estimatedTime: '25-30 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'spelling-bee-challenge',
     title: 'Spelling Bee Challenge',
-    description: 'Listen, learn, and spell your way to victory with audio-based word challenges',
+    description:
+      'Listen, learn, and spell your way to victory with audio-based word challenges',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['3', '4', '5'],
@@ -736,111 +771,120 @@ const englishLessons: Adventure[] = [
     skills: ['Spelling', 'Vocabulary', 'Listening'],
     estimatedTime: '15-20 mins',
     featured: true,
-    htmlPath: '/lessons/spelling-bee-challenge.html'
+    htmlPath: '/lessons/spelling-bee-challenge.html',
   },
   {
     id: 'grammar-detective',
     title: 'Grammar Detective',
-    description: 'Solve mysteries by identifying and correcting grammar mistakes in clues',
+    description:
+      'Solve mysteries by identifying and correcting grammar mistakes in clues',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Grammar', 'Sentence Structure', 'Detective Skills'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'poetry-playground',
     title: 'Poetry Playground',
-    description: 'Create and explore different types of poems with rhyme and rhythm tools',
+    description:
+      'Create and explore different types of poems with rhyme and rhythm tools',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['2', '3', '4', '5'],
     difficulty: 'medium',
     skills: ['Poetry', 'Rhyme', 'Rhythm', 'Creative Expression'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'reading-comprehension-adventure',
     title: 'Reading Comprehension Adventure',
-    description: 'Interactive stories with comprehension questions and vocabulary building',
+    description:
+      'Interactive stories with comprehension questions and vocabulary building',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'medium',
     skills: ['Reading Comprehension', 'Vocabulary', 'Critical Thinking'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'vocabulary-builder',
     title: 'Vocabulary Builder',
-    description: 'Learn new words through context clues and interactive word games',
+    description:
+      'Learn new words through context clues and interactive word games',
     type: 'lesson',
     category: 'english',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Vocabulary', 'Context Clues', 'Word Recognition'],
-    estimatedTime: '15-20 mins'
-  }
+    estimatedTime: '15-20 mins',
+  },
 ];
 
 const englishGames: Adventure[] = [
   {
     id: 'word-wizard-quest',
     title: 'Word Wizard Quest',
-    description: 'Cast spelling spells and build vocabulary to defeat the Confusion Dragon',
+    description:
+      'Cast spelling spells and build vocabulary to defeat the Confusion Dragon',
     type: 'game',
     category: 'english',
     gradeLevel: ['2', '3', '4', '5'],
     difficulty: 'medium',
     skills: ['Spelling', 'Vocabulary', 'Adventure'],
     estimatedTime: '15-20 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'punctuation-pirates',
     title: 'Punctuation Pirates',
-    description: 'Navigate the high seas while correctly placing punctuation marks',
+    description:
+      'Navigate the high seas while correctly placing punctuation marks',
     type: 'game',
     category: 'english',
     gradeLevel: ['2', '3', '4'],
     difficulty: 'easy',
     skills: ['Punctuation', 'Grammar', 'Adventure'],
-    estimatedTime: '12-18 mins'
+    estimatedTime: '12-18 mins',
   },
   {
     id: 'rhyme-time-racing',
     title: 'Rhyme Time Racing',
-    description: 'Race through word tracks by matching rhyming words and patterns',
+    description:
+      'Race through word tracks by matching rhyming words and patterns',
     type: 'game',
     category: 'english',
     gradeLevel: ['1', '2', '3'],
     difficulty: 'easy',
     skills: ['Rhyming', 'Phonics', 'Word Recognition'],
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   },
   {
     id: 'story-building-blocks',
     title: 'Story Building Blocks',
-    description: 'Construct engaging stories using interactive plot, character, and setting blocks',
+    description:
+      'Construct engaging stories using interactive plot, character, and setting blocks',
     type: 'game',
     category: 'english',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Creative Writing', 'Story Structure', 'Imagination'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'synonym-shuffle',
     title: 'Synonym Shuffle',
-    description: 'Fast-paced word matching game connecting synonyms and antonyms',
+    description:
+      'Fast-paced word matching game connecting synonyms and antonyms',
     type: 'game',
     category: 'english',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Synonyms', 'Antonyms', 'Vocabulary'],
-    estimatedTime: '10-15 mins'
-  }
+    estimatedTime: '10-15 mins',
+  },
 ];
 
 // History Adventures Data
@@ -848,19 +892,21 @@ const historyLessons: Adventure[] = [
   {
     id: 'time-travel-museum',
     title: 'Time Travel Museum',
-    description: 'Explore different historical periods through interactive museum exhibits',
+    description:
+      'Explore different historical periods through interactive museum exhibits',
     type: 'lesson',
     category: 'history',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Historical Timeline', 'Cultural Understanding', 'Chronology'],
     estimatedTime: '25-30 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'ancient-egypt-explorer',
     title: 'Ancient Egypt Explorer',
-    description: 'Journey back 5,000 years to explore pyramids, pharaohs, and hieroglyphics',
+    description:
+      'Journey back 5,000 years to explore pyramids, pharaohs, and hieroglyphics',
     type: 'lesson',
     category: 'history',
     gradeLevel: ['3', '4', '5', '6'],
@@ -868,29 +914,31 @@ const historyLessons: Adventure[] = [
     skills: ['Ancient History', 'Egypt', 'Archaeology'],
     estimatedTime: '25-30 mins',
     featured: true,
-    htmlPath: '/lessons/ancient-egypt-explorer.html'
+    htmlPath: '/lessons/ancient-egypt-explorer.html',
   },
   {
     id: 'ancient-civilizations-explorer',
     title: 'Ancient Civilizations Explorer',
-    description: 'Discover Egypt, Greece, and Rome through virtual archaeological digs',
+    description:
+      'Discover Egypt, Greece, and Rome through virtual archaeological digs',
     type: 'lesson',
     category: 'history',
     gradeLevel: ['4', '5'],
     difficulty: 'medium',
     skills: ['Ancient History', 'Archaeology', 'Cultural Comparison'],
-    estimatedTime: '30-35 mins'
+    estimatedTime: '30-35 mins',
   },
   {
     id: 'american-heroes-hall',
     title: 'American Heroes Hall',
-    description: 'Learn about historical figures and their contributions to American history',
+    description:
+      'Learn about historical figures and their contributions to American history',
     type: 'lesson',
     category: 'history',
     gradeLevel: ['2', '3', '4', '5'],
     difficulty: 'easy',
     skills: ['American History', 'Biography', 'Historical Figures'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'world-landmarks-journey',
@@ -901,78 +949,84 @@ const historyLessons: Adventure[] = [
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['World Geography', 'Cultural Heritage', 'Architecture'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'timeline-detective',
     title: 'Timeline Detective',
-    description: 'Solve historical mysteries by placing events in chronological order',
+    description:
+      'Solve historical mysteries by placing events in chronological order',
     type: 'lesson',
     category: 'history',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Chronology', 'Cause and Effect', 'Historical Analysis'],
-    estimatedTime: '20-25 mins'
-  }
+    estimatedTime: '20-25 mins',
+  },
 ];
 
 const historyGames: Adventure[] = [
   {
     id: 'civilization-builder',
     title: 'Civilization Builder',
-    description: 'Build and manage ancient civilizations while learning historical concepts',
+    description:
+      'Build and manage ancient civilizations while learning historical concepts',
     type: 'game',
     category: 'history',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Strategy', 'Historical Understanding', 'Resource Management'],
     estimatedTime: '25-30 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'historical-trivia-quest',
     title: 'Historical Trivia Quest',
-    description: 'Adventure through time answering historical questions and challenges',
+    description:
+      'Adventure through time answering historical questions and challenges',
     type: 'game',
     category: 'history',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Historical Facts', 'Memory', 'Timeline Knowledge'],
-    estimatedTime: '15-20 mins'
+    estimatedTime: '15-20 mins',
   },
   {
     id: 'pioneer-trail-adventure',
     title: 'Pioneer Trail Adventure',
-    description: 'Experience westward expansion through interactive decision-making',
+    description:
+      'Experience westward expansion through interactive decision-making',
     type: 'game',
     category: 'history',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['American History', 'Decision Making', 'Historical Simulation'],
-    estimatedTime: '20-25 mins'
+    estimatedTime: '20-25 mins',
   },
   {
     id: 'world-war-heroes',
     title: 'World War Heroes',
-    description: 'Learn about courage and sacrifice through age-appropriate war stories',
+    description:
+      'Learn about courage and sacrifice through age-appropriate war stories',
     type: 'game',
     category: 'history',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['World History', 'Character Values', 'Historical Perspective'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'invention-timeline',
     title: 'Invention Timeline',
-    description: 'Match inventions to their time periods and learn about innovation',
+    description:
+      'Match inventions to their time periods and learn about innovation',
     type: 'game',
     category: 'history',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Innovation', 'Technology History', 'Timeline Skills'],
-    estimatedTime: '15-20 mins'
-  }
+    estimatedTime: '15-20 mins',
+  },
 ];
 
 // Interdisciplinary Adventures Data
@@ -980,118 +1034,153 @@ const interdisciplinaryLessons: Adventure[] = [
   {
     id: 'space-mission-control',
     title: 'Space Mission Control',
-    description: 'Combine math, science, and teamwork to plan and execute space missions',
+    description:
+      'Combine math, science, and teamwork to plan and execute space missions',
     type: 'lesson',
     category: 'interdisciplinary',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
-    skills: ['STEM Integration', 'Problem Solving', 'Teamwork', 'Space Science'],
+    skills: [
+      'STEM Integration',
+      'Problem Solving',
+      'Teamwork',
+      'Space Science',
+    ],
     estimatedTime: '35-40 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'environmental-detective',
     title: 'Environmental Detective',
-    description: 'Use science, math, and research skills to solve environmental challenges',
+    description:
+      'Use science, math, and research skills to solve environmental challenges',
     type: 'lesson',
     category: 'interdisciplinary',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Environmental Science', 'Data Analysis', 'Research Skills'],
-    estimatedTime: '30-35 mins'
+    estimatedTime: '30-35 mins',
   },
   {
     id: 'historical-math-mysteries',
     title: 'Historical Math Mysteries',
-    description: 'Solve mathematical problems using historical contexts and ancient methods',
+    description:
+      'Solve mathematical problems using historical contexts and ancient methods',
     type: 'lesson',
     category: 'interdisciplinary',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Mathematics', 'History', 'Cultural Math', 'Problem Solving'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'storytelling-with-data',
     title: 'Storytelling with Data',
-    description: 'Create compelling narratives using charts, graphs, and statistical analysis',
+    description:
+      'Create compelling narratives using charts, graphs, and statistical analysis',
     type: 'lesson',
     category: 'interdisciplinary',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
-    skills: ['Data Visualization', 'Storytelling', 'Statistics', 'Communication'],
-    estimatedTime: '30-35 mins'
+    skills: [
+      'Data Visualization',
+      'Storytelling',
+      'Statistics',
+      'Communication',
+    ],
+    estimatedTime: '30-35 mins',
   },
   {
     id: 'design-thinking-lab',
     title: 'Design Thinking Lab',
-    description: 'Apply creative problem-solving to real-world challenges across subjects',
+    description:
+      'Apply creative problem-solving to real-world challenges across subjects',
     type: 'lesson',
     category: 'interdisciplinary',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Design Thinking', 'Creativity', 'Innovation', 'Problem Solving'],
-    estimatedTime: '40-45 mins'
-  }
+    estimatedTime: '40-45 mins',
+  },
 ];
 
 const interdisciplinaryGames: Adventure[] = [
   {
     id: 'eco-city-simulator',
     title: 'Eco-City Simulator',
-    description: 'Build sustainable cities using science, math, and social studies concepts',
+    description:
+      'Build sustainable cities using science, math, and social studies concepts',
     type: 'game',
     category: 'interdisciplinary',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
-    skills: ['Urban Planning', 'Environmental Science', 'Mathematics', 'Social Studies'],
+    skills: [
+      'Urban Planning',
+      'Environmental Science',
+      'Mathematics',
+      'Social Studies',
+    ],
     estimatedTime: '30-35 mins',
-    featured: true
+    featured: true,
   },
   {
     id: 'time-traveler-scholar',
     title: 'Time Traveler Scholar',
-    description: 'Travel through time solving problems that combine multiple academic subjects',
+    description:
+      'Travel through time solving problems that combine multiple academic subjects',
     type: 'game',
     category: 'interdisciplinary',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
-    skills: ['Cross-curricular', 'Critical Thinking', 'Historical Context', 'Problem Solving'],
-    estimatedTime: '25-30 mins'
+    skills: [
+      'Cross-curricular',
+      'Critical Thinking',
+      'Historical Context',
+      'Problem Solving',
+    ],
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'museum-curator-challenge',
     title: 'Museum Curator Challenge',
-    description: 'Curate museum exhibits combining art, history, science, and math',
+    description:
+      'Curate museum exhibits combining art, history, science, and math',
     type: 'game',
     category: 'interdisciplinary',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'medium',
     skills: ['Art History', 'Research', 'Organization', 'Presentation'],
-    estimatedTime: '25-30 mins'
+    estimatedTime: '25-30 mins',
   },
   {
     id: 'newspaper-editor-simulation',
     title: 'Newspaper Editor Simulation',
-    description: 'Create news stories combining writing, current events, and data analysis',
+    description:
+      'Create news stories combining writing, current events, and data analysis',
     type: 'game',
     category: 'interdisciplinary',
     gradeLevel: ['4', '5'],
     difficulty: 'hard',
     skills: ['Journalism', 'Writing', 'Current Events', 'Media Literacy'],
-    estimatedTime: '30-35 mins'
+    estimatedTime: '30-35 mins',
   },
   {
     id: 'invention-workshop',
     title: 'Invention Workshop',
-    description: 'Invent solutions to problems using science, engineering, and creative thinking',
+    description:
+      'Invent solutions to problems using science, engineering, and creative thinking',
     type: 'game',
     category: 'interdisciplinary',
     gradeLevel: ['3', '4', '5'],
     difficulty: 'hard',
-    skills: ['Engineering', 'Innovation', 'Science', 'Creative Problem Solving'],
-    estimatedTime: '35-40 mins'
-  }
+    skills: [
+      'Engineering',
+      'Innovation',
+      'Science',
+      'Creative Problem Solving',
+    ],
+    estimatedTime: '35-40 mins',
+  },
 ];
 
 // Combined catalog data
@@ -1099,77 +1188,81 @@ export const catalogData: CategoryData[] = [
   {
     id: 'math',
     name: 'Math Adventures',
-    description: 'Interactive mathematical learning experiences that make numbers fun and engaging',
+    description:
+      'Interactive mathematical learning experiences that make numbers fun and engaging',
     icon: 'academic',
     adventures: {
       lessons: mathLessons,
-      games: mathGames
-    }
+      games: mathGames,
+    },
   },
   {
     id: 'science',
     name: 'Science Explorations',
-    description: 'Discover the wonders of science through hands-on experiments and exploration',
+    description:
+      'Discover the wonders of science through hands-on experiments and exploration',
     icon: 'academic',
     adventures: {
       lessons: scienceLessons,
-      games: scienceGames
-    }
+      games: scienceGames,
+    },
   },
   {
     id: 'english',
     name: 'English Language Arts',
-    description: 'Enhance reading, writing, and communication skills through interactive adventures',
+    description:
+      'Enhance reading, writing, and communication skills through interactive adventures',
     icon: 'academic',
     adventures: {
       lessons: englishLessons,
-      games: englishGames
-    }
+      games: englishGames,
+    },
   },
   {
     id: 'history',
     name: 'History Explorations',
-    description: 'Journey through time and explore civilizations, cultures, and historical events',
+    description:
+      'Journey through time and explore civilizations, cultures, and historical events',
     icon: 'academic',
     adventures: {
       lessons: historyLessons,
-      games: historyGames
-    }
+      games: historyGames,
+    },
   },
   {
     id: 'interdisciplinary',
     name: 'Interdisciplinary Learning',
-    description: 'Cross-curricular adventures that combine multiple subjects for deeper understanding',
+    description:
+      'Cross-curricular adventures that combine multiple subjects for deeper understanding',
     icon: 'academic',
     adventures: {
       lessons: interdisciplinaryLessons,
-      games: interdisciplinaryGames
-    }
-  }
+      games: interdisciplinaryGames,
+    },
+  },
 ];
 
 // Helper functions
 export function getAllAdventures(): Adventure[] {
-  return catalogData.flatMap(category => [
+  return catalogData.flatMap((category) => [
     ...category.adventures.lessons,
-    ...category.adventures.games
+    ...category.adventures.games,
   ]);
 }
 
 export function getFeaturedAdventures(): Adventure[] {
-  return getAllAdventures().filter(adventure => adventure.featured);
+  return getAllAdventures().filter((adventure) => adventure.featured);
 }
 
 export function getAdventuresByCategory(categoryId: string): Adventure[] {
-  const category = catalogData.find(cat => cat.id === categoryId);
-  return category ? [
-    ...category.adventures.lessons,
-    ...category.adventures.games
-  ] : [];
+  const category = catalogData.find((cat) => cat.id === categoryId);
+  return category
+    ? [...category.adventures.lessons, ...category.adventures.games]
+    : [];
 }
 
 export function getAdventuresByType(type: 'game' | 'lesson'): Adventure[] {
-  return getAllAdventures().filter(adventure => adventure.type === type);
+  return getAllAdventures().filter((adventure) => adventure.type === type);
 }
 
 export function filterAdventures(
@@ -1181,8 +1274,11 @@ export function filterAdventures(
     category?: string;
   }
 ): Adventure[] {
-  return adventures.filter(adventure => {
-    if (filters.gradeLevel && !adventure.gradeLevel.includes(filters.gradeLevel)) {
+  return adventures.filter((adventure) => {
+    if (
+      filters.gradeLevel &&
+      !adventure.gradeLevel.includes(filters.gradeLevel)
+    ) {
       return false;
     }
     if (filters.difficulty && adventure.difficulty !== filters.difficulty) {
@@ -1199,9 +1295,14 @@ export function filterAdventures(
 }
 
 // Preview-specific helper functions
-export function getFeaturedAdventuresByCategory(categoryId: string, limit: number = 5): Adventure[] {
+export function getFeaturedAdventuresByCategory(
+  categoryId: string,
+  limit: number = 5
+): Adventure[] {
   const categoryAdventures = getAdventuresByCategory(categoryId);
-  const featuredAdventures = categoryAdventures.filter(adventure => adventure.featured);
+  const featuredAdventures = categoryAdventures.filter(
+    (adventure) => adventure.featured
+  );
 
   // If we have enough featured adventures, return them
   if (featuredAdventures.length >= limit) {
@@ -1209,40 +1310,58 @@ export function getFeaturedAdventuresByCategory(categoryId: string, limit: numbe
   }
 
   // Otherwise, supplement with non-featured adventures
-  const nonFeaturedAdventures = categoryAdventures.filter(adventure => !adventure.featured);
+  const nonFeaturedAdventures = categoryAdventures.filter(
+    (adventure) => !adventure.featured
+  );
   const supplementCount = limit - featuredAdventures.length;
 
   return [
     ...featuredAdventures,
-    ...nonFeaturedAdventures.slice(0, supplementCount)
+    ...nonFeaturedAdventures.slice(0, supplementCount),
   ];
 }
 
-export function getPreviewAdventuresForAllCategories(limit: number = 5): Record<string, Adventure[]> {
-  const categories = ['math', 'science', 'english', 'history', 'interdisciplinary'] as const;
+export function getPreviewAdventuresForAllCategories(
+  limit: number = 5
+): Record<string, Adventure[]> {
+  const categories = [
+    'math',
+    'science',
+    'english',
+    'history',
+    'interdisciplinary',
+  ] as const;
   const previewData: Record<string, Adventure[]> = {};
 
-  categories.forEach(categoryId => {
-    previewData[categoryId] = getFeaturedAdventuresByCategory(categoryId, limit);
+  categories.forEach((categoryId) => {
+    previewData[categoryId] = getFeaturedAdventuresByCategory(
+      categoryId,
+      limit
+    );
   });
 
   return previewData;
 }
 
 export function getCategoryMetadata() {
-  return catalogData.map(category => ({
+  return catalogData.map((category) => ({
     id: category.id,
     name: category.name,
     description: category.description,
     icon: category.icon,
-    totalAdventures: category.adventures.lessons.length + category.adventures.games.length,
-    featuredAdventures: [...category.adventures.lessons, ...category.adventures.games]
-      .filter(adventure => adventure.featured).length
+    totalAdventures:
+      category.adventures.lessons.length + category.adventures.games.length,
+    featuredAdventures: [
+      ...category.adventures.lessons,
+      ...category.adventures.games,
+    ].filter((adventure) => adventure.featured).length,
   }));
 }
 
 // Get adventure by ID from all categories
 export function getAdventureById(adventureId: string): Adventure | null {
   const allAdventures = getAllAdventures();
-  return allAdventures.find(adventure => adventure.id === adventureId) || null;
+  return (
+    allAdventures.find((adventure) => adventure.id === adventureId) || null
+  );
 }

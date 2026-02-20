@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: 'User created successfully',
-        user
+        user,
       },
       { status: 201 }
     );

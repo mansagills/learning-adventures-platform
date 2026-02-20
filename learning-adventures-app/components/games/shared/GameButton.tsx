@@ -11,9 +11,12 @@ interface GameButtonProps {
 
 const variantStyles = {
   primary: 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl',
-  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md hover:shadow-lg',
-  success: 'bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl',
-  warning: 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg hover:shadow-xl',
+  secondary:
+    'bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md hover:shadow-lg',
+  success:
+    'bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl',
+  warning:
+    'bg-yellow-500 hover:bg-yellow-600 text-white shadow-lg hover:shadow-xl',
   danger: 'bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl',
 };
 

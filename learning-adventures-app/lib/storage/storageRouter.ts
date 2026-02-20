@@ -4,7 +4,17 @@ import path from 'path';
 
 const STORAGE_RULES = {
   LOCAL_MAX_SIZE: 10 * 1024 * 1024, // 10MB
-  LOCAL_TYPES: ['.html', '.css', '.js', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg'],
+  LOCAL_TYPES: [
+    '.html',
+    '.css',
+    '.js',
+    '.json',
+    '.png',
+    '.jpg',
+    '.jpeg',
+    '.gif',
+    '.svg',
+  ],
   BLOB_TYPES: ['.mp4', '.webm', '.mov', '.avi', '.mkv'],
 };
 

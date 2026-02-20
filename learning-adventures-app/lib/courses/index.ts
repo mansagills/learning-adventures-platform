@@ -227,21 +227,21 @@ export async function getCoursePageData(courseId: string, userId?: string) {
  * Includes enrollments, progress, stats, and XP info
  */
 export async function getUserDashboardData(userId: string) {
-  const { getInProgressCourses, getCompletedCourses } = await import(
-    './enrollmentHelpers'
-  );
+  const { getInProgressCourses, getCompletedCourses } =
+    await import('./enrollmentHelpers');
   const { getUserCourseStats } = await import('./progressHelpers');
   const { getUserLevelInfo, getUserStreak } = await import('./xpCalculations');
   const { getRecentXP } = await import('./xpCalculations');
 
-  const [inProgress, completed, stats, levelInfo, streak, recentXP] = await Promise.all([
-    getInProgressCourses(userId),
-    getCompletedCourses(userId),
-    getUserCourseStats(userId),
-    getUserLevelInfo(userId),
-    getUserStreak(userId),
-    getRecentXP(userId, 7),
-  ]);
+  const [inProgress, completed, stats, levelInfo, streak, recentXP] =
+    await Promise.all([
+      getInProgressCourses(userId),
+      getCompletedCourses(userId),
+      getUserCourseStats(userId),
+      getUserLevelInfo(userId),
+      getUserStreak(userId),
+      getRecentXP(userId, 7),
+    ]);
 
   return {
     inProgress,
@@ -258,7 +258,8 @@ export async function getUserDashboardData(userId: string) {
  * Includes all published courses with user progress if authenticated
  */
 export async function getCourseCatalogData(userId?: string, subject?: string) {
-  const { getCourses, getCoursesWithProgress } = await import('./courseQueries');
+  const { getCourses, getCoursesWithProgress } =
+    await import('./courseQueries');
 
   const filters = {
     isPublished: true,
