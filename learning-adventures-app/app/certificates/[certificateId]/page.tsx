@@ -69,7 +69,9 @@ export default function CertificatePage({ params }: CertificatePageProps) {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-800 mb-4">{error || 'Certificate not found'}</p>
+            <p className="text-red-800 mb-4">
+              {error || 'Certificate not found'}
+            </p>
             <button
               onClick={() => router.push('/profile')}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -98,7 +100,12 @@ export default function CertificatePage({ params }: CertificatePageProps) {
               onClick={handlePrint}
               className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -112,7 +119,12 @@ export default function CertificatePage({ params }: CertificatePageProps) {
               onClick={handleDownload}
               className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -130,14 +142,19 @@ export default function CertificatePage({ params }: CertificatePageProps) {
 
         {/* Instructions - Hidden when printing */}
         <div className="no-print mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 mb-2">How to Save as PDF</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">
+            How to Save as PDF
+          </h3>
           <ol className="list-decimal list-inside text-blue-800 space-y-1 text-sm">
             <li>Click "Download PDF" or "Print Certificate" button above</li>
-            <li>In the print dialog, select "Save as PDF" as the destination</li>
+            <li>
+              In the print dialog, select "Save as PDF" as the destination
+            </li>
             <li>Click "Save" and choose where to save your certificate</li>
           </ol>
           <p className="mt-4 text-xs text-blue-700">
-            <strong>Tip:</strong> You can share this page URL to allow others to verify your certificate.
+            <strong>Tip:</strong> You can share this page URL to allow others to
+            verify your certificate.
           </p>
         </div>
       </div>

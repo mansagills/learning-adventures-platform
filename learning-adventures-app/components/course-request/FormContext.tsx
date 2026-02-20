@@ -254,8 +254,10 @@ export function FormProvider({ children }: { children: ReactNode }) {
   const contextValue: FormContextType = {
     state,
     dispatch,
-    updateField: (field, value) => dispatch({ type: 'UPDATE_FIELD', field, value }),
-    updateStepData: (stepData) => dispatch({ type: 'UPDATE_STEP_DATA', stepData }),
+    updateField: (field, value) =>
+      dispatch({ type: 'UPDATE_FIELD', field, value }),
+    updateStepData: (stepData) =>
+      dispatch({ type: 'UPDATE_STEP_DATA', stepData }),
     nextStep: () => dispatch({ type: 'NEXT_STEP' }),
     prevStep: () => dispatch({ type: 'PREV_STEP' }),
     goToStep: (step) => dispatch({ type: 'GO_TO_STEP', step }),
@@ -264,9 +266,7 @@ export function FormProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <FormContext.Provider value={contextValue}>
-      {children}
-    </FormContext.Provider>
+    <FormContext.Provider value={contextValue}>{children}</FormContext.Provider>
   );
 }
 

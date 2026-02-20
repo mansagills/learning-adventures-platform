@@ -17,7 +17,7 @@ export default function RecommendedContent({
   recommendations,
   isLoading = false,
   reason = 'subject',
-  maxDisplay = 4
+  maxDisplay = 4,
 }: RecommendedContentProps) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
 
@@ -46,7 +46,7 @@ export default function RecommendedContent({
       science: 'bg-green-500',
       english: 'bg-purple-500',
       history: 'bg-orange-500',
-      interdisciplinary: 'bg-pink-500'
+      interdisciplinary: 'bg-pink-500',
     };
     return colors[category.toLowerCase()] || 'bg-gray-500';
   };
@@ -66,10 +66,7 @@ export default function RecommendedContent({
 
   if (recommendations.length === 0 && !isLoading) {
     return (
-      <DashboardCard
-        title="Recommended for You"
-        icon={<Icon name="explore" />}
-      >
+      <DashboardCard title="Recommended for You" icon={<Icon name="explore" />}>
         <div className="text-center py-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
             <Icon name="explore" className="text-gray-400 text-2xl" />
@@ -122,7 +119,10 @@ export default function RecommendedContent({
         {displayedRecommendations.map((adventure) => (
           <Link
             key={adventure.id}
-            href={(adventure.htmlPath || `/catalog?adventure=${adventure.id}`) as any}
+            href={
+              (adventure.htmlPath ||
+                `/catalog?adventure=${adventure.id}`) as any
+            }
             className={`block group ${
               view === 'grid'
                 ? 'p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-brand-500 transition-all'
@@ -195,7 +195,10 @@ export default function RecommendedContent({
                 )}
                 {adventure.type && (
                   <span className="flex items-center gap-1">
-                    <Icon name={adventure.type === 'game' ? 'play' : 'book'} className="text-xs" />
+                    <Icon
+                      name={adventure.type === 'game' ? 'play' : 'book'}
+                      className="text-xs"
+                    />
                     {adventure.type}
                   </span>
                 )}

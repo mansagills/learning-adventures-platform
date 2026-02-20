@@ -20,11 +20,36 @@ function PracticeContent() {
         {/* Subject Categories */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {[
-            { name: 'Math', icon: 'calculator', color: 'from-blue-500 to-purple-600', count: 45 },
-            { name: 'Science', icon: 'flask', color: 'from-green-500 to-teal-600', count: 32 },
-            { name: 'English', icon: 'book', color: 'from-orange-500 to-red-600', count: 28 },
-            { name: 'History', icon: 'globe', color: 'from-amber-500 to-yellow-600', count: 20 },
-            { name: 'All', icon: 'grid', color: 'from-gray-600 to-gray-800', count: 125 },
+            {
+              name: 'Math',
+              icon: 'calculator',
+              color: 'from-blue-500 to-purple-600',
+              count: 45,
+            },
+            {
+              name: 'Science',
+              icon: 'flask',
+              color: 'from-green-500 to-teal-600',
+              count: 32,
+            },
+            {
+              name: 'English',
+              icon: 'book',
+              color: 'from-orange-500 to-red-600',
+              count: 28,
+            },
+            {
+              name: 'History',
+              icon: 'globe',
+              color: 'from-amber-500 to-yellow-600',
+              count: 20,
+            },
+            {
+              name: 'All',
+              icon: 'grid',
+              color: 'from-gray-600 to-gray-800',
+              count: 125,
+            },
           ].map((category) => (
             <button
               key={category.name}
@@ -33,11 +58,17 @@ function PracticeContent() {
               <div
                 className={`w-12 h-12 bg-gradient-to-br ${category.color} rounded-lg flex items-center justify-center mb-3 mx-auto group-hover:scale-110 transition-transform`}
               >
-                <Icon name={category.icon as any} size={24} className="text-white" />
+                <Icon
+                  name={category.icon as any}
+                  size={24}
+                  className="text-white"
+                />
               </div>
               <div className="text-center">
                 <div className="font-medium text-ink-900">{category.name}</div>
-                <div className="text-xs text-gray-500">{category.count} games</div>
+                <div className="text-xs text-gray-500">
+                  {category.count} games
+                </div>
               </div>
             </button>
           ))}
@@ -45,7 +76,9 @@ function PracticeContent() {
 
         {/* Recommended for You */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-ink-900 mb-4">Recommended for You</h2>
+          <h2 className="text-xl font-bold text-ink-900 mb-4">
+            Recommended for You
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Example Game Card */}
             <Link
@@ -67,7 +100,9 @@ function PracticeContent() {
                   </span>
                   <div className="flex items-center gap-1">
                     <Icon name="star" size={14} className="text-amber-500" />
-                    <span className="text-xs font-medium text-gray-700">4.8</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      4.8
+                    </span>
                   </div>
                 </div>
                 <h3 className="font-bold text-lg text-ink-900 mb-2 group-hover:text-brand-600 transition-colors">
@@ -103,7 +138,9 @@ function PracticeContent() {
                   </span>
                   <div className="flex items-center gap-1">
                     <Icon name="star" size={14} className="text-amber-500" />
-                    <span className="text-xs font-medium text-gray-700">4.9</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      4.9
+                    </span>
                   </div>
                 </div>
                 <h3 className="font-bold text-lg text-ink-900 mb-2 group-hover:text-brand-600 transition-colors">
@@ -138,7 +175,9 @@ function PracticeContent() {
                   </span>
                   <div className="flex items-center gap-1">
                     <Icon name="star" size={14} className="text-amber-500" />
-                    <span className="text-xs font-medium text-gray-700">4.7</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      4.7
+                    </span>
                   </div>
                 </div>
                 <h3 className="font-bold text-lg text-ink-900 mb-2 group-hover:text-brand-600 transition-colors">
@@ -161,7 +200,9 @@ function PracticeContent() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-bold mb-1">Daily Challenge</h2>
-              <p className="text-white/90 text-sm">Complete today's challenge to earn bonus XP</p>
+              <p className="text-white/90 text-sm">
+                Complete today's challenge to earn bonus XP
+              </p>
             </div>
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
               <Icon name="trophy" size={32} className="text-white" />
@@ -169,7 +210,7 @@ function PracticeContent() {
           </div>
           <div className="flex items-center gap-4">
             <Link
-              href={"/practice/daily-challenge" as any}
+              href={'/practice/daily-challenge' as any}
               className="px-6 py-3 bg-white text-brand-600 font-medium rounded-lg hover:bg-gray-50 transition-colors"
             >
               Start Challenge

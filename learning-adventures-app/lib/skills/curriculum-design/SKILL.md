@@ -1,11 +1,13 @@
 # Curriculum Design Skill
 
 ## Purpose
+
 Designs comprehensive learning objectives, lesson sequences, and progression strategies from a normalized design brief.
 
 ## What This Skill Does
 
 This skill is the **second step** in the course generation pipeline. It takes the structured design brief and creates a complete curriculum with:
+
 - Course structure (chapters and lessons)
 - Learning objectives aligned to Bloom's Taxonomy
 - Lesson type distribution optimized for engagement
@@ -13,6 +15,7 @@ This skill is the **second step** in the course generation pipeline. It takes th
 - Progression strategy with scaffolding
 
 ### Key Responsibilities:
+
 1. **Course Structure**: Create 3-5 chapters that organize lessons thematically
 2. **Lesson Planning**: Design detailed lesson plans with objectives, duration, and requirements
 3. **Type Distribution**: Balance lesson types (40% games, 20% quizzes, etc.)
@@ -23,6 +26,7 @@ This skill is the **second step** in the course generation pipeline. It takes th
 ## Input Format
 
 Expects a `designBrief` object from CourseDesignBriefSkill with:
+
 - Student profile (age, grade, interests, challenges)
 - Course requirements (subject, topics, difficulty, total lessons)
 - Learning preferences and accommodations
@@ -88,30 +92,35 @@ Returns a `curriculum` object with complete course structure:
 ### Target Ratios (with ±10% tolerance):
 
 **40% GAME Lessons** - Practice through play
+
 - Interactive, engaging practice of concepts
 - Immediate feedback
 - Multiple attempts encouraged
 - Examples: Math Race Rally, Fraction Pizza Shop, Word Builder Challenge
 
 **20% INTERACTIVE Lessons** - Guided exploration
+
 - Scaffolded learning with hints
 - Self-paced discovery
 - Visual/hands-on manipulatives
 - Examples: Virtual Science Lab, Equation Balance Beam, Reading Detective
 
 **20% QUIZ Lessons** - Formative assessment
+
 - Check understanding
 - Spaced throughout course (every 4-5 lessons)
 - Provide hints for wrong answers
 - Examples: Chapter Review Quiz, Mid-Course Check, Mastery Assessment
 
 **10% VIDEO/READING Lessons** - Direct instruction
+
 - Introduce new concepts
 - Provide worked examples
 - Short (5-15 minutes)
 - Examples: Concept Introduction, Worked Example Walkthrough, Story-Based Lesson
 
 **10% PROJECT Lessons** - Summative assessment
+
 - Apply multiple concepts
 - Creative expression
 - Real-world application
@@ -138,18 +147,22 @@ Returns a `curriculum` object with complete course structure:
 ## XP Reward Calibration
 
 ### By Difficulty:
+
 - **Easy**: 50-100 XP (onboarding, review, simple practice)
 - **Medium**: 100-200 XP (core concepts, multi-step problems)
 - **Hard**: 200-300 XP (synthesis, projects, mastery challenges)
 
 ### By Engagement Level:
+
 - **Games**: +20% bonus (high engagement)
 - **Projects**: +30% bonus (high effort)
 - **Quizzes**: Base XP (performance-based)
 - **Videos**: -10% (passive consumption)
 
 ### Total Course XP:
+
 Sum of all lesson rewards, typically:
+
 - SHORT course (5-10 lessons): 800-1,500 XP
 - MEDIUM course (12-20 lessons): 2,000-3,500 XP
 - LONG course (25-40 lessons): 4,500-8,000 XP
@@ -157,11 +170,13 @@ Sum of all lesson rewards, typically:
 ## Chapter Structure Guidelines
 
 ### Number of Chapters:
+
 - SHORT courses: 2-3 chapters
 - MEDIUM courses: 3-4 chapters
 - LONG courses: 4-5 chapters
 
 ### Chapter Themes:
+
 1. **Chapter 1**: Introduction & Foundations
    - Easy difficulty
    - Core vocabulary and concepts
@@ -182,17 +197,20 @@ Sum of all lesson rewards, typically:
 ### Scaffolding Approaches:
 
 **Spiral Progression**
+
 - Introduce concept simply
 - Revisit with added complexity
 - Apply in new contexts
 - Example: Fractions → Simple fractions → Mixed numbers → Operations with fractions
 
 **Linear Progression**
+
 - Master topic A before topic B
 - Each lesson prerequisite for next
 - Example: Addition → Subtraction → Multiplication → Division
 
 **Thematic Progression**
+
 - Organize by real-world application
 - Connect multiple skills
 - Example: "Space Math" course covering measurement, geometry, and data within space theme
@@ -207,12 +225,14 @@ Sum of all lesson rewards, typically:
 ### Assessment Strategy:
 
 **Formative (During Learning)**
+
 - Quizzes every 4-5 lessons
 - Immediate feedback with hints
 - No penalty for retakes
 - Track progress toward mastery
 
 **Summative (End of Learning)**
+
 - Final project or comprehensive quiz
 - Demonstrates synthesis of concepts
 - Certificate criteria (90%+ recommended)
@@ -220,18 +240,21 @@ Sum of all lesson rewards, typically:
 ## Lesson Sequencing Best Practices
 
 ### First 2-3 Lessons:
+
 - **Difficulty**: Easy
 - **Type**: Mix of VIDEO and INTERACTIVE
 - **Purpose**: Onboarding, build confidence, assess baseline
 - **Duration**: Shorter sessions (10-15 min)
 
 ### Middle Lessons:
+
 - **Difficulty**: Gradual increase (easy → medium → hard)
 - **Type**: Heavy on GAME and INTERACTIVE (engagement critical)
 - **Purpose**: Core skill development
 - **Duration**: Target session length from design brief
 
 ### Final 2-3 Lessons:
+
 - **Difficulty**: Hard
 - **Type**: QUIZ and PROJECT (mastery checks)
 - **Purpose**: Demonstrate learning, earn certificate
@@ -242,40 +265,61 @@ Sum of all lesson rewards, typically:
 For each lesson, specify:
 
 ### For GAME Lessons:
+
 ```typescript
 {
-  gameType: "drag-drop" | "multiple-choice" | "fill-in-blank" | "matching" | "sequencing" | "sorting"
-  interactionPattern: "timed-challenges" | "progressive-difficulty" | "exploratory" | "puzzle-based"
+  gameType: 'drag-drop' |
+    'multiple-choice' |
+    'fill-in-blank' |
+    'matching' |
+    'sequencing' |
+    'sorting';
+  interactionPattern: 'timed-challenges' |
+    'progressive-difficulty' |
+    'exploratory' |
+    'puzzle-based';
 }
 ```
 
 ### For INTERACTIVE Lessons:
+
 ```typescript
 {
-  gameType: "simulation" | "virtual-manipulative" | "choose-your-path" | "discovery-lab"
-  interactionPattern: "guided-exploration" | "scaffolded-hints" | "self-paced"
+  gameType: 'simulation' |
+    'virtual-manipulative' |
+    'choose-your-path' |
+    'discovery-lab';
+  interactionPattern: 'guided-exploration' | 'scaffolded-hints' | 'self-paced';
 }
 ```
 
 ### For QUIZ Lessons:
+
 ```typescript
 {
-  assessmentFormat: "multiple-choice" | "mixed-format" | "true-false" | "short-answer"
-  requiredScore: 70 // Typical passing threshold
+  assessmentFormat: 'multiple-choice' |
+    'mixed-format' |
+    'true-false' |
+    'short-answer';
+  requiredScore: 70; // Typical passing threshold
 }
 ```
 
 ### For PROJECT Lessons:
+
 ```typescript
 {
-  gameType: "open-ended-creation" | "problem-solving-challenge" | "portfolio-piece"
-  interactionPattern: "multi-step-guided" | "creative-freedom"
+  gameType: 'open-ended-creation' |
+    'problem-solving-challenge' |
+    'portfolio-piece';
+  interactionPattern: 'multi-step-guided' | 'creative-freedom';
 }
 ```
 
 ## Validation Rules
 
 ### Course-Level Checks:
+
 - ✅ Course title is engaging and descriptive
 - ✅ Total lessons matches design brief requirement
 - ✅ Total XP is sum of all lesson XP
@@ -283,6 +327,7 @@ For each lesson, specify:
 - ✅ 3-5 chapters created
 
 ### Lesson-Level Checks:
+
 - ✅ Lessons numbered sequentially (1, 2, 3...)
 - ✅ Each lesson belongs to valid chapter
 - ✅ Learning objectives use Bloom's Taxonomy verbs
@@ -291,6 +336,7 @@ For each lesson, specify:
 - ✅ Quizzes have requiredScore field
 
 ### Distribution Checks:
+
 - ✅ GAME lessons: 30-50% of total
 - ✅ INTERACTIVE lessons: 10-30% of total
 - ✅ QUIZ lessons: 10-30% of total
@@ -307,13 +353,20 @@ const skill = new CurriculumDesignSkill();
 const result = await skill.execute({
   userRequest: 'Design curriculum',
   previousOutputs: new Map([
-    ['designBrief', {
-      student: { name: 'Emma', age: 8, grade: '3rd Grade' },
-      course: { subject: 'MATH', topics: ['Multiplication', 'Division'], difficulty: 'medium' },
-      format: { totalLessons: 16, sessionDuration: 30 }
-      // ... other fields
-    }]
-  ])
+    [
+      'designBrief',
+      {
+        student: { name: 'Emma', age: 8, grade: '3rd Grade' },
+        course: {
+          subject: 'MATH',
+          topics: ['Multiplication', 'Division'],
+          difficulty: 'medium',
+        },
+        format: { totalLessons: 16, sessionDuration: 30 },
+        // ... other fields
+      },
+    ],
+  ]),
 });
 
 if (result.success) {
@@ -337,9 +390,11 @@ if (result.success) {
 ## Integration Points
 
 ### Input Source:
+
 - **CourseDesignBriefSkill**: Receives normalized design brief
 
 ### Output Consumers:
+
 - **InteractiveContentSkill**: Uses lesson requirements to generate HTML games
 - **NarrativeIntegrationSkill**: Uses course structure for story arcs
 - **AssessmentGenerationSkill**: Uses quiz lessons for question generation

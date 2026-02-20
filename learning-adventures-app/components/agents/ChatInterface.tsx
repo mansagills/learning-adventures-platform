@@ -173,23 +173,36 @@ export default function ChatInterface({
                   Welcome to {agentName}
                 </h3>
                 <p className="text-neutral-600 mb-6">
-                  Start a conversation by asking a question or describing what you'd like to create.
+                  Start a conversation by asking a question or describing what
+                  you'd like to create.
                 </p>
                 <div className="space-y-2 text-sm">
                   <button
-                    onClick={() => setInputValue('Generate 3 game ideas for 3rd grade math - multiplication')}
+                    onClick={() =>
+                      setInputValue(
+                        'Generate 3 game ideas for 3rd grade math - multiplication'
+                      )
+                    }
                     className="block w-full px-4 py-2 text-left bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
                   >
                     💡 Generate 3 game ideas for 3rd grade math - multiplication
                   </button>
                   <button
-                    onClick={() => setInputValue('Create a science game about the water cycle for 5th graders')}
+                    onClick={() =>
+                      setInputValue(
+                        'Create a science game about the water cycle for 5th graders'
+                      )
+                    }
                     className="block w-full px-4 py-2 text-left bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
                   >
                     🌊 Create a science game about the water cycle
                   </button>
                   <button
-                    onClick={() => setInputValue('Build an English vocabulary quiz with adaptive difficulty')}
+                    onClick={() =>
+                      setInputValue(
+                        'Build an English vocabulary quiz with adaptive difficulty'
+                      )
+                    }
                     className="block w-full px-4 py-2 text-left bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
                   >
                     📚 Build an English vocabulary quiz
@@ -233,8 +246,8 @@ export default function ChatInterface({
                 />
                 {uploadedFileIds.length > 0 && (
                   <p className="mt-2 text-xs text-green-600">
-                    ✓ {uploadedFileIds.length} file(s) uploaded and will be included
-                    in your next message
+                    ✓ {uploadedFileIds.length} file(s) uploaded and will be
+                    included in your next message
                   </p>
                 )}
               </div>

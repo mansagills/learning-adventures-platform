@@ -3,7 +3,7 @@
 **Learning:** User-provided identifiers from uploaded files (like `metadata.json` in a zip) must be treated as untrusted input, just like request body parameters. Even inside a "package", the metadata is user-controlled.
 **Prevention:** Strictly validate all identifiers used for file path construction using an allowlist (e.g., alphanumeric only). Do not rely on `path.basename` alone if the identifier determines a directory name.
 
-## 2026-02-04 - Mass Assignment in Auth Signup
-**Vulnerability:** Privilege Escalation via Mass Assignment in `app/api/auth/signup/route.ts`. The `role` field was accepted directly from the request body, allowing any user to register as 'ADMIN'.
-**Learning:** Direct mapping of request bodies to database models (`...req.body`) or implicit inclusion of sensitive fields skips business logic validation.
-**Prevention:** Always use an explicit allowlist for sensitive fields (like `role`) in public-facing endpoints. Default to the least privileged role (e.g., 'STUDENT') if an invalid role is requested.
+## 2026-02-05 - Path Traversal in File Upload Storage Router
+**Vulnerability:** Path Traversal in `routeFileUpload` in `lib/storage/storageRouter.ts`. The function blindly joined user-provided paths with the public directory, allowing writes outside the intended directory.
+**Learning:** `path.join` is insufficient for preventing path traversal when user input contains `..`. Even if `path.resolve` is used, one must explicitly check that the resolved path is still within the intended root directory using `startsWith`.
+**Prevention:** Always resolve the target path relative to the intended root and verify `resolvedPath.startsWith(intendedRoot)`.

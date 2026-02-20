@@ -9,7 +9,7 @@ interface LoadingSpinnerProps {
 export default function LoadingSpinner({
   size = 'md',
   className = '',
-  color = 'brand'
+  color = 'brand',
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -24,7 +24,9 @@ export default function LoadingSpinner({
   };
 
   return (
-    <div className={`animate-spin ${sizeClasses[size]} ${colorClasses[color]} ${className}`}>
+    <div
+      className={`animate-spin ${sizeClasses[size]} ${colorClasses[color]} ${className}`}
+    >
       <svg
         className="w-full h-full"
         xmlns="http://www.w3.org/2000/svg"

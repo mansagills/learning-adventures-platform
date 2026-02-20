@@ -16,7 +16,7 @@ export async function GET(
 
     // 2. Fetch content
     const content = await prisma.geminiContent.findUnique({
-      where: { id: params.contentId }
+      where: { id: params.contentId },
     });
 
     if (!content) {
@@ -36,11 +36,10 @@ export async function GET(
           "img-src 'self' data: blob: https:",
           "font-src 'self' data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
           "connect-src 'self'",
-          "frame-ancestors 'self'"
-        ].join('; ')
-      }
+          "frame-ancestors 'self'",
+        ].join('; '),
+      },
     });
-
   } catch (error: any) {
     console.error('Preview error:', error);
     return new NextResponse('Failed to load preview', { status: 500 });

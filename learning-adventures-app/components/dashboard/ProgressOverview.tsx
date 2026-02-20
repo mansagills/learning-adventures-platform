@@ -28,10 +28,14 @@ interface ProgressOverviewProps {
   isLoading?: boolean;
 }
 
-export default function ProgressOverview({ data, isLoading = false }: ProgressOverviewProps) {
-  const completionRate = data.totalAdventures > 0
-    ? Math.round((data.completedAdventures / data.totalAdventures) * 100)
-    : 0;
+export default function ProgressOverview({
+  data,
+  isLoading = false,
+}: ProgressOverviewProps) {
+  const completionRate =
+    data.totalAdventures > 0
+      ? Math.round((data.completedAdventures / data.totalAdventures) * 100)
+      : 0;
 
   const formatTime = (minutes: number): string => {
     if (minutes < 60) return `${minutes}m`;
@@ -97,10 +101,10 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
         >
           <ProgressChart
             type="pie"
-            data={data.subjectProgress.map(s => ({
+            data={data.subjectProgress.map((s) => ({
               label: s.subject,
               value: s.completed,
-              color: s.color
+              color: s.color,
             }))}
             height={250}
           />
@@ -121,17 +125,20 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
                   {subject.subject}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {subject.completed} / {subject.total} ({Math.round((subject.completed / subject.total) * 100)}%)
+                  {subject.completed} / {subject.total} (
+                  {Math.round((subject.completed / subject.total) * 100)}%)
                 </span>
               </div>
               <ProgressChart
                 type="bar"
-                data={[{
-                  label: subject.subject,
-                  value: subject.completed,
-                  max: subject.total,
-                  color: subject.color
-                }]}
+                data={[
+                  {
+                    label: subject.subject,
+                    value: subject.completed,
+                    max: subject.total,
+                    color: subject.color,
+                  },
+                ]}
                 height={30}
               />
             </div>
@@ -150,28 +157,26 @@ export default function ProgressOverview({ data, isLoading = false }: ProgressOv
             <p className="text-3xl font-bold text-white mb-2">
               {data.completedAdventures} / {data.totalAdventures}
             </p>
-            <p className="text-white/80">
-              Adventures Completed
-            </p>
+            <p className="text-white/80">Adventures Completed</p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-white mb-2">
               {data.averageScore}%
             </p>
-            <p className="text-white/80">
-              Average Score
-            </p>
+            <p className="text-white/80">Average Score</p>
           </div>
         </div>
         <div className="mt-4">
           <ProgressChart
             type="bar"
-            data={[{
-              label: 'Overall Progress',
-              value: data.completedAdventures,
-              max: data.totalAdventures,
-              color: '#fff'
-            }]}
+            data={[
+              {
+                label: 'Overall Progress',
+                value: data.completedAdventures,
+                max: data.totalAdventures,
+                color: '#fff',
+              },
+            ]}
             height={40}
           />
         </div>

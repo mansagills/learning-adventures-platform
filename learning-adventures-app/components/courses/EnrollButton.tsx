@@ -35,7 +35,9 @@ export default function EnrollButton({
 
   // Premium paywall modal state
   const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallReason, setPaywallReason] = useState<'premium_required' | 'free_limit_reached'>('premium_required');
+  const [paywallReason, setPaywallReason] = useState<
+    'premium_required' | 'free_limit_reached'
+  >('premium_required');
   const [freeCoursesEnrolled, setFreeCoursesEnrolled] = useState(0);
   const [freeCourseLimit, setFreeCourseLimit] = useState(2);
 
@@ -73,14 +75,15 @@ export default function EnrollButton({
           const missingCourses = details.missingPrerequisites
             ?.map((c: any) => c.title)
             .join(', ');
-          setError(
-            `You must complete these courses first: ${missingCourses}`
-          );
+          setError(`You must complete these courses first: ${missingCourses}`);
         } else if (details?.requiresPremium && !details?.hasPremiumAccess) {
           // Show premium paywall modal
           setPaywallReason('premium_required');
           setShowPaywall(true);
-        } else if (details?.freeCourseLimit && details?.freeCoursesEnrolled >= details.freeCourseLimit) {
+        } else if (
+          details?.freeCourseLimit &&
+          details?.freeCoursesEnrolled >= details.freeCourseLimit
+        ) {
           // Show free course limit paywall modal
           setPaywallReason('free_limit_reached');
           setFreeCoursesEnrolled(details.freeCoursesEnrolled);
@@ -99,7 +102,11 @@ export default function EnrollButton({
   };
 
   const handleUnenroll = async () => {
-    if (!confirm('Are you sure you want to unenroll from this course? Your progress will be lost.')) {
+    if (
+      !confirm(
+        'Are you sure you want to unenroll from this course? Your progress will be lost.'
+      )
+    ) {
       return;
     }
 
@@ -182,7 +189,9 @@ export default function EnrollButton({
 
         {error && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm font-semibold mb-1">Cannot Enroll</p>
+            <p className="text-red-800 text-sm font-semibold mb-1">
+              Cannot Enroll
+            </p>
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}

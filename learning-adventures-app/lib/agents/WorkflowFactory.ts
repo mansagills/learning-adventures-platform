@@ -77,7 +77,9 @@ export class WorkflowFactory {
    * Create React Game Workflow
    * Steps: Build Component → Validate Accessibility → Format Metadata
    */
-  async createReactGameWorkflow(input: ReactGameWorkflowInput): Promise<string> {
+  async createReactGameWorkflow(
+    input: ReactGameWorkflowInput
+  ): Promise<string> {
     const steps: Omit<WorkflowStep, 'status' | 'stepNumber'>[] = [
       {
         agentType: 'react-component',
@@ -115,7 +117,10 @@ export class WorkflowFactory {
    * Create Validation-Only Workflow
    * For validating existing games
    */
-  async createValidationWorkflow(code: string, format: 'html' | 'react'): Promise<string> {
+  async createValidationWorkflow(
+    code: string,
+    format: 'html' | 'react'
+  ): Promise<string> {
     const steps: Omit<WorkflowStep, 'status' | 'stepNumber'>[] = [
       {
         agentType: 'accessibility-validator',
@@ -165,7 +170,9 @@ export class WorkflowFactory {
   /**
    * Batch create games (sequential)
    */
-  async createBatchWorkflowSequential(input: BatchContentWorkflowInput): Promise<string[]> {
+  async createBatchWorkflowSequential(
+    input: BatchContentWorkflowInput
+  ): Promise<string[]> {
     const workflowIds: string[] = [];
 
     for (const gameIdea of input.gameIdeas) {
@@ -201,7 +208,9 @@ export class WorkflowFactory {
   /**
    * Batch create games (parallel)
    */
-  async createBatchWorkflowParallel(input: BatchContentWorkflowInput): Promise<string[]> {
+  async createBatchWorkflowParallel(
+    input: BatchContentWorkflowInput
+  ): Promise<string[]> {
     const workflowPromises = input.gameIdeas.map(async (gameIdea) => {
       let workflowId: string;
 
@@ -229,7 +238,7 @@ export class WorkflowFactory {
     const workflowIds = await Promise.all(workflowPromises);
 
     // Execute all workflows in parallel
-    await Promise.all(workflowIds.map(id => this.executeWorkflow(id)));
+    await Promise.all(workflowIds.map((id) => this.executeWorkflow(id)));
 
     return workflowIds;
   }

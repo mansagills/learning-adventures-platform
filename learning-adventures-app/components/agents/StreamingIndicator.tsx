@@ -19,9 +19,18 @@ export default function StreamingIndicator() {
 
         <div className="bg-neutral-100 px-4 py-3 rounded-2xl rounded-tl-sm">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div
+              className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"
+              style={{ animationDelay: '0ms' }}
+            />
+            <div
+              className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"
+              style={{ animationDelay: '150ms' }}
+            />
+            <div
+              className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce"
+              style={{ animationDelay: '300ms' }}
+            />
           </div>
         </div>
       </div>

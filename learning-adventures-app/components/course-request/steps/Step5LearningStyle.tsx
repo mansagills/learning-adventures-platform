@@ -7,42 +7,42 @@ const learningStyleOptions = [
   {
     label: 'Visual Learner',
     value: 'VISUAL',
-    description: 'Learns best with images, diagrams, videos, colors'
+    description: 'Learns best with images, diagrams, videos, colors',
   },
   {
     label: 'Hands-On/Kinesthetic',
     value: 'KINESTHETIC',
-    description: 'Learns by doing, building, moving, touching'
+    description: 'Learns by doing, building, moving, touching',
   },
   {
     label: 'Story-Based',
     value: 'NARRATIVE',
-    description: 'Engages through stories, characters, scenarios'
+    description: 'Engages through stories, characters, scenarios',
   },
   {
     label: 'Auditory',
     value: 'AUDITORY',
-    description: 'Learns through listening, discussion, verbal instruction'
+    description: 'Learns through listening, discussion, verbal instruction',
   },
   {
     label: 'Game-Based',
     value: 'GAME_BASED',
-    description: 'Motivated by challenges, points, competition'
+    description: 'Motivated by challenges, points, competition',
   },
   {
     label: 'Social/Collaborative',
     value: 'SOCIAL',
-    description: 'Thrives in group work and peer interaction'
+    description: 'Thrives in group work and peer interaction',
   },
   {
     label: 'Independent',
     value: 'INDEPENDENT',
-    description: 'Prefers self-paced, individual work'
+    description: 'Prefers self-paced, individual work',
   },
   {
     label: 'Analytical/Logical',
     value: 'ANALYTICAL',
-    description: 'Enjoys patterns, systems, cause-effect relationships'
+    description: 'Enjoys patterns, systems, cause-effect relationships',
   },
 ];
 
@@ -132,7 +132,8 @@ export default function Step5LearningStyle() {
               Why Learning Styles Matter
             </h4>
             <p className="text-sm text-gray-700 mb-2">
-              Understanding how a student learns best helps us create content that:
+              Understanding how a student learns best helps us create content
+              that:
             </p>
             <ul className="text-sm text-gray-700 space-y-1 ml-4">
               <li>• Matches their natural strengths</li>
@@ -141,8 +142,9 @@ export default function Step5LearningStyle() {
               <li>• Builds confidence through success</li>
             </ul>
             <p className="text-sm text-gray-700 mt-2">
-              For example, if a student loves dinosaurs and learns kinesthetically,
-              we might create a hands-on fossil dig game to teach measurement skills!
+              For example, if a student loves dinosaurs and learns
+              kinesthetically, we might create a hands-on fossil dig game to
+              teach measurement skills!
             </p>
           </div>
         </div>
