@@ -16,29 +16,32 @@ import type { SkillContext } from '../../types';
 // Sample curriculum from Phase 2
 const sampleCurriculum = {
   courseTitle: 'Animal Adventure Math: Multiplication & Division Safari',
-  courseDescription: 'Join your favorite animal friends on an exciting safari adventure while mastering multiplication tables, discovering division basics, and solving real-world word problems through interactive games and nature-themed challenges.',
+  courseDescription:
+    'Join your favorite animal friends on an exciting safari adventure while mastering multiplication tables, discovering division basics, and solving real-world word problems through interactive games and nature-themed challenges.',
   estimatedTotalMinutes: 360,
   totalXP: 1740,
   chapters: [
     {
       number: 1,
       title: 'Multiplication Safari: Building the Foundation',
-      description: 'Begin your adventure by exploring multiplication as repeated addition and master the basics with animal friends',
+      description:
+        'Begin your adventure by exploring multiplication as repeated addition and master the basics with animal friends',
       learningObjectives: [
         'Understand multiplication as repeated addition',
         'Recall facts for tables 2-5',
-        'Apply skip counting strategies'
-      ]
+        'Apply skip counting strategies',
+      ],
     },
     {
       number: 2,
       title: 'Advanced Multiplication Trails',
-      description: 'Continue your journey by tackling larger multiplication tables and discovering patterns',
+      description:
+        'Continue your journey by tackling larger multiplication tables and discovering patterns',
       learningObjectives: [
         'Master multiplication tables 6-10',
         'Identify patterns in multiplication',
-        'Apply strategies to multi-step problems'
-      ]
+        'Apply strategies to multi-step problems',
+      ],
     },
     {
       number: 3,
@@ -47,8 +50,8 @@ const sampleCurriculum = {
       learningObjectives: [
         'Understand division as sharing equally',
         'Explain relationship between multiplication and division',
-        'Solve basic division problems'
-      ]
+        'Solve basic division problems',
+      ],
     },
     {
       number: 4,
@@ -57,16 +60,16 @@ const sampleCurriculum = {
       learningObjectives: [
         'Analyze word problems to determine operations',
         'Apply multiplication and division to real-world scenarios',
-        'Create and justify solution strategies'
-      ]
-    }
+        'Create and justify solution strategies',
+      ],
+    },
   ],
   lessons: [],
   progression: {
     scaffolding: 'Spiral progression from concrete to abstract',
     reinforcement: 'Distributed practice across lessons',
-    assessmentStrategy: 'Formative quizzes every 4 lessons'
-  }
+    assessmentStrategy: 'Formative quizzes every 4 lessons',
+  },
 };
 
 const sampleDesignBrief = {
@@ -79,21 +82,21 @@ const sampleDesignBrief = {
     learningProfile: {
       styles: ['Visual', 'Hands-on', 'Story-based'],
       interests: ['Animals', 'Art', 'Nature'],
-      favoriteCharacters: 'Wild Kratts and Bluey'
-    }
+      favoriteCharacters: 'Wild Kratts and Bluey',
+    },
   },
   course: {
     subject: 'MATH',
     topics: ['Multiplication tables', 'Division basics'],
     learningGoals: 'REINFORCE',
     difficulty: 'medium',
-    gradeLevel: ['3rd Grade']
+    gradeLevel: ['3rd Grade'],
   },
   format: {
     totalLessons: 12,
     lessonsPerWeek: 3,
-    sessionDuration: 30
-  }
+    sessionDuration: 30,
+  },
 };
 
 async function testSkill() {
@@ -115,9 +118,15 @@ async function testSkill() {
   console.log(`${'='.repeat(80)}\n`);
 
   console.log(`Course: ${sampleCurriculum.courseTitle}`);
-  console.log(`Student: ${sampleDesignBrief.student.name} (Age ${sampleDesignBrief.student.age})`);
-  console.log(`Interests: ${sampleDesignBrief.student.learningProfile.interests.join(', ')}`);
-  console.log(`Favorite Characters: ${sampleDesignBrief.student.learningProfile.favoriteCharacters}`);
+  console.log(
+    `Student: ${sampleDesignBrief.student.name} (Age ${sampleDesignBrief.student.age})`
+  );
+  console.log(
+    `Interests: ${sampleDesignBrief.student.learningProfile.interests.join(', ')}`
+  );
+  console.log(
+    `Favorite Characters: ${sampleDesignBrief.student.learningProfile.favoriteCharacters}`
+  );
   console.log(`Chapters: ${sampleCurriculum.chapters.length}`);
   console.log('');
 
@@ -125,8 +134,8 @@ async function testSkill() {
   const confidence = await skill.canHandle('Create narrative arc', {
     previousOutputs: new Map([
       ['curriculum', sampleCurriculum],
-      ['designBrief', sampleDesignBrief]
-    ])
+      ['designBrief', sampleDesignBrief],
+    ]),
   });
   console.log(`✓ canHandle confidence: ${confidence}%\n`);
 
@@ -142,9 +151,9 @@ async function testSkill() {
     userRequest: 'Create narrative arc for this curriculum',
     previousOutputs: new Map([
       ['curriculum', sampleCurriculum],
-      ['designBrief', sampleDesignBrief]
+      ['designBrief', sampleDesignBrief],
     ]),
-    conversationHistory: []
+    conversationHistory: [],
   };
 
   try {
@@ -152,10 +161,18 @@ async function testSkill() {
 
     if (result.success) {
       console.log('✅ Execution successful!');
-      console.log(`   Execution time: ${result.metadata.executionTime}ms (${Math.round(result.metadata.executionTime / 1000)}s)`);
+      console.log(
+        `   Execution time: ${result.metadata.executionTime}ms (${Math.round(result.metadata.executionTime / 1000)}s)`
+      );
       console.log(`   Confidence: ${result.metadata.confidence}%\n`);
 
-      const { storyArc, courseIntroduction, courseConclusion, narrativeThemes, characterDevelopment } = result.output;
+      const {
+        storyArc,
+        courseIntroduction,
+        courseConclusion,
+        narrativeThemes,
+        characterDevelopment,
+      } = result.output;
 
       console.log('📖 Story Arc Summary:');
       console.log(`   Narrative: ${storyArc.courseNarrative}\n`);
@@ -171,14 +188,14 @@ async function testSkill() {
       console.log(`   Resolution: ${storyArc.resolution}\n`);
 
       console.log('📚 Chapter Story Beats:');
-      storyArc.chapterArcs.forEach(arc => {
+      storyArc.chapterArcs.forEach((arc) => {
         console.log(`\n   Chapter ${arc.chapterNumber}: ${arc.chapterTitle}`);
         console.log(`      Story: ${arc.storyBeat}`);
         console.log(`      Emotion: ${arc.emotionalArc}`);
       });
 
       console.log('\n🎭 Narrative Themes:');
-      narrativeThemes.forEach(theme => {
+      narrativeThemes.forEach((theme) => {
         console.log(`   • ${theme}`);
       });
 
@@ -191,19 +208,24 @@ async function testSkill() {
       console.log('🎉 Course Conclusion (first 200 chars):');
       console.log(`   ${courseConclusion.substring(0, 200)}...\n`);
 
-      if (result.metadata.suggestedNextSkills && result.metadata.suggestedNextSkills.length > 0) {
-        console.log(`🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`);
+      if (
+        result.metadata.suggestedNextSkills &&
+        result.metadata.suggestedNextSkills.length > 0
+      ) {
+        console.log(
+          `🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`
+        );
       }
-
     } else {
       console.log('❌ Execution failed!');
       console.log(`   Error code: ${result.error?.code}`);
       console.log(`   Error message: ${result.error?.message}`);
       if (result.error?.details) {
-        console.log(`   Details: ${JSON.stringify(result.error.details, null, 2)}`);
+        console.log(
+          `   Details: ${JSON.stringify(result.error.details, null, 2)}`
+        );
       }
     }
-
   } catch (error) {
     console.log('💥 Unexpected error during execution:');
     console.log(error);
@@ -215,7 +237,7 @@ async function testSkill() {
 }
 
 // Run tests
-testSkill().catch(error => {
+testSkill().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

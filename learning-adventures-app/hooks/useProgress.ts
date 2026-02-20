@@ -23,11 +23,14 @@ export interface ProgressStats {
   inProgress: number;
   totalTimeSpent: number;
   averageScore: number;
-  byCategory: Record<string, {
-    total: number;
-    completed: number;
-    averageScore: number;
-  }>;
+  byCategory: Record<
+    string,
+    {
+      total: number;
+      completed: number;
+      averageScore: number;
+    }
+  >;
   recentActivity: UserProgress[];
 }
 
@@ -93,7 +96,7 @@ export function useAdventureProgress(adventureId: string | null) {
     return null;
   }
 
-  return data.progress.find(p => p.adventureId === adventureId) || null;
+  return data.progress.find((p) => p.adventureId === adventureId) || null;
 }
 
 /**

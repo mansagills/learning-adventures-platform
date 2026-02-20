@@ -5,7 +5,8 @@ createGameRegistration(
   'sample-math-game',
   {
     name: 'Math Challenge',
-    description: 'Test your math skills with addition, subtraction, and multiplication!',
+    description:
+      'Test your math skills with addition, subtraction, and multiplication!',
     category: 'math',
     difficulty: 'easy',
     estimatedTime: 10,

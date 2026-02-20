@@ -78,7 +78,11 @@ export default function FormNavigation({
             >
               {isSaving ? (
                 <>
-                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -135,7 +139,11 @@ export default function FormNavigation({
             >
               {isSubmitting ? (
                 <>
-                  <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle
                       className="opacity-25"
                       cx="12"

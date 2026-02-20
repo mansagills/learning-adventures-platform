@@ -1,17 +1,20 @@
 # Assessment Generation Skill
 
 ## Purpose
+
 Generates comprehensive assessment materials including diagnostic tests, project rubrics, and additional quiz questions to support formative and summative evaluation of student learning.
 
 ## What This Skill Does
 
 This skill is the **fifth (optional) step** in the course generation pipeline. It creates assessment infrastructure beyond the basic quizzes generated in Phase 3:
+
 - Diagnostic pre/post tests to measure growth
 - Detailed rubrics for project-based assessments
 - Question banks for quiz randomization and retakes
 - Assessment strategy and feedback guidelines
 
 ### Key Responsibilities:
+
 1. **Diagnostic Tests**: Create pre-tests (baseline) and post-tests (growth measurement)
 2. **Project Rubrics**: Design detailed scoring criteria for open-ended work
 3. **Question Banks**: Build additional questions for each quiz lesson
@@ -21,16 +24,19 @@ This skill is the **fifth (optional) step** in the course generation pipeline. I
 ## Input Format
 
 Expects:
+
 - **curriculum** object from CurriculumDesignSkill
 - **designBrief** object (optional but recommended for age-appropriate content)
 
 Uses from curriculum:
+
 - All learning objectives
 - Project lessons (need rubrics)
 - Quiz lessons (need question banks)
 - Total lesson count
 
 Uses from design brief:
+
 - Student age and grade
 - Mastery threshold (passing score)
 
@@ -112,6 +118,7 @@ Returns comprehensive assessment materials:
 ### Pre-Test vs. Post-Test
 
 **Pre-Test Purpose**:
+
 - Establish baseline knowledge
 - Identify prerequisite skills student already has
 - Detect knowledge gaps to address
@@ -119,6 +126,7 @@ Returns comprehensive assessment materials:
 - **Not graded** - purely diagnostic
 
 **Post-Test Purpose**:
+
 - Measure growth from pre to post
 - Assess mastery of course objectives
 - Celebrate learning achievement
@@ -128,11 +136,13 @@ Returns comprehensive assessment materials:
 ### Question Count
 
 **Pre-Test**: 8-10 questions
+
 - Cover prerequisite skills
 - Quick to complete (10-15 minutes)
 - Lower stakes
 
 **Post-Test**: 10-12 questions
+
 - Cover all course objectives
 - Comprehensive (20-30 minutes)
 - Higher stakes (optional grading)
@@ -140,11 +150,13 @@ Returns comprehensive assessment materials:
 ### Difficulty Distribution
 
 **Pre-Test**:
+
 - 60% easy (baseline skills)
 - 30% medium (stretch skills)
 - 10% hard (preview of course content)
 
 **Post-Test**:
+
 - 30% easy (foundational mastery)
 - 50% medium (core competencies)
 - 20% hard (advanced application)
@@ -152,18 +164,21 @@ Returns comprehensive assessment materials:
 ### Age-Appropriate Language
 
 **Ages 5-7**:
+
 - Very simple sentences
 - Concrete examples (pictures help)
 - Avoid abstract concepts
 - Use familiar contexts
 
 **Ages 8-10**:
+
 - Clear, direct language
 - Some abstract thinking OK
 - Mix concrete and conceptual
 - Age-appropriate vocabulary
 
 **Ages 11-13**:
+
 - More complex sentences acceptable
 - Abstract reasoning expected
 - Academic vocabulary with context
@@ -174,12 +189,14 @@ Returns comprehensive assessment materials:
 ### Rubric Structure
 
 **4-Level Performance Scale** (recommended):
+
 1. **Advanced** (90-100% of points): Exceeds expectations
 2. **Proficient** (75-89% of points): Meets expectations
 3. **Developing** (60-74% of points): Approaching expectations
 4. **Emerging** (0-59% of points): Beginning to develop skills
 
 **Alternative: 3-Level Scale** (for younger students):
+
 1. **Got It!** (80-100%): Shows mastery
 2. **Getting There** (60-79%): Shows progress
 3. **Keep Trying** (0-59%): Needs more practice
@@ -187,18 +204,21 @@ Returns comprehensive assessment materials:
 ### Assessment Criteria (Dimensions)
 
 **For Math Projects**:
+
 - Mathematical Accuracy (30 points)
 - Problem-Solving Strategy (25 points)
 - Explanation/Reasoning (25 points)
 - Presentation/Organization (20 points)
 
 **For Science Projects**:
+
 - Scientific Accuracy (30 points)
 - Investigation Process (25 points)
 - Data Collection & Analysis (25 points)
 - Communication of Findings (20 points)
 
 **For English Projects**:
+
 - Content & Ideas (30 points)
 - Organization & Structure (25 points)
 - Language & Vocabulary (25 points)
@@ -238,6 +258,7 @@ CRITERION 2: Real-World Connection (25 points)
 ### Why Question Banks?
 
 **Benefits**:
+
 - **Randomization**: Different students get different questions
 - **Retakes**: Student can retake quiz with new questions
 - **Practice**: Extra questions for additional practice
@@ -246,6 +267,7 @@ CRITERION 2: Real-World Connection (25 points)
 ### Bank Size
 
 **Per Quiz Lesson**:
+
 - Minimum: 15 questions (for 10-question quiz)
 - Recommended: 20-25 questions
 - Allows 2-3 unique quiz versions
@@ -253,6 +275,7 @@ CRITERION 2: Real-World Connection (25 points)
 ### Question Distribution
 
 For 20-question bank:
+
 - 6-8 easy questions (30-40%)
 - 8-10 medium questions (40-50%)
 - 4-6 hard questions (20-30%)
@@ -260,11 +283,13 @@ For 20-question bank:
 ### Question Variety
 
 **Mix Question Types**:
+
 - 60% multiple choice (quick assessment)
 - 25% true/false (concept checks)
 - 15% fill-in-blank (recall)
 
 **Vary Content**:
+
 - Some questions test recall
 - Some test application
 - Some test analysis
@@ -277,6 +302,7 @@ For 20-question bank:
 **Definition**: Ongoing feedback during learning process
 
 **Strategies**:
+
 - Check-ins after each lesson (thumbs up/down)
 - Exit tickets (1-2 questions at lesson end)
 - Practice problems with immediate feedback
@@ -290,6 +316,7 @@ For 20-question bank:
 **Definition**: Final evaluation of learning
 
 **Tools**:
+
 - Chapter quizzes (check understanding of section)
 - Post-test (measure overall growth)
 - Final projects (demonstrate synthesis)
@@ -300,12 +327,14 @@ For 20-question bank:
 ### Feedback Guidelines
 
 **Effective Feedback is**:
+
 - **Specific**: "Your multiplication strategy in problem 3 was creative" vs. "Good job"
 - **Actionable**: "Try using arrays to visualize this problem" vs. "This is wrong"
 - **Timely**: Within 24-48 hours of submission
 - **Encouraging**: Acknowledge effort, frame mistakes as learning opportunities
 
 **Feedback Framework**:
+
 1. **Glow**: What student did well
 2. **Grow**: One specific area to improve
 3. **Goal**: Next step for learning
@@ -313,6 +342,7 @@ For 20-question bank:
 ### Retake Policy
 
 **Recommended Policy**:
+
 - Allow retakes for quizzes (different questions from bank)
 - Allow project revisions (with rubric feedback)
 - No penalty for retakes (learning is goal)
@@ -325,6 +355,7 @@ For 20-question bank:
 ### Ensuring Validity
 
 **Each Assessment Must**:
+
 - Map to specific learning objectives
 - Cover Bloom's Taxonomy levels addressed in lessons
 - Use similar format/language to lesson practice
@@ -414,6 +445,7 @@ Proficient (20-22):
 ## Validation Criteria
 
 ### Diagnostic Tests:
+
 - ✅ Pre-test covers prerequisite skills
 - ✅ Post-test covers all course objectives
 - ✅ Questions age-appropriate
@@ -421,6 +453,7 @@ Proficient (20-22):
 - ✅ Points total 100
 
 ### Project Rubrics:
+
 - ✅ Total points = 100
 - ✅ 4-5 assessment criteria
 - ✅ 3-4 performance levels
@@ -428,6 +461,7 @@ Proficient (20-22):
 - ✅ Language student-friendly
 
 ### Question Banks:
+
 - ✅ 15+ questions per quiz
 - ✅ Varied difficulty levels
 - ✅ All questions have explanations
@@ -443,20 +477,31 @@ const skill = new AssessmentGenerationSkill();
 const result = await skill.execute({
   userRequest: 'Generate assessments',
   previousOutputs: new Map([
-    ['curriculum', {
-      courseTitle: 'Animal Math Safari',
-      lessons: [/* lesson objects */],
-      chapters: [/* chapter objects */]
-    }],
-    ['designBrief', {
-      student: { age: 8, grade: '3rd Grade' },
-      assessment: { masteryThreshold: 70 }
-    }]
-  ])
+    [
+      'curriculum',
+      {
+        courseTitle: 'Animal Math Safari',
+        lessons: [
+          /* lesson objects */
+        ],
+        chapters: [
+          /* chapter objects */
+        ],
+      },
+    ],
+    [
+      'designBrief',
+      {
+        student: { age: 8, grade: '3rd Grade' },
+        assessment: { masteryThreshold: 70 },
+      },
+    ],
+  ]),
 });
 
 if (result.success) {
-  const { diagnosticPreTest, projectRubrics, assessmentStrategy } = result.output;
+  const { diagnosticPreTest, projectRubrics, assessmentStrategy } =
+    result.output;
 
   // Store in database
   await prisma.course.update({
@@ -464,15 +509,15 @@ if (result.success) {
     data: {
       preTestData: JSON.stringify(diagnosticPreTest),
       postTestData: JSON.stringify(diagnosticPostTest),
-      assessmentStrategy: JSON.stringify(assessmentStrategy)
-    }
+      assessmentStrategy: JSON.stringify(assessmentStrategy),
+    },
   });
 
   // Store rubrics with project lessons
   for (const rubric of projectRubrics) {
     await prisma.courseLesson.update({
       where: { order: rubric.lessonOrder },
-      data: { rubricData: JSON.stringify(rubric) }
+      data: { rubricData: JSON.stringify(rubric) },
     });
   }
 }
@@ -481,10 +526,12 @@ if (result.success) {
 ## Integration Points
 
 ### Input Sources:
+
 - **CurriculumDesignSkill**: Learning objectives, lesson structure
 - **CourseDesignBriefSkill**: Student age, mastery threshold
 
 ### Output Consumers:
+
 - **Course Record**: Store diagnostic tests and assessment strategy
 - **CourseLesson Records**: Store rubrics with PROJECT lessons
 - **CourseLesson Records**: Store question banks with QUIZ lessons

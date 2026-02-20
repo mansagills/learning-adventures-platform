@@ -34,9 +34,10 @@ export default function ContentLibrary() {
     }
   };
 
-  const filteredContent = filter === 'all'
-    ? content
-    : content.filter(c => c.type.toLowerCase() === filter);
+  const filteredContent =
+    filter === 'all'
+      ? content
+      : content.filter((c) => c.type.toLowerCase() === filter);
 
   return (
     <div>
@@ -52,19 +53,19 @@ export default function ContentLibrary() {
           onClick={() => setFilter('game')}
           className={`px-4 py-2 rounded-lg ${filter === 'game' ? 'bg-brand-500 text-white' : 'bg-gray-100'}`}
         >
-          Games ({content.filter(c => c.type === 'GAME').length})
+          Games ({content.filter((c) => c.type === 'GAME').length})
         </button>
         <button
           onClick={() => setFilter('lesson')}
           className={`px-4 py-2 rounded-lg ${filter === 'lesson' ? 'bg-brand-500 text-white' : 'bg-gray-100'}`}
         >
-          Lessons ({content.filter(c => c.type === 'LESSON').length})
+          Lessons ({content.filter((c) => c.type === 'LESSON').length})
         </button>
         <button
           onClick={() => setFilter('video')}
           className={`px-4 py-2 rounded-lg ${filter === 'video' ? 'bg-brand-500 text-white' : 'bg-gray-100'}`}
         >
-          Videos ({content.filter(c => c.type === 'VIDEO').length})
+          Videos ({content.filter((c) => c.type === 'VIDEO').length})
         </button>
       </div>
 
@@ -78,7 +79,7 @@ export default function ContentLibrary() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredContent.map(item => (
+          {filteredContent.map((item) => (
             <div key={item.id} className="bg-white border rounded-lg p-4">
               <div className="flex items-start justify-between mb-2">
                 <h4 className="font-semibold text-ink-900">{item.title}</h4>

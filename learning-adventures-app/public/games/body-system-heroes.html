@@ -1,733 +1,754 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="title" content="Body System Heroes">
-    <meta name="description" content="Journey inside the human body and help different systems work together">
-    <meta name="content-type" content="game">
-    <meta name="subject" content="science">
-    <meta name="grade-level" content="4,5">
-    <meta name="difficulty" content="hard">
-    <meta name="skills" content="Human Biology,Body Systems,Health,Anatomy">
-    <meta name="estimated-time" content="20-25 mins">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="title" content="Body System Heroes" />
+    <meta
+      name="description"
+      content="Journey inside the human body and help different systems work together"
+    />
+    <meta name="content-type" content="game" />
+    <meta name="subject" content="science" />
+    <meta name="grade-level" content="4,5" />
+    <meta name="difficulty" content="hard" />
+    <meta name="skills" content="Human Biology,Body Systems,Health,Anatomy" />
+    <meta name="estimated-time" content="20-25 mins" />
     <title>Body System Heroes - Learning Adventures</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #8b2d56 100%);
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff6b9d 0%,
+          #c44569 50%,
+          #8b2d56 100%
+        );
+        min-height: 100vh;
+        color: white;
+        overflow-x: hidden;
+      }
 
-        .game-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+      .game-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.3);
-            padding: 20px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
+      .game-header {
+        text-align: center;
+        margin-bottom: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+      }
 
-        .game-header h1 {
-            font-size: 2.2em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+      .game-header h1 {
+        font-size: 2.2em;
+        margin-bottom: 5px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-        .stats-bar {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 15px;
-        }
+      .stats-bar {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+      }
 
-        .stat {
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-        }
+      .stat {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: bold;
+      }
 
+      .body-map {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      @media (max-width: 600px) {
         .body-map {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 20px 0;
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
-        @media (max-width: 600px) {
-            .body-map {
-                grid-template-columns: repeat(2, 1fr);
-            }
+      .system-card {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .system-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .system-card.active {
+        border-color: #ffd700;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+      }
+
+      .system-card.completed {
+        border-color: #32cd32;
+      }
+
+      .system-card.locked {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .system-card .emoji {
+        font-size: 3em;
+        margin-bottom: 10px;
+      }
+
+      .system-card .name {
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-bottom: 5px;
+      }
+
+      .system-card .health-bar {
+        width: 100%;
+        height: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+        margin-top: 10px;
+        overflow: hidden;
+      }
+
+      .system-card .health-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+        border-radius: 5px;
+        transition: width 0.5s ease;
+      }
+
+      .system-card .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2em;
+      }
+
+      .mission-panel {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        padding: 25px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .mission-panel.active {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mission-panel h2 {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .mission-panel h2 .system-emoji {
+        font-size: 2em;
+      }
+
+      .mission-panel .description {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .challenge-area {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 15px 0;
+      }
+
+      .challenge-area h3 {
+        margin-bottom: 15px;
+        color: #ffd700;
+      }
+
+      .challenge-options {
+        display: grid;
+        gap: 10px;
+      }
+
+      .challenge-btn {
+        padding: 15px 20px;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        transition: all 0.3s;
+        text-align: left;
+        border: 2px solid transparent;
+      }
+
+      .challenge-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateX(5px);
+      }
+
+      .challenge-btn.correct {
+        background: rgba(50, 205, 50, 0.5);
+        border-color: #32cd32;
+      }
+
+      .challenge-btn.incorrect {
+        background: rgba(255, 107, 107, 0.5);
+        border-color: #ff6b6b;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+
+      .action-btn {
+        padding: 15px 25px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .action-btn.primary {
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #333;
+      }
+
+      .action-btn.secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
+
+      .action-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .fact-box {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 215, 0, 0.2),
+          rgba(255, 165, 0, 0.2)
+        );
+        padding: 15px;
+        border-radius: 15px;
+        margin: 15px 0;
+        border-left: 4px solid #ffd700;
+      }
+
+      .fact-box h4 {
+        color: #ffd700;
+        margin-bottom: 8px;
+      }
+
+      .progress-section {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .progress-section h3 {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+      }
+
+      /* Modals */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, #c44569, #8b2d56);
+        border-radius: 25px;
+        padding: 30px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        animation: modalPop 0.3s ease-out;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+      }
+
+      @keyframes modalPop {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-content h2 {
+        margin-bottom: 15px;
+        font-size: 1.8em;
+      }
+
+      .modal-content p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .modal-btn {
+        padding: 15px 40px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 1.2em;
+        font-weight: bold;
+        background: linear-gradient(135deg, #ffd700, #ffa500);
+        color: #333;
+        transition: all 0.3s;
+        margin: 5px;
+      }
+
+      .modal-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .big-emoji {
+        font-size: 4em;
+        margin: 15px 0;
+      }
+
+      .celebration {
+        position: fixed;
+        font-size: 3em;
+        animation: celebrationFloat 1.5s ease-out forwards;
+        pointer-events: none;
+        z-index: 1001;
+      }
+
+      @keyframes celebrationFloat {
+        0% {
+          opacity: 1;
+          transform: scale(0.5) translateY(0);
+        }
+        50% {
+          transform: scale(1.2) translateY(-50px);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1) translateY(-150px);
+        }
+      }
+
+      .heartbeat {
+        animation: heartbeat 1s infinite;
+      }
+
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .game-header h1 {
+          font-size: 1.6em;
         }
 
         .system-card {
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .system-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.25);
-        }
-
-        .system-card.active {
-            border-color: #FFD700;
-            box-shadow: 0 0 30px rgba(255,215,0,0.5);
-        }
-
-        .system-card.completed {
-            border-color: #32CD32;
-        }
-
-        .system-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
+          padding: 15px;
         }
 
         .system-card .emoji {
-            font-size: 3em;
-            margin-bottom: 10px;
+          font-size: 2.5em;
         }
-
-        .system-card .name {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .system-card .health-bar {
-            width: 100%;
-            height: 10px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 5px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .system-card .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-
-        .system-card .status-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2em;
-        }
-
-        .mission-panel {
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            padding: 25px;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .mission-panel.active {
-            display: block;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .mission-panel h2 {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .mission-panel h2 .system-emoji {
-            font-size: 2em;
-        }
-
-        .mission-panel .description {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .challenge-area {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-
-        .challenge-area h3 {
-            margin-bottom: 15px;
-            color: #FFD700;
-        }
-
-        .challenge-options {
-            display: grid;
-            gap: 10px;
-        }
-
-        .challenge-btn {
-            padding: 15px 20px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            transition: all 0.3s;
-            text-align: left;
-            border: 2px solid transparent;
-        }
-
-        .challenge-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateX(5px);
-        }
-
-        .challenge-btn.correct {
-            background: rgba(50, 205, 50, 0.5);
-            border-color: #32CD32;
-        }
-
-        .challenge-btn.incorrect {
-            background: rgba(255, 107, 107, 0.5);
-            border-color: #FF6B6B;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .action-btn.primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #333;
-        }
-
-        .action-btn.secondary {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .fact-box {
-            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2));
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
-            border-left: 4px solid #FFD700;
-        }
-
-        .fact-box h4 {
-            color: #FFD700;
-            margin-bottom: 8px;
-        }
-
-        .progress-section {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .progress-section h3 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #c44569, #8b2d56);
-            border-radius: 25px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            animation: modalPop 0.3s ease-out;
-            border: 3px solid rgba(255,255,255,0.2);
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-content h2 {
-            margin-bottom: 15px;
-            font-size: 1.8em;
-        }
-
-        .modal-content p {
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .modal-btn {
-            padding: 15px 40px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1.2em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #333;
-            transition: all 0.3s;
-            margin: 5px;
-        }
-
-        .modal-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .big-emoji {
-            font-size: 4em;
-            margin: 15px 0;
-        }
-
-        .celebration {
-            position: fixed;
-            font-size: 3em;
-            animation: celebrationFloat 1.5s ease-out forwards;
-            pointer-events: none;
-            z-index: 1001;
-        }
-
-        @keyframes celebrationFloat {
-            0% { opacity: 1; transform: scale(0.5) translateY(0); }
-            50% { transform: scale(1.2) translateY(-50px); }
-            100% { opacity: 0; transform: scale(1) translateY(-150px); }
-        }
-
-        .heartbeat {
-            animation: heartbeat 1s infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        @media (max-width: 600px) {
-            .game-header h1 {
-                font-size: 1.6em;
-            }
-
-            .system-card {
-                padding: 15px;
-            }
-
-            .system-card .emoji {
-                font-size: 2.5em;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <header class="game-header">
-            <h1>🦸 Body System Heroes</h1>
-            <p>Help the body's systems work together to stay healthy!</p>
-            <div class="stats-bar">
-                <div class="stat">❤️ Health: <span id="health">100</span>%</div>
-                <div class="stat">⭐ Score: <span id="score">0</span></div>
-                <div class="stat">🎯 Missions: <span id="missions">0</span>/6</div>
-            </div>
-        </header>
+      <header class="game-header">
+        <h1>🦸 Body System Heroes</h1>
+        <p>Help the body's systems work together to stay healthy!</p>
+        <div class="stats-bar">
+          <div class="stat">❤️ Health: <span id="health">100</span>%</div>
+          <div class="stat">⭐ Score: <span id="score">0</span></div>
+          <div class="stat">🎯 Missions: <span id="missions">0</span>/6</div>
+        </div>
+      </header>
 
-        <div class="body-map" id="bodyMap"></div>
+      <div class="body-map" id="bodyMap"></div>
 
-        <div class="mission-panel" id="missionPanel">
-            <h2>
-                <span class="system-emoji" id="systemEmoji">❤️</span>
-                <span id="systemName">System Mission</span>
-            </h2>
-            <div class="description" id="systemDescription"></div>
+      <div class="mission-panel" id="missionPanel">
+        <h2>
+          <span class="system-emoji" id="systemEmoji">❤️</span>
+          <span id="systemName">System Mission</span>
+        </h2>
+        <div class="description" id="systemDescription"></div>
 
-            <div class="challenge-area" id="challengeArea">
-                <h3 id="challengeTitle">Challenge</h3>
-                <p id="challengeQuestion"></p>
-                <div class="challenge-options" id="challengeOptions"></div>
-            </div>
-
-            <div class="fact-box" id="factBox" style="display: none;">
-                <h4>🔬 Body Fact:</h4>
-                <p id="factText"></p>
-            </div>
-
-            <div class="action-buttons">
-                <button class="action-btn secondary" onclick="closeSystem()">← Back to Body</button>
-            </div>
+        <div class="challenge-area" id="challengeArea">
+          <h3 id="challengeTitle">Challenge</h3>
+          <p id="challengeQuestion"></p>
+          <div class="challenge-options" id="challengeOptions"></div>
         </div>
 
-        <div class="progress-section">
-            <h3>🏥 Overall Body Health</h3>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 50%;"></div>
-            </div>
-            <p style="text-align: center; margin-top: 10px; opacity: 0.8;">
-                Complete missions to restore body health!
-            </p>
+        <div class="fact-box" id="factBox" style="display: none">
+          <h4>🔬 Body Fact:</h4>
+          <p id="factText"></p>
         </div>
+
+        <div class="action-buttons">
+          <button class="action-btn secondary" onclick="closeSystem()">
+            ← Back to Body
+          </button>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <h3>🏥 Overall Body Health</h3>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 50%"></div>
+        </div>
+        <p style="text-align: center; margin-top: 10px; opacity: 0.8">
+          Complete missions to restore body health!
+        </p>
+      </div>
     </div>
 
     <!-- Start Modal -->
     <div class="modal active" id="startModal">
-        <div class="modal-content">
-            <h2>🦸 Body System Heroes</h2>
-            <div class="big-emoji heartbeat">❤️</div>
-            <p>Welcome, hero! The human body needs your help! Each body system has a mission that needs completing.</p>
-            <p><strong>Your goal:</strong> Visit each system, complete challenges, and learn how they work together!</p>
-            <p>Can you restore the body to perfect health?</p>
-            <button class="modal-btn" onclick="startGame()">Start Mission!</button>
-        </div>
+      <div class="modal-content">
+        <h2>🦸 Body System Heroes</h2>
+        <div class="big-emoji heartbeat">❤️</div>
+        <p>
+          Welcome, hero! The human body needs your help! Each body system has a
+          mission that needs completing.
+        </p>
+        <p>
+          <strong>Your goal:</strong> Visit each system, complete challenges,
+          and learn how they work together!
+        </p>
+        <p>Can you restore the body to perfect health?</p>
+        <button class="modal-btn" onclick="startGame()">Start Mission!</button>
+      </div>
     </div>
 
     <!-- Success Modal -->
     <div class="modal" id="successModal">
-        <div class="modal-content">
-            <h2 id="successTitle">🎉 Mission Complete!</h2>
-            <div class="big-emoji" id="successEmoji">✅</div>
-            <p id="successText"></p>
-            <p id="successStats"></p>
-            <button class="modal-btn" onclick="closeSuccess()">Continue</button>
-        </div>
+      <div class="modal-content">
+        <h2 id="successTitle">🎉 Mission Complete!</h2>
+        <div class="big-emoji" id="successEmoji">✅</div>
+        <p id="successText"></p>
+        <p id="successStats"></p>
+        <button class="modal-btn" onclick="closeSuccess()">Continue</button>
+      </div>
     </div>
 
     <!-- Complete Modal -->
     <div class="modal" id="completeModal">
-        <div class="modal-content">
-            <h2>🏆 Body Hero Champion!</h2>
-            <div class="big-emoji">🦸‍♀️</div>
-            <p>Amazing! You've helped all body systems work together!</p>
-            <p id="finalStats"></p>
-            <button class="modal-btn" onclick="startGame()">Play Again</button>
-        </div>
+      <div class="modal-content">
+        <h2>🏆 Body Hero Champion!</h2>
+        <div class="big-emoji">🦸‍♀️</div>
+        <p>Amazing! You've helped all body systems work together!</p>
+        <p id="finalStats"></p>
+        <button class="modal-btn" onclick="startGame()">Play Again</button>
+      </div>
     </div>
 
     <script>
-        // Body systems data
-        const bodySystems = [
+      // Body systems data
+      const bodySystems = [
+        {
+          id: 'circulatory',
+          name: 'Circulatory System',
+          emoji: '❤️',
+          color: '#FF6B6B',
+          description:
+            'The circulatory system is like a delivery service! Your heart pumps blood through blood vessels to carry oxygen and nutrients to every cell in your body.',
+          challenges: [
             {
-                id: 'circulatory',
-                name: 'Circulatory System',
-                emoji: '❤️',
-                color: '#FF6B6B',
-                description: 'The circulatory system is like a delivery service! Your heart pumps blood through blood vessels to carry oxygen and nutrients to every cell in your body.',
-                challenges: [
-                    {
-                        question: 'What does the heart do?',
-                        options: [
-                            'Pumps blood throughout the body',
-                            'Helps you breathe',
-                            'Digests food',
-                            'Controls your thoughts'
-                        ],
-                        correct: 0
-                    },
-                    {
-                        question: 'What carries oxygen in your blood?',
-                        options: [
-                            'White blood cells',
-                            'Platelets',
-                            'Red blood cells',
-                            'Plasma'
-                        ],
-                        correct: 2
-                    }
-                ],
-                facts: [
-                    'Your heart beats about 100,000 times every day!',
-                    'If you laid all your blood vessels end to end, they would wrap around Earth twice!',
-                    'Blood travels through your entire body in about 20 seconds.'
-                ]
+              question: 'What does the heart do?',
+              options: [
+                'Pumps blood throughout the body',
+                'Helps you breathe',
+                'Digests food',
+                'Controls your thoughts',
+              ],
+              correct: 0,
             },
             {
-                id: 'respiratory',
-                name: 'Respiratory System',
-                emoji: '🫁',
-                color: '#87CEEB',
-                description: 'The respiratory system helps you breathe! Your lungs take in oxygen from the air and release carbon dioxide that your body doesn\'t need.',
-                challenges: [
-                    {
-                        question: 'What gas do we breathe in that our body needs?',
-                        options: [
-                            'Carbon dioxide',
-                            'Nitrogen',
-                            'Oxygen',
-                            'Helium'
-                        ],
-                        correct: 2
-                    },
-                    {
-                        question: 'Where does oxygen enter your blood?',
-                        options: [
-                            'In your nose',
-                            'In tiny air sacs in your lungs called alveoli',
-                            'In your throat',
-                            'In your stomach'
-                        ],
-                        correct: 1
-                    }
-                ],
-                facts: [
-                    'You breathe about 20,000 times every day!',
-                    'Your right lung is slightly bigger than your left lung to make room for your heart.',
-                    'You can live without one lung - your other lung will work harder!'
-                ]
+              question: 'What carries oxygen in your blood?',
+              options: [
+                'White blood cells',
+                'Platelets',
+                'Red blood cells',
+                'Plasma',
+              ],
+              correct: 2,
+            },
+          ],
+          facts: [
+            'Your heart beats about 100,000 times every day!',
+            'If you laid all your blood vessels end to end, they would wrap around Earth twice!',
+            'Blood travels through your entire body in about 20 seconds.',
+          ],
+        },
+        {
+          id: 'respiratory',
+          name: 'Respiratory System',
+          emoji: '🫁',
+          color: '#87CEEB',
+          description:
+            "The respiratory system helps you breathe! Your lungs take in oxygen from the air and release carbon dioxide that your body doesn't need.",
+          challenges: [
+            {
+              question: 'What gas do we breathe in that our body needs?',
+              options: ['Carbon dioxide', 'Nitrogen', 'Oxygen', 'Helium'],
+              correct: 2,
             },
             {
-                id: 'digestive',
-                name: 'Digestive System',
-                emoji: '🍎',
-                color: '#FFA500',
-                description: 'The digestive system breaks down food into nutrients your body can use for energy, growth, and repair. It\'s like a long factory assembly line!',
-                challenges: [
-                    {
-                        question: 'Where does most digestion happen?',
-                        options: [
-                            'Mouth',
-                            'Stomach',
-                            'Small intestine',
-                            'Large intestine'
-                        ],
-                        correct: 2
-                    },
-                    {
-                        question: 'What helps break down food in your stomach?',
-                        options: [
-                            'Water',
-                            'Stomach acid',
-                            'Blood',
-                            'Air'
-                        ],
-                        correct: 1
-                    }
-                ],
-                facts: [
-                    'Your small intestine is about 20 feet long - longer than a giraffe is tall!',
-                    'Food spends about 6-8 hours in your stomach.',
-                    'Your stomach acid is strong enough to dissolve metal, but a special lining protects your stomach!'
-                ]
+              question: 'Where does oxygen enter your blood?',
+              options: [
+                'In your nose',
+                'In tiny air sacs in your lungs called alveoli',
+                'In your throat',
+                'In your stomach',
+              ],
+              correct: 1,
+            },
+          ],
+          facts: [
+            'You breathe about 20,000 times every day!',
+            'Your right lung is slightly bigger than your left lung to make room for your heart.',
+            'You can live without one lung - your other lung will work harder!',
+          ],
+        },
+        {
+          id: 'digestive',
+          name: 'Digestive System',
+          emoji: '🍎',
+          color: '#FFA500',
+          description:
+            "The digestive system breaks down food into nutrients your body can use for energy, growth, and repair. It's like a long factory assembly line!",
+          challenges: [
+            {
+              question: 'Where does most digestion happen?',
+              options: [
+                'Mouth',
+                'Stomach',
+                'Small intestine',
+                'Large intestine',
+              ],
+              correct: 2,
             },
             {
-                id: 'nervous',
-                name: 'Nervous System',
-                emoji: '🧠',
-                color: '#DA70D6',
-                description: 'The nervous system is your body\'s control center! Your brain sends and receives messages through nerves to control everything you do.',
-                challenges: [
-                    {
-                        question: 'What is the main control center of your body?',
-                        options: [
-                            'Heart',
-                            'Lungs',
-                            'Brain',
-                            'Stomach'
-                        ],
-                        correct: 2
-                    },
-                    {
-                        question: 'What carries messages between your brain and body?',
-                        options: [
-                            'Blood vessels',
-                            'Muscles',
-                            'Nerves',
-                            'Bones'
-                        ],
-                        correct: 2
-                    }
-                ],
-                facts: [
-                    'Your brain has about 86 billion neurons (nerve cells)!',
-                    'Messages travel through your nerves at up to 268 miles per hour.',
-                    'Your brain uses about 20% of all the energy your body makes!'
-                ]
+              question: 'What helps break down food in your stomach?',
+              options: ['Water', 'Stomach acid', 'Blood', 'Air'],
+              correct: 1,
+            },
+          ],
+          facts: [
+            'Your small intestine is about 20 feet long - longer than a giraffe is tall!',
+            'Food spends about 6-8 hours in your stomach.',
+            'Your stomach acid is strong enough to dissolve metal, but a special lining protects your stomach!',
+          ],
+        },
+        {
+          id: 'nervous',
+          name: 'Nervous System',
+          emoji: '🧠',
+          color: '#DA70D6',
+          description:
+            "The nervous system is your body's control center! Your brain sends and receives messages through nerves to control everything you do.",
+          challenges: [
+            {
+              question: 'What is the main control center of your body?',
+              options: ['Heart', 'Lungs', 'Brain', 'Stomach'],
+              correct: 2,
             },
             {
-                id: 'muscular',
-                name: 'Muscular System',
-                emoji: '💪',
-                color: '#FF6347',
-                description: 'The muscular system helps you move! You have over 600 muscles that work with your bones to let you walk, run, jump, and even smile.',
-                challenges: [
-                    {
-                        question: 'How many muscles does it take to smile?',
-                        options: [
-                            'About 5 muscles',
-                            'About 17 muscles',
-                            'About 43 muscles',
-                            'About 100 muscles'
-                        ],
-                        correct: 1
-                    },
-                    {
-                        question: 'Which muscle never gets tired?',
-                        options: [
-                            'Arm muscles',
-                            'Leg muscles',
-                            'Heart muscle',
-                            'Back muscles'
-                        ],
-                        correct: 2
-                    }
-                ],
-                facts: [
-                    'The smallest muscle in your body is in your ear - it\'s called the stapedius!',
-                    'The strongest muscle based on size is your jaw muscle - the masseter.',
-                    'When you walk, you use over 200 muscles!'
-                ]
+              question: 'What carries messages between your brain and body?',
+              options: ['Blood vessels', 'Muscles', 'Nerves', 'Bones'],
+              correct: 2,
+            },
+          ],
+          facts: [
+            'Your brain has about 86 billion neurons (nerve cells)!',
+            'Messages travel through your nerves at up to 268 miles per hour.',
+            'Your brain uses about 20% of all the energy your body makes!',
+          ],
+        },
+        {
+          id: 'muscular',
+          name: 'Muscular System',
+          emoji: '💪',
+          color: '#FF6347',
+          description:
+            'The muscular system helps you move! You have over 600 muscles that work with your bones to let you walk, run, jump, and even smile.',
+          challenges: [
+            {
+              question: 'How many muscles does it take to smile?',
+              options: [
+                'About 5 muscles',
+                'About 17 muscles',
+                'About 43 muscles',
+                'About 100 muscles',
+              ],
+              correct: 1,
             },
             {
-                id: 'skeletal',
-                name: 'Skeletal System',
-                emoji: '🦴',
-                color: '#F5F5DC',
-                description: 'The skeletal system gives your body its shape and protects your organs. Your bones also make blood cells inside their marrow!',
-                challenges: [
-                    {
-                        question: 'How many bones do adults have?',
-                        options: [
-                            '106 bones',
-                            '156 bones',
-                            '206 bones',
-                            '256 bones'
-                        ],
-                        correct: 2
-                    },
-                    {
-                        question: 'What protects your brain?',
-                        options: [
-                            'Your spine',
-                            'Your skull',
-                            'Your ribs',
-                            'Your skin'
-                        ],
-                        correct: 1
-                    }
-                ],
-                facts: [
-                    'Babies are born with about 270 bones, but some fuse together as you grow!',
-                    'The smallest bone in your body is in your ear - it\'s called the stirrup.',
-                    'Your bones are constantly rebuilding - you get a whole new skeleton about every 10 years!'
-                ]
-            }
-        ];
+              question: 'Which muscle never gets tired?',
+              options: [
+                'Arm muscles',
+                'Leg muscles',
+                'Heart muscle',
+                'Back muscles',
+              ],
+              correct: 2,
+            },
+          ],
+          facts: [
+            "The smallest muscle in your body is in your ear - it's called the stapedius!",
+            'The strongest muscle based on size is your jaw muscle - the masseter.',
+            'When you walk, you use over 200 muscles!',
+          ],
+        },
+        {
+          id: 'skeletal',
+          name: 'Skeletal System',
+          emoji: '🦴',
+          color: '#F5F5DC',
+          description:
+            'The skeletal system gives your body its shape and protects your organs. Your bones also make blood cells inside their marrow!',
+          challenges: [
+            {
+              question: 'How many bones do adults have?',
+              options: ['106 bones', '156 bones', '206 bones', '256 bones'],
+              correct: 2,
+            },
+            {
+              question: 'What protects your brain?',
+              options: ['Your spine', 'Your skull', 'Your ribs', 'Your skin'],
+              correct: 1,
+            },
+          ],
+          facts: [
+            'Babies are born with about 270 bones, but some fuse together as you grow!',
+            "The smallest bone in your body is in your ear - it's called the stirrup.",
+            'Your bones are constantly rebuilding - you get a whole new skeleton about every 10 years!',
+          ],
+        },
+      ];
 
-        // Game state
-        let gameState = {
-            health: 100,
-            score: 0,
-            completedSystems: [],
-            currentSystem: null,
-            currentChallenge: 0
+      // Game state
+      let gameState = {
+        health: 100,
+        score: 0,
+        completedSystems: [],
+        currentSystem: null,
+        currentChallenge: 0,
+      };
+
+      function initGame() {
+        gameState = {
+          health: 50, // Start at 50%, need to restore to 100%
+          score: 0,
+          completedSystems: [],
+          currentSystem: null,
+          currentChallenge: 0,
         };
 
-        function initGame() {
-            gameState = {
-                health: 50, // Start at 50%, need to restore to 100%
-                score: 0,
-                completedSystems: [],
-                currentSystem: null,
-                currentChallenge: 0
-            };
+        renderBodyMap();
+        updateStats();
+        closeSystem();
+      }
 
-            renderBodyMap();
-            updateStats();
-            closeSystem();
-        }
+      function renderBodyMap() {
+        const map = document.getElementById('bodyMap');
+        map.innerHTML = '';
 
-        function renderBodyMap() {
-            const map = document.getElementById('bodyMap');
-            map.innerHTML = '';
+        bodySystems.forEach((system) => {
+          const isCompleted = gameState.completedSystems.includes(system.id);
 
-            bodySystems.forEach(system => {
-                const isCompleted = gameState.completedSystems.includes(system.id);
-
-                const card = document.createElement('div');
-                card.className = `system-card ${isCompleted ? 'completed' : ''}`;
-                card.style.setProperty('--system-color', system.color);
-                card.innerHTML = `
+          const card = document.createElement('div');
+          card.className = `system-card ${isCompleted ? 'completed' : ''}`;
+          card.style.setProperty('--system-color', system.color);
+          card.innerHTML = `
                     <div class="status-badge">${isCompleted ? '✅' : '❓'}</div>
                     <div class="emoji">${system.emoji}</div>
                     <div class="name">${system.name}</div>
@@ -735,181 +756,189 @@
                         <div class="health-fill" style="width: ${isCompleted ? '100' : '50'}%;"></div>
                     </div>
                 `;
-                card.onclick = () => openSystem(system);
-                map.appendChild(card);
-            });
+          card.onclick = () => openSystem(system);
+          map.appendChild(card);
+        });
+      }
+
+      function openSystem(system) {
+        gameState.currentSystem = system;
+        gameState.currentChallenge = 0;
+
+        document.getElementById('systemEmoji').textContent = system.emoji;
+        document.getElementById('systemName').textContent = system.name;
+        document.getElementById('systemDescription').textContent =
+          system.description;
+
+        document.getElementById('missionPanel').classList.add('active');
+        document.getElementById('factBox').style.display = 'none';
+
+        loadChallenge();
+      }
+
+      function loadChallenge() {
+        const system = gameState.currentSystem;
+        const challenge = system.challenges[gameState.currentChallenge];
+
+        if (!challenge) {
+          // All challenges complete for this system
+          completeSystem();
+          return;
         }
 
-        function openSystem(system) {
-            gameState.currentSystem = system;
-            gameState.currentChallenge = 0;
+        document.getElementById('challengeTitle').textContent =
+          `Challenge ${gameState.currentChallenge + 1} of ${system.challenges.length}`;
+        document.getElementById('challengeQuestion').textContent =
+          challenge.question;
 
-            document.getElementById('systemEmoji').textContent = system.emoji;
-            document.getElementById('systemName').textContent = system.name;
-            document.getElementById('systemDescription').textContent = system.description;
+        const optionsContainer = document.getElementById('challengeOptions');
+        optionsContainer.innerHTML = '';
 
-            document.getElementById('missionPanel').classList.add('active');
-            document.getElementById('factBox').style.display = 'none';
+        challenge.options.forEach((option, index) => {
+          const btn = document.createElement('button');
+          btn.className = 'challenge-btn';
+          btn.textContent = option;
+          btn.onclick = () => checkAnswer(index);
+          optionsContainer.appendChild(btn);
+        });
+      }
 
-            loadChallenge();
+      function checkAnswer(index) {
+        const system = gameState.currentSystem;
+        const challenge = system.challenges[gameState.currentChallenge];
+        const buttons = document.querySelectorAll('.challenge-btn');
+
+        buttons.forEach((btn, i) => {
+          btn.disabled = true;
+          if (i === challenge.correct) {
+            btn.classList.add('correct');
+          } else if (i === index) {
+            btn.classList.add('incorrect');
+          }
+        });
+
+        if (index === challenge.correct) {
+          gameState.score += 50;
+          gameState.health = Math.min(100, gameState.health + 5);
+          createCelebration('⭐');
+        } else {
+          gameState.health = Math.max(0, gameState.health - 5);
         }
 
-        function loadChallenge() {
-            const system = gameState.currentSystem;
-            const challenge = system.challenges[gameState.currentChallenge];
+        updateStats();
 
-            if (!challenge) {
-                // All challenges complete for this system
-                completeSystem();
-                return;
-            }
+        // Show fact
+        const randomFact =
+          system.facts[Math.floor(Math.random() * system.facts.length)];
+        document.getElementById('factText').textContent = randomFact;
+        document.getElementById('factBox').style.display = 'block';
 
-            document.getElementById('challengeTitle').textContent =
-                `Challenge ${gameState.currentChallenge + 1} of ${system.challenges.length}`;
-            document.getElementById('challengeQuestion').textContent = challenge.question;
+        // Move to next challenge after delay
+        setTimeout(() => {
+          gameState.currentChallenge++;
+          loadChallenge();
+        }, 2000);
+      }
 
-            const optionsContainer = document.getElementById('challengeOptions');
-            optionsContainer.innerHTML = '';
+      function completeSystem() {
+        const system = gameState.currentSystem;
 
-            challenge.options.forEach((option, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'challenge-btn';
-                btn.textContent = option;
-                btn.onclick = () => checkAnswer(index);
-                optionsContainer.appendChild(btn);
-            });
+        if (!gameState.completedSystems.includes(system.id)) {
+          gameState.completedSystems.push(system.id);
+          gameState.score += 100;
+          gameState.health = Math.min(100, gameState.health + 10);
+
+          showSuccess(system);
+        } else {
+          closeSystem();
         }
 
-        function checkAnswer(index) {
-            const system = gameState.currentSystem;
-            const challenge = system.challenges[gameState.currentChallenge];
-            const buttons = document.querySelectorAll('.challenge-btn');
+        updateStats();
+        renderBodyMap();
 
-            buttons.forEach((btn, i) => {
-                btn.disabled = true;
-                if (i === challenge.correct) {
-                    btn.classList.add('correct');
-                } else if (i === index) {
-                    btn.classList.add('incorrect');
-                }
-            });
-
-            if (index === challenge.correct) {
-                gameState.score += 50;
-                gameState.health = Math.min(100, gameState.health + 5);
-                createCelebration('⭐');
-            } else {
-                gameState.health = Math.max(0, gameState.health - 5);
-            }
-
-            updateStats();
-
-            // Show fact
-            const randomFact = system.facts[Math.floor(Math.random() * system.facts.length)];
-            document.getElementById('factText').textContent = randomFact;
-            document.getElementById('factBox').style.display = 'block';
-
-            // Move to next challenge after delay
-            setTimeout(() => {
-                gameState.currentChallenge++;
-                loadChallenge();
-            }, 2000);
+        // Check for game completion
+        if (gameState.completedSystems.length === bodySystems.length) {
+          setTimeout(showComplete, 1000);
         }
+      }
 
-        function completeSystem() {
-            const system = gameState.currentSystem;
+      function showSuccess(system) {
+        document.getElementById('successTitle').textContent =
+          `${system.emoji} System Restored!`;
+        document.getElementById('successEmoji').textContent = system.emoji;
+        document.getElementById('successText').textContent =
+          `Great job! You've helped the ${system.name} work properly again!`;
+        document.getElementById('successStats').textContent =
+          `+100 points! Health restored to ${gameState.health}%`;
 
-            if (!gameState.completedSystems.includes(system.id)) {
-                gameState.completedSystems.push(system.id);
-                gameState.score += 100;
-                gameState.health = Math.min(100, gameState.health + 10);
+        document.getElementById('successModal').classList.add('active');
 
-                showSuccess(system);
-            } else {
-                closeSystem();
-            }
-
-            updateStats();
-            renderBodyMap();
-
-            // Check for game completion
-            if (gameState.completedSystems.length === bodySystems.length) {
-                setTimeout(showComplete, 1000);
-            }
+        // Create celebration
+        for (let i = 0; i < 10; i++) {
+          setTimeout(() => createCelebration(system.emoji), i * 100);
         }
+      }
 
-        function showSuccess(system) {
-            document.getElementById('successTitle').textContent = `${system.emoji} System Restored!`;
-            document.getElementById('successEmoji').textContent = system.emoji;
-            document.getElementById('successText').textContent =
-                `Great job! You've helped the ${system.name} work properly again!`;
-            document.getElementById('successStats').textContent =
-                `+100 points! Health restored to ${gameState.health}%`;
+      function closeSuccess() {
+        document.getElementById('successModal').classList.remove('active');
+        closeSystem();
+      }
 
-            document.getElementById('successModal').classList.add('active');
+      function closeSystem() {
+        document.getElementById('missionPanel').classList.remove('active');
+        gameState.currentSystem = null;
+      }
 
-            // Create celebration
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => createCelebration(system.emoji), i * 100);
-            }
-        }
-
-        function closeSuccess() {
-            document.getElementById('successModal').classList.remove('active');
-            closeSystem();
-        }
-
-        function closeSystem() {
-            document.getElementById('missionPanel').classList.remove('active');
-            gameState.currentSystem = null;
-        }
-
-        function showComplete() {
-            document.getElementById('finalStats').innerHTML = `
+      function showComplete() {
+        document.getElementById('finalStats').innerHTML = `
                 <strong>Final Score:</strong> ${gameState.score} points<br>
                 <strong>Body Health:</strong> ${gameState.health}%<br>
                 <strong>Systems Restored:</strong> ${gameState.completedSystems.length}/${bodySystems.length}
             `;
-            document.getElementById('completeModal').classList.add('active');
+        document.getElementById('completeModal').classList.add('active');
 
-            // Big celebration
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    createCelebration(['❤️', '🧠', '💪', '🦴', '🫁', '🍎'][i % 6]);
-                }, i * 100);
-            }
+        // Big celebration
+        for (let i = 0; i < 30; i++) {
+          setTimeout(() => {
+            createCelebration(['❤️', '🧠', '💪', '🦴', '🫁', '🍎'][i % 6]);
+          }, i * 100);
         }
+      }
 
-        function updateStats() {
-            document.getElementById('health').textContent = gameState.health;
-            document.getElementById('score').textContent = gameState.score;
-            document.getElementById('missions').textContent = gameState.completedSystems.length;
+      function updateStats() {
+        document.getElementById('health').textContent = gameState.health;
+        document.getElementById('score').textContent = gameState.score;
+        document.getElementById('missions').textContent =
+          gameState.completedSystems.length;
 
-            // Update progress bar
-            const progress = (gameState.completedSystems.length / bodySystems.length) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
-        }
+        // Update progress bar
+        const progress =
+          (gameState.completedSystems.length / bodySystems.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+      }
 
-        function createCelebration(emoji) {
-            const celebration = document.createElement('div');
-            celebration.className = 'celebration';
-            celebration.textContent = emoji;
-            celebration.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-            celebration.style.top = Math.random() * (window.innerHeight - 50) + 'px';
-            document.body.appendChild(celebration);
-            setTimeout(() => celebration.remove(), 1500);
-        }
+      function createCelebration(emoji) {
+        const celebration = document.createElement('div');
+        celebration.className = 'celebration';
+        celebration.textContent = emoji;
+        celebration.style.left =
+          Math.random() * (window.innerWidth - 50) + 'px';
+        celebration.style.top =
+          Math.random() * (window.innerHeight - 50) + 'px';
+        document.body.appendChild(celebration);
+        setTimeout(() => celebration.remove(), 1500);
+      }
 
-        function startGame() {
-            document.getElementById('startModal').classList.remove('active');
-            document.getElementById('completeModal').classList.remove('active');
-            initGame();
-        }
+      function startGame() {
+        document.getElementById('startModal').classList.remove('active');
+        document.getElementById('completeModal').classList.remove('active');
+        initGame();
+      }
 
-        // Initialize on load
-        window.onload = () => {
-            initGame();
-        };
+      // Initialize on load
+      window.onload = () => {
+        initGame();
+      };
     </script>
-</body>
+  </body>
 </html>

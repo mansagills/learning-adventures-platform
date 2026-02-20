@@ -15,16 +15,18 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const {
-      feedbackType,
-      message,
-      lessonIndex,
-      issueSeverity,
-      screenshotUrl
-    } = await req.json();
+    const { feedbackType, message, lessonIndex, issueSeverity, screenshotUrl } =
+      await req.json();
 
     // Validate feedback type
-    const validTypes = ['BUG', 'SUGGESTION', 'PRAISE', 'ACCESSIBILITY_ISSUE', 'CONTENT_ERROR', 'GENERAL'];
+    const validTypes = [
+      'BUG',
+      'SUGGESTION',
+      'PRAISE',
+      'ACCESSIBILITY_ISSUE',
+      'CONTENT_ERROR',
+      'GENERAL',
+    ];
     if (!validTypes.includes(feedbackType)) {
       return NextResponse.json(
         { error: 'Invalid feedback type' },
@@ -48,8 +50,8 @@ export async function POST(
         message,
         lessonIndex,
         issueSeverity,
-        screenshotUrl
-      }
+        screenshotUrl,
+      },
     });
 
     return NextResponse.json({ feedback });

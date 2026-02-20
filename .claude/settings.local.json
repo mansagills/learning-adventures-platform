@@ -33,7 +33,8 @@
       "Bash(head:*)",
       "Bash(openssl rand:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:TZXqGIxj0QphOTAT@db.wnijsqstxdjdazytdwys.supabase.co:5432/postgres\" npx prisma db push:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx next build:*)"
     ],
     "deny": [],
     "ask": []

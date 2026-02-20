@@ -1,15 +1,57 @@
 import { prisma } from '@/lib/prisma';
 
 const ADJECTIVES = [
-  'Brave', 'Happy', 'Clever', 'Swift', 'Mighty', 'Gentle', 'Bright', 'Bold',
-  'Calm', 'Eager', 'Fierce', 'Kind', 'Lively', 'Noble', 'Quick', 'Smart',
-  'Wise', 'Daring', 'Joyful', 'Proud', 'Shiny', 'Strong', 'Wild', 'Zesty'
+  'Brave',
+  'Happy',
+  'Clever',
+  'Swift',
+  'Mighty',
+  'Gentle',
+  'Bright',
+  'Bold',
+  'Calm',
+  'Eager',
+  'Fierce',
+  'Kind',
+  'Lively',
+  'Noble',
+  'Quick',
+  'Smart',
+  'Wise',
+  'Daring',
+  'Joyful',
+  'Proud',
+  'Shiny',
+  'Strong',
+  'Wild',
+  'Zesty',
 ];
 
 const ANIMALS = [
-  'Eagle', 'Dolphin', 'Fox', 'Tiger', 'Lion', 'Bear', 'Wolf', 'Hawk',
-  'Panda', 'Owl', 'Dragon', 'Phoenix', 'Turtle', 'Penguin', 'Koala', 'Cheetah',
-  'Raccoon', 'Otter', 'Falcon', 'Jaguar', 'Lynx', 'Moose', 'Raven', 'Shark'
+  'Eagle',
+  'Dolphin',
+  'Fox',
+  'Tiger',
+  'Lion',
+  'Bear',
+  'Wolf',
+  'Hawk',
+  'Panda',
+  'Owl',
+  'Dragon',
+  'Phoenix',
+  'Turtle',
+  'Penguin',
+  'Koala',
+  'Cheetah',
+  'Raccoon',
+  'Otter',
+  'Falcon',
+  'Jaguar',
+  'Lynx',
+  'Moose',
+  'Raven',
+  'Shark',
 ];
 
 /**
@@ -18,17 +60,21 @@ const ANIMALS = [
  *
  * Total combinations: 24 adjectives × 24 animals × 100 numbers = 57,600
  */
-export async function generateUniqueUsername(maxAttempts = 10): Promise<string> {
+export async function generateUniqueUsername(
+  maxAttempts = 10
+): Promise<string> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
     const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-    const number = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+    const number = Math.floor(Math.random() * 100)
+      .toString()
+      .padStart(2, '0');
 
     const username = `${adjective}${animal}${number}`;
 
     // Check if username already exists in database
     const existing = await prisma.childProfile.findUnique({
-      where: { username }
+      where: { username },
     });
 
     if (!existing) {
@@ -57,6 +103,6 @@ export function getWordLists() {
   return {
     adjectives: ADJECTIVES,
     animals: ANIMALS,
-    totalCombinations: ADJECTIVES.length * ANIMALS.length * 100
+    totalCombinations: ADJECTIVES.length * ANIMALS.length * 100,
   };
 }
