@@ -36,10 +36,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Update progress to completed
@@ -98,7 +95,9 @@ async function checkAndAwardAchievements(userId: string, latestProgress: any) {
     });
 
     const completedCount = allProgress.length;
-    const categoryProgress = allProgress.filter(p => p.category === latestProgress.category);
+    const categoryProgress = allProgress.filter(
+      (p) => p.category === latestProgress.category
+    );
 
     // Achievement: First Adventure
     if (completedCount === 1) {
@@ -122,7 +121,9 @@ async function checkAndAwardAchievements(userId: string, latestProgress: any) {
 
     // Achievement: Category Explorer (first in a category)
     if (categoryProgress.length === 1) {
-      const categoryName = latestProgress.category.charAt(0).toUpperCase() + latestProgress.category.slice(1);
+      const categoryName =
+        latestProgress.category.charAt(0).toUpperCase() +
+        latestProgress.category.slice(1);
       const exists = await prisma.userAchievement.findFirst({
         where: { userId, title: `${categoryName} Explorer` },
       });
@@ -143,7 +144,9 @@ async function checkAndAwardAchievements(userId: string, latestProgress: any) {
 
     // Achievement: Category Master (5 in a category)
     if (categoryProgress.length === 5) {
-      const categoryName = latestProgress.category.charAt(0).toUpperCase() + latestProgress.category.slice(1);
+      const categoryName =
+        latestProgress.category.charAt(0).toUpperCase() +
+        latestProgress.category.slice(1);
       const exists = await prisma.userAchievement.findFirst({
         where: { userId, title: `${categoryName} Master` },
       });
@@ -178,9 +181,21 @@ async function checkAndAwardAchievements(userId: string, latestProgress: any) {
 
     // Achievement: Milestone achievements (10, 25, 50 completions)
     const milestones = [
-      { count: 10, title: 'Rising Star', description: 'Completed 10 adventures!' },
-      { count: 25, title: 'Learning Champion', description: 'Completed 25 adventures!' },
-      { count: 50, title: 'Master Learner', description: 'Completed 50 adventures!' },
+      {
+        count: 10,
+        title: 'Rising Star',
+        description: 'Completed 10 adventures!',
+      },
+      {
+        count: 25,
+        title: 'Learning Champion',
+        description: 'Completed 25 adventures!',
+      },
+      {
+        count: 50,
+        title: 'Master Learner',
+        description: 'Completed 50 adventures!',
+      },
     ];
 
     for (const milestone of milestones) {
@@ -203,7 +218,6 @@ async function checkAndAwardAchievements(userId: string, latestProgress: any) {
         }
       }
     }
-
   } catch (error) {
     console.error('Error checking achievements:', error);
     // Don't fail the completion if achievement check fails

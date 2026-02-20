@@ -19,14 +19,14 @@ export async function GET(request: Request) {
     const includeGoals = searchParams.get('includeGoals') === 'true';
 
     const where: any = {
-      userId: session.user.id
+      userId: session.user.id,
     };
 
     // Date range filter
     if (startDate && endDate) {
       where.AND = [
         { startTime: { gte: new Date(startDate) } },
-        { startTime: { lte: new Date(endDate) } }
+        { startTime: { lte: new Date(endDate) } },
       ];
     }
 
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
     const events = await prisma.calendarEvent.findMany({
       where,
-      orderBy: { startTime: 'asc' }
+      orderBy: { startTime: 'asc' },
     });
 
     // Optionally include goal deadlines as events
@@ -49,12 +49,12 @@ export async function GET(request: Request) {
           status: 'ACTIVE',
           deadline: {
             gte: startDate ? new Date(startDate) : undefined,
-            lte: endDate ? new Date(endDate) : undefined
-          }
-        }
+            lte: endDate ? new Date(endDate) : undefined,
+          },
+        },
       });
 
-      goalEvents = goals.map(goal => ({
+      goalEvents = goals.map((goal) => ({
         id: `goal-${goal.id}`,
         title: `Goal: ${goal.title}`,
         description: goal.description,
@@ -65,15 +65,14 @@ export async function GET(request: Request) {
         color: goal.color,
         icon: goal.icon || '🎯',
         goalId: goal.id,
-        isGoal: true // Flag to differentiate from regular events
+        isGoal: true, // Flag to differentiate from regular events
       }));
     }
 
     return NextResponse.json({
       events: [...events, ...goalEvents],
-      count: events.length + goalEvents.length
+      count: events.length + goalEvents.length,
     });
-
   } catch (error) {
     console.error('Error fetching calendar events:', error);
     return NextResponse.json(
@@ -112,13 +111,16 @@ export async function POST(request: Request) {
       icon,
       priority,
       location,
-      url
+      url,
     } = body;
 
     // Validation
     if (!title || !eventType || !startTime || !endTime) {
       return NextResponse.json(
-        { error: 'Missing required fields: title, eventType, startTime, endTime' },
+        {
+          error:
+            'Missing required fields: title, eventType, startTime, endTime',
+        },
         { status: 400 }
       );
     }
@@ -155,12 +157,11 @@ export async function POST(request: Request) {
         priority: priority || 0,
         location,
         url,
-        status: 'SCHEDULED'
-      }
+        status: 'SCHEDULED',
+      },
     });
 
     return NextResponse.json({ event }, { status: 201 });
-
   } catch (error) {
     console.error('Error creating calendar event:', error);
     return NextResponse.json(

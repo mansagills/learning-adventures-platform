@@ -103,7 +103,7 @@ export function useGoals(options: UseGoalsOptions = {}) {
       const response = await fetch('/api/goals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(goalData)
+        body: JSON.stringify(goalData),
       });
 
       if (!response.ok) {
@@ -124,7 +124,7 @@ export function useGoals(options: UseGoalsOptions = {}) {
       const response = await fetch(`/api/goals/${goalId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(updates),
       });
 
       if (!response.ok) {
@@ -143,7 +143,7 @@ export function useGoals(options: UseGoalsOptions = {}) {
   const deleteGoal = async (goalId: string) => {
     try {
       const response = await fetch(`/api/goals/${goalId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (!response.ok) {
@@ -160,7 +160,7 @@ export function useGoals(options: UseGoalsOptions = {}) {
   const completeGoal = async (goalId: string) => {
     try {
       const response = await fetch(`/api/goals/${goalId}/complete`, {
-        method: 'POST'
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -176,12 +176,15 @@ export function useGoals(options: UseGoalsOptions = {}) {
     }
   };
 
-  const updateProgress = async (goalId: string, options: { increment?: number; value?: number }) => {
+  const updateProgress = async (
+    goalId: string,
+    options: { increment?: number; value?: number }
+  ) => {
     try {
       const response = await fetch(`/api/goals/${goalId}/progress`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(options)
+        body: JSON.stringify(options),
       });
 
       if (!response.ok) {
@@ -206,7 +209,7 @@ export function useGoals(options: UseGoalsOptions = {}) {
     updateGoal,
     deleteGoal,
     completeGoal,
-    updateProgress
+    updateProgress,
   };
 }
 

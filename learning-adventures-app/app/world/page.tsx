@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
@@ -13,15 +13,6 @@ const PhaserGame = dynamic(
   { ssr: false }
 );
 
-/**
- * World Page - Entry point for 2D game world
- *
- * This page:
- * - Checks authentication
- * - Loads character data (will create character system in Phase 2)
- * - Mounts Phaser game
- * - Handles game events and saves to backend
- */
 export default function WorldPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -33,8 +24,16 @@ export default function WorldPage() {
     adventureId: string;
     type: 'game' | 'lesson';
   } | null>(null);
+  const [xp, setXp] = useState(0);
+  const [xpNotification, setXpNotification] = useState<string | null>(null);
 
-  // Check authentication and character
+  // Use refs so EventBus callbacks always have latest values without re-registering
+  const sessionRef = useRef(session);
+  const characterDataRef = useRef(characterData);
+  useEffect(() => { sessionRef.current = session; }, [session]);
+  useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
+
+  // Check authentication and character - runs once on auth status change
   useEffect(() => {
     const checkCharacter = async () => {
       if (status === 'unauthenticated') {
@@ -44,15 +43,12 @@ export default function WorldPage() {
 
       if (status === 'authenticated') {
         try {
-          // Fetch character data
           const response = await fetch('/api/character');
           const data = await response.json();
 
           if (!data.character) {
-            // No character - redirect to creation
             router.push('/world/create');
           } else {
-            // Character exists - load it
             setCharacterData(data.character);
             setIsCheckingCharacter(false);
           }
@@ -67,10 +63,10 @@ export default function WorldPage() {
     checkCharacter();
   }, [status, router]);
 
-  // Setup EventBus listeners for game events
+  // Setup EventBus listeners once — use refs for latest values
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
-      if (!session?.user || !characterData) return;
+      if (!sessionRef.current?.user || !characterDataRef.current) return;
 
       try {
         await fetch('/api/character/update', {
@@ -99,46 +95,28 @@ export default function WorldPage() {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
     };
-  }, [session, characterData]);
+  }, []); // Empty deps — refs keep values fresh without re-registering
 
-  // Handle Phaser errors
-  const handleGameError = (err: Error) => {
-    console.error('Phaser game error:', err);
-    setError('Failed to load game world. Your browser may not support this feature.');
-  };
-
-  // Handle scene ready
   const handleSceneReady = (scene: string) => {
     console.log(`Scene ${scene} is ready`);
     setGameReady(true);
   };
 
-  // Handle game/lesson completion
-  const handleAdventureComplete = async (score?: number) => {
-    if (!currentAdventure) return;
-
-    console.log('Adventure completed:', currentAdventure.adventureId, 'Score:', score);
-
-    // TODO: Connect to progress API in next step
-    // For now, just show completion message and close modal
-    alert(`🎉 Adventure complete! ${score ? `Score: ${score}` : ''}`);
-
-    // Close modal
+  const handleAdventureComplete = async (adventureId: string) => {
+    const XP_PER_GAME = 50;
+    setXp((prev) => prev + XP_PER_GAME);
+    setXpNotification(`+${XP_PER_GAME} XP!`);
     setCurrentAdventure(null);
-
-    // Emit event to Phaser (could trigger XP animation, etc.)
-    EventBus.emit('adventure-completed', {
-      adventureId: currentAdventure.adventureId,
-      score,
-    });
+    EventBus.emit('adventure-completed', { adventureId });
+    // Clear notification after 3 seconds
+    setTimeout(() => setXpNotification(null), 3000);
   };
 
-  // Handle modal close
   const handleCloseAdventure = () => {
     setCurrentAdventure(null);
   };
 
-  // Show loading while checking auth and character
+  // Loading screen
   if (status === 'loading' || isCheckingCharacter) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
@@ -152,14 +130,12 @@ export default function WorldPage() {
     );
   }
 
-  // Show error if game failed to load
+  // Error screen
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
-            Unable to Load Game World
-          </h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Unable to Load Game World</h1>
           <p className="text-gray-700 mb-6">{error}</p>
           <a
             href="/catalog"
@@ -174,51 +150,57 @@ export default function WorldPage() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
-      {/* Game container */}
+      {/* Game container — always mounted, never conditionally rendered */}
       <div className="absolute inset-0">
         <PhaserGame onSceneReady={handleSceneReady} />
       </div>
 
-      {/* Adventure Embed Modal */}
+      {/* Adventure Embed Modal — rendered on top, does NOT affect PhaserGame */}
       {currentAdventure && (
         <AdventureEmbed
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={handleCloseAdventure}
-          onComplete={handleAdventureComplete}
+          onComplete={() => handleAdventureComplete(currentAdventure.adventureId)}
         />
       )}
 
-      {/* HUD Overlay - Fixed to viewport */}
+      {/* XP Notification Toast */}
+      {xpNotification && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div
+            className="bg-yellow-400 text-yellow-900 font-extrabold text-2xl px-8 py-4 rounded-2xl shadow-2xl animate-bounce"
+          >
+            ⭐ {xpNotification}
+          </div>
+        </div>
+      )}
+
+      {/* HUD Overlay */}
       {gameReady && (
         <div className="absolute inset-0 pointer-events-none">
-          {/* Top bar - Player info */}
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between pointer-events-auto">
             <div className="bg-black/70 rounded-lg px-4 py-2">
               <p className="text-white font-semibold">
                 {characterData?.name || session?.user?.name || 'Player'}
               </p>
-              <p className="text-xs text-gray-300">
-                Level 1 {/* TODO: Get from user level in Phase 4 */}
-              </p>
+              <p className="text-xs text-gray-300">Level 1</p>
             </div>
 
             <div className="bg-black/70 rounded-lg px-4 py-2">
               <div className="flex items-center gap-2">
                 <span className="text-yellow-400 text-xl">⭐</span>
-                <span className="text-white font-bold">0 XP</span>
+                <span className="text-white font-bold">{xp} XP</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom right - Controls hint */}
           <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
             <p className="text-white text-sm">
               <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
             </p>
           </div>
 
-          {/* Exit button */}
           <div className="absolute top-4 right-4">
             <button
               onClick={() => router.push('/dashboard')}

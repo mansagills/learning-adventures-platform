@@ -32,19 +32,19 @@ export default function AchievementShowcase({
   totalAchievements,
   isLoading = false,
   showLocked = true,
-  maxDisplay = 6
+  maxDisplay = 6,
 }: AchievementShowcaseProps) {
   const [filter, setFilter] = useState<'all' | 'earned' | 'locked'>('all');
 
-  const earnedAchievements = achievements.filter(a => a.earnedAt);
-  const lockedAchievements = achievements.filter(a => !a.earnedAt);
+  const earnedAchievements = achievements.filter((a) => a.earnedAt);
+  const lockedAchievements = achievements.filter((a) => !a.earnedAt);
 
   const filteredAchievements =
     filter === 'earned'
       ? earnedAchievements
       : filter === 'locked'
-      ? lockedAchievements
-      : achievements;
+        ? lockedAchievements
+        : achievements;
 
   const displayedAchievements = filteredAchievements.slice(0, maxDisplay);
 
@@ -82,7 +82,7 @@ export default function AchievementShowcase({
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -111,7 +111,7 @@ export default function AchievementShowcase({
       action={
         achievements.length > maxDisplay ? (
           <Link
-            href={"/dashboard/achievements" as any}
+            href={'/dashboard/achievements' as any}
             className="text-sm text-brand-500 hover:text-brand-600 font-medium"
           >
             View All
@@ -134,7 +134,7 @@ export default function AchievementShowcase({
           <div
             className="h-full bg-gradient-to-r from-brand-500 to-accent-500 transition-all duration-500"
             style={{
-              width: `${(earnedAchievements.length / totalAchievements) * 100}%`
+              width: `${(earnedAchievements.length / totalAchievements) * 100}%`,
             }}
           />
         </div>
@@ -226,14 +226,15 @@ export default function AchievementShowcase({
                 <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
                   <span>Progress</span>
                   <span>
-                    {achievement.progress.current} / {achievement.progress.target}
+                    {achievement.progress.current} /{' '}
+                    {achievement.progress.target}
                   </span>
                 </div>
                 <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-brand-500 transition-all duration-300"
                     style={{
-                      width: `${(achievement.progress.current / achievement.progress.target) * 100}%`
+                      width: `${(achievement.progress.current / achievement.progress.target) * 100}%`,
                     }}
                   />
                 </div>
@@ -252,7 +253,7 @@ export default function AchievementShowcase({
       {filteredAchievements.length > maxDisplay && (
         <div className="mt-6 text-center">
           <Link
-            href={"/dashboard/achievements" as any}
+            href={'/dashboard/achievements' as any}
             className="inline-flex items-center gap-2 text-brand-500 hover:text-brand-600 font-medium"
           >
             View All Achievements

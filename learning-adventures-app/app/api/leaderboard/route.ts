@@ -32,23 +32,25 @@ export async function GET(request: NextRequest) {
       // XP-based leaderboard
       const users = await prisma.user.findMany({
         where: {
-          role: 'STUDENT'
+          role: 'STUDENT',
         },
         include: {
           level: true,
-          dailyXP: startDate ? {
-            where: {
-              date: {
-                gte: startDate
+          dailyXP: startDate
+            ? {
+                where: {
+                  date: {
+                    gte: startDate,
+                  },
+                },
               }
-            }
-          } : undefined
+            : undefined,
         },
-        take: limit
+        take: limit,
       });
 
       leaderboard = users
-        .map(user => {
+        .map((user) => {
           const totalXP = startDate
             ? user.dailyXP.reduce((sum, day) => sum + day.totalXP, 0)
             : user.level?.totalXP || 0;
@@ -60,17 +62,16 @@ export async function GET(request: NextRequest) {
             gradeLevel: user.gradeLevel,
             totalXP,
             currentLevel: user.level?.currentLevel || 1,
-            currentStreak: user.level?.currentStreak || 0
+            currentStreak: user.level?.currentStreak || 0,
           };
         })
-        .filter(user => user.totalXP > 0)
+        .filter((user) => user.totalXP > 0)
         .sort((a, b) => b.totalXP - a.totalXP)
         .slice(0, limit);
-
     } else if (type === 'adventures') {
       // Adventures completed leaderboard
       const whereClause: any = {
-        status: 'COMPLETED'
+        status: 'COMPLETED',
       };
 
       if (startDate) {
@@ -85,27 +86,27 @@ export async function GET(request: NextRequest) {
         by: ['userId'],
         where: whereClause,
         _count: {
-          id: true
+          id: true,
         },
         orderBy: {
           _count: {
-            id: 'desc'
-          }
+            id: 'desc',
+          },
         },
-        take: limit
+        take: limit,
       });
 
-      const userIds = progress.map(p => p.userId);
+      const userIds = progress.map((p) => p.userId);
       const users = await prisma.user.findMany({
         where: {
-          id: { in: userIds }
+          id: { in: userIds },
         },
         include: {
-          level: true
-        }
+          level: true,
+        },
       });
 
-      const userMap = new Map(users.map(u => [u.id, u]));
+      const userMap = new Map(users.map((u) => [u.id, u]));
 
       leaderboard = progress.map((p, index) => {
         const user = userMap.get(p.userId);
@@ -116,15 +117,14 @@ export async function GET(request: NextRequest) {
           gradeLevel: user?.gradeLevel,
           adventuresCompleted: p._count.id,
           currentLevel: user?.level?.currentLevel || 1,
-          currentStreak: user?.level?.currentStreak || 0
+          currentStreak: user?.level?.currentStreak || 0,
         };
       });
-
     } else if (type === 'score') {
       // Average score leaderboard
       const whereClause: any = {
         status: 'COMPLETED',
-        score: { not: null }
+        score: { not: null },
       };
 
       if (startDate) {
@@ -139,39 +139,39 @@ export async function GET(request: NextRequest) {
         by: ['userId'],
         where: whereClause,
         _avg: {
-          score: true
+          score: true,
         },
         _count: {
-          id: true
+          id: true,
         },
         having: {
           id: {
             _count: {
-              gte: 3 // Minimum 3 completed adventures to qualify
-            }
-          }
+              gte: 3, // Minimum 3 completed adventures to qualify
+            },
+          },
         },
         orderBy: {
           _avg: {
-            score: 'desc'
-          }
+            score: 'desc',
+          },
         },
-        take: limit
+        take: limit,
       });
 
-      const userIds = progress.map(p => p.userId);
+      const userIds = progress.map((p) => p.userId);
       const users = await prisma.user.findMany({
         where: {
-          id: { in: userIds }
+          id: { in: userIds },
         },
         include: {
-          level: true
-        }
+          level: true,
+        },
       });
 
-      const userMap = new Map(users.map(u => [u.id, u]));
+      const userMap = new Map(users.map((u) => [u.id, u]));
 
-      leaderboard = progress.map(p => {
+      leaderboard = progress.map((p) => {
         const user = userMap.get(p.userId);
         return {
           userId: p.userId,
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
           averageScore: Math.round(p._avg.score || 0),
           adventuresCompleted: p._count.id,
           currentLevel: user?.level?.currentLevel || 1,
-          currentStreak: user?.level?.currentStreak || 0
+          currentStreak: user?.level?.currentStreak || 0,
         };
       });
     }
@@ -189,12 +189,12 @@ export async function GET(request: NextRequest) {
     // Add rank to each entry
     const rankedLeaderboard = leaderboard.map((entry, index) => ({
       ...entry,
-      rank: index + 1
+      rank: index + 1,
     }));
 
     // Find current user's position
     const currentUserRank = rankedLeaderboard.findIndex(
-      entry => entry.userId === session.user.id
+      (entry) => entry.userId === session.user.id
     );
 
     return NextResponse.json({
@@ -203,9 +203,8 @@ export async function GET(request: NextRequest) {
       period,
       category: category || 'all',
       type,
-      total: rankedLeaderboard.length
+      total: rankedLeaderboard.length,
     });
-
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return NextResponse.json(

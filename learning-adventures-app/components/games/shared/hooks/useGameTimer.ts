@@ -51,7 +51,7 @@ export function useGameTimer(options: UseGameTimerOptions = {}) {
   }, []);
 
   const addTime = useCallback((seconds: number) => {
-    setTime(prev => Math.max(0, prev + seconds));
+    setTime((prev) => Math.max(0, prev + seconds));
   }, []);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export function useGameTimer(options: UseGameTimerOptions = {}) {
     }
 
     intervalRef.current = setInterval(() => {
-      setTime(prevTime => {
+      setTime((prevTime) => {
         const newTime = countDown ? prevTime - 1 : prevTime + 1;
 
         if (onTick) {
