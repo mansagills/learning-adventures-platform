@@ -5,6 +5,7 @@ This guide will walk you through setting up Google, Apple, and Email/Password au
 ## Overview
 
 The platform supports three authentication methods:
+
 1. **Google OAuth** - Sign in with Google account
 2. **Apple OAuth** - Sign in with Apple ID
 3. **Email/Password** - Traditional email and password authentication
@@ -117,6 +118,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret-here
 Apple requires a JWT token as the client secret. You'll need to generate this using the private key.
 
 **Option A: Use a JWT Generator Tool**
+
 - Visit [jwt.io](https://jwt.io/)
 - Use the RS256 algorithm
 - Include claims: `iss` (Team ID), `iat` (current timestamp), `exp` (expiration), `aud` (https://appleid.apple.com), `sub` (Services ID)
@@ -137,7 +139,7 @@ const token = jwt.sign({}, privateKey, {
   audience: 'https://appleid.apple.com',
   issuer: 'YOUR_TEAM_ID', // 10 character Team ID
   subject: 'com.learningadventures.web', // Services ID
-  keyid: 'YOUR_KEY_ID' // 10 character Key ID
+  keyid: 'YOUR_KEY_ID', // 10 character Key ID
 });
 
 console.log(token);
@@ -165,6 +167,7 @@ Email/Password authentication is already configured and works out of the box! No
 The system uses bcrypt for secure password hashing and NextAuth's Credentials provider for authentication.
 
 ### Features:
+
 - Secure password hashing with bcrypt
 - Password validation (minimum 6 characters)
 - Automatic user creation on signup
@@ -225,6 +228,7 @@ npx prisma db push
 ### Development Testing
 
 1. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -277,6 +281,7 @@ NEXTAUTH_SECRET=your-production-nextauth-secret
 ### Update OAuth Redirect URIs
 
 Don't forget to add your production URLs to:
+
 - **Google Cloud Console**: Authorized redirect URIs
 - **Apple Developer Console**: Return URLs
 
@@ -287,25 +292,31 @@ Don't forget to add your production URLs to:
 ### Google OAuth Issues
 
 **Problem**: "redirect_uri_mismatch" error
+
 - **Solution**: Make sure the redirect URI in Google Console exactly matches `http://localhost:3000/api/auth/callback/google`
 
 **Problem**: "Access blocked: This app's request is invalid"
+
 - **Solution**: Configure the OAuth consent screen and add test users if in development mode
 
 ### Apple OAuth Issues
 
 **Problem**: "invalid_client" error
+
 - **Solution**: Regenerate your JWT client secret and ensure all values (Team ID, Key ID, Services ID) are correct
 
 **Problem**: "invalid_grant" error
+
 - **Solution**: Check that your return URL exactly matches the one configured in Apple Developer Console
 
 ### Email/Password Issues
 
 **Problem**: "Invalid email or password" on login
+
 - **Solution**: Ensure the user was created via the signup endpoint, not manually in the database (passwords must be hashed)
 
 **Problem**: Cannot create account
+
 - **Solution**: Check that the PostgreSQL database is running and DATABASE_URL is correct
 
 ---
@@ -335,6 +346,7 @@ Don't forget to add your production URLs to:
 ## Support
 
 If you encounter issues:
+
 1. Check the console for error messages
 2. Verify all environment variables are set correctly
 3. Ensure database is running and accessible

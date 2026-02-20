@@ -17,6 +17,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_password'),
+<<<<<<< sentinel-fix-mass-assignment-2810889807962850829
   },
 }));
 
@@ -29,6 +30,17 @@ describe('Security: Signup Role Validation', () => {
     // Setup request with ADMIN role
     const body = {
       name: 'Malicious User',
+=======
+    compare: vi.fn().mockResolvedValue(true),
+  },
+}));
+
+describe('Authentication Security - Role Validation', () => {
+  it('should sanitize invalid roles (e.g. ADMIN) to STUDENT', async () => {
+    // Setup mock request with ADMIN role
+    const body = {
+      name: 'Hacker',
+>>>>>>> main
       email: 'hacker@example.com',
       password: 'password123',
       role: 'ADMIN',
@@ -39,6 +51,7 @@ describe('Security: Signup Role Validation', () => {
       body: JSON.stringify(body),
     });
 
+<<<<<<< sentinel-fix-mass-assignment-2810889807962850829
     // Mock findUnique to return null (user doesn't exist)
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
 
@@ -83,5 +96,27 @@ describe('Security: Signup Role Validation', () => {
     expect(prisma.user.create).toHaveBeenCalled();
     const createArgs = vi.mocked(prisma.user.create).mock.calls[0][0];
     expect(createArgs.data.role).toBe('STUDENT');
+=======
+    // Mock Prisma responses
+    (prisma.user.findUnique as any).mockResolvedValue(null);
+    (prisma.user.create as any).mockResolvedValue({
+      id: '123',
+      ...body,
+      role: 'STUDENT', // Simulate successful creation with sanitized role
+      createdAt: new Date(),
+    });
+
+    // Execute the handler
+    await POST(req);
+
+    // Verify if ADMIN role was sanitized to STUDENT
+    expect(prisma.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: 'STUDENT',
+        }),
+      })
+    );
+>>>>>>> main
   });
 });

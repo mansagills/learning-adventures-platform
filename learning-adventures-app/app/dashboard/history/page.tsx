@@ -22,21 +22,35 @@ function HistoryDashboardContent() {
   }
 
   const allAdventures = getAllAdventures();
-  const historyAdventures = allAdventures.filter(adv => adv.category === 'history');
+  const historyAdventures = allAdventures.filter(
+    (adv) => adv.category === 'history'
+  );
 
-  const historyProgress = progressData?.progress.filter(p => {
-    const adventure = historyAdventures.find(a => a.id === p.adventureId);
-    return !!adventure;
-  }) || [];
+  const historyProgress =
+    progressData?.progress.filter((p) => {
+      const adventure = historyAdventures.find((a) => a.id === p.adventureId);
+      return !!adventure;
+    }) || [];
 
-  const completedHistory = historyProgress.filter(p => p.status === 'COMPLETED');
-  const inProgressHistory = historyProgress.filter(p => p.status === 'IN_PROGRESS');
+  const completedHistory = historyProgress.filter(
+    (p) => p.status === 'COMPLETED'
+  );
+  const inProgressHistory = historyProgress.filter(
+    (p) => p.status === 'IN_PROGRESS'
+  );
 
-  const averageScore = completedHistory.length > 0
-    ? Math.round(completedHistory.reduce((sum, p) => sum + (p.score || 0), 0) / completedHistory.length)
-    : 0;
+  const averageScore =
+    completedHistory.length > 0
+      ? Math.round(
+          completedHistory.reduce((sum, p) => sum + (p.score || 0), 0) /
+            completedHistory.length
+        )
+      : 0;
 
-  const totalTimeSpent = historyProgress.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
+  const totalTimeSpent = historyProgress.reduce(
+    (sum, p) => sum + (p.timeSpent || 0),
+    0
+  );
 
   // History-specific skills
   const historySkills: Skill[] = [
@@ -44,92 +58,159 @@ function HistoryDashboardContent() {
       id: 'chronology',
       name: 'Chronology & Timelines',
       category: 'Historical Thinking',
-      progress: Math.min(100, (completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('chronology') || s.toLowerCase().includes('timeline'));
-      }).length / Math.max(1, historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('chronology') || s.toLowerCase().includes('timeline'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedHistory.filter((p) => {
+          const adv = historyAdventures.find((a) => a.id === p.adventureId);
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('chronology') ||
+              s.toLowerCase().includes('timeline')
+          );
+        }).length /
+          Math.max(
+            1,
+            historyAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('chronology') ||
+                  s.toLowerCase().includes('timeline')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: completedHistory.length < 3 ? 'beginner' : 'intermediate',
-      completedActivities: completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('chronology'));
+      completedActivities: completedHistory.filter((p) => {
+        const adv = historyAdventures.find((a) => a.id === p.adventureId);
+        return adv?.skills.some((s) => s.toLowerCase().includes('chronology'));
       }).length,
-      totalActivities: historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('chronology'))
+      totalActivities: historyAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('chronology'))
       ).length,
-      mastered: completedHistory.length >= 8
+      mastered: completedHistory.length >= 8,
     },
     {
       id: 'historical-analysis',
       name: 'Historical Analysis',
       category: 'Critical Thinking',
-      progress: Math.min(100, (completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('analysis') || s.toLowerCase().includes('evidence'));
-      }).length / Math.max(1, historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('analysis') || s.toLowerCase().includes('evidence'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedHistory.filter((p) => {
+          const adv = historyAdventures.find((a) => a.id === p.adventureId);
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('analysis') ||
+              s.toLowerCase().includes('evidence')
+          );
+        }).length /
+          Math.max(
+            1,
+            historyAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('analysis') ||
+                  s.toLowerCase().includes('evidence')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: completedHistory.length < 5 ? 'beginner' : 'intermediate',
-      completedActivities: completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('analysis'));
+      completedActivities: completedHistory.filter((p) => {
+        const adv = historyAdventures.find((a) => a.id === p.adventureId);
+        return adv?.skills.some((s) => s.toLowerCase().includes('analysis'));
       }).length,
-      totalActivities: historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('analysis'))
+      totalActivities: historyAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('analysis'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'cultural-understanding',
       name: 'Cultural Understanding',
       category: 'Global Awareness',
-      progress: Math.min(100, (completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('culture') || s.toLowerCase().includes('civilization'));
-      }).length / Math.max(1, historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('culture') || s.toLowerCase().includes('civilization'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedHistory.filter((p) => {
+          const adv = historyAdventures.find((a) => a.id === p.adventureId);
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('culture') ||
+              s.toLowerCase().includes('civilization')
+          );
+        }).length /
+          Math.max(
+            1,
+            historyAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('culture') ||
+                  s.toLowerCase().includes('civilization')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: 'beginner',
-      completedActivities: completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('culture'));
+      completedActivities: completedHistory.filter((p) => {
+        const adv = historyAdventures.find((a) => a.id === p.adventureId);
+        return adv?.skills.some((s) => s.toLowerCase().includes('culture'));
       }).length,
-      totalActivities: historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('culture'))
+      totalActivities: historyAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('culture'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'geography',
       name: 'Geography & Maps',
       category: 'Spatial Understanding',
-      progress: Math.min(100, (completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('geography') || s.toLowerCase().includes('map'));
-      }).length / Math.max(1, historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('geography') || s.toLowerCase().includes('map'))
-      ).length)) * 100),
+      progress: Math.min(
+        100,
+        (completedHistory.filter((p) => {
+          const adv = historyAdventures.find((a) => a.id === p.adventureId);
+          return adv?.skills.some(
+            (s) =>
+              s.toLowerCase().includes('geography') ||
+              s.toLowerCase().includes('map')
+          );
+        }).length /
+          Math.max(
+            1,
+            historyAdventures.filter((a) =>
+              a.skills.some(
+                (s) =>
+                  s.toLowerCase().includes('geography') ||
+                  s.toLowerCase().includes('map')
+              )
+            ).length
+          )) *
+          100
+      ),
       level: 'beginner',
-      completedActivities: completedHistory.filter(p => {
-        const adv = historyAdventures.find(a => a.id === p.adventureId);
-        return adv?.skills.some(s => s.toLowerCase().includes('geography'));
+      completedActivities: completedHistory.filter((p) => {
+        const adv = historyAdventures.find((a) => a.id === p.adventureId);
+        return adv?.skills.some((s) => s.toLowerCase().includes('geography'));
       }).length,
-      totalActivities: historyAdventures.filter(a =>
-        a.skills.some(s => s.toLowerCase().includes('geography'))
+      totalActivities: historyAdventures.filter((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('geography'))
       ).length,
-      mastered: false
+      mastered: false,
     },
     {
       id: 'historical-research',
       name: 'Historical Research',
       category: 'Research Skills',
-      progress: Math.min(100, (completedHistory.length / Math.max(1, historyAdventures.length)) * 100),
+      progress: Math.min(
+        100,
+        (completedHistory.length / Math.max(1, historyAdventures.length)) * 100
+      ),
       level: completedHistory.length < 5 ? 'beginner' : 'intermediate',
       completedActivities: completedHistory.length,
       totalActivities: historyAdventures.length,
-      mastered: completedHistory.length >= 12
-    }
+      mastered: completedHistory.length >= 12,
+    },
   ];
 
   // History learning path
@@ -141,53 +222,83 @@ function HistoryDashboardContent() {
       type: completedHistory.length > 0 ? 'completed' : 'current',
       skills: ['Personal History', 'Community', 'Traditions'],
       estimatedTime: 30,
-      adventureId: historyAdventures.find(a => a.difficulty === 'easy')?.id
+      adventureId: historyAdventures.find((a) => a.difficulty === 'easy')?.id,
     },
     {
       id: 'ancient-civilizations',
       title: 'Ancient Civilizations',
       description: 'Discover early human societies and cultures',
-      type: completedHistory.length >= 3 ? (completedHistory.length >= 5 ? 'completed' : 'current') : (completedHistory.length > 0 ? 'available' : 'locked'),
+      type:
+        completedHistory.length >= 3
+          ? completedHistory.length >= 5
+            ? 'completed'
+            : 'current'
+          : completedHistory.length > 0
+            ? 'available'
+            : 'locked',
       skills: ['Ancient History', 'Civilizations', 'Archaeology'],
       estimatedTime: 40,
-      adventureId: historyAdventures.find(a => a.difficulty === 'medium')?.id,
-      prerequisiteIds: ['community-history']
+      adventureId: historyAdventures.find((a) => a.difficulty === 'medium')?.id,
+      prerequisiteIds: ['community-history'],
     },
     {
       id: 'world-exploration',
       title: 'Age of Exploration',
       description: 'Journey through the era of global exploration',
-      type: completedHistory.length >= 5 ? (completedHistory.length >= 8 ? 'completed' : 'current') : (completedHistory.length >= 3 ? 'available' : 'locked'),
+      type:
+        completedHistory.length >= 5
+          ? completedHistory.length >= 8
+            ? 'completed'
+            : 'current'
+          : completedHistory.length >= 3
+            ? 'available'
+            : 'locked',
       skills: ['Exploration', 'Navigation', 'Cultural Exchange'],
       estimatedTime: 35,
-      adventureId: historyAdventures.find(a => a.skills.some(s => s.toLowerCase().includes('exploration')))?.id,
-      prerequisiteIds: ['ancient-civilizations']
+      adventureId: historyAdventures.find((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('exploration'))
+      )?.id,
+      prerequisiteIds: ['ancient-civilizations'],
     },
     {
       id: 'modern-history',
       title: 'Modern World History',
       description: 'Understand recent historical events and their impact',
-      type: completedHistory.length >= 8 ? (completedHistory.length >= 12 ? 'completed' : 'current') : (completedHistory.length >= 5 ? 'available' : 'locked'),
+      type:
+        completedHistory.length >= 8
+          ? completedHistory.length >= 12
+            ? 'completed'
+            : 'current'
+          : completedHistory.length >= 5
+            ? 'available'
+            : 'locked',
       skills: ['Modern History', 'Social Change', 'Global Events'],
       estimatedTime: 45,
-      adventureId: historyAdventures.find(a => a.skills.some(s => s.toLowerCase().includes('modern')))?.id,
-      prerequisiteIds: ['world-exploration']
+      adventureId: historyAdventures.find((a) =>
+        a.skills.some((s) => s.toLowerCase().includes('modern'))
+      )?.id,
+      prerequisiteIds: ['world-exploration'],
     },
     {
       id: 'historian-project',
       title: 'Become a Historian',
       description: 'Conduct original historical research and analysis',
-      type: completedHistory.length >= 12 ? 'current' : (completedHistory.length >= 8 ? 'available' : 'locked'),
+      type:
+        completedHistory.length >= 12
+          ? 'current'
+          : completedHistory.length >= 8
+            ? 'available'
+            : 'locked',
       skills: ['Primary Sources', 'Research Methods', 'Historical Writing'],
       estimatedTime: 60,
-      adventureId: historyAdventures.find(a => a.difficulty === 'hard')?.id,
-      prerequisiteIds: ['modern-history']
-    }
+      adventureId: historyAdventures.find((a) => a.difficulty === 'hard')?.id,
+      prerequisiteIds: ['modern-history'],
+    },
   ];
 
-  const completedIds = new Set(completedHistory.map(p => p.adventureId));
+  const completedIds = new Set(completedHistory.map((p) => p.adventureId));
   const recommendedAdventures = historyAdventures
-    .filter(adv => !completedIds.has(adv.id))
+    .filter((adv) => !completedIds.has(adv.id))
     .sort((a, b) => {
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
@@ -201,9 +312,9 @@ function HistoryDashboardContent() {
     inProgressAdventures: inProgressHistory.length,
     averageScore,
     timeSpent: totalTimeSpent,
-    skillsMastered: historySkills.filter(s => s.mastered).length,
+    skillsMastered: historySkills.filter((s) => s.mastered).length,
     totalSkills: historySkills.length,
-    currentStreak: 0
+    currentStreak: 0,
   };
 
   return (

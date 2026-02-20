@@ -17,17 +17,25 @@ export async function PATCH(
 
     const { status } = await req.json();
 
-    const validStatuses = ['NOT_TESTED', 'IN_TESTING', 'APPROVED', 'REJECTED', 'NEEDS_REVISION'];
+    const validStatuses = [
+      'NOT_TESTED',
+      'IN_TESTING',
+      'APPROVED',
+      'REJECTED',
+      'NEEDS_REVISION',
+    ];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid status. Must be one of: ' + validStatuses.join(', ') },
+        {
+          error: 'Invalid status. Must be one of: ' + validStatuses.join(', '),
+        },
         { status: 400 }
       );
     }
 
     const course = await prisma.testCourse.update({
       where: { id: params.id },
-      data: { status }
+      data: { status },
     });
 
     return NextResponse.json({ course });

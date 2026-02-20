@@ -21,10 +21,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file uploaded' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
     // Validate file type
@@ -70,11 +67,13 @@ export async function POST(request: NextRequest) {
       filename: filename,
       size: file.size,
     });
-
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to upload file',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

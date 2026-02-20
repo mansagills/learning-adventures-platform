@@ -37,7 +37,7 @@ export default function StagingCoursePreviewPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  
+
   const [course, setCourse] = useState<TestCourse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export default function StagingCoursePreviewPage() {
 
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session || session.user?.role !== 'ADMIN') {
       router.push('/unauthorized');
       return;
@@ -58,9 +58,11 @@ export default function StagingCoursePreviewPage() {
     try {
       const res = await fetch(`/api/admin/test-courses?slug=${slug}`);
       const data = await res.json();
-      
+
       if (data.courses && data.courses.length > 0) {
-        const foundCourse = data.courses.find((c: TestCourse) => c.slug === slug);
+        const foundCourse = data.courses.find(
+          (c: TestCourse) => c.slug === slug
+        );
         if (foundCourse) {
           setCourse(foundCourse);
         } else {
@@ -92,9 +94,13 @@ export default function StagingCoursePreviewPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="text-6xl mb-4">📚</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Course Not Found</h1>
-          <p className="text-gray-600 mb-4">{error || 'This course does not exist in staging.'}</p>
-          <Link 
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Course Not Found
+          </h1>
+          <p className="text-gray-600 mb-4">
+            {error || 'This course does not exist in staging.'}
+          </p>
+          <Link
             href="/internal/testing"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
@@ -140,12 +146,24 @@ export default function StagingCoursePreviewPage() {
       {/* Course Info Bar */}
       <div className="bg-white border-b px-4 py-2">
         <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm text-gray-600">
-          <span><strong>Subject:</strong> {course.subject}</span>
-          <span><strong>Grade:</strong> {course.gradeLevel.join(', ')}</span>
-          <span><strong>Difficulty:</strong> {course.difficulty}</span>
-          <span><strong>Duration:</strong> {course.estimatedMinutes} mins</span>
-          <span><strong>Total XP:</strong> {course.totalXP}</span>
-          <span><strong>Lessons:</strong> {course.lessonsData.length}</span>
+          <span>
+            <strong>Subject:</strong> {course.subject}
+          </span>
+          <span>
+            <strong>Grade:</strong> {course.gradeLevel.join(', ')}
+          </span>
+          <span>
+            <strong>Difficulty:</strong> {course.difficulty}
+          </span>
+          <span>
+            <strong>Duration:</strong> {course.estimatedMinutes} mins
+          </span>
+          <span>
+            <strong>Total XP:</strong> {course.totalXP}
+          </span>
+          <span>
+            <strong>Lessons:</strong> {course.lessonsData.length}
+          </span>
         </div>
       </div>
 
@@ -154,7 +172,9 @@ export default function StagingCoursePreviewPage() {
         <div className="w-80 bg-white border-r min-h-[calc(100vh-120px)] overflow-y-auto">
           <div className="p-4 border-b bg-gray-50">
             <h2 className="font-bold text-gray-900">Course Lessons</h2>
-            <p className="text-sm text-gray-500">{course.lessonsData.length} lessons total</p>
+            <p className="text-sm text-gray-500">
+              {course.lessonsData.length} lessons total
+            </p>
           </div>
           <div className="divide-y">
             {course.lessonsData
@@ -164,7 +184,9 @@ export default function StagingCoursePreviewPage() {
                   key={index}
                   onClick={() => setSelectedLessonIndex(index)}
                   className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-                    selectedLessonIndex === index ? 'bg-purple-50 border-l-4 border-purple-600' : ''
+                    selectedLessonIndex === index
+                      ? 'bg-purple-50 border-l-4 border-purple-600'
+                      : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -172,9 +194,13 @@ export default function StagingCoursePreviewPage() {
                       {lesson.order}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">{lesson.title}</h3>
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {lesson.title}
+                      </h3>
                       <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                        <span className="px-2 py-0.5 bg-gray-100 rounded">{lesson.type}</span>
+                        <span className="px-2 py-0.5 bg-gray-100 rounded">
+                          {lesson.type}
+                        </span>
                         <span>{lesson.duration} min</span>
                         <span>{lesson.xpReward} XP</span>
                       </div>
@@ -196,11 +222,15 @@ export default function StagingCoursePreviewPage() {
                       Lesson {selectedLesson.order}: {selectedLesson.title}
                     </h2>
                     {selectedLesson.description && (
-                      <p className="text-sm text-gray-600 mt-1">{selectedLesson.description}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {selectedLesson.description}
+                      </p>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <span className="px-2 py-1 bg-gray-200 rounded">{selectedLesson.type}</span>
+                    <span className="px-2 py-1 bg-gray-200 rounded">
+                      {selectedLesson.type}
+                    </span>
                     <span>{selectedLesson.duration} min</span>
                     <span>{selectedLesson.xpReward} XP</span>
                   </div>
@@ -225,7 +255,10 @@ export default function StagingCoursePreviewPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className="text-sm text-gray-500">
-            Staging path: <code className="bg-gray-100 px-2 py-1 rounded">{course.stagingPath}</code>
+            Staging path:{' '}
+            <code className="bg-gray-100 px-2 py-1 rounded">
+              {course.stagingPath}
+            </code>
           </p>
           <div className="flex items-center gap-3">
             <Link

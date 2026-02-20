@@ -9,7 +9,7 @@ import { ReactGameWorkflowInput } from './types';
 
 async function testReactGameWorkflow() {
   console.log('🚀 Starting React Game Workflow Test\n');
-  console.log('=' .repeat(70));
+  console.log('='.repeat(70));
 
   // Step 1: Create workflow factory
   console.log('\n📦 Step 1: Initializing Workflow Factory...');
@@ -20,7 +20,8 @@ async function testReactGameWorkflow() {
   console.log('\n🎮 Step 2: Defining Math Game Requirements...');
 
   const gameInput: ReactGameWorkflowInput = {
-    gameIdea: 'An interactive multiplication adventure where students help a space explorer collect stars by solving multiplication problems. Each correct answer moves the spaceship forward through different planets.',
+    gameIdea:
+      'An interactive multiplication adventure where students help a space explorer collect stars by solving multiplication problems. Each correct answer moves the spaceship forward through different planets.',
     subject: 'math',
     gradeLevel: '3-5',
     complexity: 'moderate',
@@ -72,13 +73,19 @@ async function testReactGameWorkflow() {
         break;
       case 'step_started':
         currentStep = event.step || 0;
-        console.log(`\n[${timestamp}] ⚙️  Step ${currentStep}: ${event.message}`);
+        console.log(
+          `\n[${timestamp}] ⚙️  Step ${currentStep}: ${event.message}`
+        );
         break;
       case 'step_completed':
-        console.log(`[${timestamp}] ✅ Step ${event.step} completed successfully`);
+        console.log(
+          `[${timestamp}] ✅ Step ${event.step} completed successfully`
+        );
         break;
       case 'step_failed':
-        console.log(`[${timestamp}] ❌ Step ${event.step} failed: ${event.message}`);
+        console.log(
+          `[${timestamp}] ❌ Step ${event.step} failed: ${event.message}`
+        );
         break;
       case 'completed':
         console.log(`\n[${timestamp}] 🎉 ${event.message}`);
@@ -93,18 +100,20 @@ async function testReactGameWorkflow() {
 
   // Step 5: Execute workflow
   console.log('\n▶️  Step 5: Executing Workflow...');
-  console.log('=' .repeat(70));
+  console.log('='.repeat(70));
 
   const result = await factory.executeWorkflow(workflowId);
 
   // Step 6: Display results
-  console.log('\n' + '=' .repeat(70));
+  console.log('\n' + '='.repeat(70));
   console.log('\n📊 Step 6: Workflow Results\n');
 
   if (result.status === 'completed') {
     console.log('✅ Workflow Status: COMPLETED');
     console.log(`⏱️  Total Duration: ${result.totalDuration}ms`);
-    console.log(`📝 Steps Completed: ${result.steps.filter(s => s.status === 'completed').length}/${result.steps.length}`);
+    console.log(
+      `📝 Steps Completed: ${result.steps.filter((s) => s.status === 'completed').length}/${result.steps.length}`
+    );
 
     // Step 1 Results: React Component Agent
     console.log('\n--- Step 1: React Component Generation ---');
@@ -130,15 +139,25 @@ async function testReactGameWorkflow() {
     if (step2 && step2.report) {
       const report = step2.report;
       console.log(`Overall Score: ${report.overallScore}/100`);
-      console.log(`WCAG Compliant: ${report.wcagCompliant ? '✅ Yes' : '❌ No'}`);
+      console.log(
+        `WCAG Compliant: ${report.wcagCompliant ? '✅ Yes' : '❌ No'}`
+      );
       console.log(`Issues Found: ${report.issues.length}`);
 
       if (report.issues.length > 0) {
         console.log('\n🔍 Issues by Severity:');
-        const criticalIssues = report.issues.filter((i: any) => i.severity === 'critical');
-        const highIssues = report.issues.filter((i: any) => i.severity === 'high');
-        const mediumIssues = report.issues.filter((i: any) => i.severity === 'medium');
-        const lowIssues = report.issues.filter((i: any) => i.severity === 'low');
+        const criticalIssues = report.issues.filter(
+          (i: any) => i.severity === 'critical'
+        );
+        const highIssues = report.issues.filter(
+          (i: any) => i.severity === 'high'
+        );
+        const mediumIssues = report.issues.filter(
+          (i: any) => i.severity === 'medium'
+        );
+        const lowIssues = report.issues.filter(
+          (i: any) => i.severity === 'low'
+        );
 
         console.log(`  🔴 Critical: ${criticalIssues.length}`);
         console.log(`  🟠 High: ${highIssues.length}`);
@@ -180,33 +199,41 @@ async function testReactGameWorkflow() {
     }
 
     // Summary
-    console.log('\n' + '=' .repeat(70));
+    console.log('\n' + '='.repeat(70));
     console.log('\n🎯 Workflow Summary\n');
     console.log('✅ React component generated successfully');
     console.log('✅ Accessibility validation completed');
     console.log('✅ Catalog metadata formatted');
     console.log('\n📁 Files Ready for Deployment:');
-    console.log(`  1. Component: ${step1?.componentDirectory}/[ComponentName].tsx`);
+    console.log(
+      `  1. Component: ${step1?.componentDirectory}/[ComponentName].tsx`
+    );
     console.log(`  2. Registration: ${step1?.componentDirectory}/index.ts`);
     console.log(`  3. Catalog Entry: Ready for lib/catalogData.ts`);
-
   } else if (result.status === 'failed') {
     console.log('❌ Workflow Status: FAILED');
     console.log('\n💥 Errors:');
     result.errors.forEach((error, i) => {
-      console.log(`  ${i + 1}. Step ${error.step} (${error.agentType}): ${error.message}`);
+      console.log(
+        `  ${i + 1}. Step ${error.step} (${error.agentType}): ${error.message}`
+      );
       console.log(`     Recoverable: ${error.recoverable ? 'Yes' : 'No'}`);
     });
   }
 
   // Step 7: Display workflow details
-  console.log('\n' + '=' .repeat(70));
+  console.log('\n' + '='.repeat(70));
   console.log('\n📈 Step 7: Workflow Details\n');
 
   result.steps.forEach((step) => {
-    const statusIcon = step.status === 'completed' ? '✅' :
-                       step.status === 'failed' ? '❌' :
-                       step.status === 'running' ? '⏳' : '⏸️';
+    const statusIcon =
+      step.status === 'completed'
+        ? '✅'
+        : step.status === 'failed'
+          ? '❌'
+          : step.status === 'running'
+            ? '⏳'
+            : '⏸️';
 
     console.log(`${statusIcon} Step ${step.stepNumber}: ${step.description}`);
     console.log(`   Agent: ${step.agentType}`);
@@ -220,15 +247,23 @@ async function testReactGameWorkflow() {
     console.log('');
   });
 
-  console.log('=' .repeat(70));
+  console.log('='.repeat(70));
   console.log('\n✨ Test Complete!\n');
 }
 
 // Run the test
-console.log('╔════════════════════════════════════════════════════════════════════╗');
-console.log('║         React Game Workflow Test - Math Adventure Game            ║');
-console.log('║                    Phase 5B Implementation                         ║');
-console.log('╚════════════════════════════════════════════════════════════════════╝\n');
+console.log(
+  '╔════════════════════════════════════════════════════════════════════╗'
+);
+console.log(
+  '║         React Game Workflow Test - Math Adventure Game            ║'
+);
+console.log(
+  '║                    Phase 5B Implementation                         ║'
+);
+console.log(
+  '╚════════════════════════════════════════════════════════════════════╝\n'
+);
 
 testReactGameWorkflow().catch((error) => {
   console.error('\n💥 Test failed with error:', error);

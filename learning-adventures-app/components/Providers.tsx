@@ -11,9 +11,7 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
-      <PermissionProvider>
-        {children}
-      </PermissionProvider>
+      <PermissionProvider>{children}</PermissionProvider>
     </SessionProvider>
   );
 }

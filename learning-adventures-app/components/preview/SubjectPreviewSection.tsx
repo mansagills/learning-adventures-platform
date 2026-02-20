@@ -27,7 +27,7 @@ export default function SubjectPreviewSection({
   categoryIcon,
   adventures,
   isLoading = false,
-  enableRotation = false
+  enableRotation = false,
 }: SubjectPreviewSectionProps) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -36,7 +36,7 @@ export default function SubjectPreviewSection({
   // Intersection observer for fade-in animation
   const [sectionRef, isInView] = useInView<HTMLDivElement>({
     threshold: 0.1,
-    triggerOnce: true
+    triggerOnce: true,
   });
 
   // Content rotation hook (shows different sets of adventures)
@@ -45,7 +45,7 @@ export default function SubjectPreviewSection({
     itemsPerPage: 5,
     autoRotate: enableRotation,
     rotationInterval: 8000, // 8 seconds per rotation
-    pauseOnHover: true
+    pauseOnHover: true,
   });
 
   // Get visible adventures based on rotation
@@ -78,13 +78,14 @@ export default function SubjectPreviewSection({
     if (!container) return;
 
     const scrollAmount = 300; // Width of approximately one card plus gap
-    const newScrollLeft = direction === 'left'
-      ? container.scrollLeft - scrollAmount
-      : container.scrollLeft + scrollAmount;
+    const newScrollLeft =
+      direction === 'left'
+        ? container.scrollLeft - scrollAmount
+        : container.scrollLeft + scrollAmount;
 
     container.scrollTo({
       left: newScrollLeft,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
 
     // Update button states after scroll animation
@@ -98,42 +99,42 @@ export default function SubjectPreviewSection({
           bg: 'bg-blue-50',
           border: 'border-blue-200',
           text: 'text-blue-700',
-          icon: 'text-blue-600'
+          icon: 'text-blue-600',
         };
       case 'science':
         return {
           bg: 'bg-green-50',
           border: 'border-green-200',
           text: 'text-green-700',
-          icon: 'text-green-600'
+          icon: 'text-green-600',
         };
       case 'english':
         return {
           bg: 'bg-purple-50',
           border: 'border-purple-200',
           text: 'text-purple-700',
-          icon: 'text-purple-600'
+          icon: 'text-purple-600',
         };
       case 'history':
         return {
           bg: 'bg-orange-50',
           border: 'border-orange-200',
           text: 'text-orange-700',
-          icon: 'text-orange-600'
+          icon: 'text-orange-600',
         };
       case 'interdisciplinary':
         return {
           bg: 'bg-pink-50',
           border: 'border-pink-200',
           text: 'text-pink-700',
-          icon: 'text-pink-600'
+          icon: 'text-pink-600',
         };
       default:
         return {
           bg: 'bg-gray-50',
           border: 'border-gray-200',
           text: 'text-gray-700',
-          icon: 'text-gray-600'
+          icon: 'text-gray-600',
         };
     }
   };
@@ -163,12 +164,20 @@ export default function SubjectPreviewSection({
 
   if (!adventures || adventures.length === 0) {
     return (
-      <div className={`${colors.bg} ${colors.border} border rounded-lg p-8 text-center mb-12`}>
-        <div className={`inline-flex items-center justify-center w-16 h-16 ${colors.bg} rounded-lg mb-4`}>
+      <div
+        className={`${colors.bg} ${colors.border} border rounded-lg p-8 text-center mb-12`}
+      >
+        <div
+          className={`inline-flex items-center justify-center w-16 h-16 ${colors.bg} rounded-lg mb-4`}
+        >
           <Icon name={categoryIcon} size={32} className={colors.icon} />
         </div>
-        <h3 className={`text-xl font-semibold ${colors.text} mb-2`}>{categoryName}</h3>
-        <p className="text-gray-600 mb-4">No adventures available yet for this category.</p>
+        <h3 className={`text-xl font-semibold ${colors.text} mb-2`}>
+          {categoryName}
+        </h3>
+        <p className="text-gray-600 mb-4">
+          No adventures available yet for this category.
+        </p>
         <ViewMoreButton
           category={categoryId}
           categoryName={categoryName}
@@ -188,7 +197,9 @@ export default function SubjectPreviewSection({
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <div className={`p-3 ${colors.bg} ${colors.border} border rounded-lg`}>
+          <div
+            className={`p-3 ${colors.bg} ${colors.border} border rounded-lg`}
+          >
             <Icon name={categoryIcon} size={24} className={colors.icon} />
           </div>
           <div>
@@ -273,9 +284,12 @@ export default function SubjectPreviewSection({
       <div className="flex items-center justify-center mt-6 text-sm text-gray-500 space-x-4">
         <span>{adventures.length} adventures available</span>
         <span>•</span>
-        <span>{adventures.filter(a => a.featured).length} featured</span>
+        <span>{adventures.filter((a) => a.featured).length} featured</span>
         <span>•</span>
-        <span>{adventures.filter(a => a.type === 'game').length} games, {adventures.filter(a => a.type === 'lesson').length} lessons</span>
+        <span>
+          {adventures.filter((a) => a.type === 'game').length} games,{' '}
+          {adventures.filter((a) => a.type === 'lesson').length} lessons
+        </span>
       </div>
     </div>
   );

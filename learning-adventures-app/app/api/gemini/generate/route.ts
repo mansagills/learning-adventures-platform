@@ -8,7 +8,13 @@ import { prisma } from '@/lib/prisma';
 interface GenerateRequest {
   prompt: string;
   category: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
-  gameType: 'HTML_2D' | 'HTML_3D' | 'INTERACTIVE' | 'QUIZ' | 'SIMULATION' | 'PUZZLE';
+  gameType:
+    | 'HTML_2D'
+    | 'HTML_3D'
+    | 'INTERACTIVE'
+    | 'QUIZ'
+    | 'SIMULATION'
+    | 'PUZZLE';
   gradeLevel: string[];
   difficulty: 'easy' | 'medium' | 'hard';
   skills: string[];
@@ -25,7 +31,15 @@ export async function POST(req: NextRequest) {
 
     // 2. Parse request
     const body: GenerateRequest = await req.json();
-    const { prompt, category, gameType, gradeLevel, difficulty, skills, context } = body;
+    const {
+      prompt,
+      category,
+      gameType,
+      gradeLevel,
+      difficulty,
+      skills,
+      context,
+    } = body;
 
     // 3. Validate inputs
     if (!prompt || prompt.length < 20) {
@@ -35,9 +49,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!category || !gameType || !gradeLevel || gradeLevel.length === 0 || !difficulty || !skills) {
+    if (
+      !category ||
+      !gameType ||
+      !gradeLevel ||
+      gradeLevel.length === 0 ||
+      !difficulty ||
+      !skills
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields: category, gameType, gradeLevel, difficulty, skills' },
+        {
+          error:
+            'Missing required fields: category, gameType, gradeLevel, difficulty, skills',
+        },
         { status: 400 }
       );
     }
@@ -48,8 +72,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: 'Gemini API key not configured',
-          message: 'Please add your GEMINI_API_KEY to .env.local. Get one at https://aistudio.google.com/app/apikey',
-          code: 'MISSING_API_KEY'
+          message:
+            'Please add your GEMINI_API_KEY to .env.local. Get one at https://aistudio.google.com/app/apikey',
+          code: 'MISSING_API_KEY',
         },
         { status: 503 }
       );
@@ -67,7 +92,7 @@ export async function POST(req: NextRequest) {
       gradeLevel,
       difficulty,
       skills,
-      context
+      context,
     });
 
     // 7. Generate content
@@ -96,9 +121,9 @@ export async function POST(req: NextRequest) {
         metadata: {
           model: 'gemini-3-pro-preview',
           generationTime,
-          tokensUsed: response.usageMetadata?.totalTokenCount || 0
-        }
-      }
+          tokensUsed: response.usageMetadata?.totalTokenCount || 0,
+        },
+      },
     });
 
     // 10. Track usage
@@ -115,8 +140,8 @@ export async function POST(req: NextRequest) {
         tokensOutput,
         estimatedCost,
         geminiContentId: geminiContent.id,
-        success: true
-      }
+        success: true,
+      },
     });
 
     // 11. Create preview URL
@@ -131,13 +156,12 @@ export async function POST(req: NextRequest) {
       tokens: {
         input: tokensInput,
         output: tokensOutput,
-        total: tokensInput + tokensOutput
+        total: tokensInput + tokensOutput,
       },
       estimatedCost,
       generationTime,
-      previewUrl
+      previewUrl,
     });
-
   } catch (error: any) {
     console.error('Generation error:', error);
 
@@ -154,8 +178,8 @@ export async function POST(req: NextRequest) {
             tokensOutput: 0,
             estimatedCost: 0,
             success: false,
-            errorMessage: error.message
-          }
+            errorMessage: error.message,
+          },
         });
       }
     } catch (dbError) {

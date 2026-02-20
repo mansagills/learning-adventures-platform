@@ -42,21 +42,34 @@ export default function SecondaryCta() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 mb-6 px-5 py-2.5 bg-white border-2 border-pg-border rounded-full shadow-pop">
             <span className="text-lg">🚀</span>
-            <span className="text-sm font-bold text-foreground uppercase tracking-wide">Start Today</span>
+            <span className="text-sm font-bold text-foreground uppercase tracking-wide">
+              Start Today
+            </span>
           </div>
 
           <h2 className="font-outfit text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6">
             Ready to Transform Your{' '}
             <span className="relative inline-block">
               Child's Learning?
-              <svg className="absolute -bottom-2 left-0 w-full h-4" viewBox="0 0 200 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 6C20 2 40 10 60 6C80 2 100 10 120 6C140 2 160 10 180 6C190 4 198 6 198 6" stroke="#FBBF24" strokeWidth="4" strokeLinecap="round"/>
+              <svg
+                className="absolute -bottom-2 left-0 w-full h-4"
+                viewBox="0 0 200 12"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2 6C20 2 40 10 60 6C80 2 100 10 120 6C140 2 160 10 180 6C190 4 198 6 198 6"
+                  stroke="#FBBF24"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
               </svg>
             </span>
           </h2>
 
           <p className="font-plus-jakarta text-xl md:text-2xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of families who have discovered the joy of learning through our interactive educational platform.
+            Join thousands of families who have discovered the joy of learning
+            through our interactive educational platform.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
@@ -67,7 +80,9 @@ export default function SecondaryCta() {
               data-analytics="secondary-cta-start-adventure"
               className="bg-white text-pg-violet border-pg-border hover:bg-pg-yellow hover:text-foreground"
             >
-              <span className="w-6 h-6 bg-pg-violet/20 rounded-full flex items-center justify-center mr-2">🎉</span>
+              <span className="w-6 h-6 bg-pg-violet/20 rounded-full flex items-center justify-center mr-2">
+                🎉
+              </span>
               Start Your Adventure
             </Button>
             <Button
@@ -87,19 +102,25 @@ export default function SecondaryCta() {
               <div className="w-6 h-6 bg-pg-mint rounded-full flex items-center justify-center">
                 <span className="text-xs">✓</span>
               </div>
-              <span className="font-plus-jakarta text-sm font-medium">Free 14-day trial</span>
+              <span className="font-plus-jakarta text-sm font-medium">
+                Free 14-day trial
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-pg-pink rounded-full flex items-center justify-center">
                 <span className="text-xs">✓</span>
               </div>
-              <span className="font-plus-jakarta text-sm font-medium">No credit card required</span>
+              <span className="font-plus-jakarta text-sm font-medium">
+                No credit card required
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-pg-yellow rounded-full flex items-center justify-center">
                 <span className="text-xs text-foreground">✓</span>
               </div>
-              <span className="font-plus-jakarta text-sm font-medium">Cancel anytime</span>
+              <span className="font-plus-jakarta text-sm font-medium">
+                Cancel anytime
+              </span>
             </div>
           </div>
         </div>

@@ -19,7 +19,7 @@ export async function POST(
 
     // Get game details
     const game = await prisma.testGame.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
     });
 
     if (!game) {
@@ -55,7 +55,7 @@ export async function POST(
       estimatedTime: game.estimatedTime,
       featured: false,
       ...(game.isHtmlGame && { htmlPath: game.filePath }),
-      ...(game.isReactComponent && { componentGame: true })
+      ...(game.isReactComponent && { componentGame: true }),
     };
 
     // Read catalogData.ts file
@@ -99,19 +99,22 @@ export async function POST(
       data: {
         catalogued: true,
         cataloguedAt: new Date(),
-        cataloguedBy: session.user.id
-      }
+        cataloguedBy: session.user.id,
+      },
     });
 
     return NextResponse.json({
       success: true,
       message: `Game added to ${arrayName} array in catalogData.ts`,
-      catalogEntry
+      catalogEntry,
     });
   } catch (error) {
     console.error('Error promoting game to catalog:', error);
     return NextResponse.json(
-      { error: 'Failed to promote game to catalog', details: (error as Error).message },
+      {
+        error: 'Failed to promote game to catalog',
+        details: (error as Error).message,
+      },
       { status: 500 }
     );
   }

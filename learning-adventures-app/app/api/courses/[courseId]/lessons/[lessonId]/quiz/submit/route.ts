@@ -9,10 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import {
-  validateQuizAnswers,
-  type QuizData,
-} from '@/lib/courses/quizHelpers';
+import { validateQuizAnswers, type QuizData } from '@/lib/courses/quizHelpers';
 import { completeLesson } from '@/lib/courses/progressHelpers';
 
 export async function POST(
@@ -23,10 +20,7 @@ export async function POST(
     // Authenticate user
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Parse request body
@@ -47,10 +41,7 @@ export async function POST(
     });
 
     if (!lesson) {
-      return NextResponse.json(
-        { error: 'Lesson not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
     }
 
     if (!lesson.quizData) {
@@ -70,11 +61,7 @@ export async function POST(
     }
 
     // Validate answers and get results
-    const result = await validateQuizAnswers(
-      quizData,
-      answers,
-      attemptNumber
-    );
+    const result = await validateQuizAnswers(quizData, answers, attemptNumber);
 
     // Award XP if passed (progression not blocked by quiz failures)
     // Users can still complete the lesson even if they don't pass the quiz

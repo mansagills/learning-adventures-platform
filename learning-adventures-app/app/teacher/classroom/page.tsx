@@ -24,9 +24,15 @@ function StudentCard({ student, onClick }: StudentCardProps) {
             {student.name}
           </h3>
           <p className="text-sm text-ink-500">{student.email}</p>
-          <p className="text-xs text-ink-400 mt-1">Grade {student.gradeLevel}</p>
+          <p className="text-xs text-ink-400 mt-1">
+            Grade {student.gradeLevel}
+          </p>
         </div>
-        <Icon name="arrow-right" size={20} className="text-ink-300 group-hover:text-brand-500 transition-colors" />
+        <Icon
+          name="arrow-right"
+          size={20}
+          className="text-ink-300 group-hover:text-brand-500 transition-colors"
+        />
       </div>
 
       {student.classroomName && (
@@ -72,12 +78,25 @@ function ClassroomDashboard() {
 
   // Calculate overall stats
   const totalStudents = students.length;
-  const avgCompletion = totalStudents > 0
-    ? Math.round(students.reduce((sum, s) => sum + s.stats.completionRate, 0) / totalStudents)
-    : 0;
-  const totalAdventures = students.reduce((sum, s) => sum + s.stats.totalAdventures, 0);
-  const totalCompleted = students.reduce((sum, s) => sum + s.stats.completedAdventures, 0);
-  const totalAchievements = students.reduce((sum, s) => sum + s.stats.achievements, 0);
+  const avgCompletion =
+    totalStudents > 0
+      ? Math.round(
+          students.reduce((sum, s) => sum + s.stats.completionRate, 0) /
+            totalStudents
+        )
+      : 0;
+  const totalAdventures = students.reduce(
+    (sum, s) => sum + s.stats.totalAdventures,
+    0
+  );
+  const totalCompleted = students.reduce(
+    (sum, s) => sum + s.stats.completedAdventures,
+    0
+  );
+  const totalAchievements = students.reduce(
+    (sum, s) => sum + s.stats.achievements,
+    0
+  );
 
   const handleStudentClick = (studentId: string) => {
     router.push(`/teacher/student/${studentId}`);
@@ -113,8 +132,12 @@ function ClassroomDashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ink-500">Total Students</p>
-                <p className="text-3xl font-bold text-ink-800 mt-2">{totalStudents}</p>
+                <p className="text-sm font-medium text-ink-500">
+                  Total Students
+                </p>
+                <p className="text-3xl font-bold text-ink-800 mt-2">
+                  {totalStudents}
+                </p>
               </div>
               <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center">
                 <Icon name="users" size={24} className="text-brand-600" />
@@ -125,9 +148,15 @@ function ClassroomDashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ink-500">Adventures Completed</p>
-                <p className="text-3xl font-bold text-ink-800 mt-2">{totalCompleted}</p>
-                <p className="text-xs text-ink-400 mt-1">of {totalAdventures} total</p>
+                <p className="text-sm font-medium text-ink-500">
+                  Adventures Completed
+                </p>
+                <p className="text-3xl font-bold text-ink-800 mt-2">
+                  {totalCompleted}
+                </p>
+                <p className="text-xs text-ink-400 mt-1">
+                  of {totalAdventures} total
+                </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <Icon name="check" size={24} className="text-green-600" />
@@ -138,8 +167,12 @@ function ClassroomDashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ink-500">Avg. Completion</p>
-                <p className="text-3xl font-bold text-ink-800 mt-2">{avgCompletion}%</p>
+                <p className="text-sm font-medium text-ink-500">
+                  Avg. Completion
+                </p>
+                <p className="text-3xl font-bold text-ink-800 mt-2">
+                  {avgCompletion}%
+                </p>
               </div>
               <div className="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center">
                 <Icon name="chart" size={24} className="text-accent-600" />
@@ -151,7 +184,9 @@ function ClassroomDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-ink-500">Total Badges</p>
-                <p className="text-3xl font-bold text-ink-800 mt-2">{totalAchievements}</p>
+                <p className="text-3xl font-bold text-ink-800 mt-2">
+                  {totalAchievements}
+                </p>
               </div>
               <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                 <Icon name="star" size={24} className="text-amber-600" />
@@ -193,7 +228,11 @@ function ClassroomDashboard() {
 
           {!loading && !error && students.length === 0 && (
             <div className="text-center py-12">
-              <Icon name="users" size={48} className="text-ink-300 mx-auto mb-4" />
+              <Icon
+                name="users"
+                size={48}
+                className="text-ink-300 mx-auto mb-4"
+              />
               <p className="text-ink-500 mb-2">No students yet</p>
               <p className="text-sm text-ink-400 mb-4">
                 Students will appear here when they enroll in your classrooms
@@ -235,19 +274,30 @@ function ClassroomDashboard() {
                 <ul className="space-y-1 text-blue-700 text-sm">
                   <li className="flex items-center space-x-2">
                     <span className="text-blue-400">•</span>
-                    <span>Click on any student card to view detailed progress and analytics</span>
+                    <span>
+                      Click on any student card to view detailed progress and
+                      analytics
+                    </span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <span className="text-blue-400">•</span>
-                    <span>Track completion rates, time spent, and achievement badges</span>
+                    <span>
+                      Track completion rates, time spent, and achievement badges
+                    </span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <span className="text-blue-400">•</span>
-                    <span>Monitor active learning goals and help students stay on track</span>
+                    <span>
+                      Monitor active learning goals and help students stay on
+                      track
+                    </span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <span className="text-blue-400">•</span>
-                    <span>View subject-specific breakdowns to identify strengths and areas for improvement</span>
+                    <span>
+                      View subject-specific breakdowns to identify strengths and
+                      areas for improvement
+                    </span>
                   </li>
                 </ul>
               </div>
