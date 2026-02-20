@@ -57,7 +57,8 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
       const courseData = await courseResponse.json();
 
       // Handle both paginated (data.data.data) and non-paginated (data.data.courses) responses
-      const coursesData = courseData.data?.data || courseData.data?.courses || [];
+      const coursesData =
+        courseData.data?.data || courseData.data?.courses || [];
 
       if (!courseData.success || coursesData.length === 0) {
         setError('Course not found');
@@ -153,16 +154,23 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
           }
 
           // Navigate after animations
-          setTimeout(() => {
-            if (data.data.nextLesson) {
-              router.push(`/courses/${slug}/lessons/${data.data.nextLesson.order}`);
-            } else {
-              router.push(`/courses/${slug}`);
-            }
-          }, data.data.leveledUp ? 5000 : 3000);
+          setTimeout(
+            () => {
+              if (data.data.nextLesson) {
+                router.push(
+                  `/courses/${slug}/lessons/${data.data.nextLesson.order}`
+                );
+              } else {
+                router.push(`/courses/${slug}`);
+              }
+            },
+            data.data.leveledUp ? 5000 : 3000
+          );
         } else {
           // Failed - show retry option
-          alert(data.data.message || 'You need a higher score to pass. Try again!');
+          alert(
+            data.data.message || 'You need a higher score to pass. Try again!'
+          );
         }
       } else {
         setError(data.error?.message || 'Failed to complete lesson');
@@ -229,12 +237,16 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
         {/* Lesson Header */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-4xl">{lessonTypeIcons[lesson.type] || '📄'}</span>
+            <span className="text-4xl">
+              {lessonTypeIcons[lesson.type] || '📄'}
+            </span>
             <div>
               <div className="text-sm text-gray-500 mb-1">
                 Lesson {lesson.order} of {course.lessons?.length || 0}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">{lesson.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {lesson.title}
+              </h1>
             </div>
           </div>
 
@@ -243,21 +255,31 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
           <div className="flex items-center gap-6 text-sm text-gray-600">
             <span>⏱️ {lesson.duration} minutes</span>
             <span>⭐ {lesson.xpReward} XP</span>
-            {lesson.requiredScore && <span>🎯 {lesson.requiredScore}% required to pass</span>}
+            {lesson.requiredScore && (
+              <span>🎯 {lesson.requiredScore}% required to pass</span>
+            )}
           </div>
         </div>
 
         {/* Lesson Content */}
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Lesson Content</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Lesson Content
+          </h2>
 
           {/* Placeholder for actual lesson content */}
           <div className="prose max-w-none">
             <p className="text-gray-700 mb-4">
-              This is a demonstration lesson player. In a production environment, this area would display:
+              This is a demonstration lesson player. In a production
+              environment, this area would display:
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2 mb-6">
-              <li>Interactive lesson content from: <code className="bg-gray-100 px-2 py-1 rounded text-sm">{lesson.contentPath}</code></li>
+              <li>
+                Interactive lesson content from:{' '}
+                <code className="bg-gray-100 px-2 py-1 rounded text-sm">
+                  {lesson.contentPath}
+                </code>
+              </li>
               <li>Videos, quizzes, games, or reading material</li>
               <li>Progress tracking as the user goes through the content</li>
               <li>Interactive elements based on lesson type</li>
@@ -265,11 +287,13 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
 
             <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
               <p className="text-blue-800 font-semibold">
-                💡 To complete this lesson, click the "Complete Lesson" button below.
+                💡 To complete this lesson, click the "Complete Lesson" button
+                below.
               </p>
               {lesson.requiredScore && (
                 <p className="text-blue-700 text-sm mt-2">
-                  You'll be prompted to enter a score. Make sure to score at least {lesson.requiredScore}% to unlock the next lesson!
+                  You'll be prompted to enter a score. Make sure to score at
+                  least {lesson.requiredScore}% to unlock the next lesson!
                 </p>
               )}
             </div>
@@ -319,10 +343,7 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
 
       {/* Level Up Modal */}
       {showLevelUp && (
-        <LevelUpModal
-          level={newLevel}
-          onClose={() => setShowLevelUp(false)}
-        />
+        <LevelUpModal level={newLevel} onClose={() => setShowLevelUp(false)} />
       )}
     </div>
   );

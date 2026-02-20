@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             isVerifiedAdult: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!child) {
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Update last login time
     await prisma.childProfile.update({
       where: { id: child.id },
-      data: { lastLoginAt: new Date() }
+      data: { lastLoginAt: new Date() },
     });
 
     // Set session cookie

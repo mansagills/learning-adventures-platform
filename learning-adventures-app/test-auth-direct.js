@@ -10,12 +10,12 @@ async function testDirectAuth() {
     // Simulate the authorize function logic
     const credentials = {
       email: 'student@test.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     console.log('📥 Simulated credentials:', {
       email: credentials.email,
-      hasPassword: !!credentials.password
+      hasPassword: !!credentials.password,
     });
 
     if (!credentials?.email || !credentials?.password) {
@@ -33,7 +33,7 @@ async function testDirectAuth() {
       found: !!user,
       hasPassword: !!user?.password,
       userId: user?.id,
-      role: user?.role
+      role: user?.role,
     });
 
     if (!user || !user.password) {
@@ -64,7 +64,6 @@ async function testDirectAuth() {
       subjects: user.subjects,
       image: user.image,
     });
-
   } catch (error) {
     console.error('💥 Error during auth test:', error.message);
     console.error('📍 Stack trace:', error.stack);

@@ -18,11 +18,8 @@ export async function GET(request: NextRequest) {
     // Get challenges where user is either creator or challenged
     const challenges = await prisma.challenge.findMany({
       where: {
-        OR: [
-          { creatorId: session.user.id },
-          { challengedId: session.user.id }
-        ],
-        status: status as any
+        OR: [{ creatorId: session.user.id }, { challengedId: session.user.id }],
+        status: status as any,
       },
       include: {
         creator: {
@@ -31,8 +28,8 @@ export async function GET(request: NextRequest) {
             name: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
+            level: true,
+          },
         },
         challenged: {
           select: {
@@ -40,20 +37,19 @@ export async function GET(request: NextRequest) {
             name: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
-        }
+            level: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json({
       challenges,
-      count: challenges.length
+      count: challenges.length,
     });
-
   } catch (error) {
     console.error('Error fetching challenges:', error);
     return NextResponse.json(
@@ -79,7 +75,7 @@ export async function POST(request: NextRequest) {
       adventureId,
       goalValue,
       unit,
-      duration = 7 // days
+      duration = 7, // days
     } = body;
 
     if (!challengedId || !type || !goalValue || !unit) {
@@ -98,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     // Verify the challenged user exists
     const challengedUser = await prisma.user.findUnique({
-      where: { id: challengedId }
+      where: { id: challengedId },
     });
 
     if (!challengedUser) {
@@ -121,7 +117,7 @@ export async function POST(request: NextRequest) {
         goalValue,
         unit,
         endDate,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         creator: {
@@ -129,22 +125,21 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             image: true,
-            gradeLevel: true
-          }
+            gradeLevel: true,
+          },
         },
         challenged: {
           select: {
             id: true,
             name: true,
             image: true,
-            gradeLevel: true
-          }
-        }
-      }
+            gradeLevel: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ challenge });
-
   } catch (error) {
     console.error('Error creating challenge:', error);
     return NextResponse.json(
@@ -176,11 +171,8 @@ export async function DELETE(request: NextRequest) {
     const challenge = await prisma.challenge.findFirst({
       where: {
         id: challengeId,
-        OR: [
-          { creatorId: session.user.id },
-          { challengedId: session.user.id }
-        ]
-      }
+        OR: [{ creatorId: session.user.id }, { challengedId: session.user.id }],
+      },
     });
 
     if (!challenge) {
@@ -192,19 +184,21 @@ export async function DELETE(request: NextRequest) {
 
     // If challenged user declines, mark as DECLINED
     // If creator cancels, delete the challenge
-    if (challenge.challengedId === session.user.id && challenge.status === 'PENDING') {
+    if (
+      challenge.challengedId === session.user.id &&
+      challenge.status === 'PENDING'
+    ) {
       await prisma.challenge.update({
         where: { id: challengeId },
-        data: { status: 'DECLINED' }
+        data: { status: 'DECLINED' },
       });
     } else {
       await prisma.challenge.delete({
-        where: { id: challengeId }
+        where: { id: challengeId },
       });
     }
 
     return NextResponse.json({ success: true });
-
   } catch (error) {
     console.error('Error deleting challenge:', error);
     return NextResponse.json(

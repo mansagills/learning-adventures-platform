@@ -15,11 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const {
-      feedbackType,
-      message,
-      issueSeverity
-    } = await req.json();
+    const { feedbackType, message, issueSeverity } = await req.json();
 
     if (!message || !message.trim()) {
       return NextResponse.json(
@@ -35,8 +31,8 @@ export async function POST(
         userName: session.user.name || session.user.email || 'Unknown',
         feedbackType,
         message,
-        issueSeverity
-      }
+        issueSeverity,
+      },
     });
 
     return NextResponse.json({ feedback });

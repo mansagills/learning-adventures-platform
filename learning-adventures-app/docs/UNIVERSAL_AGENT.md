@@ -1,6 +1,7 @@
 # Universal Agent Architecture
 
 ## Overview
+
 The Universal Agent is a single intelligent agent that automatically detects and uses appropriate skills based on user requests. It replaces the previous 4-agent system with a more flexible, extensible skill-based architecture.
 
 ## Architecture
@@ -31,26 +32,31 @@ The Universal Agent is a single intelligent agent that automatically detects and
 ### Available Skills
 
 #### 1. Game Ideation (`game-ideation`)
+
 - **Purpose**: Brainstorm educational game concepts
 - **Triggers**: game idea, brainstorm, concept, create game
 - **Output**: 3-5 game concepts with educational ratings
 
 #### 2. Game Builder (`game-builder`)
+
 - **Purpose**: Create HTML educational games
 - **Triggers**: build game, create html, implement game
 - **Output**: Complete HTML file with embedded CSS/JS
 
 #### 3. React Component (`react-component`)
+
 - **Purpose**: Create React-based educational games
 - **Triggers**: react game, component, typescript game
 - **Output**: React component code with TypeScript
 
 #### 4. Metadata Formatter (`metadata-formatter`)
+
 - **Purpose**: Format game metadata for catalog
 - **Triggers**: format metadata, catalog entry, publish game
 - **Output**: Catalog entry with validation
 
 #### 5. Accessibility Validator (`accessibility-validator`)
+
 - **Purpose**: Validate WCAG 2.1 AA compliance
 - **Triggers**: check accessibility, validate, a11y, wcag
 - **Output**: Accessibility report with score and recommendations
@@ -58,12 +64,15 @@ The Universal Agent is a single intelligent agent that automatically detects and
 ## How It Works
 
 ### 1. User Sends Request
+
 ```
 User: "Create a math game for 3rd graders"
 ```
 
 ### 2. Skill Detection
+
 The UniversalAgent queries all skills for confidence scores:
+
 - game-ideation: 85% (keywords: "create", "game")
 - game-builder: 70% (keyword: "create")
 - react-component: 30% (no React keywords)
@@ -71,20 +80,26 @@ The UniversalAgent queries all skills for confidence scores:
 - accessibility-validator: 5% (no validation keywords)
 
 ### 3. Skill Selection
+
 Top skill (game-ideation, 85%) is above threshold (80%), so it's auto-selected.
 
 ### 4. Skill Execution
+
 Game Ideation skill executes and generates 3-5 game concepts.
 
 ### 5. Response
+
 Agent returns result with:
+
 - Skill used: `game-ideation`
 - Confidence: 85%
 - Output: Array of game concepts
 - Suggested next skills: `game-builder`, `react-component`
 
 ### 6. Skill Chaining (Optional)
+
 If user asks: "Build the first concept as an HTML game"
+
 - Previous output (game concepts) is available in context
 - game-builder skill uses the first concept automatically
 - No need to repeat game details
@@ -92,9 +107,11 @@ If user asks: "Build the first concept as an HTML game"
 ## API Endpoints
 
 ### POST /api/agent/chat
+
 Send message to universal agent.
 
 **Request:**
+
 ```json
 {
   "message": "Create a math game for 3rd graders",
@@ -107,6 +124,7 @@ Send message to universal agent.
 ```
 
 **Response:**
+
 ```json
 {
   "response": "Generated 3 game concepts...",
@@ -123,9 +141,11 @@ Send message to universal agent.
 ```
 
 ### GET /api/agent/skills
+
 List all available skills.
 
 **Response:**
+
 ```json
 {
   "count": 5,
@@ -144,9 +164,11 @@ List all available skills.
 ```
 
 ### POST /api/agent/skills/detect
+
 Detect which skills match a request (debugging).
 
 **Request:**
+
 ```json
 {
   "message": "Build a React game about fractions"
@@ -154,6 +176,7 @@ Detect which skills match a request (debugging).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Build a React game about fractions",
@@ -204,6 +227,7 @@ Detect which skills match a request (debugging).
 ## Database Schema
 
 ### SkillExecution
+
 Tracks each skill execution for analytics and debugging.
 
 ```prisma
@@ -222,6 +246,7 @@ model SkillExecution {
 ```
 
 ### AgentConversation (Updated)
+
 ```prisma
 model AgentConversation {
   id              String   @id
@@ -236,6 +261,7 @@ model AgentConversation {
 ## Adding New Skills
 
 ### 1. Create Skill Class
+
 ```typescript
 import { BaseSkill } from '../BaseSkill';
 import { SkillMetadata, SkillContext, SkillResult } from '../types';
@@ -280,14 +306,18 @@ export class MyNewSkill extends BaseSkill {
 ```
 
 ### 2. Register Skill
+
 Update `lib/agents/UniversalAgent.ts`:
+
 ```typescript
 const { MyNewSkill } = await import('../skills/my-skill');
 this.skillRegistry.registerSkill(new MyNewSkill());
 ```
 
 ### 3. Export Skill
+
 Update `lib/skills/index.ts`:
+
 ```typescript
 export { MyNewSkill } from './my-skill';
 ```
@@ -295,6 +325,7 @@ export { MyNewSkill } from './my-skill';
 ## Migration from Old System
 
 ### Old System (4 Agents)
+
 ```typescript
 // Had to choose which agent to use
 const agent = new GameIdeaGeneratorAgent();
@@ -302,14 +333,16 @@ const result = await agent.execute(input);
 ```
 
 ### New System (Universal Agent)
+
 ```typescript
 // Agent automatically detects and uses correct skill
 const agent = new UniversalAgent();
 await agent.initialize();
-const result = await agent.execute("Create a math game");
+const result = await agent.execute('Create a math game');
 ```
 
 ### Benefits
+
 - ✅ No manual agent selection
 - ✅ Automatic skill chaining
 - ✅ Easier to add new skills
@@ -320,6 +353,7 @@ const result = await agent.execute("Create a math game");
 ## Testing
 
 ### Test Skill Detection
+
 ```bash
 curl -X POST http://localhost:3000/api/agent/skills/detect \
   -H "Content-Type: application/json" \
@@ -327,6 +361,7 @@ curl -X POST http://localhost:3000/api/agent/skills/detect \
 ```
 
 ### Test Agent Execution
+
 ```bash
 curl -X POST http://localhost:3000/api/agent/chat \
   -H "Content-Type: application/json" \
@@ -334,6 +369,7 @@ curl -X POST http://localhost:3000/api/agent/chat \
 ```
 
 ### Test Skill Chaining
+
 ```bash
 # First request
 curl -X POST http://localhost:3000/api/agent/chat \
@@ -379,6 +415,7 @@ curl -X POST http://localhost:3000/api/agent/chat \
 ## Support
 
 For questions or issues:
+
 - Check skill documentation in `lib/skills/[skill-name]/SKILL.md`
 - Review conversation logs in database
 - Use skill detection endpoint for debugging

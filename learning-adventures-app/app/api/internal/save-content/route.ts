@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve, sep } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 
@@ -50,13 +50,26 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
+      // SECURITY: Prevent path traversal in uploadedZipPath
+      // Ensure path doesn't contain '..', and is within allowed directory
+      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+
+      // Strict check: must be in uploads/temp/ and no traversal attempts
+      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
+         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+         return NextResponse.json(
+           { error: 'Invalid path. Path traversal detected.' },
+           { status: 400 }
+         );
+      }
+
       // Create directory for the game/lesson
       const gameId = fileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
       await mkdir(gameDir, { recursive: true });
 
       // Extract zip to the game directory
-      const zipFullPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      const zipFullPath = join(publicDir, normalizedZipPath);
 
       if (!existsSync(zipFullPath)) {
         return NextResponse.json(
@@ -66,7 +79,33 @@ export async function POST(request: NextRequest) {
       }
 
       const zip = new AdmZip(zipFullPath);
-      zip.extractAllTo(gameDir, true);
+
+      // Security: Manually extract zip entries to prevent Zip Slip vulnerabilities
+      const zipEntries = zip.getEntries();
+      const resolvedTargetDir = resolve(gameDir);
+
+      for (const entry of zipEntries) {
+        if (entry.isDirectory) continue;
+
+        // Resolve full path and prevent path traversal
+        const entryName = entry.entryName;
+        const fullPath = resolve(resolvedTargetDir, entryName);
+
+        // Ensure the resolved path is inside the target directory
+        if (!fullPath.startsWith(resolvedTargetDir + sep)) {
+          console.warn(
+            `Security Warning: Skipped file trying to escape target directory: ${entryName}`
+          );
+          continue;
+        }
+
+        // Ensure parent directory exists
+        const parentDir = resolve(fullPath, '..');
+        await mkdir(parentDir, { recursive: true });
+
+        // Write file content
+        await writeFile(fullPath, entry.getData());
+      }
 
       return NextResponse.json({
         success: true,
