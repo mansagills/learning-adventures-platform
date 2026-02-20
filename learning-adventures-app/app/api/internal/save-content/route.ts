@@ -52,16 +52,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Sanitize fileName to prevent path traversal
-    // We expect fileName to be safe. If it contains path separators, validateIdentifier will catch it
-    // if we strip the extension first.
-    let identifier = fileName;
-    if (fileName.endsWith('.html')) {
-      identifier = fileName.slice(0, -5);
-    }
-
+    // Validate fileName/gameId to prevent path traversal
+    // We derive gameId by stripping .html extension, effectively enforcing it
+    const gameId = fileName.replace('.html', '');
     try {
-      validateIdentifier(identifier, 'File Name');
+      validateIdentifier(gameId, 'Game ID');
     } catch (e) {
       return NextResponse.json(
         { error: (e as Error).message },
@@ -94,18 +89,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Create directory for the game/lesson
-      const gameId = fileName.replace(/\.html$/, '');
-
-      // Security: Validate gameId is a safe directory name
-      try {
-        validateIdentifier(gameId, 'Game ID');
-      } catch (error) {
-        return NextResponse.json(
-          { error: error instanceof Error ? error.message : 'Invalid Game ID' },
-          { status: 400 }
-        );
-      }
-
       const gameDir = join(tierDir, gameId);
 
       // Double check path traversal just in case

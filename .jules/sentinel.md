@@ -1,4 +1,9 @@
-## 2025-02-17 - [CRITICAL] Path Traversal in File Upload Endpoint
-**Vulnerability:** The `/api/internal/save-content` endpoint was vulnerable to Path Traversal via the `fileName` parameter. An attacker could supply a filename like `../../malicious/game.html` to create directories and write files outside the intended directory structure. This vulnerability existed despite having Zip Slip protections, because the *target directory itself* was constructed using unsanitized user input.
-**Learning:** Preventing Zip Slip is not enough if the base directory for extraction is user-controlled and unsanitized. Path traversal checks must be applied to ALL user-provided filenames and identifiers used in path construction, not just those coming from within an archive.
-**Prevention:** Always sanitize user-provided filenames using strict allowlists (e.g., alphanumeric only) or validated identifiers. Ensure `fileName` does not contain directory separators or `..`. Use utilities like `validateIdentifier` for strict validation of identifiers used as directory names.
+## 2026-01-31 - Mass Assignment Privilege Escalation
+**Vulnerability:** The signup endpoint allowed users to specify their role directly in the request body, which was passed unsanitized to `prisma.user.create`. This allowed attackers to create ADMIN accounts.
+**Learning:** Using `req.json()` directly into `prisma.create` is dangerous if the model has sensitive fields like `role`.
+**Prevention:** Always validate and sanitize input, especially for sensitive fields. Use a whitelist for allowed values (e.g., allow `STUDENT`, `PARENT`, `TEACHER` but not `ADMIN`). Explicitly construct the `data` object instead of spreading the request body.
+
+## 2026-02-01 - Path Traversal in File Upload/Creation
+**Vulnerability:** The `save-content` API endpoint accepted a `fileName` parameter and used it directly in `path.join` to create directories. This allowed attackers to use `..` to traverse outside the intended directory and write files anywhere on the system (RCE).
+**Learning:** `path.join` and `path.resolve` DO NOT prevent path traversal; they merely resolve the path. Validating the INPUT string itself (e.g., ensuring no `/` or `..`) is critical before passing to file system operations.
+**Prevention:** Always validate user-provided filenames against a strict whitelist (e.g., alphanumeric only) using `validateIdentifier` or similar. Do not rely on file extensions or path joining to sanitize input.
