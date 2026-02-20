@@ -60,7 +60,9 @@ vi.mock('@/lib/analytics', () => ({
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 };
 
 // Mock matchMedia for responsive tests

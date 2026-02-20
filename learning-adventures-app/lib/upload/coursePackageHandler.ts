@@ -314,9 +314,7 @@ function generateSlug(title: string): string {
  * Allows only alphanumeric characters, hyphens, and underscores
  */
 function sanitizeSlug(slug: string): string {
-  return slug
-    .replace(/[^a-zA-Z0-9\-_]/g, '')
-    .trim();
+  return slug.replace(/[^a-zA-Z0-9\-_]/g, '').trim();
 }
 
 /**

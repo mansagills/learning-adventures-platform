@@ -158,9 +158,7 @@ function generateGameId(title: string): string {
  * Allows only alphanumeric characters, hyphens, and underscores
  */
 function sanitizeId(id: string): string {
-  return id
-    .replace(/[^a-zA-Z0-9\-_]/g, '')
-    .trim();
+  return id.replace(/[^a-zA-Z0-9\-_]/g, '').trim();
 }
 
 /**
