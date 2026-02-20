@@ -14,6 +14,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate role (Security: Prevent mass assignment of ADMIN role)
+    const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
+    if (role && !ALLOWED_ROLES.includes(role)) {
+      return NextResponse.json(
+        { error: 'Invalid role specified' },
+        { status: 400 }
+      );
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
