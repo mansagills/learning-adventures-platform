@@ -29,10 +29,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Secure role assignment - only allow safe roles, default to STUDENT
-    // Prevents privilege escalation to ADMIN
-    const SAFE_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
-    const assignedRole = (role && SAFE_ROLES.includes(role)) ? role : 'STUDENT';
+    // Validate role (SECURITY: Prevent role escalation)
+    const allowedRoles = ['STUDENT', 'PARENT', 'TEACHER'];
+    const safeRole = allowedRoles.includes(role) ? role : 'STUDENT';
 
     // Create user
     const user = await prisma.user.create({
@@ -40,8 +39,8 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
-        role: assignedRole,
-        gradeLevel: assignedRole === 'STUDENT' ? gradeLevel : null,
+        role: safeRole,
+        gradeLevel: safeRole === 'STUDENT' ? gradeLevel : null,
       },
       select: {
         id: true,

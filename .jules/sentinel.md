@@ -1,4 +1,4 @@
-## 2024-05-22 - Mass Assignment in Role Assignment
-**Vulnerability:** The signup API allowed arbitrary role assignment (e.g., 'ADMIN') via the request body because it blindly passed the `role` input to `prisma.user.create`.
-**Learning:** Next.js API routes receiving JSON bodies need explicit validation. Trusting `request.json()` directly into an ORM create method is dangerous for sensitive fields.
-**Prevention:** Always use an explicit whitelist for sensitive fields (e.g., `SAFE_ROLES`). Ensure default behavior falls back to the least privileged role (e.g., 'STUDENT').
+## 2026-01-31 - Mass Assignment Privilege Escalation
+**Vulnerability:** The signup endpoint allowed users to specify their role directly in the request body, which was passed unsanitized to `prisma.user.create`. This allowed attackers to create ADMIN accounts.
+**Learning:** Using `req.json()` directly into `prisma.create` is dangerous if the model has sensitive fields like `role`.
+**Prevention:** Always validate and sanitize input, especially for sensitive fields. Use a whitelist for allowed values (e.g., allow `STUDENT`, `PARENT`, `TEACHER` but not `ADMIN`). Explicitly construct the `data` object instead of spreading the request body.

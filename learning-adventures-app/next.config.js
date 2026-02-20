@@ -12,7 +12,26 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Allow games and lessons to be embedded in iframes (same origin)
+        source: '/(games|lessons)/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+      {
+        // All other pages deny framing
+        source: '/((?!games|lessons).*)',
         headers: [
           {
             key: 'X-Frame-Options',
