@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
       where: {
         OR: [
           { userId: session.user.id, status },
-          { friendId: session.user.id, status }
-        ]
+          { friendId: session.user.id, status },
+        ],
       },
       include: {
         user: {
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
             email: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
+            level: true,
+          },
         },
         friend: {
           select: {
@@ -42,17 +42,17 @@ export async function GET(request: NextRequest) {
             email: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
-        }
+            level: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     // Format the response to always show the "other" user
-    const formattedFriendships = friendships.map(friendship => {
+    const formattedFriendships = friendships.map((friendship) => {
       const isInitiator = friendship.userId === session.user.id;
       const friendData = isInitiator ? friendship.friend : friendship.user;
 
@@ -69,15 +69,14 @@ export async function GET(request: NextRequest) {
         status: friendship.status,
         createdAt: friendship.createdAt,
         acceptedAt: friendship.acceptedAt,
-        isInitiator
+        isInitiator,
       };
     });
 
     return NextResponse.json({
       friends: formattedFriendships,
-      count: formattedFriendships.length
+      count: formattedFriendships.length,
     });
-
   } catch (error) {
     console.error('Error fetching friends:', error);
     return NextResponse.json(
@@ -117,9 +116,9 @@ export async function POST(request: NextRequest) {
       where: {
         OR: [
           { userId: session.user.id, friendId },
-          { userId: friendId, friendId: session.user.id }
-        ]
-      }
+          { userId: friendId, friendId: session.user.id },
+        ],
+      },
     });
 
     if (existingFriendship) {
@@ -134,7 +133,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         friendId,
-        status: 'PENDING'
+        status: 'PENDING',
       },
       include: {
         friend: {
@@ -143,10 +142,10 @@ export async function POST(request: NextRequest) {
             name: true,
             email: true,
             image: true,
-            gradeLevel: true
-          }
-        }
-      }
+            gradeLevel: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -158,10 +157,9 @@ export async function POST(request: NextRequest) {
         image: friendship.friend.image,
         gradeLevel: friendship.friend.gradeLevel,
         status: friendship.status,
-        createdAt: friendship.createdAt
-      }
+        createdAt: friendship.createdAt,
+      },
     });
-
   } catch (error) {
     console.error('Error creating friendship:', error);
     return NextResponse.json(
@@ -193,11 +191,8 @@ export async function DELETE(request: NextRequest) {
     const friendship = await prisma.friendship.findFirst({
       where: {
         id: friendshipId,
-        OR: [
-          { userId: session.user.id },
-          { friendId: session.user.id }
-        ]
-      }
+        OR: [{ userId: session.user.id }, { friendId: session.user.id }],
+      },
     });
 
     if (!friendship) {
@@ -208,11 +203,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     await prisma.friendship.delete({
-      where: { id: friendshipId }
+      where: { id: friendshipId },
     });
 
     return NextResponse.json({ success: true });
-
   } catch (error) {
     console.error('Error deleting friendship:', error);
     return NextResponse.json(

@@ -19,7 +19,7 @@ export async function POST(
 
     // Check if goal exists and belongs to user
     const existingGoal = await prisma.learningGoal.findUnique({
-      where: { id: goalId }
+      where: { id: goalId },
     });
 
     if (!existingGoal) {
@@ -37,8 +37,8 @@ export async function POST(
         status: 'COMPLETED',
         completedAt: new Date(),
         currentValue: existingGoal.targetValue, // Ensure it's at target
-        streakCount: existingGoal.streakCount + 1
-      }
+        streakCount: existingGoal.streakCount + 1,
+      },
     });
 
     // TODO: Award achievement for goal completion
@@ -46,9 +46,8 @@ export async function POST(
 
     return NextResponse.json({
       goal: updatedGoal,
-      message: 'Goal completed! 🎉'
+      message: 'Goal completed! 🎉',
     });
-
   } catch (error) {
     console.error('Error completing goal:', error);
     return NextResponse.json(

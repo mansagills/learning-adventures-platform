@@ -1,708 +1,857 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>States of Matter Mixer - Learning Adventures</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #ff9a9e 0%,
+          #fecfef 50%,
+          #fecfef 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
 
-        .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 900px;
-            padding: 20px;
-        }
+      .game-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 900px;
+        padding: 20px;
+      }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+      .game-header {
+        text-align: center;
+        margin-bottom: 15px;
+      }
 
-        .game-title {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e91e63;
-            margin-bottom: 5px;
-        }
+      .game-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e91e63;
+        margin-bottom: 5px;
+      }
 
-        .game-subtitle {
-            font-size: 1rem;
-            color: #666;
-        }
+      .game-subtitle {
+        font-size: 1rem;
+        color: #666;
+      }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: linear-gradient(135deg, #fce4ec, #f8bbd9);
-            padding: 12px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border: 2px solid #e91e63;
-        }
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        background: linear-gradient(135deg, #fce4ec, #f8bbd9);
+        padding: 12px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        border: 2px solid #e91e63;
+      }
 
-        .stat {
-            text-align: center;
-        }
+      .stat {
+        text-align: center;
+      }
 
-        .stat-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #c2185b;
-        }
+      .stat-value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #c2185b;
+      }
 
-        .stat-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
+      .stat-label {
+        font-size: 0.8rem;
+        color: #666;
+      }
 
+      .kitchen-area {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+        margin-bottom: 15px;
+      }
+
+      .ingredients-panel {
+        background: #f5f5f5;
+        border-radius: 15px;
+        padding: 15px;
+      }
+
+      .panel-title {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 2px dashed #ddd;
+      }
+
+      .ingredients-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .ingredient {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: grab;
+        transition: all 0.2s;
+      }
+
+      .ingredient:hover {
+        border-color: #e91e63;
+        transform: translateX(5px);
+      }
+
+      .ingredient.dragging {
+        opacity: 0.5;
+      }
+
+      .ingredient.used {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .ingredient-emoji {
+        font-size: 1.5rem;
+      }
+
+      .ingredient-info {
+        flex: 1;
+      }
+
+      .ingredient-name {
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+
+      .ingredient-state {
+        font-size: 0.75rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .state-badge {
+        padding: 2px 6px;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        font-weight: bold;
+      }
+
+      .state-solid {
+        background: #bbdefb;
+        color: #1565c0;
+      }
+      .state-liquid {
+        background: #b3e5fc;
+        color: #0277bd;
+      }
+      .state-gas {
+        background: #e1bee7;
+        color: #7b1fa2;
+      }
+
+      .cooking-station {
+        background: linear-gradient(180deg, #fafafa 0%, #e0e0e0 100%);
+        border-radius: 15px;
+        padding: 20px;
+        border: 3px solid #9e9e9e;
+      }
+
+      .challenge-display {
+        background: #fff3e0;
+        border: 2px solid #ff9800;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .challenge-text {
+        font-size: 1.1rem;
+        color: #e65100;
+        margin-bottom: 5px;
+      }
+
+      .challenge-hint {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .pot-area {
+        position: relative;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .pot {
+        width: 200px;
+        height: 120px;
+        background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+        border-radius: 0 0 100px 100px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pot-contents {
+        width: 160px;
+        height: 80px;
+        background: #8d6e63;
+        border-radius: 0 0 80px 80px;
+        position: absolute;
+        bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        overflow: hidden;
+        transition: background 0.3s;
+      }
+
+      .pot-contents.heating {
+        background: linear-gradient(180deg, #ff7043 0%, #ff5722 100%);
+      }
+
+      .pot-contents.cooling {
+        background: linear-gradient(180deg, #4fc3f7 0%, #29b6f6 100%);
+      }
+
+      .pot-contents.drag-over {
+        background: #a5d6a7;
+        box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.5);
+      }
+
+      .steam {
+        position: absolute;
+        top: -30px;
+        display: none;
+      }
+
+      .steam.active {
+        display: block;
+        animation: float 1s infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.8;
+        }
+        50% {
+          transform: translateY(-10px);
+          opacity: 0.4;
+        }
+      }
+
+      .bubbles {
+        position: absolute;
+        display: none;
+      }
+
+      .bubbles.active {
+        display: block;
+        animation: bubble 0.5s infinite;
+      }
+
+      @keyframes bubble {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+      }
+
+      .control-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 20px;
+        border-radius: 15px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: bold;
+      }
+
+      .control-btn:hover {
+        transform: translateY(-3px);
+      }
+
+      .control-btn:active {
+        transform: translateY(0);
+      }
+
+      .control-btn.heat {
+        background: linear-gradient(135deg, #ff5722, #ff9800);
+        color: white;
+      }
+
+      .control-btn.cool {
+        background: linear-gradient(135deg, #2196f3, #03a9f4);
+        color: white;
+      }
+
+      .control-btn.submit {
+        background: linear-gradient(135deg, #4caf50, #8bc34a);
+        color: white;
+      }
+
+      .control-btn.reset {
+        background: linear-gradient(135deg, #9e9e9e, #757575);
+        color: white;
+      }
+
+      .control-emoji {
+        font-size: 1.5rem;
+      }
+
+      .control-text {
+        font-size: 0.8rem;
+      }
+
+      .temperature-display {
+        text-align: center;
+        margin: 10px 0;
+      }
+
+      .temp-bar {
+        width: 100%;
+        height: 20px;
+        background: linear-gradient(
+          90deg,
+          #2196f3 0%,
+          #4caf50 50%,
+          #ff5722 100%
+        );
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .temp-indicator {
+        position: absolute;
+        width: 10px;
+        height: 100%;
+        background: white;
+        border: 2px solid #333;
+        border-radius: 5px;
+        transition: left 0.3s;
+      }
+
+      .temp-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .result-display {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        margin-top: 10px;
+        display: none;
+      }
+
+      .result-display.success {
+        display: block;
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        color: #2e7d32;
+      }
+
+      .result-display.error {
+        display: block;
+        background: #ffebee;
+        border: 2px solid #f44336;
+        color: #c62828;
+      }
+
+      /* Modals */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        max-width: 450px;
+        width: 90%;
+        animation: popIn 0.3s ease;
+      }
+
+      @keyframes popIn {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        color: #e91e63;
+        margin-bottom: 15px;
+      }
+
+      .modal-emoji {
+        font-size: 4rem;
+        margin-bottom: 15px;
+      }
+
+      .modal-text {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #e91e63, #c2185b);
+        color: white;
+        border: none;
+        padding: 15px 35px;
+        font-size: 1.1rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        margin: 5px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+      }
+
+      .states-legend {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 700px) {
         .kitchen-area {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .ingredients-panel {
-            background: #f5f5f5;
-            border-radius: 15px;
-            padding: 15px;
-        }
-
-        .panel-title {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 2px dashed #ddd;
+          grid-template-columns: 1fr;
         }
 
         .ingredients-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
         }
 
-        .ingredient {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: grab;
-            transition: all 0.2s;
+        .game-title {
+          font-size: 1.5rem;
         }
-
-        .ingredient:hover {
-            border-color: #e91e63;
-            transform: translateX(5px);
-        }
-
-        .ingredient.dragging {
-            opacity: 0.5;
-        }
-
-        .ingredient.used {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .ingredient-emoji {
-            font-size: 1.5rem;
-        }
-
-        .ingredient-info {
-            flex: 1;
-        }
-
-        .ingredient-name {
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .ingredient-state {
-            font-size: 0.75rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .state-badge {
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            font-weight: bold;
-        }
-
-        .state-solid { background: #bbdefb; color: #1565c0; }
-        .state-liquid { background: #b3e5fc; color: #0277bd; }
-        .state-gas { background: #e1bee7; color: #7b1fa2; }
-
-        .cooking-station {
-            background: linear-gradient(180deg, #fafafa 0%, #e0e0e0 100%);
-            border-radius: 15px;
-            padding: 20px;
-            border: 3px solid #9e9e9e;
-        }
-
-        .challenge-display {
-            background: #fff3e0;
-            border: 2px solid #ff9800;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .challenge-text {
-            font-size: 1.1rem;
-            color: #e65100;
-            margin-bottom: 5px;
-        }
-
-        .challenge-hint {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .pot-area {
-            position: relative;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .pot {
-            width: 200px;
-            height: 120px;
-            background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
-            border-radius: 0 0 100px 100px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pot-contents {
-            width: 160px;
-            height: 80px;
-            background: #8d6e63;
-            border-radius: 0 0 80px 80px;
-            position: absolute;
-            bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            overflow: hidden;
-            transition: background 0.3s;
-        }
-
-        .pot-contents.heating {
-            background: linear-gradient(180deg, #ff7043 0%, #ff5722 100%);
-        }
-
-        .pot-contents.cooling {
-            background: linear-gradient(180deg, #4fc3f7 0%, #29b6f6 100%);
-        }
-
-        .pot-contents.drag-over {
-            background: #a5d6a7;
-            box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.5);
-        }
-
-        .steam {
-            position: absolute;
-            top: -30px;
-            display: none;
-        }
-
-        .steam.active {
-            display: block;
-            animation: float 1s infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); opacity: 0.8; }
-            50% { transform: translateY(-10px); opacity: 0.4; }
-        }
-
-        .bubbles {
-            position: absolute;
-            display: none;
-        }
-
-        .bubbles.active {
-            display: block;
-            animation: bubble 0.5s infinite;
-        }
-
-        @keyframes bubble {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .control-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 12px 20px;
-            border-radius: 15px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: bold;
-        }
-
-        .control-btn:hover {
-            transform: translateY(-3px);
-        }
-
-        .control-btn:active {
-            transform: translateY(0);
-        }
-
-        .control-btn.heat {
-            background: linear-gradient(135deg, #ff5722, #ff9800);
-            color: white;
-        }
-
-        .control-btn.cool {
-            background: linear-gradient(135deg, #2196f3, #03a9f4);
-            color: white;
-        }
-
-        .control-btn.submit {
-            background: linear-gradient(135deg, #4caf50, #8bc34a);
-            color: white;
-        }
-
-        .control-btn.reset {
-            background: linear-gradient(135deg, #9e9e9e, #757575);
-            color: white;
-        }
-
-        .control-emoji {
-            font-size: 1.5rem;
-        }
-
-        .control-text {
-            font-size: 0.8rem;
-        }
-
-        .temperature-display {
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .temp-bar {
-            width: 100%;
-            height: 20px;
-            background: linear-gradient(90deg, #2196f3 0%, #4caf50 50%, #ff5722 100%);
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .temp-indicator {
-            position: absolute;
-            width: 10px;
-            height: 100%;
-            background: white;
-            border: 2px solid #333;
-            border-radius: 5px;
-            transition: left 0.3s;
-        }
-
-        .temp-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .result-display {
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .result-display.success {
-            display: block;
-            background: #e8f5e9;
-            border: 2px solid #4caf50;
-            color: #2e7d32;
-        }
-
-        .result-display.error {
-            display: block;
-            background: #ffebee;
-            border: 2px solid #f44336;
-            color: #c62828;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            max-width: 450px;
-            width: 90%;
-            animation: popIn 0.3s ease;
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 1.8rem;
-            color: #e91e63;
-            margin-bottom: 15px;
-        }
-
-        .modal-emoji {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
-        .modal-text {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #e91e63, #c2185b);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            font-size: 1.1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin: 5px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
-        }
-
-        .states-legend {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 700px) {
-            .kitchen-area {
-                grid-template-columns: 1fr;
-            }
-
-            .ingredients-list {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .game-title {
-                font-size: 1.5rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <div class="game-header">
-            <h1 class="game-title">🧪 States of Matter Mixer 🍳</h1>
-            <p class="game-subtitle">Transform materials by heating and cooling!</p>
+      <div class="game-header">
+        <h1 class="game-title">🧪 States of Matter Mixer 🍳</h1>
+        <p class="game-subtitle">Transform materials by heating and cooling!</p>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="scoreDisplay">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="levelDisplay">1</div>
+          <div class="stat-label">Level</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="challengeDisplay">1/5</div>
+          <div class="stat-label">Challenge</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="streakDisplay">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+
+      <div class="kitchen-area">
+        <div class="ingredients-panel">
+          <div class="panel-title">🧊 Ingredients</div>
+          <div class="ingredients-list" id="ingredientsList"></div>
         </div>
 
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-value" id="scoreDisplay">0</div>
-                <div class="stat-label">Score</div>
+        <div class="cooking-station">
+          <div class="challenge-display">
+            <div class="challenge-text" id="challengeText">
+              Loading challenge...
             </div>
-            <div class="stat">
-                <div class="stat-value" id="levelDisplay">1</div>
-                <div class="stat-label">Level</div>
+            <div class="challenge-hint" id="challengeHint"></div>
+          </div>
+
+          <div class="pot-area">
+            <div class="steam" id="steam">💨💨💨</div>
+            <div class="pot">
+              <div class="pot-contents" id="potContents">
+                <span class="bubbles" id="bubbles">🫧</span>
+                <span id="potItem"></span>
+              </div>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="challengeDisplay">1/5</div>
-                <div class="stat-label">Challenge</div>
+          </div>
+
+          <div class="temperature-display">
+            <div class="temp-bar">
+              <div
+                class="temp-indicator"
+                id="tempIndicator"
+                style="left: 50%"
+              ></div>
             </div>
-            <div class="stat">
-                <div class="stat-value" id="streakDisplay">0</div>
-                <div class="stat-label">Streak</div>
+            <div class="temp-labels">
+              <span>❄️ Cold</span>
+              <span>🌡️ Room Temp</span>
+              <span>🔥 Hot</span>
             </div>
+          </div>
+
+          <div class="controls">
+            <button class="control-btn heat" onclick="changeTemp('heat')">
+              <span class="control-emoji">🔥</span>
+              <span class="control-text">Heat</span>
+            </button>
+            <button class="control-btn cool" onclick="changeTemp('cool')">
+              <span class="control-emoji">❄️</span>
+              <span class="control-text">Cool</span>
+            </button>
+            <button class="control-btn submit" onclick="submitAnswer()">
+              <span class="control-emoji">✓</span>
+              <span class="control-text">Check</span>
+            </button>
+            <button class="control-btn reset" onclick="resetPot()">
+              <span class="control-emoji">🔄</span>
+              <span class="control-text">Reset</span>
+            </button>
+          </div>
+
+          <div class="result-display" id="resultDisplay"></div>
         </div>
-
-        <div class="kitchen-area">
-            <div class="ingredients-panel">
-                <div class="panel-title">🧊 Ingredients</div>
-                <div class="ingredients-list" id="ingredientsList"></div>
-            </div>
-
-            <div class="cooking-station">
-                <div class="challenge-display">
-                    <div class="challenge-text" id="challengeText">Loading challenge...</div>
-                    <div class="challenge-hint" id="challengeHint"></div>
-                </div>
-
-                <div class="pot-area">
-                    <div class="steam" id="steam">💨💨💨</div>
-                    <div class="pot">
-                        <div class="pot-contents" id="potContents">
-                            <span class="bubbles" id="bubbles">🫧</span>
-                            <span id="potItem"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="temperature-display">
-                    <div class="temp-bar">
-                        <div class="temp-indicator" id="tempIndicator" style="left: 50%"></div>
-                    </div>
-                    <div class="temp-labels">
-                        <span>❄️ Cold</span>
-                        <span>🌡️ Room Temp</span>
-                        <span>🔥 Hot</span>
-                    </div>
-                </div>
-
-                <div class="controls">
-                    <button class="control-btn heat" onclick="changeTemp('heat')">
-                        <span class="control-emoji">🔥</span>
-                        <span class="control-text">Heat</span>
-                    </button>
-                    <button class="control-btn cool" onclick="changeTemp('cool')">
-                        <span class="control-emoji">❄️</span>
-                        <span class="control-text">Cool</span>
-                    </button>
-                    <button class="control-btn submit" onclick="submitAnswer()">
-                        <span class="control-emoji">✓</span>
-                        <span class="control-text">Check</span>
-                    </button>
-                    <button class="control-btn reset" onclick="resetPot()">
-                        <span class="control-emoji">🔄</span>
-                        <span class="control-text">Reset</span>
-                    </button>
-                </div>
-
-                <div class="result-display" id="resultDisplay"></div>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Start Modal -->
     <div class="modal active" id="startModal">
-        <div class="modal-content">
-            <div class="modal-emoji">🧪🍳</div>
-            <h2 class="modal-title">States of Matter Mixer</h2>
-            <p class="modal-text">Learn about solids, liquids, and gases in this cooking lab!</p>
+      <div class="modal-content">
+        <div class="modal-emoji">🧪🍳</div>
+        <h2 class="modal-title">States of Matter Mixer</h2>
+        <p class="modal-text">
+          Learn about solids, liquids, and gases in this cooking lab!
+        </p>
 
-            <div class="states-legend">
-                <div class="legend-item">
-                    <span class="state-badge state-solid">SOLID</span>
-                    <span>🧊 Fixed shape</span>
-                </div>
-                <div class="legend-item">
-                    <span class="state-badge state-liquid">LIQUID</span>
-                    <span>💧 Flows</span>
-                </div>
-                <div class="legend-item">
-                    <span class="state-badge state-gas">GAS</span>
-                    <span>💨 Spreads</span>
-                </div>
-            </div>
-
-            <p class="modal-text">
-                <strong>How to Play:</strong><br>
-                1. Drag ingredients into the pot<br>
-                2. Heat 🔥 or Cool ❄️ to change state<br>
-                3. Match the challenge goal!
-            </p>
-
-            <button class="btn" onclick="startGame()">Start Cooking!</button>
+        <div class="states-legend">
+          <div class="legend-item">
+            <span class="state-badge state-solid">SOLID</span>
+            <span>🧊 Fixed shape</span>
+          </div>
+          <div class="legend-item">
+            <span class="state-badge state-liquid">LIQUID</span>
+            <span>💧 Flows</span>
+          </div>
+          <div class="legend-item">
+            <span class="state-badge state-gas">GAS</span>
+            <span>💨 Spreads</span>
+          </div>
         </div>
+
+        <p class="modal-text">
+          <strong>How to Play:</strong><br />
+          1. Drag ingredients into the pot<br />
+          2. Heat 🔥 or Cool ❄️ to change state<br />
+          3. Match the challenge goal!
+        </p>
+
+        <button class="btn" onclick="startGame()">Start Cooking!</button>
+      </div>
     </div>
 
     <!-- Level Complete Modal -->
     <div class="modal" id="levelModal">
-        <div class="modal-content">
-            <div class="modal-emoji">⭐</div>
-            <h2 class="modal-title">Level Complete!</h2>
-            <p class="modal-text" id="levelMessage"></p>
-            <button class="btn" onclick="nextLevel()">Next Level</button>
-        </div>
+      <div class="modal-content">
+        <div class="modal-emoji">⭐</div>
+        <h2 class="modal-title">Level Complete!</h2>
+        <p class="modal-text" id="levelMessage"></p>
+        <button class="btn" onclick="nextLevel()">Next Level</button>
+      </div>
     </div>
 
     <!-- Game Complete Modal -->
     <div class="modal" id="completeModal">
-        <div class="modal-content">
-            <div class="modal-emoji">🏆</div>
-            <h2 class="modal-title">Master Chemist!</h2>
-            <p class="modal-text">You've mastered the states of matter!</p>
-            <div class="modal-text">
-                <strong>Final Score: <span id="finalScore">0</span></strong>
-            </div>
-            <p class="modal-text" id="funFact"></p>
-            <button class="btn" onclick="restartGame()">Play Again</button>
+      <div class="modal-content">
+        <div class="modal-emoji">🏆</div>
+        <h2 class="modal-title">Master Chemist!</h2>
+        <p class="modal-text">You've mastered the states of matter!</p>
+        <div class="modal-text">
+          <strong>Final Score: <span id="finalScore">0</span></strong>
         </div>
+        <p class="modal-text" id="funFact"></p>
+        <button class="btn" onclick="restartGame()">Play Again</button>
+      </div>
     </div>
 
     <script>
-        // Game data
-        const ingredients = [
-            { id: 'water', emoji: '💧', name: 'Water', defaultState: 'liquid',
-              states: { solid: '🧊', liquid: '💧', gas: '💨' },
-              meltPoint: 0, boilPoint: 100 },
-            { id: 'chocolate', emoji: '🍫', name: 'Chocolate', defaultState: 'solid',
-              states: { solid: '🍫', liquid: '🫕', gas: '💨' },
-              meltPoint: 34, boilPoint: 200 },
-            { id: 'butter', emoji: '🧈', name: 'Butter', defaultState: 'solid',
-              states: { solid: '🧈', liquid: '🫠', gas: '💨' },
-              meltPoint: 35, boilPoint: 150 },
-            { id: 'icecream', emoji: '🍦', name: 'Ice Cream', defaultState: 'solid',
-              states: { solid: '🍦', liquid: '🥛', gas: '💨' },
-              meltPoint: -5, boilPoint: 100 },
-            { id: 'honey', emoji: '🍯', name: 'Honey', defaultState: 'liquid',
-              states: { solid: '🧊', liquid: '🍯', gas: '💨' },
-              meltPoint: -20, boilPoint: 180 },
-            { id: 'cheese', emoji: '🧀', name: 'Cheese', defaultState: 'solid',
-              states: { solid: '🧀', liquid: '🫕', gas: '💨' },
-              meltPoint: 60, boilPoint: 200 }
-        ];
+      // Game data
+      const ingredients = [
+        {
+          id: 'water',
+          emoji: '💧',
+          name: 'Water',
+          defaultState: 'liquid',
+          states: { solid: '🧊', liquid: '💧', gas: '💨' },
+          meltPoint: 0,
+          boilPoint: 100,
+        },
+        {
+          id: 'chocolate',
+          emoji: '🍫',
+          name: 'Chocolate',
+          defaultState: 'solid',
+          states: { solid: '🍫', liquid: '🫕', gas: '💨' },
+          meltPoint: 34,
+          boilPoint: 200,
+        },
+        {
+          id: 'butter',
+          emoji: '🧈',
+          name: 'Butter',
+          defaultState: 'solid',
+          states: { solid: '🧈', liquid: '🫠', gas: '💨' },
+          meltPoint: 35,
+          boilPoint: 150,
+        },
+        {
+          id: 'icecream',
+          emoji: '🍦',
+          name: 'Ice Cream',
+          defaultState: 'solid',
+          states: { solid: '🍦', liquid: '🥛', gas: '💨' },
+          meltPoint: -5,
+          boilPoint: 100,
+        },
+        {
+          id: 'honey',
+          emoji: '🍯',
+          name: 'Honey',
+          defaultState: 'liquid',
+          states: { solid: '🧊', liquid: '🍯', gas: '💨' },
+          meltPoint: -20,
+          boilPoint: 180,
+        },
+        {
+          id: 'cheese',
+          emoji: '🧀',
+          name: 'Cheese',
+          defaultState: 'solid',
+          states: { solid: '🧀', liquid: '🫕', gas: '💨' },
+          meltPoint: 60,
+          boilPoint: 200,
+        },
+      ];
 
-        const challenges = [
-            // Level 1 - Basic
-            [
-                { ingredient: 'water', targetState: 'solid', hint: 'Make ice! What happens when water gets very cold?' },
-                { ingredient: 'water', targetState: 'gas', hint: 'Make steam! What happens when water gets very hot?' },
-                { ingredient: 'chocolate', targetState: 'liquid', hint: 'Melt the chocolate! Heat it up gently.' },
-                { ingredient: 'butter', targetState: 'liquid', hint: 'Melt the butter for cooking!' },
-                { ingredient: 'icecream', targetState: 'liquid', hint: 'Oh no, the ice cream is melting!' }
-            ],
-            // Level 2 - Intermediate
-            [
-                { ingredient: 'cheese', targetState: 'liquid', hint: 'Melt cheese for your pizza! It takes more heat.' },
-                { ingredient: 'honey', targetState: 'solid', hint: 'Freeze the honey! Cool it way down.' },
-                { ingredient: 'water', targetState: 'liquid', hint: 'Start with ice and melt it back to water.' },
-                { ingredient: 'chocolate', targetState: 'solid', hint: 'Cool down melted chocolate to solidify it.' },
-                { ingredient: 'butter', targetState: 'solid', hint: 'Cool the melted butter back to solid.' }
-            ],
-            // Level 3 - Advanced
-            [
-                { ingredient: 'water', targetState: 'gas', hint: 'Turn water into steam for cooking!' },
-                { ingredient: 'icecream', targetState: 'solid', hint: 'Keep ice cream frozen! Don\'t let it melt!' },
-                { ingredient: 'cheese', targetState: 'solid', hint: 'Cool the melted cheese to solidify.' },
-                { ingredient: 'chocolate', targetState: 'gas', hint: 'This is tricky! Heat chocolate a LOT.' },
-                { ingredient: 'honey', targetState: 'liquid', hint: 'Warm frozen honey back to liquid.' }
-            ]
-        ];
+      const challenges = [
+        // Level 1 - Basic
+        [
+          {
+            ingredient: 'water',
+            targetState: 'solid',
+            hint: 'Make ice! What happens when water gets very cold?',
+          },
+          {
+            ingredient: 'water',
+            targetState: 'gas',
+            hint: 'Make steam! What happens when water gets very hot?',
+          },
+          {
+            ingredient: 'chocolate',
+            targetState: 'liquid',
+            hint: 'Melt the chocolate! Heat it up gently.',
+          },
+          {
+            ingredient: 'butter',
+            targetState: 'liquid',
+            hint: 'Melt the butter for cooking!',
+          },
+          {
+            ingredient: 'icecream',
+            targetState: 'liquid',
+            hint: 'Oh no, the ice cream is melting!',
+          },
+        ],
+        // Level 2 - Intermediate
+        [
+          {
+            ingredient: 'cheese',
+            targetState: 'liquid',
+            hint: 'Melt cheese for your pizza! It takes more heat.',
+          },
+          {
+            ingredient: 'honey',
+            targetState: 'solid',
+            hint: 'Freeze the honey! Cool it way down.',
+          },
+          {
+            ingredient: 'water',
+            targetState: 'liquid',
+            hint: 'Start with ice and melt it back to water.',
+          },
+          {
+            ingredient: 'chocolate',
+            targetState: 'solid',
+            hint: 'Cool down melted chocolate to solidify it.',
+          },
+          {
+            ingredient: 'butter',
+            targetState: 'solid',
+            hint: 'Cool the melted butter back to solid.',
+          },
+        ],
+        // Level 3 - Advanced
+        [
+          {
+            ingredient: 'water',
+            targetState: 'gas',
+            hint: 'Turn water into steam for cooking!',
+          },
+          {
+            ingredient: 'icecream',
+            targetState: 'solid',
+            hint: "Keep ice cream frozen! Don't let it melt!",
+          },
+          {
+            ingredient: 'cheese',
+            targetState: 'solid',
+            hint: 'Cool the melted cheese to solidify.',
+          },
+          {
+            ingredient: 'chocolate',
+            targetState: 'gas',
+            hint: 'This is tricky! Heat chocolate a LOT.',
+          },
+          {
+            ingredient: 'honey',
+            targetState: 'liquid',
+            hint: 'Warm frozen honey back to liquid.',
+          },
+        ],
+      ];
 
-        const funFacts = [
-            "🧊 Water is the only substance that naturally exists as solid, liquid, and gas on Earth!",
-            "🍫 Chocolate melts at body temperature - that's why it melts in your mouth!",
-            "💨 Steam is invisible! The white cloud you see is actually tiny water droplets.",
-            "🧈 Butter can go from solid to liquid at just 35°C (95°F)!",
-            "🌡️ The coldest temperature possible is -273°C, called absolute zero!",
-            "🌋 Lava is melted rock - even rocks can change state with enough heat!"
-        ];
+      const funFacts = [
+        '🧊 Water is the only substance that naturally exists as solid, liquid, and gas on Earth!',
+        "🍫 Chocolate melts at body temperature - that's why it melts in your mouth!",
+        '💨 Steam is invisible! The white cloud you see is actually tiny water droplets.',
+        '🧈 Butter can go from solid to liquid at just 35°C (95°F)!',
+        '🌡️ The coldest temperature possible is -273°C, called absolute zero!',
+        '🌋 Lava is melted rock - even rocks can change state with enough heat!',
+      ];
 
-        // Game state
-        let gameState = {
-            score: 0,
-            level: 0,
-            challenge: 0,
-            streak: 0,
-            temperature: 25, // Room temperature
-            currentIngredient: null,
-            currentState: null,
-            usedIngredients: []
-        };
+      // Game state
+      let gameState = {
+        score: 0,
+        level: 0,
+        challenge: 0,
+        streak: 0,
+        temperature: 25, // Room temperature
+        currentIngredient: null,
+        currentState: null,
+        usedIngredients: [],
+      };
 
-        function init() {
-            renderIngredients();
-            document.getElementById('startModal').classList.add('active');
-        }
+      function init() {
+        renderIngredients();
+        document.getElementById('startModal').classList.add('active');
+      }
 
-        function renderIngredients() {
-            const list = document.getElementById('ingredientsList');
-            list.innerHTML = '';
+      function renderIngredients() {
+        const list = document.getElementById('ingredientsList');
+        list.innerHTML = '';
 
-            ingredients.forEach(ing => {
-                const div = document.createElement('div');
-                div.className = 'ingredient' + (gameState.usedIngredients.includes(ing.id) ? ' used' : '');
-                div.draggable = !gameState.usedIngredients.includes(ing.id);
-                div.dataset.id = ing.id;
+        ingredients.forEach((ing) => {
+          const div = document.createElement('div');
+          div.className =
+            'ingredient' +
+            (gameState.usedIngredients.includes(ing.id) ? ' used' : '');
+          div.draggable = !gameState.usedIngredients.includes(ing.id);
+          div.dataset.id = ing.id;
 
-                const stateBadge = ing.defaultState === 'solid' ? 'state-solid' :
-                                   ing.defaultState === 'liquid' ? 'state-liquid' : 'state-gas';
+          const stateBadge =
+            ing.defaultState === 'solid'
+              ? 'state-solid'
+              : ing.defaultState === 'liquid'
+                ? 'state-liquid'
+                : 'state-gas';
 
-                div.innerHTML = `
+          div.innerHTML = `
                     <span class="ingredient-emoji">${ing.emoji}</span>
                     <div class="ingredient-info">
                         <div class="ingredient-name">${ing.name}</div>
@@ -712,308 +861,345 @@
                     </div>
                 `;
 
-                if (!gameState.usedIngredients.includes(ing.id)) {
-                    div.addEventListener('dragstart', handleDragStart);
-                    div.addEventListener('dragend', handleDragEnd);
-                    div.addEventListener('touchstart', handleTouchStart, { passive: false });
-                    div.addEventListener('touchmove', handleTouchMove, { passive: false });
-                    div.addEventListener('touchend', handleTouchEnd);
-                }
-
-                list.appendChild(div);
+          if (!gameState.usedIngredients.includes(ing.id)) {
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+            div.addEventListener('touchstart', handleTouchStart, {
+              passive: false,
             });
-        }
-
-        function startGame() {
-            document.getElementById('startModal').classList.remove('active');
-            loadChallenge();
-        }
-
-        function loadChallenge() {
-            const challenge = challenges[gameState.level][gameState.challenge];
-            const ing = ingredients.find(i => i.id === challenge.ingredient);
-
-            document.getElementById('challengeText').textContent =
-                `Transform ${ing.name} into a ${challenge.targetState.toUpperCase()}!`;
-            document.getElementById('challengeHint').textContent = challenge.hint;
-
-            document.getElementById('levelDisplay').textContent = gameState.level + 1;
-            document.getElementById('challengeDisplay').textContent =
-                `${gameState.challenge + 1}/${challenges[gameState.level].length}`;
-
-            resetPot();
-        }
-
-        // Drag and drop
-        let draggedElement = null;
-
-        function handleDragStart(e) {
-            draggedElement = e.target.closest('.ingredient');
-            draggedElement.classList.add('dragging');
-        }
-
-        function handleDragEnd(e) {
-            if (draggedElement) draggedElement.classList.remove('dragging');
-            draggedElement = null;
-        }
-
-        // Set up pot drop zone
-        document.addEventListener('DOMContentLoaded', () => {
-            const potContents = document.getElementById('potContents');
-
-            potContents.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                potContents.classList.add('drag-over');
+            div.addEventListener('touchmove', handleTouchMove, {
+              passive: false,
             });
+            div.addEventListener('touchend', handleTouchEnd);
+          }
 
-            potContents.addEventListener('dragleave', () => {
-                potContents.classList.remove('drag-over');
-            });
+          list.appendChild(div);
+        });
+      }
 
-            potContents.addEventListener('drop', (e) => {
-                e.preventDefault();
-                potContents.classList.remove('drag-over');
-                if (draggedElement) {
-                    addIngredientToPot(draggedElement.dataset.id);
-                }
-            });
+      function startGame() {
+        document.getElementById('startModal').classList.remove('active');
+        loadChallenge();
+      }
+
+      function loadChallenge() {
+        const challenge = challenges[gameState.level][gameState.challenge];
+        const ing = ingredients.find((i) => i.id === challenge.ingredient);
+
+        document.getElementById('challengeText').textContent =
+          `Transform ${ing.name} into a ${challenge.targetState.toUpperCase()}!`;
+        document.getElementById('challengeHint').textContent = challenge.hint;
+
+        document.getElementById('levelDisplay').textContent =
+          gameState.level + 1;
+        document.getElementById('challengeDisplay').textContent =
+          `${gameState.challenge + 1}/${challenges[gameState.level].length}`;
+
+        resetPot();
+      }
+
+      // Drag and drop
+      let draggedElement = null;
+
+      function handleDragStart(e) {
+        draggedElement = e.target.closest('.ingredient');
+        draggedElement.classList.add('dragging');
+      }
+
+      function handleDragEnd(e) {
+        if (draggedElement) draggedElement.classList.remove('dragging');
+        draggedElement = null;
+      }
+
+      // Set up pot drop zone
+      document.addEventListener('DOMContentLoaded', () => {
+        const potContents = document.getElementById('potContents');
+
+        potContents.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          potContents.classList.add('drag-over');
         });
 
-        // Touch handling
-        let touchClone = null;
+        potContents.addEventListener('dragleave', () => {
+          potContents.classList.remove('drag-over');
+        });
 
-        function handleTouchStart(e) {
-            draggedElement = e.target.closest('.ingredient');
-            if (draggedElement.classList.contains('used')) return;
+        potContents.addEventListener('drop', (e) => {
+          e.preventDefault();
+          potContents.classList.remove('drag-over');
+          if (draggedElement) {
+            addIngredientToPot(draggedElement.dataset.id);
+          }
+        });
+      });
 
-            e.preventDefault();
+      // Touch handling
+      let touchClone = null;
 
-            touchClone = draggedElement.cloneNode(true);
-            touchClone.style.position = 'fixed';
-            touchClone.style.pointerEvents = 'none';
-            touchClone.style.zIndex = '1000';
-            touchClone.style.opacity = '0.8';
-            touchClone.style.width = draggedElement.offsetWidth + 'px';
-            document.body.appendChild(touchClone);
+      function handleTouchStart(e) {
+        draggedElement = e.target.closest('.ingredient');
+        if (draggedElement.classList.contains('used')) return;
 
-            draggedElement.classList.add('dragging');
+        e.preventDefault();
+
+        touchClone = draggedElement.cloneNode(true);
+        touchClone.style.position = 'fixed';
+        touchClone.style.pointerEvents = 'none';
+        touchClone.style.zIndex = '1000';
+        touchClone.style.opacity = '0.8';
+        touchClone.style.width = draggedElement.offsetWidth + 'px';
+        document.body.appendChild(touchClone);
+
+        draggedElement.classList.add('dragging');
+      }
+
+      function handleTouchMove(e) {
+        if (!touchClone) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        touchClone.style.left = touch.clientX - 50 + 'px';
+        touchClone.style.top = touch.clientY - 30 + 'px';
+
+        const potContents = document.getElementById('potContents');
+        const rect = potContents.getBoundingClientRect();
+
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          potContents.classList.add('drag-over');
+        } else {
+          potContents.classList.remove('drag-over');
+        }
+      }
+
+      function handleTouchEnd(e) {
+        if (!draggedElement) return;
+
+        const touch = e.changedTouches[0];
+        const potContents = document.getElementById('potContents');
+        const rect = potContents.getBoundingClientRect();
+
+        if (
+          touch.clientX >= rect.left &&
+          touch.clientX <= rect.right &&
+          touch.clientY >= rect.top &&
+          touch.clientY <= rect.bottom
+        ) {
+          addIngredientToPot(draggedElement.dataset.id);
         }
 
-        function handleTouchMove(e) {
-            if (!touchClone) return;
-            e.preventDefault();
+        potContents.classList.remove('drag-over');
+        draggedElement.classList.remove('dragging');
+        if (touchClone) {
+          touchClone.remove();
+          touchClone = null;
+        }
+        draggedElement = null;
+      }
 
-            const touch = e.touches[0];
-            touchClone.style.left = (touch.clientX - 50) + 'px';
-            touchClone.style.top = (touch.clientY - 30) + 'px';
+      function addIngredientToPot(ingredientId) {
+        if (gameState.currentIngredient) return; // Pot already has something
 
-            const potContents = document.getElementById('potContents');
-            const rect = potContents.getBoundingClientRect();
+        const ing = ingredients.find((i) => i.id === ingredientId);
+        gameState.currentIngredient = ing;
+        gameState.currentState = ing.defaultState;
+        gameState.temperature = 25;
 
-            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                potContents.classList.add('drag-over');
+        document.getElementById('potItem').textContent =
+          ing.states[ing.defaultState];
+        updateTemperatureDisplay();
+      }
+
+      function changeTemp(direction) {
+        if (!gameState.currentIngredient) return;
+
+        const change = direction === 'heat' ? 15 : -15;
+        gameState.temperature = Math.max(
+          -50,
+          Math.min(250, gameState.temperature + change)
+        );
+
+        // Determine state based on temperature
+        const ing = gameState.currentIngredient;
+        let newState;
+
+        if (gameState.temperature <= ing.meltPoint) {
+          newState = 'solid';
+        } else if (gameState.temperature >= ing.boilPoint) {
+          newState = 'gas';
+        } else {
+          newState = 'liquid';
+        }
+
+        if (newState !== gameState.currentState) {
+          gameState.currentState = newState;
+          document.getElementById('potItem').textContent = ing.states[newState];
+
+          // Visual effects
+          const potContents = document.getElementById('potContents');
+          potContents.classList.remove('heating', 'cooling');
+          potContents.classList.add(
+            direction === 'heat' ? 'heating' : 'cooling'
+          );
+          setTimeout(
+            () => potContents.classList.remove('heating', 'cooling'),
+            300
+          );
+        }
+
+        updateTemperatureDisplay();
+        updateVisualEffects();
+      }
+
+      function updateTemperatureDisplay() {
+        // Map temperature (-50 to 250) to percentage (0 to 100)
+        const percentage = ((gameState.temperature + 50) / 300) * 100;
+        document.getElementById('tempIndicator').style.left =
+          `calc(${percentage}% - 5px)`;
+      }
+
+      function updateVisualEffects() {
+        const steam = document.getElementById('steam');
+        const bubbles = document.getElementById('bubbles');
+
+        steam.classList.toggle(
+          'active',
+          gameState.currentState === 'gas' || gameState.temperature > 100
+        );
+        bubbles.classList.toggle(
+          'active',
+          gameState.temperature > 80 && gameState.currentState === 'liquid'
+        );
+      }
+
+      function submitAnswer() {
+        if (!gameState.currentIngredient) {
+          showResult(false, 'Drag an ingredient into the pot first!');
+          return;
+        }
+
+        const challenge = challenges[gameState.level][gameState.challenge];
+
+        if (
+          gameState.currentIngredient.id === challenge.ingredient &&
+          gameState.currentState === challenge.targetState
+        ) {
+          // Correct!
+          gameState.streak++;
+          const points = 100 + gameState.streak * 10;
+          gameState.score += points;
+
+          document.getElementById('scoreDisplay').textContent = gameState.score;
+          document.getElementById('streakDisplay').textContent =
+            gameState.streak;
+
+          showResult(true, `Correct! +${points} points`);
+
+          // Mark ingredient as used for this level
+          if (
+            !gameState.usedIngredients.includes(gameState.currentIngredient.id)
+          ) {
+            gameState.usedIngredients.push(gameState.currentIngredient.id);
+          }
+
+          setTimeout(() => {
+            gameState.challenge++;
+            if (gameState.challenge >= challenges[gameState.level].length) {
+              levelComplete();
             } else {
-                potContents.classList.remove('drag-over');
+              loadChallenge();
+              renderIngredients();
             }
+          }, 1500);
+        } else {
+          // Wrong
+          gameState.streak = 0;
+          document.getElementById('streakDisplay').textContent = 0;
+
+          let feedback = '';
+          if (gameState.currentIngredient.id !== challenge.ingredient) {
+            feedback = `Use ${ingredients.find((i) => i.id === challenge.ingredient).name}!`;
+          } else {
+            feedback = `That's ${gameState.currentState}, try to make it ${challenge.targetState}!`;
+          }
+          showResult(false, feedback);
         }
+      }
 
-        function handleTouchEnd(e) {
-            if (!draggedElement) return;
+      function showResult(success, message) {
+        const display = document.getElementById('resultDisplay');
+        display.className = 'result-display ' + (success ? 'success' : 'error');
+        display.textContent = message;
 
-            const touch = e.changedTouches[0];
-            const potContents = document.getElementById('potContents');
-            const rect = potContents.getBoundingClientRect();
+        setTimeout(() => {
+          display.className = 'result-display';
+        }, 2000);
+      }
 
-            if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                addIngredientToPot(draggedElement.dataset.id);
-            }
+      function resetPot() {
+        gameState.currentIngredient = null;
+        gameState.currentState = null;
+        gameState.temperature = 25;
 
-            potContents.classList.remove('drag-over');
-            draggedElement.classList.remove('dragging');
-            if (touchClone) {
-                touchClone.remove();
-                touchClone = null;
-            }
-            draggedElement = null;
+        document.getElementById('potItem').textContent = '';
+        document.getElementById('steam').classList.remove('active');
+        document.getElementById('bubbles').classList.remove('active');
+        updateTemperatureDisplay();
+      }
+
+      function levelComplete() {
+        document.getElementById('levelMessage').textContent =
+          `Level ${gameState.level + 1} complete! Score: ${gameState.score}`;
+
+        if (gameState.level < challenges.length - 1) {
+          document.getElementById('levelModal').classList.add('active');
+        } else {
+          gameComplete();
         }
+      }
 
-        function addIngredientToPot(ingredientId) {
-            if (gameState.currentIngredient) return; // Pot already has something
+      function nextLevel() {
+        document.getElementById('levelModal').classList.remove('active');
+        gameState.level++;
+        gameState.challenge = 0;
+        gameState.usedIngredients = [];
+        renderIngredients();
+        loadChallenge();
+      }
 
-            const ing = ingredients.find(i => i.id === ingredientId);
-            gameState.currentIngredient = ing;
-            gameState.currentState = ing.defaultState;
-            gameState.temperature = 25;
+      function gameComplete() {
+        document.getElementById('finalScore').textContent = gameState.score;
+        document.getElementById('funFact').textContent =
+          funFacts[Math.floor(Math.random() * funFacts.length)];
+        document.getElementById('completeModal').classList.add('active');
+      }
 
-            document.getElementById('potItem').textContent = ing.states[ing.defaultState];
-            updateTemperatureDisplay();
-        }
+      function restartGame() {
+        gameState = {
+          score: 0,
+          level: 0,
+          challenge: 0,
+          streak: 0,
+          temperature: 25,
+          currentIngredient: null,
+          currentState: null,
+          usedIngredients: [],
+        };
 
-        function changeTemp(direction) {
-            if (!gameState.currentIngredient) return;
+        document
+          .querySelectorAll('.modal')
+          .forEach((m) => m.classList.remove('active'));
+        document.getElementById('scoreDisplay').textContent = 0;
+        document.getElementById('streakDisplay').textContent = 0;
+        renderIngredients();
+        document.getElementById('startModal').classList.add('active');
+      }
 
-            const change = direction === 'heat' ? 15 : -15;
-            gameState.temperature = Math.max(-50, Math.min(250, gameState.temperature + change));
-
-            // Determine state based on temperature
-            const ing = gameState.currentIngredient;
-            let newState;
-
-            if (gameState.temperature <= ing.meltPoint) {
-                newState = 'solid';
-            } else if (gameState.temperature >= ing.boilPoint) {
-                newState = 'gas';
-            } else {
-                newState = 'liquid';
-            }
-
-            if (newState !== gameState.currentState) {
-                gameState.currentState = newState;
-                document.getElementById('potItem').textContent = ing.states[newState];
-
-                // Visual effects
-                const potContents = document.getElementById('potContents');
-                potContents.classList.remove('heating', 'cooling');
-                potContents.classList.add(direction === 'heat' ? 'heating' : 'cooling');
-                setTimeout(() => potContents.classList.remove('heating', 'cooling'), 300);
-            }
-
-            updateTemperatureDisplay();
-            updateVisualEffects();
-        }
-
-        function updateTemperatureDisplay() {
-            // Map temperature (-50 to 250) to percentage (0 to 100)
-            const percentage = ((gameState.temperature + 50) / 300) * 100;
-            document.getElementById('tempIndicator').style.left = `calc(${percentage}% - 5px)`;
-        }
-
-        function updateVisualEffects() {
-            const steam = document.getElementById('steam');
-            const bubbles = document.getElementById('bubbles');
-
-            steam.classList.toggle('active', gameState.currentState === 'gas' || gameState.temperature > 100);
-            bubbles.classList.toggle('active', gameState.temperature > 80 && gameState.currentState === 'liquid');
-        }
-
-        function submitAnswer() {
-            if (!gameState.currentIngredient) {
-                showResult(false, 'Drag an ingredient into the pot first!');
-                return;
-            }
-
-            const challenge = challenges[gameState.level][gameState.challenge];
-
-            if (gameState.currentIngredient.id === challenge.ingredient &&
-                gameState.currentState === challenge.targetState) {
-                // Correct!
-                gameState.streak++;
-                const points = 100 + (gameState.streak * 10);
-                gameState.score += points;
-
-                document.getElementById('scoreDisplay').textContent = gameState.score;
-                document.getElementById('streakDisplay').textContent = gameState.streak;
-
-                showResult(true, `Correct! +${points} points`);
-
-                // Mark ingredient as used for this level
-                if (!gameState.usedIngredients.includes(gameState.currentIngredient.id)) {
-                    gameState.usedIngredients.push(gameState.currentIngredient.id);
-                }
-
-                setTimeout(() => {
-                    gameState.challenge++;
-                    if (gameState.challenge >= challenges[gameState.level].length) {
-                        levelComplete();
-                    } else {
-                        loadChallenge();
-                        renderIngredients();
-                    }
-                }, 1500);
-            } else {
-                // Wrong
-                gameState.streak = 0;
-                document.getElementById('streakDisplay').textContent = 0;
-
-                let feedback = '';
-                if (gameState.currentIngredient.id !== challenge.ingredient) {
-                    feedback = `Use ${ingredients.find(i => i.id === challenge.ingredient).name}!`;
-                } else {
-                    feedback = `That's ${gameState.currentState}, try to make it ${challenge.targetState}!`;
-                }
-                showResult(false, feedback);
-            }
-        }
-
-        function showResult(success, message) {
-            const display = document.getElementById('resultDisplay');
-            display.className = 'result-display ' + (success ? 'success' : 'error');
-            display.textContent = message;
-
-            setTimeout(() => {
-                display.className = 'result-display';
-            }, 2000);
-        }
-
-        function resetPot() {
-            gameState.currentIngredient = null;
-            gameState.currentState = null;
-            gameState.temperature = 25;
-
-            document.getElementById('potItem').textContent = '';
-            document.getElementById('steam').classList.remove('active');
-            document.getElementById('bubbles').classList.remove('active');
-            updateTemperatureDisplay();
-        }
-
-        function levelComplete() {
-            document.getElementById('levelMessage').textContent =
-                `Level ${gameState.level + 1} complete! Score: ${gameState.score}`;
-
-            if (gameState.level < challenges.length - 1) {
-                document.getElementById('levelModal').classList.add('active');
-            } else {
-                gameComplete();
-            }
-        }
-
-        function nextLevel() {
-            document.getElementById('levelModal').classList.remove('active');
-            gameState.level++;
-            gameState.challenge = 0;
-            gameState.usedIngredients = [];
-            renderIngredients();
-            loadChallenge();
-        }
-
-        function gameComplete() {
-            document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('funFact').textContent = funFacts[Math.floor(Math.random() * funFacts.length)];
-            document.getElementById('completeModal').classList.add('active');
-        }
-
-        function restartGame() {
-            gameState = {
-                score: 0,
-                level: 0,
-                challenge: 0,
-                streak: 0,
-                temperature: 25,
-                currentIngredient: null,
-                currentState: null,
-                usedIngredients: []
-            };
-
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
-            document.getElementById('scoreDisplay').textContent = 0;
-            document.getElementById('streakDisplay').textContent = 0;
-            renderIngredients();
-            document.getElementById('startModal').classList.add('active');
-        }
-
-        window.onload = init;
+      window.onload = init;
     </script>
-</body>
+  </body>
 </html>

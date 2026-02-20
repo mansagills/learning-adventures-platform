@@ -35,10 +35,24 @@ const AVATARS = [
   { id: 'rocket', emoji: '🚀', name: 'Rocket' },
 ];
 
-const GRADES = ['K', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+const GRADES = [
+  'K',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+];
 
 function getAvatarEmoji(avatarId: string): string {
-  return AVATARS.find(a => a.id === avatarId)?.emoji || '🐯';
+  return AVATARS.find((a) => a.id === avatarId)?.emoji || '🐯';
 }
 
 function ManageChildrenPage() {
@@ -47,13 +61,13 @@ function ManageChildrenPage() {
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Modal state
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState<Child | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     displayName: '',
@@ -73,7 +87,7 @@ function ManageChildrenPage() {
     try {
       const res = await fetch('/api/parent/children');
       const data = await res.json();
-      
+
       if (res.ok) {
         setChildren(data.children || []);
         setIsVerified(data.isVerifiedAdult || false);
@@ -91,7 +105,7 @@ function ManageChildrenPage() {
     try {
       const res = await fetch('/api/parent/verify', { method: 'POST' });
       const data = await res.json();
-      
+
       if (res.ok && data.verified) {
         setIsVerified(true);
       } else {
@@ -288,7 +302,9 @@ function ManageChildrenPage() {
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             {error}
-            <button onClick={() => setError(null)} className="ml-2 underline">Dismiss</button>
+            <button onClick={() => setError(null)} className="ml-2 underline">
+              Dismiss
+            </button>
           </div>
         )}
 
@@ -304,8 +320,9 @@ function ManageChildrenPage() {
                   Parent Verification Required
                 </h3>
                 <p className="text-amber-800 mb-4">
-                  To comply with COPPA regulations and protect children's privacy, 
-                  we require parent verification before you can add children to your account.
+                  To comply with COPPA regulations and protect children's
+                  privacy, we require parent verification before you can add
+                  children to your account.
                 </p>
                 <button
                   onClick={handleVerify}
@@ -314,7 +331,8 @@ function ManageChildrenPage() {
                   Verify My Identity
                 </button>
                 <p className="text-xs text-amber-700 mt-2">
-                  Note: This is a simplified verification for the demo. Production will use secure identity verification.
+                  Note: This is a simplified verification for the demo.
+                  Production will use secure identity verification.
                 </p>
               </div>
             </div>
@@ -325,7 +343,10 @@ function ManageChildrenPage() {
         {isVerified && (
           <div className="mb-6">
             <button
-              onClick={() => { resetForm(); setShowAddModal(true); }}
+              onClick={() => {
+                resetForm();
+                setShowAddModal(true);
+              }}
               className="flex items-center space-x-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium"
             >
               <Icon name="plus" size={20} />
@@ -338,12 +359,13 @@ function ManageChildrenPage() {
         {children.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <div className="text-6xl mb-4">👨‍👩‍👧‍👦</div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Children Added Yet</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              No Children Added Yet
+            </h3>
             <p className="text-gray-600 mb-6">
-              {isVerified 
-                ? "Add your first child to get started with their learning journey!"
-                : "Complete parent verification above to add children."
-              }
+              {isVerified
+                ? 'Add your first child to get started with their learning journey!'
+                : 'Complete parent verification above to add children.'}
             </p>
           </div>
         ) : (
@@ -359,8 +381,12 @@ function ManageChildrenPage() {
                       {getAvatarEmoji(child.avatarId)}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">{child.displayName}</h3>
-                      <p className="text-sm text-gray-500">Grade {child.gradeLevel}</p>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {child.displayName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Grade {child.gradeLevel}
+                      </p>
                     </div>
                   </div>
                   <div className="flex space-x-2">
@@ -383,15 +409,17 @@ function ManageChildrenPage() {
 
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
                   <p className="text-sm text-gray-500 mb-1">Login Username</p>
-                  <p className="text-lg font-mono font-bold text-brand-600">{child.username}</p>
+                  <p className="text-lg font-mono font-bold text-brand-600">
+                    {child.username}
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-between text-sm text-gray-500">
                   <span>
-                    Last login: {child.lastLoginAt 
-                      ? new Date(child.lastLoginAt).toLocaleDateString() 
-                      : 'Never'
-                    }
+                    Last login:{' '}
+                    {child.lastLoginAt
+                      ? new Date(child.lastLoginAt).toLocaleDateString()
+                      : 'Never'}
                   </span>
                   <Link
                     href={`/parent/child/${child.id}`}
@@ -412,7 +440,12 @@ function ManageChildrenPage() {
               How Children Login
             </h3>
             <ol className="list-decimal list-inside text-blue-800 space-y-2">
-              <li>Go to the <Link href="/child/login" className="underline font-medium">Child Login Page</Link></li>
+              <li>
+                Go to the{' '}
+                <Link href="/child/login" className="underline font-medium">
+                  Child Login Page
+                </Link>
+              </li>
               <li>Enter their username (shown on each card above)</li>
               <li>Enter their 4-digit PIN</li>
               <li>Start learning!</li>
@@ -433,7 +466,9 @@ function ManageChildrenPage() {
                 type="text"
                 required
                 value={formData.displayName}
-                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 placeholder="e.g., Alex"
               />
@@ -445,7 +480,9 @@ function ManageChildrenPage() {
               </label>
               <select
                 value={formData.gradeLevel}
-                onChange={(e) => setFormData({ ...formData, gradeLevel: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, gradeLevel: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
                 {GRADES.map((grade) => (
@@ -465,7 +502,9 @@ function ManageChildrenPage() {
                   <button
                     key={avatar.id}
                     type="button"
-                    onClick={() => setFormData({ ...formData, avatarId: avatar.id })}
+                    onClick={() =>
+                      setFormData({ ...formData, avatarId: avatar.id })
+                    }
                     className={`w-10 h-10 text-2xl rounded-lg border-2 transition-all ${
                       formData.avatarId === avatar.id
                         ? 'border-brand-500 bg-brand-50'
@@ -490,7 +529,12 @@ function ManageChildrenPage() {
                   maxLength={4}
                   pattern="\d{4}"
                   value={formData.pin}
-                  onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '') })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      pin: e.target.value.replace(/\D/g, ''),
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-center text-2xl tracking-widest"
                   placeholder="••••"
                 />
@@ -505,7 +549,12 @@ function ManageChildrenPage() {
                   maxLength={4}
                   pattern="\d{4}"
                   value={formData.confirmPin}
-                  onChange={(e) => setFormData({ ...formData, confirmPin: e.target.value.replace(/\D/g, '') })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPin: e.target.value.replace(/\D/g, ''),
+                    })
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-center text-2xl tracking-widest"
                   placeholder="••••"
                 />
@@ -540,7 +589,10 @@ function ManageChildrenPage() {
 
       {/* Edit Child Modal */}
       {showEditModal && selectedChild && (
-        <Modal title={`Edit ${selectedChild.displayName}`} onClose={() => setShowEditModal(false)}>
+        <Modal
+          title={`Edit ${selectedChild.displayName}`}
+          onClose={() => setShowEditModal(false)}
+        >
           <form onSubmit={handleEditChild} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -550,7 +602,9 @@ function ManageChildrenPage() {
                 type="text"
                 required
                 value={formData.displayName}
-                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               />
             </div>
@@ -561,7 +615,9 @@ function ManageChildrenPage() {
               </label>
               <select
                 value={formData.gradeLevel}
-                onChange={(e) => setFormData({ ...formData, gradeLevel: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, gradeLevel: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               >
                 {GRADES.map((grade) => (
@@ -581,7 +637,9 @@ function ManageChildrenPage() {
                   <button
                     key={avatar.id}
                     type="button"
-                    onClick={() => setFormData({ ...formData, avatarId: avatar.id })}
+                    onClick={() =>
+                      setFormData({ ...formData, avatarId: avatar.id })
+                    }
                     className={`w-10 h-10 text-2xl rounded-lg border-2 transition-all ${
                       formData.avatarId === avatar.id
                         ? 'border-brand-500 bg-brand-50'
@@ -608,7 +666,12 @@ function ManageChildrenPage() {
                     type="password"
                     maxLength={4}
                     value={formData.pin}
-                    onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '') })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pin: e.target.value.replace(/\D/g, ''),
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-center text-2xl tracking-widest"
                     placeholder="••••"
                   />
@@ -621,7 +684,12 @@ function ManageChildrenPage() {
                     type="password"
                     maxLength={4}
                     value={formData.confirmPin}
-                    onChange={(e) => setFormData({ ...formData, confirmPin: e.target.value.replace(/\D/g, '') })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPin: e.target.value.replace(/\D/g, ''),
+                      })
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-center text-2xl tracking-widest"
                     placeholder="••••"
                   />
@@ -657,7 +725,10 @@ function ManageChildrenPage() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedChild && (
-        <Modal title="Delete Child Account" onClose={() => setShowDeleteModal(false)}>
+        <Modal
+          title="Delete Child Account"
+          onClose={() => setShowDeleteModal(false)}
+        >
           <div className="text-center">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Icon name="info" size={32} className="text-red-600" />
@@ -666,8 +737,9 @@ function ManageChildrenPage() {
               Delete {selectedChild.displayName}'s Account?
             </h3>
             <p className="text-gray-600 mb-6">
-              This will permanently delete their learning progress, achievements, and all associated data. 
-              This action cannot be undone.
+              This will permanently delete their learning progress,
+              achievements, and all associated data. This action cannot be
+              undone.
             </p>
             <div className="flex space-x-3">
               <button
@@ -692,7 +764,15 @@ function ManageChildrenPage() {
 }
 
 // Simple Modal Component
-function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+function Modal({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -705,9 +785,7 @@ function Modal({ title, children, onClose }: { title: string; children: React.Re
             <Icon name="close" size={20} className="text-gray-600" />
           </button>
         </div>
-        <div className="p-4">
-          {children}
-        </div>
+        <div className="p-4">{children}</div>
       </div>
     </div>
   );

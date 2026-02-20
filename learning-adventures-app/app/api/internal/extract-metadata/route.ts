@@ -48,16 +48,27 @@ export async function POST(request: NextRequest) {
 
     // Look for metadata.json in the root or common locations
     let metadataEntry = zipEntries.find(
-      entry => entry.entryName === 'metadata.json' ||
-               entry.entryName === 'game-metadata.json' ||
-               entry.entryName === 'config/metadata.json'
+      (entry) =>
+        entry.entryName === 'metadata.json' ||
+        entry.entryName === 'game-metadata.json' ||
+        entry.entryName === 'config/metadata.json'
     );
 
     // Check if it's a React/Next.js project
-    const hasPackageJson = zipEntries.some(entry => entry.entryName === 'package.json');
-    const hasNextConfig = zipEntries.some(entry => entry.entryName.includes('next.config'));
-    const hasPublicFolder = zipEntries.some(entry => entry.entryName.startsWith('public/'));
-    const hasIndexHtml = zipEntries.some(entry => entry.entryName === 'index.html' || entry.entryName.includes('/index.html'));
+    const hasPackageJson = zipEntries.some(
+      (entry) => entry.entryName === 'package.json'
+    );
+    const hasNextConfig = zipEntries.some((entry) =>
+      entry.entryName.includes('next.config')
+    );
+    const hasPublicFolder = zipEntries.some((entry) =>
+      entry.entryName.startsWith('public/')
+    );
+    const hasIndexHtml = zipEntries.some(
+      (entry) =>
+        entry.entryName === 'index.html' ||
+        entry.entryName.includes('/index.html')
+    );
 
     // Determine project type
     let projectType: 'html' | 'react-nextjs' = 'html';
@@ -70,18 +81,20 @@ export async function POST(request: NextRequest) {
     if (projectType === 'react-nextjs') {
       // For React/Next.js, we'll use the build output or public folder
       const buildIndex = zipEntries.find(
-        entry => entry.entryName === 'out/index.html' ||
-                 entry.entryName === 'build/index.html' ||
-                 entry.entryName === 'dist/index.html'
+        (entry) =>
+          entry.entryName === 'out/index.html' ||
+          entry.entryName === 'build/index.html' ||
+          entry.entryName === 'dist/index.html'
       );
       if (buildIndex) {
         entryPoint = buildIndex.entryName;
       }
     } else {
       // For HTML projects, find the main index.html
-      const htmlEntry = zipEntries.find(entry =>
-        entry.entryName === 'index.html' ||
-        entry.entryName.endsWith('/index.html')
+      const htmlEntry = zipEntries.find(
+        (entry) =>
+          entry.entryName === 'index.html' ||
+          entry.entryName.endsWith('/index.html')
       );
       if (htmlEntry) {
         entryPoint = htmlEntry.entryName;
@@ -97,11 +110,13 @@ export async function POST(request: NextRequest) {
     }
 
     // List all files for debugging
-    const fileList = zipEntries.map(entry => ({
-      name: entry.entryName,
-      size: entry.header.size,
-      isDirectory: entry.isDirectory
-    })).filter(file => !file.isDirectory);
+    const fileList = zipEntries
+      .map((entry) => ({
+        name: entry.entryName,
+        size: entry.header.size,
+        isDirectory: entry.isDirectory,
+      }))
+      .filter((file) => !file.isDirectory);
 
     return NextResponse.json({
       success: true,
@@ -117,15 +132,14 @@ export async function POST(request: NextRequest) {
         hasNextConfig,
         hasPublicFolder,
         hasIndexHtml,
-      }
+      },
     });
-
   } catch (error) {
     console.error('Extract metadata error:', error);
     return NextResponse.json(
       {
         error: 'Failed to extract metadata',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

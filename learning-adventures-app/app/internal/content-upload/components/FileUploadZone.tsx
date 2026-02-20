@@ -8,11 +8,14 @@ interface FileUploadZoneProps {
 }
 
 export default function FileUploadZone({ onFilesAdded }: FileUploadZoneProps) {
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    onFilesAdded(files);
-  }, [onFilesAdded]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer.files);
+      onFilesAdded(files);
+    },
+    [onFilesAdded]
+  );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -29,9 +32,7 @@ export default function FileUploadZone({ onFilesAdded }: FileUploadZoneProps) {
       <h3 className="text-lg font-semibold text-ink-900 mb-2">
         Drag & Drop Files Here
       </h3>
-      <p className="text-gray-600 mb-4">
-        or click to browse
-      </p>
+      <p className="text-gray-600 mb-4">or click to browse</p>
       <input
         type="file"
         multiple

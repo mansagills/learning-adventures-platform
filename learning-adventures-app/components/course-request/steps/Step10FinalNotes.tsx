@@ -64,8 +64,8 @@ export default function Step10FinalNotes() {
                 ? formData.gradeLevel === 'PRE_K'
                   ? 'Pre-K'
                   : formData.gradeLevel === 'K'
-                  ? 'Kindergarten'
-                  : `Grade ${formData.gradeLevel}`
+                    ? 'Kindergarten'
+                    : `Grade ${formData.gradeLevel}`
                 : 'Not selected'}
             </p>
           </div>
@@ -94,9 +94,10 @@ export default function Step10FinalNotes() {
         <div
           className={`
             p-6 border-2 rounded-xl transition-all
-            ${errors.consentGiven
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white'
+            ${
+              errors.consentGiven
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white'
             }
           `}
         >
@@ -117,31 +118,41 @@ export default function Step10FinalNotes() {
                 <span className="text-coral-500 ml-1">*</span>
               </p>
               <div className="text-sm text-gray-700 space-y-2">
-                <p>
-                  By checking this box, I confirm that:
-                </p>
+                <p>By checking this box, I confirm that:</p>
                 <ul className="ml-4 space-y-1">
                   <li>
-                    • I have the authority to request this custom course on behalf of the student(s)
+                    • I have the authority to request this custom course on
+                    behalf of the student(s)
                   </li>
                   <li>
-                    • The information provided is accurate to the best of my knowledge
+                    • The information provided is accurate to the best of my
+                    knowledge
                   </li>
                   <li>
-                    • I understand that course development timelines depend on the selected urgency level
+                    • I understand that course development timelines depend on
+                    the selected urgency level
                   </li>
                   <li>
                     • I agree to the platform's{' '}
-                    <a href="/terms" target="_blank" className="text-brand-600 hover:underline">
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      className="text-brand-600 hover:underline"
+                    >
                       Terms of Service
                     </a>{' '}
                     and{' '}
-                    <a href="/privacy" target="_blank" className="text-brand-600 hover:underline">
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      className="text-brand-600 hover:underline"
+                    >
                       Privacy Policy
                     </a>
                   </li>
                   <li>
-                    • I consent to receiving email updates about this course request
+                    • I consent to receiving email updates about this course
+                    request
                   </li>
                 </ul>
               </div>
@@ -172,27 +183,36 @@ export default function Step10FinalNotes() {
             </h4>
             <ol className="text-sm text-gray-700 space-y-2 ml-4 list-decimal">
               <li>
-                <strong>Confirmation Email</strong> - You'll receive an email confirming we received your request
+                <strong>Confirmation Email</strong> - You'll receive an email
+                confirming we received your request
               </li>
               <li>
-                <strong>Review (24-48 hours)</strong> - Our team reviews your request and may reach out with clarifying questions
+                <strong>Review (24-48 hours)</strong> - Our team reviews your
+                request and may reach out with clarifying questions
               </li>
               <li>
-                <strong>Quote & Timeline</strong> - We'll send a detailed quote and development timeline
+                <strong>Quote & Timeline</strong> - We'll send a detailed quote
+                and development timeline
               </li>
               <li>
-                <strong>Course Development</strong> - Our AI + human team creates your custom content
+                <strong>Course Development</strong> - Our AI + human team
+                creates your custom content
               </li>
               <li>
-                <strong>Review & Launch</strong> - You'll get a preview to approve before final delivery
+                <strong>Review & Launch</strong> - You'll get a preview to
+                approve before final delivery
               </li>
               <li>
-                <strong>Ongoing Support</strong> - We'll check in to ensure the course is meeting your goals
+                <strong>Ongoing Support</strong> - We'll check in to ensure the
+                course is meeting your goals
               </li>
             </ol>
             <p className="text-sm text-gray-700 mt-4 font-semibold">
               Questions? Email us at{' '}
-              <a href="mailto:support@learningadventures.org" className="text-brand-600 hover:underline">
+              <a
+                href="mailto:support@learningadventures.org"
+                className="text-brand-600 hover:underline"
+              >
                 support@learningadventures.org
               </a>
             </p>

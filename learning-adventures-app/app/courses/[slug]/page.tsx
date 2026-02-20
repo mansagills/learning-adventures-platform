@@ -154,7 +154,9 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{course.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {course.title}
+              </h1>
               <div className="flex flex-wrap gap-2 mb-4">
                 <span
                   className={`px-3 py-1 text-sm font-semibold rounded ${
@@ -169,28 +171,38 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
                 <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-semibold rounded capitalize">
                   {course.subject}
                 </span>
-                {course.isPremium && <PremiumBadge size="md" showLabel={true} />}
+                {course.isPremium && (
+                  <PremiumBadge size="md" showLabel={true} />
+                )}
               </div>
             </div>
           </div>
 
-          <p className="text-gray-700 mb-6 leading-relaxed">{course.description}</p>
+          <p className="text-gray-700 mb-6 leading-relaxed">
+            {course.description}
+          </p>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl mb-1">📚</div>
-              <div className="text-lg font-bold text-gray-900">{course.lessons?.length || 0}</div>
+              <div className="text-lg font-bold text-gray-900">
+                {course.lessons?.length || 0}
+              </div>
               <div className="text-sm text-gray-600">Lessons</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl mb-1">⭐</div>
-              <div className="text-lg font-bold text-gray-900">{course.totalXP}</div>
+              <div className="text-lg font-bold text-gray-900">
+                {course.totalXP}
+              </div>
               <div className="text-sm text-gray-600">Total XP</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-2xl mb-1">⏱️</div>
-              <div className="text-lg font-bold text-gray-900">{timeEstimate}</div>
+              <div className="text-lg font-bold text-gray-900">
+                {timeEstimate}
+              </div>
               <div className="text-sm text-gray-600">Duration</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -207,7 +219,8 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
             <div className="mb-6">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
                 <span>
-                  {course.lessonsCompleted || 0} of {course.lessons?.length || 0} lessons completed
+                  {course.lessonsCompleted || 0} of{' '}
+                  {course.lessons?.length || 0} lessons completed
                 </span>
                 <span>{course.progressPercentage || 0}%</span>
               </div>
@@ -238,7 +251,11 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
                 disabled={generatingCertificate}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
               >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                   <path
                     fillRule="evenodd"
@@ -252,11 +269,16 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
                     Generating...
                   </span>
                 ) : (
-                  <span>{hasCertificate ? 'View Certificate' : 'Get Your Certificate'}</span>
+                  <span>
+                    {hasCertificate
+                      ? 'View Certificate'
+                      : 'Get Your Certificate'}
+                  </span>
                 )}
               </button>
               <p className="text-xs text-gray-600 text-center mt-2">
-                🎉 Congratulations on completing this course! Download your certificate to showcase your achievement.
+                🎉 Congratulations on completing this course! Download your
+                certificate to showcase your achievement.
               </p>
             </div>
           )}
@@ -264,7 +286,9 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
 
         {/* Lessons Section */}
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Lessons</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Course Lessons
+          </h2>
 
           {course.lessons && course.lessons.length > 0 ? (
             <LessonList
@@ -273,7 +297,9 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
               isEnrolled={isEnrolled}
             />
           ) : (
-            <p className="text-gray-600 text-center py-8">No lessons available yet.</p>
+            <p className="text-gray-600 text-center py-8">
+              No lessons available yet.
+            </p>
           )}
         </div>
       </div>

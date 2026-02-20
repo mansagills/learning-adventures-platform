@@ -9,15 +9,14 @@ import { SubscriptionTier, SubscriptionStatus } from '@prisma/client';
 /**
  * Check if a user has an active premium subscription
  */
-export async function hasActivePremiumSubscription(userId: string): Promise<boolean> {
+export async function hasActivePremiumSubscription(
+  userId: string
+): Promise<boolean> {
   const subscription = await prisma.subscription.findUnique({
     where: { userId },
   });
 
-  return (
-    subscription?.status === 'ACTIVE' &&
-    subscription?.tier === 'PREMIUM'
-  );
+  return subscription?.status === 'ACTIVE' && subscription?.tier === 'PREMIUM';
 }
 
 /**
@@ -40,7 +39,9 @@ export async function getUserSubscription(userId: string) {
 /**
  * Get subscription tier for a user
  */
-export async function getUserSubscriptionTier(userId: string): Promise<SubscriptionTier> {
+export async function getUserSubscriptionTier(
+  userId: string
+): Promise<SubscriptionTier> {
   const subscription = await prisma.subscription.findUnique({
     where: { userId },
     select: { tier: true },
@@ -170,6 +171,8 @@ export function getSubscriptionFeatures(tier: SubscriptionTier): string[] {
  * Check if user can access premium content
  * Convenience wrapper for hasActivePremiumSubscription
  */
-export async function canAccessPremiumContent(userId: string): Promise<boolean> {
+export async function canAccessPremiumContent(
+  userId: string
+): Promise<boolean> {
   return await hasActivePremiumSubscription(userId);
 }
