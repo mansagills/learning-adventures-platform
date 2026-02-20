@@ -4,6 +4,6 @@
 **Prevention:** Always validate and sanitize input, especially for sensitive fields. Use a whitelist for allowed values (e.g., allow `STUDENT`, `PARENT`, `TEACHER` but not `ADMIN`). Explicitly construct the `data` object instead of spreading the request body.
 
 ## 2026-02-01 - Admin Domain Privilege Escalation
-**Vulnerability:** The application logic automatically upgraded any user with an `@learningadventures.org` email to ADMIN role upon sign-in. However, the public signup endpoint did not restrict registration of emails with this domain, allowing an attacker to register as an admin simply by using that email domain.
-**Learning:** Domain-based role mapping is convenient but dangerous if email ownership is not strictly verified or if the domain is not restricted in public registration endpoints. Security checks in one layer (middleware/signin) can be bypassed if the entry point (signup) is not equally secured.
-**Prevention:** Block registration of sensitive domains in public signup forms. Alternatively, strictly enforce email verification before granting privileges based on email domain.
+**Vulnerability:** The authentication system automatically promotes users with `@learningadventures.org` emails to ADMIN upon login. However, the signup endpoint did not restrict registration with these emails, allowing anyone to register as an attacker and gain ADMIN privileges.
+**Learning:** Security logic in one component (auth provider callbacks) can create vulnerabilities if assumptions (e.g., "only admins have these emails") are not enforced in other components (signup).
+**Prevention:** Implement defense-in-depth by validating sensitive domains at the signup stage. Ensure that "trusted" identifiers like email domains are actually verified or restricted before granting privileges based on them.

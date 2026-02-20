@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // SECURITY: Email format validation
+    // SECURITY: Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -23,19 +23,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // SECURITY: Password strength validation
+    // SECURITY: Prevent privilege escalation by blocking signup with admin domain
+    if (email.endsWith('@learningadventures.org')) {
+      return NextResponse.json(
+        { error: 'Signups with @learningadventures.org are restricted. Please contact an administrator.' },
+        { status: 403 }
+      );
+    }
+
+    // SECURITY: Enforce password policy (min 8 chars)
     if (password.length < 8) {
       return NextResponse.json(
         { error: 'Password must be at least 8 characters long' },
         { status: 400 }
-      );
-    }
-
-    // SECURITY: Prevent registration of admin domain emails to avoid privilege escalation
-    if (email.endsWith('@learningadventures.org')) {
-      return NextResponse.json(
-        { error: 'Registration with this domain is restricted. Please contact your administrator.' },
-        { status: 403 }
       );
     }
 
