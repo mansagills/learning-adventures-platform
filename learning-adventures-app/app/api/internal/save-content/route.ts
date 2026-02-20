@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, dirname, normalize } from 'path';
+import { join, resolve, sep } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 
@@ -80,30 +80,31 @@ export async function POST(request: NextRequest) {
 
       const zip = new AdmZip(zipFullPath);
 
-      // SECURITY: Secure extraction to prevent Zip Slip
-      // Instead of zip.extractAllTo(gameDir, true), we manually extract and verify paths
+      // Security: Manually extract zip entries to prevent Zip Slip vulnerabilities
       const zipEntries = zip.getEntries();
+      const resolvedTargetDir = resolve(gameDir);
 
       for (const entry of zipEntries) {
-          // Check for malicious paths in entry name
-          if (entry.entryName.includes('..')) {
-             throw new Error(`Security Violation: Zip Slip detected in entry ${entry.entryName}`);
-          }
+        if (entry.isDirectory) continue;
 
-          const fullDestPath = join(gameDir, entry.entryName);
-          const normalizedDestPath = normalize(fullDestPath);
+        // Resolve full path and prevent path traversal
+        const entryName = entry.entryName;
+        const fullPath = resolve(resolvedTargetDir, entryName);
 
-          // Ensure the destination is still within the gameDir
-          if (!normalizedDestPath.startsWith(gameDir)) {
-              throw new Error(`Security Violation: Zip Slip detected in entry ${entry.entryName}`);
-          }
+        // Ensure the resolved path is inside the target directory
+        if (!fullPath.startsWith(resolvedTargetDir + sep)) {
+          console.warn(
+            `Security Warning: Skipped file trying to escape target directory: ${entryName}`
+          );
+          continue;
+        }
 
-          if (entry.isDirectory) {
-             await mkdir(normalizedDestPath, { recursive: true });
-          } else {
-             await mkdir(dirname(normalizedDestPath), { recursive: true });
-             await writeFile(normalizedDestPath, entry.getData());
-          }
+        // Ensure parent directory exists
+        const parentDir = resolve(fullPath, '..');
+        await mkdir(parentDir, { recursive: true });
+
+        // Write file content
+        await writeFile(fullPath, entry.getData());
       }
 
       return NextResponse.json({

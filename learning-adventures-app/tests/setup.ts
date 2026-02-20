@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import React from 'react';
+import { vi } from 'vitest';
 
 // Make jest compatible with vitest
 globalThis.jest = vi;

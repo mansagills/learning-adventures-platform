@@ -155,8 +155,8 @@ export async function middleware(request: NextRequest) {
 // Configure which routes the middleware should run on
 export const config = {
   matcher: [
-    // Match all routes except static files and api routes (except auth)
-    '/((?!_next/static|_next/image|favicon.ico|public|api(?!/auth)).*)',
+    // Match all routes except static files, api routes, and game/lesson HTML files
+    '/((?!_next/static|_next/image|favicon.ico|public|games|lessons|api(?!/auth)).*)',
     // Include dashboard and internal routes
     '/dashboard',
     '/internal/:path*',

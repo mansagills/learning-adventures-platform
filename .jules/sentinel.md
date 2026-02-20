@@ -1,4 +1,4 @@
-## 2025-02-23 - Zip Slip & Path Traversal in File Uploads
-**Vulnerability:** Found Path Traversal in `uploadedZipPath` input and Zip Slip vulnerability in `adm-zip` extraction logic in `app/api/internal/save-content/route.ts`.
-**Learning:** `adm-zip`'s `extractAllTo` method does not automatically prevent Zip Slip attacks (writing files outside target directory). User input for file paths was trusted without sanitization.
-**Prevention:** Always sanitize file path inputs using `path.normalize` and strict directory checks. For zip extraction, iterate entries manually and verify the destination path starts with the intended directory.
+## 2026-01-31 - Mass Assignment Privilege Escalation
+**Vulnerability:** The signup endpoint allowed users to specify their role directly in the request body, which was passed unsanitized to `prisma.user.create`. This allowed attackers to create ADMIN accounts.
+**Learning:** Using `req.json()` directly into `prisma.create` is dangerous if the model has sensitive fields like `role`.
+**Prevention:** Always validate and sanitize input, especially for sensitive fields. Use a whitelist for allowed values (e.g., allow `STUDENT`, `PARENT`, `TEACHER` but not `ADMIN`). Explicitly construct the `data` object instead of spreading the request body.
