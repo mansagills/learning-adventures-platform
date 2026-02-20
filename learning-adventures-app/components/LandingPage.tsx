@@ -20,7 +20,10 @@ interface LandingPageProps {
   userName?: string | null;
 }
 
-export default function LandingPage({ isAuthenticated, userName }: LandingPageProps) {
+export default function LandingPage({
+  isAuthenticated,
+  userName,
+}: LandingPageProps) {
   return (
     <>
       {/* Welcome back banner for authenticated users */}

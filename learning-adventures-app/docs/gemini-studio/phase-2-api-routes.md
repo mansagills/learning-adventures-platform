@@ -22,13 +22,13 @@ Generate new educational games from natural language prompts.
 
 ```typescript
 interface GenerateRequest {
-  prompt: string;                 // Natural language description
-  category: string;               // 'math', 'science', 'english', etc.
+  prompt: string; // Natural language description
+  category: string; // 'math', 'science', 'english', etc.
   gameType: 'HTML_2D' | 'HTML_3D' | 'INTERACTIVE' | 'QUIZ' | 'SIMULATION';
-  gradeLevel: string[];           // ['K', '1', '2', '3']
+  gradeLevel: string[]; // ['K', '1', '2', '3']
   difficulty: 'easy' | 'medium' | 'hard';
-  skills: string[];               // Learning objectives
-  context?: string;               // Additional context
+  skills: string[]; // Learning objectives
+  context?: string; // Additional context
 }
 ```
 
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       gradeLevel,
       difficulty,
       skills,
-      context
+      context,
     } = await req.json();
 
     // 3. Validate inputs
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       gradeLevel,
       difficulty,
       skills,
-      context
+      context,
     });
 
     // 6. Generate content
@@ -127,9 +127,9 @@ export async function POST(req: Request) {
         metadata: {
           model: 'gemini-3-pro',
           generationTime,
-          tokensUsed: response.usageMetadata?.totalTokenCount || 0
-        }
-      }
+          tokensUsed: response.usageMetadata?.totalTokenCount || 0,
+        },
+      },
     });
 
     // 9. Track usage
@@ -146,8 +146,8 @@ export async function POST(req: Request) {
         tokensOutput,
         estimatedCost,
         geminiContentId: geminiContent.id,
-        success: true
-      }
+        success: true,
+      },
     });
 
     // 10. Create temporary preview
@@ -162,13 +162,12 @@ export async function POST(req: Request) {
       tokens: {
         input: tokensInput,
         output: tokensOutput,
-        total: tokensInput + tokensOutput
+        total: tokensInput + tokensOutput,
       },
       estimatedCost,
       generationTime,
-      previewUrl
+      previewUrl,
     });
-
   } catch (error) {
     console.error('Generation error:', error);
 
@@ -182,8 +181,8 @@ export async function POST(req: Request) {
         tokensOutput: 0,
         estimatedCost: 0,
         success: false,
-        errorMessage: error.message
-      }
+        errorMessage: error.message,
+      },
     });
 
     return Response.json(
@@ -256,7 +255,7 @@ Start with: <!DOCTYPE html>
 
 // Helper: Calculate API cost
 function calculateCost(inputTokens: number, outputTokens: number): number {
-  const inputCost = (inputTokens / 1_000_000) * 2;    // $2 per 1M input tokens
+  const inputCost = (inputTokens / 1_000_000) * 2; // $2 per 1M input tokens
   const outputCost = (outputTokens / 1_000_000) * 12; // $12 per 1M output tokens
   return Number((inputCost + outputCost).toFixed(4));
 }
@@ -296,9 +295,9 @@ Iteratively improve generated games based on user feedback.
 
 ```typescript
 interface IterateRequest {
-  contentId: string;              // ID of GeminiContent to iterate
-  feedback: string;               // What to change/improve
-  existingCode?: string;          // Optional: provide code directly
+  contentId: string; // ID of GeminiContent to iterate
+  feedback: string; // What to change/improve
+  existingCode?: string; // Optional: provide code directly
 }
 ```
 
@@ -310,7 +309,7 @@ interface IterateResponse {
   contentId: string;
   iterationNumber: number;
   updatedCode: string;
-  changesSummary: string;         // AI-generated summary of changes
+  changesSummary: string; // AI-generated summary of changes
   tokens: {
     input: number;
     output: number;
@@ -337,7 +336,7 @@ export async function POST(req: Request) {
     // 1. Fetch existing content
     const content = await prisma.geminiContent.findUnique({
       where: { id: contentId },
-      include: { iterations_history: true }
+      include: { iterations_history: true },
     });
 
     if (!content) {
@@ -380,8 +379,8 @@ Also, provide a brief summary of changes made (in a comment at the top).
     const generationTime = Date.now() - startTime;
 
     // 5. Extract changes summary
-    const changesSummary = extractChangesSummary(updatedCode) ||
-                          'Code updated based on feedback';
+    const changesSummary =
+      extractChangesSummary(updatedCode) || 'Code updated based on feedback';
 
     // 6. Save iteration
     await prisma.geminiIteration.create({
@@ -393,8 +392,8 @@ Also, provide a brief summary of changes made (in a comment at the top).
         newCode: updatedCode,
         changesSummary,
         tokensUsed: response.usageMetadata?.totalTokenCount || 0,
-        generationTime
-      }
+        generationTime,
+      },
     });
 
     // 7. Update main content
@@ -404,11 +403,11 @@ Also, provide a brief summary of changes made (in a comment at the top).
         generatedCode: updatedCode,
         iterations: newIterationNumber,
         iterationNotes: {
-          push: feedback
+          push: feedback,
         },
         status: 'ITERATING',
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     // 8. Track usage
@@ -425,8 +424,8 @@ Also, provide a brief summary of changes made (in a comment at the top).
         tokensOutput,
         estimatedCost,
         geminiContentId: contentId,
-        success: true
-      }
+        success: true,
+      },
     });
 
     // 9. Update preview
@@ -441,12 +440,11 @@ Also, provide a brief summary of changes made (in a comment at the top).
       tokens: {
         input: tokensInput,
         output: tokensOutput,
-        total: tokensInput + tokensOutput
+        total: tokensInput + tokensOutput,
       },
       estimatedCost,
-      previewUrl
+      previewUrl,
     });
-
   } catch (error) {
     console.error('Iteration error:', error);
     return Response.json(
@@ -491,7 +489,10 @@ export async function POST(req: Request) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({ model: 'gemini-3-pro' });
 
-        const enhancedPrompt = buildEducationalGamePrompt({ prompt, ...config });
+        const enhancedPrompt = buildEducationalGamePrompt({
+          prompt,
+          ...config,
+        });
         const result = await model.generateContentStream(enhancedPrompt);
 
         let fullCode = '';
@@ -509,26 +510,25 @@ export async function POST(req: Request) {
           chunk: '',
           done: true,
           fullCode,
-          tokensUsed: result.response.usageMetadata?.totalTokenCount
+          tokensUsed: result.response.usageMetadata?.totalTokenCount,
         });
         controller.enqueue(new TextEncoder().encode(`data: ${doneData}\n\n`));
 
         controller.close();
-
       } catch (error) {
         const errorData = JSON.stringify({ error: error.message });
         controller.enqueue(new TextEncoder().encode(`data: ${errorData}\n\n`));
         controller.close();
       }
-    }
+    },
   });
 
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
-    }
+      Connection: 'keep-alive',
+    },
   });
 }
 ```
@@ -556,7 +556,7 @@ export async function GET(
   }
 
   const content = await prisma.geminiContent.findUnique({
-    where: { id: params.contentId }
+    where: { id: params.contentId },
   });
 
   if (!content) {
@@ -569,8 +569,9 @@ export async function GET(
       'Content-Type': 'text/html',
       'Cache-Control': 'no-cache',
       'X-Frame-Options': 'SAMEORIGIN',
-      'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com"
-    }
+      'Content-Security-Policy':
+        "default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+    },
   });
 }
 ```
@@ -613,7 +614,7 @@ export async function POST(req: Request) {
 
   // 1. Fetch content
   const content = await prisma.geminiContent.findUnique({
-    where: { id: contentId }
+    where: { id: contentId },
   });
 
   if (!content) {
@@ -626,7 +627,12 @@ export async function POST(req: Request) {
 
   // 3. Save file to public directory
   const fs = require('fs').promises;
-  const publicPath = path.join(process.cwd(), 'public', 'games', `${filename}.html`);
+  const publicPath = path.join(
+    process.cwd(),
+    'public',
+    'games',
+    `${filename}.html`
+  );
   await fs.writeFile(publicPath, content.generatedCode, 'utf-8');
 
   if (destination === 'test-games') {
@@ -645,8 +651,8 @@ export async function POST(req: Request) {
         filePath,
         isHtmlGame: true,
         status: 'NOT_TESTED',
-        createdBy: session.user.id
-      }
+        createdBy: session.user.id,
+      },
     });
 
     // Update GeminiContent
@@ -656,8 +662,8 @@ export async function POST(req: Request) {
         status: 'TESTING',
         filePath,
         testGameId: testGame.id,
-        publishedAt: new Date()
-      }
+        publishedAt: new Date(),
+      },
     });
 
     return Response.json({
@@ -665,9 +671,8 @@ export async function POST(req: Request) {
       destination: 'test-games',
       testGameId: testGame.id,
       filePath,
-      previewUrl: `/games/${filename}.html`
+      previewUrl: `/games/${filename}.html`,
     });
-
   } else {
     // 4b. Add to catalogData (requires manual update)
     // For now, just mark as ready for catalog
@@ -676,8 +681,8 @@ export async function POST(req: Request) {
       data: {
         status: 'APPROVED',
         filePath,
-        publishedAt: new Date()
-      }
+        publishedAt: new Date(),
+      },
     });
 
     return Response.json({
@@ -696,14 +701,15 @@ export async function POST(req: Request) {
         skills: content.skills,
         estimatedTime: metadata.estimatedTime || '10-15 mins',
         htmlPath: filePath,
-        featured: metadata.featured || false
-      }
+        featured: metadata.featured || false,
+      },
     });
   }
 }
 
 function generateUniqueFilename(title: string, category: string): string {
-  const slug = title.toLowerCase()
+  const slug = title
+    .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
   const timestamp = Date.now();
@@ -718,6 +724,7 @@ function generateUniqueFilename(title: string, category: string): string {
 ### Using cURL
 
 **Generate Content**:
+
 ```bash
 curl -X POST http://localhost:3000/api/gemini/generate \
   -H "Content-Type: application/json" \
@@ -732,6 +739,7 @@ curl -X POST http://localhost:3000/api/gemini/generate \
 ```
 
 **Iterate Content**:
+
 ```bash
 curl -X POST http://localhost:3000/api/gemini/iterate \
   -H "Content-Type: application/json" \

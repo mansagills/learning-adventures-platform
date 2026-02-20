@@ -19,7 +19,7 @@ export async function POST(
 
     // Check if event exists and belongs to user
     const existingEvent = await prisma.calendarEvent.findUnique({
-      where: { id: eventId }
+      where: { id: eventId },
     });
 
     if (!existingEvent) {
@@ -35,15 +35,14 @@ export async function POST(
       where: { id: eventId },
       data: {
         status: 'COMPLETED',
-        completedAt: new Date()
-      }
+        completedAt: new Date(),
+      },
     });
 
     return NextResponse.json({
       event: updatedEvent,
-      message: 'Event marked as completed! ✓'
+      message: 'Event marked as completed! ✓',
     });
-
   } catch (error) {
     console.error('Error completing event:', error);
     return NextResponse.json(

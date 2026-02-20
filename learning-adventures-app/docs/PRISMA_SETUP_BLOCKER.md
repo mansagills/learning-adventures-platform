@@ -11,11 +11,13 @@
 The Prisma client cannot be generated in this environment due to **network restrictions blocking access to Prisma's binary distribution server** (`binaries.prisma.sh`).
 
 ### Error Message:
+
 ```
 Error: Failed to fetch sha256 checksum at https://binaries.prisma.sh/.../schema-engine.gz.sha256 - 403 Forbidden
 ```
 
 This prevents:
+
 - Running `npx prisma generate`
 - Testing the course system endpoints
 - Accessing the `/courses` pages
@@ -109,6 +111,7 @@ curl http://localhost:3000/api/courses
 ## 📊 Current Course System Status
 
 **Completed**:
+
 - ✅ Phase 1: Database schema with 6 new models
 - ✅ Phase 2: Complete data access layer (~2,570 lines)
 - ✅ Phase 3: REST API with 9 endpoints (~800 lines)
@@ -116,6 +119,7 @@ curl http://localhost:3000/api/courses
 - ✅ All Prisma imports updated to use standard path
 
 **Blocked**:
+
 - ❌ Testing the course system
 - ❌ Database operations
 - ❌ API endpoint functionality
@@ -136,18 +140,21 @@ curl http://localhost:3000/api/courses
 ## 📝 Technical Details
 
 ### Database Configuration:
+
 - **Provider**: PostgreSQL
 - **Database**: `template1`
 - **Connection**: `postgresql://mansagills@localhost:5432/template1`
 - **Schema**: 6 course-related models + existing auth models
 
 ### Affected Files:
+
 - `/app/api/courses/**` - All course API routes
 - `/app/courses/**` - All course pages
 - `/lib/courses/**` - All data access functions
 - `/components/courses/**` - All course components
 
 ### Required Commands (in order):
+
 ```bash
 npx prisma generate  # ← CURRENTLY BLOCKED
 npx prisma db push
@@ -166,6 +173,6 @@ npm run dev
 
 ---
 
-*Last Updated: November 15, 2025*
-*Issue Created: During Phase 4 testing*
-*Resolution: Pending - Requires network access to binaries.prisma.sh*
+_Last Updated: November 15, 2025_
+_Issue Created: During Phase 4 testing_
+_Resolution: Pending - Requires network access to binaries.prisma.sh_

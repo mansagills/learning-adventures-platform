@@ -301,10 +301,13 @@ export class GameIdeationSkill extends BaseSkill {
     request: GameIdeaRequest
   ): Promise<GameConcept[]> {
     // Check if Claude API is configured
-    const { isClaudeConfigured, callClaude } = await import('../../claude-client');
+    const { isClaudeConfigured, callClaude } =
+      await import('../../claude-client');
 
     if (!isClaudeConfigured()) {
-      console.warn('⚠️  ANTHROPIC_API_KEY not configured, using mock game concepts');
+      console.warn(
+        '⚠️  ANTHROPIC_API_KEY not configured, using mock game concepts'
+      );
       return this.getMockGameConcepts(request);
     }
 
@@ -353,7 +356,9 @@ Return ONLY a valid JSON array of game concepts, no markdown formatting or expla
       }
 
       // Fallback if parsing failed
-      console.warn('⚠️  Could not parse Claude response as valid game concepts, using mock data');
+      console.warn(
+        '⚠️  Could not parse Claude response as valid game concepts, using mock data'
+      );
       return this.getMockGameConcepts(request);
     } catch (error) {
       console.error('❌ Error generating game concepts with Claude:', error);
@@ -370,13 +375,18 @@ Return ONLY a valid JSON array of game concepts, no markdown formatting or expla
       math: [
         {
           title: 'Number Race Rally',
-          description: 'Race against time solving arithmetic problems to advance your car',
+          description:
+            'Race against time solving arithmetic problems to advance your car',
           subject: 'Math',
           gradeLevel: [request.gradeLevel],
           difficulty: 'medium',
           estimatedPlayTime: '',
           learningObjectives: ['Practice core skills'],
-          gameplayMechanics: ['Timed challenges', 'Progressive difficulty', 'Power-ups'],
+          gameplayMechanics: [
+            'Timed challenges',
+            'Progressive difficulty',
+            'Power-ups',
+          ],
           educationalValue: 8,
           engagementPotential: 9,
         },
@@ -394,7 +404,8 @@ Return ONLY a valid JSON array of game concepts, no markdown formatting or expla
         },
         {
           title: 'Geometry Island Adventure',
-          description: 'Explore an island where geometry shapes unlock treasures',
+          description:
+            'Explore an island where geometry shapes unlock treasures',
           subject: 'Math',
           gradeLevel: [request.gradeLevel],
           difficulty: 'easy',
@@ -420,19 +431,25 @@ Return ONLY a valid JSON array of game concepts, no markdown formatting or expla
         },
         {
           title: 'Plant Growth Lab',
-          description: 'Experiment with different conditions to grow the perfect plant',
+          description:
+            'Experiment with different conditions to grow the perfect plant',
           subject: 'Science',
           gradeLevel: [request.gradeLevel],
           difficulty: 'easy',
           estimatedPlayTime: '',
           learningObjectives: ['Practice core skills'],
-          gameplayMechanics: ['Experimentation', 'Observation', 'Data collection'],
+          gameplayMechanics: [
+            'Experimentation',
+            'Observation',
+            'Data collection',
+          ],
           educationalValue: 8,
           engagementPotential: 7,
         },
         {
           title: 'Weather Predictor Challenge',
-          description: 'Use clues to predict weather patterns and save the town',
+          description:
+            'Use clues to predict weather patterns and save the town',
           subject: 'Science',
           gradeLevel: [request.gradeLevel],
           difficulty: 'medium',

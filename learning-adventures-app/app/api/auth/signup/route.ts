@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Validate role (SECURITY: Prevent role escalation)
-    const allowedRoles = ['STUDENT', 'PARENT', 'TEACHER'];
-    const safeRole = allowedRoles.includes(role) ? role : 'STUDENT';
+    // Sanitize role to prevent mass assignment of privileged roles
+    const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
+    const safeRole = role && ALLOWED_ROLES.includes(role) ? role : 'STUDENT';
 
     // Create user
     const user = await prisma.user.create({
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: 'User created successfully',
-        user
+        user,
       },
       { status: 201 }
     );

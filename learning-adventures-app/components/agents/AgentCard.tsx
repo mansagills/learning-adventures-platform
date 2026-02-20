@@ -26,7 +26,11 @@ interface AgentCardProps {
   onSelect: () => void;
 }
 
-export default function AgentCard({ agent, isSelected, onSelect }: AgentCardProps) {
+export default function AgentCard({
+  agent,
+  isSelected,
+  onSelect,
+}: AgentCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -58,7 +62,10 @@ export default function AgentCard({ agent, isSelected, onSelect }: AgentCardProp
                     key={skill}
                     className="text-xs px-2 py-0.5 bg-white/60 text-neutral-600 rounded-full"
                   >
-                    {skill.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    {skill
+                      .split('-')
+                      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                      .join(' ')}
                   </span>
                 ))}
               </div>
@@ -68,7 +75,9 @@ export default function AgentCard({ agent, isSelected, onSelect }: AgentCardProp
       </div>
 
       {/* Description */}
-      <p className="text-neutral-700 mb-4 leading-relaxed">{agent.description}</p>
+      <p className="text-neutral-700 mb-4 leading-relaxed">
+        {agent.description}
+      </p>
 
       {/* Capabilities */}
       <div className="mb-4">
@@ -80,7 +89,11 @@ export default function AgentCard({ agent, isSelected, onSelect }: AgentCardProp
           className="text-sm font-semibold text-neutral-900 hover:text-brand-600 flex items-center gap-1 mb-2"
         >
           Capabilities
-          <span className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+          <span
+            className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          >
+            ▼
+          </span>
         </button>
 
         {isExpanded && (

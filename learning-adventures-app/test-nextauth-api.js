@@ -12,26 +12,31 @@ async function testNextAuthAPI() {
 
     // Test 2: Get providers
     console.log('\n2️⃣ Getting providers...');
-    const providersResponse = await fetch('http://localhost:3000/api/auth/providers');
+    const providersResponse = await fetch(
+      'http://localhost:3000/api/auth/providers'
+    );
     const providersData = await providersResponse.json();
     console.log('📋 Available providers:');
     console.log(JSON.stringify(providersData, null, 2));
 
     // Test 3: Attempt login with credentials
     console.log('\n3️⃣ Attempting login...');
-    const loginResponse = await fetch('http://localhost:3000/api/auth/callback/credentials', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        email: 'student@test.com',
-        password: 'password123',
-        csrfToken: csrfData.csrfToken,
-        callbackUrl: 'http://localhost:3000',
-        json: 'true'
-      })
-    });
+    const loginResponse = await fetch(
+      'http://localhost:3000/api/auth/callback/credentials',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          email: 'student@test.com',
+          password: 'password123',
+          csrfToken: csrfData.csrfToken,
+          callbackUrl: 'http://localhost:3000',
+          json: 'true',
+        }),
+      }
+    );
 
     console.log('📊 Login Response Status:', loginResponse.status);
     console.log('📊 Login Response Headers:');
@@ -41,7 +46,6 @@ async function testNextAuthAPI() {
 
     const loginData = await loginResponse.text();
     console.log('📊 Login Response Body:', loginData);
-
   } catch (error) {
     console.error('❌ API Test Error:', error.message);
   }
