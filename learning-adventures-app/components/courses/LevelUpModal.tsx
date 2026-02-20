@@ -51,9 +51,7 @@ export default function LevelUpModal({ level, onClose }: LevelUpModalProps) {
         </p>
 
         {/* Confetti effect */}
-        <div className="text-6xl mb-6">
-          🎉 🎊 ✨
-        </div>
+        <div className="text-6xl mb-6">🎉 🎊 ✨</div>
 
         {/* Close Button */}
         <button

@@ -1,507 +1,565 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Number Monster Feeding | Fun Math Game</title>
-    <meta name="description" content="Feed hungry monsters the correct numbers! Practice counting, addition, and subtraction with cute monster friends.">
+    <meta
+      name="description"
+      content="Feed hungry monsters the correct numbers! Practice counting, addition, and subtraction with cute monster friends."
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Comic Sans MS', 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
+      body {
+        font-family: 'Comic Sans MS', 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
+      }
 
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #000;
+        color: #fff;
+        padding: 8px;
+        text-decoration: none;
+        z-index: 100;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      .game-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 900px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #5a67d8;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #718096;
+        margin-bottom: 2rem;
+      }
+
+      #instructions {
+        background: #edf2f7;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #5a67d8;
+      }
+
+      #instructions h2 {
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      #instructions ul {
+        margin-left: 1.5rem;
+        color: #4a5568;
+      }
+
+      #instructions li {
+        margin: 0.5rem 0;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .score-display,
+      .lives-display,
+      .level-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .monster-area {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 2rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .monster {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 20px;
+        padding: 1.5rem;
+        min-width: 200px;
+        text-align: center;
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+        cursor: pointer;
+        border: 3px solid transparent;
+      }
+
+      .monster:hover,
+      .monster:focus {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        outline: none;
+        border-color: #ffd700;
+      }
+
+      .monster-face {
+        font-size: 4rem;
+        margin-bottom: 0.5rem;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
         }
-
-        .skip-link:focus {
-            top: 0;
+        50% {
+          transform: translateY(-10px);
         }
+      }
 
-        .game-container {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 900px;
-            width: 100%;
-        }
+      .monster-wants {
+        background: white;
+        color: #2d3748;
+        padding: 1rem;
+        border-radius: 10px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 0.5rem;
+      }
 
+      .number-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .number-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+        border-radius: 12px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .number-btn:hover,
+      .number-btn:focus {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        outline: 3px solid #ffd700;
+        outline-offset: 2px;
+      }
+
+      .number-btn:active {
+        transform: translateY(-2px);
+      }
+
+      .feedback {
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .feedback.correct {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+
+      .feedback.incorrect {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 0.5rem;
+      }
+
+      .btn:hover,
+      .btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        outline: 3px solid #ffd700;
+        outline-offset: 2px;
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #game-over {
+        text-align: center;
+      }
+
+      #game-over h2 {
+        color: #5a67d8;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      #game-over p {
+        font-size: 1.5rem;
+        color: #4a5568;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 768px) {
         h1 {
-            color: #5a67d8;
-            text-align: center;
-            margin-bottom: 1rem;
-            font-size: 2.5rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #718096;
-            margin-bottom: 2rem;
-        }
-
-        #instructions {
-            background: #edf2f7;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border-left: 4px solid #5a67d8;
-        }
-
-        #instructions h2 {
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-            font-size: 1.5rem;
-        }
-
-        #instructions ul {
-            margin-left: 1.5rem;
-            color: #4a5568;
-        }
-
-        #instructions li {
-            margin: 0.5rem 0;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .score-display, .lives-display, .level-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .monster-area {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 2rem;
-            gap: 1rem;
-            flex-wrap: wrap;
+          font-size: 1.8rem;
         }
 
         .monster {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 20px;
-            padding: 1.5rem;
-            min-width: 200px;
-            text-align: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            border: 3px solid transparent;
-        }
-
-        .monster:hover, .monster:focus {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            outline: none;
-            border-color: #ffd700;
+          min-width: 150px;
         }
 
         .monster-face {
-            font-size: 4rem;
-            margin-bottom: 0.5rem;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .monster-wants {
-            background: white;
-            color: #2d3748;
-            padding: 1rem;
-            border-radius: 10px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-
-        .number-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+          font-size: 3rem;
         }
 
         .number-btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            border: none;
-            padding: 1.5rem;
-            border-radius: 12px;
-            font-size: 1.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          font-size: 1.4rem;
+          padding: 1rem;
         }
-
-        .number-btn:hover, .number-btn:focus {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-            outline: 3px solid #ffd700;
-            outline-offset: 2px;
-        }
-
-        .number-btn:active {
-            transform: translateY(-2px);
-        }
-
-        .feedback {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feedback.correct {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-
-        .feedback.incorrect {
-            background: #fed7d7;
-            color: #742a2a;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0.5rem;
-        }
-
-        .btn:hover, .btn:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-            outline: 3px solid #ffd700;
-            outline-offset: 2px;
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #game-over {
-            text-align: center;
-        }
-
-        #game-over h2 {
-            color: #5a67d8;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        #game-over p {
-            font-size: 1.5rem;
-            color: #4a5568;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .monster {
-                min-width: 150px;
-            }
-
-            .monster-face {
-                font-size: 3rem;
-            }
-
-            .number-btn {
-                font-size: 1.4rem;
-                padding: 1rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <a href="#main-game" class="skip-link">Skip to game</a>
 
     <div class="game-container" role="main">
-        <h1 id="game-title">🍔 Number Monster Feeding 🍕</h1>
-        <p class="subtitle">Feed the hungry monsters the correct numbers!</p>
+      <h1 id="game-title">🍔 Number Monster Feeding 🍕</h1>
+      <p class="subtitle">Feed the hungry monsters the correct numbers!</p>
 
-        <div id="instructions" role="region" aria-labelledby="instructions-title">
-            <h2 id="instructions-title">How to Play</h2>
-            <ul>
-                <li>Each monster wants a specific number</li>
-                <li>Click the correct number to feed the monster</li>
-                <li>Get points for correct answers!</li>
-                <li>Level up as you feed more monsters</li>
-                <li>You have 5 lives - use them wisely!</li>
-            </ul>
-            <button class="btn" onclick="startGame()" aria-label="Start game">Start Game</button>
+      <div id="instructions" role="region" aria-labelledby="instructions-title">
+        <h2 id="instructions-title">How to Play</h2>
+        <ul>
+          <li>Each monster wants a specific number</li>
+          <li>Click the correct number to feed the monster</li>
+          <li>Get points for correct answers!</li>
+          <li>Level up as you feed more monsters</li>
+          <li>You have 5 lives - use them wisely!</li>
+        </ul>
+        <button class="btn" onclick="startGame()" aria-label="Start game">
+          Start Game
+        </button>
+      </div>
+
+      <div
+        id="main-game"
+        class="hidden"
+        role="application"
+        aria-label="Number Monster Feeding game"
+      >
+        <div class="controls">
+          <div
+            class="score-display"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            Score: <span id="score">0</span>
+          </div>
+          <div class="level-display" role="status" aria-live="polite">
+            Level: <span id="level">1</span>
+          </div>
+          <div
+            class="lives-display"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            Lives: <span id="lives">❤️❤️❤️❤️❤️</span>
+          </div>
         </div>
 
-        <div id="main-game" class="hidden" role="application" aria-label="Number Monster Feeding game">
-            <div class="controls">
-                <div class="score-display" role="status" aria-live="polite" aria-atomic="true">
-                    Score: <span id="score">0</span>
-                </div>
-                <div class="level-display" role="status" aria-live="polite">
-                    Level: <span id="level">1</span>
-                </div>
-                <div class="lives-display" role="status" aria-live="polite" aria-atomic="true">
-                    Lives: <span id="lives">❤️❤️❤️❤️❤️</span>
-                </div>
-            </div>
+        <div
+          class="feedback hidden"
+          id="feedback"
+          role="alert"
+          aria-live="assertive"
+        ></div>
 
-            <div class="feedback hidden" id="feedback" role="alert" aria-live="assertive"></div>
-
-            <div class="monster-area" id="monster-area">
-                <!-- Monsters will be generated here -->
-            </div>
-
-            <div class="number-options" id="number-options">
-                <!-- Number buttons will be generated here -->
-            </div>
+        <div class="monster-area" id="monster-area">
+          <!-- Monsters will be generated here -->
         </div>
 
-        <div id="game-over" class="hidden">
-            <h2>Game Over! 🎉</h2>
-            <p>Final Score: <span id="final-score">0</span></p>
-            <p>Level Reached: <span id="final-level">0</span></p>
-            <button class="btn" onclick="location.reload()" aria-label="Play again">Play Again</button>
+        <div class="number-options" id="number-options">
+          <!-- Number buttons will be generated here -->
         </div>
+      </div>
+
+      <div id="game-over" class="hidden">
+        <h2>Game Over! 🎉</h2>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <p>Level Reached: <span id="final-level">0</span></p>
+        <button class="btn" onclick="location.reload()" aria-label="Play again">
+          Play Again
+        </button>
+      </div>
     </div>
 
     <script>
-        let score = 0;
-        let level = 1;
-        let lives = 5;
-        let currentMonsters = [];
-        let currentQuestion = null;
+      let score = 0;
+      let level = 1;
+      let lives = 5;
+      let currentMonsters = [];
+      let currentQuestion = null;
 
-        const monsterFaces = ['😈', '👹', '👾', '🤖', '👽', '🦖', '🐉'];
-        const monsterNames = ['Numbly', 'Countzilla', 'Addy', 'Subtracto', 'Multiplox'];
+      const monsterFaces = ['😈', '👹', '👾', '🤖', '👽', '🦖', '🐉'];
+      const monsterNames = [
+        'Numbly',
+        'Countzilla',
+        'Addy',
+        'Subtracto',
+        'Multiplox',
+      ];
 
-        function startGame() {
-            document.getElementById('instructions').classList.add('hidden');
-            document.getElementById('main-game').classList.remove('hidden');
-            score = 0;
-            level = 1;
-            lives = 5;
-            updateDisplay();
-            generateQuestion();
+      function startGame() {
+        document.getElementById('instructions').classList.add('hidden');
+        document.getElementById('main-game').classList.remove('hidden');
+        score = 0;
+        level = 1;
+        lives = 5;
+        updateDisplay();
+        generateQuestion();
+      }
+
+      function updateDisplay() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('level').textContent = level;
+        const heartsDisplay = '❤️'.repeat(lives);
+        document.getElementById('lives').textContent = heartsDisplay || '💔';
+      }
+
+      function generateQuestion() {
+        // Clear previous state
+        document.getElementById('feedback').classList.add('hidden');
+
+        // Determine question type based on level
+        let questionType;
+        if (level <= 2) {
+          questionType = 'counting'; // Simple counting
+        } else if (level <= 5) {
+          questionType = 'addition'; // Addition
+        } else {
+          questionType = 'subtraction'; // Subtraction
         }
 
-        function updateDisplay() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('level').textContent = level;
-            const heartsDisplay = '❤️'.repeat(lives);
-            document.getElementById('lives').textContent = heartsDisplay || '💔';
+        let answer, questionText;
+
+        if (questionType === 'counting') {
+          answer = Math.floor(Math.random() * 10) + 1;
+          questionText = `${answer}`;
+        } else if (questionType === 'addition') {
+          const num1 = Math.floor(Math.random() * 10) + 1;
+          const num2 = Math.floor(Math.random() * 10) + 1;
+          answer = num1 + num2;
+          questionText = `${num1} + ${num2}`;
+        } else {
+          const num2 = Math.floor(Math.random() * 10) + 1;
+          const num1 = num2 + Math.floor(Math.random() * 10) + 1;
+          answer = num1 - num2;
+          questionText = `${num1} - ${num2}`;
         }
 
-        function generateQuestion() {
-            // Clear previous state
-            document.getElementById('feedback').classList.add('hidden');
+        currentQuestion = {
+          answer: answer,
+          text: questionText,
+          type: questionType,
+        };
 
-            // Determine question type based on level
-            let questionType;
-            if (level <= 2) {
-                questionType = 'counting'; // Simple counting
-            } else if (level <= 5) {
-                questionType = 'addition'; // Addition
-            } else {
-                questionType = 'subtraction'; // Subtraction
-            }
+        // Generate monster
+        generateMonster();
+        generateNumberOptions(answer);
+      }
 
-            let answer, questionText;
+      function generateMonster() {
+        const monsterArea = document.getElementById('monster-area');
+        const face =
+          monsterFaces[Math.floor(Math.random() * monsterFaces.length)];
+        const name =
+          monsterNames[Math.floor(Math.random() * monsterNames.length)];
 
-            if (questionType === 'counting') {
-                answer = Math.floor(Math.random() * 10) + 1;
-                questionText = `${answer}`;
-            } else if (questionType === 'addition') {
-                const num1 = Math.floor(Math.random() * 10) + 1;
-                const num2 = Math.floor(Math.random() * 10) + 1;
-                answer = num1 + num2;
-                questionText = `${num1} + ${num2}`;
-            } else {
-                const num2 = Math.floor(Math.random() * 10) + 1;
-                const num1 = num2 + Math.floor(Math.random() * 10) + 1;
-                answer = num1 - num2;
-                questionText = `${num1} - ${num2}`;
-            }
-
-            currentQuestion = {
-                answer: answer,
-                text: questionText,
-                type: questionType
-            };
-
-            // Generate monster
-            generateMonster();
-            generateNumberOptions(answer);
-        }
-
-        function generateMonster() {
-            const monsterArea = document.getElementById('monster-area');
-            const face = monsterFaces[Math.floor(Math.random() * monsterFaces.length)];
-            const name = monsterNames[Math.floor(Math.random() * monsterNames.length)];
-
-            monsterArea.innerHTML = `
+        monsterArea.innerHTML = `
                 <div class="monster" role="img" aria-label="${name} monster wanting ${currentQuestion.text}">
                     <div class="monster-face" aria-hidden="true">${face}</div>
                     <h3 style="color: white;">${name}</h3>
                     <div class="monster-wants">I want ${currentQuestion.text}</div>
                 </div>
             `;
+      }
+
+      function generateNumberOptions(correctAnswer) {
+        const options = new Set();
+        options.add(correctAnswer);
+
+        // Generate wrong options
+        while (options.size < 6) {
+          const wrong = Math.max(
+            1,
+            correctAnswer + Math.floor(Math.random() * 11) - 5
+          );
+          if (wrong !== correctAnswer && wrong > 0 && wrong <= 30) {
+            options.add(wrong);
+          }
         }
 
-        function generateNumberOptions(correctAnswer) {
-            const options = new Set();
-            options.add(correctAnswer);
+        const optionsArray = Array.from(options).sort(
+          () => Math.random() - 0.5
+        );
+        const numberOptionsDiv = document.getElementById('number-options');
 
-            // Generate wrong options
-            while (options.size < 6) {
-                const wrong = Math.max(1, correctAnswer + Math.floor(Math.random() * 11) - 5);
-                if (wrong !== correctAnswer && wrong > 0 && wrong <= 30) {
-                    options.add(wrong);
-                }
-            }
-
-            const optionsArray = Array.from(options).sort(() => Math.random() - 0.5);
-            const numberOptionsDiv = document.getElementById('number-options');
-
-            numberOptionsDiv.innerHTML = optionsArray.map(num => `
+        numberOptionsDiv.innerHTML = optionsArray
+          .map(
+            (num) => `
                 <button class="number-btn"
                         onclick="checkAnswer(${num})"
                         aria-label="Feed monster number ${num}">
                     ${num}
                 </button>
-            `).join('');
+            `
+          )
+          .join('');
+      }
+
+      function checkAnswer(selectedNumber) {
+        const feedback = document.getElementById('feedback');
+        feedback.classList.remove('hidden', 'correct', 'incorrect');
+
+        if (selectedNumber === currentQuestion.answer) {
+          // Correct!
+          score += level * 10;
+          feedback.classList.add('correct');
+          feedback.textContent = `✅ Correct! ${currentQuestion.text} = ${currentQuestion.answer}! +${level * 10} points`;
+
+          // Play success sound (visual feedback)
+          const monsterFace = document.querySelector('.monster-face');
+          if (monsterFace) {
+            monsterFace.textContent = '😊';
+          }
+
+          updateDisplay();
+
+          // Level up every 5 correct answers
+          if (score % 50 === 0 && score > 0) {
+            level++;
+            setTimeout(() => {
+              alert(`🎉 Level Up! Welcome to Level ${level}!`);
+              generateQuestion();
+            }, 1500);
+          } else {
+            setTimeout(() => {
+              generateQuestion();
+            }, 1500);
+          }
+        } else {
+          // Incorrect
+          lives--;
+          feedback.classList.add('incorrect');
+          feedback.textContent = `❌ Oops! ${currentQuestion.text} = ${currentQuestion.answer}, not ${selectedNumber}. Try again!`;
+
+          // Play error sound (visual feedback)
+          const monsterFace = document.querySelector('.monster-face');
+          if (monsterFace) {
+            monsterFace.textContent = '😢';
+          }
+
+          updateDisplay();
+
+          if (lives <= 0) {
+            setTimeout(() => {
+              gameOver();
+            }, 1500);
+          } else {
+            setTimeout(() => {
+              generateQuestion();
+            }, 2000);
+          }
         }
+      }
 
-        function checkAnswer(selectedNumber) {
-            const feedback = document.getElementById('feedback');
-            feedback.classList.remove('hidden', 'correct', 'incorrect');
+      function gameOver() {
+        document.getElementById('main-game').classList.add('hidden');
+        document.getElementById('game-over').classList.remove('hidden');
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-level').textContent = level;
+      }
 
-            if (selectedNumber === currentQuestion.answer) {
-                // Correct!
-                score += level * 10;
-                feedback.classList.add('correct');
-                feedback.textContent = `✅ Correct! ${currentQuestion.text} = ${currentQuestion.answer}! +${level * 10} points`;
-
-                // Play success sound (visual feedback)
-                const monsterFace = document.querySelector('.monster-face');
-                if (monsterFace) {
-                    monsterFace.textContent = '😊';
-                }
-
-                updateDisplay();
-
-                // Level up every 5 correct answers
-                if (score % 50 === 0 && score > 0) {
-                    level++;
-                    setTimeout(() => {
-                        alert(`🎉 Level Up! Welcome to Level ${level}!`);
-                        generateQuestion();
-                    }, 1500);
-                } else {
-                    setTimeout(() => {
-                        generateQuestion();
-                    }, 1500);
-                }
-            } else {
-                // Incorrect
-                lives--;
-                feedback.classList.add('incorrect');
-                feedback.textContent = `❌ Oops! ${currentQuestion.text} = ${currentQuestion.answer}, not ${selectedNumber}. Try again!`;
-
-                // Play error sound (visual feedback)
-                const monsterFace = document.querySelector('.monster-face');
-                if (monsterFace) {
-                    monsterFace.textContent = '😢';
-                }
-
-                updateDisplay();
-
-                if (lives <= 0) {
-                    setTimeout(() => {
-                        gameOver();
-                    }, 1500);
-                } else {
-                    setTimeout(() => {
-                        generateQuestion();
-                    }, 2000);
-                }
-            }
+      // Keyboard support
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          if (confirm('Exit game?')) {
+            location.reload();
+          }
         }
-
-        function gameOver() {
-            document.getElementById('main-game').classList.add('hidden');
-            document.getElementById('game-over').classList.remove('hidden');
-            document.getElementById('final-score').textContent = score;
-            document.getElementById('final-level').textContent = level;
-        }
-
-        // Keyboard support
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (confirm('Exit game?')) {
-                    location.reload();
-                }
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>

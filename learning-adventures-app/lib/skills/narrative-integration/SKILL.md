@@ -1,17 +1,20 @@
 # Narrative Integration Skill
 
 ## Purpose
+
 Creates engaging story arcs, characters, and narrative elements that tie together an entire course to increase student engagement and motivation.
 
 ## What This Skill Does
 
 This skill is the **fourth (optional) step** in the course generation pipeline. It creates a cohesive narrative layer that:
+
 - Connects all lessons through an overarching story
 - Creates a relatable protagonist the student can identify with
 - Builds emotional engagement through character development
 - Provides narrative motivation for learning (story goals = learning goals)
 
 ### Key Responsibilities:
+
 1. **Story Arc Design**: Create beginning, middle, and end narrative structure
 2. **Character Creation**: Design protagonist based on student age, interests, and favorite characters
 3. **Chapter Story Beats**: Define what happens narratively in each chapter
@@ -22,16 +25,19 @@ This skill is the **fourth (optional) step** in the course generation pipeline. 
 ## Input Format
 
 Expects:
+
 - **curriculum** object from CurriculumDesignSkill
 - **designBrief** object (optional but highly recommended for personalization)
 
 Uses from curriculum:
+
 - Course title and description
 - Chapter titles and descriptions
 - Number of lessons
 - Learning objectives
 
 Uses from design brief:
+
 - Student name, age, interests
 - Favorite characters
 - Learning goals (CATCH_UP, REINFORCE, GET_AHEAD)
@@ -74,18 +80,21 @@ Returns a complete narrative framework:
 ### Three-Act Structure
 
 **Act 1 - Setup (Chapter 1)**:
+
 - Introduce protagonist in their ordinary world
 - Present the call to adventure (learning challenge)
 - Establish what's at stake
 - Hook: Why should student care?
 
 **Act 2 - Confrontation (Middle Chapters)**:
+
 - Protagonist faces escalating challenges
 - Each chapter = new skill learned = new story capability
 - Setbacks and small victories
 - Emotional low point before final chapter
 
 **Act 3 - Resolution (Final Chapter)**:
+
 - Final challenge requires all learned skills
 - Protagonist succeeds through growth
 - Celebrate achievement
@@ -107,18 +116,21 @@ Returns a complete narrative framework:
 ### Age-Appropriate Protagonists
 
 **Ages 5-7**:
+
 - Animal characters or child protagonists
 - Simple motivations (help friend, solve mystery)
 - Clear good vs. challenge (not good vs. evil)
 - Examples: Curious bunny, brave young explorer
 
 **Ages 8-10**:
+
 - Child or young teen protagonists
 - Relatable goals (make friends, prove capability, help family)
 - Can include minor antagonists (rival, bully who reforms)
 - Examples: New kid at school, young inventor, aspiring athlete
 
 **Ages 11-13**:
+
 - Teen protagonists
 - Complex motivations (identity, belonging, making a difference)
 - Moral dilemmas appropriate for age
@@ -127,18 +139,21 @@ Returns a complete narrative framework:
 ### Incorporating Favorite Characters
 
 **When student mentions specific characters** (e.g., "Wild Kratts", "Iron Man"):
+
 - Make them **mentors** not protagonists (student is the hero)
 - Use character's traits/values as guidance
 - Reference character's signature skills/tools
 - Example: "Like the Kratt Brothers taught you, observing animal behavior helps you understand..."
 
 **When no characters specified**:
+
 - Create original mascot/guide
 - Base on course theme (Math Wizard, Science Detective, Word Explorer)
 
 ### Protagonist Traits
 
 **Universal Relatable Traits**:
+
 - Curious and eager to learn
 - Makes mistakes but perseveres
 - Asks questions (models good learning behavior)
@@ -146,6 +161,7 @@ Returns a complete narrative framework:
 - Helps others with new knowledge
 
 **Customized Traits** (based on student interests):
+
 - Student loves animals → Protagonist is animal caretaker
 - Student loves sports → Protagonist is athlete using subject (math for stats, science for nutrition)
 - Student loves art → Protagonist is artist applying concepts creatively
@@ -155,12 +171,14 @@ Returns a complete narrative framework:
 ### Age-Appropriate Stakes
 
 **Never Use**:
+
 - Violence or danger to life
 - Scary/frightening scenarios
 - Failure with permanent consequences
 - Shame or humiliation
 
 **Good Conflicts**:
+
 - Mystery to solve (missing item, how something works)
 - Goal to achieve (win competition, earn certificate, help community)
 - Problem to fix (broken machine, environmental issue)
@@ -169,18 +187,21 @@ Returns a complete narrative framework:
 **Examples by Subject**:
 
 **Math Course**:
+
 - Animals need help counting their food supplies
 - Build a playground and need to measure/calculate
 - Plan a party with budget constraints
 - Solve treasure map riddles using math
 
 **Science Course**:
+
 - Investigate why plants in garden aren't growing
 - Design experiment to test which material is strongest
 - Figure out how to clean polluted pond
 - Build Rube Goldberg machine for school project
 
 **English Course**:
+
 - Write stories to save community library
 - Decode ancient messages to find treasure
 - Help animals by translating their communication
@@ -191,21 +212,25 @@ Returns a complete narrative framework:
 ### Connecting Interests to Story
 
 **Interest: Animals**
+
 - Setting: Wildlife sanctuary, jungle, ocean
 - Conflict: Animals need help (food shortage, habitat restoration)
 - Resolution: Use learned skills to solve animal problem
 
 **Interest: Space**
+
 - Setting: Space station, distant planet, astronaut training
 - Conflict: Mission challenges, equipment problems to solve
 - Resolution: Complete mission using knowledge
 
 **Interest: Sports**
+
 - Setting: Training facility, championship prep
 - Conflict: Improve performance, overcome weakness
 - Resolution: Win through smart application of concepts
 
 **Interest: Gaming/Technology**
+
 - Setting: Virtual world, coding academy, game design studio
 - Conflict: Level up, debug code, create new game
 - Resolution: Launch successful creation
@@ -215,21 +240,25 @@ Returns a complete narrative framework:
 ### Example: "Animal Adventure Math" (4 Chapters)
 
 **Chapter 1: Multiplication Meadow**
+
 - Story Beat: "Arrive at safari, meet animal families who need help organizing into groups for the journey"
 - Emotional Arc: Excitement and curiosity, slight overwhelm at task size
 - Learning Connection: Learn multiplication to count animal groups efficiently
 
 **Chapter 2: Multiplication Mountain**
+
 - Story Beat: "Climb mountain, face challenges with larger animal herds, discover multiplication patterns to help"
 - Emotional Arc: Growing confidence, small setbacks, determination
 - Learning Connection: Master harder multiplication facts through pattern recognition
 
 **Chapter 3: Division Den**
+
 - Story Beat: "Arrive at den where animals need to share food fairly, learn division helps solve sharing problems"
 - Emotional Arc: Aha moment connecting division to multiplication, feeling capable
 - Learning Connection: Division as inverse operation, practical application
 
 **Chapter 4: Problem-Solving Prairie**
+
 - Story Beat: "Final challenge combining all skills to help entire safari succeed, celebration when complete"
 - Emotional Arc: Pride in growth, joy in helping, confidence in ability
 - Learning Connection: Apply all skills to complex multi-step problems
@@ -239,6 +268,7 @@ Returns a complete narrative framework:
 ### Story-Based Motivation
 
 Instead of abstract "earn XP," frame as:
+
 - Collect story items (animal badges, star fragments, treasure pieces)
 - Unlock story chapters (next part of adventure)
 - Help characters progress (each lesson helps protagonist get closer to goal)
@@ -304,17 +334,20 @@ Congratulations, [student name]. You did it! 🎉
 Narrative elements can enhance HTML games:
 
 **Visual Story Elements**:
+
 - Protagonist avatar/character art
 - Setting background images
 - Story-themed UI elements (treasure chest score counter, animal badge progress)
 
 **Narrative Text**:
+
 - Chapter intro screens with story beat
 - In-game dialogue from mentor character
 - Victory messages that advance plot
 - Failure messages that encourage persistence (story frame: "Try again, [protagonist] needs you!")
 
 **Progression Indicators**:
+
 - Story map showing chapter progress
 - Character leveling that mirrors XP
 - Unlockable story content
@@ -322,6 +355,7 @@ Narrative elements can enhance HTML games:
 ## Validation Criteria
 
 ### Story Arc Quality:
+
 - ✅ Protagonist is relatable to student age
 - ✅ Conflict is age-appropriate (no violence/fear)
 - ✅ Resolution celebrates learning achievement
@@ -329,12 +363,14 @@ Narrative elements can enhance HTML games:
 - ✅ Emotional arc builds satisfying journey
 
 ### Personalization:
+
 - ✅ Incorporates student interests
 - ✅ References favorite characters (if specified)
 - ✅ Uses student name in conclusion
 - ✅ Themes match learning goals (catch up = comeback story, get ahead = challenge quest)
 
 ### Educational Alignment:
+
 - ✅ Story goals align with learning objectives
 - ✅ Character growth mirrors skill development
 - ✅ Narrative provides motivation for difficult lessons
@@ -350,21 +386,29 @@ const skill = new NarrativeIntegrationSkill();
 const result = await skill.execute({
   userRequest: 'Create narrative arc',
   previousOutputs: new Map([
-    ['curriculum', {
-      courseTitle: 'Animal Math Safari',
-      chapters: [/* chapter objects */]
-    }],
-    ['designBrief', {
-      student: {
-        name: 'Emma',
-        age: 8,
-        learningProfile: {
-          interests: ['Animals', 'Nature'],
-          favoriteCharacters: 'Wild Kratts'
-        }
-      }
-    }]
-  ])
+    [
+      'curriculum',
+      {
+        courseTitle: 'Animal Math Safari',
+        chapters: [
+          /* chapter objects */
+        ],
+      },
+    ],
+    [
+      'designBrief',
+      {
+        student: {
+          name: 'Emma',
+          age: 8,
+          learningProfile: {
+            interests: ['Animals', 'Nature'],
+            favoriteCharacters: 'Wild Kratts',
+          },
+        },
+      },
+    ],
+  ]),
 });
 
 if (result.success) {
@@ -379,10 +423,12 @@ if (result.success) {
 ## Integration Points
 
 ### Input Sources:
+
 - **CurriculumDesignSkill**: Chapter structure, learning objectives
 - **CourseDesignBriefSkill**: Student interests, favorite characters
 
 ### Output Consumers:
+
 - **Course Record**: Store courseIntroduction and courseConclusion
 - **Chapter Records**: Store storyBeat for each chapter
 - **HTML Games** (future): Add story elements to interactive content

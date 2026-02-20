@@ -76,7 +76,9 @@ export default function AchievementBadge({
   return (
     <div className="flex items-start space-x-3 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
       {/* Badge Icon */}
-      <div className={`${sizeStyle.badge} rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center flex-shrink-0 shadow-md`}>
+      <div
+        className={`${sizeStyle.badge} rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center flex-shrink-0 shadow-md`}
+      >
         <Icon name={config.icon} size={sizeStyle.icon} className="text-white" />
       </div>
 
@@ -91,7 +93,9 @@ export default function AchievementBadge({
 
         {/* Category Badge */}
         {category && (
-          <span className={`inline-block mt-2 px-2 py-0.5 ${config.bgColor} ${config.textColor} text-xs font-medium rounded`}>
+          <span
+            className={`inline-block mt-2 px-2 py-0.5 ${config.bgColor} ${config.textColor} text-xs font-medium rounded`}
+          >
             {category.charAt(0).toUpperCase() + category.slice(1)}
           </span>
         )}

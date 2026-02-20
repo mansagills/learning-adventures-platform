@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Verify user has PARENT role
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true }
+      select: { role: true },
     });
 
     if (user?.role !== 'PARENT') {

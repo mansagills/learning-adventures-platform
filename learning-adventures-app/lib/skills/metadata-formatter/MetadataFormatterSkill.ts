@@ -4,7 +4,12 @@
  */
 
 import { BaseSkill } from '../BaseSkill';
-import { SkillMetadata, SkillContext, SkillResult, CatalogEntry } from '../types';
+import {
+  SkillMetadata,
+  SkillContext,
+  SkillResult,
+  CatalogEntry,
+} from '../types';
 
 export class MetadataFormatterSkill extends BaseSkill {
   public getMetadata(): SkillMetadata {
@@ -12,19 +17,41 @@ export class MetadataFormatterSkill extends BaseSkill {
       id: 'metadata-formatter',
       name: 'Metadata Formatter',
       description: 'Format game metadata for catalog integration',
-      triggers: ['format metadata', 'catalog entry', 'add to catalog', 'publish game', 'metadata'],
-      capabilities: ['Generate catalog entries', 'Validate metadata', 'Format for integration'],
-      examples: ['Format metadata for the math game', 'Add this game to the catalog'],
+      triggers: [
+        'format metadata',
+        'catalog entry',
+        'add to catalog',
+        'publish game',
+        'metadata',
+      ],
+      capabilities: [
+        'Generate catalog entries',
+        'Validate metadata',
+        'Format for integration',
+      ],
+      examples: [
+        'Format metadata for the math game',
+        'Add this game to the catalog',
+      ],
       version: '1.0.0',
       guidanceFile: 'SKILL.md',
     };
   }
 
-  public async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  public async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const metadata = this.getMetadata();
-    let confidence = this.calculateKeywordConfidence(userRequest, metadata.triggers);
+    let confidence = this.calculateKeywordConfidence(
+      userRequest,
+      metadata.triggers
+    );
 
-    if (userRequest.toLowerCase().includes('catalog') || userRequest.toLowerCase().includes('metadata')) {
+    if (
+      userRequest.toLowerCase().includes('catalog') ||
+      userRequest.toLowerCase().includes('metadata')
+    ) {
       confidence = Math.min(confidence + 20, 100);
     }
 
@@ -36,12 +63,23 @@ export class MetadataFormatterSkill extends BaseSkill {
     try {
       const catalogEntry = this.generateCatalogEntry(context);
       if (!this.validate(catalogEntry)) {
-        return this.buildErrorResult('Invalid catalog entry', 'VALIDATION_FAILED');
+        return this.buildErrorResult(
+          'Invalid catalog entry',
+          'VALIDATION_FAILED'
+        );
       }
 
-      return this.buildSuccessResult(catalogEntry, 'Catalog entry created successfully', Date.now() - startTime);
+      return this.buildSuccessResult(
+        catalogEntry,
+        'Catalog entry created successfully',
+        Date.now() - startTime
+      );
     } catch (error) {
-      return this.buildErrorResult(`Execution failed: ${error}`, 'EXECUTION_ERROR', error);
+      return this.buildErrorResult(
+        `Execution failed: ${error}`,
+        'EXECUTION_ERROR',
+        error
+      );
     }
   }
 

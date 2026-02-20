@@ -17,53 +17,53 @@ const navItems: NavItem[] = [
   {
     label: 'Overview',
     href: '/dashboard',
-    icon: 'home'
+    icon: 'home',
   },
   {
     label: 'Mathematics',
     href: '/dashboard/math',
-    icon: 'calculate'
+    icon: 'calculate',
   },
   {
     label: 'Science',
     href: '/dashboard/science',
-    icon: 'science'
+    icon: 'science',
   },
   {
     label: 'English',
     href: '/dashboard/english',
-    icon: 'book'
+    icon: 'book',
   },
   {
     label: 'History',
     href: '/dashboard/history',
-    icon: 'history'
+    icon: 'history',
   },
   {
     label: 'Interdisciplinary',
     href: '/dashboard/interdisciplinary',
-    icon: 'explore'
+    icon: 'explore',
   },
   {
     label: 'My Progress',
     href: '/dashboard/progress',
-    icon: 'chart'
+    icon: 'chart',
   },
   {
     label: 'Achievements',
     href: '/dashboard/achievements',
-    icon: 'trophy'
+    icon: 'trophy',
   },
   {
     label: 'Goals',
     href: '/dashboard/goals',
-    icon: 'target'
+    icon: 'target',
   },
   {
     label: 'Saved Adventures',
     href: '/dashboard/saved',
-    icon: 'bookmark'
-  }
+    icon: 'bookmark',
+  },
 ];
 
 export default function DashboardNav() {

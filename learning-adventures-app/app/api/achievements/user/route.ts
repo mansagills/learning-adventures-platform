@@ -33,23 +33,20 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Group achievements by type
     const grouped = {
-      completion: user.achievements.filter(a => a.type === 'completion'),
-      streak: user.achievements.filter(a => a.type === 'streak'),
-      score: user.achievements.filter(a => a.type === 'score'),
-      time: user.achievements.filter(a => a.type === 'time'),
+      completion: user.achievements.filter((a) => a.type === 'completion'),
+      streak: user.achievements.filter((a) => a.type === 'streak'),
+      score: user.achievements.filter((a) => a.type === 'score'),
+      time: user.achievements.filter((a) => a.type === 'time'),
     };
 
     // Group by category
     const byCategory: Record<string, any[]> = {};
-    user.achievements.forEach(achievement => {
+    user.achievements.forEach((achievement) => {
       if (achievement.category) {
         if (!byCategory[achievement.category]) {
           byCategory[achievement.category] = [];

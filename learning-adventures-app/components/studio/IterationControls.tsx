@@ -19,10 +19,16 @@ const SUGGESTIONS = [
   'Add a timer and scoring system',
   'Make the buttons larger',
   'Add celebratory animations',
-  'Include hints for struggling students'
+  'Include hints for struggling students',
 ];
 
-export default function IterationControls({ content, onIterationStart, onIterate, onIterationError, isIterating = false }: IterationControlsProps) {
+export default function IterationControls({
+  content,
+  onIterationStart,
+  onIterate,
+  onIterationError,
+  isIterating = false,
+}: IterationControlsProps) {
   const [feedback, setFeedback] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState('');
@@ -51,8 +57,8 @@ export default function IterationControls({ content, onIterationStart, onIterate
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contentId: content?.contentId,
-          feedback
-        })
+          feedback,
+        }),
       });
 
       const data = await response.json();
@@ -144,9 +150,7 @@ export default function IterationControls({ content, onIterationStart, onIterate
               Iterating...
             </span>
           ) : (
-            <span className="flex items-center justify-center">
-              🔄 Iterate
-            </span>
+            <span className="flex items-center justify-center">🔄 Iterate</span>
           )}
         </button>
 
@@ -165,7 +169,10 @@ export default function IterationControls({ content, onIterationStart, onIterate
           <h3 className="font-semibold mb-3">Iteration History</h3>
           {content.iterationNumber ? (
             <div className="space-y-3">
-              {Array.from({ length: content.iterationNumber }, (_, i) => i + 1).map((num) => (
+              {Array.from(
+                { length: content.iterationNumber },
+                (_, i) => i + 1
+              ).map((num) => (
                 <div key={num} className="p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium">Iteration {num}</span>
@@ -174,10 +181,12 @@ export default function IterationControls({ content, onIterationStart, onIterate
                     </span>
                   </div>
                   <p className="text-sm text-ink-600">
-                    {num === 1 ? 'Initial generation' :
-                     content.changesSummary && num === content.iterationNumber ?
-                       content.changesSummary :
-                       'Refinement iteration'}
+                    {num === 1
+                      ? 'Initial generation'
+                      : content.changesSummary &&
+                          num === content.iterationNumber
+                        ? content.changesSummary
+                        : 'Refinement iteration'}
                   </p>
                 </div>
               ))}
@@ -191,8 +200,9 @@ export default function IterationControls({ content, onIterationStart, onIterate
       {/* Iteration Info */}
       <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800">
-          💡 <strong>Tip:</strong> Be specific in your feedback. Instead of "make it better",
-          try "add sound effects when answers are correct" or "increase button size to 50px".
+          💡 <strong>Tip:</strong> Be specific in your feedback. Instead of
+          "make it better", try "add sound effects when answers are correct" or
+          "increase button size to 50px".
         </p>
       </div>
     </div>

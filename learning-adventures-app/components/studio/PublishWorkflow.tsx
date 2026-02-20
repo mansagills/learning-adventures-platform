@@ -12,9 +12,11 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
     title: content?.title || '',
     description: '',
     featured: false,
-    estimatedTime: '10-15 mins'
+    estimatedTime: '10-15 mins',
   });
-  const [destination, setDestination] = useState<'catalog' | 'test-games'>('test-games');
+  const [destination, setDestination] = useState<'catalog' | 'test-games'>(
+    'test-games'
+  );
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishResult, setPublishResult] = useState<any>(null);
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
   const qualityScores = {
     accessibility: 95,
     performance: 92,
-    educational: 90
+    educational: 90,
   };
 
   const handlePublish = async () => {
@@ -51,8 +53,8 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
         body: JSON.stringify({
           contentId: content?.contentId,
           destination,
-          metadata
-        })
+          metadata,
+        }),
       });
 
       const result = await response.json();
@@ -84,7 +86,10 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
             Successfully Published!
           </h2>
           <p className="text-ink-600 mb-6">
-            Your game has been {publishResult.destination === 'test-games' ? 'added to Test Games' : 'prepared for the catalog'}
+            Your game has been{' '}
+            {publishResult.destination === 'test-games'
+              ? 'added to Test Games'
+              : 'prepared for the catalog'}
           </p>
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -150,14 +155,18 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               type="text"
               placeholder="Game Title"
               value={metadata.title}
-              onChange={(e) => setMetadata({ ...metadata, title: e.target.value })}
+              onChange={(e) =>
+                setMetadata({ ...metadata, title: e.target.value })
+              }
               disabled={isPublishing}
               className="w-full p-2 border rounded focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
             />
             <textarea
               placeholder="Description (min 20 characters)"
               value={metadata.description}
-              onChange={(e) => setMetadata({ ...metadata, description: e.target.value })}
+              onChange={(e) =>
+                setMetadata({ ...metadata, description: e.target.value })
+              }
               disabled={isPublishing}
               className="w-full p-2 border rounded focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
               rows={4}
@@ -166,7 +175,9 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               type="text"
               placeholder="Estimated Time (e.g., 10-15 mins)"
               value={metadata.estimatedTime}
-              onChange={(e) => setMetadata({ ...metadata, estimatedTime: e.target.value })}
+              onChange={(e) =>
+                setMetadata({ ...metadata, estimatedTime: e.target.value })
+              }
               disabled={isPublishing}
               className="w-full p-2 border rounded focus:border-brand-500 focus:outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
             />
@@ -174,7 +185,9 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               <input
                 type="checkbox"
                 checked={metadata.featured}
-                onChange={(e) => setMetadata({ ...metadata, featured: e.target.checked })}
+                onChange={(e) =>
+                  setMetadata({ ...metadata, featured: e.target.checked })
+                }
                 disabled={isPublishing}
                 className="mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
               />
@@ -197,16 +210,26 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
               <div key={key}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm capitalize">{key}</span>
-                  <span className={`text-sm font-semibold ${
-                    score >= 95 ? 'text-green-600' : score >= 85 ? 'text-yellow-600' : 'text-red-600'
-                  }`}>
+                  <span
+                    className={`text-sm font-semibold ${
+                      score >= 95
+                        ? 'text-green-600'
+                        : score >= 85
+                          ? 'text-yellow-600'
+                          : 'text-red-600'
+                    }`}
+                  >
                     {score}%
                   </span>
                 </div>
                 <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all ${
-                      score >= 95 ? 'bg-green-500' : score >= 85 ? 'bg-yellow-500' : 'bg-red-500'
+                      score >= 95
+                        ? 'bg-green-500'
+                        : score >= 85
+                          ? 'bg-yellow-500'
+                          : 'bg-red-500'
                     }`}
                     style={{ width: `${score}%` }}
                   />
@@ -239,7 +262,9 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
           <div className="space-y-3">
             {/* Destination Selector */}
             <div>
-              <label className="block text-sm font-medium mb-2">Destination</label>
+              <label className="block text-sm font-medium mb-2">
+                Destination
+              </label>
               <select
                 value={destination}
                 onChange={(e) => setDestination(e.target.value as any)}
@@ -266,7 +291,9 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
             {/* Publish Button */}
             <button
               onClick={handlePublish}
-              disabled={isPublishing || !metadata.title || !metadata.description}
+              disabled={
+                isPublishing || !metadata.title || !metadata.description
+              }
               className={`w-full py-3 rounded-lg font-semibold text-white transition-all ${
                 isPublishing || !metadata.title || !metadata.description
                   ? 'bg-gray-400 cursor-not-allowed'
@@ -280,7 +307,8 @@ export default function PublishWorkflow({ content }: PublishWorkflowProps) {
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
-                  🚀 Publish to {destination === 'catalog' ? 'Catalog' : 'Test Games'}
+                  🚀 Publish to{' '}
+                  {destination === 'catalog' ? 'Catalog' : 'Test Games'}
                 </span>
               )}
             </button>
