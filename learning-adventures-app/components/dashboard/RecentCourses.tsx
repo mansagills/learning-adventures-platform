@@ -53,7 +53,10 @@ export default function RecentCourses() {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+          <div
+            key={i}
+            className="bg-white rounded-lg shadow-md p-4 animate-pulse"
+          >
             <div className="h-20 bg-gray-200 rounded"></div>
           </div>
         ))}
@@ -95,7 +98,10 @@ export default function RecentCourses() {
   const getDifficultyBadge = (difficulty: string) => {
     const badges: Record<string, { color: string; text: string }> = {
       BEGINNER: { color: 'bg-green-100 text-green-800', text: 'Beginner' },
-      INTERMEDIATE: { color: 'bg-yellow-100 text-yellow-800', text: 'Intermediate' },
+      INTERMEDIATE: {
+        color: 'bg-yellow-100 text-yellow-800',
+        text: 'Intermediate',
+      },
       ADVANCED: { color: 'bg-red-100 text-red-800', text: 'Advanced' },
     };
     const badge = badges[difficulty] || badges.BEGINNER;
@@ -126,7 +132,9 @@ export default function RecentCourses() {
         >
           <div className="flex">
             {/* Subject color bar */}
-            <div className={`w-2 ${getSubjectColor(enrollment.course.subject)}`} />
+            <div
+              className={`w-2 ${getSubjectColor(enrollment.course.subject)}`}
+            />
 
             <div className="flex-1 p-4">
               <div className="flex items-start justify-between mb-2">
@@ -137,7 +145,8 @@ export default function RecentCourses() {
                   <div className="flex items-center gap-2 flex-wrap">
                     {getDifficultyBadge(enrollment.course.difficulty)}
                     <span className="text-xs text-gray-500">
-                      {enrollment.completedLessons}/{enrollment.totalLessons} lessons
+                      {enrollment.completedLessons}/{enrollment.totalLessons}{' '}
+                      lessons
                     </span>
                     <span className="text-xs text-gray-500">
                       ⭐ {enrollment.course.totalXP} XP
@@ -163,7 +172,11 @@ export default function RecentCourses() {
 
               {enrollment.progressPercent === 100 && (
                 <div className="mt-2 text-xs text-green-600 font-medium flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"

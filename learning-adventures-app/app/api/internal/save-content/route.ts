@@ -52,6 +52,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Sanitize fileName to prevent path traversal
+    // We expect fileName to be safe. If it contains path separators, validateIdentifier will catch it
+    // if we strip the extension first.
+    let identifier = fileName;
+    if (fileName.endsWith('.html')) {
+      identifier = fileName.slice(0, -5);
+    }
+
+    try {
+      validateIdentifier(identifier, 'File Name');
+    } catch (e) {
+      return NextResponse.json(
+        { error: (e as Error).message },
+        { status: 400 }
+      );
+    }
+
     const publicDir = join(process.cwd(), 'public');
     const typeDir = join(publicDir, `${type}s`);
     const tierDir = join(typeDir, subscriptionTier);
@@ -63,6 +80,19 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
+      // SECURITY: Prevent path traversal in uploadedZipPath
+      // Ensure path doesn't contain '..', and is within allowed directory
+      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+
+      // Strict check: must be in uploads/temp/ and no traversal attempts
+      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
+         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+         return NextResponse.json(
+           { error: 'Invalid path. Path traversal detected.' },
+           { status: 400 }
+         );
+      }
+
       // Create directory for the game/lesson
       const gameId = fileName.replace(/\.html$/, '');
 
@@ -77,12 +107,40 @@ export async function POST(request: NextRequest) {
       }
 
       const gameDir = join(tierDir, gameId);
+
+      // Double check path traversal just in case
+      const resolvedTierDir = resolve(tierDir);
+      const resolvedGameDir = resolve(gameDir);
+      if (
+        !resolvedGameDir.startsWith(resolvedTierDir + sep) &&
+        resolvedGameDir !== resolvedTierDir
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid game directory path' },
+          { status: 400 }
+        );
+      }
+
       await mkdir(gameDir, { recursive: true });
 
       // Extract zip to the game directory
-      const zipFullPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      // Sanitize uploadedZipPath
+      const safeZipPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      const resolvedZipPath = resolve(safeZipPath);
+      const resolvedPublicDir = resolve(publicDir);
 
-      if (!existsSync(zipFullPath)) {
+      // Verify that the resolved path is inside the public directory
+      if (
+        !resolvedZipPath.startsWith(resolvedPublicDir + sep) &&
+        resolvedZipPath !== resolvedPublicDir
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid zip path: Path traversal detected' },
+          { status: 400 }
+        );
+      }
+
+      if (!existsSync(resolvedZipPath)) {
         return NextResponse.json(
           { error: 'Uploaded zip file not found' },
           { status: 404 }
@@ -90,33 +148,7 @@ export async function POST(request: NextRequest) {
       }
 
       const zip = new AdmZip(zipFullPath);
-
-      // Security: Manually extract zip entries to prevent Zip Slip vulnerabilities
-      const zipEntries = zip.getEntries();
-      const resolvedTargetDir = resolve(gameDir);
-
-      for (const entry of zipEntries) {
-        if (entry.isDirectory) continue;
-
-        // Resolve full path and prevent path traversal
-        const entryName = entry.entryName;
-        const fullPath = resolve(resolvedTargetDir, entryName);
-
-        // Ensure the resolved path is inside the target directory
-        if (!fullPath.startsWith(resolvedTargetDir + sep)) {
-          console.warn(
-            `Security Warning: Skipped file trying to escape target directory: ${entryName}`
-          );
-          continue;
-        }
-
-        // Ensure parent directory exists
-        const parentDir = resolve(fullPath, '..');
-        await mkdir(parentDir, { recursive: true });
-
-        // Write file content
-        await writeFile(fullPath, entry.getData());
-      }
+      await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
         success: true,
@@ -142,6 +174,20 @@ export async function POST(request: NextRequest) {
       }
 
       const filePath = join(tierDir, fileName);
+
+      // Ensure filePath is safe (though we validated identifier, verify full path)
+      const resolvedFilePath = resolve(filePath);
+      const resolvedTierDir = resolve(tierDir);
+
+      if (
+        !resolvedFilePath.startsWith(resolvedTierDir + sep) &&
+        resolvedFilePath !== resolvedTierDir
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid file path' },
+          { status: 400 }
+        );
+      }
 
       // Write the HTML content to file
       await writeFile(filePath, content, 'utf8');

@@ -34,14 +34,18 @@ async function testSkill() {
     console.log(`📝 Test Case: ${testCase.name}`);
     console.log(`${'='.repeat(80)}\n`);
 
-    console.log(`Student: ${testCase.data.studentName} (Age ${testCase.data.studentAge}, ${testCase.data.gradeLevel})`);
+    console.log(
+      `Student: ${testCase.data.studentName} (Age ${testCase.data.studentAge}, ${testCase.data.gradeLevel})`
+    );
     console.log(`Subject: ${testCase.data.primarySubject}`);
-    console.log(`Topics: ${testCase.data.specificTopics?.length ? testCase.data.specificTopics.join(', ') : 'None specified'}`);
+    console.log(
+      `Topics: ${testCase.data.specificTopics?.length ? testCase.data.specificTopics.join(', ') : 'None specified'}`
+    );
     console.log('');
 
     // Test canHandle
     const confidence = await skill.canHandle('Normalize this course request', {
-      previousOutputs: new Map([['courseRequest', testCase.data]])
+      previousOutputs: new Map([['courseRequest', testCase.data]]),
     });
     console.log(`✓ canHandle confidence: ${confidence}%`);
 
@@ -56,7 +60,7 @@ async function testSkill() {
     const context: SkillContext = {
       userRequest: 'Create design brief for this course request',
       previousOutputs: new Map([['courseRequest', testCase.data]]),
-      conversationHistory: []
+      conversationHistory: [],
     };
 
     try {
@@ -70,21 +74,29 @@ async function testSkill() {
         const { designBrief } = result.output;
 
         console.log('\n📊 Design Brief Summary:');
-        console.log(`   Student: ${designBrief.student.name} (Age ${designBrief.student.age})`);
+        console.log(
+          `   Student: ${designBrief.student.name} (Age ${designBrief.student.age})`
+        );
         console.log(`   Subject: ${designBrief.course.subject}`);
         console.log(`   Topics: ${designBrief.course.topics.join(', ')}`);
         console.log(`   Difficulty: ${designBrief.course.difficulty}`);
         console.log(`   Total Lessons: ${designBrief.format.totalLessons}`);
         console.log(`   Lessons/Week: ${designBrief.format.lessonsPerWeek}`);
-        console.log(`   Session Duration: ${designBrief.format.sessionDuration} minutes`);
+        console.log(
+          `   Session Duration: ${designBrief.format.sessionDuration} minutes`
+        );
 
         if (designBrief.student.learningProfile.interests.length > 0) {
-          console.log(`   Interests: ${designBrief.student.learningProfile.interests.join(', ')}`);
+          console.log(
+            `   Interests: ${designBrief.student.learningProfile.interests.join(', ')}`
+          );
         }
 
         // Check clarifications
         if (designBrief.clarifications.length > 0) {
-          console.log(`\n⚠️  ${designBrief.clarifications.length} Clarification(s) Needed:`);
+          console.log(
+            `\n⚠️  ${designBrief.clarifications.length} Clarification(s) Needed:`
+          );
           designBrief.clarifications.forEach((clarification, index) => {
             console.log(`\n   ${index + 1}. Field: ${clarification.field}`);
             console.log(`      Question: ${clarification.question}`);
@@ -94,19 +106,24 @@ async function testSkill() {
           console.log('\n✅ No clarifications needed - all data clear!');
         }
 
-        if (result.metadata.suggestedNextSkills && result.metadata.suggestedNextSkills.length > 0) {
-          console.log(`\n🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`);
+        if (
+          result.metadata.suggestedNextSkills &&
+          result.metadata.suggestedNextSkills.length > 0
+        ) {
+          console.log(
+            `\n🔗 Suggested next skills: ${result.metadata.suggestedNextSkills.join(', ')}`
+          );
         }
-
       } else {
         console.log('❌ Execution failed!');
         console.log(`   Error code: ${result.error?.code}`);
         console.log(`   Error message: ${result.error?.message}`);
         if (result.error?.details) {
-          console.log(`   Details: ${JSON.stringify(result.error.details, null, 2)}`);
+          console.log(
+            `   Details: ${JSON.stringify(result.error.details, null, 2)}`
+          );
         }
       }
-
     } catch (error) {
       console.log('💥 Unexpected error during execution:');
       console.log(error);
@@ -121,7 +138,7 @@ async function testSkill() {
 }
 
 // Run tests
-testSkill().catch(error => {
+testSkill().catch((error) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

@@ -23,19 +23,59 @@ interface CreateGoalModalProps {
 }
 
 const goalTypes = [
-  { value: 'DAILY', label: 'Daily', icon: '📅', description: 'Resets every day' },
-  { value: 'WEEKLY', label: 'Weekly', icon: '📆', description: 'Resets every week' },
-  { value: 'MONTHLY', label: 'Monthly', icon: '🗓️', description: 'Resets every month' },
-  { value: 'CUSTOM', label: 'Custom', icon: '🎯', description: 'Set your own deadline' }
+  {
+    value: 'DAILY',
+    label: 'Daily',
+    icon: '📅',
+    description: 'Resets every day',
+  },
+  {
+    value: 'WEEKLY',
+    label: 'Weekly',
+    icon: '📆',
+    description: 'Resets every week',
+  },
+  {
+    value: 'MONTHLY',
+    label: 'Monthly',
+    icon: '🗓️',
+    description: 'Resets every month',
+  },
+  {
+    value: 'CUSTOM',
+    label: 'Custom',
+    icon: '🎯',
+    description: 'Set your own deadline',
+  },
 ];
 
 const targetTypes = [
-  { value: 'ADVENTURES_COMPLETE', label: 'Complete Adventures', unit: 'adventures', icon: '🎮' },
+  {
+    value: 'ADVENTURES_COMPLETE',
+    label: 'Complete Adventures',
+    unit: 'adventures',
+    icon: '🎮',
+  },
   { value: 'XP_EARN', label: 'Earn XP', unit: 'XP', icon: '⭐' },
   { value: 'TIME_SPEND', label: 'Learning Time', unit: 'minutes', icon: '⏱️' },
-  { value: 'SKILLS_MASTER', label: 'Master Skills', unit: 'skills', icon: '🎓' },
-  { value: 'STREAK_MAINTAIN', label: 'Maintain Streak', unit: 'days', icon: '🔥' },
-  { value: 'SUBJECT_COMPLETE', label: 'Subject Adventures', unit: 'adventures', icon: '📚' }
+  {
+    value: 'SKILLS_MASTER',
+    label: 'Master Skills',
+    unit: 'skills',
+    icon: '🎓',
+  },
+  {
+    value: 'STREAK_MAINTAIN',
+    label: 'Maintain Streak',
+    unit: 'days',
+    icon: '🔥',
+  },
+  {
+    value: 'SUBJECT_COMPLETE',
+    label: 'Subject Adventures',
+    unit: 'adventures',
+    icon: '📚',
+  },
 ];
 
 const subjects = [
@@ -43,7 +83,7 @@ const subjects = [
   { value: 'science', label: 'Science', icon: '🔬' },
   { value: 'english', label: 'English', icon: '📚' },
   { value: 'history', label: 'History', icon: '🏛️' },
-  { value: 'interdisciplinary', label: 'Interdisciplinary', icon: '🌐' }
+  { value: 'interdisciplinary', label: 'Interdisciplinary', icon: '🌐' },
 ];
 
 const colors = [
@@ -54,10 +94,14 @@ const colors = [
   '#ec4899', // pink
   '#06b6d4', // cyan
   '#f59e0b', // amber
-  '#ef4444'  // red
+  '#ef4444', // red
 ];
 
-export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoalModalProps) {
+export default function CreateGoalModal({
+  isOpen,
+  onClose,
+  onCreate,
+}: CreateGoalModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -69,7 +113,7 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
     deadline: '',
     icon: '🎯',
     color: colors[0],
-    priority: 0
+    priority: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -108,7 +152,7 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
         deadline: formData.deadline || undefined,
         icon: formData.icon,
         color: formData.color,
-        priority: formData.priority
+        priority: formData.priority,
       });
 
       // Reset form
@@ -123,7 +167,7 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
         deadline: '',
         icon: '🎯',
         color: colors[0],
-        priority: 0
+        priority: 0,
       });
       onClose();
     } catch (err) {
@@ -134,12 +178,12 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
   };
 
   const handleTargetTypeChange = (targetType: string) => {
-    const selected = targetTypes.find(t => t.value === targetType);
+    const selected = targetTypes.find((t) => t.value === targetType);
     setFormData({
       ...formData,
       targetType,
       unit: selected?.unit || 'units',
-      icon: selected?.icon || '🎯'
+      icon: selected?.icon || '🎯',
     });
   };
 
@@ -150,7 +194,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
           <div>
             <h2 className="text-2xl font-bold text-ink-800">Create New Goal</h2>
-            <p className="text-sm text-gray-600 mt-1">Set a learning goal to track your progress</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Set a learning goal to track your progress
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -164,7 +210,11 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-              <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <Icon
+                name="alert"
+                size={20}
+                className="text-red-600 flex-shrink-0 mt-0.5"
+              />
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -177,7 +227,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="e.g., Complete 3 math adventures"
               required
@@ -191,7 +243,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Add any additional details..."
               rows={2}
@@ -208,7 +262,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                 <button
                   key={type.value}
                   type="button"
-                  onClick={() => setFormData({ ...formData, type: type.value as any })}
+                  onClick={() =>
+                    setFormData({ ...formData, type: type.value as any })
+                  }
                   className={cn(
                     'p-4 border-2 rounded-lg text-center transition-all',
                     formData.type === type.value
@@ -217,8 +273,12 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                   )}
                 >
                   <div className="text-2xl mb-2">{type.icon}</div>
-                  <div className="text-sm font-medium text-gray-900">{type.label}</div>
-                  <div className="text-xs text-gray-500 mt-1">{type.description}</div>
+                  <div className="text-sm font-medium text-gray-900">
+                    {type.label}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {type.description}
+                  </div>
                 </button>
               ))}
             </div>
@@ -244,7 +304,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                 >
                   <div className="flex items-center space-x-2">
                     <span className="text-xl">{type.icon}</span>
-                    <span className="text-sm font-medium text-gray-900">{type.label}</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {type.label}
+                    </span>
                   </div>
                 </button>
               ))}
@@ -260,7 +322,12 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
               <input
                 type="number"
                 value={formData.targetValue}
-                onChange={(e) => setFormData({ ...formData, targetValue: parseInt(e.target.value) || 0 })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    targetValue: parseInt(e.target.value) || 0,
+                  })
+                }
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 min="1"
                 required
@@ -280,7 +347,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                   <button
                     key={subject.value}
                     type="button"
-                    onClick={() => setFormData({ ...formData, category: subject.value })}
+                    onClick={() =>
+                      setFormData({ ...formData, category: subject.value })
+                    }
                     className={cn(
                       'p-3 border-2 rounded-lg text-center transition-all',
                       formData.category === subject.value
@@ -289,7 +358,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                     )}
                   >
                     <div className="text-2xl mb-1">{subject.icon}</div>
-                    <div className="text-xs font-medium text-gray-900">{subject.label}</div>
+                    <div className="text-xs font-medium text-gray-900">
+                      {subject.label}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -305,7 +376,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
               <input
                 type="date"
                 value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, deadline: e.target.value })
+                }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                 min={new Date().toISOString().split('T')[0]}
                 required
@@ -326,7 +399,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
                   onClick={() => setFormData({ ...formData, color })}
                   className={cn(
                     'w-10 h-10 rounded-full border-2 transition-all',
-                    formData.color === color ? 'border-gray-900 scale-110' : 'border-transparent'
+                    formData.color === color
+                      ? 'border-gray-900 scale-110'
+                      : 'border-transparent'
                   )}
                   style={{ backgroundColor: color }}
                 />
@@ -341,7 +416,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }: CreateGoa
             </label>
             <select
               value={formData.priority}
-              onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setFormData({ ...formData, priority: parseInt(e.target.value) })
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="0">Normal</option>

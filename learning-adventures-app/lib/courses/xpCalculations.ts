@@ -228,7 +228,10 @@ export function getLevelInfo(totalXP: number): LevelInfo {
   const xpForCurrentLevel = totalXP - xpForCurrentLevelStart;
   const progressToNextLevel =
     xpRequiredForNextLevel > 0
-      ? Math.min(100, Math.round((xpForCurrentLevel / xpRequiredForNextLevel) * 100))
+      ? Math.min(
+          100,
+          Math.round((xpForCurrentLevel / xpRequiredForNextLevel) * 100)
+        )
       : 100;
 
   return {
@@ -448,7 +451,10 @@ export async function getXPHistory(
 /**
  * Get total XP earned in last N days
  */
-export async function getRecentXP(userId: string, days: number = 7): Promise<number> {
+export async function getRecentXP(
+  userId: string,
+  days: number = 7
+): Promise<number> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
   startDate.setHours(0, 0, 0, 0);

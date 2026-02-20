@@ -22,7 +22,9 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-ink-800 mb-2">Profile</h1>
-              <p className="text-ink-600">Manage your account settings and preferences</p>
+              <p className="text-ink-600">
+                Manage your account settings and preferences
+              </p>
             </div>
 
             {/* Profile Card */}
@@ -48,7 +50,10 @@ export default function ProfilePage() {
                     </h2>
                     <p className="text-ink-600 mb-1">{session?.user?.email}</p>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800">
-                      {session?.user?.role ? (session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase()) : 'User'}
+                      {session?.user?.role
+                        ? session.user.role.charAt(0) +
+                          session.user.role.slice(1).toLowerCase()
+                        : 'User'}
                     </span>
                   </div>
                 </div>
@@ -67,26 +72,43 @@ export default function ProfilePage() {
             <div className="grid gap-6 md:grid-cols-2">
               {/* Basic Information */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-medium text-ink-800 mb-4">Basic Information</h3>
+                <h3 className="text-lg font-medium text-ink-800 mb-4">
+                  Basic Information
+                </h3>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm font-medium text-ink-600">Full Name</label>
-                    <p className="text-ink-800">{session?.user?.name || 'Not set'}</p>
+                    <label className="text-sm font-medium text-ink-600">
+                      Full Name
+                    </label>
+                    <p className="text-ink-800">
+                      {session?.user?.name || 'Not set'}
+                    </p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-ink-600">Email</label>
+                    <label className="text-sm font-medium text-ink-600">
+                      Email
+                    </label>
                     <p className="text-ink-800">{session?.user?.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-ink-600">Account Type</label>
+                    <label className="text-sm font-medium text-ink-600">
+                      Account Type
+                    </label>
                     <p className="text-ink-800">
-                      {session?.user?.role ? (session.user.role.charAt(0) + session.user.role.slice(1).toLowerCase()) : 'User'}
+                      {session?.user?.role
+                        ? session.user.role.charAt(0) +
+                          session.user.role.slice(1).toLowerCase()
+                        : 'User'}
                     </p>
                   </div>
                   {session?.user?.role === 'STUDENT' && (
                     <div>
-                      <label className="text-sm font-medium text-ink-600">Grade Level</label>
-                      <p className="text-ink-800">{session?.user?.gradeLevel || 'Not set'}</p>
+                      <label className="text-sm font-medium text-ink-600">
+                        Grade Level
+                      </label>
+                      <p className="text-ink-800">
+                        {session?.user?.gradeLevel || 'Not set'}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -94,11 +116,16 @@ export default function ProfilePage() {
 
               {/* Learning Preferences */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-medium text-ink-800 mb-4">Learning Preferences</h3>
+                <h3 className="text-lg font-medium text-ink-800 mb-4">
+                  Learning Preferences
+                </h3>
                 <div>
-                  <label className="text-sm font-medium text-ink-600">Subject Interests</label>
+                  <label className="text-sm font-medium text-ink-600">
+                    Subject Interests
+                  </label>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {session?.user?.subjects && session.user.subjects.length > 0 ? (
+                    {session?.user?.subjects &&
+                    session.user.subjects.length > 0 ? (
                       session.user.subjects.map((subject: string) => (
                         <span
                           key={subject}
@@ -108,7 +135,9 @@ export default function ProfilePage() {
                         </span>
                       ))
                     ) : (
-                      <p className="text-ink-500 text-sm">No subjects selected</p>
+                      <p className="text-ink-500 text-sm">
+                        No subjects selected
+                      </p>
                     )}
                   </div>
                 </div>
@@ -122,11 +151,17 @@ export default function ProfilePage() {
 
             {/* Quick Actions */}
             <div className="mt-8">
-              <h3 className="text-lg font-medium text-ink-800 mb-4">Quick Actions</h3>
+              <h3 className="text-lg font-medium text-ink-800 mb-4">
+                Quick Actions
+              </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <button className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left">
                   <div className="flex items-center space-x-3">
-                    <Icon name="dashboard" size={24} className="text-brand-500" />
+                    <Icon
+                      name="dashboard"
+                      size={24}
+                      className="text-brand-500"
+                    />
                     <div>
                       <h4 className="font-medium text-ink-800">Dashboard</h4>
                       <p className="text-sm text-ink-600">View your progress</p>

@@ -22,12 +22,7 @@ const APP_ROUTES = [
 /**
  * Routes that should NOT show the side navigation (landing pages, public pages, admin)
  */
-const EXCLUDE_ROUTES = [
-  '/',
-  '/catalog',
-  '/internal',
-  '/lessons',
-];
+const EXCLUDE_ROUTES = ['/', '/catalog', '/internal', '/lessons'];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -38,7 +33,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     session &&
     status === 'authenticated' &&
     (APP_ROUTES.some((route) => pathname.startsWith(route)) ||
-      !EXCLUDE_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`)));
+      !EXCLUDE_ROUTES.some(
+        (route) => pathname === route || pathname.startsWith(`${route}/`)
+      ));
 
   // Don't show on internal/admin routes
   const isInternalRoute = pathname.startsWith('/internal');
@@ -50,9 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppSideNav />
-      <div className="lg:ml-64 lg:pb-0 pb-16">
-        {children}
-      </div>
+      <div className="lg:ml-64 lg:pb-0 pb-16">{children}</div>
     </>
   );
 }

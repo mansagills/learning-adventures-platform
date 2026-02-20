@@ -20,10 +20,7 @@ export async function PUT(request: NextRequest) {
 
     // Validate input
     if (!name || typeof name !== 'string') {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
     if (subjects && !Array.isArray(subjects)) {
@@ -97,10 +94,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     return NextResponse.json({ user });
