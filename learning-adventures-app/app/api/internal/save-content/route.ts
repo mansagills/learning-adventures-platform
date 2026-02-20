@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join, resolve, dirname, sep } from 'path';
+import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
-import { extractZipSafely } from '@/lib/safe-zip';
+import { validateIdentifier } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +19,18 @@ export async function POST(request: NextRequest) {
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate fileName to prevent path traversal
+    if (
+      fileName.includes('/') ||
+      fileName.includes('\\') ||
+      fileName.includes('..')
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid filename: contains path traversal characters' },
         { status: 400 }
       );
     }
@@ -82,7 +94,18 @@ export async function POST(request: NextRequest) {
       }
 
       // Create directory for the game/lesson
-      const gameId = identifier;
+      const gameId = fileName.replace(/\.html$/, '');
+
+      // Security: Validate gameId is a safe directory name
+      try {
+        validateIdentifier(gameId, 'Game ID');
+      } catch (error) {
+        return NextResponse.json(
+          { error: error instanceof Error ? error.message : 'Invalid Game ID' },
+          { status: 400 }
+        );
+      }
+
       const gameDir = join(tierDir, gameId);
 
       // Double check path traversal just in case
@@ -138,6 +161,14 @@ export async function POST(request: NextRequest) {
       if (!content) {
         return NextResponse.json(
           { error: 'Missing content for AI-generated game' },
+          { status: 400 }
+        );
+      }
+
+      // Security: double check that fileName is safe (already checked for separators above)
+      if (fileName !== basename(fileName)) {
+        return NextResponse.json(
+          { error: 'Invalid filename: must be a base filename' },
           { status: 400 }
         );
       }
