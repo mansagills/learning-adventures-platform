@@ -14,6 +14,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate role (Security: Prevent mass assignment of ADMIN role)
+    const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
+    if (role && !ALLOWED_ROLES.includes(role)) {
+      return NextResponse.json(
+        { error: 'Invalid role specified' },
+        { status: 400 }
+      );
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -29,14 +38,18 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Sanitize role to prevent mass assignment of privileged roles
+    const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
+    const safeRole = role && ALLOWED_ROLES.includes(role) ? role : 'STUDENT';
+
     // Create user
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: role || 'STUDENT',
-        gradeLevel: role === 'STUDENT' ? gradeLevel : null,
+        role: safeRole,
+        gradeLevel: safeRole === 'STUDENT' ? gradeLevel : null,
       },
       select: {
         id: true,
