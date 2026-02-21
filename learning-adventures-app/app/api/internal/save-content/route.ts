@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename } from 'path';
+import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,15 +78,21 @@ export async function POST(request: NextRequest) {
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // SECURITY: Prevent path traversal in uploadedZipPath
       // Ensure path doesn't contain '..', and is within allowed directory
-      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+      const normalizedZipPath = normalize(uploadedZipPath).replace(
+        /^(\.\.(\/|\\|$))+/,
+        ''
+      );
 
       // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
-         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
-         return NextResponse.json(
-           { error: 'Invalid path. Path traversal detected.' },
-           { status: 400 }
-         );
+      if (
+        uploadedZipPath.includes('..') ||
+        !normalizedZipPath.startsWith('uploads/temp/')
+      ) {
+        console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+        return NextResponse.json(
+          { error: 'Invalid path. Path traversal detected.' },
+          { status: 400 }
+        );
       }
 
       // Create directory for the game/lesson
@@ -130,7 +137,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const zip = new AdmZip(zipFullPath);
+      const zip = new AdmZip(resolvedZipPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
