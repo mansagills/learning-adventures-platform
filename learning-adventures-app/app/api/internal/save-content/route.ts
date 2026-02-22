@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename } from 'path';
+import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 403 }
+      );
+    }
+
     const {
       content,
       fileName,
@@ -130,7 +142,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const zip = new AdmZip(zipFullPath);
+      const zip = new AdmZip(resolvedZipPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
