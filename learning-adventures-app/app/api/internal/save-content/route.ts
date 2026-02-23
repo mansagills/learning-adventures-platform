@@ -1,9 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename } from 'path';
+import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
+
+async function extractZipSafely(zip: AdmZip, destDir: string): Promise<void> {
+  const resolvedDest = resolve(destDir);
+  const entries = zip.getEntries();
+
+  for (const entry of entries) {
+    const entryPath = join(destDir, entry.entryName);
+    const resolvedEntry = resolve(entryPath);
+
+    // Prevent zip slip: ensure extracted path stays within destDir
+    if (!resolvedEntry.startsWith(resolvedDest + sep) && resolvedEntry !== resolvedDest) {
+      throw new Error(`Zip slip detected in entry: ${entry.entryName}`);
+    }
+
+    if (entry.isDirectory) {
+      await mkdir(resolvedEntry, { recursive: true });
+    } else {
+      await mkdir(join(resolvedEntry, '..'), { recursive: true });
+      await writeFile(resolvedEntry, entry.getData());
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -130,7 +152,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const zip = new AdmZip(zipFullPath);
+      const zip = new AdmZip(resolvedZipPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({

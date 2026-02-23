@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         avatarId,
         position: { x: 640, y: 360, scene: 'WorldScene' }, // Center of campus
         lastScene: 'WorldScene',
-        equipment: null, // No equipment yet
+        equipment: undefined, // No equipment yet
       },
     });
 

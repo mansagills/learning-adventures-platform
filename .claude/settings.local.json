@@ -35,6 +35,7 @@
       "Bash(DATABASE_URL=\"postgresql://postgres:TZXqGIxj0QphOTAT@db.wnijsqstxdjdazytdwys.supabase.co:5432/postgres\" npx prisma db push:*)",
       "Bash(grep:*)",
       "Bash(npx next build:*)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app log --oneline -20)",
       "mcp__Claude_Preview__preview_start",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform status)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform diff)",
@@ -47,7 +48,8 @@
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes log:*)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes diff main...HEAD --stat)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes branch --show-current:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
