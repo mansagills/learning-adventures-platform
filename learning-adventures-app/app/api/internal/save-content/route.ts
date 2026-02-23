@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename } from 'path';
+import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 401 }
+      );
+    }
+
     const {
       content,
       fileName,
@@ -79,8 +91,11 @@ export async function POST(request: NextRequest) {
       // Ensure path doesn't contain '..', and is within allowed directory
       const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
 
+      // Remove leading slash for checking start
+      const pathToCheck = normalizedZipPath.replace(/^[\/\\]/, '');
+
       // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
+      if (uploadedZipPath.includes('..') || !pathToCheck.startsWith('uploads/temp/')) {
          console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
          return NextResponse.json(
            { error: 'Invalid path. Path traversal detected.' },
@@ -130,7 +145,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const zip = new AdmZip(zipFullPath);
+      const zip = new AdmZip(resolvedZipPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
