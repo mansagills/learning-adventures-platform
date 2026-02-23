@@ -19,12 +19,12 @@ export async function GET(
       where: { id: params.id },
       include: {
         approvals: {
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         },
         feedback: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
+          orderBy: { createdAt: 'desc' },
+        },
+      },
     });
 
     if (!game) {
@@ -34,7 +34,7 @@ export async function GET(
     return NextResponse.json({
       game,
       approvals: game.approvals,
-      feedback: game.feedback
+      feedback: game.feedback,
     });
   } catch (error) {
     console.error('Error fetching game details:', error);

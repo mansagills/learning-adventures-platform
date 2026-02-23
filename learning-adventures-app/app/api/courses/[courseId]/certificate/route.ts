@@ -6,7 +6,11 @@
 
 import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
-import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
+import {
+  successResponse,
+  errorResponse,
+  handleApiError,
+} from '@/lib/responses';
 import { prisma } from '@/lib/prisma';
 import { generateCertificate } from '@/lib/certificates/certificateGenerator';
 
@@ -32,7 +36,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!enrollment) {
-      return errorResponse('NOT_ENROLLED', 'You are not enrolled in this course', 404);
+      return errorResponse(
+        'NOT_ENROLLED',
+        'You are not enrolled in this course',
+        404
+      );
     }
 
     if (enrollment.status !== 'COMPLETED') {

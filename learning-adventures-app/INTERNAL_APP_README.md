@@ -5,22 +5,26 @@ An internal application for teammates to create educational games and interactiv
 ## Features
 
 ### 🎨 Content Creation Form
+
 - **Content Type Selection**: Choose between educational games or interactive lessons
 - **Subject Matter**: Select Math or Science
 - **Detailed Inputs**: Title, description, grade levels, difficulty, skills, and more
 - **Additional Requirements**: Optional field for specific features or themes
 
 ### 🤖 AI-Powered Assistance
+
 - **Claude Integration**: Uses Anthropic's Claude API for content refinement and generation
 - **Expert Suggestions**: Get AI-powered recommendations to improve your content ideas
 - **Content Generation**: Automatically generates complete HTML files based on your specifications
 
 ### 👀 Preview & Testing
+
 - **Live Preview**: See your generated content in an embedded iframe
 - **HTML Source View**: Examine the generated code
 - **Interactive Testing**: Test functionality before publishing
 
 ### 📚 Catalog Integration
+
 - **Automatic Publishing**: Seamlessly adds content to the Learning Adventures catalog
 - **Metadata Management**: Automatically updates `catalogData.ts` with proper metadata
 - **File Management**: Saves HTML files to the correct public directories
@@ -30,11 +34,13 @@ An internal application for teammates to create educational games and interactiv
 ### 1. Environment Configuration
 
 1. Copy the environment template:
+
    ```bash
    cp .env.local.example .env.local
    ```
 
 2. Add your Anthropic API key to `.env.local`:
+
    ```env
    ANTHROPIC_API_KEY=your_actual_api_key_here
    ```
@@ -44,6 +50,7 @@ An internal application for teammates to create educational games and interactiv
 ### 2. Development Server
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -53,6 +60,7 @@ Access the Content Studio at: http://localhost:3000/internal
 ## Usage Workflow
 
 ### Step 1: Create Content
+
 1. Navigate to `/internal` in your browser
 2. Select content type (Game or Lesson)
 3. Choose subject (Math or Science)
@@ -66,6 +74,7 @@ Access the Content Studio at: http://localhost:3000/internal
    - Optional additional requirements
 
 ### Step 2: Preview & Refine
+
 1. Click "Generate Content" to create initial version
 2. Use "Get AI Refinements" for expert suggestions
 3. Apply refinements and regenerate if needed
@@ -73,6 +82,7 @@ Access the Content Studio at: http://localhost:3000/internal
 5. Review HTML source if necessary
 
 ### Step 3: Publish
+
 1. Click "Publish to Catalog" when satisfied
 2. Content is automatically:
    - Saved as HTML file in `/public/games/` or `/public/lessons/`
@@ -82,18 +92,21 @@ Access the Content Studio at: http://localhost:3000/internal
 ## Content Guidelines
 
 ### Educational Games
+
 - Balance 70% entertainment with 30% obvious learning
 - Include progressive difficulty and achievable challenges
 - Provide immediate feedback and positive reinforcement
 - Use engaging themes and storylines
 
 ### Interactive Lessons
+
 - Follow scaffolded learning progression
 - Include multiple learning modalities (visual, auditory, kinesthetic)
 - Provide formative assessment opportunities
 - Use clear, age-appropriate language
 
 ### Technical Requirements
+
 - Single HTML file with embedded CSS and JavaScript
 - No external dependencies
 - Mobile-responsive design
@@ -123,9 +136,11 @@ app/api/internal/
 ## API Endpoints
 
 ### POST `/api/internal/save-content`
+
 Saves generated HTML content to the public directory.
 
 **Request Body:**
+
 ```json
 {
   "content": "HTML content string",
@@ -135,15 +150,17 @@ Saves generated HTML content to the public directory.
 ```
 
 ### POST `/api/internal/update-catalog`
+
 Updates the catalog metadata with new content information.
 
 **Request Body:**
+
 ```json
 {
   "metadata": {
     "id": "content-id",
     "title": "Content Title",
-    "description": "Content description",
+    "description": "Content description"
     // ... other metadata fields
   }
 }

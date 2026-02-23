@@ -36,7 +36,20 @@
       "Bash(grep:*)",
       "Bash(npx next build:*)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app log --oneline -20)",
-      "Bash(git add:*)"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform status)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform diff)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform diff --staged)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform log --oneline -10)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform branch)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes status)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes diff)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes diff --staged)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes log:*)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes diff main...HEAD --stat)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes branch --show-current:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

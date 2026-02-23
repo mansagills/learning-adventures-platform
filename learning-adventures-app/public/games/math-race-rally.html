@@ -1,518 +1,570 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Math Race Rally - Learning Adventures</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #6C5CE7, #00C2A8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #0F172A;
-        }
+      body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #6c5ce7, #00c2a8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #0f172a;
+      }
 
-        .game-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            width: 90%;
-            max-width: 800px;
-            padding: 20px;
-            text-align: center;
-        }
+      .game-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 800px;
+        padding: 20px;
+        text-align: center;
+      }
 
-        .game-header {
-            margin-bottom: 20px;
-        }
+      .game-header {
+        margin-bottom: 20px;
+      }
 
+      .game-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #6c5ce7;
+        margin-bottom: 10px;
+      }
+
+      .game-subtitle {
+        font-size: 1.2rem;
+        color: #334155;
+        margin-bottom: 20px;
+      }
+
+      .race-track {
+        background: linear-gradient(
+          to right,
+          #f0f0f0 0%,
+          #e0e0e0 50%,
+          #f0f0f0 100%
+        );
+        border: 3px solid #6c5ce7;
+        border-radius: 15px;
+        height: 200px;
+        margin: 20px 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .race-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: repeating-linear-gradient(
+          to right,
+          #fff 0px,
+          #fff 20px,
+          transparent 20px,
+          transparent 40px
+        );
+        transform: translateY(-50%);
+      }
+
+      .car {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        transition: left 0.5s ease-in-out;
+        z-index: 10;
+      }
+
+      .finish-line {
+        position: absolute;
+        top: 0;
+        right: 20px;
+        bottom: 0;
+        width: 5px;
+        background: repeating-linear-gradient(
+          to bottom,
+          #000 0px,
+          #000 10px,
+          #fff 10px,
+          #fff 20px
+        );
+      }
+
+      .question-section {
+        background: #ecebff;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      .question {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #6c5ce7;
+        margin-bottom: 20px;
+      }
+
+      .answers {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .answer-btn {
+        background: #fff;
+        border: 3px solid #6c5ce7;
+        border-radius: 12px;
+        padding: 15px 20px;
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #6c5ce7;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .answer-btn:hover {
+        background: #6c5ce7;
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .answer-btn.correct {
+        background: #00c2a8;
+        color: white;
+        border-color: #00c2a8;
+      }
+
+      .answer-btn.incorrect {
+        background: #ef4444;
+        color: white;
+        border-color: #ef4444;
+      }
+
+      .progress-bar {
+        background: #e0e0e0;
+        border-radius: 10px;
+        height: 20px;
+        margin: 20px 0;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        background: linear-gradient(to right, #6c5ce7, #00c2a8);
+        height: 100%;
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      .stat {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #334155;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #6c5ce7;
+      }
+
+      .game-controls {
+        margin-top: 20px;
+      }
+
+      .control-btn {
+        background: #6c5ce7;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin: 0 10px;
+        transition: all 0.3s ease;
+      }
+
+      .control-btn:hover {
+        background: #5a4ed1;
+        transform: scale(1.05);
+      }
+
+      .control-btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .feedback {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 15px 0;
+        padding: 10px;
+        border-radius: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .feedback.show {
+        opacity: 1;
+      }
+
+      .feedback.correct {
+        background: #d1fae5;
+        color: #047857;
+      }
+
+      .feedback.incorrect {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .celebration {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        opacity: 0;
+        animation: celebrate 2s ease-in-out;
+      }
+
+      @keyframes celebrate {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .game-over {
+        background: #ffd166;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .game-over.show {
+        display: block;
+      }
+
+      .final-score {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #6c5ce7;
+        margin-bottom: 15px;
+      }
+
+      @media (max-width: 600px) {
         .game-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #6C5CE7;
-            margin-bottom: 10px;
-        }
-
-        .game-subtitle {
-            font-size: 1.2rem;
-            color: #334155;
-            margin-bottom: 20px;
-        }
-
-        .race-track {
-            background: linear-gradient(to right, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
-            border: 3px solid #6C5CE7;
-            border-radius: 15px;
-            height: 200px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .race-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: repeating-linear-gradient(
-                to right,
-                #fff 0px,
-                #fff 20px,
-                transparent 20px,
-                transparent 40px
-            );
-            transform: translateY(-50%);
+          font-size: 2rem;
         }
 
         .car {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            font-size: 3rem;
-            transition: left 0.5s ease-in-out;
-            z-index: 10;
-        }
-
-        .finish-line {
-            position: absolute;
-            top: 0;
-            right: 20px;
-            bottom: 0;
-            width: 5px;
-            background: repeating-linear-gradient(
-                to bottom,
-                #000 0px,
-                #000 10px,
-                #fff 10px,
-                #fff 20px
-            );
-        }
-
-        .question-section {
-            background: #ECEBFF;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
+          font-size: 2rem;
         }
 
         .question {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #6C5CE7;
-            margin-bottom: 20px;
+          font-size: 1.4rem;
         }
 
         .answers {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+          grid-template-columns: 1fr 1fr;
         }
-
-        .answer-btn {
-            background: #fff;
-            border: 3px solid #6C5CE7;
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #6C5CE7;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .answer-btn:hover {
-            background: #6C5CE7;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .answer-btn.correct {
-            background: #00C2A8;
-            color: white;
-            border-color: #00C2A8;
-        }
-
-        .answer-btn.incorrect {
-            background: #EF4444;
-            color: white;
-            border-color: #EF4444;
-        }
-
-        .progress-bar {
-            background: #e0e0e0;
-            border-radius: 10px;
-            height: 20px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: linear-gradient(to right, #6C5CE7, #00C2A8);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #334155;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #6C5CE7;
-        }
-
-        .game-controls {
-            margin-top: 20px;
-        }
-
-        .control-btn {
-            background: #6C5CE7;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: all 0.3s ease;
-        }
-
-        .control-btn:hover {
-            background: #5A4ED1;
-            transform: scale(1.05);
-        }
-
-        .control-btn:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .feedback {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 10px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .feedback.show {
-            opacity: 1;
-        }
-
-        .feedback.correct {
-            background: #D1FAE5;
-            color: #047857;
-        }
-
-        .feedback.incorrect {
-            background: #FEE2E2;
-            color: #DC2626;
-        }
-
-        .celebration {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 4rem;
-            opacity: 0;
-            animation: celebrate 2s ease-in-out;
-        }
-
-        @keyframes celebrate {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-        }
-
-        .game-over {
-            background: #FFD166;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .game-over.show {
-            display: block;
-        }
-
-        .final-score {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #6C5CE7;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 600px) {
-            .game-title {
-                font-size: 2rem;
-            }
-
-            .car {
-                font-size: 2rem;
-            }
-
-            .question {
-                font-size: 1.4rem;
-            }
-
-            .answers {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="game-container">
-        <div class="game-header">
-            <h1 class="game-title">🏎️ Math Race Rally</h1>
-            <p class="game-subtitle">Solve math problems to race your car to the finish line!</p>
-        </div>
+      <div class="game-header">
+        <h1 class="game-title">🏎️ Math Race Rally</h1>
+        <p class="game-subtitle">
+          Solve math problems to race your car to the finish line!
+        </p>
+      </div>
 
-        <div class="race-track">
-            <div class="race-line"></div>
-            <div class="car" id="raceCar">🏎️</div>
-            <div class="finish-line"></div>
-            <div class="celebration" id="celebration">🎉</div>
-        </div>
+      <div class="race-track">
+        <div class="race-line"></div>
+        <div class="car" id="raceCar">🏎️</div>
+        <div class="finish-line"></div>
+        <div class="celebration" id="celebration">🎉</div>
+      </div>
 
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
 
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-label">Question</div>
-                <div class="stat-value" id="questionNumber">1/10</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Score</div>
-                <div class="stat-value" id="score">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Speed</div>
-                <div class="stat-value" id="speed">0 mph</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Time</div>
-                <div class="stat-value" id="timer">0s</div>
-            </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Question</div>
+          <div class="stat-value" id="questionNumber">1/10</div>
         </div>
+        <div class="stat">
+          <div class="stat-label">Score</div>
+          <div class="stat-value" id="score">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Speed</div>
+          <div class="stat-value" id="speed">0 mph</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Time</div>
+          <div class="stat-value" id="timer">0s</div>
+        </div>
+      </div>
 
-        <div class="question-section">
-            <div class="question" id="questionText">What is 5 + 3?</div>
-            <div class="answers" id="answersContainer">
-                <button class="answer-btn" onclick="selectAnswer(this, false)">6</button>
-                <button class="answer-btn" onclick="selectAnswer(this, true)">8</button>
-                <button class="answer-btn" onclick="selectAnswer(this, false)">9</button>
-                <button class="answer-btn" onclick="selectAnswer(this, false)">7</button>
-            </div>
-            <div class="feedback" id="feedback"></div>
+      <div class="question-section">
+        <div class="question" id="questionText">What is 5 + 3?</div>
+        <div class="answers" id="answersContainer">
+          <button class="answer-btn" onclick="selectAnswer(this, false)">
+            6
+          </button>
+          <button class="answer-btn" onclick="selectAnswer(this, true)">
+            8
+          </button>
+          <button class="answer-btn" onclick="selectAnswer(this, false)">
+            9
+          </button>
+          <button class="answer-btn" onclick="selectAnswer(this, false)">
+            7
+          </button>
         </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
 
-        <div class="game-controls">
-            <button class="control-btn" onclick="startGame()" id="startBtn">Start Race!</button>
-            <button class="control-btn" onclick="resetGame()" id="resetBtn" disabled>Reset</button>
-            <button class="control-btn" onclick="nextQuestion()" id="nextBtn" disabled>Next Question</button>
-        </div>
+      <div class="game-controls">
+        <button class="control-btn" onclick="startGame()" id="startBtn">
+          Start Race!
+        </button>
+        <button
+          class="control-btn"
+          onclick="resetGame()"
+          id="resetBtn"
+          disabled
+        >
+          Reset
+        </button>
+        <button
+          class="control-btn"
+          onclick="nextQuestion()"
+          id="nextBtn"
+          disabled
+        >
+          Next Question
+        </button>
+      </div>
 
-        <div class="game-over" id="gameOver">
-            <div class="final-score" id="finalScore">🏆 Race Complete!</div>
-            <p id="finalMessage">Congratulations! You've completed the race!</p>
-            <button class="control-btn" onclick="resetGame()" style="margin-top: 15px;">Race Again</button>
-        </div>
+      <div class="game-over" id="gameOver">
+        <div class="final-score" id="finalScore">🏆 Race Complete!</div>
+        <p id="finalMessage">Congratulations! You've completed the race!</p>
+        <button
+          class="control-btn"
+          onclick="resetGame()"
+          style="margin-top: 15px"
+        >
+          Race Again
+        </button>
+      </div>
     </div>
 
     <script>
-        // Game state
-        let gameState = {
-            currentQuestion: 0,
-            score: 0,
-            totalQuestions: 10,
-            gameStarted: false,
-            gameEnded: false,
-            startTime: 0,
-            carPosition: 10,
-            correctAnswers: 0
-        };
+      // Game state
+      let gameState = {
+        currentQuestion: 0,
+        score: 0,
+        totalQuestions: 10,
+        gameStarted: false,
+        gameEnded: false,
+        startTime: 0,
+        carPosition: 10,
+        correctAnswers: 0,
+      };
 
-        // Question bank
-        const questions = [
-            { question: "What is 5 + 3?", answers: [6, 8, 9, 7], correct: 1 },
-            { question: "What is 12 - 4?", answers: [8, 7, 9, 6], correct: 0 },
-            { question: "What is 6 × 3?", answers: [16, 18, 20, 15], correct: 1 },
-            { question: "What is 24 ÷ 4?", answers: [6, 8, 4, 5], correct: 0 },
-            { question: "What is 15 + 7?", answers: [21, 22, 23, 20], correct: 1 },
-            { question: "What is 20 - 8?", answers: [12, 11, 13, 14], correct: 0 },
-            { question: "What is 9 × 2?", answers: [16, 18, 20, 17], correct: 1 },
-            { question: "What is 35 ÷ 7?", answers: [5, 6, 4, 7], correct: 0 },
-            { question: "What is 25 + 15?", answers: [35, 40, 45, 30], correct: 1 },
-            { question: "What is 50 - 12?", answers: [38, 42, 36, 40], correct: 0 }
-        ];
+      // Question bank
+      const questions = [
+        { question: 'What is 5 + 3?', answers: [6, 8, 9, 7], correct: 1 },
+        { question: 'What is 12 - 4?', answers: [8, 7, 9, 6], correct: 0 },
+        { question: 'What is 6 × 3?', answers: [16, 18, 20, 15], correct: 1 },
+        { question: 'What is 24 ÷ 4?', answers: [6, 8, 4, 5], correct: 0 },
+        { question: 'What is 15 + 7?', answers: [21, 22, 23, 20], correct: 1 },
+        { question: 'What is 20 - 8?', answers: [12, 11, 13, 14], correct: 0 },
+        { question: 'What is 9 × 2?', answers: [16, 18, 20, 17], correct: 1 },
+        { question: 'What is 35 ÷ 7?', answers: [5, 6, 4, 7], correct: 0 },
+        { question: 'What is 25 + 15?', answers: [35, 40, 45, 30], correct: 1 },
+        { question: 'What is 50 - 12?', answers: [38, 42, 36, 40], correct: 0 },
+      ];
 
-        function startGame() {
-            gameState.gameStarted = true;
-            gameState.startTime = Date.now();
-            gameState.currentQuestion = 0;
-            gameState.score = 0;
-            gameState.carPosition = 10;
-            gameState.correctAnswers = 0;
-            gameState.gameEnded = false;
+      function startGame() {
+        gameState.gameStarted = true;
+        gameState.startTime = Date.now();
+        gameState.currentQuestion = 0;
+        gameState.score = 0;
+        gameState.carPosition = 10;
+        gameState.correctAnswers = 0;
+        gameState.gameEnded = false;
 
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('resetBtn').disabled = false;
-            document.getElementById('gameOver').classList.remove('show');
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('resetBtn').disabled = false;
+        document.getElementById('gameOver').classList.remove('show');
 
-            displayQuestion();
-            startTimer();
+        displayQuestion();
+        startTimer();
+      }
+
+      function displayQuestion() {
+        if (gameState.currentQuestion >= gameState.totalQuestions) {
+          endGame();
+          return;
         }
 
-        function displayQuestion() {
-            if (gameState.currentQuestion >= gameState.totalQuestions) {
-                endGame();
-                return;
-            }
+        const question = questions[gameState.currentQuestion];
+        document.getElementById('questionText').textContent = question.question;
+        document.getElementById('questionNumber').textContent =
+          `${gameState.currentQuestion + 1}/${gameState.totalQuestions}`;
 
-            const question = questions[gameState.currentQuestion];
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('questionNumber').textContent = `${gameState.currentQuestion + 1}/${gameState.totalQuestions}`;
+        const answersContainer = document.getElementById('answersContainer');
+        answersContainer.innerHTML = '';
 
-            const answersContainer = document.getElementById('answersContainer');
-            answersContainer.innerHTML = '';
+        question.answers.forEach((answer, index) => {
+          const button = document.createElement('button');
+          button.className = 'answer-btn';
+          button.textContent = answer;
+          button.onclick = () =>
+            selectAnswer(button, index === question.correct);
+          answersContainer.appendChild(button);
+        });
 
-            question.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.className = 'answer-btn';
-                button.textContent = answer;
-                button.onclick = () => selectAnswer(button, index === question.correct);
-                answersContainer.appendChild(button);
-            });
+        document.getElementById('feedback').classList.remove('show');
+        document.getElementById('nextBtn').disabled = true;
+      }
 
-            document.getElementById('feedback').classList.remove('show');
-            document.getElementById('nextBtn').disabled = true;
+      function selectAnswer(button, isCorrect) {
+        // Disable all answer buttons
+        const allButtons = document.querySelectorAll('.answer-btn');
+        allButtons.forEach((btn) => {
+          btn.disabled = true;
+          if (btn === button) {
+            btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+          }
+        });
+
+        const feedback = document.getElementById('feedback');
+        if (isCorrect) {
+          feedback.textContent = '🎉 Correct! Your car speeds up!';
+          feedback.className = 'feedback correct show';
+          gameState.score += 10;
+          gameState.correctAnswers++;
+          moveCar();
+          showCelebration();
+          playSound('correct');
+        } else {
+          feedback.textContent = '❌ Oops! Try to catch up!';
+          feedback.className = 'feedback incorrect show';
+          playSound('incorrect');
         }
 
-        function selectAnswer(button, isCorrect) {
-            // Disable all answer buttons
-            const allButtons = document.querySelectorAll('.answer-btn');
-            allButtons.forEach(btn => {
-                btn.disabled = true;
-                if (btn === button) {
-                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
-                }
-            });
+        updateStats();
+        document.getElementById('nextBtn').disabled = false;
+      }
 
-            const feedback = document.getElementById('feedback');
-            if (isCorrect) {
-                feedback.textContent = "🎉 Correct! Your car speeds up!";
-                feedback.className = 'feedback correct show';
-                gameState.score += 10;
-                gameState.correctAnswers++;
-                moveCar();
-                showCelebration();
-                playSound('correct');
-            } else {
-                feedback.textContent = "❌ Oops! Try to catch up!";
-                feedback.className = 'feedback incorrect show';
-                playSound('incorrect');
-            }
+      function moveCar() {
+        gameState.carPosition += 70; // Move car forward
+        const car = document.getElementById('raceCar');
+        car.style.left = Math.min(gameState.carPosition, 700) + 'px';
 
-            updateStats();
-            document.getElementById('nextBtn').disabled = false;
-        }
+        // Update progress bar
+        const progress = (gameState.carPosition / 700) * 100;
+        document.getElementById('progressFill').style.width =
+          Math.min(progress, 100) + '%';
+      }
 
-        function moveCar() {
-            gameState.carPosition += 70; // Move car forward
-            const car = document.getElementById('raceCar');
-            car.style.left = Math.min(gameState.carPosition, 700) + 'px';
+      function showCelebration() {
+        const celebration = document.getElementById('celebration');
+        celebration.style.animation = 'none';
+        celebration.offsetHeight; // Trigger reflow
+        celebration.style.animation = 'celebrate 2s ease-in-out';
+      }
 
-            // Update progress bar
-            const progress = (gameState.carPosition / 700) * 100;
-            document.getElementById('progressFill').style.width = Math.min(progress, 100) + '%';
-        }
+      function nextQuestion() {
+        gameState.currentQuestion++;
 
-        function showCelebration() {
-            const celebration = document.getElementById('celebration');
-            celebration.style.animation = 'none';
-            celebration.offsetHeight; // Trigger reflow
-            celebration.style.animation = 'celebrate 2s ease-in-out';
-        }
+        // Re-enable answer buttons
+        const allButtons = document.querySelectorAll('.answer-btn');
+        allButtons.forEach((btn) => {
+          btn.disabled = false;
+          btn.classList.remove('correct', 'incorrect');
+        });
 
-        function nextQuestion() {
-            gameState.currentQuestion++;
+        displayQuestion();
+      }
 
-            // Re-enable answer buttons
-            const allButtons = document.querySelectorAll('.answer-btn');
-            allButtons.forEach(btn => {
-                btn.disabled = false;
-                btn.classList.remove('correct', 'incorrect');
-            });
+      function updateStats() {
+        document.getElementById('score').textContent = gameState.score;
 
-            displayQuestion();
-        }
+        // Calculate speed based on correct answers
+        const speed = gameState.correctAnswers * 25;
+        document.getElementById('speed').textContent = speed + ' mph';
+      }
 
-        function updateStats() {
-            document.getElementById('score').textContent = gameState.score;
+      function startTimer() {
+        const timerInterval = setInterval(() => {
+          if (gameState.gameEnded) {
+            clearInterval(timerInterval);
+            return;
+          }
 
-            // Calculate speed based on correct answers
-            const speed = gameState.correctAnswers * 25;
-            document.getElementById('speed').textContent = speed + ' mph';
-        }
+          const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+          document.getElementById('timer').textContent = elapsed + 's';
+        }, 1000);
+      }
 
-        function startTimer() {
-            const timerInterval = setInterval(() => {
-                if (gameState.gameEnded) {
-                    clearInterval(timerInterval);
-                    return;
-                }
+      function endGame() {
+        gameState.gameEnded = true;
 
-                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-                document.getElementById('timer').textContent = elapsed + 's';
-            }, 1000);
-        }
+        const finalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+        const accuracy = Math.round(
+          (gameState.correctAnswers / gameState.totalQuestions) * 100
+        );
 
-        function endGame() {
-            gameState.gameEnded = true;
-
-            const finalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
-            const accuracy = Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100);
-
-            document.getElementById('finalScore').textContent = `🏆 Final Score: ${gameState.score}`;
-            document.getElementById('finalMessage').innerHTML = `
+        document.getElementById('finalScore').textContent =
+          `🏆 Final Score: ${gameState.score}`;
+        document.getElementById('finalMessage').innerHTML = `
                 <strong>Race Statistics:</strong><br>
                 ✅ Correct Answers: ${gameState.correctAnswers}/${gameState.totalQuestions}<br>
                 📊 Accuracy: ${accuracy}%<br>
@@ -520,79 +572,83 @@
                 🏎️ Top Speed: ${gameState.correctAnswers * 25} mph
             `;
 
-            document.getElementById('gameOver').classList.add('show');
+        document.getElementById('gameOver').classList.add('show');
 
-            // Play finish sound
-            playSound('finish');
+        // Play finish sound
+        playSound('finish');
+      }
+
+      function resetGame() {
+        gameState = {
+          currentQuestion: 0,
+          score: 0,
+          totalQuestions: 10,
+          gameStarted: false,
+          gameEnded: false,
+          startTime: 0,
+          carPosition: 10,
+          correctAnswers: 0,
+        };
+
+        document.getElementById('raceCar').style.left = '10px';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('score').textContent = '0';
+        document.getElementById('speed').textContent = '0 mph';
+        document.getElementById('timer').textContent = '0s';
+        document.getElementById('questionNumber').textContent = '1/10';
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('resetBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
+        document.getElementById('gameOver').classList.remove('show');
+        document.getElementById('feedback').classList.remove('show');
+
+        // Reset first question
+        document.getElementById('questionText').textContent =
+          "Click 'Start Race!' to begin";
+        document.getElementById('answersContainer').innerHTML =
+          '<p style="color: #6C5CE7; font-size: 1.2rem;">Ready to race? 🏁</p>';
+      }
+
+      // Sound effects (simplified)
+      function playSound(type) {
+        // In a real implementation, you would load and play actual audio files
+        // For this demo, we'll use the browser's built-in beep
+        if (type === 'correct') {
+          // High beep for correct
+          console.log('🎵 Correct answer sound!');
+        } else if (type === 'incorrect') {
+          // Low beep for incorrect
+          console.log('🎵 Incorrect answer sound!');
+        } else if (type === 'finish') {
+          // Victory fanfare
+          console.log('🎵 Race finish fanfare!');
+        }
+      }
+
+      // Keyboard support for accessibility
+      document.addEventListener('keydown', (e) => {
+        if (!gameState.gameStarted) return;
+
+        // Allow number keys 1-4 to select answers
+        if (e.key >= '1' && e.key <= '4') {
+          const answerButtons = document.querySelectorAll(
+            '.answer-btn:not(:disabled)'
+          );
+          const buttonIndex = parseInt(e.key) - 1;
+          if (answerButtons[buttonIndex]) {
+            answerButtons[buttonIndex].click();
+          }
         }
 
-        function resetGame() {
-            gameState = {
-                currentQuestion: 0,
-                score: 0,
-                totalQuestions: 10,
-                gameStarted: false,
-                gameEnded: false,
-                startTime: 0,
-                carPosition: 10,
-                correctAnswers: 0
-            };
-
-            document.getElementById('raceCar').style.left = '10px';
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('score').textContent = '0';
-            document.getElementById('speed').textContent = '0 mph';
-            document.getElementById('timer').textContent = '0s';
-            document.getElementById('questionNumber').textContent = '1/10';
-
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('resetBtn').disabled = true;
-            document.getElementById('nextBtn').disabled = true;
-            document.getElementById('gameOver').classList.remove('show');
-            document.getElementById('feedback').classList.remove('show');
-
-            // Reset first question
-            document.getElementById('questionText').textContent = "Click 'Start Race!' to begin";
-            document.getElementById('answersContainer').innerHTML = '<p style="color: #6C5CE7; font-size: 1.2rem;">Ready to race? 🏁</p>';
+        // Enter key for next question
+        if (e.key === 'Enter' && !document.getElementById('nextBtn').disabled) {
+          nextQuestion();
         }
+      });
 
-        // Sound effects (simplified)
-        function playSound(type) {
-            // In a real implementation, you would load and play actual audio files
-            // For this demo, we'll use the browser's built-in beep
-            if (type === 'correct') {
-                // High beep for correct
-                console.log('🎵 Correct answer sound!');
-            } else if (type === 'incorrect') {
-                // Low beep for incorrect
-                console.log('🎵 Incorrect answer sound!');
-            } else if (type === 'finish') {
-                // Victory fanfare
-                console.log('🎵 Race finish fanfare!');
-            }
-        }
-
-        // Keyboard support for accessibility
-        document.addEventListener('keydown', (e) => {
-            if (!gameState.gameStarted) return;
-
-            // Allow number keys 1-4 to select answers
-            if (e.key >= '1' && e.key <= '4') {
-                const answerButtons = document.querySelectorAll('.answer-btn:not(:disabled)');
-                const buttonIndex = parseInt(e.key) - 1;
-                if (answerButtons[buttonIndex]) {
-                    answerButtons[buttonIndex].click();
-                }
-            }
-
-            // Enter key for next question
-            if (e.key === 'Enter' && !document.getElementById('nextBtn').disabled) {
-                nextQuestion();
-            }
-        });
-
-        // Initialize game
-        resetGame();
+      // Initialize game
+      resetGame();
     </script>
-</body>
+  </body>
 </html>

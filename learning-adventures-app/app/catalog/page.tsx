@@ -28,8 +28,9 @@ export default function CatalogPage() {
               Adventure Catalog
             </h1>
             <p className="text-xl md:text-2xl mb-8 opacity-90">
-              Discover interactive learning experiences that make education exciting.
-              Choose from math, science, English, history, and interdisciplinary adventures designed for every learner.
+              Discover interactive learning experiences that make education
+              exciting. Choose from math, science, English, history, and
+              interdisciplinary adventures designed for every learner.
             </p>
 
             {/* Quick Stats */}
@@ -91,7 +92,15 @@ export default function CatalogPage() {
                 </div>
               </div>
               <div className="text-sm text-ink-600">
-                Showing {catalogData.reduce((total, cat) => total + cat.adventures.lessons.length + cat.adventures.games.length, 0)} adventures
+                Showing{' '}
+                {catalogData.reduce(
+                  (total, cat) =>
+                    total +
+                    cat.adventures.lessons.length +
+                    cat.adventures.games.length,
+                  0
+                )}{' '}
+                adventures
               </div>
             </div>
           </Container>
@@ -104,7 +113,9 @@ export default function CatalogPage() {
           <Container>
             <div className="text-center mb-12">
               <h2 className="font-display text-3xl md:text-4xl font-bold text-ink-900 mb-4">
-                {isAuthenticated ? 'Featured Adventures' : 'Preview: Featured Adventures'}
+                {isAuthenticated
+                  ? 'Featured Adventures'
+                  : 'Preview: Featured Adventures'}
               </h2>
               <p className="text-xl text-ink-600 max-w-3xl mx-auto">
                 {isAuthenticated
@@ -128,12 +139,16 @@ export default function CatalogPage() {
                     Want to see more?
                   </h3>
                   <p className="text-ink-600 mb-6">
-                    Sign in to unlock access to all {featuredAdventures.length} featured adventures and our complete catalog of 85+ learning experiences.
+                    Sign in to unlock access to all {featuredAdventures.length}{' '}
+                    featured adventures and our complete catalog of 85+ learning
+                    experiences.
                   </p>
                   <div className="flex items-center justify-center space-x-4">
                     <button
                       onClick={() => {
-                        const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'signup' } });
+                        const event = new CustomEvent('openAuthModal', {
+                          detail: { defaultTab: 'signup' },
+                        });
                         window.dispatchEvent(event);
                       }}
                       className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
@@ -142,7 +157,9 @@ export default function CatalogPage() {
                     </button>
                     <button
                       onClick={() => {
-                        const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'login' } });
+                        const event = new CustomEvent('openAuthModal', {
+                          detail: { defaultTab: 'login' },
+                        });
                         window.dispatchEvent(event);
                       }}
                       className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
@@ -171,33 +188,48 @@ export default function CatalogPage() {
           <Container>
             <div className="bg-white border border-gray-200 rounded-lg p-12 text-center max-w-3xl mx-auto">
               <div className="mb-6">
-                <Icon name="lock" size={48} className="text-brand-500 mx-auto" />
+                <Icon
+                  name="lock"
+                  size={48}
+                  className="text-brand-500 mx-auto"
+                />
               </div>
               <h2 className="text-3xl font-bold text-ink-800 mb-4">
                 Complete Catalog Available for Members
               </h2>
               <p className="text-lg text-ink-600 mb-8">
-                Sign in to browse our complete catalog organized by subject, grade level, and difficulty.
-                Track your progress, earn achievements, and get personalized recommendations.
+                Sign in to browse our complete catalog organized by subject,
+                grade level, and difficulty. Track your progress, earn
+                achievements, and get personalized recommendations.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="p-4">
-                  <div className="text-3xl font-bold text-brand-500 mb-2">85+</div>
-                  <div className="text-sm text-ink-600">Learning Adventures</div>
+                  <div className="text-3xl font-bold text-brand-500 mb-2">
+                    85+
+                  </div>
+                  <div className="text-sm text-ink-600">
+                    Learning Adventures
+                  </div>
                 </div>
                 <div className="p-4">
-                  <div className="text-3xl font-bold text-accent-500 mb-2">5</div>
+                  <div className="text-3xl font-bold text-accent-500 mb-2">
+                    5
+                  </div>
                   <div className="text-sm text-ink-600">Subject Areas</div>
                 </div>
                 <div className="p-4">
-                  <div className="text-3xl font-bold text-green-500 mb-2">K-5</div>
+                  <div className="text-3xl font-bold text-green-500 mb-2">
+                    K-5
+                  </div>
                   <div className="text-sm text-ink-600">Grade Levels</div>
                 </div>
               </div>
               <div className="flex items-center justify-center space-x-4">
                 <button
                   onClick={() => {
-                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'signup' } });
+                    const event = new CustomEvent('openAuthModal', {
+                      detail: { defaultTab: 'signup' },
+                    });
                     window.dispatchEvent(event);
                   }}
                   className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
@@ -206,7 +238,9 @@ export default function CatalogPage() {
                 </button>
                 <button
                   onClick={() => {
-                    const event = new CustomEvent('openAuthModal', { detail: { defaultTab: 'login' } });
+                    const event = new CustomEvent('openAuthModal', {
+                      detail: { defaultTab: 'login' },
+                    });
                     window.dispatchEvent(event);
                   }}
                   className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
@@ -227,7 +261,8 @@ export default function CatalogPage() {
               Ready to Start Learning?
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Join thousands of families who are already exploring these amazing educational adventures.
+              Join thousands of families who are already exploring these amazing
+              educational adventures.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button

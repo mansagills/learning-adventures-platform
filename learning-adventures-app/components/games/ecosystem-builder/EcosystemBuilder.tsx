@@ -101,9 +101,9 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
   const calculateBalance = () => {
     if (ecosystem.length === 0) return 50;
 
-    const producers = ecosystem.filter(o => o.role === 'producer').length;
-    const consumers = ecosystem.filter(o => o.role === 'consumer').length;
-    const decomposers = ecosystem.filter(o => o.role === 'decomposer').length;
+    const producers = ecosystem.filter((o) => o.role === 'producer').length;
+    const consumers = ecosystem.filter((o) => o.role === 'consumer').length;
+    const decomposers = ecosystem.filter((o) => o.role === 'decomposer').length;
 
     // Ideal ratio: Many producers, fewer consumers, some decomposers
     // Target: 40% producers, 40% consumers, 20% decomposers
@@ -134,10 +134,10 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
     if (ecosystem.length === 0) return;
 
     const interval = setInterval(() => {
-      setTickCount(prev => prev + 1);
+      setTickCount((prev) => prev + 1);
 
-      setEcosystem(prev => {
-        return prev.map(organism => {
+      setEcosystem((prev) => {
+        return prev.map((organism) => {
           let newEnergy = organism.energy;
           let newPopulation = organism.population;
 
@@ -199,16 +199,26 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
     // Level up conditions
     if (newBalance >= 80 && ecosystem.length >= 5 && gameState.level === 1) {
       actions.levelUp();
-    } else if (newBalance >= 85 && ecosystem.length >= 7 && gameState.level === 2) {
+    } else if (
+      newBalance >= 85 &&
+      ecosystem.length >= 7 &&
+      gameState.level === 2
+    ) {
       actions.levelUp();
-    } else if (newBalance >= 90 && ecosystem.length >= 10 && gameState.level === 3) {
+    } else if (
+      newBalance >= 90 &&
+      ecosystem.length >= 10 &&
+      gameState.level === 3
+    ) {
       actions.levelUp();
       setShowVictoryModal(true);
     }
   }, [ecosystem, tickCount]);
 
   // Add organism to ecosystem
-  const addOrganism = (organism: Omit<Organism, 'id' | 'energy' | 'population'>) => {
+  const addOrganism = (
+    organism: Omit<Organism, 'id' | 'energy' | 'population'>
+  ) => {
     const newOrganism: Organism = {
       ...organism,
       id: `${organism.name}-${Date.now()}`,
@@ -216,14 +226,14 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
       population: 1,
     };
 
-    setEcosystem(prev => [...prev, newOrganism]);
+    setEcosystem((prev) => [...prev, newOrganism]);
     setShowAddModal(false);
     actions.addScore(5);
   };
 
   // Remove organism from ecosystem
   const removeOrganism = (id: string) => {
-    setEcosystem(prev => prev.filter(o => o.id !== id));
+    setEcosystem((prev) => prev.filter((o) => o.id !== id));
     setSelectedOrganism(null);
   };
 
@@ -284,21 +294,31 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🌱</span>
-                <p><strong>Producers:</strong> Make food from sunlight</p>
+                <p>
+                  <strong>Producers:</strong> Make food from sunlight
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🐰</span>
-                <p><strong>Consumers:</strong> Eat other organisms</p>
+                <p>
+                  <strong>Consumers:</strong> Eat other organisms
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🍄</span>
-                <p><strong>Decomposers:</strong> Break down dead matter</p>
+                <p>
+                  <strong>Decomposers:</strong> Break down dead matter
+                </p>
               </div>
             </div>
             <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-              💡 Tip: A healthy ecosystem needs all three types in the right balance!
+              💡 Tip: A healthy ecosystem needs all three types in the right
+              balance!
             </p>
-            <GameButton onClick={() => setShowTutorial(false)} variant="primary">
+            <GameButton
+              onClick={() => setShowTutorial(false)}
+              variant="primary"
+            >
               Let's Build!
             </GameButton>
           </div>
@@ -318,10 +338,18 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
             </p>
             <div className="text-4xl mb-4">🌍✨</div>
             <div className="space-y-2 text-left bg-green-50 p-4 rounded">
-              <p><strong>Final Score:</strong> {gameState.score}</p>
-              <p><strong>Level Reached:</strong> {gameState.level}</p>
-              <p><strong>Time:</strong> {timer.formattedTime}</p>
-              <p><strong>Organisms:</strong> {ecosystem.length}</p>
+              <p>
+                <strong>Final Score:</strong> {gameState.score}
+              </p>
+              <p>
+                <strong>Level Reached:</strong> {gameState.level}
+              </p>
+              <p>
+                <strong>Time:</strong> {timer.formattedTime}
+              </p>
+              <p>
+                <strong>Organisms:</strong> {ecosystem.length}
+              </p>
             </div>
             {gameState.achievements.length > 0 && (
               <div>
@@ -366,13 +394,19 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
                 <span className="text-4xl">{organism.emoji}</span>
                 <div className="flex-1">
                   <div className="font-bold text-lg">{organism.name}</div>
-                  <div className="text-sm text-gray-600">{organism.description}</div>
+                  <div className="text-sm text-gray-600">
+                    {organism.description}
+                  </div>
                   <div className="text-xs mt-1">
-                    <span className={`px-2 py-1 rounded ${
-                      organism.role === 'producer' ? 'bg-green-100 text-green-800' :
-                      organism.role === 'consumer' ? 'bg-orange-100 text-orange-800' :
-                      'bg-purple-100 text-purple-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded ${
+                        organism.role === 'producer'
+                          ? 'bg-green-100 text-green-800'
+                          : organism.role === 'consumer'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-purple-100 text-purple-800'
+                      }`}
+                    >
                       {organism.role}
                     </span>
                   </div>
@@ -402,10 +436,13 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
           <div className="w-full bg-gray-200 rounded-full h-6 mb-2">
             <div
               className={`h-6 rounded-full transition-all duration-500 ${
-                balance >= 80 ? 'bg-green-500' :
-                balance >= 60 ? 'bg-yellow-500' :
-                balance >= 40 ? 'bg-orange-500' :
-                'bg-red-500'
+                balance >= 80
+                  ? 'bg-green-500'
+                  : balance >= 60
+                    ? 'bg-yellow-500'
+                    : balance >= 40
+                      ? 'bg-orange-500'
+                      : 'bg-red-500'
               }`}
               style={{ width: `${balance}%` }}
             />
@@ -442,7 +479,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {ecosystem.map(organism => (
+              {ecosystem.map((organism) => (
                 <div
                   key={organism.id}
                   className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
@@ -452,7 +489,9 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
                   }`}
                   onClick={() => setSelectedOrganism(organism.id)}
                 >
-                  <div className="text-4xl text-center mb-2">{organism.emoji}</div>
+                  <div className="text-4xl text-center mb-2">
+                    {organism.emoji}
+                  </div>
                   <div className="text-center">
                     <div className="font-bold text-sm">{organism.name}</div>
                     <div className="text-xs text-gray-600 mb-2">
@@ -461,9 +500,11 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          organism.energy > 60 ? 'bg-green-500' :
-                          organism.energy > 30 ? 'bg-yellow-500' :
-                          'bg-red-500'
+                          organism.energy > 60
+                            ? 'bg-green-500'
+                            : organism.energy > 30
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
                         }`}
                         style={{ width: `${organism.energy}%` }}
                       />
@@ -498,21 +539,21 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
               <div className="text-3xl mb-1">🌱</div>
               <div className="text-sm text-gray-600">Producers</div>
               <div className="text-2xl font-bold text-green-700">
-                {ecosystem.filter(o => o.role === 'producer').length}
+                {ecosystem.filter((o) => o.role === 'producer').length}
               </div>
             </div>
             <div className="text-center p-3 bg-orange-50 rounded-lg">
               <div className="text-3xl mb-1">🐰</div>
               <div className="text-sm text-gray-600">Consumers</div>
               <div className="text-2xl font-bold text-orange-700">
-                {ecosystem.filter(o => o.role === 'consumer').length}
+                {ecosystem.filter((o) => o.role === 'consumer').length}
               </div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
               <div className="text-3xl mb-1">🍄</div>
               <div className="text-sm text-gray-600">Decomposers</div>
               <div className="text-2xl font-bold text-purple-700">
-                {ecosystem.filter(o => o.role === 'decomposer').length}
+                {ecosystem.filter((o) => o.role === 'decomposer').length}
               </div>
             </div>
           </div>
