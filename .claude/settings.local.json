@@ -34,7 +34,9 @@
       "Bash(openssl rand:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:TZXqGIxj0QphOTAT@db.wnijsqstxdjdazytdwys.supabase.co:5432/postgres\" npx prisma db push:*)",
       "Bash(grep:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app log --oneline -20)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
