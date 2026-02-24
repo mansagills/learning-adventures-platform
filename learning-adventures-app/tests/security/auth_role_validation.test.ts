@@ -17,7 +17,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_password'),
-<<<<<<< sentinel-fix-mass-assignment-2810889807962850829
+    compare: vi.fn().mockResolvedValue(true),
   },
 }));
 
@@ -26,97 +26,76 @@ describe('Security: Signup Role Validation', () => {
     vi.clearAllMocks();
   });
 
-  it('should prevent mass assignment of ADMIN role', async () => {
+  it('should sanitize invalid roles (e.g. ADMIN) to STUDENT', async () => {
     // Setup request with ADMIN role
     const body = {
       name: 'Malicious User',
-=======
-    compare: vi.fn().mockResolvedValue(true),
-  },
-}));
-
-describe('Authentication Security - Role Validation', () => {
-  it('should sanitize invalid roles (e.g. ADMIN) to STUDENT', async () => {
-    // Setup mock request with ADMIN role
-    const body = {
-      name: 'Hacker',
->>>>>>> main
       email: 'hacker@example.com',
       password: 'password123',
       role: 'ADMIN',
     };
 
-    const req = new NextRequest('http://localhost/api/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    const req = {
+      json: async () => body,
+    } as unknown as NextRequest;
 
-<<<<<<< sentinel-fix-mass-assignment-2810889807962850829
     // Mock findUnique to return null (user doesn't exist)
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    (prisma.user.findUnique as any).mockResolvedValue(null);
+
+    // Mock create to return the user with sanitized role
+    (prisma.user.create as any).mockImplementation(async (args: any) => ({
+      id: '123',
+      ...args.data,
+      role: args.data.role, // Use the role passed to create
+      createdAt: new Date(),
+    }));
 
     // Execute the handler
     const response = await POST(req);
     const data = await response.json();
 
-    // Verify prisma.user.create was NOT called
-    expect(prisma.user.create).not.toHaveBeenCalled();
+    expect(response.status).toBe(201);
 
-    // Verify response status and error
-    expect(response.status).toBe(400);
-    expect(data.error).toBe('Invalid role specified');
+    // Verify prisma.user.create was called with sanitized role
+    expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        role: 'STUDENT',
+      }),
+    }));
+
+    expect(data.user.role).toBe('STUDENT');
   });
 
-  it('should allow signup with valid role (STUDENT)', async () => {
+  it('should allow signup with valid role (TEACHER)', async () => {
     // Setup request with valid role
     const body = {
-      name: 'Valid Student',
-      email: 'student@example.com',
+      name: 'Teacher',
+      email: 'teacher@example.com',
       password: 'password123',
-      role: 'STUDENT',
+      role: 'TEACHER',
     };
 
-    const req = new NextRequest('http://localhost/api/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    const req = {
+      json: async () => body,
+    } as unknown as NextRequest;
 
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-    vi.mocked(prisma.user.create).mockResolvedValue({
+    (prisma.user.findUnique as any).mockResolvedValue(null);
+    (prisma.user.create as any).mockImplementation(async (args: any) => ({
       id: '124',
-      name: body.name,
-      email: body.email,
-      role: body.role,
+      ...args.data,
+      role: args.data.role,
       createdAt: new Date(),
-    } as any);
+    }));
 
     const response = await POST(req);
+    const data = await response.json();
 
     expect(response.status).toBe(201);
-    expect(prisma.user.create).toHaveBeenCalled();
-    const createArgs = vi.mocked(prisma.user.create).mock.calls[0][0];
-    expect(createArgs.data.role).toBe('STUDENT');
-=======
-    // Mock Prisma responses
-    (prisma.user.findUnique as any).mockResolvedValue(null);
-    (prisma.user.create as any).mockResolvedValue({
-      id: '123',
-      ...body,
-      role: 'STUDENT', // Simulate successful creation with sanitized role
-      createdAt: new Date(),
-    });
-
-    // Execute the handler
-    await POST(req);
-
-    // Verify if ADMIN role was sanitized to STUDENT
-    expect(prisma.user.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          role: 'STUDENT',
-        }),
-      })
-    );
->>>>>>> main
+    expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        role: 'TEACHER',
+      }),
+    }));
+    expect(data.user.role).toBe('TEACHER');
   });
 });
