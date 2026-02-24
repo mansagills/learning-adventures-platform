@@ -79,7 +79,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return 400 Bad Request
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toMatch(/contains invalid characters/);
+    expect(json.error).toMatch(/contains path traversal characters/);
 
     const mkdirCalls = mkdirMock.mock.calls;
     console.log('mkdir calls:', mkdirCalls);
@@ -98,7 +98,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
           type: 'game',
           subscriptionTier: 'free',
           uploadSource: 'uploaded',
-          uploadedZipPath: '/uploads/test.zip',
+          uploadedZipPath: 'uploads/temp/test.zip',
         }),
       }
     );
