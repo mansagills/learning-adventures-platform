@@ -10,8 +10,10 @@ const CHILD_SESSION_COOKIE = 'child_session';
 
 // Subdomain configuration
 const APP_SUBDOMAIN = 'app';
-const MARKETING_DOMAIN = process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
-const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_URL || 'https://app.learningadventures.org';
+const MARKETING_DOMAIN =
+  process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
+const APP_DOMAIN =
+  process.env.NEXT_PUBLIC_APP_URL || 'https://app.learningadventures.org';
 
 /**
  * Detect which subdomain the request is coming from
@@ -38,9 +40,9 @@ export async function middleware(request: NextRequest) {
   const subdomain = getSubdomain(request);
 
   // Get the NextAuth token to check user role
-  const token = await getToken({ 
-    req: request, 
-    secret: process.env.NEXTAUTH_SECRET 
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   // Check for child session cookie
@@ -49,7 +51,7 @@ export async function middleware(request: NextRequest) {
   // ========================================================================
   // CHILD ROUTES PROTECTION
   // ========================================================================
-  
+
   // Child dashboard requires child session
   if (pathname.startsWith('/child/dashboard')) {
     if (!childSessionToken) {
@@ -74,15 +76,16 @@ export async function middleware(request: NextRequest) {
     if (token) {
       const userRole = token.role as string;
       const userEmail = token.email as string;
-      
+
       // Check if user is admin (by role or by email domain)
       const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
-      
+
       // If admin and trying to access main dashboard, redirect to internal
       // But only if they haven't explicitly navigated there (check for referrer)
       const referer = request.headers.get('referer') || '';
-      const isFromAuth = referer.includes('/api/auth') || referer.includes('/auth/signin');
-      
+      const isFromAuth =
+        referer.includes('/api/auth') || referer.includes('/auth/signin');
+
       if (isAdmin && isFromAuth && pathname === '/dashboard') {
         return NextResponse.redirect(new URL('/internal', request.url));
       }
@@ -130,7 +133,9 @@ export async function middleware(request: NextRequest) {
   if (subdomain === 'app') {
     // Allow public routes on app subdomain
     const publicAppRoutes = ['/api/auth', '/unauthorized'];
-    const isPublicRoute = publicAppRoutes.some(route => pathname.startsWith(route));
+    const isPublicRoute = publicAppRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
 
     if (!isPublicRoute && !token) {
       // Redirect to marketing site's NextAuth sign-in page

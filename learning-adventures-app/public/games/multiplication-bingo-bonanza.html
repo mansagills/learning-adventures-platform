@@ -1,428 +1,465 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multiplication Bingo Bonanza | Math Bingo Game</title>
-    <meta name="description" content="Interactive bingo with multiplication tables! Solve problems to mark squares and get BINGO!">
+    <meta
+      name="description"
+      content="Interactive bingo with multiplication tables! Solve problems to mark squares and get BINGO!"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Comic Sans MS', 'Arial', sans-serif;
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
+      body {
+        font-family: 'Comic Sans MS', 'Arial', sans-serif;
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
         }
+      }
 
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #000;
-            color: #fff;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 100;
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #000;
+        color: #fff;
+        padding: 8px;
+        text-decoration: none;
+        z-index: 100;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      .game-container {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 1100px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #059669;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 2.5rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #065f46;
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+      }
+
+      #instructions {
+        background: #d1fae5;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #059669;
+      }
+
+      #instructions h2 {
+        color: #065f46;
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      #instructions ul {
+        margin-left: 1.5rem;
+        color: #047857;
+      }
+
+      #instructions li {
+        margin: 0.5rem 0;
+      }
+
+      .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .score-box {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .problem-area {
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: white;
+      }
+
+      .current-problem {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
+
+      .bingo-card {
+        background: white;
+        border: 4px solid #059669;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .bingo-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .bingo-cell {
+        aspect-ratio: 1;
+        background: #f3f4f6;
+        border: 3px solid #d1d5db;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #374151;
+      }
+
+      .bingo-cell:hover:not(.marked):not(.free),
+      .bingo-cell:focus:not(.marked):not(.free) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        background: #e5e7eb;
+        outline: 3px solid #fbbf24;
+        outline-offset: 2px;
+      }
+
+      .bingo-cell.marked {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: #047857;
+        position: relative;
+      }
+
+      .bingo-cell.marked::after {
+        content: '✓';
+        font-size: 2rem;
+        position: absolute;
+      }
+
+      .bingo-cell.free {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        border-color: #d97706;
+        font-size: 1.2rem;
+      }
+
+      .bingo-header {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .bingo-letter {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #059669;
+      }
+
+      .feedback {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .feedback.correct {
+        background: #d1fae5;
+        color: #065f46;
+        border: 2px solid #10b981;
+      }
+
+      .feedback.incorrect {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #ef4444;
+      }
+
+      .feedback.bingo {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        border: 2px solid #d97706;
+        font-size: 2rem;
+        animation: celebration 0.6s ease-in-out;
+      }
+
+      @keyframes celebration {
+        0%,
+        100% {
+          transform: scale(1);
         }
-
-        .skip-link:focus {
-            top: 0;
+        50% {
+          transform: scale(1.1);
         }
+      }
 
-        .game-container {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 1100px;
-            width: 100%;
-        }
+      .btn {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 0.5rem;
+      }
 
+      .btn:hover,
+      .btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        outline: 3px solid #fbbf24;
+        outline-offset: 2px;
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #game-over {
+        text-align: center;
+      }
+
+      #game-over h2 {
+        color: #059669;
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      #game-over p {
+        font-size: 1.5rem;
+        color: #065f46;
+        margin-bottom: 1rem;
+      }
+
+      @media (max-width: 768px) {
         h1 {
-            color: #059669;
-            text-align: center;
-            margin-bottom: 1rem;
-            font-size: 2.5rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #065f46;
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-        }
-
-        #instructions {
-            background: #d1fae5;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border-left: 4px solid #059669;
-        }
-
-        #instructions h2 {
-            color: #065f46;
-            margin-bottom: 0.5rem;
-            font-size: 1.5rem;
-        }
-
-        #instructions ul {
-            margin-left: 1.5rem;
-            color: #047857;
-        }
-
-        #instructions li {
-            margin: 0.5rem 0;
-        }
-
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .score-box {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-        .problem-area {
-            background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            text-align: center;
-            color: white;
+          font-size: 1.8rem;
         }
 
         .current-problem {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .bingo-card {
-            background: white;
-            border: 4px solid #059669;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .bingo-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            margin-top: 1rem;
+          font-size: 2rem;
         }
 
         .bingo-cell {
-            aspect-ratio: 1;
-            background: #f3f4f6;
-            border: 3px solid #d1d5db;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #374151;
-        }
-
-        .bingo-cell:hover:not(.marked):not(.free),
-        .bingo-cell:focus:not(.marked):not(.free) {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            background: #e5e7eb;
-            outline: 3px solid #fbbf24;
-            outline-offset: 2px;
-        }
-
-        .bingo-cell.marked {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border-color: #047857;
-            position: relative;
-        }
-
-        .bingo-cell.marked::after {
-            content: '✓';
-            font-size: 2rem;
-            position: absolute;
-        }
-
-        .bingo-cell.free {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            border-color: #d97706;
-            font-size: 1.2rem;
-        }
-
-        .bingo-header {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+          font-size: 1.2rem;
         }
 
         .bingo-letter {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #059669;
+          font-size: 1.5rem;
         }
-
-        .feedback {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feedback.correct {
-            background: #d1fae5;
-            color: #065f46;
-            border: 2px solid #10b981;
-        }
-
-        .feedback.incorrect {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 2px solid #ef4444;
-        }
-
-        .feedback.bingo {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            border: 2px solid #d97706;
-            font-size: 2rem;
-            animation: celebration 0.6s ease-in-out;
-        }
-
-        @keyframes celebration {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0.5rem;
-        }
-
-        .btn:hover, .btn:focus {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-            outline: 3px solid #fbbf24;
-            outline-offset: 2px;
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #game-over {
-            text-align: center;
-        }
-
-        #game-over h2 {
-            color: #059669;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        #game-over p {
-            font-size: 1.5rem;
-            color: #065f46;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .current-problem {
-                font-size: 2rem;
-            }
-
-            .bingo-cell {
-                font-size: 1.2rem;
-            }
-
-            .bingo-letter {
-                font-size: 1.5rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <a href="#main-game" class="skip-link">Skip to game</a>
 
     <div class="game-container" role="main">
-        <h1>🎰 Multiplication Bingo Bonanza 🎰</h1>
-        <p class="subtitle">Solve multiplication problems to get BINGO!</p>
+      <h1>🎰 Multiplication Bingo Bonanza 🎰</h1>
+      <p class="subtitle">Solve multiplication problems to get BINGO!</p>
 
-        <div id="instructions" role="region" aria-labelledby="instructions-title">
-            <h2 id="instructions-title">How to Play</h2>
-            <ul>
-                <li>Solve the multiplication problem shown</li>
-                <li>Click the square with the correct answer on your bingo card</li>
-                <li>Get 5 in a row (horizontal, vertical, or diagonal) to win!</li>
-                <li>The center square is a FREE space</li>
-                <li>Try to get multiple BINGOs for bonus points!</li>
-            </ul>
-            <div style="text-align: center;">
-                <button class="btn" onclick="startGame()" aria-label="Start bingo game">Start Playing!</button>
-            </div>
+      <div id="instructions" role="region" aria-labelledby="instructions-title">
+        <h2 id="instructions-title">How to Play</h2>
+        <ul>
+          <li>Solve the multiplication problem shown</li>
+          <li>Click the square with the correct answer on your bingo card</li>
+          <li>Get 5 in a row (horizontal, vertical, or diagonal) to win!</li>
+          <li>The center square is a FREE space</li>
+          <li>Try to get multiple BINGOs for bonus points!</li>
+        </ul>
+        <div style="text-align: center">
+          <button
+            class="btn"
+            onclick="startGame()"
+            aria-label="Start bingo game"
+          >
+            Start Playing!
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="main-game"
+        class="hidden"
+        role="application"
+        aria-label="Multiplication Bingo Bonanza game"
+      >
+        <div class="game-header">
+          <div class="score-box" role="status" aria-live="polite">
+            ⭐ Score: <span id="score">0</span>
+          </div>
+          <div class="score-box" role="status" aria-live="polite">
+            🎯 BINGOs: <span id="bingos">0</span>
+          </div>
+          <div class="score-box" role="status" aria-live="polite">
+            ✅ Correct: <span id="correct">0</span>
+          </div>
         </div>
 
-        <div id="main-game" class="hidden" role="application" aria-label="Multiplication Bingo Bonanza game">
-            <div class="game-header">
-                <div class="score-box" role="status" aria-live="polite">
-                    ⭐ Score: <span id="score">0</span>
-                </div>
-                <div class="score-box" role="status" aria-live="polite">
-                    🎯 BINGOs: <span id="bingos">0</span>
-                </div>
-                <div class="score-box" role="status" aria-live="polite">
-                    ✅ Correct: <span id="correct">0</span>
-                </div>
-            </div>
-
-            <div class="problem-area">
-                <div class="current-problem" id="current-problem" aria-live="polite">? × ? = ?</div>
-                <p style="font-size: 1.2rem;">Click the answer on your bingo card!</p>
-            </div>
-
-            <div class="feedback hidden" id="feedback" role="alert" aria-live="assertive"></div>
-
-            <div class="bingo-card">
-                <div class="bingo-header">
-                    <div class="bingo-letter">B</div>
-                    <div class="bingo-letter">I</div>
-                    <div class="bingo-letter">N</div>
-                    <div class="bingo-letter">G</div>
-                    <div class="bingo-letter">O</div>
-                </div>
-                <div class="bingo-grid" id="bingo-grid">
-                    <!-- Bingo cells will be generated here -->
-                </div>
-            </div>
+        <div class="problem-area">
+          <div class="current-problem" id="current-problem" aria-live="polite">
+            ? × ? = ?
+          </div>
+          <p style="font-size: 1.2rem">Click the answer on your bingo card!</p>
         </div>
 
-        <div id="game-over" class="hidden">
-            <h2>🎉 BINGO! 🎉</h2>
-            <div style="font-size: 5rem; margin: 1rem 0;">🏆</div>
-            <p>Total BINGOs: <span id="final-bingos">0</span></p>
-            <p>Final Score: <span id="final-score">0</span></p>
-            <p>Correct Answers: <span id="final-correct">0</span></p>
-            <button class="btn" onclick="location.reload()" aria-label="Play new game">New Card</button>
+        <div
+          class="feedback hidden"
+          id="feedback"
+          role="alert"
+          aria-live="assertive"
+        ></div>
+
+        <div class="bingo-card">
+          <div class="bingo-header">
+            <div class="bingo-letter">B</div>
+            <div class="bingo-letter">I</div>
+            <div class="bingo-letter">N</div>
+            <div class="bingo-letter">G</div>
+            <div class="bingo-letter">O</div>
+          </div>
+          <div class="bingo-grid" id="bingo-grid">
+            <!-- Bingo cells will be generated here -->
+          </div>
         </div>
+      </div>
+
+      <div id="game-over" class="hidden">
+        <h2>🎉 BINGO! 🎉</h2>
+        <div style="font-size: 5rem; margin: 1rem 0">🏆</div>
+        <p>Total BINGOs: <span id="final-bingos">0</span></p>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <p>Correct Answers: <span id="final-correct">0</span></p>
+        <button
+          class="btn"
+          onclick="location.reload()"
+          aria-label="Play new game"
+        >
+          New Card
+        </button>
+      </div>
     </div>
 
     <script>
-        let score = 0;
-        let bingoCount = 0;
-        let correctAnswers = 0;
-        let currentProblem = null;
-        let bingoCard = [];
-        let markedCells = [];
+      let score = 0;
+      let bingoCount = 0;
+      let correctAnswers = 0;
+      let currentProblem = null;
+      let bingoCard = [];
+      let markedCells = [];
 
-        function startGame() {
-            document.getElementById('instructions').classList.add('hidden');
-            document.getElementById('main-game').classList.remove('hidden');
-            score = 0;
-            bingoCount = 0;
-            correctAnswers = 0;
-            markedCells = [];
-            generateBingoCard();
-            updateDisplay();
-            generateProblem();
+      function startGame() {
+        document.getElementById('instructions').classList.add('hidden');
+        document.getElementById('main-game').classList.remove('hidden');
+        score = 0;
+        bingoCount = 0;
+        correctAnswers = 0;
+        markedCells = [];
+        generateBingoCard();
+        updateDisplay();
+        generateProblem();
+      }
+
+      function updateDisplay() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('bingos').textContent = bingoCount;
+        document.getElementById('correct').textContent = correctAnswers;
+      }
+
+      function generateBingoCard() {
+        // Generate 24 unique multiplication results (plus FREE space)
+        const allProducts = [];
+        for (let i = 2; i <= 12; i++) {
+          for (let j = 2; j <= 12; j++) {
+            allProducts.push(i * j);
+          }
         }
 
-        function updateDisplay() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('bingos').textContent = bingoCount;
-            document.getElementById('correct').textContent = correctAnswers;
-        }
+        // Get unique products and shuffle
+        const uniqueProducts = [...new Set(allProducts)].sort(
+          () => Math.random() - 0.5
+        );
 
-        function generateBingoCard() {
-            // Generate 24 unique multiplication results (plus FREE space)
-            const allProducts = [];
-            for (let i = 2; i <= 12; i++) {
-                for (let j = 2; j <= 12; j++) {
-                    allProducts.push(i * j);
-                }
-            }
+        // Take 24 products for the card
+        bingoCard = uniqueProducts.slice(0, 24);
 
-            // Get unique products and shuffle
-            const uniqueProducts = [...new Set(allProducts)].sort(() => Math.random() - 0.5);
+        // Render the card
+        const grid = document.getElementById('bingo-grid');
+        let cellHTML = '';
 
-            // Take 24 products for the card
-            bingoCard = uniqueProducts.slice(0, 24);
-
-            // Render the card
-            const grid = document.getElementById('bingo-grid');
-            let cellHTML = '';
-
-            for (let i = 0; i < 25; i++) {
-                if (i === 12) {
-                    // Center FREE space
-                    cellHTML += `
+        for (let i = 0; i < 25; i++) {
+          if (i === 12) {
+            // Center FREE space
+            cellHTML += `
                         <div class="bingo-cell free" role="img" aria-label="Free space">
                             FREE
                         </div>
                     `;
-                    markedCells[i] = true;
-                } else {
-                    const index = i < 12 ? i : i - 1;
-                    const num = bingoCard[index];
-                    cellHTML += `
+            markedCells[i] = true;
+          } else {
+            const index = i < 12 ? i : i - 1;
+            const num = bingoCard[index];
+            cellHTML += `
                         <div class="bingo-cell"
                              data-value="${num}"
                              data-index="${i}"
@@ -434,141 +471,147 @@
                             ${num}
                         </div>
                     `;
-                    markedCells[i] = false;
-                }
-            }
-
-            grid.innerHTML = cellHTML;
+            markedCells[i] = false;
+          }
         }
 
-        function generateProblem() {
-            document.getElementById('feedback').classList.add('hidden');
+        grid.innerHTML = cellHTML;
+      }
 
-            const num1 = Math.floor(Math.random() * 11) + 2; // 2-12
-            const num2 = Math.floor(Math.random() * 11) + 2; // 2-12
+      function generateProblem() {
+        document.getElementById('feedback').classList.add('hidden');
 
-            currentProblem = {
-                num1,
-                num2,
-                answer: num1 * num2
-            };
+        const num1 = Math.floor(Math.random() * 11) + 2; // 2-12
+        const num2 = Math.floor(Math.random() * 11) + 2; // 2-12
 
-            document.getElementById('current-problem').textContent = `${num1} × ${num2} = ?`;
+        currentProblem = {
+          num1,
+          num2,
+          answer: num1 * num2,
+        };
+
+        document.getElementById('current-problem').textContent =
+          `${num1} × ${num2} = ?`;
+      }
+
+      function selectCell(index, value) {
+        if (markedCells[index] && index !== 12) {
+          // Already marked
+          return;
         }
 
-        function selectCell(index, value) {
-            if (markedCells[index] && index !== 12) {
-                // Already marked
-                return;
-            }
+        const feedback = document.getElementById('feedback');
+        feedback.classList.remove('hidden', 'correct', 'incorrect', 'bingo');
 
-            const feedback = document.getElementById('feedback');
-            feedback.classList.remove('hidden', 'correct', 'incorrect', 'bingo');
+        if (value === currentProblem.answer) {
+          // Correct!
+          score += 10;
+          correctAnswers++;
+          markedCells[index] = true;
 
-            if (value === currentProblem.answer) {
-                // Correct!
-                score += 10;
-                correctAnswers++;
-                markedCells[index] = true;
+          // Mark the cell
+          const cells = document.querySelectorAll('.bingo-cell');
+          cells[index].classList.add('marked');
 
-                // Mark the cell
-                const cells = document.querySelectorAll('.bingo-cell');
-                cells[index].classList.add('marked');
+          feedback.classList.add('correct');
+          feedback.textContent = `✅ Correct! ${currentProblem.num1} × ${currentProblem.num2} = ${currentProblem.answer}`;
 
-                feedback.classList.add('correct');
-                feedback.textContent = `✅ Correct! ${currentProblem.num1} × ${currentProblem.num2} = ${currentProblem.answer}`;
+          updateDisplay();
 
-                updateDisplay();
+          // Check for BINGO
+          setTimeout(() => {
+            checkForBingo();
+          }, 500);
 
-                // Check for BINGO
-                setTimeout(() => {
-                    checkForBingo();
-                }, 500);
+          setTimeout(() => {
+            generateProblem();
+          }, 1500);
+        } else {
+          // Incorrect
+          feedback.classList.add('incorrect');
+          feedback.textContent = `❌ Oops! ${currentProblem.num1} × ${currentProblem.num2} = ${currentProblem.answer}, not ${value}`;
 
-                setTimeout(() => {
-                    generateProblem();
-                }, 1500);
+          setTimeout(() => {
+            feedback.classList.add('hidden');
+          }, 2000);
+        }
+      }
+
+      function checkForBingo() {
+        const winPatterns = [
+          // Rows
+          [0, 1, 2, 3, 4],
+          [5, 6, 7, 8, 9],
+          [10, 11, 12, 13, 14],
+          [15, 16, 17, 18, 19],
+          [20, 21, 22, 23, 24],
+          // Columns
+          [0, 5, 10, 15, 20],
+          [1, 6, 11, 16, 21],
+          [2, 7, 12, 17, 22],
+          [3, 8, 13, 18, 23],
+          [4, 9, 14, 19, 24],
+          // Diagonals
+          [0, 6, 12, 18, 24],
+          [4, 8, 12, 16, 20],
+        ];
+
+        let foundBingo = false;
+
+        for (const pattern of winPatterns) {
+          if (pattern.every((index) => markedCells[index])) {
+            foundBingo = true;
+            break;
+          }
+        }
+
+        if (foundBingo) {
+          bingoCount++;
+          score += 50; // Bonus for BINGO
+          updateDisplay();
+
+          const feedback = document.getElementById('feedback');
+          feedback.classList.remove('hidden', 'correct', 'incorrect');
+          feedback.classList.add('bingo');
+          feedback.textContent = `🎉 BINGO! +50 Bonus Points! 🎉`;
+
+          // Check if user wants to continue or end
+          setTimeout(() => {
+            if (bingoCount >= 3) {
+              gameOver();
             } else {
-                // Incorrect
-                feedback.classList.add('incorrect');
-                feedback.textContent = `❌ Oops! ${currentProblem.num1} × ${currentProblem.num2} = ${currentProblem.answer}, not ${value}`;
-
-                setTimeout(() => {
-                    feedback.classList.add('hidden');
-                }, 2000);
+              const continuePlay = confirm(
+                `You got BINGO #${bingoCount}! Continue playing for more BINGOs?`
+              );
+              if (!continuePlay) {
+                gameOver();
+              } else {
+                feedback.classList.add('hidden');
+              }
             }
+          }, 2000);
         }
+      }
 
-        function checkForBingo() {
-            const winPatterns = [
-                // Rows
-                [0, 1, 2, 3, 4],
-                [5, 6, 7, 8, 9],
-                [10, 11, 12, 13, 14],
-                [15, 16, 17, 18, 19],
-                [20, 21, 22, 23, 24],
-                // Columns
-                [0, 5, 10, 15, 20],
-                [1, 6, 11, 16, 21],
-                [2, 7, 12, 17, 22],
-                [3, 8, 13, 18, 23],
-                [4, 9, 14, 19, 24],
-                // Diagonals
-                [0, 6, 12, 18, 24],
-                [4, 8, 12, 16, 20]
-            ];
+      function gameOver() {
+        document.getElementById('main-game').classList.add('hidden');
+        document.getElementById('game-over').classList.remove('hidden');
+        document.getElementById('final-bingos').textContent = bingoCount;
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-correct').textContent = correctAnswers;
+      }
 
-            let foundBingo = false;
-
-            for (const pattern of winPatterns) {
-                if (pattern.every(index => markedCells[index])) {
-                    foundBingo = true;
-                    break;
-                }
-            }
-
-            if (foundBingo) {
-                bingoCount++;
-                score += 50; // Bonus for BINGO
-                updateDisplay();
-
-                const feedback = document.getElementById('feedback');
-                feedback.classList.remove('hidden', 'correct', 'incorrect');
-                feedback.classList.add('bingo');
-                feedback.textContent = `🎉 BINGO! +50 Bonus Points! 🎉`;
-
-                // Check if user wants to continue or end
-                setTimeout(() => {
-                    if (bingoCount >= 3) {
-                        gameOver();
-                    } else {
-                        const continuePlay = confirm(`You got BINGO #${bingoCount}! Continue playing for more BINGOs?`);
-                        if (!continuePlay) {
-                            gameOver();
-                        } else {
-                            feedback.classList.add('hidden');
-                        }
-                    }
-                }, 2000);
-            }
+      // Keyboard support
+      document.addEventListener('keydown', function (e) {
+        if (
+          e.key === 'Escape' &&
+          !document.getElementById('main-game').classList.contains('hidden')
+        ) {
+          if (confirm('Exit game?')) {
+            location.reload();
+          }
         }
-
-        function gameOver() {
-            document.getElementById('main-game').classList.add('hidden');
-            document.getElementById('game-over').classList.remove('hidden');
-            document.getElementById('final-bingos').textContent = bingoCount;
-            document.getElementById('final-score').textContent = score;
-            document.getElementById('final-correct').textContent = correctAnswers;
-        }
-
-        // Keyboard support
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && !document.getElementById('main-game').classList.contains('hidden')) {
-                if (confirm('Exit game?')) {
-                    location.reload();
-                }
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>

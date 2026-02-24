@@ -13,7 +13,7 @@ interface CategorySectionProps {
 
 export default function CategorySection({
   category,
-  className
+  className,
 }: CategorySectionProps) {
   const { lessons, games } = category.adventures;
 
@@ -44,7 +44,8 @@ export default function CategorySection({
                   Interactive Lessons
                 </h3>
                 <p className="text-ink-600">
-                  Hands-on learning experiences that build understanding step by step
+                  Hands-on learning experiences that build understanding step by
+                  step
                 </p>
               </div>
               <div className="hidden md:flex items-center space-x-2 text-sm text-ink-600">
@@ -95,11 +96,7 @@ export default function CategorySection({
               gap="gap-6"
             >
               {games.map((game) => (
-                <AdventureCard
-                  key={game.id}
-                  adventure={game}
-                  size="medium"
-                />
+                <AdventureCard key={game.id} adventure={game} size="medium" />
               ))}
             </Carousel>
           </div>

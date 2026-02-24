@@ -21,9 +21,9 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: 'consent',
           access_type: 'offline',
-          response_type: 'code'
-        }
-      }
+          response_type: 'code',
+        },
+      },
     }),
     AppleProvider({
       clientId: process.env.APPLE_CLIENT_ID || '',
@@ -35,10 +35,10 @@ export const authOptions: NextAuthOptions = {
         port: Number(process.env.EMAIL_SERVER_PORT),
         auth: {
           user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD
-        }
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
       },
-      from: process.env.EMAIL_FROM
+      from: process.env.EMAIL_FROM,
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -48,7 +48,10 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         console.log('🚨 AUTHORIZE FUNCTION CALLED!');
-        console.log('🔍 Authorization attempt:', { email: credentials?.email, hasPassword: !!credentials?.password });
+        console.log('🔍 Authorization attempt:', {
+          email: credentials?.email,
+          hasPassword: !!credentials?.password,
+        });
 
         if (!credentials?.email || !credentials?.password) {
           console.log('❌ Missing credentials');
@@ -62,7 +65,10 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
-          console.log('👤 User lookup:', { found: !!user, hasPassword: !!user?.password });
+          console.log('👤 User lookup:', {
+            found: !!user,
+            hasPassword: !!user?.password,
+          });
 
           if (!user || !user.password) {
             console.log('❌ User not found or no password');
@@ -110,7 +116,11 @@ export const authOptions: NextAuthOptions = {
       // If the URL is a relative path, redirect to app subdomain
       if (url.startsWith('/')) {
         // Preserve the original path if it's a callback URL
-        if (url.startsWith('/dashboard') || url.startsWith('/games') || url.startsWith('/profile')) {
+        if (
+          url.startsWith('/dashboard') ||
+          url.startsWith('/games') ||
+          url.startsWith('/profile')
+        ) {
           return `${appUrl}${url}`;
         }
         return `${appUrl}/dashboard`;
@@ -162,7 +172,11 @@ export const authOptions: NextAuthOptions = {
       const defaultRole = isAdminDomain ? 'ADMIN' : 'STUDENT';
 
       // OAuth providers (Google, Apple) and Email provider
-      if (account?.provider === 'google' || account?.provider === 'apple' || account?.provider === 'email') {
+      if (
+        account?.provider === 'google' ||
+        account?.provider === 'apple' ||
+        account?.provider === 'email'
+      ) {
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
@@ -178,7 +192,10 @@ export const authOptions: NextAuthOptions = {
               role: defaultRole,
             },
           });
-          console.log(`✅ New user created with role ${defaultRole}:`, user.email);
+          console.log(
+            `✅ New user created with role ${defaultRole}:`,
+            user.email
+          );
         } else if (isAdminDomain && existingUser.role !== 'ADMIN') {
           // Upgrade existing @learningadventures.org users to ADMIN if not already
           await prisma.user.update({

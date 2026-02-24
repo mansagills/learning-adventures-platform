@@ -74,7 +74,9 @@ export function useAchievements() {
 /**
  * Hook to get achievements by type
  */
-export function useAchievementsByType(type: 'completion' | 'streak' | 'score' | 'time') {
+export function useAchievementsByType(
+  type: 'completion' | 'streak' | 'score' | 'time'
+) {
   const { data } = useAchievements();
 
   if (!data) {

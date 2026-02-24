@@ -1,8 +1,11 @@
+import { vi } from 'vitest';
 import '@testing-library/jest-dom';
 import React from 'react';
-import { vi } from 'vitest';
 
+// Make jest compatible with vitest
 (globalThis as any).jest = vi;
+
+// Make React available globally for tests
 (globalThis as any).React = React;
 
 // Mock Next.js router
@@ -56,7 +59,9 @@ vi.mock('@/lib/analytics', () => ({
   disconnect() {}
   observe() {}
   unobserve() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 };
 
 // Mock matchMedia for responsive tests

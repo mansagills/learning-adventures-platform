@@ -23,7 +23,7 @@ export async function POST(
       technicalQuality,
       accessibilityCompliant,
       ageAppropriate,
-      engagementLevel
+      engagementLevel,
     } = await req.json();
 
     // Create approval record
@@ -38,8 +38,8 @@ export async function POST(
         technicalQuality,
         accessibilityCompliant,
         ageAppropriate,
-        engagementLevel
-      }
+        engagementLevel,
+      },
     });
 
     // Update game status based on decision
@@ -60,7 +60,7 @@ export async function POST(
 
     await prisma.testGame.update({
       where: { id: params.id },
-      data: { status: newStatus }
+      data: { status: newStatus },
     });
 
     return NextResponse.json({ approval });

@@ -28,7 +28,9 @@ interface UserProgress {
 function GamesContent() {
   const { data: session } = useSession();
   const [games, setGames] = useState<Adventure[]>([]);
-  const [userProgress, setUserProgress] = useState<Record<string, UserProgress>>({});
+  const [userProgress, setUserProgress] = useState<
+    Record<string, UserProgress>
+  >({});
   const [loading, setLoading] = useState(true);
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
@@ -78,7 +80,10 @@ function GamesContent() {
   }, [games, selectedSubject, selectedDifficulty, searchQuery]);
 
   // Check if any filters are active
-  const hasActiveFilters = selectedSubject !== 'all' || selectedDifficulty !== 'all' || searchQuery !== '';
+  const hasActiveFilters =
+    selectedSubject !== 'all' ||
+    selectedDifficulty !== 'all' ||
+    searchQuery !== '';
 
   // Clear all filters
   const clearFilters = () => {
@@ -92,7 +97,9 @@ function GamesContent() {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-ink-900 mb-2">Learning Games</h1>
+          <h1 className="text-3xl font-bold text-ink-900 mb-2">
+            Learning Games
+          </h1>
           <p className="text-lg text-ink-600">
             Explore {games.length} interactive games across all subjects
           </p>
@@ -151,7 +158,8 @@ function GamesContent() {
               <span className="text-sm text-gray-600">Active filters:</span>
               {selectedSubject !== 'all' && (
                 <span className="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-medium flex items-center gap-1">
-                  {selectedSubject.charAt(0).toUpperCase() + selectedSubject.slice(1)}
+                  {selectedSubject.charAt(0).toUpperCase() +
+                    selectedSubject.slice(1)}
                   <button
                     onClick={() => setSelectedSubject('all')}
                     className="hover:text-brand-900"
@@ -162,7 +170,8 @@ function GamesContent() {
               )}
               {selectedDifficulty !== 'all' && (
                 <span className="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-medium flex items-center gap-1">
-                  {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)}
+                  {selectedDifficulty.charAt(0).toUpperCase() +
+                    selectedDifficulty.slice(1)}
                   <button
                     onClick={() => setSelectedDifficulty('all')}
                     className="hover:text-brand-900"
@@ -174,7 +183,10 @@ function GamesContent() {
               {searchQuery && (
                 <span className="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-medium flex items-center gap-1">
                   "{searchQuery}"
-                  <button onClick={() => setSearchQuery('')} className="hover:text-brand-900">
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="hover:text-brand-900"
+                  >
                     <Icon name="close" size={14} />
                   </button>
                 </span>
@@ -200,7 +212,11 @@ function GamesContent() {
         ) : filteredGames.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGames.map((game) => (
-              <GameCard key={game.id} game={game} progress={userProgress[game.id] || null} />
+              <GameCard
+                key={game.id}
+                game={game}
+                progress={userProgress[game.id] || null}
+              />
             ))}
           </div>
         ) : (
@@ -209,7 +225,9 @@ function GamesContent() {
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Icon name="gamepad" size={48} className="text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-ink-900 mb-2">No games found</h3>
+            <h3 className="text-xl font-bold text-ink-900 mb-2">
+              No games found
+            </h3>
             <p className="text-gray-600 mb-6">
               {hasActiveFilters
                 ? 'Try adjusting your filters to see more games'

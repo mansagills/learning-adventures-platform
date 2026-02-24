@@ -36,8 +36,10 @@ export class LearningBuilderAgent {
     const { GameIdeationSkill } = await import('../skills/game-ideation');
     const { GameBuilderSkill } = await import('../skills/game-builder');
     const { ReactComponentSkill } = await import('../skills/react-component');
-    const { MetadataFormatterSkill } = await import('../skills/metadata-formatter');
-    const { AccessibilityValidatorSkill } = await import('../skills/accessibility-validator');
+    const { MetadataFormatterSkill } =
+      await import('../skills/metadata-formatter');
+    const { AccessibilityValidatorSkill } =
+      await import('../skills/accessibility-validator');
 
     this.skillRegistry.registerSkill(new GameIdeationSkill());
     this.skillRegistry.registerSkill(new GameBuilderSkill());
@@ -45,7 +47,11 @@ export class LearningBuilderAgent {
     this.skillRegistry.registerSkill(new MetadataFormatterSkill());
     this.skillRegistry.registerSkill(new AccessibilityValidatorSkill());
 
-    console.log('🎓 Learning Builder Agent initialized with', this.skillRegistry.getSkillCount(), 'skills');
+    console.log(
+      '🎓 Learning Builder Agent initialized with',
+      this.skillRegistry.getSkillCount(),
+      'skills'
+    );
   }
 
   /**
@@ -72,7 +78,10 @@ export class LearningBuilderAgent {
       });
 
       // Detect required skills
-      const detectionResults = await this.detectRequiredSkills(userRequest, context);
+      const detectionResults = await this.detectRequiredSkills(
+        userRequest,
+        context
+      );
 
       if (detectionResults.length === 0) {
         return this.buildNoSkillResult(userRequest, startTime);
@@ -144,9 +153,16 @@ export class LearningBuilderAgent {
     context: SkillContext,
     config?: SkillDetectionConfig
   ): Promise<Array<{ skillId: string; confidence: number }>> {
-    const results = await this.skillRegistry.detectSkills(userRequest, context, config);
+    const results = await this.skillRegistry.detectSkills(
+      userRequest,
+      context,
+      config
+    );
 
-    console.log('🔍 Detected skills:', results.map((r) => `${r.skillId} (${r.confidence}%)`).join(', '));
+    console.log(
+      '🔍 Detected skills:',
+      results.map((r) => `${r.skillId} (${r.confidence}%)`).join(', ')
+    );
 
     return results.map((r) => ({
       skillId: r.skillId,
@@ -157,7 +173,10 @@ export class LearningBuilderAgent {
   /**
    * Execute a single skill
    */
-  private async executeSkill(skill: BaseSkill, context: SkillContext): Promise<SkillResult> {
+  private async executeSkill(
+    skill: BaseSkill,
+    context: SkillContext
+  ): Promise<SkillResult> {
     console.log(`🎯 Executing skill: ${skill.getMetadata().id}`);
 
     try {
@@ -232,7 +251,10 @@ export class LearningBuilderAgent {
   /**
    * Build result when no skill can handle request
    */
-  private buildNoSkillResult(userRequest: string, startTime: number): AgentResult {
+  private buildNoSkillResult(
+    userRequest: string,
+    startTime: number
+  ): AgentResult {
     return {
       response: `I'm not sure how to help with that request. I can help you with:
 - Creating game ideas (e.g., "brainstorm math game ideas")
@@ -268,7 +290,10 @@ What would you like to do?`,
   /**
    * Add message to conversation history
    */
-  private addToHistory(conversationId: string, message: ConversationMessage): void {
+  private addToHistory(
+    conversationId: string,
+    message: ConversationMessage
+  ): void {
     const history = this.conversationHistory.get(conversationId) || [];
     history.push(message);
 
@@ -283,7 +308,11 @@ What would you like to do?`,
   /**
    * Store skill output for future context
    */
-  private storeSkillOutput(conversationId: string, skillId: string, output: any): void {
+  private storeSkillOutput(
+    conversationId: string,
+    skillId: string,
+    output: any
+  ): void {
     let outputs = this.skillOutputs.get(conversationId);
 
     if (!outputs) {

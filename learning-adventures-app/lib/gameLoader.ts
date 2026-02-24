@@ -2,7 +2,10 @@ import { GameComponent, GameProps } from '@/components/games/shared/types';
 import { ComponentType, lazy } from 'react';
 
 // Registry of all available games
-const gameRegistry = new Map<string, () => Promise<{ default: ComponentType<GameProps> }>>();
+const gameRegistry = new Map<
+  string,
+  () => Promise<{ default: ComponentType<GameProps> }>
+>();
 
 // Register a game component for dynamic loading
 export function registerGame(
@@ -43,12 +46,16 @@ export function registerGameMetadata(
 }
 
 // Get game metadata
-export function getGameMetadata(gameId: string): Omit<GameComponent, 'component'> | undefined {
+export function getGameMetadata(
+  gameId: string
+): Omit<GameComponent, 'component'> | undefined {
   return gameMetadata.get(gameId);
 }
 
 // Get all game metadata
-export function getAllGameMetadata(): Array<Omit<GameComponent, 'component'> & { id: string }> {
+export function getAllGameMetadata(): Array<
+  Omit<GameComponent, 'component'> & { id: string }
+> {
   return Array.from(gameMetadata.entries()).map(([id, metadata]) => ({
     id,
     ...metadata,

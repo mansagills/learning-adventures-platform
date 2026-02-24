@@ -1,555 +1,605 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Spelling Bee Challenge | Learning Adventures</title>
-    <meta name="description" content="Practice spelling with fun word challenges! Build vocabulary and spelling skills for grades 3-5.">
+    <meta
+      name="description"
+      content="Practice spelling with fun word challenges! Build vocabulary and spelling skills for grades 3-5."
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
 
-        .header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
+      .header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 25px;
+        text-align: center;
+      }
 
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-        }
+      .header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+      }
 
-        .header p {
-            opacity: 0.9;
-        }
+      .header p {
+        opacity: 0.9;
+      }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: #fff5f5;
-            padding: 15px;
-            border-bottom: 2px solid #fee;
-        }
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        background: #fff5f5;
+        padding: 15px;
+        border-bottom: 2px solid #fee;
+      }
 
-        .stat {
-            text-align: center;
-        }
+      .stat {
+        text-align: center;
+      }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #f5576c;
-        }
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #f5576c;
+      }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #666;
-        }
+      .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+      }
 
-        .content {
-            padding: 30px;
-        }
+      .content {
+        padding: 30px;
+      }
 
-        .level-selector {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+      .level-selector {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
 
-        .level-btn {
-            padding: 12px 25px;
-            border: 3px solid #f5576c;
-            border-radius: 25px;
-            background: white;
-            color: #f5576c;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+      .level-btn {
+        padding: 12px 25px;
+        border: 3px solid #f5576c;
+        border-radius: 25px;
+        background: white;
+        color: #f5576c;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-        .level-btn:hover, .level-btn.active {
-            background: #f5576c;
-            color: white;
-        }
+      .level-btn:hover,
+      .level-btn.active {
+        background: #f5576c;
+        color: white;
+      }
 
-        .game-area {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-        }
+      .game-area {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+      }
 
-        .bee-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
+      .bee-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+      }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
         }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
 
+      .word-display {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .definition {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 25px;
+        font-style: italic;
+      }
+
+      .audio-btn {
+        padding: 10px 20px;
+        background: #f5576c;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+
+      .audio-btn:hover {
+        background: #e84555;
+        transform: scale(1.05);
+      }
+
+      .spelling-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 15px 20px;
+        font-size: 1.5rem;
+        text-align: center;
+        border: 3px solid #ddd;
+        border-radius: 10px;
+        outline: none;
+        transition: border-color 0.3s;
+        text-transform: lowercase;
+      }
+
+      .spelling-input:focus {
+        border-color: #f5576c;
+      }
+
+      .spelling-input.correct {
+        border-color: #2ecc71;
+        background: #d4edda;
+      }
+
+      .spelling-input.incorrect {
+        border-color: #e74c3c;
+        background: #f8d7da;
+      }
+
+      .btn {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 10px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+      }
+
+      .feedback {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        display: none;
+      }
+
+      .feedback.correct {
+        background: #d4edda;
+        color: #155724;
+        display: block;
+      }
+
+      .feedback.incorrect {
+        background: #f8d7da;
+        color: #721c24;
+        display: block;
+      }
+
+      .word-list {
+        margin-top: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        border: 2px solid #eee;
+      }
+
+      .word-list h3 {
+        margin-bottom: 15px;
+        color: #333;
+      }
+
+      .word-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .word-tag {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        background: #f0f0f0;
+        color: #666;
+      }
+
+      .word-tag.correct {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .word-tag.incorrect {
+        background: #f8d7da;
+        color: #721c24;
+      }
+
+      .word-tag.current {
+        background: #f5576c;
+        color: white;
+      }
+
+      .celebration {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 1000;
+        display: none;
+      }
+
+      .celebration h2 {
+        color: #f5576c;
+        font-size: 2rem;
+        margin-bottom: 15px;
+      }
+
+      .trophy {
+        font-size: 4rem;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 600px) {
         .word-display {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 10px;
+          font-size: 1.4rem;
         }
-
-        .definition {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 25px;
-            font-style: italic;
-        }
-
-        .audio-btn {
-            padding: 10px 20px;
-            background: #f5576c;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .audio-btn:hover {
-            background: #e84555;
-            transform: scale(1.05);
-        }
-
         .spelling-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 15px 20px;
-            font-size: 1.5rem;
-            text-align: center;
-            border: 3px solid #ddd;
-            border-radius: 10px;
-            outline: none;
-            transition: border-color 0.3s;
-            text-transform: lowercase;
+          font-size: 1.2rem;
         }
-
-        .spelling-input:focus {
-            border-color: #f5576c;
-        }
-
-        .spelling-input.correct {
-            border-color: #2ecc71;
-            background: #d4edda;
-        }
-
-        .spelling-input.incorrect {
-            border-color: #e74c3c;
-            background: #f8d7da;
-        }
-
-        .btn {
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 10px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
-        }
-
-        .feedback {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            display: none;
-        }
-
-        .feedback.correct {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-        }
-
-        .feedback.incorrect {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-
-        .word-list {
-            margin-top: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
-            border: 2px solid #eee;
-        }
-
-        .word-list h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .word-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .word-tag {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        .word-tag.correct {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .word-tag.incorrect {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .word-tag.current {
-            background: #f5576c;
-            color: white;
-        }
-
-        .celebration {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 1000;
-            display: none;
-        }
-
-        .celebration h2 {
-            color: #f5576c;
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .trophy {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .word-display {
-                font-size: 1.4rem;
-            }
-            .spelling-input {
-                font-size: 1.2rem;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Spelling Bee Challenge</h1>
-            <p>Listen, learn, and spell your way to victory!</p>
+      <div class="header">
+        <h1>Spelling Bee Challenge</h1>
+        <p>Listen, learn, and spell your way to victory!</p>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="score">0</div>
+          <div class="stat-label">Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="correct">0/0</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="streak">0</div>
+          <div class="stat-label">Streak</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="level-selector">
+          <button class="level-btn active" onclick="setLevel('easy')">
+            Easy
+          </button>
+          <button class="level-btn" onclick="setLevel('medium')">Medium</button>
+          <button class="level-btn" onclick="setLevel('hard')">Hard</button>
         </div>
 
-        <div class="stats-bar">
-            <div class="stat">
-                <div class="stat-value" id="score">0</div>
-                <div class="stat-label">Score</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="correct">0/0</div>
-                <div class="stat-label">Correct</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="streak">0</div>
-                <div class="stat-label">Streak</div>
-            </div>
+        <div class="game-area">
+          <div class="bee-icon">🐝</div>
+          <div class="word-display" id="word-display">
+            Click "Hear Word" to begin!
+          </div>
+          <div class="definition" id="definition"></div>
+
+          <button class="audio-btn" onclick="playWord()">🔊 Hear Word</button>
+
+          <div>
+            <input
+              type="text"
+              class="spelling-input"
+              id="spelling-input"
+              placeholder="Type the word here..."
+              autocomplete="off"
+              autocapitalize="off"
+            />
+          </div>
+
+          <div style="margin-top: 20px">
+            <button class="btn btn-primary" onclick="checkSpelling()">
+              Check Spelling
+            </button>
+            <button class="btn btn-primary" onclick="skipWord()">Skip</button>
+          </div>
+
+          <div class="feedback" id="feedback"></div>
         </div>
 
-        <div class="content">
-            <div class="level-selector">
-                <button class="level-btn active" onclick="setLevel('easy')">Easy</button>
-                <button class="level-btn" onclick="setLevel('medium')">Medium</button>
-                <button class="level-btn" onclick="setLevel('hard')">Hard</button>
-            </div>
-
-            <div class="game-area">
-                <div class="bee-icon">🐝</div>
-                <div class="word-display" id="word-display">Click "Hear Word" to begin!</div>
-                <div class="definition" id="definition"></div>
-                
-                <button class="audio-btn" onclick="playWord()">🔊 Hear Word</button>
-                
-                <div>
-                    <input type="text" class="spelling-input" id="spelling-input" placeholder="Type the word here..." autocomplete="off" autocapitalize="off">
-                </div>
-                
-                <div style="margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="checkSpelling()">Check Spelling</button>
-                    <button class="btn btn-primary" onclick="skipWord()">Skip</button>
-                </div>
-                
-                <div class="feedback" id="feedback"></div>
-            </div>
-
-            <div class="word-list">
-                <h3>Words in this round</h3>
-                <div class="word-tags" id="word-tags">
-                    <!-- Generated by JavaScript -->
-                </div>
-            </div>
+        <div class="word-list">
+          <h3>Words in this round</h3>
+          <div class="word-tags" id="word-tags">
+            <!-- Generated by JavaScript -->
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="celebration" id="celebration">
-        <div class="trophy">🏆</div>
-        <h2>Round Complete!</h2>
-        <p id="celebration-text">Great spelling!</p>
-        <button class="btn btn-primary" onclick="newRound()">New Round</button>
+      <div class="trophy">🏆</div>
+      <h2>Round Complete!</h2>
+      <p id="celebration-text">Great spelling!</p>
+      <button class="btn btn-primary" onclick="newRound()">New Round</button>
     </div>
 
     <script>
-        const wordLists = {
-            easy: [
-                { word: 'apple', definition: 'A round fruit that grows on trees' },
-                { word: 'happy', definition: 'Feeling joy or pleasure' },
-                { word: 'house', definition: 'A building where people live' },
-                { word: 'water', definition: 'A clear liquid we drink' },
-                { word: 'friend', definition: 'Someone you like and enjoy spending time with' },
-                { word: 'school', definition: 'A place where children learn' },
-                { word: 'please', definition: 'A polite word when asking for something' },
-                { word: 'yellow', definition: 'The color of the sun or bananas' },
-                { word: 'paper', definition: 'Material used for writing or drawing' },
-                { word: 'animal', definition: 'A living creature that is not a plant' }
-            ],
-            medium: [
-                { word: 'beautiful', definition: 'Very pleasing to look at' },
-                { word: 'different', definition: 'Not the same as another' },
-                { word: 'important', definition: 'Having great value or significance' },
-                { word: 'together', definition: 'With each other, in one group' },
-                { word: 'favorite', definition: 'Liked more than others' },
-                { word: 'tomorrow', definition: 'The day after today' },
-                { word: 'question', definition: 'Something you ask to get information' },
-                { word: 'surprise', definition: 'Something unexpected' },
-                { word: 'calendar', definition: 'Shows days, weeks, and months' },
-                { word: 'remember', definition: 'To keep something in your memory' }
-            ],
-            hard: [
-                { word: 'necessary', definition: 'Required or needed' },
-                { word: 'definitely', definition: 'Without any doubt' },
-                { word: 'separately', definition: 'Apart from others' },
-                { word: 'restaurant', definition: 'A place to buy and eat meals' },
-                { word: 'environment', definition: 'The natural world around us' },
-                { word: 'encyclopedia', definition: 'A book with information on many topics' },
-                { word: 'responsible', definition: 'Having a duty to do something' },
-                { word: 'temperature', definition: 'How hot or cold something is' },
-                { word: 'independent', definition: 'Not relying on others' },
-                { word: 'extraordinary', definition: 'Very unusual or remarkable' }
-            ]
+      const wordLists = {
+        easy: [
+          { word: 'apple', definition: 'A round fruit that grows on trees' },
+          { word: 'happy', definition: 'Feeling joy or pleasure' },
+          { word: 'house', definition: 'A building where people live' },
+          { word: 'water', definition: 'A clear liquid we drink' },
+          {
+            word: 'friend',
+            definition: 'Someone you like and enjoy spending time with',
+          },
+          { word: 'school', definition: 'A place where children learn' },
+          {
+            word: 'please',
+            definition: 'A polite word when asking for something',
+          },
+          { word: 'yellow', definition: 'The color of the sun or bananas' },
+          { word: 'paper', definition: 'Material used for writing or drawing' },
+          {
+            word: 'animal',
+            definition: 'A living creature that is not a plant',
+          },
+        ],
+        medium: [
+          { word: 'beautiful', definition: 'Very pleasing to look at' },
+          { word: 'different', definition: 'Not the same as another' },
+          {
+            word: 'important',
+            definition: 'Having great value or significance',
+          },
+          { word: 'together', definition: 'With each other, in one group' },
+          { word: 'favorite', definition: 'Liked more than others' },
+          { word: 'tomorrow', definition: 'The day after today' },
+          {
+            word: 'question',
+            definition: 'Something you ask to get information',
+          },
+          { word: 'surprise', definition: 'Something unexpected' },
+          { word: 'calendar', definition: 'Shows days, weeks, and months' },
+          { word: 'remember', definition: 'To keep something in your memory' },
+        ],
+        hard: [
+          { word: 'necessary', definition: 'Required or needed' },
+          { word: 'definitely', definition: 'Without any doubt' },
+          { word: 'separately', definition: 'Apart from others' },
+          { word: 'restaurant', definition: 'A place to buy and eat meals' },
+          { word: 'environment', definition: 'The natural world around us' },
+          {
+            word: 'encyclopedia',
+            definition: 'A book with information on many topics',
+          },
+          { word: 'responsible', definition: 'Having a duty to do something' },
+          { word: 'temperature', definition: 'How hot or cold something is' },
+          { word: 'independent', definition: 'Not relying on others' },
+          { word: 'extraordinary', definition: 'Very unusual or remarkable' },
+        ],
+      };
+
+      let currentLevel = 'easy';
+      let currentWords = [];
+      let currentIndex = 0;
+      let score = 0;
+      let correct = 0;
+      let total = 0;
+      let streak = 0;
+
+      function setLevel(level) {
+        currentLevel = level;
+        document.querySelectorAll('.level-btn').forEach((btn) => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        startRound();
+      }
+
+      function startRound() {
+        currentWords = [...wordLists[currentLevel]]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5);
+        currentIndex = 0;
+        correct = 0;
+        total = 0;
+
+        updateWordTags();
+        loadWord();
+      }
+
+      function updateWordTags() {
+        const container = document.getElementById('word-tags');
+        container.innerHTML = currentWords
+          .map((w, i) => {
+            let className = 'word-tag';
+            if (i < currentIndex)
+              className += ' ' + (w.correct ? 'correct' : 'incorrect');
+            if (i === currentIndex) className += ' current';
+            return `<span class="${className}">${i < currentIndex ? w.word : '???'}</span>`;
+          })
+          .join('');
+      }
+
+      function loadWord() {
+        if (currentIndex >= currentWords.length) {
+          showCelebration();
+          return;
+        }
+
+        const word = currentWords[currentIndex];
+        document.getElementById('word-display').textContent =
+          'Click "Hear Word" to begin!';
+        document.getElementById('definition').textContent = word.definition;
+        document.getElementById('spelling-input').value = '';
+        document.getElementById('spelling-input').className = 'spelling-input';
+        document.getElementById('feedback').className = 'feedback';
+        document.getElementById('feedback').style.display = 'none';
+
+        updateWordTags();
+      }
+
+      function playWord() {
+        const word = currentWords[currentIndex];
+        document.getElementById('word-display').textContent = '🔊 Listening...';
+
+        // Use Web Speech API
+        const utterance = new SpeechSynthesisUtterance(word.word);
+        utterance.rate = 0.8;
+        utterance.onend = () => {
+          document.getElementById('word-display').textContent =
+            'Type what you heard!';
         };
+        speechSynthesis.speak(utterance);
 
-        let currentLevel = 'easy';
-        let currentWords = [];
-        let currentIndex = 0;
-        let score = 0;
-        let correct = 0;
-        let total = 0;
-        let streak = 0;
+        document.getElementById('spelling-input').focus();
+      }
 
-        function setLevel(level) {
-            currentLevel = level;
-            document.querySelectorAll('.level-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            startRound();
+      function checkSpelling() {
+        const input = document.getElementById('spelling-input');
+        const feedback = document.getElementById('feedback');
+        const word = currentWords[currentIndex];
+        const userAnswer = input.value.trim().toLowerCase();
+
+        if (!userAnswer) {
+          feedback.textContent = 'Please type the word first!';
+          feedback.className = 'feedback incorrect';
+          return;
         }
 
-        function startRound() {
-            currentWords = [...wordLists[currentLevel]].sort(() => Math.random() - 0.5).slice(0, 5);
-            currentIndex = 0;
-            correct = 0;
-            total = 0;
-            
-            updateWordTags();
-            loadWord();
+        total++;
+
+        if (userAnswer === word.word.toLowerCase()) {
+          correct++;
+          score += 10 + streak * 2;
+          streak++;
+          word.correct = true;
+
+          input.className = 'spelling-input correct';
+          feedback.textContent = `✓ Correct! "${word.word}" is spelled perfectly!`;
+          feedback.className = 'feedback correct';
+        } else {
+          streak = 0;
+          word.correct = false;
+
+          input.className = 'spelling-input incorrect';
+          feedback.textContent = `✗ The correct spelling is "${word.word}"`;
+          feedback.className = 'feedback incorrect';
         }
 
-        function updateWordTags() {
-            const container = document.getElementById('word-tags');
-            container.innerHTML = currentWords.map((w, i) => {
-                let className = 'word-tag';
-                if (i < currentIndex) className += ' ' + (w.correct ? 'correct' : 'incorrect');
-                if (i === currentIndex) className += ' current';
-                return `<span class="${className}">${i < currentIndex ? w.word : '???'}</span>`;
-            }).join('');
+        updateStats();
+
+        setTimeout(() => {
+          currentIndex++;
+          loadWord();
+        }, 2000);
+      }
+
+      function skipWord() {
+        total++;
+        currentWords[currentIndex].correct = false;
+        streak = 0;
+        updateStats();
+        currentIndex++;
+        loadWord();
+      }
+
+      function updateStats() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('correct').textContent = `${correct}/${total}`;
+        document.getElementById('streak').textContent = streak;
+      }
+
+      function showCelebration() {
+        const percentage = Math.round((correct / currentWords.length) * 100);
+        let message = '';
+
+        if (percentage === 100) {
+          message = "Perfect score! You're a spelling champion!";
+        } else if (percentage >= 80) {
+          message = 'Excellent work! Almost perfect!';
+        } else if (percentage >= 60) {
+          message = 'Good job! Keep practicing!';
+        } else {
+          message = 'Nice try! Practice makes perfect!';
         }
 
-        function loadWord() {
-            if (currentIndex >= currentWords.length) {
-                showCelebration();
-                return;
-            }
+        document.getElementById('celebration-text').textContent =
+          `${correct}/${currentWords.length} correct - ${message}`;
+        document.getElementById('celebration').style.display = 'block';
+      }
 
-            const word = currentWords[currentIndex];
-            document.getElementById('word-display').textContent = 'Click "Hear Word" to begin!';
-            document.getElementById('definition').textContent = word.definition;
-            document.getElementById('spelling-input').value = '';
-            document.getElementById('spelling-input').className = 'spelling-input';
-            document.getElementById('feedback').className = 'feedback';
-            document.getElementById('feedback').style.display = 'none';
-            
-            updateWordTags();
-        }
+      function newRound() {
+        document.getElementById('celebration').style.display = 'none';
+        startRound();
+      }
 
-        function playWord() {
-            const word = currentWords[currentIndex];
-            document.getElementById('word-display').textContent = '🔊 Listening...';
-            
-            // Use Web Speech API
-            const utterance = new SpeechSynthesisUtterance(word.word);
-            utterance.rate = 0.8;
-            utterance.onend = () => {
-                document.getElementById('word-display').textContent = 'Type what you heard!';
-            };
-            speechSynthesis.speak(utterance);
-            
-            document.getElementById('spelling-input').focus();
-        }
-
-        function checkSpelling() {
-            const input = document.getElementById('spelling-input');
-            const feedback = document.getElementById('feedback');
-            const word = currentWords[currentIndex];
-            const userAnswer = input.value.trim().toLowerCase();
-
-            if (!userAnswer) {
-                feedback.textContent = 'Please type the word first!';
-                feedback.className = 'feedback incorrect';
-                return;
-            }
-
-            total++;
-
-            if (userAnswer === word.word.toLowerCase()) {
-                correct++;
-                score += 10 + (streak * 2);
-                streak++;
-                word.correct = true;
-
-                input.className = 'spelling-input correct';
-                feedback.textContent = `✓ Correct! "${word.word}" is spelled perfectly!`;
-                feedback.className = 'feedback correct';
-            } else {
-                streak = 0;
-                word.correct = false;
-
-                input.className = 'spelling-input incorrect';
-                feedback.textContent = `✗ The correct spelling is "${word.word}"`;
-                feedback.className = 'feedback incorrect';
-            }
-
-            updateStats();
-
-            setTimeout(() => {
-                currentIndex++;
-                loadWord();
-            }, 2000);
-        }
-
-        function skipWord() {
-            total++;
-            currentWords[currentIndex].correct = false;
-            streak = 0;
-            updateStats();
-            currentIndex++;
-            loadWord();
-        }
-
-        function updateStats() {
-            document.getElementById('score').textContent = score;
-            document.getElementById('correct').textContent = `${correct}/${total}`;
-            document.getElementById('streak').textContent = streak;
-        }
-
-        function showCelebration() {
-            const percentage = Math.round((correct / currentWords.length) * 100);
-            let message = '';
-            
-            if (percentage === 100) {
-                message = 'Perfect score! You\'re a spelling champion!';
-            } else if (percentage >= 80) {
-                message = 'Excellent work! Almost perfect!';
-            } else if (percentage >= 60) {
-                message = 'Good job! Keep practicing!';
-            } else {
-                message = 'Nice try! Practice makes perfect!';
-            }
-
-            document.getElementById('celebration-text').textContent = `${correct}/${currentWords.length} correct - ${message}`;
-            document.getElementById('celebration').style.display = 'block';
-        }
-
-        function newRound() {
-            document.getElementById('celebration').style.display = 'none';
-            startRound();
-        }
-
-        // Handle Enter key
-        document.getElementById('spelling-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkSpelling();
-            }
+      // Handle Enter key
+      document
+        .getElementById('spelling-input')
+        .addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            checkSpelling();
+          }
         });
 
-        // Initialize
-        startRound();
+      // Initialize
+      startRound();
     </script>
-</body>
+  </body>
 </html>

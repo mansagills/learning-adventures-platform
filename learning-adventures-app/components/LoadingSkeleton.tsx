@@ -142,7 +142,13 @@ export function CertificateCardSkeleton() {
   );
 }
 
-export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
+export function TableSkeleton({
+  rows = 5,
+  columns = 4,
+}: {
+  rows?: number;
+  columns?: number;
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full">
@@ -172,7 +178,9 @@ export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; column
 }
 
 export function SkeletonText({ className = '' }: { className?: string }) {
-  return <div className={`h-4 bg-gray-200 rounded animate-pulse ${className}`} />;
+  return (
+    <div className={`h-4 bg-gray-200 rounded animate-pulse ${className}`} />
+  );
 }
 
 export function SkeletonCircle({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
@@ -183,10 +191,14 @@ export function SkeletonCircle({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   };
 
   return (
-    <div className={`${sizeClasses[size]} bg-gray-200 rounded-full animate-pulse`} />
+    <div
+      className={`${sizeClasses[size]} bg-gray-200 rounded-full animate-pulse`}
+    />
   );
 }
 
 export function SkeletonButton({ className = '' }: { className?: string }) {
-  return <div className={`h-10 bg-gray-200 rounded animate-pulse ${className}`} />;
+  return (
+    <div className={`h-10 bg-gray-200 rounded animate-pulse ${className}`} />
+  );
 }

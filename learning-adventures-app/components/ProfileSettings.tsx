@@ -37,7 +37,10 @@ const SUBJECTS = [
   { value: 'interdisciplinary', label: 'Interdisciplinary Projects' },
 ];
 
-export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProps) {
+export default function ProfileSettings({
+  isOpen,
+  onClose,
+}: ProfileSettingsProps) {
   const { data: session, update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -64,8 +67,11 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
     }
   }, [isOpen, session]);
 
-  const handleInputChange = (field: keyof ProfileData, value: string | string[]) => {
-    setProfileData(prev => ({
+  const handleInputChange = (
+    field: keyof ProfileData,
+    value: string | string[]
+  ) => {
+    setProfileData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -74,10 +80,10 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
   };
 
   const handleSubjectToggle = (subject: string) => {
-    setProfileData(prev => ({
+    setProfileData((prev) => ({
       ...prev,
       subjects: prev.subjects.includes(subject)
-        ? prev.subjects.filter(s => s !== subject)
+        ? prev.subjects.filter((s) => s !== subject)
         : [...prev.subjects, subject],
     }));
   };
@@ -143,7 +149,10 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-ink-700 mb-1">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-ink-700 mb-1"
+          >
             Full Name
           </label>
           <input
@@ -159,7 +168,10 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
 
         {/* Email (read-only) */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-ink-700 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-ink-700 mb-1"
+          >
             Email
           </label>
           <input
@@ -174,13 +186,19 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
 
         {/* Role (read-only) */}
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-ink-700 mb-1">
+          <label
+            htmlFor="role"
+            className="block text-sm font-medium text-ink-700 mb-1"
+          >
             Account Type
           </label>
           <input
             type="text"
             id="role"
-            value={profileData.role?.charAt(0) + profileData.role?.slice(1).toLowerCase()}
+            value={
+              profileData.role?.charAt(0) +
+              profileData.role?.slice(1).toLowerCase()
+            }
             className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-ink-500 cursor-not-allowed"
             readOnly
           />
@@ -189,7 +207,10 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
         {/* Grade Level (for students) */}
         {profileData.role === 'STUDENT' && (
           <div>
-            <label htmlFor="gradeLevel" className="block text-sm font-medium text-ink-700 mb-1">
+            <label
+              htmlFor="gradeLevel"
+              className="block text-sm font-medium text-ink-700 mb-1"
+            >
               Grade Level
             </label>
             <select
@@ -222,7 +243,9 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
                   onChange={() => handleSubjectToggle(subject.value)}
                   className="rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                 />
-                <span className="ml-2 text-sm text-ink-700">{subject.label}</span>
+                <span className="ml-2 text-sm text-ink-700">
+                  {subject.label}
+                </span>
               </label>
             ))}
           </div>
@@ -232,7 +255,11 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
         {error && (
           <div className="p-3 rounded-lg bg-red-50 border border-red-200">
             <div className="flex items-center">
-              <Icon name="alert-circle" size={16} className="text-red-500 mr-2" />
+              <Icon
+                name="alert-circle"
+                size={16}
+                className="text-red-500 mr-2"
+              />
               <p className="text-sm text-red-600">{error}</p>
             </div>
           </div>
@@ -241,7 +268,11 @@ export default function ProfileSettings({ isOpen, onClose }: ProfileSettingsProp
         {success && (
           <div className="p-3 rounded-lg bg-green-50 border border-green-200">
             <div className="flex items-center">
-              <Icon name="check-circle" size={16} className="text-green-500 mr-2" />
+              <Icon
+                name="check-circle"
+                size={16}
+                className="text-green-500 mr-2"
+              />
               <p className="text-sm text-green-600">{success}</p>
             </div>
           </div>

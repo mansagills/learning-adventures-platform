@@ -34,12 +34,13 @@ export class InteractiveContentSkill extends BaseSkill {
     return {
       id: 'interactive-content',
       name: 'Interactive Content Generator',
-      description: 'Generates HTML games, interactive widgets, and quiz JSON for curriculum lessons',
+      description:
+        'Generates HTML games, interactive widgets, and quiz JSON for curriculum lessons',
       triggers: [
         'generate content',
         'create games',
         'generate interactive lessons',
-        'create quiz content'
+        'create quiz content',
       ],
       capabilities: [
         'Generate standalone HTML games with embedded CSS/JS',
@@ -49,31 +50,38 @@ export class InteractiveContentSkill extends BaseSkill {
         'Ensure mobile-responsive design',
         'Include accessibility features',
         'Generate age-appropriate content',
-        'Create engaging visual designs'
+        'Create engaging visual designs',
       ],
       examples: [
         'Generate content for this curriculum',
         'Create HTML games for game lessons',
-        'Generate quiz questions for assessment lessons'
+        'Generate quiz questions for assessment lessons',
       ],
       version: '1.0.0',
-      guidanceFile: 'SKILL.md'
+      guidanceFile: 'SKILL.md',
     };
   }
 
-  async canHandle(userRequest: string, context?: Partial<SkillContext>): Promise<number> {
+  async canHandle(
+    userRequest: string,
+    context?: Partial<SkillContext>
+  ): Promise<number> {
     const lowerRequest = userRequest.toLowerCase();
 
     // High confidence triggers
-    if (lowerRequest.includes('generate content') ||
-        lowerRequest.includes('create games') ||
-        lowerRequest.includes('interactive content')) {
+    if (
+      lowerRequest.includes('generate content') ||
+      lowerRequest.includes('create games') ||
+      lowerRequest.includes('interactive content')
+    ) {
       return 95;
     }
 
     // Medium confidence triggers
-    if (lowerRequest.includes('generate') &&
-        (lowerRequest.includes('lesson') || lowerRequest.includes('quiz'))) {
+    if (
+      lowerRequest.includes('generate') &&
+      (lowerRequest.includes('lesson') || lowerRequest.includes('quiz'))
+    ) {
       return 75;
     }
 
@@ -97,7 +105,9 @@ export class InteractiveContentSkill extends BaseSkill {
         return this.buildErrorResult(
           'No curriculum found in context',
           'MISSING_DATA',
-          { hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill' }
+          {
+            hint: 'Expected curriculum in previousOutputs from CurriculumDesignSkill',
+          }
         );
       }
 
@@ -113,7 +123,9 @@ export class InteractiveContentSkill extends BaseSkill {
       for (const lesson of curriculum.lessons) {
         // Only generate content for types that need it
         if (['GAME', 'INTERACTIVE', 'QUIZ'].includes(lesson.type)) {
-          console.log(`Generating content for Lesson ${lesson.order}: ${lesson.title} (${lesson.type})`);
+          console.log(
+            `Generating content for Lesson ${lesson.order}: ${lesson.title} (${lesson.type})`
+          );
 
           const content = await this.generateLessonContent(
             lesson,
@@ -138,8 +150,8 @@ export class InteractiveContentSkill extends BaseSkill {
           gamesGenerated,
           quizzesGenerated,
           interactivesGenerated,
-          totalFiles: generatedContent.length
-        }
+          totalFiles: generatedContent.length,
+        },
       };
 
       const executionTime = Date.now() - startTime;
@@ -151,7 +163,6 @@ export class InteractiveContentSkill extends BaseSkill {
         95,
         ['narrative-integration', 'assessment-generation']
       );
-
     } catch (error) {
       return this.buildErrorResult(
         `Failed to generate interactive content: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -163,7 +174,8 @@ export class InteractiveContentSkill extends BaseSkill {
 
   protected validate(output: any): boolean {
     if (!output || typeof output !== 'object') return false;
-    if (!output.generatedContent || !Array.isArray(output.generatedContent)) return false;
+    if (!output.generatedContent || !Array.isArray(output.generatedContent))
+      return false;
     if (!output.summary) return false;
 
     return true;
@@ -202,11 +214,20 @@ export class InteractiveContentSkill extends BaseSkill {
     courseTitle: string,
     guidance: string
   ): Promise<LessonContent> {
-
     if (lesson.type === 'QUIZ') {
-      return this.generateQuizContent(lesson, designBrief, courseTitle, guidance);
+      return this.generateQuizContent(
+        lesson,
+        designBrief,
+        courseTitle,
+        guidance
+      );
     } else if (lesson.type === 'GAME' || lesson.type === 'INTERACTIVE') {
-      return this.generateHTMLContent(lesson, designBrief, courseTitle, guidance);
+      return this.generateHTMLContent(
+        lesson,
+        designBrief,
+        courseTitle,
+        guidance
+      );
     }
 
     throw new Error(`Unsupported lesson type: ${lesson.type}`);
@@ -218,8 +239,12 @@ export class InteractiveContentSkill extends BaseSkill {
     courseTitle: string,
     guidance: string
   ): Promise<LessonContent> {
-
-    const prompt = this.buildQuizPrompt(lesson, designBrief, courseTitle, guidance);
+    const prompt = this.buildQuizPrompt(
+      lesson,
+      designBrief,
+      courseTitle,
+      guidance
+    );
     const quizJson = await this.callClaudeForQuiz(prompt);
 
     const content: LessonContent = {
@@ -230,8 +255,8 @@ export class InteractiveContentSkill extends BaseSkill {
       quizJson,
       metadata: {
         generatedAt: new Date().toISOString(),
-        tokenCount: JSON.stringify(quizJson).length
-      }
+        tokenCount: JSON.stringify(quizJson).length,
+      },
     };
 
     return content;
@@ -243,8 +268,12 @@ export class InteractiveContentSkill extends BaseSkill {
     courseTitle: string,
     guidance: string
   ): Promise<LessonContent> {
-
-    const prompt = this.buildHTMLPrompt(lesson, designBrief, courseTitle, guidance);
+    const prompt = this.buildHTMLPrompt(
+      lesson,
+      designBrief,
+      courseTitle,
+      guidance
+    );
     const htmlContent = await this.callClaudeForHTML(prompt);
 
     // Generate filename
@@ -264,14 +293,19 @@ export class InteractiveContentSkill extends BaseSkill {
       htmlContent,
       metadata: {
         generatedAt: new Date().toISOString(),
-        fileSize: Buffer.byteLength(htmlContent, 'utf8')
-      }
+        fileSize: Buffer.byteLength(htmlContent, 'utf8'),
+      },
     };
 
     return content;
   }
 
-  private buildQuizPrompt(lesson: any, designBrief: any, courseTitle: string, guidance: string): string {
+  private buildQuizPrompt(
+    lesson: any,
+    designBrief: any,
+    courseTitle: string,
+    guidance: string
+  ): string {
     const studentAge = designBrief?.student?.age || 10;
     const interests = designBrief?.student?.learningProfile?.interests || [];
     const gradeLevel = designBrief?.student?.grade || 'Elementary';
@@ -325,10 +359,16 @@ OUTPUT FORMAT: Return ONLY valid JSON matching this structure:
 }`;
   }
 
-  private buildHTMLPrompt(lesson: any, designBrief: any, courseTitle: string, guidance: string): string {
+  private buildHTMLPrompt(
+    lesson: any,
+    designBrief: any,
+    courseTitle: string,
+    guidance: string
+  ): string {
     const studentAge = designBrief?.student?.age || 10;
     const interests = designBrief?.student?.learningProfile?.interests || [];
-    const favoriteCharacters = designBrief?.student?.learningProfile?.favoriteCharacters || '';
+    const favoriteCharacters =
+      designBrief?.student?.learningProfile?.favoriteCharacters || '';
     const gradeLevel = designBrief?.student?.grade || 'Elementary';
 
     return `You are an expert HTML game developer for educational content. Create a complete, standalone HTML file for this lesson.
@@ -379,7 +419,11 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
   }
 
   private async callClaudeForQuiz(prompt: string): Promise<any> {
-    const { callClaudeWithRetry, extractTextFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+    const {
+      callClaudeWithRetry,
+      extractTextFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -389,9 +433,9 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       const text = extractTextFromResponse(response);
@@ -402,7 +446,6 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
       }
 
       return JSON.parse(jsonMatch[0]);
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for quiz generation: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -411,7 +454,11 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
   }
 
   private async callClaudeForHTML(prompt: string): Promise<string> {
-    const { callClaudeWithRetry, extractTextFromResponse, COURSE_GENERATION_MODEL } = await import('@/lib/anthropic/client');
+    const {
+      callClaudeWithRetry,
+      extractTextFromResponse,
+      COURSE_GENERATION_MODEL,
+    } = await import('@/lib/anthropic/client');
 
     try {
       const response = await callClaudeWithRetry({
@@ -421,9 +468,9 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
         messages: [
           {
             role: 'user',
-            content: prompt
-          }
-        ]
+            content: prompt,
+          },
+        ],
       });
 
       let html = extractTextFromResponse(response);
@@ -435,11 +482,12 @@ NO markdown code blocks, NO explanations, ONLY the raw HTML.`;
 
       // Validate it starts with DOCTYPE
       if (!html.startsWith('<!DOCTYPE') && !html.startsWith('<!doctype')) {
-        throw new Error('Generated HTML does not start with DOCTYPE declaration');
+        throw new Error(
+          'Generated HTML does not start with DOCTYPE declaration'
+        );
       }
 
       return html;
-
     } catch (error) {
       throw new Error(
         `Failed to call Claude API for HTML generation: ${error instanceof Error ? error.message : 'Unknown error'}`

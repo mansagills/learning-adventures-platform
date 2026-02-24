@@ -37,7 +37,11 @@ export default async function AgentStudioPage() {
 
   // Check if user has permission to access Agent Studio
   const userRole = session.user?.role;
-  console.log('🔐 Role check:', { userRole, isAdmin: userRole === 'ADMIN', isTeacher: userRole === 'TEACHER' });
+  console.log('🔐 Role check:', {
+    userRole,
+    isAdmin: userRole === 'ADMIN',
+    isTeacher: userRole === 'TEACHER',
+  });
 
   const hasAccess = userRole === 'ADMIN' || userRole === 'TEACHER';
 

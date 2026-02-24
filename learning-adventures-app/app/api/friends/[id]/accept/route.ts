@@ -20,8 +20,8 @@ export async function POST(
       where: {
         id: friendshipId,
         friendId: session.user.id, // User must be the recipient
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (!friendship) {
@@ -36,7 +36,7 @@ export async function POST(
       where: { id: friendshipId },
       data: {
         status: 'ACCEPTED',
-        acceptedAt: new Date()
+        acceptedAt: new Date(),
       },
       include: {
         user: {
@@ -46,10 +46,10 @@ export async function POST(
             email: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
-        }
-      }
+            level: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -64,10 +64,9 @@ export async function POST(
         currentStreak: updatedFriendship.user.level?.currentStreak || 0,
         totalXP: updatedFriendship.user.level?.totalXP || 0,
         status: updatedFriendship.status,
-        acceptedAt: updatedFriendship.acceptedAt
-      }
+        acceptedAt: updatedFriendship.acceptedAt,
+      },
     });
-
   } catch (error) {
     console.error('Error accepting friendship:', error);
     return NextResponse.json(

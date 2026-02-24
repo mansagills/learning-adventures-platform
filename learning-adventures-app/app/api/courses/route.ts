@@ -50,7 +50,11 @@ export async function GET(request: NextRequest) {
       'desc') as SortDirection;
     const page = getQueryParamAsNumber(url, 'page', 1);
     const pageSize = getQueryParamAsNumber(url, 'pageSize', 10);
-    const includeProgress = getQueryParamAsBoolean(url, 'includeProgress', false);
+    const includeProgress = getQueryParamAsBoolean(
+      url,
+      'includeProgress',
+      false
+    );
 
     // Build filters
     const filters = {
@@ -63,7 +67,13 @@ export async function GET(request: NextRequest) {
 
     // If pagination requested
     if (page && pageSize) {
-      const result = await getPaginatedCourses(page, pageSize, filters, sortBy, sortDirection);
+      const result = await getPaginatedCourses(
+        page,
+        pageSize,
+        filters,
+        sortBy,
+        sortDirection
+      );
       return successResponse(result);
     }
 

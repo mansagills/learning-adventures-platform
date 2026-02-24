@@ -7,6 +7,7 @@ The **CourseDesignBriefSkill** is the first skill in the AI-powered course gener
 ## What We Built
 
 ### 1. Core Skill Implementation
+
 - **File**: `CourseDesignBriefSkill.ts`
 - **Extends**: BaseSkill
 - **Purpose**: Transform raw CourseRequest data into structured design brief
@@ -17,6 +18,7 @@ The **CourseDesignBriefSkill** is the first skill in the AI-powered course gener
   - Anthropic Claude API integration
 
 ### 2. Anthropic SDK Integration
+
 - **File**: `lib/anthropic/client.ts`
 - **Features**:
   - Singleton Anthropic client configuration
@@ -25,6 +27,7 @@ The **CourseDesignBriefSkill** is the first skill in the AI-powered course gener
   - Environment variable validation
 
 ### 3. Comprehensive Documentation
+
 - **File**: `SKILL.md`
 - **Includes**:
   - Purpose and responsibilities
@@ -34,6 +37,7 @@ The **CourseDesignBriefSkill** is the first skill in the AI-powered course gener
   - Usage examples and integration points
 
 ### 4. Test Infrastructure
+
 - **Files**:
   - `__tests__/sample-data.ts` - 5 test scenarios
   - `__tests__/test-skill.ts` - Complete test suite
@@ -49,6 +53,7 @@ The **CourseDesignBriefSkill** is the first skill in the AI-powered course gener
 All 5 test cases executed successfully:
 
 ### Test 1: Complete Request ✅
+
 - **Student**: Emma Johnson (Age 8, 3rd Grade)
 - **Subject**: MATH (Multiplication, Division, Word Problems)
 - **Result**: ✅ No clarifications needed
@@ -60,6 +65,7 @@ All 5 test cases executed successfully:
 - **Execution Time**: ~10 seconds
 
 ### Test 2: Vague Topics ✅
+
 - **Student**: Alex Chen (Age 10, 5th Grade)
 - **Subject**: SCIENCE ("just some science stuff")
 - **Result**: ⚠️ 3 clarifications flagged correctly
@@ -70,6 +76,7 @@ All 5 test cases executed successfully:
 - **Execution Time**: ~18 seconds
 
 ### Test 3: Age/Grade Mismatch ✅
+
 - **Student**: Sofia Martinez (Age 6, claims 8th Grade)
 - **Subject**: MATH (Algebra, Pre-calculus)
 - **Result**: ⚠️ 3 clarifications flagged correctly
@@ -80,6 +87,7 @@ All 5 test cases executed successfully:
 - **Execution Time**: ~18 seconds
 
 ### Test 4: Contradictory Preferences ✅
+
 - **Student**: Classroom Group (Age 9, 4th Grade)
 - **Subject**: ENGLISH (Reading, Vocabulary)
 - **Result**: ⚠️ 3 clarifications flagged correctly
@@ -90,6 +98,7 @@ All 5 test cases executed successfully:
 - **Execution Time**: ~18 seconds
 
 ### Test 5: Generic Interests ✅
+
 - **Student**: Jake Williams (Age 7, 2nd Grade)
 - **Subject**: INTERDISCIPLINARY ("General knowledge")
 - **Result**: ⚠️ 3 clarifications flagged correctly
@@ -102,19 +111,23 @@ All 5 test cases executed successfully:
 ## Key Achievements
 
 ### ✅ Clarification Detection Works Perfectly
+
 Claude successfully identified:
+
 - Vague/generic topics
 - Age/grade mismatches
 - Contradictory requirements
 - Insufficient detail for effective course design
 
 ### ✅ Intelligent Normalization
+
 - Calculates lesson counts from course length preferences
 - Determines difficulty from age/grade/goals
 - Suggests specific topics when requests are vague
 - Identifies thematic opportunities from student interests
 
 ### ✅ Production-Ready Integration
+
 - Retry logic handles transient API failures
 - JSON parsing handles markdown-wrapped responses
 - Clear error messages for debugging
@@ -131,9 +144,7 @@ const skill = new CourseDesignBriefSkill();
 
 const result = await skill.execute({
   userRequest: 'Normalize this course request',
-  previousOutputs: new Map([
-    ['courseRequest', courseRequestData]
-  ])
+  previousOutputs: new Map([['courseRequest', courseRequestData]]),
 });
 
 if (result.success) {
@@ -176,6 +187,7 @@ This skill is the **first step** in the 5-skill course generation pipeline:
 ```
 
 The CourseGenerationAgent will:
+
 1. Execute this skill to normalize intake data
 2. Check for clarifications
 3. If clarifications exist → set status to FAILED, update adminNotes
@@ -205,6 +217,7 @@ lib/anthropic/
 ## Environment Variables
 
 Required in `.env.local`:
+
 ```env
 ANTHROPIC_API_KEY=sk-ant-...
 ```
@@ -221,12 +234,14 @@ ANTHROPIC_API_KEY=sk-ant-...
 With Phase 1 complete, we can now proceed to:
 
 ### Phase 2: CurriculumDesignSkill
+
 - Design lesson structure and sequence
 - Create learning objectives
 - Assign XP rewards
 - Distribute lesson types (40% games, 20% quizzes, etc.)
 
 ### Future Enhancements
+
 1. **Caching**: Store normalized design briefs to avoid re-processing
 2. **RAG Integration**: Use curriculum databases for topic suggestions
 3. **Multi-Language**: Support intake forms in multiple languages
