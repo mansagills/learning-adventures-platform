@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 /**
  * POST /api/shop/purchase
  * Body: { itemId: string }
- * Deducts coins and adds the item to the character's inventory.
+ * Deducts coins and adds the item to the character's inventory atomically.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -64,17 +64,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Deduct coins
-    await prisma.userLevel.update({
-      where: { userId: user.id },
-      data: { currency: { decrement: shopItem.price } },
-    });
-
-    // Add item to inventory
+    // Build updated inventory
     const inventory = user.character.inventory;
     const existingItems: any[] = Array.isArray(inventory?.items) ? (inventory.items as any[]) : [];
 
-    // For consumables, stack quantity; for equipment/pets, add as unique entry
+    // For equipment/pets, reject if already owned (before touching the DB)
+    if (shopItem.type !== 'CONSUMABLE') {
+      const alreadyOwned = existingItems.some((i: any) => i.id === shopItem.itemId);
+      if (alreadyOwned) {
+        return NextResponse.json({ error: 'You already own this item' }, { status: 400 });
+      }
+    }
+
     const newItem = {
       id: shopItem.itemId,
       type: shopItem.type,
@@ -96,44 +97,33 @@ export async function POST(request: NextRequest) {
         updatedItems = [...existingItems, newItem];
       }
     } else {
-      // Equipment/Pet — only one of each
-      const alreadyOwned = existingItems.some((i: any) => i.id === shopItem.itemId);
-      if (alreadyOwned) {
-        // Refund coins since they already own it
-        await prisma.userLevel.update({
-          where: { userId: user.id },
-          data: { currency: { increment: shopItem.price } },
-        });
-        return NextResponse.json({ error: 'You already own this item' }, { status: 400 });
-      }
       updatedItems = [...existingItems, newItem];
     }
 
-    // Save updated inventory
-    if (inventory) {
-      await prisma.inventory.update({
-        where: { characterId: user.character.id },
-        data: { items: updatedItems },
-      });
-    } else {
-      await prisma.inventory.create({
-        data: {
-          characterId: user.character.id,
-          items: updatedItems,
-        },
-      });
-    }
-
-    // Fetch updated currency
-    const updatedLevel = await prisma.userLevel.findUnique({
-      where: { userId: user.id },
-      select: { currency: true },
-    });
+    // Atomically deduct coins and update inventory in a single transaction
+    const [updatedLevel] = await prisma.$transaction([
+      prisma.userLevel.update({
+        where: { userId: user.id },
+        data: { currency: { decrement: shopItem.price } },
+        select: { currency: true },
+      }),
+      inventory
+        ? prisma.inventory.update({
+            where: { characterId: user.character.id },
+            data: { items: updatedItems },
+          })
+        : prisma.inventory.create({
+            data: {
+              characterId: user.character.id,
+              items: updatedItems,
+            },
+          }),
+    ]);
 
     return NextResponse.json({
       success: true,
       item: newItem,
-      newBalance: updatedLevel?.currency ?? 0,
+      newBalance: updatedLevel.currency,
     });
   } catch (error) {
     console.error('Error purchasing item:', error);
