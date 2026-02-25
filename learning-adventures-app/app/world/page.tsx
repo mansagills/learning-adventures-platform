@@ -6,12 +6,17 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
+import { ShopModal } from '@/components/world/ShopModal';
+import { InventoryPanel } from '@/components/world/InventoryPanel';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
   { ssr: false }
 );
+
+const XP_PER_GAME = 50;
+const COINS_PER_GAME = 5;
 
 export default function WorldPage() {
   const { data: session, status } = useSession();
@@ -25,7 +30,11 @@ export default function WorldPage() {
     type: 'game' | 'lesson';
   } | null>(null);
   const [xp, setXp] = useState(0);
-  const [xpNotification, setXpNotification] = useState<string | null>(null);
+  const [coins, setCoins] = useState(0);
+  const [userLevel, setUserLevel] = useState(1);
+  const [notification, setNotification] = useState<string | null>(null);
+  const [showShop, setShowShop] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -33,7 +42,7 @@ export default function WorldPage() {
   useEffect(() => { sessionRef.current = session; }, [session]);
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
 
-  // Check authentication and character - runs once on auth status change
+  // Check authentication and character — runs once on auth status change
   useEffect(() => {
     const checkCharacter = async () => {
       if (status === 'unauthenticated') {
@@ -43,17 +52,26 @@ export default function WorldPage() {
 
       if (status === 'authenticated') {
         try {
-          const response = await fetch('/api/character');
-          const data = await response.json();
+          const [charRes, levelRes] = await Promise.all([
+            fetch('/api/character'),
+            fetch('/api/world/award'),
+          ]);
+          const charData = await charRes.json();
+          const levelData = await levelRes.json().catch(() => null);
 
-          if (!data.character) {
+          if (!charData.character) {
             router.push('/world/create');
           } else {
-            setCharacterData(data.character);
+            setCharacterData(charData.character);
+            if (levelData?.level) {
+              setXp(levelData.level.totalXP ?? 0);
+              setCoins(levelData.level.currency ?? 0);
+              setUserLevel(levelData.level.currentLevel ?? 1);
+            }
             setIsCheckingCharacter(false);
           }
-        } catch (error) {
-          console.error('Error fetching character:', error);
+        } catch (err) {
+          console.error('Error fetching character:', err);
           setError('Failed to load character data');
           setIsCheckingCharacter(false);
         }
@@ -67,53 +85,79 @@ export default function WorldPage() {
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
       if (!sessionRef.current?.user || !characterDataRef.current) return;
-
       try {
         await fetch('/api/character/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            position: data,
-            lastScene: data.scene,
-          }),
+          body: JSON.stringify({ position: data, lastScene: data.scene }),
         });
-        console.log('Position saved:', data);
       } catch (err) {
         console.error('Failed to save position:', err);
       }
     };
 
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
-      console.log('Opening adventure:', data);
       setCurrentAdventure(data);
+    };
+
+    const handleOpenShop = () => {
+      setShowShop(true);
     };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
+    EventBus.on('open-shop', handleOpenShop);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
+      EventBus.off('open-shop', handleOpenShop);
     };
-  }, []); // Empty deps — refs keep values fresh without re-registering
+  }, []);
 
-  const handleSceneReady = (scene: string) => {
-    console.log(`Scene ${scene} is ready`);
+  const handleSceneReady = (_scene: string) => {
     setGameReady(true);
   };
 
-  const handleAdventureComplete = async (adventureId: string) => {
-    const XP_PER_GAME = 50;
-    setXp((prev) => prev + XP_PER_GAME);
-    setXpNotification(`+${XP_PER_GAME} XP!`);
-    setCurrentAdventure(null);
-    EventBus.emit('adventure-completed', { adventureId });
-    // Clear notification after 3 seconds
-    setTimeout(() => setXpNotification(null), 3000);
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleCloseAdventure = () => {
+  const handleAdventureComplete = async (adventureId: string) => {
+    setXp((prev) => prev + XP_PER_GAME);
+    setCoins((prev) => prev + COINS_PER_GAME);
     setCurrentAdventure(null);
+    EventBus.emit('adventure-completed', { adventureId });
+    showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
+
+    // Persist XP and coins to backend
+    try {
+      const res = await fetch('/api/world/award', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ xp: XP_PER_GAME, coins: COINS_PER_GAME }),
+      });
+      const data = await res.json();
+      if (data.level) {
+        setXp(data.level.totalXP);
+        setCoins(data.level.currency);
+        setUserLevel(data.level.currentLevel);
+        if (data.leveledUp) {
+          showNotification(`🎉 Level Up! You're now Level ${data.level.currentLevel}! +100 🪙`);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save adventure reward:', err);
+    }
+  };
+
+  const handleShopPurchase = (_item: any, newBalance: number) => {
+    setCoins(newBalance);
+  };
+
+  const handleEquip = (_itemId: string, _equipment: Record<string, string | null>) => {
+    // Could emit to Phaser here to update sprite cosmetics in future
   };
 
   // Loading screen
@@ -130,7 +174,6 @@ export default function WorldPage() {
     );
   }
 
-  // Error screen
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
@@ -150,28 +193,44 @@ export default function WorldPage() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
-      {/* Game container — always mounted, never conditionally rendered */}
+      {/* Game canvas */}
       <div className="absolute inset-0">
         <PhaserGame onSceneReady={handleSceneReady} />
       </div>
 
-      {/* Adventure Embed Modal — rendered on top, does NOT affect PhaserGame */}
+      {/* Adventure Embed Modal */}
       {currentAdventure && (
         <AdventureEmbed
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
-          onClose={handleCloseAdventure}
+          onClose={() => setCurrentAdventure(null)}
           onComplete={() => handleAdventureComplete(currentAdventure.adventureId)}
         />
       )}
 
-      {/* XP Notification Toast */}
-      {xpNotification && (
+      {/* Shop Modal */}
+      {showShop && (
+        <ShopModal
+          onClose={() => setShowShop(false)}
+          onPurchase={handleShopPurchase}
+          currency={coins}
+          userLevel={userLevel}
+        />
+      )}
+
+      {/* Inventory Panel */}
+      {showInventory && (
+        <InventoryPanel
+          onClose={() => setShowInventory(false)}
+          onEquip={handleEquip}
+        />
+      )}
+
+      {/* Notification Toast */}
+      {notification && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-          <div
-            className="bg-yellow-400 text-yellow-900 font-extrabold text-2xl px-8 py-4 rounded-2xl shadow-2xl animate-bounce"
-          >
-            ⭐ {xpNotification}
+          <div className="bg-yellow-400 text-yellow-900 font-extrabold text-xl px-8 py-3 rounded-2xl shadow-2xl animate-bounce">
+            ⭐ {notification}
           </div>
         </div>
       )}
@@ -179,35 +238,55 @@ export default function WorldPage() {
       {/* HUD Overlay */}
       {gameReady && (
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-0 right-0 p-4 flex justify-between pointer-events-auto">
-            <div className="bg-black/70 rounded-lg px-4 py-2">
-              <p className="text-white font-semibold">
-                {characterData?.name || session?.user?.name || 'Player'}
-              </p>
-              <p className="text-xs text-gray-300">Level 1</p>
-            </div>
-
-            <div className="bg-black/70 rounded-lg px-4 py-2">
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-400 text-xl">⭐</span>
-                <span className="text-white font-bold">{xp} XP</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
-            <p className="text-white text-sm">
-              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+          {/* Top-left: Character info */}
+          <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
+            <p className="text-white font-semibold">
+              {characterData?.name || session?.user?.name || 'Player'}
             </p>
+            <p className="text-xs text-gray-300">Level {userLevel}</p>
           </div>
 
-          <div className="absolute top-4 right-4">
+          {/* Top-center: XP + Coins */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
+            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+              <span className="text-yellow-400 text-lg">⭐</span>
+              <span className="text-white font-bold">{xp} XP</span>
+            </div>
+            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+              <span className="text-yellow-300 text-lg">🪙</span>
+              <span className="text-white font-bold">{coins}</span>
+            </div>
+          </div>
+
+          {/* Top-right: Buttons */}
+          <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
+            <button
+              onClick={() => setShowInventory(true)}
+              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Inventory"
+            >
+              🎒 Bag
+            </button>
+            <button
+              onClick={() => setShowShop(true)}
+              className="bg-black/70 hover:bg-[#14B8A6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Shop"
+            >
+              🛒 Shop
+            </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors pointer-events-auto"
+              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Exit World
             </button>
+          </div>
+
+          {/* Bottom-right: Controls hint */}
+          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
+            <p className="text-white text-sm">
+              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+            </p>
           </div>
         </div>
       )}

@@ -4,13 +4,13 @@
     {
       "name": "Next.js Dev Server",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app", "run", "dev"],
+      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees/practical-rubin/learning-adventures-app", "run", "dev"],
       "port": 3000
     },
     {
       "name": "Prisma Studio",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app", "run", "db:studio"],
+      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees-practical-rubin/learning-adventures-app", "run", "db:studio"],
       "port": 5555
     }
   ]

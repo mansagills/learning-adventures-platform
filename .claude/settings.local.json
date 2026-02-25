@@ -49,7 +49,10 @@
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes diff main...HEAD --stat)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes branch --show-current:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(python3:*)",
+      "Bash(DATABASE_URL=\"postgresql://mansagills@localhost:5432/template1?sslmode=disable\" npx prisma db push:*)",
+      "Bash(DATABASE_URL=\"postgresql://mansagills@localhost:5432/template1?sslmode=disable\" npx ts-node:*)"
     ],
     "deny": [],
     "ask": []

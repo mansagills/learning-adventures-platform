@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { InteractableObject } from './InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
 
