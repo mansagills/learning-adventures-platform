@@ -1,6 +1,7 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Door } from '../entities/Door';
+import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
 
 /**
@@ -170,8 +171,8 @@ export class WorldScene extends Phaser.Scene {
     // English building (bottom right)
     this.addPlaceholderBuilding(30, 15, 'ENGLISH\n(Coming Soon)', 0x666666);
 
-    // Shop (left side)
-    this.addPlaceholderBuilding(3, 8, 'SHOP', 0x14B8A6); // Teal accent
+    // Shop (left side) — interactable
+    this.addShopBuilding(3, 8);
 
     // Add welcome text
     const welcomeText = this.add.text(640, 60, 'Welcome to Learning Adventures Campus!\nUse WASD or Arrow Keys to move', {
@@ -183,6 +184,64 @@ export class WorldScene extends Phaser.Scene {
     });
     welcomeText.setOrigin(0.5);
     welcomeText.setScrollFactor(0); // Fixed to camera (HUD element)
+  }
+
+  private addShopBuilding(tileX: number, tileY: number): void {
+    const color = 0x14B8A6; // Teal accent
+
+    // Draw 4x4 shop building
+    for (let dy = 0; dy < 4; dy++) {
+      for (let dx = 0; dx < 4; dx++) {
+        const wall = this.add.rectangle((tileX + dx) * 32, (tileY + dy) * 32, 32, 32, color);
+        wall.setOrigin(0, 0);
+        wall.setStrokeStyle(2, 0x000000);
+
+        // Collision bodies (skip front row to allow entry)
+        if (dy < 3) {
+          const wallBody = this.physics.add.staticImage(
+            (tileX + dx) * 32 + 16,
+            (tileY + dy) * 32 + 16,
+            'wall-tile'
+          );
+          wallBody.setVisible(false);
+        }
+      }
+    }
+
+    // Shop label
+    const shopLabel = this.add.text((tileX + 2) * 32, (tileY + 1.5) * 32, 'SHOP', {
+      fontSize: '14px',
+      color: '#FFFFFF',
+      backgroundColor: '#000000',
+      padding: { x: 4, y: 4 },
+      align: 'center',
+    });
+    shopLabel.setOrigin(0.5);
+
+    // Create shop door texture if it doesn't exist
+    if (!this.textures.exists('door-teal-small')) {
+      const g = this.add.graphics();
+      g.fillStyle(0x14B8A6, 1);
+      g.fillCircle(16, 16, 16);
+      g.generateTexture('door-teal-small', 32, 32);
+      g.destroy();
+    }
+
+    // Interactive shop entrance (just below building front)
+    const shopDoorX = (tileX + 1.5) * 32 + 16; // center of building
+    const shopDoorY = (tileY + 4) * 32 + 16;   // just below building
+
+    const shopInteractable = new InteractableObject(
+      this,
+      shopDoorX,
+      shopDoorY,
+      'door-teal-small'
+    );
+    shopInteractable.setPromptText('Press SPACE: Open Shop');
+    shopInteractable.setOnInteract(() => {
+      EventBus.emit('open-shop', {});
+    });
+    this.interactables.push(shopInteractable);
   }
 
   private addPlaceholderBuilding(x: number, y: number, label: string, color: number): void {
@@ -210,13 +269,13 @@ export class WorldScene extends Phaser.Scene {
     buildingLabel.setOrigin(0.5);
   }
 
+  private savePositionHandler = (data: { x: number; y: number; scene: string }) => {
+    // React world/page.tsx handles the actual API call via its own EventBus listener
+    console.log('Saving player position:', data);
+  };
+
   private setupEventListeners(): void {
-    // Listen for save position events from Player
-    EventBus.on('save-player-position', (data: { x: number; y: number; scene: string }) => {
-      // Emit to React to save to backend
-      console.log('Saving player position:', data);
-      // React component will handle the actual API call
-    });
+    EventBus.on('save-player-position', this.savePositionHandler);
   }
 
   update(time: number, delta: number): void {
@@ -239,6 +298,9 @@ export class WorldScene extends Phaser.Scene {
   }
 
   shutdown(): void {
+    // Clean up event listeners to prevent accumulation on scene restart
+    EventBus.off('save-player-position', this.savePositionHandler);
+
     // Clean up interactables before scene stops
     this.interactables.forEach((interactable) => {
       if (interactable && interactable.destroy) {

@@ -81,8 +81,8 @@ export function AdventureEmbed({
   };
 
   const handleIframeLoad = () => {
-    // Track that the game was opened — user can close modal when done
-    setIsLoading(false);
+    // Game opened in new tab — show completion confirmation
+    setIsLoading(true);
   };
 
 
