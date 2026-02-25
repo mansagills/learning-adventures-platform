@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-// Admin domain for automatic admin access
-const ADMIN_DOMAIN = '@learningadventures.org';
-
 // Child session cookie name
 const CHILD_SESSION_COOKIE = 'child_session';
 
@@ -75,10 +72,9 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/dashboard' || pathname === '/') {
     if (token) {
       const userRole = token.role as string;
-      const userEmail = token.email as string;
 
-      // Check if user is admin (by role or by email domain)
-      const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+      // Check if user is admin (by role only)
+      const isAdmin = userRole === 'ADMIN';
 
       // If admin and trying to access main dashboard, redirect to internal
       // But only if they haven't explicitly navigated there (check for referrer)
@@ -102,8 +98,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const userRole = token.role as string;
-    const userEmail = token.email as string;
-    const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+    const isAdmin = userRole === 'ADMIN';
 
     if (!isAdmin) {
       // Not an admin, redirect to unauthorized page

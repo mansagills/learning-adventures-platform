@@ -45,7 +45,7 @@ describe('Signup Security Controls', () => {
     const data = await response.json();
 
     expect(response.status).toBe(403);
-    expect(data.error).toContain('Registration with this domain is restricted');
+    expect(data.error).toContain('Signups with @learningadventures.org are restricted');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
