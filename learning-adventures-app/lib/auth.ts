@@ -166,10 +166,8 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      // Determine role based on email domain
-      const email = user.email || '';
-      const isAdminDomain = email.endsWith('@learningadventures.org');
-      const defaultRole = isAdminDomain ? 'ADMIN' : 'STUDENT';
+      // Determine role for new users
+      const defaultRole = 'STUDENT';
 
       // OAuth providers (Google, Apple) and Email provider
       if (
@@ -183,7 +181,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          // Create new user with role based on email domain
+          // Create new user with default role
           await prisma.user.create({
             data: {
               email: user.email!,
@@ -196,27 +194,6 @@ export const authOptions: NextAuthOptions = {
             `✅ New user created with role ${defaultRole}:`,
             user.email
           );
-        } else if (isAdminDomain && existingUser.role !== 'ADMIN') {
-          // Upgrade existing @learningadventures.org users to ADMIN if not already
-          await prisma.user.update({
-            where: { email: user.email! },
-            data: { role: 'ADMIN' },
-          });
-          console.log(`✅ User upgraded to ADMIN:`, user.email);
-        }
-      }
-
-      // For credentials provider, also check and upgrade admin domain users
-      if (account?.provider === 'credentials' && isAdminDomain) {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-        });
-        if (existingUser && existingUser.role !== 'ADMIN') {
-          await prisma.user.update({
-            where: { email: user.email! },
-            data: { role: 'ADMIN' },
-          });
-          console.log(`✅ Credentials user upgraded to ADMIN:`, user.email);
         }
       }
 

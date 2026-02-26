@@ -18,18 +18,15 @@ This guide explains how team members can upload games and courses to the Learnin
 
 ## Getting Admin Access
 
-### Automatic Admin Access
+### Admin Assignment
 
-Any team member with a `@learningadventures.org` email address automatically receives Admin privileges when they sign in:
+Admin access is strictly controlled and must be manually assigned. To get admin access:
 
-1. Go to the Learning Adventures platform
-2. Click **Sign In** or **Sign Up**
-3. Use your `@learningadventures.org` email (Google OAuth or email/password)
-4. You'll be automatically redirected to the Admin Dashboard
+1. Sign up for an account on the platform
+2. Contact an existing administrator or the engineering team
+3. Request that your user account be granted the `ADMIN` role
 
-### Manual Admin Assignment
-
-For team members without a `@learningadventures.org` email, an existing admin can manually assign the ADMIN role via the database.
+> **Security Note:** Simply having a `@learningadventures.org` email address does **not** automatically grant admin privileges.
 
 ---
 
@@ -37,7 +34,7 @@ For team members without a `@learningadventures.org` email, an existing admin ca
 
 ### After Login
 
-When you log in with an `@learningadventures.org` email, you're automatically redirected to `/internal` (the Admin Dashboard).
+If you have the `ADMIN` role, you may be redirected to `/internal` (the Admin Dashboard) upon login, or you can navigate there manually.
 
 ### From the Main Platform
 
@@ -306,8 +303,8 @@ Once content is **APPROVED**, it can be promoted to production:
 
 ### "Unauthorized" Error
 
-- Make sure you're logged in with an `@learningadventures.org` email
-- Or request ADMIN role assignment from another admin
+- Verify that your account has been explicitly granted the `ADMIN` role
+- Contact an existing administrator if you believe this is a mistake
 
 ### Upload Failed
 
