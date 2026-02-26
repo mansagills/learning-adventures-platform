@@ -87,7 +87,7 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
       } else {
         setCurrency(data.newBalance);
         if (item.type !== 'CONSUMABLE') {
-          setOwnedItemIds((prev) => new Set([...prev, item.itemId]));
+          setOwnedItemIds((prev) => { const next = new Set(prev); next.add(item.itemId); return next; });
         }
         setFeedback({ type: 'success', message: `Bought ${item.iconEmoji} ${item.name}!` });
         onPurchase?.(item, data.newBalance);
