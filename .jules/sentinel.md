@@ -7,3 +7,8 @@
 **Vulnerability:** The authentication system automatically promotes users with `@learningadventures.org` emails to ADMIN upon login. However, the signup endpoint did not restrict registration with these emails, allowing anyone to register as an attacker and gain ADMIN privileges.
 **Learning:** Security logic in one component (auth provider callbacks) can create vulnerabilities if assumptions (e.g., "only admins have these emails") are not enforced in other components (signup).
 **Prevention:** Implement defense-in-depth by validating sensitive domains at the signup stage. Ensure that "trusted" identifiers like email domains are actually verified or restricted before granting privileges based on them.
+
+## 2026-02-02 - Middleware Authorization Bypass via Email Domain
+**Vulnerability:** Found `middleware.ts` logic that granted access to sensitive routes (`/internal`, `/staging`) based solely on the user's email domain (`@learningadventures.org`), bypassing role checks.
+**Learning:** Checking for authorization in middleware using weak signals (like email domain) can undermine robust RBAC systems. It creates a "shadow" authorization model that is hard to audit.
+**Prevention:** Authorization decisions should be centralized and based on explicit, verified roles (e.g., `token.role === 'ADMIN'`). Avoid convenience shortcuts in critical access paths.
