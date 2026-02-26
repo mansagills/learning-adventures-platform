@@ -75,10 +75,9 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/dashboard' || pathname === '/') {
     if (token) {
       const userRole = token.role as string;
-      const userEmail = token.email as string;
 
-      // Check if user is admin (by role or by email domain)
-      const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+      // Check if user is admin
+      const isAdmin = userRole === 'ADMIN';
 
       // If admin and trying to access main dashboard, redirect to internal
       // But only if they haven't explicitly navigated there (check for referrer)
@@ -102,8 +101,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const userRole = token.role as string;
-    const userEmail = token.email as string;
-    const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+    const isAdmin = userRole === 'ADMIN';
 
     if (!isAdmin) {
       // Not an admin, redirect to unauthorized page
