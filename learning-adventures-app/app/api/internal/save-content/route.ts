@@ -3,6 +3,8 @@ import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { validateIdentifier } from '@/lib/security';
 
 async function extractZipSafely(zip: AdmZip, destDir: string): Promise<void> {
@@ -29,6 +31,20 @@ async function extractZipSafely(zip: AdmZip, destDir: string): Promise<void> {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    // Ensure user is authenticated and is an ADMIN or TEACHER
+    if (
+      !session ||
+      !session.user ||
+      !['ADMIN', 'TEACHER'].includes(session.user.role)
+    ) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Admin or Teacher role required' },
+        { status: 401 }
+      );
+    }
+
     const {
       content,
       fileName,
