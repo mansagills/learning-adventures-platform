@@ -174,6 +174,9 @@ export class WorldScene extends Phaser.Scene {
     // Shop (left side) — interactable
     this.addShopBuilding(3, 8);
 
+    // Job Board (right side) — interactable
+    this.addJobBoardBuilding(33, 8);
+
     // Add welcome text
     const welcomeText = this.add.text(640, 60, 'Welcome to Learning Adventures Campus!\nUse WASD or Arrow Keys to move', {
       fontSize: '20px',
@@ -242,6 +245,55 @@ export class WorldScene extends Phaser.Scene {
       EventBus.emit('open-shop', {});
     });
     this.interactables.push(shopInteractable);
+  }
+
+  private addJobBoardBuilding(tileX: number, tileY: number): void {
+    const color = 0xF59E0B; // Amber for job board
+
+    // Draw 4x4 job board building
+    for (let dy = 0; dy < 4; dy++) {
+      for (let dx = 0; dx < 4; dx++) {
+        const wall = this.add.rectangle((tileX + dx) * 32, (tileY + dy) * 32, 32, 32, color);
+        wall.setOrigin(0, 0);
+        wall.setStrokeStyle(2, 0x000000);
+
+        if (dy < 3) {
+          const wallBody = this.physics.add.staticImage(
+            (tileX + dx) * 32 + 16,
+            (tileY + dy) * 32 + 16,
+            'wall-tile'
+          );
+          wallBody.setVisible(false);
+        }
+      }
+    }
+
+    const label = this.add.text((tileX + 2) * 32, (tileY + 1.5) * 32, 'JOB\nBOARD', {
+      fontSize: '13px',
+      color: '#FFFFFF',
+      backgroundColor: '#000000',
+      padding: { x: 4, y: 4 },
+      align: 'center',
+    });
+    label.setOrigin(0.5);
+
+    if (!this.textures.exists('door-amber-small')) {
+      const g = this.add.graphics();
+      g.fillStyle(0xF59E0B, 1);
+      g.fillCircle(16, 16, 16);
+      g.generateTexture('door-amber-small', 32, 32);
+      g.destroy();
+    }
+
+    const doorX = (tileX + 1.5) * 32 + 16;
+    const doorY = (tileY + 4) * 32 + 16;
+
+    const jobInteractable = new InteractableObject(this, doorX, doorY, 'door-amber-small');
+    jobInteractable.setPromptText('Press SPACE: Open Job Board');
+    jobInteractable.setOnInteract(() => {
+      EventBus.emit('open-job-board', {});
+    });
+    this.interactables.push(jobInteractable);
   }
 
   private addPlaceholderBuilding(x: number, y: number, label: string, color: number): void {

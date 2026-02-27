@@ -66,11 +66,16 @@ export function AdventureEmbed({
   const getEmbedUrl = () => {
     // Map adventureId to actual HTML file path
     const gameMap: Record<string, string> = {
+      // Embedded math adventures
       'pizza-fraction-frenzy': '/games/pizza-fraction-frenzy.html',
       'math-race-rally': '/games/math-race-rally.html',
       'multiplication-bingo-bonanza': '/games/multiplication-bingo-bonanza.html',
       'number-monster-feeding': '/games/number-monster-feeding.html',
       'math-jeopardy-junior': '/games/math-jeopardy-junior.html',
+      // Job mini-games
+      'cafeteria-cashier': '/games/cafeteria-cashier.html',
+      'library-organizer': '/games/math-dash.html',
+      'garden-keeper': '/games/math-dash.html',
     };
 
     console.log('[AdventureEmbed] adventureId:', adventureId);

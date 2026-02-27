@@ -8,6 +8,7 @@ import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
 import { InventoryPanel } from '@/components/world/InventoryPanel';
+import { JobBoard } from '@/components/world/JobBoard';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -35,6 +36,8 @@ export default function WorldPage() {
   const [notification, setNotification] = useState<string | null>(null);
   const [showShop, setShowShop] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
+  const [showJobBoard, setShowJobBoard] = useState(false);
+  const [activeJob, setActiveJob] = useState<any>(null);
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -100,18 +103,19 @@ export default function WorldPage() {
       setCurrentAdventure(data);
     };
 
-    const handleOpenShop = () => {
-      setShowShop(true);
-    };
+    const handleOpenShop = () => setShowShop(true);
+    const handleOpenJobBoard = () => setShowJobBoard(true);
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
+    EventBus.on('open-job-board', handleOpenJobBoard);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
+      EventBus.off('open-job-board', handleOpenJobBoard);
     };
   }, []);
 
@@ -160,6 +164,61 @@ export default function WorldPage() {
     // Could emit to Phaser here to update sprite cosmetics in future
   };
 
+  const handleStartJob = (job: any) => {
+    if (job.gamePath) {
+      // Launch the mini-game via AdventureEmbed (opens in new tab)
+      setActiveJob(job);
+      setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
+    }
+  };
+
+  const handleJobComplete = (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => {
+    setCoins((prev) => prev + currencyEarned);
+    setXp((prev) => prev + xpEarned);
+    setUserLevel(newLevel);
+    showNotification(`+${xpEarned} XP  +${currencyEarned} 🪙`);
+    if (leveledUp) {
+      showNotification(`🎉 Level Up! You're now Level ${newLevel}! +100 🪙`);
+    }
+    setActiveJob(null);
+  };
+
+  // When a job mini-game completes, persist rewards via the job complete API
+  const handleJobAdventureComplete = async (adventureId: string) => {
+    if (activeJob && activeJob.jobId === adventureId) {
+      try {
+        const res = await fetch('/api/jobs/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: activeJob.jobId }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          handleJobComplete(
+            data.currencyEarned,
+            data.xpEarned,
+            data.level?.currentLevel ?? userLevel,
+            data.leveledUp ?? false,
+          );
+          if (data.level) {
+            setXp(data.level.totalXP);
+            setCoins(data.level.currency);
+            setUserLevel(data.level.currentLevel);
+          }
+        } else {
+          showNotification(data.error ?? 'Job reward failed');
+        }
+      } catch (err) {
+        console.error('Failed to complete job:', err);
+      }
+    } else {
+      // Regular adventure completion
+      await handleAdventureComplete(adventureId);
+      return;
+    }
+    setCurrentAdventure(null);
+  };
+
   // Loading screen
   if (status === 'loading' || isCheckingCharacter) {
     return (
@@ -203,8 +262,8 @@ export default function WorldPage() {
         <AdventureEmbed
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
-          onClose={() => setCurrentAdventure(null)}
-          onComplete={() => handleAdventureComplete(currentAdventure.adventureId)}
+          onClose={() => { setCurrentAdventure(null); setActiveJob(null); }}
+          onComplete={() => handleJobAdventureComplete(currentAdventure.adventureId)}
         />
       )}
 
@@ -223,6 +282,15 @@ export default function WorldPage() {
         <InventoryPanel
           onClose={() => setShowInventory(false)}
           onEquip={handleEquip}
+        />
+      )}
+
+      {/* Job Board */}
+      {showJobBoard && (
+        <JobBoard
+          onClose={() => setShowJobBoard(false)}
+          onStartJob={handleStartJob}
+          onJobComplete={handleJobComplete}
         />
       )}
 
@@ -273,6 +341,13 @@ export default function WorldPage() {
               title="Open Shop"
             >
               🛒 Shop
+            </button>
+            <button
+              onClick={() => setShowJobBoard(true)}
+              className="bg-black/70 hover:bg-[#F59E0B]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Job Board"
+            >
+              💼 Jobs
             </button>
             <button
               onClick={() => router.push('/dashboard')}
