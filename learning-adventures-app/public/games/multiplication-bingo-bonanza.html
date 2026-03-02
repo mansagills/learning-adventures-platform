@@ -594,6 +594,15 @@
       }
 
       function gameOver() {
+        // Notify Learning Adventures world embed on completion
+        if (window.opener) {
+          window.opener.postMessage({
+            type: 'game-complete',
+            adventureId: 'multiplication-bingo-bonanza',
+            score: score,
+          }, '*');
+        }
+
         document.getElementById('main-game').classList.add('hidden');
         document.getElementById('game-over').classList.remove('hidden');
         document.getElementById('final-bingos').textContent = bingoCount;

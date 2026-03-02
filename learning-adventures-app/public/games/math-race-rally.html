@@ -557,6 +557,15 @@
       function endGame() {
         gameState.gameEnded = true;
 
+        // Notify Learning Adventures world embed on completion
+        if (window.opener) {
+          window.opener.postMessage({
+            type: 'game-complete',
+            adventureId: 'math-race-rally',
+            score: gameState.score,
+          }, '*');
+        }
+
         const finalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
         const accuracy = Math.round(
           (gameState.correctAnswers / gameState.totalQuestions) * 100
