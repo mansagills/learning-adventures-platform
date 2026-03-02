@@ -125,8 +125,8 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return success (or at least proceed past validation)
     // Note: Since we mocked everything, it might succeed or fail later, but status shouldn't be 400 due to validation
     if (res.status === 400) {
-        const json = await res.json();
-        console.log('Error:', json);
+      const json = await res.json();
+      console.log('Error:', json);
     }
     expect(res.status).not.toBe(400);
 

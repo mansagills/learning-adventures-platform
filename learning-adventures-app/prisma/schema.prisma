@@ -92,6 +92,8 @@ model User {
   assignedCourseRequests CourseRequest[] @relation("AssignedCourseRequests")
   // 2D World character relation
   character Character?
+  // Job system relations
+  jobCompletions JobCompletion[]
 }
 
 model VerificationToken {
@@ -535,6 +537,10 @@ model DailyXP {
   lessonsCompleted Int     @default(0)
   gamesCompleted   Int     @default(0)
 
+  // Job / World economy tracking
+  currencyEarned   Int     @default(0)
+  jobsCompleted    Int     @default(0)
+
   // Relations
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -558,6 +564,9 @@ model UserLevel {
   currentStreak   Int      @default(0)
   longestStreak   Int      @default(0)
   lastActivityDate DateTime?
+
+  // Economy (2D World coins)
+  currency        Int      @default(0)
 
   // Relations
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1575,13 +1584,88 @@ model Character {
 model Inventory {
   id          String   @id @default(cuid())
   characterId String   @unique
-  
+
   items       Json     // Array of InventoryItem: { id, type, name, quantity, metadata }
   capacity    Int      @default(20)
-  
+
   updatedAt   DateTime @updatedAt
-  
+
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  
+
   @@index([characterId])
+}
+
+enum ItemType {
+  CONSUMABLE   // XP potions, food (one-time use)
+  EQUIPMENT    // Wearable cosmetics (hat, shirt, accessory)
+  PET          // Pet companions
+}
+
+// ShopItem - Item catalog for the 2D world shop
+model ShopItem {
+  id               String   @id @default(cuid())
+  itemId           String   @unique  // e.g. 'xp-potion', 'wizard-hat'
+  name             String
+  description      String   @db.Text
+  type             ItemType
+  price            Int      // Cost in coins
+  levelRequirement Int      @default(1)
+  iconEmoji        String   // e.g. '🧪', '🧙', '🤖'
+  effects          Json?    // e.g. { "xpBoost": 50 } for consumables
+  isAvailable      Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+
+  @@index([type, isAvailable])
+}
+
+// ============================================================================
+// JOB SYSTEM MODELS
+// ============================================================================
+
+enum JobType {
+  MINI_GAME   // Launches a Phaser/HTML mini-game
+  QUIZ        // Answer N math questions
+  CHALLENGE   // Timed or logic challenge
+}
+
+// Job - Catalog of available daily jobs
+model Job {
+  id               String   @id @default(cuid())
+  jobId            String   @unique  // e.g. 'cafeteria-cashier'
+  title            String
+  description      String   @db.Text
+  type             JobType
+  iconEmoji        String
+  currencyReward   Int      // Coins awarded on completion
+  xpReward         Int      // XP awarded on completion
+  cooldownHours    Int      // Hours before user can do it again
+  isActive         Boolean  @default(true)
+  minLevel         Int      @default(1)
+
+  // For MINI_GAME jobs — the HTML game path to launch
+  gamePath         String?  // e.g. '/games/cafeteria-cashier.html'
+
+  createdAt        DateTime @default(now())
+
+  completions      JobCompletion[]
+
+  @@index([isActive, minLevel])
+}
+
+// JobCompletion - Records each time a user completes a job
+model JobCompletion {
+  id              String   @id @default(cuid())
+  userId          String
+  jobId           String   // FK to Job.jobId (string id, not cuid)
+  completedAt     DateTime @default(now())
+  currencyEarned  Int
+  xpEarned        Int
+  score           Int?     // Optional score from mini-game
+
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             Job  @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+
+  @@index([userId, jobId])
+  @@index([userId, completedAt])
 }

@@ -35,14 +35,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Security: Validate fileName to prevent path traversal
-    if (
-      fileName.includes('/') ||
-      fileName.includes('\\') ||
-      fileName.includes('..')
-    ) {
+    // Security: Prevent path traversal by using basename
+    // This ensures fileName is just a filename, not a path
+    const safeFileName = basename(fileName);
+    if (safeFileName !== fileName) {
       return NextResponse.json(
-        { error: 'Invalid filename: contains path traversal characters' },
+        { error: 'Invalid file name. Path traversal detected.' },
         { status: 400 }
       );
     }
@@ -89,18 +87,25 @@ export async function POST(request: NextRequest) {
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // SECURITY: Prevent path traversal in uploadedZipPath
       // Ensure path doesn't contain '..', and is within allowed directory
-      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+      const normalizedZipPath = normalize(uploadedZipPath).replace(
+        /^(\.\.(\/|\\|$))+/,
+        ''
+      );
 
       // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
-         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
-         return NextResponse.json(
-           { error: 'Invalid path. Path traversal detected.' },
-           { status: 400 }
-         );
+      if (
+        uploadedZipPath.includes('..') ||
+        !normalizedZipPath.startsWith('uploads/temp/')
+      ) {
+        console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+        return NextResponse.json(
+          { error: 'Invalid path. Path traversal detected.' },
+          { status: 400 }
+        );
       }
 
       // Create directory for the game/lesson
+      const gameId = safeFileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
 
       // Double check path traversal just in case
@@ -118,19 +123,16 @@ export async function POST(request: NextRequest) {
 
       await mkdir(gameDir, { recursive: true });
 
-      // Extract zip to the game directory
-      // Sanitize uploadedZipPath
-      const safeZipPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
-      const resolvedZipPath = resolve(safeZipPath);
-      const resolvedPublicDir = resolve(publicDir);
-
-      // Verify that the resolved path is inside the public directory
-      if (
-        !resolvedZipPath.startsWith(resolvedPublicDir + sep) &&
-        resolvedZipPath !== resolvedPublicDir
-      ) {
+      // Prevent path traversal in uploadedZipPath
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^\//, '')
+      );
+      if (!zipFullPath.startsWith(publicDir)) {
         return NextResponse.json(
-          { error: 'Invalid zip path: Path traversal detected' },
+          {
+            error: 'Invalid uploadedZipPath. Must be within public directory.',
+          },
           { status: 400 }
         );
       }
@@ -160,15 +162,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Security: double check that fileName is safe (already checked for separators above)
-      if (fileName !== basename(fileName)) {
-        return NextResponse.json(
-          { error: 'Invalid filename: must be a base filename' },
-          { status: 400 }
-        );
-      }
-
-      const filePath = join(tierDir, fileName);
+      const filePath = join(tierDir, safeFileName);
 
       // Ensure filePath is safe (though we validated identifier, verify full path)
       const resolvedFilePath = resolve(filePath);
@@ -189,8 +183,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        filePath: `/${type}s/${subscriptionTier}/${fileName}`,
-        isDirectory: false,
+        filePath: `/${type}s/${subscriptionTier}/${safeFileName}`,
+        isDirectory: false
       });
     }
   } catch (error) {

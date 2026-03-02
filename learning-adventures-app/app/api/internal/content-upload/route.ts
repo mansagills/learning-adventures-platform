@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     } else if (['mp4', 'webm', 'mov', 'avi'].includes(fileExt || '')) {
       // Video file
       contentType = 'VIDEO';
-      targetPath = `videos/${Date.now()}-${fileName}`;
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+      targetPath = `videos/${Date.now()}-${safeFileName}`;
     } else if (fileExt === 'html') {
       // HTML game or lesson - extract metadata to determine type
       const htmlContent = await file.text();
@@ -50,7 +51,8 @@ export async function POST(request: NextRequest) {
 
       contentType = metadata.type === 'game' ? 'GAME' : 'LESSON';
       const folder = contentType === 'GAME' ? 'games' : 'lessons';
-      targetPath = `${folder}/${fileName}`;
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+      targetPath = `${folder}/${safeFileName}`;
     } else {
       return NextResponse.json(
         { error: 'Unsupported file type' },

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Door } from '../entities/Door';
 import { NPC } from '../entities/NPC';

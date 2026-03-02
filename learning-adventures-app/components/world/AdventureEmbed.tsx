@@ -20,7 +20,7 @@ export function AdventureEmbed({
   onClose,
   onComplete,
 }: AdventureEmbedProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [gameOpened, setGameOpened] = useState(false);
 
   useEffect(() => {
     // Listen for postMessage events from embedded game
@@ -66,11 +66,16 @@ export function AdventureEmbed({
   const getEmbedUrl = () => {
     // Map adventureId to actual HTML file path
     const gameMap: Record<string, string> = {
+      // Embedded math adventures
       'pizza-fraction-frenzy': '/games/pizza-fraction-frenzy.html',
       'math-race-rally': '/games/math-race-rally.html',
       'multiplication-bingo-bonanza': '/games/multiplication-bingo-bonanza.html',
       'number-monster-feeding': '/games/number-monster-feeding.html',
       'math-jeopardy-junior': '/games/math-jeopardy-junior.html',
+      // Job mini-games
+      'cafeteria-cashier': '/games/cafeteria-cashier.html',
+      'library-organizer': '/games/math-dash.html',
+      'garden-keeper': '/games/math-dash.html',
     };
 
     console.log('[AdventureEmbed] adventureId:', adventureId);
@@ -80,9 +85,9 @@ export function AdventureEmbed({
     return url;
   };
 
-  const handleIframeLoad = () => {
-    // Track that the game was opened — user can close modal when done
-    setIsLoading(false);
+  const handleGameOpen = () => {
+    // Game opened in new tab — advance modal to completion confirmation screen
+    setGameOpened(true);
   };
 
 
@@ -106,7 +111,7 @@ export function AdventureEmbed({
 
         {/* Game launcher */}
         <div className="w-full h-full flex flex-col items-center justify-center gap-6 pt-14 pb-12">
-          {!isLoading ? (
+          {!gameOpened ? (
             <div className="text-center">
               <div className="text-6xl mb-4">🎮</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">Ready to Play!</h3>
@@ -115,7 +120,7 @@ export function AdventureEmbed({
                 href={getEmbedUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleIframeLoad}
+                onClick={handleGameOpen}
                 className="inline-block px-8 py-4 rounded-xl text-white font-bold text-lg transition-transform hover:scale-105"
                 style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}
               >

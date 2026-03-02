@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 
 /**
  * InteractableObject - Base class for objects that players can interact with

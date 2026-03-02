@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$FILE\" =~ \\.(ts|tsx|js|jsx|css|json|md)$ ]]; then npx prettier --write \"$FILE\" 2>/dev/null || true; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$FILE\" =~ \\.env(\\.local|\\.example)?$ ]]; then echo 'BLOCKED: .env files contain real API keys and secrets. Edit these files manually in your editor.'; exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
