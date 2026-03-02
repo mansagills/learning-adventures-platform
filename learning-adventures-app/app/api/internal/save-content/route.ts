@@ -8,12 +8,11 @@ import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication and authorization
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
       return NextResponse.json(
-        { error: 'Unauthorized. Admin role required.' },
+        { error: 'Unauthorized. Admin or Teacher role required.' },
         { status: 403 }
       );
     }
@@ -34,10 +33,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate fileName to prevent path traversal
-    if (fileName !== basename(fileName)) {
+    // Security: Validate fileName (path traversal prevention)
+    const safeFileName = basename(fileName);
+    if (fileName !== safeFileName || !/^[a-zA-Z0-9._-]+$/.test(fileName)) {
       return NextResponse.json(
-        { error: 'Invalid fileName. Path components are not allowed.' },
+        { error: 'Invalid filename. Only alphanumeric, dots, underscores, and hyphens are allowed.' },
         { status: 400 }
       );
     }
@@ -82,17 +82,12 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
-      // SECURITY: Prevent path traversal in uploadedZipPath
-      // Ensure path doesn't contain '..', and is within allowed directory
-      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
-
-      // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
-         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
-         return NextResponse.json(
-           { error: 'Invalid path. Path traversal detected.' },
-           { status: 400 }
-         );
+      // Security: Validate uploadedZipPath to prevent path traversal
+      if (uploadedZipPath.includes('..') || !uploadedZipPath.startsWith('/uploads/temp/')) {
+        return NextResponse.json(
+          { error: 'Invalid zip path. Must be a relative path in /uploads/temp/' },
+          { status: 400 }
+        );
       }
 
       // Create directory for the game/lesson

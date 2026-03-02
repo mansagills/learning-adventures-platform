@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { extractZipSafely } from '@/lib/safe-zip';
-import path from 'path';
-import fs from 'fs/promises';
-import { existsSync } from 'fs';
+import { POST } from '@/app/api/internal/save-content/route';
+import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
+}));
 
 const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -84,12 +88,9 @@ describe('Security: Zip Slip Prevention', () => {
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
-    // Mock ADMIN session
-    mockGetServerSession.mockResolvedValue({
-      user: {
-        role: 'ADMIN',
-        id: 'admin-123',
-      },
+    // Mock admin session
+    (getServerSession as any).mockResolvedValue({
+      user: { role: 'ADMIN', id: 'admin' },
     });
 
     const req = new NextRequest(
@@ -101,7 +102,7 @@ describe('Security: Zip Slip Prevention', () => {
           type: 'game',
           subscriptionTier: 'free',
           uploadSource: 'uploaded',
-          uploadedZipPath: '/uploads/test.zip',
+          uploadedZipPath: '/uploads/temp/test.zip',
         }),
       }
     );
