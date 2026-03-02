@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
@@ -8,10 +10,13 @@ import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
     const session = await getServerSession(authOptions);
-    if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 403 }
+      );
     }
 
     const {
