@@ -33,7 +33,11 @@ interface LessonListProps {
   isEnrolled: boolean;
 }
 
-export default function LessonList({ lessons, courseSlug, isEnrolled }: LessonListProps) {
+export default function LessonList({
+  lessons,
+  courseSlug,
+  isEnrolled,
+}: LessonListProps) {
   const lessonTypeIcons: Record<string, string> = {
     VIDEO: '📹',
     INTERACTIVE: '🎮',
@@ -63,7 +67,9 @@ export default function LessonList({ lessons, courseSlug, isEnrolled }: LessonLi
 
     if (lesson.progress?.status === 'COMPLETED') {
       if (lesson.isPassed) {
-        return lesson.progress.score ? `Completed (${lesson.progress.score}%)` : 'Completed';
+        return lesson.progress.score
+          ? `Completed (${lesson.progress.score}%)`
+          : 'Completed';
       }
       return `Failed (${lesson.progress.score}%) - Retry`;
     }
@@ -80,7 +86,9 @@ export default function LessonList({ lessons, courseSlug, isEnrolled }: LessonLi
     <div className="space-y-3">
       {lessons.map((lesson) => {
         const canClick = isEnrolled && !lesson.isLocked;
-        const href = canClick ? `/courses/${courseSlug}/lessons/${lesson.order}` : '#';
+        const href = canClick
+          ? `/courses/${courseSlug}/lessons/${lesson.order}`
+          : '#';
 
         const lessonComponent = (
           <div
@@ -102,9 +110,13 @@ export default function LessonList({ lessons, courseSlug, isEnrolled }: LessonLi
                 <span className="text-lg">
                   {lessonTypeIcons[lesson.type] || '📄'}
                 </span>
-                <h3 className="font-semibold text-gray-900 truncate">{lesson.title}</h3>
+                <h3 className="font-semibold text-gray-900 truncate">
+                  {lesson.title}
+                </h3>
               </div>
-              <p className="text-sm text-gray-600 line-clamp-1">{lesson.description}</p>
+              <p className="text-sm text-gray-600 line-clamp-1">
+                {lesson.description}
+              </p>
 
               {/* Metadata */}
               <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">

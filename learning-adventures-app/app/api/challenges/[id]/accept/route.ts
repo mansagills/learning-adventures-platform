@@ -20,8 +20,8 @@ export async function POST(
       where: {
         id: challengeId,
         challengedId: session.user.id,
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     if (!challenge) {
@@ -36,7 +36,7 @@ export async function POST(
       where: { id: challengeId },
       data: {
         status: 'ACTIVE',
-        startDate: new Date()
+        startDate: new Date(),
       },
       include: {
         creator: {
@@ -45,8 +45,8 @@ export async function POST(
             name: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
+            level: true,
+          },
         },
         challenged: {
           select: {
@@ -54,14 +54,13 @@ export async function POST(
             name: true,
             image: true,
             gradeLevel: true,
-            level: true
-          }
-        }
-      }
+            level: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ challenge: updatedChallenge });
-
   } catch (error) {
     console.error('Error accepting challenge:', error);
     return NextResponse.json(

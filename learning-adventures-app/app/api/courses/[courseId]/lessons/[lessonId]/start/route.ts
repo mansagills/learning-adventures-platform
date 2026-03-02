@@ -7,7 +7,11 @@
 import { NextRequest } from 'next/server';
 import { startLesson } from '@/lib/courses';
 import { requireAuth } from '@/lib/auth';
-import { successResponse, errorResponse, handleApiError } from '@/lib/responses';
+import {
+  successResponse,
+  errorResponse,
+  handleApiError,
+} from '@/lib/responses';
 
 export async function POST(
   request: NextRequest,
@@ -20,7 +24,11 @@ export async function POST(
     const result = await startLesson(user.id, lessonId);
 
     if (!result.success) {
-      return errorResponse(result.error || 'Failed to start lesson', 'START_LESSON_FAILED', 403);
+      return errorResponse(
+        result.error || 'Failed to start lesson',
+        'START_LESSON_FAILED',
+        403
+      );
     }
 
     return successResponse({

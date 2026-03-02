@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { WorldScene } from './scenes/WorldScene';
 import { MathBuildingScene } from './scenes/MathBuildingScene';
 

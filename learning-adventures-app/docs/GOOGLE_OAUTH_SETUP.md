@@ -42,27 +42,33 @@ Google OAuth allows users to sign in using their existing Google account, provid
 ### Fill in the required information:
 
 #### App Information
+
 - **App name**: Learning Adventures Platform
 - **User support email**: your-email@example.com
 - **App logo**: (Optional) Upload your platform logo
 
 #### App Domain
+
 - **Application home page**: https://learningadventures.org (or your domain)
 - **Application privacy policy link**: https://learningadventures.org/privacy
 - **Application terms of service link**: https://learningadventures.org/terms
 
 #### Authorized domains
+
 Add your domains:
+
 - `learningadventures.org`
 - `app.learningadventures.org`
 - For local development: `localhost`
 
 #### Developer contact information
+
 - **Email addresses**: your-email@example.com
 
 4. Click "SAVE AND CONTINUE"
 
 ### Scopes
+
 1. Click "ADD OR REMOVE SCOPES"
 2. Add these scopes:
    - `userinfo.email`
@@ -72,6 +78,7 @@ Add your domains:
 4. Click "SAVE AND CONTINUE"
 
 ### Test users (for development)
+
 1. Click "ADD USERS"
 2. Add email addresses of users who can test during development
 3. Click "ADD"
@@ -87,19 +94,25 @@ Add your domains:
 4. **Name**: Learning Adventures Web Client
 
 ### Authorized JavaScript origins
+
 Add these URLs:
+
 - Development: `http://localhost:3000`
 - Production: `https://app.learningadventures.org`
 
 ### Authorized redirect URIs
+
 Add these callback URLs:
+
 - Development: `http://localhost:3000/api/auth/callback/google`
 - Production: `https://app.learningadventures.org/api/auth/callback/google`
 
 5. Click "CREATE"
 
 ### Save Your Credentials
+
 You'll see a modal with:
+
 - **Client ID**: Copy this value
 - **Client Secret**: Copy this value
 
@@ -128,6 +141,7 @@ openssl rand -base64 32
 ```
 
 Update `.env.local`:
+
 ```env
 NEXTAUTH_SECRET=your-generated-secret-here
 ```
@@ -153,6 +167,7 @@ If deploying to Vercel:
 ## Step 7: Test Google OAuth
 
 1. Start your development server:
+
    ```bash
    npm run dev
    ```
@@ -172,18 +187,21 @@ If deploying to Vercel:
 ## Troubleshooting
 
 ### Error: "redirect_uri_mismatch"
+
 - **Cause**: The redirect URI doesn't match what's configured in Google Cloud Console
 - **Fix**: Ensure the redirect URI in your Google Cloud Console matches exactly:
   - Development: `http://localhost:3000/api/auth/callback/google`
   - Production: `https://app.learningadventures.org/api/auth/callback/google`
 
 ### Error: "access_denied"
+
 - **Cause**: User denied permission or isn't added as a test user
 - **Fix**:
   - Add the user as a test user in OAuth consent screen
   - OR publish your OAuth app (moves from Testing to Production)
 
 ### OAuth app in testing mode
+
 - In testing mode, only added test users can sign in
 - To allow any Google user to sign in:
   1. Go to **OAuth consent screen**
@@ -191,6 +209,7 @@ If deploying to Vercel:
   3. Submit for verification (required for production)
 
 ### "This app isn't verified"
+
 - Google shows this warning for unpublished apps
 - Users can click "Advanced" → "Go to [app name] (unsafe)" to proceed
 - For production, submit your app for Google verification

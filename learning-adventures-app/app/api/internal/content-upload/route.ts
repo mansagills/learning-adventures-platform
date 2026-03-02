@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { routeFileUpload } from '@/lib/storage/storageRouter';
-import { extractMetadata, mapDifficultyToPrisma } from '@/lib/upload/metadataExtractor';
+import {
+  extractMetadata,
+  mapDifficultyToPrisma,
+} from '@/lib/upload/metadataExtractor';
 import { prisma } from '@/lib/prisma';
 import { ContentType } from '@prisma/client';
 
@@ -30,13 +33,17 @@ export async function POST(request: NextRequest) {
 
     if (fileExt === 'zip') {
       return NextResponse.json(
-        { error: 'Course packages should use /api/internal/content-upload/course-package' },
+        {
+          error:
+            'Course packages should use /api/internal/content-upload/course-package',
+        },
         { status: 400 }
       );
     } else if (['mp4', 'webm', 'mov', 'avi'].includes(fileExt || '')) {
       // Video file
       contentType = 'VIDEO';
-      targetPath = `videos/${Date.now()}-${fileName}`;
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+      targetPath = `videos/${Date.now()}-${safeFileName}`;
     } else if (fileExt === 'html') {
       // HTML game or lesson - extract metadata to determine type
       const htmlContent = await file.text();
@@ -44,9 +51,13 @@ export async function POST(request: NextRequest) {
 
       contentType = metadata.type === 'game' ? 'GAME' : 'LESSON';
       const folder = contentType === 'GAME' ? 'games' : 'lessons';
-      targetPath = `${folder}/${fileName}`;
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, '');
+      targetPath = `${folder}/${safeFileName}`;
     } else {
-      return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Unsupported file type' },
+        { status: 400 }
+      );
     }
 
     // Upload file to appropriate storage
@@ -67,7 +78,9 @@ export async function POST(request: NextRequest) {
         type: contentType,
         subject: metadata?.subject || 'interdisciplinary',
         gradeLevel: metadata?.gradeLevel || ['3'],
-        difficulty: metadata?.difficulty ? mapDifficultyToPrisma(metadata.difficulty) : 'INTERMEDIATE',
+        difficulty: metadata?.difficulty
+          ? mapDifficultyToPrisma(metadata.difficulty)
+          : 'INTERMEDIATE',
         skills: metadata?.skills || [],
         estimatedTime: metadata?.estimatedTime || '15-20 mins',
         featured: metadata?.featured || false,
@@ -89,7 +102,6 @@ export async function POST(request: NextRequest) {
       metadata,
       storageType,
     });
-
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(

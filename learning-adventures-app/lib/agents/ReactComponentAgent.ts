@@ -4,10 +4,7 @@
  */
 
 import { BaseAgent } from './BaseAgent';
-import {
-  AgentResult,
-  GameConcept,
-} from './types';
+import { AgentResult, GameConcept } from './types';
 
 // TODO: Move these types to ./types.ts
 interface ReactComponentResponse {
@@ -43,7 +40,9 @@ export class ReactComponentAgent extends BaseAgent {
   /**
    * Execute React component creation task
    */
-  async execute(input: ReactGameWorkflowInput | { concept: GameConcept; fixes?: string[] }): Promise<AgentResult> {
+  async execute(
+    input: ReactGameWorkflowInput | { concept: GameConcept; fixes?: string[] }
+  ): Promise<AgentResult> {
     try {
       // Load skills
       await this.loadSkills();
@@ -72,7 +71,12 @@ export class ReactComponentAgent extends BaseAgent {
       }
 
       // Build the prompt for Claude
-      const prompt = this.buildPrompt(concept, complexity, features, additionalInstructions);
+      const prompt = this.buildPrompt(
+        concept,
+        complexity,
+        features,
+        additionalInstructions
+      );
 
       // Generate React component code
       const componentCode = await this.generateComponentCode(prompt, concept);
@@ -99,7 +103,6 @@ export class ReactComponentAgent extends BaseAgent {
           version: '1.0.0',
         },
       };
-
     } catch (error) {
       return {
         success: false,
@@ -125,7 +128,8 @@ export class ReactComponentAgent extends BaseAgent {
       subject: input.subject as any,
       gradeLevel: input.gradeLevel,
       skills: input.skills || [],
-      learningObjectives: input.learningObjectives || this.generateLearningObjectives(input),
+      learningObjectives:
+        input.learningObjectives || this.generateLearningObjectives(input),
       estimatedTime: `${this.estimatePlayTime(input.complexity)} minutes`,
       difficulty: this.determineDifficulty(input.complexity),
       gameplayMechanics: input.features || [],
@@ -153,13 +157,13 @@ export class ReactComponentAgent extends BaseAgent {
 **Estimated Play Time**: ${concept.estimatedTime} minutes
 
 **Skills to Practice**:
-${concept.skills.map(s => `- ${s}`).join('\n')}
+${concept.skills.map((s) => `- ${s}`).join('\n')}
 
 **Learning Objectives**:
-${concept.learningObjectives.map(o => `- ${o}`).join('\n')}
+${concept.learningObjectives.map((o) => `- ${o}`).join('\n')}
 
 **Features to Include**:
-${features.map(f => `- ${f}`).join('\n')}
+${features.map((f) => `- ${f}`).join('\n')}
 
 **Technical Requirements**:
 - TypeScript React component
@@ -196,7 +200,10 @@ Please generate a complete, production-ready React component that follows the pl
   /**
    * Generate React component code (simulated - would call Claude API in production)
    */
-  private async generateComponentCode(prompt: string, concept: GameConcept): Promise<string> {
+  private async generateComponentCode(
+    prompt: string,
+    concept: GameConcept
+  ): Promise<string> {
     // This is a placeholder that shows the structure
     // In production, this would call the Claude API with the prompt and skill context
 
@@ -281,7 +288,7 @@ export default function ${componentName}() {
             <p>${concept.description}</p>
             <h3 className="font-bold">Learning Objectives:</h3>
             <ul className="list-disc pl-5">
-              ${concept.learningObjectives.map(obj => `<li>${obj}</li>`).join('\n              ')}
+              ${concept.learningObjectives.map((obj) => `<li>${obj}</li>`).join('\n              ')}
             </ul>
             <GameButton onClick={startGame}>Start Playing</GameButton>
           </div>
@@ -350,7 +357,11 @@ export default ${componentName};
    * Extract dependencies based on features
    */
   private extractDependencies(features: string[]): string[] {
-    const deps: string[] = ['react', '@/components/games/shared/*', '@/hooks/*'];
+    const deps: string[] = [
+      'react',
+      '@/components/games/shared/*',
+      '@/hooks/*',
+    ];
 
     if (features.includes('audio') || features.includes('sound')) {
       deps.push('useGameAudio');
@@ -427,7 +438,7 @@ export default ${componentName};
   private generateComponentName(title: string): string {
     return title
       .split(/\s+/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join('')
       .replace(/[^a-zA-Z0-9]/g, '');
   }
@@ -446,19 +457,27 @@ export default ${componentName};
 
   private estimatePlayTime(complexity: string): number {
     switch (complexity) {
-      case 'simple': return 10;
-      case 'moderate': return 15;
-      case 'complex': return 20;
-      default: return 15;
+      case 'simple':
+        return 10;
+      case 'moderate':
+        return 15;
+      case 'complex':
+        return 20;
+      default:
+        return 15;
     }
   }
 
   private determineDifficulty(complexity: string): 'easy' | 'medium' | 'hard' {
     switch (complexity) {
-      case 'simple': return 'easy';
-      case 'moderate': return 'medium';
-      case 'complex': return 'hard';
-      default: return 'medium';
+      case 'simple':
+        return 'easy';
+      case 'moderate':
+        return 'medium';
+      case 'complex':
+        return 'hard';
+      default:
+        return 'medium';
     }
   }
 }

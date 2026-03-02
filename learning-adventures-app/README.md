@@ -64,6 +64,7 @@ learning-adventures-app/
 ## 🎨 Design System
 
 ### Colors
+
 - **Brand Primary**: `#6C5CE7` (brand-500)
 - **Brand Secondary**: `#5A4ED1` (brand-600)
 - **Brand Light**: `#ECEBFF` (brand-100)
@@ -74,10 +75,12 @@ learning-adventures-app/
 - **Error**: `#EF4444` (error-500)
 
 ### Typography
+
 - **Display Font**: Nunito (headings)
 - **Body Font**: Inter (body text)
 
 ### Motion
+
 - Transition duration: 200-300ms
 - Respects `prefers-reduced-motion`
 
@@ -138,6 +141,7 @@ npm test
 ```
 
 The project includes:
+
 - Component testing with Testing Library
 - Accessibility testing
 - Keyboard navigation testing

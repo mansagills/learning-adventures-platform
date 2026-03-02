@@ -29,12 +29,15 @@ export interface DetailedStudentStats extends StudentStats {
   currentLevel: number;
   totalXP: number;
   currentStreak: number;
-  byCategory: Record<string, {
-    total: number;
-    completed: number;
-    totalScore: number;
-    totalTime: number;
-  }>;
+  byCategory: Record<
+    string,
+    {
+      total: number;
+      completed: number;
+      totalScore: number;
+      totalTime: number;
+    }
+  >;
 }
 
 export interface DetailedStudent extends Student {
@@ -85,7 +88,7 @@ export function useOversight() {
     students,
     loading,
     error,
-    refetch: fetchStudents
+    refetch: fetchStudents,
   };
 }
 
@@ -116,7 +119,7 @@ export function useStudentDetail(studentId: string | null) {
         achievements: data.achievements,
         goals: data.goals,
         level: data.level,
-        recentActivity: data.recentActivity
+        recentActivity: data.recentActivity,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -134,6 +137,6 @@ export function useStudentDetail(studentId: string | null) {
     student,
     loading,
     error,
-    refetch: fetchStudent
+    refetch: fetchStudent,
   };
 }

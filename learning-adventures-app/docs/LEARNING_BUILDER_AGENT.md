@@ -1,17 +1,20 @@
 # Learning Builder Agent
 
 ## Overview
+
 The Learning Builder Agent is an intelligent AI assistant that automatically detects and uses appropriate skills to create interactive learning content and educational games. It replaces the previous multi-agent system with a single, streamlined interface.
 
 ## What Changed?
 
 ### Before: Multi-Agent System
+
 - 4 separate agents (Game Idea Generator, Content Builder, Catalog Manager, Quality Assurance)
 - Users had to manually choose which agent to use
 - Required switching between different agent interfaces
 - Complex workflow orchestration
 
 ### After: Learning Builder Agent
+
 - **Single intelligent agent** with 5 specialized skills
 - **Automatic skill detection** based on user requests
 - **Seamless skill chaining** for complex tasks
@@ -20,6 +23,7 @@ The Learning Builder Agent is an intelligent AI assistant that automatically det
 ## Features
 
 ### 🎯 Automatic Skill Detection
+
 The agent analyzes your request and automatically uses the right skill(s):
 
 ```
@@ -29,6 +33,7 @@ User: "Create a math game for 3rd graders"
 ```
 
 ### 🔗 Intelligent Skill Chaining
+
 For complex requests, the agent chains multiple skills together:
 
 ```
@@ -68,6 +73,7 @@ User: "Build the first concept as an HTML game"
 ## How to Use
 
 ### Access the Learning Builder
+
 1. Navigate to **Internal → Learning Builder Studio**
 2. Or go directly to `/internal/agent-studio`
 3. Requires ADMIN role
@@ -75,6 +81,7 @@ User: "Build the first concept as an HTML game"
 ### Example Interactions
 
 #### Brainstorming Game Ideas
+
 ```
 You: "Brainstorm 3 science game ideas for 5th graders about ecosystems"
 
@@ -91,6 +98,7 @@ Agent: [Uses Game Ideation skill]
 ```
 
 #### Building an HTML Game
+
 ```
 You: "Build an HTML game for teaching multiplication tables"
 
@@ -109,6 +117,7 @@ Agent: [Uses Game Builder skill]
 ```
 
 #### Checking Accessibility
+
 ```
 You: "Check if my game is accessible"
 
@@ -140,6 +149,7 @@ Click any to pre-fill your message.
 ## API Endpoints
 
 ### Chat with Agent
+
 ```bash
 POST /api/agent/chat
 
@@ -163,6 +173,7 @@ POST /api/agent/chat
 ```
 
 ### List Available Skills
+
 ```bash
 GET /api/agent/skills
 
@@ -182,6 +193,7 @@ GET /api/agent/skills
 ```
 
 ### Detect Skills for Request
+
 ```bash
 POST /api/agent/skills/detect
 
@@ -206,18 +218,23 @@ POST /api/agent/skills/detect
 ## Features
 
 ### Conversation History
+
 - Last 20 messages preserved per conversation
 - Contextual awareness across messages
 - Previous skill outputs available for chaining
 
 ### Skill Confidence Display
+
 Each response shows:
+
 - Which skill was used
 - Confidence level (0-100%)
 - Execution time
 
 ### Suggested Next Steps
+
 Agent suggests logical next actions:
+
 - After ideation → "Build one of these concepts?"
 - After building → "Would you like to validate accessibility?"
 - After validation → "Ready to add to catalog?"
@@ -227,6 +244,7 @@ Agent suggests logical next actions:
 ### For Content Creators
 
 **Old Way:**
+
 1. Choose "Game Idea Generator" agent
 2. Generate concepts
 3. Switch to "Content Builder" agent
@@ -235,6 +253,7 @@ Agent suggests logical next actions:
 6. Validate game
 
 **New Way:**
+
 1. Open Learning Builder Agent
 2. Say: "Create and build a math game for 3rd graders"
 3. Agent automatically handles ideation → building → validation
@@ -242,22 +261,25 @@ Agent suggests logical next actions:
 ### For Developers
 
 **Old Import:**
+
 ```typescript
 import { GameIdeaGeneratorAgent } from '@/lib/agents/GameIdeaGeneratorAgent';
 const agent = new GameIdeaGeneratorAgent();
 ```
 
 **New Import:**
+
 ```typescript
 import { LearningBuilderAgent } from '@/lib/agents/LearningBuilderAgent';
 const agent = new LearningBuilderAgent();
 await agent.initialize(); // Load all skills
-const result = await agent.execute("Create a math game");
+const result = await agent.execute('Create a math game');
 ```
 
 ## Technical Details
 
 ### Architecture
+
 - **Frontend**: React component with real-time chat UI
 - **Backend**: Learning Builder Agent with skill registry
 - **Skills**: 5 modular skill implementations
@@ -265,6 +287,7 @@ const result = await agent.execute("Create a math game");
 - **Chaining**: Automatic based on skill suggestions
 
 ### File Structure
+
 ```
 lib/
 ├── agents/
@@ -289,6 +312,7 @@ app/api/agent/
 ```
 
 ### Database
+
 - `AgentConversation` model tracks conversations
 - `SkillExecution` model logs skill usage
 - Analytics on skill performance
@@ -303,16 +327,19 @@ app/api/agent/
 ## Troubleshooting
 
 ### Agent Not Responding
+
 - Check network connection
 - Verify you're logged in as ADMIN
 - Check browser console for errors
 
 ### Wrong Skill Selected
+
 - Be more specific in your request
 - Use skill names: "use the game builder skill to..."
 - Check detection with `/api/agent/skills/detect`
 
 ### No Suggestions Shown
+
 - Some skills don't provide suggestions
 - Try asking "what should I do next?"
 

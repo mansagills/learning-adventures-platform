@@ -36,10 +36,14 @@ export default function ProgressIndicator({
       {showLabel && (
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-medium text-ink-700">Progress</span>
-          <span className="text-sm font-semibold text-ink-800">{validPercentage}%</span>
+          <span className="text-sm font-semibold text-ink-800">
+            {validPercentage}%
+          </span>
         </div>
       )}
-      <div className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizeClasses[size]}`}>
+      <div
+        className={`w-full bg-gray-200 rounded-full overflow-hidden ${sizeClasses[size]}`}
+      >
         <div
           className={`${colorClasses[color]} ${sizeClasses[size]} rounded-full transition-all duration-500 ease-out`}
           style={{ width: `${validPercentage}%` }}

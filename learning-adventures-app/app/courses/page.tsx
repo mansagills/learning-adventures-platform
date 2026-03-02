@@ -61,7 +61,9 @@ export default function CourseCatalogPage() {
 
         // Calculate enrollment count and check premium status
         if (status === 'authenticated') {
-          const enrolledCourses = coursesData.filter((c: Course) => c.enrollment);
+          const enrolledCourses = coursesData.filter(
+            (c: Course) => c.enrollment
+          );
           setEnrollmentCount(enrolledCourses.length);
 
           // Check if user has premium access (from session or user profile)
@@ -88,7 +90,10 @@ export default function CourseCatalogPage() {
     }
 
     // Difficulty filter
-    if (selectedDifficulty !== 'all' && course.difficulty !== selectedDifficulty) {
+    if (
+      selectedDifficulty !== 'all' &&
+      course.difficulty !== selectedDifficulty
+    ) {
       return false;
     }
 
@@ -113,7 +118,9 @@ export default function CourseCatalogPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Course Catalog</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Course Catalog
+            </h1>
             <p className="text-gray-600">
               Explore our courses and start your learning adventure!
             </p>
@@ -161,7 +168,9 @@ export default function CourseCatalogPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Course Catalog</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Course Catalog
+          </h1>
           <p className="text-gray-600">
             Explore our courses and start your learning adventure!
           </p>
@@ -174,41 +183,83 @@ export default function CourseCatalogPage() {
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <h3 className="text-xl font-bold text-white">Upgrade to Premium</h3>
+                    <h3 className="text-xl font-bold text-white">
+                      Upgrade to Premium
+                    </h3>
                   </div>
                   <p className="text-white text-sm md:text-base mb-3">
-                    You're currently enrolled in <span className="font-bold">{enrollmentCount} of 2 free courses</span>.
-                    Upgrade to Premium for unlimited course access and exclusive content!
+                    You're currently enrolled in{' '}
+                    <span className="font-bold">
+                      {enrollmentCount} of 2 free courses
+                    </span>
+                    . Upgrade to Premium for unlimited course access and
+                    exclusive content!
                   </p>
                   <div className="flex flex-wrap gap-3 text-xs md:text-sm text-white justify-center md:justify-start">
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                       <span>Unlimited Enrollments</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                       <span>Premium Courses</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                       <span>Certificates</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
                       </svg>
                       <span>Priority Support</span>
                     </div>
@@ -216,7 +267,7 @@ export default function CourseCatalogPage() {
                 </div>
                 <div className="flex-shrink-0">
                   <Link
-                    href={"/pricing" as any}
+                    href={'/pricing' as any}
                     className="inline-block px-8 py-3 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-md"
                   >
                     View Plans

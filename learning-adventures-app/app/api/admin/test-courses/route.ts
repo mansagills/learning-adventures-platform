@@ -24,13 +24,13 @@ export async function GET(req: NextRequest) {
         _count: {
           select: {
             approvals: true,
-            feedback: true
-          }
-        }
+            feedback: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json({ courses });
@@ -65,12 +65,12 @@ export async function POST(req: NextRequest) {
       totalXP,
       stagingPath,
       thumbnailPath,
-      lessonsData
+      lessonsData,
     } = body;
 
     // Check if course already exists
     const existing = await prisma.testCourse.findUnique({
-      where: { slug }
+      where: { slug },
     });
 
     if (existing) {
@@ -95,8 +95,8 @@ export async function POST(req: NextRequest) {
         thumbnailPath,
         lessonsData,
         createdBy: session.user.id,
-        status: 'NOT_TESTED'
-      }
+        status: 'NOT_TESTED',
+      },
     });
 
     return NextResponse.json({ course }, { status: 201 });

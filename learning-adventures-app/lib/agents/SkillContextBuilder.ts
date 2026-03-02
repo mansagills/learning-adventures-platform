@@ -3,7 +3,11 @@
  * Builds execution context for skills from user requests and conversation history
  */
 
-import { SkillContext, ConversationMessage, UserPreferences } from '../skills/types';
+import {
+  SkillContext,
+  ConversationMessage,
+  UserPreferences,
+} from '../skills/types';
 
 export class SkillContextBuilder {
   /**

@@ -4,12 +4,7 @@
  */
 
 import { BaseAgent } from './BaseAgent';
-import {
-  AgentResult,
-  GameFile,
-  GameConcept,
-  CatalogEntry,
-} from './types';
+import { AgentResult, GameFile, GameConcept, CatalogEntry } from './types';
 
 // TODO: Move these types to ./types.ts
 interface ValidationResult {
@@ -36,7 +31,11 @@ export class MetadataFormatterAgent extends BaseAgent {
   /**
    * Execute metadata formatting task
    */
-  async execute(input: { game: GameFile } | { concept: GameConcept; format: 'html' | 'react' }): Promise<AgentResult> {
+  async execute(
+    input:
+      | { game: GameFile }
+      | { concept: GameConcept; format: 'html' | 'react' }
+  ): Promise<AgentResult> {
     try {
       // Load skills
       await this.loadSkills();
@@ -59,7 +58,10 @@ export class MetadataFormatterAgent extends BaseAgent {
       const catalogEntry = this.generateCatalogEntry(concept, format, filePath);
 
       // Determine target array
-      const targetArray = this.determineTargetArray(concept.subject, (concept as any).type || 'game');
+      const targetArray = this.determineTargetArray(
+        concept.subject,
+        (concept as any).type || 'game'
+      );
 
       // Validate the entry
       const validation = this.validateCatalogEntry(catalogEntry);
@@ -81,7 +83,6 @@ export class MetadataFormatterAgent extends BaseAgent {
           version: '1.0.0',
         },
       };
-
     } catch (error) {
       return {
         success: false,
@@ -118,7 +119,7 @@ export class MetadataFormatterAgent extends BaseAgent {
       skills: concept.skills,
       estimatedTime: concept.estimatedTime,
       featured: false, // New games start as not featured
-      htmlPath: format === 'html' ? (filePath || `/games/${id}.html`) : undefined,
+      htmlPath: format === 'html' ? filePath || `/games/${id}.html` : undefined,
       reactPath: format === 'react' ? `components/games/${id}` : undefined,
     };
 
@@ -173,7 +174,8 @@ export class MetadataFormatterAgent extends BaseAgent {
     if (!entry.skills || entry.skills.length === 0) {
       errors.push('Missing required field: skills');
     }
-    if (!entry.estimatedTime) errors.push('Missing required field: estimatedTime');
+    if (!entry.estimatedTime)
+      errors.push('Missing required field: estimatedTime');
 
     // Path validation
     if (!entry.htmlPath && !entry.reactPath) {
@@ -186,7 +188,9 @@ export class MetadataFormatterAgent extends BaseAgent {
     }
 
     if (entry.description && entry.description.length < 50) {
-      warnings.push('Description is shorter than 50 characters (recommended minimum)');
+      warnings.push(
+        'Description is shorter than 50 characters (recommended minimum)'
+      );
     }
 
     if (entry.description && entry.description.length > 500) {
@@ -210,17 +214,29 @@ export class MetadataFormatterAgent extends BaseAgent {
     // Type validation
     const validTypes = ['game', 'lesson', 'activity'];
     if (entry.type && !validTypes.includes(entry.type)) {
-      errors.push(`Invalid type: ${entry.type}. Must be one of: ${validTypes.join(', ')}`);
+      errors.push(
+        `Invalid type: ${entry.type}. Must be one of: ${validTypes.join(', ')}`
+      );
     }
 
-    const validCategories = ['math', 'science', 'english', 'history', 'interdisciplinary'];
+    const validCategories = [
+      'math',
+      'science',
+      'english',
+      'history',
+      'interdisciplinary',
+    ];
     if (entry.category && !validCategories.includes(entry.category)) {
-      errors.push(`Invalid category: ${entry.category}. Must be one of: ${validCategories.join(', ')}`);
+      errors.push(
+        `Invalid category: ${entry.category}. Must be one of: ${validCategories.join(', ')}`
+      );
     }
 
     const validDifficulties = ['easy', 'medium', 'hard'];
     if (entry.difficulty && !validDifficulties.includes(entry.difficulty)) {
-      errors.push(`Invalid difficulty: ${entry.difficulty}. Must be one of: ${validDifficulties.join(', ')}`);
+      errors.push(
+        `Invalid difficulty: ${entry.difficulty}. Must be one of: ${validDifficulties.join(', ')}`
+      );
     }
 
     return {
