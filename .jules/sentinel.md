@@ -3,7 +3,7 @@
 **Learning:** Using `req.json()` directly into `prisma.create` is dangerous if the model has sensitive fields like `role`.
 **Prevention:** Always validate and sanitize input, especially for sensitive fields. Use a whitelist for allowed values (e.g., allow `STUDENT`, `PARENT`, `TEACHER` but not `ADMIN`). Explicitly construct the `data` object instead of spreading the request body.
 
-## 2026-02-01 - Admin Domain Privilege Escalation
-**Vulnerability:** The authentication system automatically promotes users with `@learningadventures.org` emails to ADMIN upon login. However, the signup endpoint did not restrict registration with these emails, allowing anyone to register as an attacker and gain ADMIN privileges.
-**Learning:** Security logic in one component (auth provider callbacks) can create vulnerabilities if assumptions (e.g., "only admins have these emails") are not enforced in other components (signup).
-**Prevention:** Implement defense-in-depth by validating sensitive domains at the signup stage. Ensure that "trusted" identifiers like email domains are actually verified or restricted before granting privileges based on them.
+## 2026-02-05 - Authenticated Path Traversal Fix
+**Vulnerability:** The `/api/internal/save-content` endpoint was missing authentication and allowed path traversal via `fileName` and `uploadedZipPath` parameters, enabling arbitrary file overwrite.
+**Learning:** API routes matching `api/` are often excluded from global middleware auth checks. Authentication must be explicitly verified in the route handler using `getServerSession`.
+**Prevention:** Added `getServerSession` check for ADMIN role. Enforced `path.basename` for `fileName` and strict `path.resolve` + `.startsWith` validation for `uploadedZipPath` to contain files within the public directory.

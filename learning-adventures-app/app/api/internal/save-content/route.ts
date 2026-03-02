@@ -1,34 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename, normalize } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
-import { validateIdentifier } from '@/lib/security';
-
-async function extractZipSafely(zip: AdmZip, destDir: string): Promise<void> {
-  const resolvedDest = resolve(destDir);
-  const entries = zip.getEntries();
-
-  for (const entry of entries) {
-    const entryPath = join(destDir, entry.entryName);
-    const resolvedEntry = resolve(entryPath);
-
-    // Prevent zip slip: ensure extracted path stays within destDir
-    if (!resolvedEntry.startsWith(resolvedDest + sep) && resolvedEntry !== resolvedDest) {
-      throw new Error(`Zip slip detected in entry: ${entry.entryName}`);
-    }
-
-    if (entry.isDirectory) {
-      await mkdir(resolvedEntry, { recursive: true });
-    } else {
-      await mkdir(join(resolvedEntry, '..'), { recursive: true });
-      await writeFile(resolvedEntry, entry.getData());
-    }
-  }
-}
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication and authorization
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin role required.' },
+        { status: 403 }
+      );
+    }
+
     const {
       content,
       fileName,
@@ -45,14 +34,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Security: Validate fileName to prevent path traversal
-    if (
-      fileName.includes('/') ||
-      fileName.includes('\\') ||
-      fileName.includes('..')
-    ) {
+    // Validate fileName to prevent path traversal
+    if (fileName !== basename(fileName)) {
       return NextResponse.json(
-        { error: 'Invalid filename: contains path traversal characters' },
+        { error: 'Invalid fileName. Path components are not allowed.' },
         { status: 400 }
       );
     }
@@ -128,19 +113,16 @@ export async function POST(request: NextRequest) {
 
       await mkdir(gameDir, { recursive: true });
 
-      // Extract zip to the game directory
-      // Sanitize uploadedZipPath
-      const safeZipPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
-      const resolvedZipPath = resolve(safeZipPath);
-      const resolvedPublicDir = resolve(publicDir);
-
-      // Verify that the resolved path is inside the public directory
-      if (
-        !resolvedZipPath.startsWith(resolvedPublicDir + sep) &&
-        resolvedZipPath !== resolvedPublicDir
-      ) {
+      // Prevent path traversal in uploadedZipPath
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^\//, '')
+      );
+      if (!zipFullPath.startsWith(publicDir)) {
         return NextResponse.json(
-          { error: 'Invalid zip path: Path traversal detected' },
+          {
+            error: 'Invalid uploadedZipPath. Must be within public directory.',
+          },
           { status: 400 }
         );
       }

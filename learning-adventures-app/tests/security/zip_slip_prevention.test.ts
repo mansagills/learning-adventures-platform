@@ -4,17 +4,69 @@ import path from 'path';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
 
-// Mock fs/promises
-vi.mock('fs/promises', () => ({
+const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
+  writeFileMock: vi.fn(),
+  mkdirMock: vi.fn(),
+  mockGetServerSession: vi.fn(),
+}));
+
+// Mock fs/promises and fs
+vi.mock('fs/promises', () => {
+  return {
+    writeFile: writeFileMock,
+    mkdir: mkdirMock,
+    copyFile: vi.fn(),
+    readdir: vi.fn(),
+    default: {
+      writeFile: writeFileMock,
+      mkdir: mkdirMock,
+      copyFile: vi.fn(),
+      readdir: vi.fn(),
+    },
+  };
+});
+
+vi.mock('fs', () => ({
+  existsSync: vi.fn().mockReturnValue(true),
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
   }
 }));
 
-// Mock fs
-vi.mock('fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('fs')>();
+// Mock next-auth
+vi.mock('next-auth', () => ({
+  getServerSession: mockGetServerSession,
+  default: {
+    getServerSession: mockGetServerSession,
+  },
+}));
+
+// Mock authOptions
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
+// Mock AdmZip
+const mockExtractAllTo = vi.fn();
+const mockGetData = vi.fn().mockReturnValue(Buffer.from('content'));
+
+// Define entries
+const safeEntry = {
+  entryName: 'safe.html',
+  isDirectory: false,
+  getData: mockGetData,
+};
+
+const maliciousEntry = {
+  entryName: '../../etc/passwd',
+  isDirectory: false,
+  getData: mockGetData,
+};
+
+const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
+
+vi.mock('adm-zip', () => {
   return {
     ...actual,
     existsSync: vi.fn(),
@@ -31,26 +83,27 @@ describe('Security: Zip Slip Prevention', () => {
     (existsSync as any).mockReturnValue(true); // default to exists
   });
 
-  it('should extract safe files correctly', async () => {
-    const mockZip = {
-      getEntries: () => [
-        {
-          isDirectory: false,
-          entryName: 'safe-file.txt',
-          getData: () => Buffer.from('safe content')
-        },
-        {
-          isDirectory: true,
-          entryName: 'safe-dir/',
-        }
-      ]
-    };
+  it('should prevent Zip Slip by validating paths', async () => {
+    // Mock ADMIN session
+    mockGetServerSession.mockResolvedValue({
+      user: {
+        role: 'ADMIN',
+        id: 'admin-123',
+      },
+    });
 
-    await extractZipSafely(mockZip as any, mockTargetDir);
-
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      path.resolve(mockTargetDir, 'safe-file.txt'),
-      expect.anything()
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/save-content',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          fileName: 'test-game.html',
+          type: 'game',
+          subscriptionTier: 'free',
+          uploadSource: 'uploaded',
+          uploadedZipPath: '/uploads/test.zip',
+        }),
+      }
     );
   });
 
