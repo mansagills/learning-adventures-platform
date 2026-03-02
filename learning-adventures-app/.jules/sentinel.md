@@ -1,9 +1,8 @@
-## 2025-03-01 - [Vulnerability: Path traversal in save-content]
-**Vulnerability:** Path traversal in `app/api/internal/save-content/route.ts` via `uploadedZipPath` where the validation was checking if `uploadedZipPath.includes("..") || !normalizedZipPath.startsWith("uploads/temp/")` but `normalizedZipPath` could bypass the check. Wait, I should add that `uploadedZipPath` was checked but the test `save_content_path_traversal.test.ts` had a failing assertion since the error message returned was different.
-**Learning:** The check `uploadedZipPath.includes("..")` or the regex to sanitize the `normalizedZipPath` was sufficient, but the test `save_content_path_traversal.test.ts` was passing `fileName` and the code returned `Invalid filename: contains path traversal characters` while the test expected `/contains invalid characters/`.
-**Prevention:** Update tests to match the code or update code to match tests.
-
-## 2025-03-01 - [Vulnerability: Missing sanitization in content-upload route]
-**Vulnerability:** Path traversal and file upload vulnerability in `app/api/internal/content-upload/route.ts` because it used the unsanitized `fileName` variable to define the `targetPath`.
-**Learning:** File names obtained directly from user input (like FormData) need to be sanitized because they can include characters that result in escaping expected directories.
-**Prevention:** Sanitize the file name using `.replace(/[^a-zA-Z0-9.\-_]/g, "")` to restrict allowable characters before assigning them to target paths.
+## 2025-02-23 - Critical RCE/Path Traversal in save-content
+**Vulnerability:** The `/api/internal/save-content` endpoint was completely unauthenticated and contained multiple bugs preventing safe file operations. It allowed arbitrary file writing and zip extraction to the public directory, potentially leading to Remote Code Execution (RCE) via HTML/JS upload or Zip Slip.
+**Learning:** Internal APIs are often overlooked in security reviews. Missing imports (`normalize`, `extractZipSafely`) and undefined variables (`zipFullPath`) indicated untested/broken code that was likely copy-pasted or incomplete. The presence of `normalizedZipPath` logic that would block valid uploads suggests lack of testing with real data.
+**Prevention:**
+1. Always enforce authentication on ALL API routes, especially "internal" ones.
+2. Use strict type checking and linting to catch undefined variables and missing imports.
+3. Test security controls with valid AND invalid data to ensure they don't break functionality.
+4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.

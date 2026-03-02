@@ -44,7 +44,8 @@ describe('Authentication Security - Role Validation', () => {
     (prisma.user.findUnique as any).mockResolvedValue(null);
     (prisma.user.create as any).mockResolvedValue({
       id: '123',
-      ...body,
+      name: body.name,
+      email: body.email,
       role: 'STUDENT', // Simulate successful creation with sanitized role
       createdAt: new Date(),
     });

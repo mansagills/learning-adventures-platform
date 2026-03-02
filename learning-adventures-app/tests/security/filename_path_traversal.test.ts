@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import path from 'path';
+import { getServerSession } from 'next-auth/next';
 
 // Mock fs/promises and fs
 // We need to hoist mocks to use them in vi.mock
@@ -69,9 +69,26 @@ vi.mock('adm-zip', () => {
   };
 });
 
+// Mock Auth
+vi.mock('next-auth/next', () => ({
+  getServerSession: vi.fn(),
+}));
+
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
+// Import after mocking
+import { POST } from '@/app/api/internal/save-content/route';
+
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (getServerSession as any).mockResolvedValue({
+      user: {
+        role: 'ADMIN',
+      },
+    });
   });
 
   it('should prevent path traversal via fileName parameter', async () => {

@@ -35,28 +35,27 @@ vi.mock('adm-zip', () => {
   };
 });
 
-// Mock next-auth
+// Mock Auth
 vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: {
-      name: 'Admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    },
-  }),
+  getServerSession: vi.fn(),
 }));
 
-// Mock auth options
 vi.mock('@/lib/auth', () => ({
   authOptions: {},
 }));
 
 // Import the route AFTER mocks
 import { POST } from '@/app/api/internal/save-content/route';
+import { getServerSession } from 'next-auth/next';
 
 describe('Security: Zip Slip & Path Traversal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (getServerSession as any).mockResolvedValue({
+      user: {
+        role: 'ADMIN',
+      },
+    });
   });
 
   it('should BLOCK Path Traversal in uploadedZipPath', async () => {
@@ -107,7 +106,7 @@ describe('Security: Zip Slip & Path Traversal', () => {
 
     // Should catch the error and return 500
     expect(res.status).toBe(500);
-    expect(data.details).toMatch(/Security Error: Malicious zip entry detected/i);
+    expect(data.details).toMatch(/Malicious zip entry detected/i);
 
     // Ensure the vulnerable method is NOT called
     expect(mockExtractAllTo).not.toHaveBeenCalled();

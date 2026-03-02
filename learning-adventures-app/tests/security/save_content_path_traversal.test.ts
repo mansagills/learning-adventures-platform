@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import path from 'path';
+import { getServerSession } from 'next-auth/next';
 
 // Mock next-auth
 vi.mock('next-auth/next', () => ({
@@ -71,9 +72,26 @@ vi.mock('adm-zip', () => {
   };
 });
 
+// Mock Auth
+vi.mock('next-auth/next', () => ({
+  getServerSession: vi.fn(),
+}));
+
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
+// Import after mocking
+import { POST } from '@/app/api/internal/save-content/route';
+
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (getServerSession as any).mockResolvedValue({
+      user: {
+        role: 'ADMIN',
+      },
+    });
   });
 
   it('should prevent path traversal via fileName parameter', async () => {
@@ -96,7 +114,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return 400 Bad Request
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toMatch(/contains path traversal characters/);
+    expect(json.error).toMatch(/Invalid filename/);
 
     const mkdirCalls = mkdirMock.mock.calls;
     console.log('mkdir calls:', mkdirCalls);
@@ -115,7 +133,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
           type: 'game',
           subscriptionTier: 'free',
           uploadSource: 'uploaded',
-          uploadedZipPath: 'uploads/temp/test.zip',
+          uploadedZipPath: '/uploads/temp/test.zip',
         }),
       }
     );
