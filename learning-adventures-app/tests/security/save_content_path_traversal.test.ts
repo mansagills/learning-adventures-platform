@@ -3,6 +3,24 @@ import { NextRequest } from 'next/server';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 
+// Mock next-auth
+vi.mock('next-auth/next', () => ({
+  getServerSession: vi.fn().mockResolvedValue({
+    user: {
+      name: 'Admin',
+      email: 'admin@example.com',
+      role: 'ADMIN',
+    },
+  }),
+}));
+
+// Mock auth options
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
+import { POST } from '@/app/api/internal/save-content/route';
+
 const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
@@ -86,7 +104,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
           type: 'game',
           subscriptionTier: 'free',
           uploadSource: 'uploaded',
-          uploadedZipPath: '/uploads/test.zip',
+          uploadedZipPath: 'uploads/temp/test.zip',
         }),
       }
     );
@@ -125,8 +143,8 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return success (or at least proceed past validation)
     // Note: Since we mocked everything, it might succeed or fail later, but status shouldn't be 400 due to validation
     if (res.status === 400) {
-        const json = await res.json();
-        console.log('Error:', json);
+      const json = await res.json();
+      console.log('Error:', json);
     }
     expect(res.status).not.toBe(400);
 

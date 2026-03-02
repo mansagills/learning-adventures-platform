@@ -25,6 +25,22 @@ vi.mock('fs/promises', () => {
   };
 });
 
+// Mock next-auth
+vi.mock('next-auth/next', () => ({
+  getServerSession: vi.fn().mockResolvedValue({
+    user: {
+      name: 'Admin',
+      email: 'admin@example.com',
+      role: 'ADMIN',
+    },
+  }),
+}));
+
+// Mock auth options
+vi.mock('@/lib/auth', () => ({
+  authOptions: {},
+}));
+
 vi.mock('fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
   default: {
