@@ -24,7 +24,7 @@ export default function AdventurePreviewCard({
   showCategory = false,
   onClick,
   progress,
-  showProgress = false
+  showProgress = false,
 }: AdventurePreviewCardProps) {
   const { isSaved, toggleSave } = useSaveForLater();
   const saved = isSaved(adventure.id);
@@ -126,10 +126,12 @@ export default function AdventurePreviewCard({
         <SocialShare adventure={adventure} compact={true} />
 
         {/* Type Badge */}
-        <div className={cn(
-          'px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1 shadow-sm',
-          getTypeColor(adventure.type)
-        )}>
+        <div
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1 shadow-sm',
+            getTypeColor(adventure.type)
+          )}
+        >
           <Icon name={getTypeIcon(adventure.type)} size={12} />
           <span className="capitalize">{adventure.type}</span>
         </div>
@@ -137,10 +139,12 @@ export default function AdventurePreviewCard({
 
       {/* Category Badge (if shown) */}
       {showCategory && (
-        <div className={cn(
-          'absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium capitalize',
-          getCategoryColor(adventure.category)
-        )}>
+        <div
+          className={cn(
+            'absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-medium capitalize',
+            getCategoryColor(adventure.category)
+          )}
+        >
           {adventure.category}
         </div>
       )}
@@ -160,10 +164,12 @@ export default function AdventurePreviewCard({
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center space-x-2">
             {/* Difficulty */}
-            <span className={cn(
-              'px-2 py-1 rounded-full font-medium capitalize',
-              getDifficultyColor(adventure.difficulty)
-            )}>
+            <span
+              className={cn(
+                'px-2 py-1 rounded-full font-medium capitalize',
+                getDifficultyColor(adventure.difficulty)
+              )}
+            >
               {adventure.difficulty}
             </span>
 
@@ -182,7 +188,9 @@ export default function AdventurePreviewCard({
 
         {/* Skills Preview (on hover) */}
         <div className="absolute inset-0 bg-white rounded-lg opacity-0 group-hover:opacity-95 transition-opacity duration-200 flex flex-col justify-center p-4">
-          <h4 className="font-medium text-ink-800 text-sm mb-2">Skills & Topics:</h4>
+          <h4 className="font-medium text-ink-800 text-sm mb-2">
+            Skills & Topics:
+          </h4>
           <div className="flex flex-wrap gap-1">
             {adventure.skills.slice(0, 4).map((skill, index) => (
               <span

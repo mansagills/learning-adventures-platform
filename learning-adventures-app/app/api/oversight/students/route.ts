@@ -14,10 +14,15 @@ export async function GET(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true }
+      select: { role: true },
     });
 
-    if (!user || (user.role !== 'TEACHER' && user.role !== 'PARENT' && user.role !== 'ADMIN')) {
+    if (
+      !user ||
+      (user.role !== 'TEACHER' &&
+        user.role !== 'PARENT' &&
+        user.role !== 'ADMIN')
+    ) {
       return NextResponse.json(
         { error: 'Only teachers, parents, and admins can view student data' },
         { status: 403 }
@@ -40,20 +45,20 @@ export async function GET(request: Request) {
                   name: true,
                   email: true,
                   gradeLevel: true,
-                  createdAt: true
-                }
-              }
-            }
-          }
-        }
+                  createdAt: true,
+                },
+              },
+            },
+          },
+        },
       });
 
-      students = classrooms.flatMap(classroom =>
-        classroom.enrollments.map(enrollment => ({
+      students = classrooms.flatMap((classroom) =>
+        classroom.enrollments.map((enrollment) => ({
           ...enrollment.user,
           classroomId: classroom.id,
           classroomName: classroom.name,
-          enrolledAt: enrollment.enrolledAt
+          enrolledAt: enrollment.enrolledAt,
         }))
       );
     } else if (user.role === 'PARENT') {
@@ -68,12 +73,12 @@ export async function GET(request: Request) {
           avatarId: true,
           createdAt: true,
           lastLoginAt: true,
-        }
+        },
       });
 
       // Map child profiles to student format
       // Note: Child profiles use a separate auth system, so we map fields accordingly
-      students = childProfiles.map(child => ({
+      students = childProfiles.map((child) => ({
         id: child.id,
         name: child.displayName,
         email: `${child.username}@child.internal`, // Placeholder for display
@@ -98,30 +103,32 @@ export async function GET(request: Request) {
               completedAdventures: 0,
               completionRate: 0,
               achievements: 0,
-              activeGoals: 0
-            }
+              activeGoals: 0,
+            },
           };
         }
 
         // Regular User accounts - fetch actual stats
-        const [progressCount, completedCount, achievements, goals] = await Promise.all([
-          prisma.userProgress.count({
-            where: { userId: student.id }
-          }),
-          prisma.userProgress.count({
-            where: { userId: student.id, status: 'COMPLETED' }
-          }),
-          prisma.userAchievement.count({
-            where: { userId: student.id }
-          }),
-          prisma.learningGoal.count({
-            where: { userId: student.id, status: 'ACTIVE' }
-          })
-        ]);
+        const [progressCount, completedCount, achievements, goals] =
+          await Promise.all([
+            prisma.userProgress.count({
+              where: { userId: student.id },
+            }),
+            prisma.userProgress.count({
+              where: { userId: student.id, status: 'COMPLETED' },
+            }),
+            prisma.userAchievement.count({
+              where: { userId: student.id },
+            }),
+            prisma.learningGoal.count({
+              where: { userId: student.id, status: 'ACTIVE' },
+            }),
+          ]);
 
-        const completionRate = progressCount > 0
-          ? Math.round((completedCount / progressCount) * 100)
-          : 0;
+        const completionRate =
+          progressCount > 0
+            ? Math.round((completedCount / progressCount) * 100)
+            : 0;
 
         return {
           ...student,
@@ -130,17 +137,16 @@ export async function GET(request: Request) {
             completedAdventures: completedCount,
             completionRate,
             achievements,
-            activeGoals: goals
-          }
+            activeGoals: goals,
+          },
         };
       })
     );
 
     return NextResponse.json({
       students: studentsWithStats,
-      count: studentsWithStats.length
+      count: studentsWithStats.length,
     });
-
   } catch (error) {
     console.error('Error fetching students:', error);
     return NextResponse.json(

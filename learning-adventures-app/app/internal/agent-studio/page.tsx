@@ -12,8 +12,18 @@ export default function AIAgentStudioPage() {
   const [activeTab, setActiveTab] = useState<TabType>('learning-builder');
 
   const tabs = [
-    { id: 'learning-builder' as TabType, label: 'Learning Builder', icon: '🎓', description: 'Create interactive learning content' },
-    { id: 'history' as TabType, label: 'History', icon: '📚', description: 'Past conversations' },
+    {
+      id: 'learning-builder' as TabType,
+      label: 'Learning Builder',
+      icon: '🎓',
+      description: 'Create interactive learning content',
+    },
+    {
+      id: 'history' as TabType,
+      label: 'History',
+      icon: '📚',
+      description: 'Past conversations',
+    },
   ];
 
   return (
@@ -33,9 +43,12 @@ export default function AIAgentStudioPage() {
                       ← Content Studio
                     </Link>
                   </div>
-                  <h1 className="text-3xl font-bold text-gray-900">🎓 Learning Builder Studio</h1>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    🎓 Learning Builder Studio
+                  </h1>
                   <p className="mt-1 text-gray-600">
-                    Create interactive learning content and educational games with AI assistance
+                    Create interactive learning content and educational games
+                    with AI assistance
                   </p>
                 </div>
 
@@ -89,8 +102,10 @@ export default function AIAgentStudioPage() {
                   Welcome to the Learning Builder Agent
                 </h2>
                 <p className="text-neutral-700 mb-4">
-                  This intelligent agent automatically detects what you need and uses the right skills to help you create educational content.
-                  No need to choose between different agents - just tell me what you want to create!
+                  This intelligent agent automatically detects what you need and
+                  uses the right skills to help you create educational content.
+                  No need to choose between different agents - just tell me what
+                  you want to create!
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <span className="px-3 py-1 bg-white rounded-full text-sm font-medium text-brand-700 border border-brand-200">
@@ -115,9 +130,7 @@ export default function AIAgentStudioPage() {
           )}
 
           {/* History Tab */}
-          {activeTab === 'history' && (
-            <ConversationHistory />
-          )}
+          {activeTab === 'history' && <ConversationHistory />}
         </main>
       </div>
     </ProtectedRoute>

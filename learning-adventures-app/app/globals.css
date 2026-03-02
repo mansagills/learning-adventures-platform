@@ -6,56 +6,55 @@
   /* ===== PLAYFUL GEOMETRIC DESIGN SYSTEM ===== */
 
   /* Semantic colors */
-  --background: #FFFDF5;
-  --foreground: #1E293B;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --background: #fffdf5;
+  --foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 
   /* Primary brand colors */
-  --brand-500: #8B5CF6;
-  --brand-600: #7C3AED;
-  --brand-100: #ECEBFF;
+  --brand-500: #8b5cf6;
+  --brand-600: #7c3aed;
+  --brand-100: #ecebff;
 
   /* Accent colors */
-  --accent-500: #14B8A6;
-  --accent-600: #0D9488;
+  --accent-500: #14b8a6;
+  --accent-600: #0d9488;
 
   /* Playful Geometric accent palette */
-  --pg-violet: #8B5CF6;
-  --pg-pink: #F472B6;
-  --pg-yellow: #FBBF24;
-  --pg-mint: #34D399;
-  --pg-border: #1E293B;
+  --pg-violet: #8b5cf6;
+  --pg-pink: #f472b6;
+  --pg-yellow: #fbbf24;
+  --pg-mint: #34d399;
+  --pg-border: #1e293b;
 
   /* Fun colors */
-  --sunshine-400: #FBBF24;
-  --sunshine-500: #F59E0B;
-  --coral-400: #FB7185;
-  --coral-500: #F43F5E;
-  --ocean-400: #60A5FA;
-  --ocean-500: #3B82F6;
-  --grass-400: #4ADE80;
-  --grass-500: #22C55E;
+  --sunshine-400: #fbbf24;
+  --sunshine-500: #f59e0b;
+  --coral-400: #fb7185;
+  --coral-500: #f43f5e;
+  --ocean-400: #60a5fa;
+  --ocean-500: #3b82f6;
+  --grass-400: #4ade80;
+  --grass-500: #22c55e;
 
   /* Text colors */
-  --ink-900: #0F172A;
-  --ink-800: #1E293B;
+  --ink-900: #0f172a;
+  --ink-800: #1e293b;
   --ink-700: #334155;
   --ink-600: #475569;
-  --ink-400: #94A3B8;
+  --ink-400: #94a3b8;
 
   /* Error */
-  --error-500: #EF4444;
+  --error-500: #ef4444;
 
   /* Playful Geometric shadows */
-  --shadow-pop: 4px 4px 0px 0px #1E293B;
-  --shadow-pop-hover: 6px 6px 0px 0px #1E293B;
-  --shadow-pop-active: 2px 2px 0px 0px #1E293B;
-  --shadow-card: 8px 8px 0px 0px #E2E8F0;
+  --shadow-pop: 4px 4px 0px 0px #1e293b;
+  --shadow-pop-hover: 6px 6px 0px 0px #1e293b;
+  --shadow-pop-active: 2px 2px 0px 0px #1e293b;
+  --shadow-card: 8px 8px 0px 0px #e2e8f0;
 }
 
 @layer base {
-
   html {
     scroll-behavior: smooth;
   }
@@ -65,7 +64,12 @@
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-bold;
   }
 
@@ -179,7 +183,7 @@
 
   .card-sticker:hover {
     @apply -rotate-1 scale-[1.02];
-    box-shadow: 12px 12px 0px 0px #E2E8F0;
+    box-shadow: 12px 12px 0px 0px #e2e8f0;
   }
 
   /* Featured card with pink shadow */
@@ -189,7 +193,7 @@
   }
 
   .card-sticker-featured:hover {
-    box-shadow: 12px 12px 0px 0px #F472B6;
+    box-shadow: 12px 12px 0px 0px #f472b6;
   }
 
   /* ===== PLAYFUL GEOMETRIC INPUTS ===== */
@@ -341,22 +345,43 @@
 
   /* Fun backgrounds */
   .bg-dots {
-    background-image: radial-gradient(circle, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+    background-image: radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.1) 1px,
+      transparent 1px
+    );
     background-size: 20px 20px;
   }
 
   .bg-grid {
-    background-image: linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
     background-size: 30px 30px;
   }
 
   .bg-confetti {
     background-image:
-      radial-gradient(circle at 20% 80%, rgba(251, 113, 133, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(20, 184, 166, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 60% 90%, rgba(251, 191, 36, 0.15) 0%, transparent 50%);
+      radial-gradient(
+        circle at 20% 80%,
+        rgba(251, 113, 133, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(139, 92, 246, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(20, 184, 166, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 60% 90%,
+        rgba(251, 191, 36, 0.15) 0%,
+        transparent 50%
+      );
   }
 
   /* Decorative shapes */
@@ -372,12 +397,16 @@
 
   /* Dot grid pattern (Playful Geometric signature) */
   .bg-dot-grid {
-    background-image: radial-gradient(circle, #1E293B 1.5px, transparent 1.5px);
+    background-image: radial-gradient(circle, #1e293b 1.5px, transparent 1.5px);
     background-size: 24px 24px;
   }
 
   .bg-dot-grid-light {
-    background-image: radial-gradient(circle, rgba(30, 41, 59, 0.15) 1.5px, transparent 1.5px);
+    background-image: radial-gradient(
+      circle,
+      rgba(30, 41, 59, 0.15) 1.5px,
+      transparent 1.5px
+    );
     background-size: 24px 24px;
   }
 
@@ -409,12 +438,12 @@
 
   /* Scrollbar utilities for preview components */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;             /* Chrome, Safari and Opera */
+    display: none; /* Chrome, Safari and Opera */
   }
 
   /* Line clamp utilities */
@@ -477,7 +506,8 @@
   }
 
   @keyframes wiggle {
-    0%, 100% {
+    0%,
+    100% {
       transform: rotate(0deg);
     }
     25% {

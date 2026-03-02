@@ -30,16 +30,25 @@ export async function POST(req: NextRequest) {
     const { contentId, destination, metadata } = body;
 
     // 3. Validate inputs
-    if (!contentId || !destination || !metadata || !metadata.title || !metadata.description) {
+    if (
+      !contentId ||
+      !destination ||
+      !metadata ||
+      !metadata.title ||
+      !metadata.description
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields: contentId, destination, metadata.title, metadata.description' },
+        {
+          error:
+            'Missing required fields: contentId, destination, metadata.title, metadata.description',
+        },
         { status: 400 }
       );
     }
 
     // 4. Fetch content
     const content = await prisma.geminiContent.findUnique({
-      where: { id: contentId }
+      where: { id: contentId },
     });
 
     if (!content) {
@@ -51,7 +60,12 @@ export async function POST(req: NextRequest) {
     const filePath = `/games/${filename}.html`;
 
     // 6. Save file to public directory
-    const publicPath = path.join(process.cwd(), 'public', 'games', `${filename}.html`);
+    const publicPath = path.join(
+      process.cwd(),
+      'public',
+      'games',
+      `${filename}.html`
+    );
 
     // Ensure directory exists
     await fs.mkdir(path.dirname(publicPath), { recursive: true });
@@ -67,7 +81,11 @@ export async function POST(req: NextRequest) {
           title: metadata.title,
           description: metadata.description,
           category: content.category,
-          type: content.gameType.includes('3D') || content.gameType.includes('SIMULATION') ? 'game' : 'lesson',
+          type:
+            content.gameType.includes('3D') ||
+            content.gameType.includes('SIMULATION')
+              ? 'game'
+              : 'lesson',
           gradeLevel: content.gradeLevel,
           difficulty: content.difficulty,
           skills: content.skills,
@@ -75,8 +93,8 @@ export async function POST(req: NextRequest) {
           filePath,
           isHtmlGame: true,
           status: 'NOT_TESTED',
-          createdBy: session.user.id
-        }
+          createdBy: session.user.id,
+        },
       });
 
       // Update GeminiContent
@@ -86,8 +104,8 @@ export async function POST(req: NextRequest) {
           status: 'TESTING',
           filePath,
           testGameId: testGame.id,
-          publishedAt: new Date()
-        }
+          publishedAt: new Date(),
+        },
       });
 
       return NextResponse.json({
@@ -96,9 +114,8 @@ export async function POST(req: NextRequest) {
         testGameId: testGame.id,
         filePath,
         previewUrl: `/games/${filename}.html`,
-        message: 'Game published to Test Games successfully'
+        message: 'Game published to Test Games successfully',
       });
-
     } else {
       // 7b. Mark as ready for catalog (manual catalogData.ts update needed)
       await prisma.geminiContent.update({
@@ -106,8 +123,8 @@ export async function POST(req: NextRequest) {
         data: {
           status: 'APPROVED',
           filePath,
-          publishedAt: new Date()
-        }
+          publishedAt: new Date(),
+        },
       });
 
       // Generate catalog entry template
@@ -115,14 +132,18 @@ export async function POST(req: NextRequest) {
         id: filename,
         title: metadata.title,
         description: metadata.description,
-        type: content.gameType.includes('3D') || content.gameType.includes('SIMULATION') ? 'game' : 'lesson',
+        type:
+          content.gameType.includes('3D') ||
+          content.gameType.includes('SIMULATION')
+            ? 'game'
+            : 'lesson',
         category: content.category,
         gradeLevel: content.gradeLevel,
         difficulty: content.difficulty,
         skills: content.skills,
         estimatedTime: metadata.estimatedTime || '10-15 mins',
         htmlPath: filePath,
-        featured: metadata.featured || false
+        featured: metadata.featured || false,
       };
 
       return NextResponse.json({
@@ -130,16 +151,16 @@ export async function POST(req: NextRequest) {
         destination: 'catalog',
         filePath,
         previewUrl: `/games/${filename}.html`,
-        message: 'Content ready for catalog. Add the following to lib/catalogData.ts:',
+        message:
+          'Content ready for catalog. Add the following to lib/catalogData.ts:',
         catalogEntry,
         instructions: `
 Add this to the appropriate array in lib/catalogData.ts:
 - For ${content.category} games: ${content.category}Games array
 - For ${content.category} lessons: ${content.category}Lessons array
-        `.trim()
+        `.trim(),
       });
     }
-
   } catch (error: any) {
     console.error('Publish error:', error);
     return NextResponse.json(

@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Dash - Library Sorter | Learning Adventures</title>
+    <meta name="description" content="Sort scrambled numbers on book spines from smallest to largest! A fast-paced math challenge for young learners." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+      /* ===== RESET & BASE ===== */
+      *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --cream:        #FFFDF5;
+        --violet:       #8B5CF6;
+        --violet-dark:  #6D28D9;
+        --violet-light: #EDE9FE;
+        --teal:         #14B8A6;
+        --teal-dark:    #0F766E;
+        --teal-light:   #CCFBF1;
+        --amber:        #F59E0B;
+        --amber-dark:   #B45309;
+        --amber-light:  #FEF3C7;
+        --green:        #22C55E;
+        --green-dark:   #15803D;
+        --pink:         #EC4899;
+        --pink-dark:    #BE185D;
+        --red:          #EF4444;
+        --slate:        #334155;
+        --slate-light:  #94A3B8;
+        --white:        #FFFFFF;
+      }
+
+      body {
+        font-family: 'Outfit', Arial, sans-serif;
+        background: linear-gradient(145deg, #6D28D9 0%, #14B8A6 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 1rem;
+        overflow-x: hidden;
+      }
+
+      /* ===== GAME WRAPPER ===== */
+      .game-wrapper {
+        background: var(--cream);
+        border-radius: 24px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.30);
+        width: 100%;
+        max-width: 860px;
+        overflow: hidden;
+        margin: auto;
+      }
+
+      /* ===== TOP BAR ===== */
+      .top-bar {
+        background: var(--violet);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 24px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .game-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .top-stats {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .stat-pill {
+        background: rgba(255,255,255,0.20);
+        border: 2px solid rgba(255,255,255,0.30);
+        border-radius: 50px;
+        padding: 6px 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .stat-pill.timer-urgent {
+        background: rgba(239,68,68,0.85);
+        border-color: #FCA5A5;
+        animation: pulse-urgent 0.7s infinite alternate;
+      }
+
+      @keyframes pulse-urgent {
+        from { transform: scale(1); }
+        to   { transform: scale(1.05); }
+      }
+
+      /* ===== ROUND INDICATOR ===== */
+      .round-bar {
+        background: var(--violet-light);
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid #DDD6FE;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .round-label {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--violet-dark);
+      }
+
+      .round-dots {
+        display: flex;
+        gap: 8px;
+      }
+
+      .round-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #C4B5FD;
+        transition: background 0.3s;
+      }
+
+      .round-dot.done {
+        background: var(--green);
+      }
+
+      .round-dot.active {
+        background: var(--violet);
+        box-shadow: 0 0 0 3px #C4B5FD;
+      }
+
+      .instruction-hint {
+        font-size: 0.88rem;
+        color: var(--violet-dark);
+        font-weight: 600;
+      }
+
+      .speed-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #EF4444, #B91C1C);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 50px;
+        animation: pulse-urgent 0.7s infinite alternate;
+        margin-right: 6px;
+      }
+
+      /* ===== TIMER PROGRESS BAR ===== */
+      .timer-bar-wrap {
+        height: 5px;
+        background: #DDD6FE;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .timer-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--teal), var(--violet));
+        transition: width 0.5s linear;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .timer-bar-fill.urgent {
+        background: linear-gradient(90deg, #F97316, #EF4444);
+      }
+
+      /* ===== PLAY AREA ===== */
+      .play-area {
+        padding: 20px 24px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      /* ===== SHELF SECTIONS ===== */
+      .shelf-section,
+      .pile-section {
+        background: var(--white);
+        border-radius: 16px;
+        border: 2px solid #DDD6FE;
+        overflow: hidden;
+      }
+
+      .pile-section {
+        border-color: #FDE68A;
+      }
+
+      .section-label {
+        background: var(--violet-light);
+        color: var(--violet-dark);
+        font-size: 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-bottom: 2px solid #DDD6FE;
+      }
+
+      .pile-section .section-label {
+        background: var(--amber-light);
+        color: var(--amber-dark);
+        border-bottom-color: #FDE68A;
+      }
+
+      /* Wooden shelf visual */
+      .shelf-track {
+        background: linear-gradient(180deg, #F5F5F0 0%, #E8E4D4 100%);
+        border-top: 6px solid #C8B89A;
+        min-height: 110px;
+        display: flex;
+        align-items: flex-end;
+        padding: 0 16px 0 16px;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: visible;
+      }
+
+      .pile-track {
+        min-height: 130px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      /* ===== BOOK SPINE TILES ===== */
+      .book {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px 12px 12px 6px;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        position: relative;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        border-left: 5px solid rgba(0,0,0,0.18);
+        flex-shrink: 0;
+      }
+
+      .book.in-pile {
+        width: 72px;
+        height: 110px;
+        font-size: 1.55rem;
+      }
+
+      .book.on-shelf {
+        width: 58px;
+        height: 95px;
+        font-size: 1.2rem;
+        cursor: default;
+        align-self: flex-end;
+      }
+
+      .book.in-pile:hover {
+        transform: translateY(-8px) scale(1.06);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+        filter: brightness(1.08);
+      }
+
+      .book.in-pile:active {
+        transform: translateY(-4px) scale(1.02);
+      }
+
+      .book-number {
+        color: var(--white);
+        font-weight: 900;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.35);
+        text-align: center;
+        line-height: 1;
+        padding: 4px;
+        word-break: break-all;
+      }
+
+      .book-lines {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-top: 8px;
+        width: 60%;
+      }
+
+      .book-line {
+        height: 2px;
+        background: rgba(255,255,255,0.40);
+        border-radius: 2px;
+      }
+
+      /* Five book color themes */
+      .book-color-0 { background: linear-gradient(160deg, #A78BFA, #7C3AED); }
+      .book-color-1 { background: linear-gradient(160deg, #2DD4BF, #0F766E); }
+      .book-color-2 { background: linear-gradient(160deg, #FCD34D, #D97706); }
+      .book-color-3 { background: linear-gradient(160deg, #4ADE80, #15803D); }
+      .book-color-4 { background: linear-gradient(160deg, #F472B6, #BE185D); }
+
+      /* Animations */
+      .book.correct-flash {
+        animation: correct-anim 0.45s ease forwards;
+      }
+
+      @keyframes correct-anim {
+        0%   { filter: brightness(1);   box-shadow: 0 0 0px transparent; }
+        40%  { filter: brightness(1.5); box-shadow: 0 0 20px 6px #4ADE80; }
+        100% { filter: brightness(1);   box-shadow: 0 0 0px transparent; }
+      }
+
+      .book.wrong-flash {
+        animation: wrong-anim 0.45s ease;
+      }
+
+      @keyframes wrong-anim {
+        0%   { transform: translateX(0)   scale(1);    filter: brightness(1); }
+        20%  { transform: translateX(-8px) scale(1.03); filter: brightness(0.7) sepia(1) saturate(5) hue-rotate(-10deg); }
+        50%  { transform: translateX(8px)  scale(1.03); filter: brightness(0.7) sepia(1) saturate(5) hue-rotate(-10deg); }
+        80%  { transform: translateX(-4px) scale(1); }
+        100% { transform: translateX(0)   scale(1);    filter: brightness(1); }
+      }
+
+      .book.shelf-enter {
+        animation: shelf-in 0.40s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      }
+
+      @keyframes shelf-in {
+        from { transform: translateY(-40px) scale(0.7); opacity: 0; }
+        to   { transform: translateY(0)     scale(1);   opacity: 1; }
+      }
+
+      /* Empty slot placeholder on shelf */
+      .shelf-slot {
+        width: 58px;
+        height: 95px;
+        border: 3px dashed #C4B5FD;
+        border-radius: 6px 12px 12px 6px;
+        background: rgba(196,181,253,0.12);
+        flex-shrink: 0;
+        align-self: flex-end;
+      }
+
+      /* ===== OVERLAYS ===== */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 24px;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      .overlay.visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .overlay.round-overlay {
+        background: rgba(109,40,217,0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+      }
+
+      .overlay.end-overlay {
+        background: rgba(20,30,48,0.75);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .overlay-card {
+        background: var(--cream);
+        border-radius: 24px;
+        padding: 36px 40px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+        max-width: 420px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .overlay-emoji {
+        font-size: 4rem;
+        line-height: 1;
+        margin-bottom: 12px;
+        display: block;
+        animation: bounce-in 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      }
+
+      @keyframes bounce-in {
+        from { transform: scale(0); opacity: 0; }
+        to   { transform: scale(1); opacity: 1; }
+      }
+
+      .overlay-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--violet-dark);
+        margin-bottom: 6px;
+      }
+
+      .overlay-subtitle {
+        font-size: 1.1rem;
+        color: var(--slate);
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .overlay-stats {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+
+      .overlay-stat {
+        background: var(--violet-light);
+        border-radius: 12px;
+        padding: 12px 20px;
+        min-width: 100px;
+      }
+
+      .overlay-stat-num {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--violet-dark);
+        display: block;
+      }
+
+      .overlay-stat-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--violet);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+        color: var(--white);
+        border: none;
+        border-radius: 50px;
+        padding: 14px 36px;
+        font-family: 'Outfit', Arial, sans-serif;
+        font-size: 1.1rem;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(109,40,217,0.40);
+        transition: transform 0.15s, box-shadow 0.15s;
+        display: inline-block;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(109,40,217,0.50);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary:focus-visible {
+        outline: 3px solid var(--amber);
+        outline-offset: 3px;
+      }
+
+      .stars-row {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 16px;
+        font-size: 1.8rem;
+      }
+
+      /* Confetti */
+      .confetti-wrap {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .confetti-piece {
+        position: absolute;
+        top: -20px;
+        border-radius: 2px;
+        animation: confetti-fall linear forwards;
+      }
+
+      @keyframes confetti-fall {
+        to {
+          transform: translateY(500px) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      /* ===== START SCREEN ===== */
+      .start-screen {
+        padding: 40px 32px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .start-icon {
+        font-size: 5rem;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-14px); }
+      }
+
+      .start-title {
+        font-size: 2.6rem;
+        font-weight: 900;
+        color: var(--violet-dark);
+        line-height: 1.1;
+      }
+
+      .start-desc {
+        font-size: 1.1rem;
+        color: var(--slate);
+        font-weight: 500;
+        max-width: 420px;
+        line-height: 1.6;
+      }
+
+      .how-to {
+        background: var(--violet-light);
+        border-radius: 16px;
+        padding: 18px 24px;
+        text-align: left;
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .how-to h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--violet-dark);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .how-to ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .how-to li {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--slate);
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .how-to-step-num {
+        flex-shrink: 0;
+        font-weight: 900;
+        color: var(--violet-dark);
+      }
+
+      /* ===== ACCESSIBILITY ===== */
+      .book:focus-visible {
+        outline: 3px solid var(--amber);
+        outline-offset: 3px;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 600px) {
+        body { padding: 0.5rem; }
+        .top-bar { padding: 12px 16px; }
+        .game-title { font-size: 1.2rem; }
+        .stat-pill { font-size: 0.85rem; padding: 5px 12px; }
+        .play-area { padding: 14px 14px 20px; gap: 14px; }
+        .book.in-pile  { width: 62px; height: 98px;  font-size: 1.35rem; }
+        .book.on-shelf { width: 50px; height: 82px;  font-size: 1rem;    }
+        .shelf-slot    { width: 50px; height: 82px;  }
+        .overlay-card  { padding: 28px 24px; }
+        .overlay-title { font-size: 1.6rem; }
+      }
+
+      @media (max-width: 380px) {
+        .book.in-pile { width: 54px; height: 90px; font-size: 1.15rem; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="game-wrapper" id="gameWrapper">
+
+      <!-- ========== START SCREEN ========== -->
+      <div class="start-screen" id="startScreen">
+        <div class="start-icon">📚</div>
+        <h1 class="start-title">Library Sorter</h1>
+        <p class="start-desc">
+          The library books are all mixed up! Sort the numbers on the spines from
+          <strong>smallest to largest</strong> to put them back on the shelf.
+        </p>
+
+        <div class="how-to">
+          <h3>How to Play</h3>
+          <ul id="howToList">
+            <!-- Built by JS for safety -->
+          </ul>
+        </div>
+
+        <button class="btn-primary" id="startBtn" onclick="startGame()">
+          Start Sorting! &nbsp;&#x1F680;
+        </button>
+      </div>
+
+      <!-- ========== GAME SCREEN ========== -->
+      <div id="gameScreen" style="display:none;">
+
+        <div class="top-bar">
+          <div class="game-title">&#x1F4DA; Library Sorter</div>
+          <div class="top-stats">
+            <div class="stat-pill" id="timerPill">&#x23F1; <span id="timerDisplay">1:00</span></div>
+            <div class="stat-pill">&#x2B50; <span id="scoreDisplay">0</span></div>
+          </div>
+        </div>
+
+        <div class="timer-bar-wrap">
+          <div class="timer-bar-fill" id="timerBarFill" style="width:100%;"></div>
+        </div>
+
+        <div class="round-bar">
+          <div class="round-label" id="roundLabel">Round 1 / 5</div>
+          <div class="round-dots" id="roundDots"></div>
+          <div class="instruction-hint" id="hintText">Click smallest to largest!</div>
+        </div>
+
+        <div class="play-area">
+
+          <div class="shelf-section">
+            <div class="section-label">&#x1F4D6; Sorted Shelf</div>
+            <div class="shelf-track" id="shelfTrack"></div>
+          </div>
+
+          <div class="pile-section">
+            <div class="section-label">&#x1F3B2; Sort These!</div>
+            <div class="pile-track" id="pileTrack"></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========== ROUND COMPLETE OVERLAY ========== -->
+    <div class="overlay round-overlay" id="roundOverlay" role="dialog" aria-modal="true" aria-labelledby="roundTitle">
+      <div class="overlay-card">
+        <div class="confetti-wrap" id="roundConfetti"></div>
+        <span class="overlay-emoji" id="roundEmoji" aria-hidden="true"></span>
+        <div class="overlay-title" id="roundTitle">Round Complete!</div>
+        <div class="overlay-subtitle" id="roundSubtitle">Amazing sorting!</div>
+        <div class="overlay-stats">
+          <div class="overlay-stat">
+            <span class="overlay-stat-num" id="roundPointsEarned">+100</span>
+            <span class="overlay-stat-label">Points Earned</span>
+          </div>
+          <div class="overlay-stat">
+            <span class="overlay-stat-num" id="roundTotalScore">100</span>
+            <span class="overlay-stat-label">Total Score</span>
+          </div>
+        </div>
+        <button class="btn-primary" id="nextRoundBtn">Next Round</button>
+      </div>
+    </div>
+
+    <!-- ========== GAME OVER OVERLAY ========== -->
+    <div class="overlay end-overlay" id="endOverlay" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+      <div class="overlay-card">
+        <div class="confetti-wrap" id="endConfetti"></div>
+        <span class="overlay-emoji" id="endEmoji" aria-hidden="true"></span>
+        <div class="overlay-title" id="endTitle">You Did It!</div>
+        <div class="overlay-subtitle" id="endSubtitle">The library is perfectly sorted!</div>
+        <div class="stars-row" id="starsRow" aria-label="Rating"></div>
+        <div class="overlay-stats">
+          <div class="overlay-stat">
+            <span class="overlay-stat-num" id="endScore">0</span>
+            <span class="overlay-stat-label">Final Score</span>
+          </div>
+          <div class="overlay-stat">
+            <span class="overlay-stat-num" id="endRounds">5</span>
+            <span class="overlay-stat-label">Rounds Done</span>
+          </div>
+          <div class="overlay-stat">
+            <span class="overlay-stat-num" id="endTime">0:00</span>
+            <span class="overlay-stat-label">Time Left</span>
+          </div>
+        </div>
+        <button class="btn-primary" id="restartBtn">Play Again!</button>
+      </div>
+    </div>
+
+    <script>
+      /* ============================================================
+         MATH DASH – LIBRARY SORTER
+         Complete game logic – no innerHTML used for dynamic content.
+      ============================================================ */
+
+      // ---- CONSTANTS ----
+      var TOTAL_ROUNDS    = 5;
+      var TOTAL_TIME_SEC  = 60;
+      var BOOKS_PER_ROUND = 5;
+      var BASE_POINTS     = 20;
+
+      var BOOK_COLORS = [
+        'book-color-0',
+        'book-color-1',
+        'book-color-2',
+        'book-color-3',
+        'book-color-4',
+      ];
+
+      var CONFETTI_COLORS = [
+        '#8B5CF6', '#14B8A6', '#F59E0B',
+        '#22C55E', '#EC4899', '#60A5FA', '#FB923C',
+      ];
+
+      // Round number generators
+      var ROUND_CONFIGS = [
+        function() { return uniqueRandoms(1,   9,  BOOKS_PER_ROUND); },
+        function() { return uniqueRandoms(10, 50,  BOOKS_PER_ROUND); },
+        function() { return uniqueFrom([7,12,28,34,45,19,31,23,8,41]); },
+        function() { return uniqueFrom([4,23,78,105,150,9,62,130,47,200]); },
+        function() { return uniqueRandoms(1,   9,  BOOKS_PER_ROUND); }, // speed
+      ];
+
+      // ---- STATE ----
+      var score           = 0;
+      var currentRound    = 0;
+      var roundsCompleted = 0;
+      var timeLeft        = TOTAL_TIME_SEC;
+      var timerInterval   = null;
+      var gameActive      = false;
+
+      var roundNumbers    = [];
+      var nextExpected    = 0;
+      var colorMap        = {};
+      var roundStartScore = 0;
+
+      // ---- WIRE UP STATIC BUTTONS ----
+      document.getElementById('nextRoundBtn').addEventListener('click', onNextRoundClick);
+      document.getElementById('restartBtn').addEventListener('click', restartGame);
+
+      function onNextRoundClick() {
+        // This is replaced dynamically when we reach the last round
+        if (currentRound >= TOTAL_ROUNDS - 1) {
+          endGame(true);
+        } else {
+          nextRound();
+        }
+      }
+
+      // ---- BUILD HOW-TO LIST (safe DOM) ----
+      (function buildHowTo() {
+        var steps = [
+          'Look at the 5 scrambled books below',
+          'Click the smallest number first',
+          'Keep going until all books are sorted!',
+          'Beat all 5 rounds before time runs out',
+          'Round 5 is the SPEED ROUND — good luck!',
+        ];
+        var ul = document.getElementById('howToList');
+        steps.forEach(function(text, i) {
+          var li  = document.createElement('li');
+          var num = document.createElement('span');
+          num.className   = 'how-to-step-num';
+          num.textContent = (i + 1) + '.';
+          var txt = document.createTextNode(' ' + text);
+          li.appendChild(num);
+          li.appendChild(txt);
+          ul.appendChild(li);
+        });
+      })();
+
+      // ---- UTILITIES ----
+      function uniqueRandoms(min, max, count) {
+        var pool = [];
+        var seen = {};
+        while (pool.length < count) {
+          var n = min + Math.floor(Math.random() * (max - min + 1));
+          if (!seen[n]) { seen[n] = true; pool.push(n); }
+        }
+        return pool;
+      }
+
+      function uniqueFrom(arr) {
+        var copy = arr.slice().sort(function() { return Math.random() - 0.5; });
+        return copy.slice(0, BOOKS_PER_ROUND);
+      }
+
+      function shuffleArray(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+        }
+        return a;
+      }
+
+      function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      // ---- TIMER ----
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(function() {
+          if (!gameActive) return;
+          timeLeft = Math.max(0, timeLeft - 1);
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endGame(false);
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+
+        var pct  = (timeLeft / TOTAL_TIME_SEC) * 100;
+        var fill = document.getElementById('timerBarFill');
+        fill.style.width = pct + '%';
+        fill.classList.toggle('urgent', timeLeft <= 10);
+
+        document.getElementById('timerPill').classList.toggle('timer-urgent', timeLeft <= 10);
+      }
+
+      // ---- ROUND DOTS ----
+      function renderRoundDots() {
+        var wrap = document.getElementById('roundDots');
+        // Clear existing dots safely
+        while (wrap.firstChild) { wrap.removeChild(wrap.firstChild); }
+
+        for (var i = 0; i < TOTAL_ROUNDS; i++) {
+          var dot = document.createElement('div');
+          dot.className = 'round-dot';
+          if (i < currentRound)        dot.classList.add('done');
+          else if (i === currentRound) dot.classList.add('active');
+          wrap.appendChild(dot);
+        }
+        document.getElementById('roundLabel').textContent =
+          'Round ' + (currentRound + 1) + ' / ' + TOTAL_ROUNDS;
+      }
+
+      // ---- ROUND SETUP ----
+      function setupRound() {
+        nextExpected    = 0;
+        roundStartScore = score;
+
+        var rawNums  = ROUND_CONFIGS[currentRound]();
+        roundNumbers = rawNums.slice().sort(function(a,b){ return a - b; });
+
+        // Assign stable colors based on sorted position
+        colorMap = {};
+        roundNumbers.forEach(function(num, idx) {
+          colorMap[num] = BOOK_COLORS[idx % BOOK_COLORS.length];
+        });
+
+        var scrambled = shuffleArray(roundNumbers);
+
+        renderRoundDots();
+
+        // Speed round hint
+        var hint = document.getElementById('hintText');
+        // Clear hint safely
+        while (hint.firstChild) { hint.removeChild(hint.firstChild); }
+        if (currentRound === 4) {
+          var badge = document.createElement('span');
+          badge.className   = 'speed-badge';
+          badge.textContent = 'Speed Round!';
+          hint.appendChild(badge);
+          hint.appendChild(document.createTextNode(' Click fastest!'));
+        } else {
+          hint.textContent = 'Click smallest to largest!';
+        }
+
+        renderShelf();
+        renderPile(scrambled);
+      }
+
+      // ---- RENDER SHELF ----
+      function renderShelf() {
+        var track = document.getElementById('shelfTrack');
+        while (track.firstChild) { track.removeChild(track.firstChild); }
+
+        for (var i = 0; i < BOOKS_PER_ROUND; i++) {
+          if (i < nextExpected) {
+            var num  = roundNumbers[i];
+            var book = createBookEl(num, colorMap[num], 'on-shelf');
+            book.setAttribute('aria-label', 'Placed book: ' + num);
+            track.appendChild(book);
+          } else {
+            var slot = document.createElement('div');
+            slot.className = 'shelf-slot';
+            slot.setAttribute('aria-hidden', 'true');
+            track.appendChild(slot);
+          }
+        }
+      }
+
+      // ---- RENDER PILE ----
+      function renderPile(numbers) {
+        var track = document.getElementById('pileTrack');
+        while (track.firstChild) { track.removeChild(track.firstChild); }
+
+        numbers.forEach(function(num) {
+          var book = createBookEl(num, colorMap[num], 'in-pile');
+          book.setAttribute('tabindex', '0');
+          book.setAttribute('role', 'button');
+          book.setAttribute('aria-label', 'Book number ' + num + '. Click if smallest.');
+          book.addEventListener('click', function() { onBookClick(num, book); });
+          book.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onBookClick(num, book);
+            }
+          });
+          track.appendChild(book);
+        });
+      }
+
+      // ---- CREATE BOOK ELEMENT ----
+      function createBookEl(number, colorClass, sizeClass) {
+        var book = document.createElement('div');
+        book.className    = 'book ' + colorClass + ' ' + sizeClass;
+        book.dataset.num  = number;
+
+        var numEl = document.createElement('div');
+        numEl.className   = 'book-number';
+        numEl.textContent = String(number);
+
+        var lines = document.createElement('div');
+        lines.className = 'book-lines';
+        for (var i = 0; i < 3; i++) {
+          var l = document.createElement('div');
+          l.className = 'book-line';
+          lines.appendChild(l);
+        }
+
+        book.appendChild(numEl);
+        book.appendChild(lines);
+        return book;
+      }
+
+      // ---- BOOK CLICK HANDLER ----
+      function onBookClick(num, bookEl) {
+        if (!gameActive) return;
+
+        var expected = roundNumbers[nextExpected];
+
+        if (num === expected) {
+          correctPick(num, bookEl);
+        } else {
+          wrongPick(bookEl);
+        }
+      }
+
+      function correctPick(num, bookEl) {
+        var pts = BASE_POINTS + Math.floor(timeLeft / 4);
+        score  += pts;
+        document.getElementById('scoreDisplay').textContent = String(score);
+
+        bookEl.classList.add('correct-flash');
+        bookEl.style.pointerEvents = 'none';
+
+        nextExpected++;
+
+        setTimeout(function() {
+          // Remove from pile
+          if (bookEl.parentNode) { bookEl.parentNode.removeChild(bookEl); }
+
+          // Replace the first remaining shelf slot with a placed book
+          var track = document.getElementById('shelfTrack');
+          var slots  = track.querySelectorAll('.shelf-slot');
+          if (slots.length > 0) {
+            var shelfBook = createBookEl(num, colorMap[num], 'on-shelf');
+            shelfBook.classList.add('shelf-enter');
+            shelfBook.setAttribute('aria-label', 'Placed book: ' + num);
+            track.replaceChild(shelfBook, slots[0]);
+          }
+
+          if (nextExpected >= BOOKS_PER_ROUND) {
+            roundsCompleted++;
+            setTimeout(function() { showRoundComplete(); }, 300);
+          }
+        }, 200);
+      }
+
+      function wrongPick(bookEl) {
+        bookEl.classList.remove('wrong-flash');
+        // Force reflow to restart CSS animation
+        void bookEl.offsetWidth;
+        bookEl.classList.add('wrong-flash');
+        bookEl.addEventListener('animationend', function() {
+          bookEl.classList.remove('wrong-flash');
+        }, { once: true });
+      }
+
+      // ---- ROUND COMPLETE ----
+      function showRoundComplete() {
+        gameActive = false;
+        clearInterval(timerInterval);
+
+        var earned = score - roundStartScore;
+        document.getElementById('roundPointsEarned').textContent = '+' + earned;
+        document.getElementById('roundTotalScore').textContent   = String(score);
+
+        var emojis   = ['🎉', '⭐', '🚀', '💫', '🏆'];
+        var messages = [
+          'Great start!',
+          "You're on a roll!",
+          'Halfway there!',
+          'Almost done!',
+          'Library hero!',
+        ];
+
+        document.getElementById('roundEmoji').textContent    = emojis[currentRound]   || '🎉';
+        document.getElementById('roundSubtitle').textContent = messages[currentRound] || 'Amazing sorting!';
+
+        // Update next-round button label
+        var btn = document.getElementById('nextRoundBtn');
+        if (currentRound >= TOTAL_ROUNDS - 1) {
+          btn.textContent = 'See Results!';
+        } else {
+          btn.textContent = 'Next Round';
+        }
+
+        spawnConfetti('roundConfetti', 22);
+        showOverlay('roundOverlay');
+      }
+
+      function nextRound() {
+        hideOverlay('roundOverlay');
+        currentRound++;
+
+        if (currentRound >= TOTAL_ROUNDS) {
+          endGame(true);
+          return;
+        }
+
+        gameActive = true;
+        setupRound();
+        startTimer();
+      }
+
+      // ---- GAME OVER ----
+      function endGame(completed) {
+        gameActive = false;
+        clearInterval(timerInterval);
+
+        document.getElementById('endScore').textContent  = String(score);
+        document.getElementById('endRounds').textContent = String(roundsCompleted);
+        document.getElementById('endTime').textContent   = formatTime(timeLeft);
+
+        // Star rating
+        var maxPossible = TOTAL_ROUNDS * BOOKS_PER_ROUND * (BASE_POINTS + 15);
+        var ratio       = score / maxPossible;
+        var stars       = ratio >= 0.75 ? 3 : ratio >= 0.45 ? 2 : 1;
+        var starsRow    = document.getElementById('starsRow');
+        while (starsRow.firstChild) { starsRow.removeChild(starsRow.firstChild); }
+        for (var i = 0; i < 3; i++) {
+          var s = document.createElement('span');
+          s.textContent  = i < stars ? '⭐' : '☆';
+          s.setAttribute('aria-hidden', 'true');
+          starsRow.appendChild(s);
+        }
+        starsRow.setAttribute('aria-label', stars + ' out of 3 stars');
+
+        if (completed) {
+          document.getElementById('endEmoji').textContent    = '🏆';
+          document.getElementById('endTitle').textContent    = 'You Did It!';
+          document.getElementById('endSubtitle').textContent = 'The library is perfectly sorted!';
+          spawnConfetti('endConfetti', 40);
+        } else {
+          document.getElementById('endEmoji').textContent    = '⏰';
+          document.getElementById('endTitle').textContent    = "Time's Up!";
+          document.getElementById('endSubtitle').textContent =
+            'You sorted ' + roundsCompleted + (roundsCompleted !== 1 ? ' rounds' : ' round') + '!';
+        }
+
+        showOverlay('endOverlay');
+
+        // postMessage events
+        if (window.opener) {
+          window.opener.postMessage({
+            type: 'job-complete',
+            jobId: 'library-organizer',
+            score: score,
+            roundsCompleted: roundsCompleted
+          }, '*');
+
+          window.opener.postMessage({
+            type: 'game-complete',
+            adventureId: 'math-dash',
+            score: score
+          }, '*');
+        }
+
+        // Also emit to parent frame (iframe embedding)
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'game-complete',
+            adventureId: 'math-dash',
+            score: score,
+            roundsCompleted: roundsCompleted
+          }, '*');
+        }
+      }
+
+      // ---- OVERLAYS ----
+      function showOverlay(id) {
+        document.getElementById(id).classList.add('visible');
+      }
+
+      function hideOverlay(id) {
+        document.getElementById(id).classList.remove('visible');
+      }
+
+      // ---- CONFETTI (safe DOM) ----
+      function spawnConfetti(containerId, count) {
+        var wrap = document.getElementById(containerId);
+        while (wrap.firstChild) { wrap.removeChild(wrap.firstChild); }
+
+        for (var i = 0; i < count; i++) {
+          var piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+
+          var size = (6 + Math.random() * 10);
+          piece.style.left             = Math.random() * 100 + '%';
+          piece.style.width            = size + 'px';
+          piece.style.height           = size + 'px';
+          piece.style.background       = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+          piece.style.borderRadius     = Math.random() > 0.5 ? '50%' : '2px';
+          piece.style.animationDuration = (0.9 + Math.random() * 1.4) + 's';
+          piece.style.animationDelay   = (Math.random() * 0.5) + 's';
+
+          wrap.appendChild(piece);
+        }
+      }
+
+      // ---- GAME INIT ----
+      function startGame() {
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display  = 'block';
+
+        score           = 0;
+        currentRound    = 0;
+        roundsCompleted = 0;
+        timeLeft        = TOTAL_TIME_SEC;
+        gameActive      = true;
+
+        document.getElementById('scoreDisplay').textContent = '0';
+        updateTimerDisplay();
+        setupRound();
+        startTimer();
+      }
+
+      function restartGame() {
+        hideOverlay('roundOverlay');
+        hideOverlay('endOverlay');
+
+        score           = 0;
+        currentRound    = 0;
+        roundsCompleted = 0;
+        timeLeft        = TOTAL_TIME_SEC;
+        gameActive      = true;
+
+        document.getElementById('scoreDisplay').textContent = '0';
+        updateTimerDisplay();
+        setupRound();
+        startTimer();
+      }
+
+    </script>
+  </body>
+</html>

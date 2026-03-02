@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 interface AdventureEmbedProps {
@@ -20,8 +20,7 @@ export function AdventureEmbed({
   onClose,
   onComplete,
 }: AdventureEmbedProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [gameOpened, setGameOpened] = useState(false);
 
   useEffect(() => {
     // Listen for postMessage events from embedded game
@@ -67,26 +66,37 @@ export function AdventureEmbed({
   const getEmbedUrl = () => {
     // Map adventureId to actual HTML file path
     const gameMap: Record<string, string> = {
+      // Embedded math adventures
       'pizza-fraction-frenzy': '/games/pizza-fraction-frenzy.html',
       'math-race-rally': '/games/math-race-rally.html',
       'multiplication-bingo-bonanza': '/games/multiplication-bingo-bonanza.html',
       'number-monster-feeding': '/games/number-monster-feeding.html',
       'math-jeopardy-junior': '/games/math-jeopardy-junior.html',
+      // Job mini-games
+      'cafeteria-cashier': '/games/cafeteria-cashier.html',
+      'library-organizer': '/games/math-dash.html',
+      'garden-keeper': '/games/math-dash.html',
     };
 
-    return gameMap[adventureId] || `/games/${adventureId}.html`;
+    console.log('[AdventureEmbed] adventureId:', adventureId);
+    const path = gameMap[adventureId] ?? `/games/${adventureId}.html`;
+    const url = `${window.location.origin}${path}`;
+    console.log('[AdventureEmbed] loading URL:', url);
+    return url;
   };
 
-  const handleIframeLoad = () => {
-    setIsLoading(false);
+  const handleGameOpen = () => {
+    // Game opened in new tab — advance modal to completion confirmation screen
+    setGameOpened(true);
   };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       {/* Modal Container */}
       <div className="relative w-[95vw] h-[95vh] max-w-7xl bg-white rounded-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-r from-vivid-violet to-electric-purple text-white">
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 text-white" style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}>
           <h2 className="text-lg font-bold">
             {type === 'game' ? '🎮 Playing Game' : '📚 Learning Activity'}
           </h2>
@@ -99,25 +109,48 @@ export function AdventureEmbed({
           </button>
         </div>
 
-        {/* Loading Indicator */}
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-warm-cream">
+        {/* Game launcher */}
+        <div className="w-full h-full flex flex-col items-center justify-center gap-6 pt-14 pb-12">
+          {!gameOpened ? (
             <div className="text-center">
-              <div className="w-16 h-16 border-4 border-vivid-violet border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading adventure...</p>
+              <div className="text-6xl mb-4">🎮</div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Ready to Play!</h3>
+              <p className="text-gray-500 mb-6">Click below to open the game in a new tab.</p>
+              <a
+                href={getEmbedUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleGameOpen}
+                className="inline-block px-8 py-4 rounded-xl text-white font-bold text-lg transition-transform hover:scale-105"
+                style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}
+              >
+                Open Game
+              </a>
+              <p className="text-sm text-gray-400 mt-4">Come back here when you&apos;re done!</p>
             </div>
-          </div>
-        )}
-
-        {/* Embedded Game/Lesson */}
-        <iframe
-          ref={iframeRef}
-          src={getEmbedUrl()}
-          className="w-full h-full border-0 pt-14"
-          title={`Adventure: ${adventureId}`}
-          sandbox="allow-scripts allow-same-origin"
-          onLoad={handleIframeLoad}
-        />
+          ) : (
+            <div className="text-center">
+              <div className="text-6xl mb-4">🏆</div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Nice work!</h3>
+              <p className="text-gray-500 mb-6">Did you finish the game?</p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => onComplete && onComplete()}
+                  className="px-8 py-4 rounded-xl text-white font-bold text-lg transition-transform hover:scale-105"
+                  style={{ background: 'linear-gradient(to right, #10B981, #059669)' }}
+                >
+                  ⭐ Yes, I finished! (+50 XP)
+                </button>
+                <button
+                  onClick={onClose}
+                  className="px-8 py-4 rounded-xl text-gray-700 font-bold text-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Not yet
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Instructions Footer */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-4 py-2 text-white text-sm text-center">

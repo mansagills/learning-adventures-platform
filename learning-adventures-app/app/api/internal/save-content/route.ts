@@ -1,23 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const {
       content,
       fileName,
       type,
       subscriptionTier = 'free',
       uploadedZipPath,
-      uploadSource
+      uploadSource,
     } = await request.json();
 
     if (!fileName || !type) {
       return NextResponse.json(
         { error: 'Missing required fields: fileName, type' },
+        { status: 400 }
+      );
+    }
+
+    // Security: Prevent path traversal by using basename
+    // This ensures fileName is just a filename, not a path
+    const safeFileName = basename(fileName);
+    if (safeFileName !== fileName) {
+      return NextResponse.json(
+        { error: 'Invalid file name. Path traversal detected.' },
         { status: 400 }
       );
     }
@@ -39,6 +57,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate fileName/gameId to prevent path traversal
+    // We derive gameId by stripping .html extension, effectively enforcing it
+    const gameId = fileName.replace('.html', '');
+    try {
+      validateIdentifier(gameId, 'Game ID');
+    } catch (e) {
+      return NextResponse.json(
+        { error: (e as Error).message },
+        { status: 400 }
+      );
+    }
+
     const publicDir = join(process.cwd(), 'public');
     const typeDir = join(publicDir, `${type}s`);
     const tierDir = join(typeDir, subscriptionTier);
@@ -50,57 +80,63 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
+      // Security: Validate uploadedZipPath to prevent path traversal
+      if (uploadedZipPath.includes('..') || !uploadedZipPath.startsWith('/uploads/temp/')) {
+        return NextResponse.json(
+          { error: 'Invalid zip path. Must be a relative path in /uploads/temp/' },
+          { status: 400 }
+        );
+      }
+
       // Create directory for the game/lesson
-      const gameId = fileName.replace('.html', '');
+      const gameId = safeFileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
+
+      // Double check path traversal just in case
+      const resolvedTierDir = resolve(tierDir);
+      const resolvedGameDir = resolve(gameDir);
+      if (
+        !resolvedGameDir.startsWith(resolvedTierDir + sep) &&
+        resolvedGameDir !== resolvedTierDir
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid game directory path' },
+          { status: 400 }
+        );
+      }
+
       await mkdir(gameDir, { recursive: true });
 
-      // Extract zip to the game directory
-      const zipFullPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
+      // Prevent path traversal in uploadedZipPath
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^\//, '')
+      );
+      if (!zipFullPath.startsWith(publicDir)) {
+        return NextResponse.json(
+          {
+            error: 'Invalid uploadedZipPath. Must be within public directory.',
+          },
+          { status: 400 }
+        );
+      }
 
-      if (!existsSync(zipFullPath)) {
+      if (!existsSync(resolvedZipPath)) {
         return NextResponse.json(
           { error: 'Uploaded zip file not found' },
           { status: 404 }
         );
       }
 
-      const zip = new AdmZip(zipFullPath);
-
-      // Security: Manually extract zip entries to prevent Zip Slip vulnerabilities
-      const zipEntries = zip.getEntries();
-      const resolvedTargetDir = resolve(gameDir);
-
-      for (const entry of zipEntries) {
-        if (entry.isDirectory) continue;
-
-        // Resolve full path and prevent path traversal
-        const entryName = entry.entryName;
-        const fullPath = resolve(resolvedTargetDir, entryName);
-
-        // Ensure the resolved path is inside the target directory
-        if (!fullPath.startsWith(resolvedTargetDir + sep)) {
-          console.warn(
-            `Security Warning: Skipped file trying to escape target directory: ${entryName}`
-          );
-          continue;
-        }
-
-        // Ensure parent directory exists
-        const parentDir = resolve(fullPath, '..');
-        await mkdir(parentDir, { recursive: true });
-
-        // Write file content
-        await writeFile(fullPath, entry.getData());
-      }
+      const zip = new AdmZip(resolvedZipPath);
+      await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
         success: true,
         filePath: `/${type}s/${subscriptionTier}/${gameId}/`,
         isDirectory: true,
-        message: 'Zip file extracted successfully'
+        message: 'Zip file extracted successfully',
       });
-
     } else {
       // Handle AI-generated HTML content
       if (!content) {
@@ -110,22 +146,38 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const filePath = join(tierDir, fileName);
+      const filePath = join(tierDir, safeFileName);
+
+      // Ensure filePath is safe (though we validated identifier, verify full path)
+      const resolvedFilePath = resolve(filePath);
+      const resolvedTierDir = resolve(tierDir);
+
+      if (
+        !resolvedFilePath.startsWith(resolvedTierDir + sep) &&
+        resolvedFilePath !== resolvedTierDir
+      ) {
+        return NextResponse.json(
+          { error: 'Invalid file path' },
+          { status: 400 }
+        );
+      }
 
       // Write the HTML content to file
       await writeFile(filePath, content, 'utf8');
 
       return NextResponse.json({
         success: true,
-        filePath: `/${type}s/${subscriptionTier}/${fileName}`,
+        filePath: `/${type}s/${subscriptionTier}/${safeFileName}`,
         isDirectory: false
       });
     }
-
   } catch (error) {
     console.error('Error saving content:', error);
     return NextResponse.json(
-      { error: 'Failed to save content file', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to save content file',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

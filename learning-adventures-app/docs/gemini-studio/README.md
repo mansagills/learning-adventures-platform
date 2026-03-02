@@ -129,30 +129,35 @@ model GeminiUsage {
 ## 🔧 API Endpoints
 
 ### `/api/gemini/generate`
+
 - **Method**: POST
 - **Purpose**: Generate new game from prompt
 - **Input**: `{ prompt, context, gameType, category, gradeLevel }`
 - **Output**: `{ gameCode, contentId, tokens }`
 
 ### `/api/gemini/iterate`
+
 - **Method**: POST
 - **Purpose**: Refine existing game
 - **Input**: `{ contentId, feedback, existingCode }`
 - **Output**: `{ updatedCode, iteration, changes }`
 
 ### `/api/gemini/stream`
+
 - **Method**: POST
 - **Purpose**: Stream generation in real-time
 - **Input**: `{ prompt, options }`
 - **Output**: Server-Sent Events stream
 
 ### `/api/gemini/preview`
+
 - **Method**: POST
 - **Purpose**: Create temporary preview URL
 - **Input**: `{ contentId, code }`
 - **Output**: `{ previewUrl, expiresIn }`
 
 ### `/api/gemini/publish`
+
 - **Method**: POST
 - **Purpose**: Publish to catalog
 - **Input**: `{ contentId, metadata }`
@@ -177,12 +182,14 @@ model GeminiUsage {
 ## 📖 Implementation Phases
 
 ### ✅ Phase 1: Environment Setup (Completed)
+
 - ✅ Install Gemini SDK (`@google/generative-ai`)
 - ✅ Configure API keys in `.env.local`
 - ✅ Update Prisma schema with Gemini models
 - ✅ Create documentation
 
 ### 🔄 Phase 2: API Routes (In Progress)
+
 - ⏳ Create generation endpoint
 - ⏳ Create iteration endpoint
 - ⏳ Create streaming endpoint
@@ -190,6 +197,7 @@ model GeminiUsage {
 - ⏳ Create publish endpoint
 
 ### 📅 Phase 3: UI Components (Planned)
+
 - 📋 Build main Studio page
 - 📋 Create PromptInput component
 - 📋 Create LivePreview component
@@ -197,6 +205,7 @@ model GeminiUsage {
 - 📋 Create PublishWorkflow component
 
 ### 📅 Phase 4: Integration & Testing (Planned)
+
 - 📋 Integrate with AdminPanel navigation
 - 📋 Connect to catalog system
 - 📋 Add file management
@@ -334,6 +343,7 @@ Output: Interactive lesson with educational gameplay
    - Picks template: Racing Game
 
 2. **Enters natural language prompt**
+
    ```
    "Create a multiplication racing game where students control
    a race car by solving multiplication problems (2-12 tables).
@@ -366,24 +376,28 @@ Output: Interactive lesson with educational gameplay
 ### Common Issues
 
 **API Key Error**
+
 ```
 Error: Invalid API key
 Solution: Check GEMINI_API_KEY in .env.local
 ```
 
 **Generation Timeout**
+
 ```
 Error: Request timeout
 Solution: Reduce prompt complexity or increase timeout
 ```
 
 **Preview Not Loading**
+
 ```
 Error: Preview iframe blocked
 Solution: Check sandbox permissions and CORS settings
 ```
 
 **Database Connection Error**
+
 ```
 Error: Prisma client not generated
 Solution: Run `npx prisma generate`
@@ -401,6 +415,7 @@ Solution: Run `npx prisma generate`
 ## 🤝 Support
 
 For questions or issues:
+
 - Check the troubleshooting guide above
 - Review phase-specific documentation
 - Consult the Comprehensive Platform Plan

@@ -7,3 +7,15 @@
 **Vulnerability:** Internal API routes (e.g., `/api/internal/claude-generate`) were not protected by Next.js middleware (which excludes `/api` paths by default) and lacked individual authentication checks.
 **Learning:** Middleware regex exclusions can create a false sense of security. API routes in Next.js App Router must explicitly check `getServerSession` if they are not covered by global middleware.
 **Prevention:** Implement a `requireAuth` helper or explicitly check `getServerSession(authOptions)` at the beginning of sensitive API route handlers. Ensure `middleware.ts` configuration clearly defines what is and isn't protected.
+## 2026-02-01 - Internal API Path Traversal & Unauthorized Access
+**Vulnerability:** The internal content saving endpoint (`/api/internal/save-content`) lacked authentication checks and did not sanitize the `fileName` parameter, allowing arbitrary file overwrites via path traversal.
+**Learning:** Middleware configurations often exclude `/api/` routes by default, leaving them exposed unless explicitly protected within the route handler. Assuming "internal" in the path provides security is a fallacy.
+**Prevention:** Always verify authentication (`getServerSession`) and authorization (`role`) at the beginning of sensitive API routes. Use `path.basename()` to sanitize user-provided filenames before using them in file system operations.
+## 2026-02-01 - Internal API Path Traversal & Auth Bypass
+**Vulnerability:** The `save-content` API endpoint lacked authentication checks and used unsanitized user input (`fileName` and `uploadedZipPath`) directly in file system operations.
+**Learning:** "Internal" APIs are not inherently secure and must have the same authentication/authorization rigor as public APIs. `path.join` with user input is a common vector for traversal if not sanitized.
+**Prevention:**
+1. Always verify session/role at the start of API routes.
+2. Use `path.basename()` to strip directory components from filenames.
+3. Validate paths against an allowlist regex (e.g., alphanumeric only).
+4. Verify resolved paths start with the intended directory prefix.

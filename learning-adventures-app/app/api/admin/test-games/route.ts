@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
         _count: {
           select: {
             approvals: true,
-            feedback: true
-          }
-        }
+            feedback: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json({ games });
@@ -58,12 +58,12 @@ export async function POST(req: NextRequest) {
       estimatedTime,
       filePath,
       isHtmlGame,
-      isReactComponent
+      isReactComponent,
     } = body;
 
     // Check if game already exists
     const existing = await prisma.testGame.findUnique({
-      where: { gameId }
+      where: { gameId },
     });
 
     if (existing) {
@@ -88,8 +88,8 @@ export async function POST(req: NextRequest) {
         isHtmlGame: isHtmlGame ?? true,
         isReactComponent: isReactComponent ?? false,
         createdBy: session.user.id,
-        status: 'NOT_TESTED'
-      }
+        status: 'NOT_TESTED',
+      },
     });
 
     return NextResponse.json({ game }, { status: 201 });

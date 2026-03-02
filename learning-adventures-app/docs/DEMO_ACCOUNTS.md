@@ -15,6 +15,7 @@ This document contains login credentials for demonstrating the Learning Adventur
 All demo accounts use the password: `demo2024`
 
 ### Parent Demo
+
 - **Email**: `demo.parent@learningadventures.io`
 - **Password**: `demo2024`
 - **Features to show**:
@@ -24,6 +25,7 @@ All demo accounts use the password: `demo2024`
   - Premium subscription features
 
 ### Teacher Demo
+
 - **Email**: `demo.teacher@learningadventures.io`
 - **Password**: `demo2024`
 - **Features to show**:
@@ -32,6 +34,7 @@ All demo accounts use the password: `demo2024`
   - Class management features
 
 ### Admin Demo
+
 - **Email**: `demo.admin@learningadventures.io`
 - **Password**: `demo2024`
 - **Features to show**:
@@ -48,12 +51,13 @@ Child accounts use username + 4-digit PIN (no email required - COPPA compliant)
 
 **Login URL**: `/child/login`
 
-| Child | Username | PIN | Details |
-|-------|----------|-----|---------|
-| Emma | `DemoChild1` | `1234` | Grade 3, Fox avatar |
-| Liam | `DemoChild2` | `1234` | Grade 5, Dragon avatar |
+| Child | Username     | PIN    | Details                |
+| ----- | ------------ | ------ | ---------------------- |
+| Emma  | `DemoChild1` | `1234` | Grade 3, Fox avatar    |
+| Liam  | `DemoChild2` | `1234` | Grade 5, Dragon avatar |
 
 ### Child Demo Flow
+
 1. Go to `/child/login`
 2. Enter username (e.g., `DemoChild1`)
 3. Enter PIN: `1234`
@@ -67,12 +71,12 @@ Child accounts use username + 4-digit PIN (no email required - COPPA compliant)
 
 For internal testing (password: `password123`)
 
-| Role | Email | Use Case |
-|------|-------|----------|
+| Role    | Email              | Use Case                             |
+| ------- | ------------------ | ------------------------------------ |
 | Student | `student@test.com` | Student dashboard, progress tracking |
-| Teacher | `teacher@test.com` | Teacher features, classroom |
-| Parent | `parent@test.com` | Parent features (not verified) |
-| Admin | `admin@test.com` | Admin features |
+| Teacher | `teacher@test.com` | Teacher features, classroom          |
+| Parent  | `parent@test.com`  | Parent features (not verified)       |
+| Admin   | `admin@test.com`   | Admin features                       |
 
 ---
 
@@ -108,6 +112,7 @@ npm run db:seed
 ```
 
 This will:
+
 - Reset all test and demo accounts
 - Clear progress data
 - Re-create demo children
@@ -118,17 +123,20 @@ This will:
 ## Troubleshooting
 
 **"Invalid credentials" error**
+
 - Ensure database is seeded: `npm run db:seed`
 - Check PostgreSQL is running: `brew services start postgresql@14`
 
 **Child login not working**
+
 - Verify parent is verified: Demo parent is pre-verified
 - Check username case sensitivity: Use exact username (e.g., `DemoChild1`)
 
 **Admin panel not showing**
+
 - Only visible to ADMIN role users
 - Login with demo.admin@learningadventures.io
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

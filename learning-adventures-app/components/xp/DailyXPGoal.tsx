@@ -31,13 +31,15 @@ export default function DailyXPGoal() {
       const response = await fetch('/api/level/status');
       if (response.ok) {
         const data = await response.json();
-        setDailyXP(data.dailyXP || {
-          totalXP: 0,
-          xpFromLessons: 0,
-          xpFromGames: 0,
-          lessonsCompleted: 0,
-          gamesCompleted: 0,
-        });
+        setDailyXP(
+          data.dailyXP || {
+            totalXP: 0,
+            xpFromLessons: 0,
+            xpFromGames: 0,
+            lessonsCompleted: 0,
+            gamesCompleted: 0,
+          }
+        );
       }
     } catch (error) {
       console.error('Failed to fetch daily XP:', error);
@@ -58,15 +60,18 @@ export default function DailyXPGoal() {
     return null;
   }
 
-  const progressPercentage = Math.min(100, (dailyXP.totalXP / DAILY_XP_GOAL) * 100);
+  const progressPercentage = Math.min(
+    100,
+    (dailyXP.totalXP / DAILY_XP_GOAL) * 100
+  );
   const isGoalReached = dailyXP.totalXP >= DAILY_XP_GOAL;
 
   return (
-    <div className={`bg-white rounded-xl shadow-md p-6 border-2 transition-all ${
-      isGoalReached
-        ? 'border-green-300 bg-green-50'
-        : 'border-gray-200'
-    }`}>
+    <div
+      className={`bg-white rounded-xl shadow-md p-6 border-2 transition-all ${
+        isGoalReached ? 'border-green-300 bg-green-50' : 'border-gray-200'
+      }`}
+    >
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium text-gray-700">Today's Progress</h3>
         {isGoalReached && (
@@ -105,7 +110,8 @@ export default function DailyXPGoal() {
         <div className="text-xs text-gray-600">
           {isGoalReached ? (
             <span className="text-green-700 font-medium">
-              🎉 Amazing! You've exceeded your daily goal by {dailyXP.totalXP - DAILY_XP_GOAL} XP!
+              🎉 Amazing! You've exceeded your daily goal by{' '}
+              {dailyXP.totalXP - DAILY_XP_GOAL} XP!
             </span>
           ) : (
             <span>
