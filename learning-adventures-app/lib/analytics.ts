@@ -34,8 +34,7 @@ export const analytics = {
   viewSection: (sectionName: string) =>
     track('section_view', { section_name: sectionName }),
 
-  openFAQ: (question: string) =>
-    track('faq_open', { question }),
+  openFAQ: (question: string) => track('faq_open', { question }),
 
   submitForm: (formName: string) =>
     track('form_submit', { form_name: formName }),

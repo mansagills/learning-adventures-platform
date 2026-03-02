@@ -1,6 +1,7 @@
 # Course Design Brief Skill
 
 ## Purpose
+
 Normalizes custom course intake form data (60+ fields) into a structured design brief for AI-powered course generation.
 
 ## What This Skill Does
@@ -8,6 +9,7 @@ Normalizes custom course intake form data (60+ fields) into a structured design 
 This skill is the **first step** in the course generation pipeline. It takes raw course request data from the intake form and transforms it into a clean, structured format that downstream skills can use.
 
 ### Key Responsibilities:
+
 1. **Data Normalization**: Extracts and organizes 60+ form fields into logical categories
 2. **Calculation**: Determines appropriate course structure (total lessons, duration, etc.)
 3. **Intelligence**: Infers difficulty level from student age, grade, and learning goals
@@ -17,6 +19,7 @@ This skill is the **first step** in the course generation pipeline. It takes raw
 ## Input Format
 
 Expects a CourseRequest object (from database) with fields like:
+
 - Student profile (name, age, grade, accommodations, challenges)
 - Learning preferences (styles, interests, favorite characters)
 - Course requirements (subject, topics, learning goals)
@@ -84,26 +87,31 @@ Returns a `designBrief` object with normalized data:
 The skill flags data for clarification when:
 
 ### 1. Vague Topics
+
 - **Trigger**: Topics like "just math" or "science stuff" without specifics
 - **Action**: Suggests 3-5 curriculum-aligned topics based on grade level
 - **Example**: "Math" → "Fractions, Multiplication, Word Problems, Geometry Basics"
 
 ### 2. Age/Grade Mismatches
+
 - **Trigger**: Learning goals don't align with developmental stage
 - **Example**: 6-year-old requesting "get ahead in calculus"
 - **Action**: Flags for admin review with alternative suggestions
 
 ### 3. Contradictory Preferences
+
 - **Trigger**: Conflicting requirements
 - **Example**: "Wants interactive games" + "Student dislikes screens"
 - **Action**: Requests clarification on delivery mode preference
 
 ### 4. Generic Interests
+
 - **Trigger**: Interests too broad to theme a course effectively
 - **Example**: "Likes everything" or "No specific interests"
 - **Action**: Suggests asking follow-up questions about hobbies, shows, books
 
 ### 5. Unfeasible Accommodations
+
 - **Trigger**: Requested accommodations not supported by current content types
 - **Example**: "Requires sign language interpreter" (no video content with ASL)
 - **Action**: Flags limitation and suggests alternatives (captions, visual-heavy games)
@@ -111,19 +119,23 @@ The skill flags data for clarification when:
 ## Course Structure Calculations
 
 ### Total Lessons Formula:
+
 - **SHORT** (1-2 weeks): 5-10 lessons
 - **MEDIUM** (3-4 weeks): 12-20 lessons
 - **LONG** (6-8 weeks): 25-40 lessons
 
 ### Difficulty Determination:
+
 - **Easy**: Age matches grade level OR learning goal = CATCH_UP
 - **Medium**: Age matches grade level AND learning goal = REINFORCE
 - **Hard**: Age below grade level OR learning goal = GET_AHEAD
 
 ### Session Duration:
+
 - Directly maps from form selection (15, 30, 45, or 60 minutes)
 
 ### Lessons Per Week:
+
 - Calculated as: `totalLessons / (courseLength in weeks)`
 - Example: 12 lessons over 3 weeks = 4 lessons/week
 
@@ -142,14 +154,17 @@ if (confidence > 70) {
   const result = await skill.execute({
     userRequest: 'Create design brief',
     previousOutputs: new Map([
-      ['courseRequest', {
-        studentName: 'Emma',
-        studentAge: 8,
-        gradeLevel: '3rd Grade',
-        primarySubject: 'MATH',
-        // ... 50+ more fields
-      }]
-    ])
+      [
+        'courseRequest',
+        {
+          studentName: 'Emma',
+          studentAge: 8,
+          gradeLevel: '3rd Grade',
+          primarySubject: 'MATH',
+          // ... 50+ more fields
+        },
+      ],
+    ]),
   });
 
   if (result.success) {
@@ -170,11 +185,13 @@ if (confidence > 70) {
 ## Integration Points
 
 ### Input Sources:
+
 - CourseRequest database record (via previousOutputs)
 - JSON data in userRequest field
 - Admin-edited clarification responses
 
 ### Output Consumers:
+
 - **CurriculumDesignSkill**: Uses design brief to create lesson structure
 - **NarrativeIntegrationSkill**: Uses student interests and favorite characters
 - **CourseGenerationAgent**: Stores in aiMetadata for audit trail
@@ -182,6 +199,7 @@ if (confidence > 70) {
 ## Error Handling
 
 ### Common Errors:
+
 1. **MISSING_DATA**: No CourseRequest found in context
    - Resolution: Verify courseRequest in previousOutputs Map
 
@@ -194,6 +212,7 @@ if (confidence > 70) {
 ## Testing
 
 ### Test Cases:
+
 1. **Complete Data**: All fields populated, no contradictions
    - Expected: `clarifications` array empty
 
@@ -207,6 +226,7 @@ if (confidence > 70) {
    - Expected: Clarification about delivery mode
 
 ### Sample Test Data:
+
 ```json
 {
   "id": "test-123",

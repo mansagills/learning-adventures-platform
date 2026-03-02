@@ -57,7 +57,8 @@ export default function ProtectedRoute({
         STUDENT: 1,
       };
 
-      const userRoleLevel = roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
+      const userRoleLevel =
+        roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
       const requiredRoleLevel = roleHierarchy[requiredRole];
 
       if (userRoleLevel < requiredRoleLevel) {
@@ -65,7 +66,15 @@ export default function ProtectedRoute({
         return;
       }
     }
-  }, [session, status, requireAuth, requiredRole, allowedRoles, router, fallbackUrl]);
+  }, [
+    session,
+    status,
+    requireAuth,
+    requiredRole,
+    allowedRoles,
+    router,
+    fallbackUrl,
+  ]);
 
   // Show loading state while checking authentication
   if (status === 'loading') {
@@ -97,7 +106,8 @@ export default function ProtectedRoute({
       STUDENT: 1,
     };
 
-    const userRoleLevel = roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
+    const userRoleLevel =
+      roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
     const requiredRoleLevel = roleHierarchy[requiredRole];
 
     if (userRoleLevel < requiredRoleLevel) {
@@ -127,7 +137,10 @@ export function withProtectedRoute<P extends object>(
 }
 
 // Role-specific protection components for convenience
-export function AdminRoute({ children, ...props }: Omit<ProtectedRouteProps, 'requiredRole'>) {
+export function AdminRoute({
+  children,
+  ...props
+}: Omit<ProtectedRouteProps, 'requiredRole'>) {
   return (
     <ProtectedRoute requiredRole="ADMIN" {...props}>
       {children}
@@ -135,7 +148,10 @@ export function AdminRoute({ children, ...props }: Omit<ProtectedRouteProps, 're
   );
 }
 
-export function TeacherRoute({ children, ...props }: Omit<ProtectedRouteProps, 'requiredRole'>) {
+export function TeacherRoute({
+  children,
+  ...props
+}: Omit<ProtectedRouteProps, 'requiredRole'>) {
   return (
     <ProtectedRoute requiredRole="TEACHER" {...props}>
       {children}
@@ -143,7 +159,10 @@ export function TeacherRoute({ children, ...props }: Omit<ProtectedRouteProps, '
   );
 }
 
-export function ParentRoute({ children, ...props }: Omit<ProtectedRouteProps, 'requiredRole'>) {
+export function ParentRoute({
+  children,
+  ...props
+}: Omit<ProtectedRouteProps, 'requiredRole'>) {
   return (
     <ProtectedRoute requiredRole="PARENT" {...props}>
       {children}
@@ -151,7 +170,10 @@ export function ParentRoute({ children, ...props }: Omit<ProtectedRouteProps, 'r
   );
 }
 
-export function StudentRoute({ children, ...props }: Omit<ProtectedRouteProps, 'requiredRole'>) {
+export function StudentRoute({
+  children,
+  ...props
+}: Omit<ProtectedRouteProps, 'requiredRole'>) {
   return (
     <ProtectedRoute requiredRole="STUDENT" {...props}>
       {children}

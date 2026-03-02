@@ -19,13 +19,13 @@ interface AdventureFiltersProps {
 export default function AdventureFilters({
   onFilterChange,
   totalCount,
-  filteredCount
+  filteredCount,
 }: AdventureFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     gradeLevel: '',
     type: '',
     difficulty: '',
-    category: ''
+    category: '',
   });
 
   const handleFilterChange = (key: keyof FilterState, value: string) => {
@@ -39,13 +39,13 @@ export default function AdventureFilters({
       gradeLevel: '',
       type: '',
       difficulty: '',
-      category: ''
+      category: '',
     };
     setFilters(clearedFilters);
     onFilterChange(clearedFilters);
   };
 
-  const hasActiveFilters = Object.values(filters).some(value => value !== '');
+  const hasActiveFilters = Object.values(filters).some((value) => value !== '');
 
   return (
     <div className="bg-white border-b border-gray-100 py-6">
@@ -136,7 +136,8 @@ export default function AdventureFilters({
             </>
           ) : (
             <>
-              Showing all <span className="font-semibold">{totalCount}</span> adventures
+              Showing all <span className="font-semibold">{totalCount}</span>{' '}
+              adventures
             </>
           )}
         </div>
@@ -147,14 +148,18 @@ export default function AdventureFilters({
         <div className="mt-4 flex flex-wrap gap-2">
           {filters.category && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-100 text-brand-700">
-              Subject: {
-                filters.category === 'math' ? 'Math' :
-                filters.category === 'science' ? 'Science' :
-                filters.category === 'english' ? 'English Language Arts' :
-                filters.category === 'history' ? 'History' :
-                filters.category === 'interdisciplinary' ? 'Interdisciplinary' :
-                filters.category
-              }
+              Subject:{' '}
+              {filters.category === 'math'
+                ? 'Math'
+                : filters.category === 'science'
+                  ? 'Science'
+                  : filters.category === 'english'
+                    ? 'English Language Arts'
+                    : filters.category === 'history'
+                      ? 'History'
+                      : filters.category === 'interdisciplinary'
+                        ? 'Interdisciplinary'
+                        : filters.category}
               <button
                 onClick={() => handleFilterChange('category', '')}
                 className="ml-2 text-brand-500 hover:text-brand-700"
@@ -166,7 +171,10 @@ export default function AdventureFilters({
           )}
           {filters.gradeLevel && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-100 text-brand-700">
-              Grade: {filters.gradeLevel === 'K' ? 'Kindergarten' : `Grade ${filters.gradeLevel}`}
+              Grade:{' '}
+              {filters.gradeLevel === 'K'
+                ? 'Kindergarten'
+                : `Grade ${filters.gradeLevel}`}
               <button
                 onClick={() => handleFilterChange('gradeLevel', '')}
                 className="ml-2 text-brand-500 hover:text-brand-700"
@@ -190,7 +198,9 @@ export default function AdventureFilters({
           )}
           {filters.difficulty && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-brand-100 text-brand-700">
-              Difficulty: {filters.difficulty.charAt(0).toUpperCase() + filters.difficulty.slice(1)}
+              Difficulty:{' '}
+              {filters.difficulty.charAt(0).toUpperCase() +
+                filters.difficulty.slice(1)}
               <button
                 onClick={() => handleFilterChange('difficulty', '')}
                 className="ml-2 text-brand-500 hover:text-brand-700"

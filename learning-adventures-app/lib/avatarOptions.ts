@@ -1,8 +1,8 @@
 export interface AvatarOption {
-  id: string;       // Unique identifier (e.g., "tiger", "dragon")
-  name: string;     // Display name (e.g., "Tiger", "Dragon")
-  emoji: string;    // Emoji character (e.g., "🐯", "🐉")
-  color: string;    // Tailwind background color class (e.g., "bg-orange-100")
+  id: string; // Unique identifier (e.g., "tiger", "dragon")
+  name: string; // Display name (e.g., "Tiger", "Dragon")
+  emoji: string; // Emoji character (e.g., "🐯", "🐉")
+  color: string; // Tailwind background color class (e.g., "bg-orange-100")
 }
 
 /**
@@ -36,7 +36,7 @@ export const AVATAR_OPTIONS: AvatarOption[] = [
  * Returns undefined if not found
  */
 export function getAvatarById(id: string): AvatarOption | undefined {
-  return AVATAR_OPTIONS.find(avatar => avatar.id === id);
+  return AVATAR_OPTIONS.find((avatar) => avatar.id === id);
 }
 
 /**
@@ -52,5 +52,5 @@ export function getRandomAvatar(): AvatarOption {
  * Returns true if the ID exists in available avatars
  */
 export function isValidAvatarId(id: string): boolean {
-  return AVATAR_OPTIONS.some(avatar => avatar.id === id);
+  return AVATAR_OPTIONS.some((avatar) => avatar.id === id);
 }

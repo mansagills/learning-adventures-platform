@@ -16,7 +16,8 @@ const agents = [
     id: 'game-idea-generator',
     name: 'Game Idea Generator',
     icon: '🎮',
-    description: 'Brainstorm creative educational game concepts aligned with curriculum standards',
+    description:
+      'Brainstorm creative educational game concepts aligned with curriculum standards',
     capabilities: [
       'Generate 3-5 unique game concepts per request',
       'Consider grade level, subject, and learning objectives',
@@ -33,7 +34,8 @@ const agents = [
     id: 'content-builder',
     name: 'Content Builder',
     icon: '📝',
-    description: 'Create complete functional games (HTML or React) following platform standards',
+    description:
+      'Create complete functional games (HTML or React) following platform standards',
     capabilities: [
       'Build single-file HTML games',
       'Create React component games',
@@ -69,7 +71,8 @@ const agents = [
     id: 'quality-assurance',
     name: 'Quality Assurance',
     icon: '✅',
-    description: 'Validate content quality, accessibility, and educational effectiveness',
+    description:
+      'Validate content quality, accessibility, and educational effectiveness',
     capabilities: [
       'Run WCAG 2.1 AA compliance checks',
       'Test keyboard navigation',
@@ -96,9 +99,9 @@ export default function AgentDiscovery() {
           Welcome to the AI Agent Studio
         </h2>
         <p className="text-neutral-600">
-          Choose a specialized AI agent below to start creating educational content.
-          Each agent is trained with specific skills to help you build high-quality
-          games, lessons, and learning experiences.
+          Choose a specialized AI agent below to start creating educational
+          content. Each agent is trained with specific skills to help you build
+          high-quality games, lessons, and learning experiences.
         </p>
       </div>
 
@@ -123,24 +126,38 @@ export default function AgentDiscovery() {
         <ul className="space-y-2 text-sm">
           <li className="flex items-start">
             <span className="mr-2">💡</span>
-            <span><strong>Just starting?</strong> Use Game Idea Generator to brainstorm concepts</span>
+            <span>
+              <strong>Just starting?</strong> Use Game Idea Generator to
+              brainstorm concepts
+            </span>
           </li>
           <li className="flex items-start">
             <span className="mr-2">🚀</span>
-            <span><strong>Ready to build?</strong> Use Content Builder to create games</span>
+            <span>
+              <strong>Ready to build?</strong> Use Content Builder to create
+              games
+            </span>
           </li>
           <li className="flex items-start">
             <span className="mr-2">📋</span>
-            <span><strong>Need to publish?</strong> Use Catalog Manager to format metadata</span>
+            <span>
+              <strong>Need to publish?</strong> Use Catalog Manager to format
+              metadata
+            </span>
           </li>
           <li className="flex items-start">
             <span className="mr-2">🔍</span>
-            <span><strong>Want to validate?</strong> Use Quality Assurance to check quality</span>
+            <span>
+              <strong>Want to validate?</strong> Use Quality Assurance to check
+              quality
+            </span>
           </li>
         </ul>
         <div className="mt-6">
           <p className="text-sm text-white/90">
-            💡 <strong>Tip:</strong> Switch to the "Workflows" tab above to use complete multi-agent workflows that combine these agents automatically!
+            💡 <strong>Tip:</strong> Switch to the "Workflows" tab above to use
+            complete multi-agent workflows that combine these agents
+            automatically!
           </p>
         </div>
       </div>

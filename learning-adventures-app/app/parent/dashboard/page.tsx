@@ -57,7 +57,9 @@ function ChildCard({ child, onClick }: ChildCardProps) {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-3xl font-bold text-ink-800">{child.stats.completionRate}%</span>
+            <span className="text-3xl font-bold text-ink-800">
+              {child.stats.completionRate}%
+            </span>
           </div>
         </div>
       </div>
@@ -65,15 +67,21 @@ function ChildCard({ child, onClick }: ChildCardProps) {
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="text-center">
-          <p className="text-2xl font-bold text-brand-600">{child.stats.completedAdventures}</p>
+          <p className="text-2xl font-bold text-brand-600">
+            {child.stats.completedAdventures}
+          </p>
           <p className="text-xs text-ink-500 mt-1">Completed</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-amber-600">{child.stats.achievements}</p>
+          <p className="text-2xl font-bold text-amber-600">
+            {child.stats.achievements}
+          </p>
           <p className="text-xs text-ink-500 mt-1">Badges</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-green-600">{child.stats.activeGoals}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {child.stats.activeGoals}
+          </p>
           <p className="text-xs text-ink-500 mt-1">Goals</p>
         </div>
       </div>
@@ -98,12 +106,25 @@ function ParentDashboard() {
 
   // Calculate family stats
   const totalChildren = children.length;
-  const avgCompletion = totalChildren > 0
-    ? Math.round(children.reduce((sum, c) => sum + c.stats.completionRate, 0) / totalChildren)
-    : 0;
-  const totalAdventures = children.reduce((sum, c) => sum + c.stats.completedAdventures, 0);
-  const totalAchievements = children.reduce((sum, c) => sum + c.stats.achievements, 0);
-  const totalActiveGoals = children.reduce((sum, c) => sum + c.stats.activeGoals, 0);
+  const avgCompletion =
+    totalChildren > 0
+      ? Math.round(
+          children.reduce((sum, c) => sum + c.stats.completionRate, 0) /
+            totalChildren
+        )
+      : 0;
+  const totalAdventures = children.reduce(
+    (sum, c) => sum + c.stats.completedAdventures,
+    0
+  );
+  const totalAchievements = children.reduce(
+    (sum, c) => sum + c.stats.achievements,
+    0
+  );
+  const totalActiveGoals = children.reduce(
+    (sum, c) => sum + c.stats.activeGoals,
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,9 +133,12 @@ function ParentDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Parent Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Parent Dashboard
+              </h1>
               <p className="mt-1 text-gray-600">
-                Monitor your {totalChildren === 1 ? "child's" : "children's"} learning journey
+                Monitor your {totalChildren === 1 ? "child's" : "children's"}{' '}
+                learning journey
               </p>
             </div>
             <div className="flex items-center space-x-3">
@@ -146,7 +170,9 @@ function ParentDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-ink-500">Children</p>
-                  <p className="text-3xl font-bold text-ink-800 mt-2">{totalChildren}</p>
+                  <p className="text-3xl font-bold text-ink-800 mt-2">
+                    {totalChildren}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center">
                   <Icon name="users" size={24} className="text-brand-600" />
@@ -157,8 +183,12 @@ function ParentDashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-ink-500">Adventures Completed</p>
-                  <p className="text-3xl font-bold text-ink-800 mt-2">{totalAdventures}</p>
+                  <p className="text-sm font-medium text-ink-500">
+                    Adventures Completed
+                  </p>
+                  <p className="text-3xl font-bold text-ink-800 mt-2">
+                    {totalAdventures}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <Icon name="check" size={24} className="text-green-600" />
@@ -169,8 +199,12 @@ function ParentDashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-ink-500">Total Badges</p>
-                  <p className="text-3xl font-bold text-ink-800 mt-2">{totalAchievements}</p>
+                  <p className="text-sm font-medium text-ink-500">
+                    Total Badges
+                  </p>
+                  <p className="text-3xl font-bold text-ink-800 mt-2">
+                    {totalAchievements}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                   <Icon name="star" size={24} className="text-amber-600" />
@@ -181,8 +215,12 @@ function ParentDashboard() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-ink-500">Active Goals</p>
-                  <p className="text-3xl font-bold text-ink-800 mt-2">{totalActiveGoals}</p>
+                  <p className="text-sm font-medium text-ink-500">
+                    Active Goals
+                  </p>
+                  <p className="text-3xl font-bold text-ink-800 mt-2">
+                    {totalActiveGoals}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center">
                   <Icon name="chart" size={24} className="text-accent-600" />
@@ -204,7 +242,9 @@ function ParentDashboard() {
           {loading && (
             <div className="text-center py-16">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-200 border-t-brand-600"></div>
-              <p className="mt-4 text-ink-500">Loading children's progress...</p>
+              <p className="mt-4 text-ink-500">
+                Loading children's progress...
+              </p>
             </div>
           )}
 
@@ -220,9 +260,12 @@ function ParentDashboard() {
           {!loading && !error && children.length === 0 && (
             <div className="text-center py-16">
               <div className="text-6xl mb-4">👨‍👩‍👧‍👦</div>
-              <h3 className="text-xl font-semibold text-ink-800 mb-2">No Children Added Yet</h3>
+              <h3 className="text-xl font-semibold text-ink-800 mb-2">
+                No Children Added Yet
+              </h3>
               <p className="text-ink-500 mb-6 max-w-md mx-auto">
-                Add your children to start monitoring their learning progress and help them achieve their educational goals.
+                Add your children to start monitoring their learning progress
+                and help them achieve their educational goals.
               </p>
               <Link
                 href="/parent/children"
@@ -237,14 +280,19 @@ function ParentDashboard() {
                     <Icon name="info" size={20} className="text-blue-600" />
                   </div>
                   <div className="text-left">
-                    <h4 className="font-semibold text-blue-900 mb-2">How It Works</h4>
+                    <h4 className="font-semibold text-blue-900 mb-2">
+                      How It Works
+                    </h4>
                     <p className="text-sm text-blue-800 mb-3">
-                      Create child accounts with COPPA-compliant privacy protections:
+                      Create child accounts with COPPA-compliant privacy
+                      protections:
                     </p>
                     <ul className="space-y-1 text-sm text-blue-700">
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>Children log in with a fun username and 4-digit PIN</span>
+                        <span>
+                          Children log in with a fun username and 4-digit PIN
+                        </span>
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
@@ -252,7 +300,10 @@ function ParentDashboard() {
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
-                        <span>You control their account and can change their PIN anytime</span>
+                        <span>
+                          You control their account and can change their PIN
+                          anytime
+                        </span>
                       </li>
                       <li className="flex items-center space-x-2">
                         <span className="text-blue-400">•</span>
@@ -292,23 +343,36 @@ function ParentDashboard() {
                 <ul className="space-y-2 text-green-700 text-sm">
                   <li className="flex items-start space-x-2">
                     <span className="text-green-400 mt-0.5">•</span>
-                    <span>Celebrate small wins and progress, not just perfect scores</span>
+                    <span>
+                      Celebrate small wins and progress, not just perfect scores
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="text-green-400 mt-0.5">•</span>
-                    <span>Ask about what they learned, not just what they completed</span>
+                    <span>
+                      Ask about what they learned, not just what they completed
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="text-green-400 mt-0.5">•</span>
-                    <span>Help them set realistic goals and break them into smaller steps</span>
+                    <span>
+                      Help them set realistic goals and break them into smaller
+                      steps
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="text-green-400 mt-0.5">•</span>
-                    <span>Encourage regular learning habits with consistent schedules</span>
+                    <span>
+                      Encourage regular learning habits with consistent
+                      schedules
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="text-green-400 mt-0.5">•</span>
-                    <span>Watch for subject areas where they excel or need extra support</span>
+                    <span>
+                      Watch for subject areas where they excel or need extra
+                      support
+                    </span>
                   </li>
                 </ul>
               </div>

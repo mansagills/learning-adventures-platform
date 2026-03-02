@@ -2,24 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 // Leaderboard Hook
-export function useLeaderboard(options: {
-  period?: 'weekly' | 'monthly' | 'all-time';
-  category?: string;
-  type?: 'xp' | 'adventures' | 'score';
-  limit?: number;
-} = {}) {
+export function useLeaderboard(
+  options: {
+    period?: 'weekly' | 'monthly' | 'all-time';
+    category?: string;
+    type?: 'xp' | 'adventures' | 'score';
+    limit?: number;
+  } = {}
+) {
   const { data: session } = useSession();
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    period = 'all-time',
-    category,
-    type = 'xp',
-    limit = 50
-  } = options;
+  const { period = 'all-time', category, type = 'xp', limit = 50 } = options;
 
   const fetchLeaderboard = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -31,7 +28,7 @@ export function useLeaderboard(options: {
       const params = new URLSearchParams({
         period,
         type,
-        limit: limit.toString()
+        limit: limit.toString(),
       });
 
       if (category) {
@@ -64,12 +61,14 @@ export function useLeaderboard(options: {
     currentUserRank,
     loading,
     error,
-    refetch: fetchLeaderboard
+    refetch: fetchLeaderboard,
   };
 }
 
 // Friends Hook
-export function useFriends(status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTED') {
+export function useFriends(
+  status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTED'
+) {
   const { data: session } = useSession();
   const [friends, setFriends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,7 +102,7 @@ export function useFriends(status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTE
       const response = await fetch('/api/friends', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ friendId })
+        body: JSON.stringify({ friendId }),
       });
 
       if (!response.ok) {
@@ -122,7 +121,7 @@ export function useFriends(status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTE
   const acceptFriendRequest = async (friendshipId: string) => {
     try {
       const response = await fetch(`/api/friends/${friendshipId}/accept`, {
-        method: 'POST'
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -139,9 +138,12 @@ export function useFriends(status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTE
 
   const removeFriend = async (friendshipId: string) => {
     try {
-      const response = await fetch(`/api/friends?friendshipId=${friendshipId}`, {
-        method: 'DELETE'
-      });
+      const response = await fetch(
+        `/api/friends?friendshipId=${friendshipId}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to remove friend');
@@ -166,12 +168,14 @@ export function useFriends(status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTE
     refetch: fetchFriends,
     sendFriendRequest,
     acceptFriendRequest,
-    removeFriend
+    removeFriend,
   };
 }
 
 // Challenges Hook
-export function useChallenges(status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECLINED' = 'ACTIVE') {
+export function useChallenges(
+  status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECLINED' = 'ACTIVE'
+) {
   const { data: session } = useSession();
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,7 +217,7 @@ export function useChallenges(status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECL
       const response = await fetch('/api/challenges', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(challengeData)
+        body: JSON.stringify(challengeData),
       });
 
       if (!response.ok) {
@@ -232,7 +236,7 @@ export function useChallenges(status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECL
   const acceptChallenge = async (challengeId: string) => {
     try {
       const response = await fetch(`/api/challenges/${challengeId}/accept`, {
-        method: 'POST'
+        method: 'POST',
       });
 
       if (!response.ok) {
@@ -250,7 +254,7 @@ export function useChallenges(status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECL
   const declineChallenge = async (challengeId: string) => {
     try {
       const response = await fetch(`/api/challenges?id=${challengeId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
       if (!response.ok) {
@@ -276,6 +280,6 @@ export function useChallenges(status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECL
     refetch: fetchChallenges,
     createChallenge,
     acceptChallenge,
-    declineChallenge
+    declineChallenge,
   };
 }

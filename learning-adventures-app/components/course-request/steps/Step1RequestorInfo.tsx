@@ -4,10 +4,26 @@ import { useFormContext } from '../FormContext';
 import RadioGroup from '../inputs/RadioGroup';
 
 const roleOptions = [
-  { label: 'Parent', value: 'PARENT', description: 'Guardian or parent of the student' },
-  { label: 'Teacher', value: 'TEACHER', description: 'Classroom teacher or educator' },
-  { label: 'Tutor', value: 'TUTOR', description: 'Private tutor or learning specialist' },
-  { label: 'Other', value: 'OTHER', description: 'Other relationship to student' },
+  {
+    label: 'Parent',
+    value: 'PARENT',
+    description: 'Guardian or parent of the student',
+  },
+  {
+    label: 'Teacher',
+    value: 'TEACHER',
+    description: 'Classroom teacher or educator',
+  },
+  {
+    label: 'Tutor',
+    value: 'TUTOR',
+    description: 'Private tutor or learning specialist',
+  },
+  {
+    label: 'Other',
+    value: 'OTHER',
+    description: 'Other relationship to student',
+  },
 ];
 
 const contactMethodOptions = [
@@ -15,19 +31,19 @@ const contactMethodOptions = [
     label: 'Email',
     value: 'EMAIL',
     icon: '📧',
-    description: 'Preferred for detailed updates'
+    description: 'Preferred for detailed updates',
   },
   {
     label: 'Phone',
     value: 'PHONE',
     icon: '📱',
-    description: 'Quick calls for urgent matters'
+    description: 'Quick calls for urgent matters',
   },
   {
     label: 'Text Message',
     value: 'SMS',
     icon: '💬',
-    description: 'Brief updates via text'
+    description: 'Brief updates via text',
   },
 ];
 
@@ -61,9 +77,10 @@ export default function Step1RequestorInfo() {
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all
             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-            ${errors.fullName
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white hover:border-brand-300'
+            ${
+              errors.fullName
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white hover:border-brand-300'
             }
           `}
         />
@@ -97,9 +114,10 @@ export default function Step1RequestorInfo() {
           className={`
             w-full px-4 py-3 rounded-lg border-2 transition-all
             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-            ${errors.email
-              ? 'border-coral-500 bg-coral-50'
-              : 'border-gray-200 bg-white hover:border-brand-300'
+            ${
+              errors.email
+                ? 'border-coral-500 bg-coral-50'
+                : 'border-gray-200 bg-white hover:border-brand-300'
             }
           `}
         />
@@ -166,8 +184,9 @@ export default function Step1RequestorInfo() {
               Why we need this information
             </h4>
             <p className="text-sm text-gray-700">
-              We'll use your contact details to send updates about your course request,
-              answer questions, and coordinate delivery of your custom learning materials.
+              We'll use your contact details to send updates about your course
+              request, answer questions, and coordinate delivery of your custom
+              learning materials.
             </p>
           </div>
         </div>

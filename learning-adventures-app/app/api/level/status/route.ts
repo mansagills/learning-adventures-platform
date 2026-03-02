@@ -83,7 +83,10 @@ export async function GET(request: NextRequest) {
 /**
  * Calculate how much XP the user has earned in their current level
  */
-function calculateXPInCurrentLevel(totalXP: number, currentLevel: number): number {
+function calculateXPInCurrentLevel(
+  totalXP: number,
+  currentLevel: number
+): number {
   let xpRemaining = totalXP;
   let level = 1;
 

@@ -2,10 +2,13 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
+import { ShopModal } from '@/components/world/ShopModal';
+import { InventoryPanel } from '@/components/world/InventoryPanel';
+import { JobBoard } from '@/components/world/JobBoard';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -13,15 +16,9 @@ const PhaserGame = dynamic(
   { ssr: false }
 );
 
-/**
- * World Page - Entry point for 2D game world
- *
- * This page:
- * - Checks authentication
- * - Loads character data (will create character system in Phase 2)
- * - Mounts Phaser game
- * - Handles game events and saves to backend
- */
+const XP_PER_GAME = 50;
+const COINS_PER_GAME = 5;
+
 export default function WorldPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -33,8 +30,22 @@ export default function WorldPage() {
     adventureId: string;
     type: 'game' | 'lesson';
   } | null>(null);
+  const [xp, setXp] = useState(0);
+  const [coins, setCoins] = useState(0);
+  const [userLevel, setUserLevel] = useState(1);
+  const [notification, setNotification] = useState<string | null>(null);
+  const [showShop, setShowShop] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
+  const [showJobBoard, setShowJobBoard] = useState(false);
+  const [activeJob, setActiveJob] = useState<any>(null);
 
-  // Check authentication and character
+  // Use refs so EventBus callbacks always have latest values without re-registering
+  const sessionRef = useRef(session);
+  const characterDataRef = useRef(characterData);
+  useEffect(() => { sessionRef.current = session; }, [session]);
+  useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
+
+  // Check authentication and character — runs once on auth status change
   useEffect(() => {
     const checkCharacter = async () => {
       if (status === 'unauthenticated') {
@@ -44,20 +55,26 @@ export default function WorldPage() {
 
       if (status === 'authenticated') {
         try {
-          // Fetch character data
-          const response = await fetch('/api/character');
-          const data = await response.json();
+          const [charRes, levelRes] = await Promise.all([
+            fetch('/api/character'),
+            fetch('/api/world/award'),
+          ]);
+          const charData = await charRes.json();
+          const levelData = await levelRes.json().catch(() => null);
 
-          if (!data.character) {
-            // No character - redirect to creation
+          if (!charData.character) {
             router.push('/world/create');
           } else {
-            // Character exists - load it
-            setCharacterData(data.character);
+            setCharacterData(charData.character);
+            if (levelData?.level) {
+              setXp(levelData.level.totalXP ?? 0);
+              setCoins(levelData.level.currency ?? 0);
+              setUserLevel(levelData.level.currentLevel ?? 1);
+            }
             setIsCheckingCharacter(false);
           }
-        } catch (error) {
-          console.error('Error fetching character:', error);
+        } catch (err) {
+          console.error('Error fetching character:', err);
           setError('Failed to load character data');
           setIsCheckingCharacter(false);
         }
@@ -67,78 +84,142 @@ export default function WorldPage() {
     checkCharacter();
   }, [status, router]);
 
-  // Setup EventBus listeners for game events
+  // Setup EventBus listeners once — use refs for latest values
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
-      if (!session?.user || !characterData) return;
-
+      if (!sessionRef.current?.user || !characterDataRef.current) return;
       try {
         await fetch('/api/character/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            position: data,
-            lastScene: data.scene,
-          }),
+          body: JSON.stringify({ position: data, lastScene: data.scene }),
         });
-        console.log('Position saved:', data);
       } catch (err) {
         console.error('Failed to save position:', err);
       }
     };
 
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
-      console.log('Opening adventure:', data);
       setCurrentAdventure(data);
     };
 
+    const handleOpenShop = () => setShowShop(true);
+    const handleOpenJobBoard = () => setShowJobBoard(true);
+
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
+    EventBus.on('open-shop', handleOpenShop);
+    EventBus.on('open-job-board', handleOpenJobBoard);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
+      EventBus.off('open-shop', handleOpenShop);
+      EventBus.off('open-job-board', handleOpenJobBoard);
     };
-  }, [session, characterData]);
+  }, []);
 
-  // Handle Phaser errors
-  const handleGameError = (err: Error) => {
-    console.error('Phaser game error:', err);
-    setError('Failed to load game world. Your browser may not support this feature.');
-  };
-
-  // Handle scene ready
-  const handleSceneReady = (scene: string) => {
-    console.log(`Scene ${scene} is ready`);
+  const handleSceneReady = (_scene: string) => {
     setGameReady(true);
   };
 
-  // Handle game/lesson completion
-  const handleAdventureComplete = async (score?: number) => {
-    if (!currentAdventure) return;
-
-    console.log('Adventure completed:', currentAdventure.adventureId, 'Score:', score);
-
-    // TODO: Connect to progress API in next step
-    // For now, just show completion message and close modal
-    alert(`🎉 Adventure complete! ${score ? `Score: ${score}` : ''}`);
-
-    // Close modal
-    setCurrentAdventure(null);
-
-    // Emit event to Phaser (could trigger XP animation, etc.)
-    EventBus.emit('adventure-completed', {
-      adventureId: currentAdventure.adventureId,
-      score,
-    });
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
   };
 
-  // Handle modal close
-  const handleCloseAdventure = () => {
+  const handleAdventureComplete = async (adventureId: string) => {
+    setXp((prev) => prev + XP_PER_GAME);
+    setCoins((prev) => prev + COINS_PER_GAME);
+    setCurrentAdventure(null);
+    EventBus.emit('adventure-completed', { adventureId });
+    showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
+
+    // Persist XP and coins to backend
+    try {
+      const res = await fetch('/api/world/award', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ xp: XP_PER_GAME, coins: COINS_PER_GAME }),
+      });
+      const data = await res.json();
+      if (data.level) {
+        setXp(data.level.totalXP);
+        setCoins(data.level.currency);
+        setUserLevel(data.level.currentLevel);
+        if (data.leveledUp) {
+          showNotification(`🎉 Level Up! You're now Level ${data.level.currentLevel}! +100 🪙`);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save adventure reward:', err);
+    }
+  };
+
+  const handleShopPurchase = (_item: any, newBalance: number) => {
+    setCoins(newBalance);
+  };
+
+  const handleEquip = (_itemId: string, _equipment: Record<string, string | null>) => {
+    // Could emit to Phaser here to update sprite cosmetics in future
+  };
+
+  const handleStartJob = (job: any) => {
+    if (job.gamePath) {
+      // Launch the mini-game via AdventureEmbed (opens in new tab)
+      setActiveJob(job);
+      setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
+    }
+  };
+
+  const handleJobComplete = (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => {
+    setCoins((prev) => prev + currencyEarned);
+    setXp((prev) => prev + xpEarned);
+    setUserLevel(newLevel);
+    showNotification(`+${xpEarned} XP  +${currencyEarned} 🪙`);
+    if (leveledUp) {
+      showNotification(`🎉 Level Up! You're now Level ${newLevel}! +100 🪙`);
+    }
+    setActiveJob(null);
+  };
+
+  // When a job mini-game completes, persist rewards via the job complete API
+  const handleJobAdventureComplete = async (adventureId: string) => {
+    if (activeJob && activeJob.jobId === adventureId) {
+      try {
+        const res = await fetch('/api/jobs/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: activeJob.jobId }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          handleJobComplete(
+            data.currencyEarned,
+            data.xpEarned,
+            data.level?.currentLevel ?? userLevel,
+            data.leveledUp ?? false,
+          );
+          if (data.level) {
+            setXp(data.level.totalXP);
+            setCoins(data.level.currency);
+            setUserLevel(data.level.currentLevel);
+          }
+        } else {
+          showNotification(data.error ?? 'Job reward failed');
+        }
+      } catch (err) {
+        console.error('Failed to complete job:', err);
+      }
+    } else {
+      // Regular adventure completion
+      await handleAdventureComplete(adventureId);
+      return;
+    }
     setCurrentAdventure(null);
   };
 
-  // Show loading while checking auth and character
+  // Loading screen
   if (status === 'loading' || isCheckingCharacter) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
@@ -152,14 +233,11 @@ export default function WorldPage() {
     );
   }
 
-  // Show error if game failed to load
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
-            Unable to Load Game World
-          </h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Unable to Load Game World</h1>
           <p className="text-gray-700 mb-6">{error}</p>
           <a
             href="/catalog"
@@ -174,7 +252,7 @@ export default function WorldPage() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
-      {/* Game container */}
+      {/* Game canvas */}
       <div className="absolute inset-0">
         <PhaserGame onSceneReady={handleSceneReady} />
       </div>
@@ -184,48 +262,106 @@ export default function WorldPage() {
         <AdventureEmbed
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
-          onClose={handleCloseAdventure}
-          onComplete={handleAdventureComplete}
+          onClose={() => { setCurrentAdventure(null); setActiveJob(null); }}
+          onComplete={() => handleJobAdventureComplete(currentAdventure.adventureId)}
         />
       )}
 
-      {/* HUD Overlay - Fixed to viewport */}
+      {/* Shop Modal */}
+      {showShop && (
+        <ShopModal
+          onClose={() => setShowShop(false)}
+          onPurchase={handleShopPurchase}
+          currency={coins}
+          userLevel={userLevel}
+        />
+      )}
+
+      {/* Inventory Panel */}
+      {showInventory && (
+        <InventoryPanel
+          onClose={() => setShowInventory(false)}
+          onEquip={handleEquip}
+        />
+      )}
+
+      {/* Job Board */}
+      {showJobBoard && (
+        <JobBoard
+          onClose={() => setShowJobBoard(false)}
+          onStartJob={handleStartJob}
+          onJobComplete={handleJobComplete}
+        />
+      )}
+
+      {/* Notification Toast */}
+      {notification && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div className="bg-yellow-400 text-yellow-900 font-extrabold text-xl px-8 py-3 rounded-2xl shadow-2xl animate-bounce">
+            ⭐ {notification}
+          </div>
+        </div>
+      )}
+
+      {/* HUD Overlay */}
       {gameReady && (
         <div className="absolute inset-0 pointer-events-none">
-          {/* Top bar - Player info */}
-          <div className="absolute top-0 left-0 right-0 p-4 flex justify-between pointer-events-auto">
-            <div className="bg-black/70 rounded-lg px-4 py-2">
-              <p className="text-white font-semibold">
-                {characterData?.name || session?.user?.name || 'Player'}
-              </p>
-              <p className="text-xs text-gray-300">
-                Level 1 {/* TODO: Get from user level in Phase 4 */}
-              </p>
-            </div>
-
-            <div className="bg-black/70 rounded-lg px-4 py-2">
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-400 text-xl">⭐</span>
-                <span className="text-white font-bold">0 XP</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom right - Controls hint */}
-          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
-            <p className="text-white text-sm">
-              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+          {/* Top-left: Character info */}
+          <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
+            <p className="text-white font-semibold">
+              {characterData?.name || session?.user?.name || 'Player'}
             </p>
+            <p className="text-xs text-gray-300">Level {userLevel}</p>
           </div>
 
-          {/* Exit button */}
-          <div className="absolute top-4 right-4">
+          {/* Top-center: XP + Coins */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
+            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+              <span className="text-yellow-400 text-lg">⭐</span>
+              <span className="text-white font-bold">{xp} XP</span>
+            </div>
+            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+              <span className="text-yellow-300 text-lg">🪙</span>
+              <span className="text-white font-bold">{coins}</span>
+            </div>
+          </div>
+
+          {/* Top-right: Buttons */}
+          <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
+            <button
+              onClick={() => setShowInventory(true)}
+              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Inventory"
+            >
+              🎒 Bag
+            </button>
+            <button
+              onClick={() => setShowShop(true)}
+              className="bg-black/70 hover:bg-[#14B8A6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Shop"
+            >
+              🛒 Shop
+            </button>
+            <button
+              onClick={() => setShowJobBoard(true)}
+              className="bg-black/70 hover:bg-[#F59E0B]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Job Board"
+            >
+              💼 Jobs
+            </button>
             <button
               onClick={() => router.push('/dashboard')}
-              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors pointer-events-auto"
+              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Exit World
             </button>
+          </div>
+
+          {/* Bottom-right: Controls hint */}
+          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
+            <p className="text-white text-sm">
+              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+            </p>
           </div>
         </div>
       )}

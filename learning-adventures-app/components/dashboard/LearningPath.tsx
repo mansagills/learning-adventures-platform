@@ -23,20 +23,45 @@ interface LearningPathProps {
 }
 
 const nodeIcons = {
-  completed: { icon: 'check', color: 'bg-green-500', border: 'border-green-500', text: 'text-green-700' },
-  current: { icon: 'play', color: 'bg-brand-500', border: 'border-brand-500', text: 'text-brand-700' },
-  available: { icon: 'unlock', color: 'bg-blue-500', border: 'border-blue-300', text: 'text-blue-700' },
-  locked: { icon: 'lock', color: 'bg-gray-400', border: 'border-gray-300', text: 'text-gray-500' }
+  completed: {
+    icon: 'check',
+    color: 'bg-green-500',
+    border: 'border-green-500',
+    text: 'text-green-700',
+  },
+  current: {
+    icon: 'play',
+    color: 'bg-brand-500',
+    border: 'border-brand-500',
+    text: 'text-brand-700',
+  },
+  available: {
+    icon: 'unlock',
+    color: 'bg-blue-500',
+    border: 'border-blue-300',
+    text: 'text-blue-700',
+  },
+  locked: {
+    icon: 'lock',
+    color: 'bg-gray-400',
+    border: 'border-gray-300',
+    text: 'text-gray-500',
+  },
 };
 
 export default function LearningPath({
   nodes,
   title = 'Your Learning Path',
   description,
-  className
+  className,
 }: LearningPathProps) {
   return (
-    <div className={cn('bg-white border border-gray-200 rounded-lg p-6', className)}>
+    <div
+      className={cn(
+        'bg-white border border-gray-200 rounded-lg p-6',
+        className
+      )}
+    >
       {/* Header */}
       <div className="mb-6">
         <h3 className="text-lg font-bold text-ink-800 flex items-center space-x-2">
@@ -62,12 +87,14 @@ export default function LearningPath({
             const NodeContent = (
               <>
                 {/* Node Circle */}
-                <div className={cn(
-                  'relative z-10 w-12 h-12 rounded-full border-4 flex items-center justify-center transition-all',
-                  config.color,
-                  config.border,
-                  'shadow-sm'
-                )}>
+                <div
+                  className={cn(
+                    'relative z-10 w-12 h-12 rounded-full border-4 flex items-center justify-center transition-all',
+                    config.color,
+                    config.border,
+                    'shadow-sm'
+                  )}
+                >
                   <Icon name={config.icon} size={20} className="text-white" />
                 </div>
 
@@ -83,7 +110,7 @@ export default function LearningPath({
                           {node.description}
                         </p>
                         <div className="flex flex-wrap gap-2 mb-2">
-                          {node.skills.slice(0, 3).map(skill => (
+                          {node.skills.slice(0, 3).map((skill) => (
                             <span
                               key={skill}
                               className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white border border-gray-200 text-gray-700"
@@ -101,7 +128,11 @@ export default function LearningPath({
                       {node.type !== 'locked' && (
                         <div className="ml-4 text-right flex-shrink-0">
                           <div className="text-xs text-gray-500">
-                            <Icon name="clock" size={14} className="inline mr-1" />
+                            <Icon
+                              name="clock"
+                              size={14}
+                              className="inline mr-1"
+                            />
                             {node.estimatedTime} min
                           </div>
                         </div>

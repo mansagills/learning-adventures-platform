@@ -18,7 +18,7 @@ export async function POST(
 
     // Verify the course exists and is approved
     const testCourse = await prisma.testCourse.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
     });
 
     if (!testCourse) {
@@ -45,14 +45,14 @@ export async function POST(
     return NextResponse.json({
       ...result,
       success: true,
-      message: 'Course promoted to production successfully'
+      message: 'Course promoted to production successfully',
     });
   } catch (error) {
     console.error('Error promoting course to production:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to promote course to production',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

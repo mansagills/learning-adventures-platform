@@ -153,14 +153,19 @@ Generate 3-5 diverse concepts per request, exploring different gameplay styles.`
     return [
       {
         title: 'Math Adventure Quest',
-        description: 'An exciting journey where students solve math problems to progress',
+        description:
+          'An exciting journey where students solve math problems to progress',
         subject: 'math',
         gradeLevel: '3-5',
         difficulty: 'medium',
         skills: ['addition', 'subtraction', 'problem-solving'],
         learningObjectives: ['Master basic arithmetic operations'],
         estimatedTime: '10-15 minutes',
-        gameplayMechanics: ['Problem solving', 'Level progression', 'Rewards system'],
+        gameplayMechanics: [
+          'Problem solving',
+          'Level progression',
+          'Rewards system',
+        ],
         educationalValue: 8,
       },
       {
@@ -172,7 +177,11 @@ Generate 3-5 diverse concepts per request, exploring different gameplay styles.`
         skills: ['observation', 'hypothesis testing', 'data collection'],
         learningObjectives: ['Understand scientific method'],
         estimatedTime: '15-20 minutes',
-        gameplayMechanics: ['Experimentation', 'Observation', 'Recording results'],
+        gameplayMechanics: [
+          'Experimentation',
+          'Observation',
+          'Recording results',
+        ],
         educationalValue: 9,
       },
       {

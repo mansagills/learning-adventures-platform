@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '@/app/api/internal/save-content/route';
-import { NextRequest } from 'next/server';
+import { extractZipSafely } from '@/lib/safe-zip';
+import path from 'path';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
 
 const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -27,8 +29,9 @@ vi.mock('fs/promises', () => {
 vi.mock('fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
   default: {
-    existsSync: vi.fn().mockReturnValue(true),
-  },
+    mkdir: vi.fn(),
+    writeFile: vi.fn(),
+  }
 }));
 
 // Mock next-auth
@@ -65,20 +68,19 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    default: class MockAdmZip {
-      constructor(path: string) {}
-      extractAllTo = mockExtractAllTo;
-      getEntries = mockGetEntries;
-    },
+    ...actual,
+    existsSync: vi.fn(),
   };
 });
 
-// Spy on console.warn
-const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+describe('Security: Zip Slip Prevention', () => {
+  const mockTargetDir = '/tmp/safe-dir';
 
-describe('Security: Zip Slip Vulnerability in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (fs.mkdir as any).mockResolvedValue(undefined);
+    (fs.writeFile as any).mockResolvedValue(undefined);
+    (existsSync as any).mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
@@ -103,30 +105,64 @@ describe('Security: Zip Slip Vulnerability in save-content', () => {
         }),
       }
     );
+  });
 
-    await POST(req);
+  it('should prevent Zip Slip with "../"', async () => {
+    const mockZip = {
+      getEntries: () => [
+        {
+          isDirectory: false,
+          entryName: '../../etc/passwd',
+          getData: () => Buffer.from('malicious content')
+        }
+      ]
+    };
 
-    // Should NOT use extractAllTo anymore
-    expect(mockExtractAllTo).not.toHaveBeenCalled();
+    await expect(extractZipSafely(mockZip as any, mockTargetDir))
+      .rejects
+      .toThrow('Security Error: Malicious zip entry detected');
 
-    // Should iterate entries
-    expect(mockGetEntries).toHaveBeenCalled();
+    expect(fs.writeFile).not.toHaveBeenCalled();
+  });
 
-    // Should have called writeFile for safe entry
-    const safeCalls = writeFileMock.mock.calls.filter((call: any[]) =>
-      call[0].endsWith('safe.html')
-    );
-    expect(safeCalls.length).toBe(1);
+  it('should prevent Zip Slip with absolute paths if supported/attempted', async () => {
+    // On unix, absolute path starts with /
+    const mockZip = {
+      getEntries: () => [
+        {
+          isDirectory: false,
+          entryName: '/etc/passwd',
+          getData: () => Buffer.from('malicious content')
+        }
+      ]
+    };
 
-    // Should NOT have called writeFile for malicious entry
-    const maliciousCalls = writeFileMock.mock.calls.filter((call: any[]) =>
-      call[0].endsWith('passwd')
-    );
-    expect(maliciousCalls.length).toBe(0);
+    // Note: path.resolve('/tmp/safe-dir', '/etc/passwd') -> '/etc/passwd'
+    // So this should fail the containment check
 
-    // Should verify that a warning was logged
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Skipped file trying to escape target directory')
+    await expect(extractZipSafely(mockZip as any, mockTargetDir))
+      .rejects
+      .toThrow('Security Error: Malicious zip entry detected');
+
+    expect(fs.writeFile).not.toHaveBeenCalled();
+  });
+
+  it('should allow nested directories within target', async () => {
+     const mockZip = {
+      getEntries: () => [
+        {
+          isDirectory: false,
+          entryName: 'level1/level2/file.txt',
+          getData: () => Buffer.from('content')
+        }
+      ]
+    };
+
+    await extractZipSafely(mockZip as any, mockTargetDir);
+
+    expect(fs.writeFile).toHaveBeenCalledWith(
+      path.resolve(mockTargetDir, 'level1/level2/file.txt'),
+      expect.anything()
     );
   });
 });

@@ -17,7 +17,12 @@ interface TestGame {
   skills: string[];
   estimatedTime: string;
   filePath: string;
-  status: 'NOT_TESTED' | 'IN_TESTING' | 'APPROVED' | 'REJECTED' | 'NEEDS_REVISION';
+  status:
+    | 'NOT_TESTED'
+    | 'IN_TESTING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'NEEDS_REVISION';
   catalogued: boolean;
   createdAt: string;
   updatedAt: string;
@@ -40,7 +45,12 @@ interface TestCourse {
   totalXP: number;
   stagingPath: string;
   lessonsData: any[];
-  status: 'NOT_TESTED' | 'IN_TESTING' | 'APPROVED' | 'REJECTED' | 'NEEDS_REVISION';
+  status:
+    | 'NOT_TESTED'
+    | 'IN_TESTING'
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'NEEDS_REVISION';
   promotedToCourseId: string | null;
   createdAt: string;
   updatedAt: string;
@@ -91,22 +101,22 @@ export default function TestingAdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   // Tab management
   const [activeTab, setActiveTab] = useState<'games' | 'courses'>('games');
-  
+
   // Games state
   const [games, setGames] = useState<TestGame[]>([]);
   const [selectedGame, setSelectedGame] = useState<TestGame | null>(null);
   const [gameApprovals, setGameApprovals] = useState<GameApproval[]>([]);
   const [gameFeedback, setGameFeedback] = useState<Feedback[]>([]);
-  
+
   // Courses state
   const [courses, setCourses] = useState<TestCourse[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<TestCourse | null>(null);
   const [courseApprovals, setCourseApprovals] = useState<CourseApproval[]>([]);
   const [courseFeedback, setCourseFeedback] = useState<Feedback[]>([]);
-  
+
   // UI state
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('ALL');
@@ -124,22 +134,28 @@ export default function TestingAdminPage() {
     technicalQuality: true,
     accessibilityCompliant: true,
     ageAppropriate: true,
-    engagementLevel: 5
+    engagementLevel: 5,
   });
 
   // Feedback form state
   const [feedbackForm, setFeedbackForm] = useState({
-    feedbackType: 'GENERAL' as 'BUG' | 'SUGGESTION' | 'PRAISE' | 'ACCESSIBILITY_ISSUE' | 'CONTENT_ERROR' | 'GENERAL',
+    feedbackType: 'GENERAL' as
+      | 'BUG'
+      | 'SUGGESTION'
+      | 'PRAISE'
+      | 'ACCESSIBILITY_ISSUE'
+      | 'CONTENT_ERROR'
+      | 'GENERAL',
     message: '',
     lessonIndex: null as number | null,
-    issueSeverity: null as 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL' | null
+    issueSeverity: null as 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL' | null,
   });
 
   // Handle URL params for tab and selection
   useEffect(() => {
     const tab = searchParams.get('tab');
     const selectId = searchParams.get('select');
-    
+
     if (tab === 'courses') {
       setActiveTab('courses');
     }
@@ -212,7 +228,7 @@ export default function TestingAdminPage() {
       await fetch(`/api/admin/test-games/${gameId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       });
       fetchGames();
       if (selectedGame?.id === gameId) {
@@ -223,12 +239,15 @@ export default function TestingAdminPage() {
     }
   };
 
-  const handleUpdateCourseStatus = async (courseId: string, newStatus: string) => {
+  const handleUpdateCourseStatus = async (
+    courseId: string,
+    newStatus: string
+  ) => {
     try {
       await fetch(`/api/admin/test-courses/${courseId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       });
       fetchCourses();
       if (selectedCourse?.id === courseId) {
@@ -253,8 +272,8 @@ export default function TestingAdminPage() {
           technicalQuality: approvalForm.technicalQuality,
           accessibilityCompliant: approvalForm.accessibilityCompliant,
           ageAppropriate: approvalForm.ageAppropriate,
-          engagementLevel: approvalForm.engagementLevel
-        })
+          engagementLevel: approvalForm.engagementLevel,
+        }),
       });
 
       setShowApprovalModal(false);
@@ -281,8 +300,8 @@ export default function TestingAdminPage() {
           technicalQuality: approvalForm.technicalQuality,
           accessibilityCompliant: approvalForm.accessibilityCompliant,
           ageAppropriate: approvalForm.ageAppropriate,
-          engagementLevel: approvalForm.engagementLevel
-        })
+          engagementLevel: approvalForm.engagementLevel,
+        }),
       });
 
       setShowApprovalModal(false);
@@ -300,14 +319,14 @@ export default function TestingAdminPage() {
     if (!id) return;
 
     try {
-      const endpoint = isGame 
+      const endpoint = isGame
         ? `/api/admin/test-games/${id}/feedback`
         : `/api/admin/test-courses/${id}/feedback`;
 
       await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(feedbackForm)
+        body: JSON.stringify(feedbackForm),
       });
 
       setShowFeedbackModal(false);
@@ -323,11 +342,16 @@ export default function TestingAdminPage() {
   };
 
   const handlePromoteGame = async (gameId: string) => {
-    if (!confirm('Promote this game to the public catalog? This will make it visible to all users.')) return;
+    if (
+      !confirm(
+        'Promote this game to the public catalog? This will make it visible to all users.'
+      )
+    )
+      return;
 
     try {
       const res = await fetch(`/api/admin/test-games/${gameId}/promote`, {
-        method: 'POST'
+        method: 'POST',
       });
       const data = await res.json();
 
@@ -347,11 +371,16 @@ export default function TestingAdminPage() {
   };
 
   const handlePromoteCourse = async (courseId: string) => {
-    if (!confirm('Promote this course to production? This will make it available to all users.')) return;
+    if (
+      !confirm(
+        'Promote this course to production? This will make it available to all users.'
+      )
+    )
+      return;
 
     try {
       const res = await fetch(`/api/admin/test-courses/${courseId}/promote`, {
-        method: 'POST'
+        method: 'POST',
       });
       const data = await res.json();
 
@@ -359,7 +388,10 @@ export default function TestingAdminPage() {
         alert('Course promoted to production successfully!');
         fetchCourses();
         if (selectedCourse?.id === courseId) {
-          setSelectedCourse({ ...selectedCourse, promotedToCourseId: data.courseId });
+          setSelectedCourse({
+            ...selectedCourse,
+            promotedToCourseId: data.courseId,
+          });
         }
       } else {
         alert(`Error: ${data.error}`);
@@ -380,7 +412,7 @@ export default function TestingAdminPage() {
       technicalQuality: true,
       accessibilityCompliant: true,
       ageAppropriate: true,
-      engagementLevel: 5
+      engagementLevel: 5,
     });
   };
 
@@ -389,30 +421,28 @@ export default function TestingAdminPage() {
       feedbackType: 'GENERAL',
       message: '',
       lessonIndex: null,
-      issueSeverity: null
+      issueSeverity: null,
     });
   };
 
-  const filteredGames = filter === 'ALL'
-    ? games
-    : games.filter(g => g.status === filter);
+  const filteredGames =
+    filter === 'ALL' ? games : games.filter((g) => g.status === filter);
 
-  const filteredCourses = filter === 'ALL'
-    ? courses
-    : courses.filter(c => c.status === filter);
+  const filteredCourses =
+    filter === 'ALL' ? courses : courses.filter((c) => c.status === filter);
 
   const statusColors: Record<string, string> = {
     NOT_TESTED: 'bg-gray-100 text-gray-800',
     IN_TESTING: 'bg-blue-100 text-blue-800',
     APPROVED: 'bg-green-100 text-green-800',
     REJECTED: 'bg-red-100 text-red-800',
-    NEEDS_REVISION: 'bg-yellow-100 text-yellow-800'
+    NEEDS_REVISION: 'bg-yellow-100 text-yellow-800',
   };
 
   const decisionColors: Record<string, string> = {
     APPROVE: 'text-green-600',
     REJECT: 'text-red-600',
-    REQUEST_CHANGES: 'text-yellow-600'
+    REQUEST_CHANGES: 'text-yellow-600',
   };
 
   if (status === 'loading' || loading) {
@@ -430,14 +460,21 @@ export default function TestingAdminPage() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Content Testing & Approval</h1>
-          <p className="text-gray-600">Review, test, and approve games and courses before production</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Content Testing & Approval
+          </h1>
+          <p className="text-gray-600">
+            Review, test, and approve games and courses before production
+          </p>
         </div>
 
         {/* Main Tabs: Games / Courses */}
         <div className="mb-6 flex gap-2 border-b border-gray-200">
           <button
-            onClick={() => { setActiveTab('games'); setSelectedCourse(null); }}
+            onClick={() => {
+              setActiveTab('games');
+              setSelectedCourse(null);
+            }}
             className={`px-6 py-3 font-medium border-b-2 transition-colors ${
               activeTab === 'games'
                 ? 'border-indigo-600 text-indigo-600'
@@ -447,7 +484,10 @@ export default function TestingAdminPage() {
             Games ({games.length})
           </button>
           <button
-            onClick={() => { setActiveTab('courses'); setSelectedGame(null); }}
+            onClick={() => {
+              setActiveTab('courses');
+              setSelectedGame(null);
+            }}
             className={`px-6 py-3 font-medium border-b-2 transition-colors ${
               activeTab === 'courses'
                 ? 'border-indigo-600 text-indigo-600'
@@ -460,7 +500,14 @@ export default function TestingAdminPage() {
 
         {/* Status Filter Tabs */}
         <div className="mb-6 flex gap-2 flex-wrap">
-          {['ALL', 'NOT_TESTED', 'IN_TESTING', 'APPROVED', 'NEEDS_REVISION', 'REJECTED'].map(statusOption => (
+          {[
+            'ALL',
+            'NOT_TESTED',
+            'IN_TESTING',
+            'APPROVED',
+            'NEEDS_REVISION',
+            'REJECTED',
+          ].map((statusOption) => (
             <button
               key={statusOption}
               onClick={() => setFilter(statusOption)}
@@ -472,12 +519,15 @@ export default function TestingAdminPage() {
             >
               {statusOption.replace('_', ' ')}
               <span className="ml-2 text-sm">
-                ({statusOption === 'ALL' 
-                  ? (activeTab === 'games' ? games.length : courses.length)
-                  : (activeTab === 'games' 
-                      ? games.filter(g => g.status === statusOption).length 
-                      : courses.filter(c => c.status === statusOption).length)
-                })
+                (
+                {statusOption === 'ALL'
+                  ? activeTab === 'games'
+                    ? games.length
+                    : courses.length
+                  : activeTab === 'games'
+                    ? games.filter((g) => g.status === statusOption).length
+                    : courses.filter((c) => c.status === statusOption).length}
+                )
               </span>
             </button>
           ))}
@@ -490,77 +540,91 @@ export default function TestingAdminPage() {
               {activeTab === 'games' ? 'Test Games' : 'Test Courses'}
             </h2>
             <div className="space-y-3 max-h-[calc(100vh-350px)] overflow-y-auto">
-              {activeTab === 'games' ? (
-                filteredGames.map(game => (
-                <div
-                  key={game.id}
-                  onClick={() => handleSelectGame(game)}
-                  className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedGame?.id === game.id
-                        ? 'border-indigo-500 shadow-lg'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-gray-900">{game.title}</h3>
-                    {game.catalogued && (
-                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                          Published
-                      </span>
-                    )}
-                  </div>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{game.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs px-2 py-1 rounded font-medium ${statusColors[game.status]}`}>
-                      {game.status.replace('_', ' ')}
-                    </span>
-                    <div className="text-xs text-gray-500">
-                        {game._count.feedback} feedback | {game._count.approvals} reviews
-                    </div>
-                  </div>
-                </div>
-                ))
-              ) : (
-                filteredCourses.map(course => (
-                  <div
-                    key={course.id}
-                    onClick={() => handleSelectCourse(course)}
-                    className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedCourse?.id === course.id
-                        ? 'border-indigo-500 shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-gray-900">{course.title}</h3>
-                      <div className="flex gap-1">
-                        {course.isPremium && (
-                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                            Premium
-                          </span>
-                        )}
-                        {course.promotedToCourseId && (
+              {activeTab === 'games'
+                ? filteredGames.map((game) => (
+                    <div
+                      key={game.id}
+                      onClick={() => handleSelectGame(game)}
+                      className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedGame?.id === game.id
+                          ? 'border-indigo-500 shadow-lg'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-gray-900">
+                          {game.title}
+                        </h3>
+                        {game.catalogued && (
                           <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
                             Published
                           </span>
                         )}
                       </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">{course.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-xs px-2 py-1 rounded font-medium ${statusColors[course.status]}`}>
-                        {course.status.replace('_', ' ')}
-                      </span>
-                      <div className="text-xs text-gray-500">
-                        {course.lessonsData?.length || 0} lessons | {course._count.feedback} feedback
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                        {game.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs px-2 py-1 rounded font-medium ${statusColors[game.status]}`}
+                        >
+                          {game.status.replace('_', ' ')}
+                        </span>
+                        <div className="text-xs text-gray-500">
+                          {game._count.feedback} feedback |{' '}
+                          {game._count.approvals} reviews
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
-              {((activeTab === 'games' && filteredGames.length === 0) || 
+                  ))
+                : filteredCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      onClick={() => handleSelectCourse(course)}
+                      className={`p-4 bg-white rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedCourse?.id === course.id
+                          ? 'border-indigo-500 shadow-lg'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-gray-900">
+                          {course.title}
+                        </h3>
+                        <div className="flex gap-1">
+                          {course.isPremium && (
+                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                              Premium
+                            </span>
+                          )}
+                          {course.promotedToCourseId && (
+                            <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                              Published
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                        {course.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs px-2 py-1 rounded font-medium ${statusColors[course.status]}`}
+                        >
+                          {course.status.replace('_', ' ')}
+                        </span>
+                        <div className="text-xs text-gray-500">
+                          {course.lessonsData?.length || 0} lessons |{' '}
+                          {course._count.feedback} feedback
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              {((activeTab === 'games' && filteredGames.length === 0) ||
                 (activeTab === 'courses' && filteredCourses.length === 0)) && (
-                <p className="text-center text-gray-500 py-8">No items found with this filter</p>
+                <p className="text-center text-gray-500 py-8">
+                  No items found with this filter
+                </p>
               )}
             </div>
           </div>
@@ -577,7 +641,9 @@ export default function TestingAdminPage() {
                 onApprove={() => setShowApprovalModal(true)}
                 onFeedback={() => setShowFeedbackModal(true)}
                 onPromote={() => handlePromoteGame(selectedGame.id)}
-                onStatusChange={(status) => handleUpdateGameStatus(selectedGame.id, status)}
+                onStatusChange={(status) =>
+                  handleUpdateGameStatus(selectedGame.id, status)
+                }
                 statusColors={statusColors}
                 decisionColors={decisionColors}
               />
@@ -591,14 +657,21 @@ export default function TestingAdminPage() {
                 onApprove={() => setShowApprovalModal(true)}
                 onFeedback={() => setShowFeedbackModal(true)}
                 onPromote={() => handlePromoteCourse(selectedCourse.id)}
-                onStatusChange={(status) => handleUpdateCourseStatus(selectedCourse.id, status)}
+                onStatusChange={(status) =>
+                  handleUpdateCourseStatus(selectedCourse.id, status)
+                }
                 statusColors={statusColors}
                 decisionColors={decisionColors}
               />
             ) : (
               <div className="bg-white rounded-lg shadow-lg p-12 text-center text-gray-500">
-                <div className="text-6xl mb-4">{activeTab === 'games' ? '🎮' : '📚'}</div>
-                <p className="text-xl">Select a {activeTab === 'games' ? 'game' : 'course'} to view details and approve</p>
+                <div className="text-6xl mb-4">
+                  {activeTab === 'games' ? '🎮' : '📚'}
+                </div>
+                <p className="text-xl">
+                  Select a {activeTab === 'games' ? 'game' : 'course'} to view
+                  details and approve
+                </p>
               </div>
             )}
           </div>
@@ -611,7 +684,11 @@ export default function TestingAdminPage() {
             isGame={activeTab === 'games'}
             form={approvalForm}
             setForm={setApprovalForm}
-            onSubmit={activeTab === 'games' ? handleSubmitGameApproval : handleSubmitCourseApproval}
+            onSubmit={
+              activeTab === 'games'
+                ? handleSubmitGameApproval
+                : handleSubmitCourseApproval
+            }
             onClose={() => setShowApprovalModal(false)}
           />
         )}
@@ -645,7 +722,7 @@ function GameDetailsPanel({
   onPromote,
   onStatusChange,
   statusColors,
-  decisionColors
+  decisionColors,
 }: {
   game: TestGame;
   approvals: GameApproval[];
@@ -660,15 +737,17 @@ function GameDetailsPanel({
   decisionColors: Record<string, string>;
 }) {
   return (
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="mb-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="mb-6">
+        <div className="flex justify-between items-start mb-4">
+          <div>
             <h2 className="text-2xl font-bold text-gray-900">{game.title}</h2>
-            <span className={`inline-block mt-2 text-sm px-3 py-1 rounded-full font-medium ${statusColors[game.status]}`}>
+            <span
+              className={`inline-block mt-2 text-sm px-3 py-1 rounded-full font-medium ${statusColors[game.status]}`}
+            >
               {game.status.replace('_', ' ')}
-                      </span>
-                    </div>
+            </span>
+          </div>
           <div className="flex gap-2">
             <Link
               href={`/staging/games/${game.gameId}`}
@@ -677,132 +756,177 @@ function GameDetailsPanel({
             >
               Open Staging URL
             </Link>
-                    <button
+            <button
               onClick={() => setShowPreview(!showPreview)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                    >
+            >
               {showPreview ? 'Hide' : 'Preview'} Game
-                    </button>
+            </button>
           </div>
-                  </div>
+        </div>
 
         {showPreview && (
           <div className="mb-4 border-4 border-indigo-200 rounded-lg overflow-hidden">
-                      <iframe
+            <iframe
               src={game.filePath}
-                        className="w-full h-[600px]"
+              className="w-full h-[600px]"
               title={game.title}
-                      />
-                    </div>
-                  )}
+            />
+          </div>
+        )}
 
-                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-          <div><strong>Category:</strong> {game.category}</div>
-          <div><strong>Type:</strong> {game.type}</div>
-          <div><strong>Grade Level:</strong> {game.gradeLevel.join(', ')}</div>
-          <div><strong>Difficulty:</strong> {game.difficulty}</div>
-          <div><strong>Time:</strong> {game.estimatedTime}</div>
-          <div><strong>Skills:</strong> {game.skills.join(', ')}</div>
-                  </div>
+        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+          <div>
+            <strong>Category:</strong> {game.category}
+          </div>
+          <div>
+            <strong>Type:</strong> {game.type}
+          </div>
+          <div>
+            <strong>Grade Level:</strong> {game.gradeLevel.join(', ')}
+          </div>
+          <div>
+            <strong>Difficulty:</strong> {game.difficulty}
+          </div>
+          <div>
+            <strong>Time:</strong> {game.estimatedTime}
+          </div>
+          <div>
+            <strong>Skills:</strong> {game.skills.join(', ')}
+          </div>
+        </div>
 
         <p className="text-gray-600 mb-4">{game.description}</p>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 flex-wrap">
-                    <button
+        {/* Action Buttons */}
+        <div className="flex gap-2 flex-wrap">
+          <button
             onClick={onApprove}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                    >
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
             Approve/Review
-                    </button>
-                    <button
+          </button>
+          <button
             onClick={onFeedback}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                    >
+          >
             Add Feedback
-                    </button>
+          </button>
           {game.status === 'APPROVED' && !game.catalogued && (
-                      <button
+            <button
               onClick={onPromote}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                      >
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
               Promote to Catalog
-                      </button>
-                    )}
-                    <select
+            </button>
+          )}
+          <select
             value={game.status}
             onChange={(e) => onStatusChange(e.target.value)}
-                      className="px-4 py-2 border rounded-lg"
-                    >
-                      <option value="NOT_TESTED">Not Tested</option>
-                      <option value="IN_TESTING">In Testing</option>
-                      <option value="APPROVED">Approved</option>
-                      <option value="NEEDS_REVISION">Needs Revision</option>
-                      <option value="REJECTED">Rejected</option>
-                    </select>
-                  </div>
-                </div>
+            className="px-4 py-2 border rounded-lg"
+          >
+            <option value="NOT_TESTED">Not Tested</option>
+            <option value="IN_TESTING">In Testing</option>
+            <option value="APPROVED">Approved</option>
+            <option value="NEEDS_REVISION">Needs Revision</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+      </div>
 
-                {/* Approval History */}
-                <div className="mb-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Approval History ({approvals.length})</h3>
+      {/* Approval History */}
+      <div className="mb-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-3">
+          Approval History ({approvals.length})
+        </h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
-          {approvals.map(approval => (
-                      <div key={approval.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex justify-between items-start mb-2">
-                          <span className="font-semibold">{approval.userName}</span>
-                          <span className={`font-bold ${decisionColors[approval.decision]}`}>
-                            {approval.decision.replace('_', ' ')}
-                          </span>
-                        </div>
-                        {approval.notes && <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>}
-                        <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
-                          {approval.educationalQuality !== null && <div>Educational: {approval.educationalQuality ? '✅' : '❌'}</div>}
-                          {approval.technicalQuality !== null && <div>Technical: {approval.technicalQuality ? '✅' : '❌'}</div>}
-                          {approval.accessibilityCompliant !== null && <div>Accessibility: {approval.accessibilityCompliant ? '✅' : '❌'}</div>}
-                          {approval.ageAppropriate !== null && <div>Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}</div>}
-                          {approval.engagementLevel && <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-2">
-                          {new Date(approval.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
+          {approvals.map((approval) => (
+            <div
+              key={approval.id}
+              className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <div className="flex justify-between items-start mb-2">
+                <span className="font-semibold">{approval.userName}</span>
+                <span
+                  className={`font-bold ${decisionColors[approval.decision]}`}
+                >
+                  {approval.decision.replace('_', ' ')}
+                </span>
+              </div>
+              {approval.notes && (
+                <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>
+              )}
+              <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
+                {approval.educationalQuality !== null && (
+                  <div>
+                    Educational: {approval.educationalQuality ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.technicalQuality !== null && (
+                  <div>
+                    Technical: {approval.technicalQuality ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.accessibilityCompliant !== null && (
+                  <div>
+                    Accessibility:{' '}
+                    {approval.accessibilityCompliant ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.ageAppropriate !== null && (
+                  <div>
+                    Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.engagementLevel && (
+                  <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>
+                )}
+              </div>
+              <div className="text-xs text-gray-400 mt-2">
+                {new Date(approval.createdAt).toLocaleString()}
+              </div>
+            </div>
+          ))}
           {approvals.length === 0 && (
-                      <p className="text-gray-500 text-sm">No approvals yet</p>
-                    )}
-                  </div>
-                </div>
+            <p className="text-gray-500 text-sm">No approvals yet</p>
+          )}
+        </div>
+      </div>
 
-                {/* Feedback */}
-                <div>
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Feedback & Notes ({feedback.length})</h3>
+      {/* Feedback */}
+      <div>
+        <h3 className="text-lg font-bold text-gray-900 mb-3">
+          Feedback & Notes ({feedback.length})
+        </h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
-          {feedback.map(item => (
-            <div key={item.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex justify-between items-start mb-2">
+          {feedback.map((item) => (
+            <div
+              key={item.id}
+              className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold">{item.userName}</span>
-                          <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                   {item.feedbackType}
-                          </span>
-                        </div>
+                </span>
+              </div>
               <p className="text-sm text-gray-700 mb-2">{item.message}</p>
               {item.issueSeverity && (
-                          <span className="text-xs text-red-600 font-medium">
+                <span className="text-xs text-red-600 font-medium">
                   Severity: {item.issueSeverity}
-                          </span>
-                        )}
-                        <div className="text-xs text-gray-400 mt-2">
+                </span>
+              )}
+              <div className="text-xs text-gray-400 mt-2">
                 {new Date(item.createdAt).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-          {feedback.length === 0 && (
-                      <p className="text-gray-500 text-sm">No feedback yet</p>
-                    )}
-                  </div>
-                </div>
               </div>
+            </div>
+          ))}
+          {feedback.length === 0 && (
+            <p className="text-gray-500 text-sm">No feedback yet</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -818,7 +942,7 @@ function CourseDetailsPanel({
   onPromote,
   onStatusChange,
   statusColors,
-  decisionColors
+  decisionColors,
 }: {
   course: TestCourse;
   approvals: CourseApproval[];
@@ -842,7 +966,9 @@ function CourseDetailsPanel({
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{course.title}</h2>
             <div className="flex gap-2 mt-2">
-              <span className={`text-sm px-3 py-1 rounded-full font-medium ${statusColors[course.status]}`}>
+              <span
+                className={`text-sm px-3 py-1 rounded-full font-medium ${statusColors[course.status]}`}
+              >
                 {course.status.replace('_', ' ')}
               </span>
               {course.isPremium && (
@@ -893,16 +1019,28 @@ function CourseDetailsPanel({
                 title={lessons[previewLessonIndex]?.title}
               />
             </div>
-              </div>
-            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-          <div><strong>Subject:</strong> {course.subject}</div>
-          <div><strong>Grade Level:</strong> {course.gradeLevel.join(', ')}</div>
-          <div><strong>Difficulty:</strong> {course.difficulty}</div>
-          <div><strong>Duration:</strong> {course.estimatedMinutes} mins</div>
-          <div><strong>Total XP:</strong> {course.totalXP}</div>
-          <div><strong>Lessons:</strong> {lessons.length}</div>
+          <div>
+            <strong>Subject:</strong> {course.subject}
+          </div>
+          <div>
+            <strong>Grade Level:</strong> {course.gradeLevel.join(', ')}
+          </div>
+          <div>
+            <strong>Difficulty:</strong> {course.difficulty}
+          </div>
+          <div>
+            <strong>Duration:</strong> {course.estimatedMinutes} mins
+          </div>
+          <div>
+            <strong>Total XP:</strong> {course.totalXP}
+          </div>
+          <div>
+            <strong>Lessons:</strong> {lessons.length}
+          </div>
         </div>
 
         <p className="text-gray-600 mb-4">{course.description}</p>
@@ -912,9 +1050,16 @@ function CourseDetailsPanel({
           <h4 className="font-medium text-gray-900 mb-2">Lessons Overview</h4>
           <div className="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto">
             {lessons.map((lesson: any, index: number) => (
-              <div key={index} className="flex items-center justify-between py-1 text-sm">
-                <span>{lesson.order}. {lesson.title}</span>
-                <span className="text-gray-500">{lesson.type} • {lesson.duration}min • {lesson.xpReward}XP</span>
+              <div
+                key={index}
+                className="flex items-center justify-between py-1 text-sm"
+              >
+                <span>
+                  {lesson.order}. {lesson.title}
+                </span>
+                <span className="text-gray-500">
+                  {lesson.type} • {lesson.duration}min • {lesson.xpReward}XP
+                </span>
               </div>
             ))}
           </div>
@@ -958,24 +1103,54 @@ function CourseDetailsPanel({
 
       {/* Approval History */}
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Approval History ({approvals.length})</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3">
+          Approval History ({approvals.length})
+        </h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
-          {approvals.map(approval => (
-            <div key={approval.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          {approvals.map((approval) => (
+            <div
+              key={approval.id}
+              className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+            >
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold">{approval.userName}</span>
-                <span className={`font-bold ${decisionColors[approval.decision]}`}>
+                <span
+                  className={`font-bold ${decisionColors[approval.decision]}`}
+                >
                   {approval.decision.replace('_', ' ')}
                 </span>
               </div>
-              {approval.notes && <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>}
+              {approval.notes && (
+                <p className="text-sm text-gray-700 mb-2">{approval.notes}</p>
+              )}
               <div className="text-xs text-gray-500 grid grid-cols-2 gap-2">
-                {approval.curriculumQuality !== null && <div>Curriculum: {approval.curriculumQuality ? '✅' : '❌'}</div>}
-                {approval.contentAccuracy !== null && <div>Accuracy: {approval.contentAccuracy ? '✅' : '❌'}</div>}
-                {approval.technicalQuality !== null && <div>Technical: {approval.technicalQuality ? '✅' : '❌'}</div>}
-                {approval.accessibilityCompliant !== null && <div>Accessibility: {approval.accessibilityCompliant ? '✅' : '❌'}</div>}
-                {approval.ageAppropriate !== null && <div>Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}</div>}
-                {approval.engagementLevel && <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>}
+                {approval.curriculumQuality !== null && (
+                  <div>
+                    Curriculum: {approval.curriculumQuality ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.contentAccuracy !== null && (
+                  <div>Accuracy: {approval.contentAccuracy ? '✅' : '❌'}</div>
+                )}
+                {approval.technicalQuality !== null && (
+                  <div>
+                    Technical: {approval.technicalQuality ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.accessibilityCompliant !== null && (
+                  <div>
+                    Accessibility:{' '}
+                    {approval.accessibilityCompliant ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.ageAppropriate !== null && (
+                  <div>
+                    Age Appropriate: {approval.ageAppropriate ? '✅' : '❌'}
+                  </div>
+                )}
+                {approval.engagementLevel && (
+                  <div>Engagement: {'⭐'.repeat(approval.engagementLevel)}</div>
+                )}
               </div>
               <div className="text-xs text-gray-400 mt-2">
                 {new Date(approval.createdAt).toLocaleString()}
@@ -990,18 +1165,24 @@ function CourseDetailsPanel({
 
       {/* Feedback */}
       <div>
-        <h3 className="text-lg font-bold text-gray-900 mb-3">Feedback & Notes ({feedback.length})</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3">
+          Feedback & Notes ({feedback.length})
+        </h3>
         <div className="space-y-3 max-h-60 overflow-y-auto">
-          {feedback.map(item => (
-            <div key={item.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+          {feedback.map((item) => (
+            <div
+              key={item.id}
+              className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+            >
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold">{item.userName}</span>
                 <div className="flex gap-2">
-                  {item.lessonIndex !== null && item.lessonIndex !== undefined && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                      Lesson {item.lessonIndex + 1}
-                    </span>
-                  )}
+                  {item.lessonIndex !== null &&
+                    item.lessonIndex !== undefined && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        Lesson {item.lessonIndex + 1}
+                      </span>
+                    )}
                   <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                     {item.feedbackType}
                   </span>
@@ -1034,7 +1215,7 @@ function ApprovalModal({
   form,
   setForm,
   onSubmit,
-  onClose
+  onClose,
 }: {
   title: string;
   isGame: boolean;
@@ -1044,52 +1225,56 @@ function ApprovalModal({
   onClose: () => void;
 }) {
   return (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <h3 className="text-2xl font-bold mb-4">Review: {title}</h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block font-medium mb-2">Decision</label>
-                  <select
+        <div className="space-y-4">
+          <div>
+            <label className="block font-medium mb-2">Decision</label>
+            <select
               value={form.decision}
-              onChange={(e) => setForm({...form, decision: e.target.value})}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="APPROVE">Approve</option>
-                    <option value="REQUEST_CHANGES">Request Changes</option>
-                    <option value="REJECT">Reject</option>
-                  </select>
-                </div>
+              onChange={(e) => setForm({ ...form, decision: e.target.value })}
+              className="w-full p-2 border rounded-lg"
+            >
+              <option value="APPROVE">Approve</option>
+              <option value="REQUEST_CHANGES">Request Changes</option>
+              <option value="REJECT">Reject</option>
+            </select>
+          </div>
 
-                <div>
-                  <label className="block font-medium mb-2">Notes</label>
-                  <textarea
+          <div>
+            <label className="block font-medium mb-2">Notes</label>
+            <textarea
               value={form.notes}
-              onChange={(e) => setForm({...form, notes: e.target.value})}
-                    className="w-full p-2 border rounded-lg h-24"
-                    placeholder="Add notes about your decision..."
-                  />
-                </div>
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              className="w-full p-2 border rounded-lg h-24"
+              placeholder="Add notes about your decision..."
+            />
+          </div>
 
-                <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {isGame ? (
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
                   checked={form.educationalQuality}
-                  onChange={(e) => setForm({...form, educationalQuality: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    Educational Quality
-                  </label>
+                  onChange={(e) =>
+                    setForm({ ...form, educationalQuality: e.target.checked })
+                  }
+                  className="w-4 h-4"
+                />
+                Educational Quality
+              </label>
             ) : (
               <>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
                     checked={form.curriculumQuality}
-                    onChange={(e) => setForm({...form, curriculumQuality: e.target.checked})}
+                    onChange={(e) =>
+                      setForm({ ...form, curriculumQuality: e.target.checked })
+                    }
                     className="w-4 h-4"
                   />
                   Curriculum Quality
@@ -1098,7 +1283,9 @@ function ApprovalModal({
                   <input
                     type="checkbox"
                     checked={form.contentAccuracy}
-                    onChange={(e) => setForm({...form, contentAccuracy: e.target.checked})}
+                    onChange={(e) =>
+                      setForm({ ...form, contentAccuracy: e.target.checked })
+                    }
                     className="w-4 h-4"
                   />
                   Content Accuracy
@@ -1109,63 +1296,71 @@ function ApprovalModal({
               <input
                 type="checkbox"
                 checked={form.technicalQuality}
-                onChange={(e) => setForm({...form, technicalQuality: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    Technical Quality
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                onChange={(e) =>
+                  setForm({ ...form, technicalQuality: e.target.checked })
+                }
+                className="w-4 h-4"
+              />
+              Technical Quality
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
                 checked={form.accessibilityCompliant}
-                onChange={(e) => setForm({...form, accessibilityCompliant: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    Accessibility Compliant
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                onChange={(e) =>
+                  setForm({ ...form, accessibilityCompliant: e.target.checked })
+                }
+                className="w-4 h-4"
+              />
+              Accessibility Compliant
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
                 checked={form.ageAppropriate}
-                onChange={(e) => setForm({...form, ageAppropriate: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    Age Appropriate
-                  </label>
-                </div>
+                onChange={(e) =>
+                  setForm({ ...form, ageAppropriate: e.target.checked })
+                }
+                className="w-4 h-4"
+              />
+              Age Appropriate
+            </label>
+          </div>
 
-                <div>
-                  <label className="block font-medium mb-2">Engagement Level</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
+          <div>
+            <label className="block font-medium mb-2">Engagement Level</label>
+            <input
+              type="range"
+              min="1"
+              max="5"
               value={form.engagementLevel}
-              onChange={(e) => setForm({...form, engagementLevel: parseInt(e.target.value)})}
-                    className="w-full"
-                  />
-                  <div className="text-center text-2xl">
+              onChange={(e) =>
+                setForm({ ...form, engagementLevel: parseInt(e.target.value) })
+              }
+              className="w-full"
+            />
+            <div className="text-center text-2xl">
               {'⭐'.repeat(form.engagementLevel)}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <button
-              onClick={onSubmit}
-                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Submit Review
-                  </button>
-                  <button
-              onClick={onClose}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
+
+          <div className="flex gap-2 pt-4">
+            <button
+              onClick={onSubmit}
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Submit Review
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1177,7 +1372,7 @@ function FeedbackModal({
   form,
   setForm,
   onSubmit,
-  onClose
+  onClose,
 }: {
   title: string;
   isGame: boolean;
@@ -1188,87 +1383,102 @@ function FeedbackModal({
   onClose: () => void;
 }) {
   return (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-2xl w-full p-6">
         <h3 className="text-2xl font-bold mb-4">Add Feedback: {title}</h3>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block font-medium mb-2">Feedback Type</label>
-                  <select
+        <div className="space-y-4">
+          <div>
+            <label className="block font-medium mb-2">Feedback Type</label>
+            <select
               value={form.feedbackType}
-              onChange={(e) => setForm({...form, feedbackType: e.target.value})}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    <option value="GENERAL">General</option>
-                    <option value="BUG">Bug Report</option>
-                    <option value="SUGGESTION">Suggestion</option>
-                    <option value="PRAISE">Praise</option>
-                    <option value="ACCESSIBILITY_ISSUE">Accessibility Issue</option>
-                    <option value="CONTENT_ERROR">Content Error</option>
-                  </select>
-                </div>
+              onChange={(e) =>
+                setForm({ ...form, feedbackType: e.target.value })
+              }
+              className="w-full p-2 border rounded-lg"
+            >
+              <option value="GENERAL">General</option>
+              <option value="BUG">Bug Report</option>
+              <option value="SUGGESTION">Suggestion</option>
+              <option value="PRAISE">Praise</option>
+              <option value="ACCESSIBILITY_ISSUE">Accessibility Issue</option>
+              <option value="CONTENT_ERROR">Content Error</option>
+            </select>
+          </div>
 
           {!isGame && lessonsCount && lessonsCount > 0 && (
             <div>
-              <label className="block font-medium mb-2">Specific Lesson (Optional)</label>
+              <label className="block font-medium mb-2">
+                Specific Lesson (Optional)
+              </label>
               <select
                 value={form.lessonIndex ?? ''}
-                onChange={(e) => setForm({...form, lessonIndex: e.target.value ? parseInt(e.target.value) : null})}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    lessonIndex: e.target.value
+                      ? parseInt(e.target.value)
+                      : null,
+                  })
+                }
                 className="w-full p-2 border rounded-lg"
               >
                 <option value="">All lessons / General</option>
                 {Array.from({ length: lessonsCount }, (_, i) => (
-                  <option key={i} value={i}>Lesson {i + 1}</option>
+                  <option key={i} value={i}>
+                    Lesson {i + 1}
+                  </option>
                 ))}
               </select>
             </div>
           )}
 
-                <div>
-                  <label className="block font-medium mb-2">Message</label>
-                  <textarea
+          <div>
+            <label className="block font-medium mb-2">Message</label>
+            <textarea
               value={form.message}
-              onChange={(e) => setForm({...form, message: e.target.value})}
-                    className="w-full p-2 border rounded-lg h-32"
-                    placeholder="Describe your feedback..."
-                    required
-                  />
-                </div>
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
+              className="w-full p-2 border rounded-lg h-32"
+              placeholder="Describe your feedback..."
+              required
+            />
+          </div>
 
           {form.feedbackType === 'BUG' && (
-                  <div>
-                    <label className="block font-medium mb-2">Issue Severity</label>
-                    <select
+            <div>
+              <label className="block font-medium mb-2">Issue Severity</label>
+              <select
                 value={form.issueSeverity || ''}
-                onChange={(e) => setForm({...form, issueSeverity: e.target.value || null})}
-                      className="w-full p-2 border rounded-lg"
-                    >
-                      <option value="">Select severity...</option>
-                      <option value="CRITICAL">Critical (Blocks approval)</option>
-                      <option value="MAJOR">Major</option>
-                      <option value="MINOR">Minor</option>
-                      <option value="TRIVIAL">Trivial</option>
-                    </select>
-                  </div>
-                )}
+                onChange={(e) =>
+                  setForm({ ...form, issueSeverity: e.target.value || null })
+                }
+                className="w-full p-2 border rounded-lg"
+              >
+                <option value="">Select severity...</option>
+                <option value="CRITICAL">Critical (Blocks approval)</option>
+                <option value="MAJOR">Major</option>
+                <option value="MINOR">Minor</option>
+                <option value="TRIVIAL">Trivial</option>
+              </select>
+            </div>
+          )}
 
-                <div className="flex gap-2 pt-4">
-                  <button
+          <div className="flex gap-2 pt-4">
+            <button
               onClick={onSubmit}
               disabled={!form.message}
               className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    Submit Feedback
-                  </button>
-                  <button
+            >
+              Submit Feedback
+            </button>
+            <button
               onClick={onClose}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

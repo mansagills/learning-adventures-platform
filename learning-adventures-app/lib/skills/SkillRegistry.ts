@@ -47,7 +47,9 @@ export class SkillRegistry {
       // This is a placeholder for dynamic skill loading if needed
 
       this.initialized = true;
-      console.log(`✅ Skill Registry initialized with ${this.skills.size} skills`);
+      console.log(
+        `✅ Skill Registry initialized with ${this.skills.size} skills`
+      );
     } catch (error) {
       console.error('❌ Error initializing Skill Registry:', error);
       throw error;
@@ -62,7 +64,9 @@ export class SkillRegistry {
     const metadata = skill.getMetadata();
 
     if (this.skills.has(metadata.id)) {
-      console.warn(`Skill ${metadata.id} is already registered. Overwriting...`);
+      console.warn(
+        `Skill ${metadata.id} is already registered. Overwriting...`
+      );
     }
 
     this.skills.set(metadata.id, skill);
@@ -297,9 +301,7 @@ export class SkillRegistry {
 
     return this.getAllSkills().filter((skill) => {
       const metadata = skill.getMetadata();
-      return metadata.triggers.some(
-        (t) => t.toLowerCase() === lowerTrigger
-      );
+      return metadata.triggers.some((t) => t.toLowerCase() === lowerTrigger);
     });
   }
 
