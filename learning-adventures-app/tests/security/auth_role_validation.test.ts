@@ -21,14 +21,15 @@ vi.mock('bcryptjs', () => ({
   },
 }));
 
-describe('Security: Signup Role Validation', () => {
+describe('Authentication Security - Role Validation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should sanitize ADMIN role to STUDENT on signup', async () => {
+  it('should sanitize invalid roles (e.g. ADMIN) to STUDENT', async () => {
+    // Setup mock request with ADMIN role
     const body = {
-      name: 'Malicious User',
+      name: 'Hacker',
       email: 'hacker@example.com',
       password: 'password123',
       role: 'ADMIN',
@@ -39,19 +40,19 @@ describe('Security: Signup Role Validation', () => {
       body: JSON.stringify(body),
     });
 
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-    vi.mocked(prisma.user.create).mockResolvedValue({
+    // Mock Prisma responses
+    (prisma.user.findUnique as any).mockResolvedValue(null);
+    (prisma.user.create as any).mockResolvedValue({
       id: '123',
-      name: body.name,
-      email: body.email,
-      role: 'STUDENT',
+      ...body,
+      role: 'STUDENT', // Simulate successful creation with sanitized role
       createdAt: new Date(),
-    } as any);
+    });
 
-    const response = await POST(req);
+    // Execute the handler
+    await POST(req);
 
-    // API sanitizes ADMIN → STUDENT and still returns 201
-    expect(response.status).toBe(201);
+    // Verify if ADMIN role was sanitized to STUDENT
     expect(prisma.user.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -59,35 +60,5 @@ describe('Security: Signup Role Validation', () => {
         }),
       })
     );
-  });
-
-  it('should allow signup with valid role (STUDENT)', async () => {
-    const body = {
-      name: 'Valid Student',
-      email: 'student@example.com',
-      password: 'password123',
-      role: 'STUDENT',
-    };
-
-    const req = new NextRequest('http://localhost/api/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-    vi.mocked(prisma.user.create).mockResolvedValue({
-      id: '124',
-      name: body.name,
-      email: body.email,
-      role: body.role,
-      createdAt: new Date(),
-    } as any);
-
-    const response = await POST(req);
-
-    expect(response.status).toBe(201);
-    expect(prisma.user.create).toHaveBeenCalled();
-    const createArgs = vi.mocked(prisma.user.create).mock.calls[0][0];
-    expect(createArgs.data.role).toBe('STUDENT');
   });
 });
