@@ -115,7 +115,9 @@ export default function ConversationHistory() {
         <div className="text-center py-12 bg-white rounded-xl border border-neutral-200">
           <div className="text-6xl mb-4">💬</div>
           <h3 className="text-xl font-semibold text-neutral-900 mb-2">
-            {conversations.length === 0 ? 'No conversations yet' : 'No matching conversations'}
+            {conversations.length === 0
+              ? 'No conversations yet'
+              : 'No matching conversations'}
           </h3>
           <p className="text-neutral-600 mb-6">
             {conversations.length === 0
@@ -136,12 +138,16 @@ export default function ConversationHistory() {
           {filteredConversations.map((conversation) => (
             <Link
               key={conversation.id}
-              href={`/agents/${conversation.agentType}/chat/${conversation.id}` as any}
+              href={
+                `/agents/${conversation.agentType}/chat/${conversation.id}` as any
+              }
               className="block p-6 bg-white rounded-xl border border-neutral-200 hover:border-brand-300 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4 flex-1">
-                  <div className="text-3xl">{agentIcons[conversation.agentType]}</div>
+                  <div className="text-3xl">
+                    {agentIcons[conversation.agentType]}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-lg font-semibold text-neutral-900 truncate">
@@ -154,7 +160,8 @@ export default function ConversationHistory() {
                       )}
                     </div>
                     <p className="text-sm text-neutral-500 mb-2">
-                      {agentNames[conversation.agentType]} • {conversation.messageCount} messages
+                      {agentNames[conversation.agentType]} •{' '}
+                      {conversation.messageCount} messages
                     </p>
                     <p className="text-sm text-neutral-600 line-clamp-2">
                       {conversation.lastMessage}
@@ -162,7 +169,9 @@ export default function ConversationHistory() {
                   </div>
                 </div>
                 <div className="text-right text-xs text-neutral-500 ml-4">
-                  <div>{new Date(conversation.updatedAt).toLocaleDateString()}</div>
+                  <div>
+                    {new Date(conversation.updatedAt).toLocaleDateString()}
+                  </div>
                   <div className="mt-1">
                     {new Date(conversation.updatedAt).toLocaleTimeString([], {
                       hour: '2-digit',

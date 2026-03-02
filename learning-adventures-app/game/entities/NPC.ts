@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { InteractableObject } from './InteractableObject';
 
 export interface DialogLine {
@@ -10,7 +10,7 @@ export interface DialogLine {
  * NPC - Non-player character with dialog system
  */
 export class NPC extends InteractableObject {
-  private name: string;
+  private npcName: string;
   private dialog: DialogLine[];
   private currentDialogIndex: number = 0;
 
@@ -19,16 +19,16 @@ export class NPC extends InteractableObject {
     x: number,
     y: number,
     texture: string,
-    name: string,
+    npcName: string,
     dialog: DialogLine[]
   ) {
     super(scene, x, y, texture);
 
-    this.name = name;
+    this.npcName = npcName;
     this.dialog = dialog;
 
     // Set prompt text
-    this.setPromptText(`Press SPACE to talk to ${name}`);
+    this.setPromptText(`Press SPACE to talk to ${npcName}`);
 
     // Set interaction callback
     this.setOnInteract(() => this.showDialog());
@@ -43,9 +43,9 @@ export class NPC extends InteractableObject {
     // Emit event to React to show dialog modal
     // (React component will handle the actual UI)
     const eventData = {
-      npcName: this.name,
+      npcName: this.npcName,
       text: dialogLine.text,
-      speaker: dialogLine.speaker || this.name,
+      speaker: dialogLine.speaker || this.npcName,
       hasMore: this.currentDialogIndex < this.dialog.length - 1,
     };
 

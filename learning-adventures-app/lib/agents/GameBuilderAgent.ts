@@ -4,10 +4,7 @@
  */
 
 import { BaseAgent } from './BaseAgent';
-import {
-  AgentResult,
-  GameConcept,
-} from './types';
+import { AgentResult, GameConcept } from './types';
 
 // TODO: Move these types to ./types.ts
 interface GameBuilderResponse {
@@ -41,7 +38,9 @@ export class GameBuilderAgent extends BaseAgent {
   /**
    * Execute game building task
    */
-  async execute(input: HTMLGameWorkflowInput | { concept: GameConcept; fixes?: string[] }): Promise<AgentResult> {
+  async execute(
+    input: HTMLGameWorkflowInput | { concept: GameConcept; fixes?: string[] }
+  ): Promise<AgentResult> {
     try {
       // Load skills
       await this.loadSkills();
@@ -90,7 +89,6 @@ export class GameBuilderAgent extends BaseAgent {
           version: '1.0.0',
         },
       };
-
     } catch (error) {
       return {
         success: false,
@@ -116,7 +114,8 @@ export class GameBuilderAgent extends BaseAgent {
       subject: input.subject,
       gradeLevel: input.gradeLevel,
       skills: input.skills,
-      learningObjectives: input.learningObjectives || this.generateLearningObjectives(input),
+      learningObjectives:
+        input.learningObjectives || this.generateLearningObjectives(input),
       estimatedTime: `${this.estimatePlayTime(input)} minutes`,
       difficulty: this.determineDifficulty(input.gradeLevel),
       gameplayMechanics: [],
@@ -127,7 +126,10 @@ export class GameBuilderAgent extends BaseAgent {
   /**
    * Build prompt for game generation
    */
-  private buildPrompt(concept: GameConcept, additionalInstructions: string): string {
+  private buildPrompt(
+    concept: GameConcept,
+    additionalInstructions: string
+  ): string {
     return `Create an educational HTML game with the following specifications:
 
 **Title**: ${concept.title}
@@ -138,10 +140,10 @@ export class GameBuilderAgent extends BaseAgent {
 **Estimated Play Time**: ${concept.estimatedTime} minutes
 
 **Skills to Practice**:
-${concept.skills.map(s => `- ${s}`).join('\n')}
+${concept.skills.map((s) => `- ${s}`).join('\n')}
 
 **Learning Objectives**:
-${concept.learningObjectives.map(o => `- ${o}`).join('\n')}
+${concept.learningObjectives.map((o) => `- ${o}`).join('\n')}
 
 **Requirements**:
 - Single HTML file with embedded CSS and JavaScript
@@ -172,12 +174,15 @@ Please generate a complete, production-ready HTML file that meets all these requ
   /**
    * Generate game code (simulated - would call Claude API in production)
    */
-  private async generateGameCode(prompt: string, concept: GameConcept): Promise<string> {
+  private async generateGameCode(
+    prompt: string,
+    concept: GameConcept
+  ): Promise<string> {
     // This is a placeholder that shows the structure
     // In production, this would call the Claude API with the prompt and skill context
 
     const skills = await this.loadSkills();
-    const skillContext = skills.map(s => s.content).join('\n\n');
+    const skillContext = skills.map((s) => s.content).join('\n\n');
 
     // Simulated response structure
     return `<!DOCTYPE html>
@@ -281,15 +286,9 @@ Please generate a complete, production-ready HTML file that meets all these requ
    * Check for accessibility features in code
    */
   private checkAccessibilityFeatures(code: string): boolean {
-    const features = [
-      'role=',
-      'aria-',
-      'tabindex',
-      'alt=',
-      '<label',
-    ];
+    const features = ['role=', 'aria-', 'tabindex', 'alt=', '<label'];
 
-    return features.some(feature => code.includes(feature));
+    return features.some((feature) => code.includes(feature));
   }
 
   /**
@@ -335,8 +334,12 @@ Please generate a complete, production-ready HTML file that meets all these requ
     const objectives: string[] = [];
 
     objectives.push(`Practice ${input.skills.join(', ')}`);
-    objectives.push(`Apply ${input.subject} concepts in an interactive setting`);
-    objectives.push(`Develop problem-solving skills at ${input.gradeLevel} level`);
+    objectives.push(
+      `Apply ${input.subject} concepts in an interactive setting`
+    );
+    objectives.push(
+      `Develop problem-solving skills at ${input.gradeLevel} level`
+    );
 
     return objectives;
   }
@@ -349,7 +352,11 @@ Please generate a complete, production-ready HTML file that meets all these requ
   }
 
   private determineDifficulty(gradeLevel: string): 'easy' | 'medium' | 'hard' {
-    if (gradeLevel.includes('K-2') || gradeLevel.includes('1') || gradeLevel.includes('2')) {
+    if (
+      gradeLevel.includes('K-2') ||
+      gradeLevel.includes('1') ||
+      gradeLevel.includes('2')
+    ) {
       return 'easy';
     }
     if (gradeLevel.includes('6-8') || gradeLevel.includes('9-12')) {

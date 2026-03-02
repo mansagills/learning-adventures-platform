@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { Player } from '../entities/Player';
 import { Door } from '../entities/Door';
 import { NPC } from '../entities/NPC';
@@ -36,13 +36,13 @@ export class MathBuildingScene extends Phaser.Scene {
     // Create placeholder textures
     this.createPlaceholderTextures();
 
-    // Build the interior
-    this.createInterior();
-
-    // Create player at spawn point
+    // Create player FIRST so wall/arcade colliders can reference it
     const spawnX = this.registry.get('spawnX') as number;
     const spawnY = this.registry.get('spawnY') as number;
     this.player = new Player(this, spawnX, spawnY, 'player-placeholder');
+
+    // Build the interior (walls and arcade colliders need this.player)
+    this.createInterior();
 
     // Configure camera
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
@@ -340,9 +340,4 @@ export class MathBuildingScene extends Phaser.Scene {
     this.interactables = [];
   }
 
-  destroy(): void {
-    // Clean up event listeners
-    EventBus.off('close-adventure');
-    super.destroy();
-  }
 }

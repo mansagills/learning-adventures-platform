@@ -40,7 +40,10 @@ const WORKFLOWS: Record<string, WorkflowDefinition> = {
     steps: [
       { agent: 'game-idea-generator', action: 'Brainstorm game concepts' },
       { agent: 'content-builder', action: 'Build HTML game file' },
-      { agent: 'quality-assurance', action: 'Validate accessibility and quality' },
+      {
+        agent: 'quality-assurance',
+        action: 'Validate accessibility and quality',
+      },
       { agent: 'content-builder', action: 'Apply fixes if needed' },
       { agent: 'catalog-manager', action: 'Format catalog metadata' },
     ],
@@ -61,7 +64,10 @@ const WORKFLOWS: Record<string, WorkflowDefinition> = {
     steps: [
       { agent: 'quality-assurance', action: 'Run accessibility checks' },
       { agent: 'quality-assurance', action: 'Generate QA report' },
-      { agent: 'content-builder', action: 'Apply recommended fixes (optional)' },
+      {
+        agent: 'content-builder',
+        action: 'Apply recommended fixes (optional)',
+      },
     ],
   },
   'batch-creation': {
@@ -160,7 +166,8 @@ export class WorkflowExecutor {
           where: { id: this.executionId },
           data: {
             status: 'FAILED',
-            errorMessage: error instanceof Error ? error.message : 'Step failed',
+            errorMessage:
+              error instanceof Error ? error.message : 'Step failed',
           },
         });
 
@@ -221,7 +228,10 @@ export class WorkflowExecutor {
   /**
    * Game Idea Generator execution
    */
-  private async executeGameIdeaGenerator(action: string, context: any): Promise<any> {
+  private async executeGameIdeaGenerator(
+    action: string,
+    context: any
+  ): Promise<any> {
     const agent = new GameIdeaGeneratorAgent();
 
     // Build prompt based on action and context
@@ -235,7 +245,8 @@ export class WorkflowExecutor {
         prompt += ` (Subject: ${context.input.subject})`;
       }
     } else {
-      prompt = 'Generate 3 creative educational game ideas for elementary students';
+      prompt =
+        'Generate 3 creative educational game ideas for elementary students';
     }
 
     const result = await agent.execute({
@@ -255,7 +266,10 @@ export class WorkflowExecutor {
   /**
    * Content Builder execution
    */
-  private async executeContentBuilder(action: string, context: any): Promise<any> {
+  private async executeContentBuilder(
+    action: string,
+    context: any
+  ): Promise<any> {
     // TODO: Implement ContentBuilderAgent
     // For now, return mock response
     await this.delay(2000);
@@ -271,7 +285,10 @@ export class WorkflowExecutor {
   /**
    * Quality Assurance execution
    */
-  private async executeQualityAssurance(action: string, context: any): Promise<any> {
+  private async executeQualityAssurance(
+    action: string,
+    context: any
+  ): Promise<any> {
     // TODO: Implement QualityAssuranceAgent
     // For now, return mock response
     await this.delay(2000);
@@ -287,7 +304,10 @@ export class WorkflowExecutor {
   /**
    * Catalog Manager execution
    */
-  private async executeCatalogManager(action: string, context: any): Promise<any> {
+  private async executeCatalogManager(
+    action: string,
+    context: any
+  ): Promise<any> {
     // TODO: Implement CatalogManagerAgent
     // For now, return mock response
     await this.delay(2000);

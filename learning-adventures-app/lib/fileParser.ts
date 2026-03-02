@@ -34,7 +34,10 @@ export async function parsePDF(filePath: string): Promise<string> {
   } catch (error) {
     console.error('PDF parsing error:', error);
     // Return placeholder if pdf-parse is not installed
-    if (error instanceof Error && error.message.includes('Cannot find module')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('Cannot find module')
+    ) {
       return '[PDF content extraction requires pdf-parse package. Please install: npm install pdf-parse]';
     }
     throw new Error(`Failed to parse PDF: ${error}`);
@@ -54,7 +57,10 @@ export async function parseDOCX(filePath: string): Promise<string> {
   } catch (error) {
     console.error('DOCX parsing error:', error);
     // Return placeholder if mammoth is not installed
-    if (error instanceof Error && error.message.includes('Cannot find module')) {
+    if (
+      error instanceof Error &&
+      error.message.includes('Cannot find module')
+    ) {
       return '[DOCX content extraction requires mammoth package. Please install: npm install mammoth]';
     }
     throw new Error(`Failed to parse DOCX: ${error}`);
@@ -87,13 +93,16 @@ function formatFileSize(bytes: number): string {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
 /**
  * Parse file based on extension
  */
-export async function parseFile(filePath: string, fileType: string): Promise<string> {
+export async function parseFile(
+  filePath: string,
+  fileType: string
+): Promise<string> {
   const extension = fileType.toLowerCase();
 
   switch (extension) {
@@ -134,7 +143,8 @@ export function sanitizeFilename(filename: string): string {
   if (sanitized.length > maxLength) {
     const ext = sanitized.split('.').pop();
     const nameWithoutExt = sanitized.slice(0, -(ext!.length + 1));
-    sanitized = nameWithoutExt.slice(0, maxLength - ext!.length - 1) + '.' + ext;
+    sanitized =
+      nameWithoutExt.slice(0, maxLength - ext!.length - 1) + '.' + ext;
   }
 
   return sanitized;
@@ -152,7 +162,16 @@ export function getFileExtension(filename: string): string {
  * Validate file type
  */
 export function isAllowedFileType(filename: string): boolean {
-  const allowedExtensions = ['md', 'pdf', 'docx', 'png', 'jpg', 'jpeg', 'gif', 'webp'];
+  const allowedExtensions = [
+    'md',
+    'pdf',
+    'docx',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'webp',
+  ];
   const extension = getFileExtension(filename);
   return allowedExtensions.includes(extension);
 }

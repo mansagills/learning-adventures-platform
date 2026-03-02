@@ -3,7 +3,8 @@ import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 
 const CHILD_SESSION_SECRET = new TextEncoder().encode(
-  process.env.CHILD_SESSION_SECRET || 'child-session-secret-change-in-production'
+  process.env.CHILD_SESSION_SECRET ||
+    'child-session-secret-change-in-production'
 );
 const CHILD_SESSION_DURATION = 4 * 60 * 60; // 4 hours in seconds
 
@@ -36,7 +37,9 @@ export async function verifyPIN(pin: string, hash: string): Promise<boolean> {
  * Create a child session JWT token
  * Also stores the session in the database for tracking
  */
-export async function createChildSession(childProfile: ChildSessionData): Promise<string> {
+export async function createChildSession(
+  childProfile: ChildSessionData
+): Promise<string> {
   const token = await new SignJWT({
     childId: childProfile.childId,
     parentId: childProfile.parentId,
@@ -65,7 +68,9 @@ export async function createChildSession(childProfile: ChildSessionData): Promis
  * Verify and decode a child session JWT
  * Returns session data if valid, null if invalid or expired
  */
-export async function verifyChildSession(token: string): Promise<ChildSessionData | null> {
+export async function verifyChildSession(
+  token: string
+): Promise<ChildSessionData | null> {
   try {
     const { payload } = await jwtVerify(token, CHILD_SESSION_SECRET);
 
@@ -95,11 +100,13 @@ export async function verifyChildSession(token: string): Promise<ChildSessionDat
  * Silently fails if session doesn't exist
  */
 export async function deleteChildSession(token: string): Promise<void> {
-  await prisma.childSession.delete({
-    where: { sessionToken: token },
-  }).catch(() => {
-    // Ignore if session doesn't exist
-  });
+  await prisma.childSession
+    .delete({
+      where: { sessionToken: token },
+    })
+    .catch(() => {
+      // Ignore if session doesn't exist
+    });
 }
 
 /**

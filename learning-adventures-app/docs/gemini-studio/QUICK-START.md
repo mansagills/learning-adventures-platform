@@ -16,6 +16,7 @@
    - Copy the key
 
 2. **Configure Environment**:
+
    ```bash
    cd learning-adventures-app
 
@@ -27,12 +28,14 @@
    ```
 
 3. **Update Database** (if not already done):
+
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
 4. **Start Development Server**:
+
    ```bash
    npm run dev
    ```
@@ -47,6 +50,7 @@
 
 1. Use the **natural language textarea** to describe your game idea
 2. **Be specific**: Instead of "make a math game", try:
+
    ```
    Create a 3D space adventure where students pilot a spaceship
    and solve multiplication problems (2-12 tables) to navigate
@@ -90,6 +94,7 @@ Once your game is generated, you can improve it:
    - And more...
 
 2. **Or Write Custom Feedback**:
+
    ```
    Add sound effects when students answer correctly,
    make the buttons 50px tall, and include a timer
@@ -101,12 +106,14 @@ Once your game is generated, you can improve it:
 ### Best Practices for Iteration
 
 ✅ **DO**:
+
 - Be specific about what you want changed
 - Reference exact measurements ("50px", "20% larger")
 - Describe desired behaviors clearly
 - Request one type of change at a time for best results
 
 ❌ **DON'T**:
+
 - Use vague terms like "make it better" or "improve it"
 - Request contradictory changes in one iteration
 - Expect it to remember context from several iterations ago
@@ -116,6 +123,7 @@ Once your game is generated, you can improve it:
 ### Device Switcher
 
 Test your game on different screen sizes:
+
 - **🖥️ Desktop**: Full-width preview
 - **📱 Tablet**: 768px width
 - **📱 Mobile**: 375px width (iPhone-sized)
@@ -123,6 +131,7 @@ Test your game on different screen sizes:
 ### Metrics
 
 Check the generation metrics:
+
 - **Generation Time**: How long it took to create
 - **Tokens Used**: API usage (helps estimate costs)
 - **Cost**: Estimated cost in USD (~$0.30 per game)
@@ -143,6 +152,7 @@ Click the "Open in New Tab" button to test the game in a full browser window.
 ### Step 2: Review Quality Scores
 
 The system automatically analyzes:
+
 - **Accessibility**: WCAG compliance estimate
 - **Performance**: Code quality and speed
 - **Educational Value**: Learning objective clarity
@@ -150,11 +160,13 @@ The system automatically analyzes:
 ### Step 3: Choose Destination
 
 **Option A: Test Games** (Recommended)
+
 - Game goes to review queue
 - Can be tested before public release
 - Creates a TestGame database entry
 
 **Option B: Public Catalog** (Direct)
+
 - Game file is created
 - You'll get a catalog entry template
 - Requires manual addition to `lib/catalogData.ts`
@@ -179,6 +191,7 @@ Click **🚀 Publish** and your game will be saved to `public/games/` with a uni
 ### Monthly Budget Example
 
 If you create 100 games per month:
+
 - **Cost**: ~$30/month
 - **Time saved**: 200-300 hours (vs manual creation)
 - **Value**: $6,000-$9,000 at $30/hour
@@ -188,16 +201,19 @@ If you create 100 games per month:
 ### In the Admin Panel
 
 The "Quick Stats" section shows:
+
 - **Gemini Games**: Total number of AI-generated games
 
 ### Via API
 
 You can fetch stats programmatically:
+
 ```bash
 GET /api/gemini/stats
 ```
 
 Returns:
+
 ```json
 {
   "total": 5,
@@ -218,6 +234,7 @@ Returns:
 **Problem**: You see a 503 error saying API key is missing
 
 **Solution**:
+
 1. Check that `.env.local` exists in `learning-adventures-app/`
 2. Verify it contains: `GEMINI_API_KEY=your_actual_key`
 3. Restart the dev server: `npm run dev`
@@ -227,6 +244,7 @@ Returns:
 **Problem**: Iframe shows blank or error
 
 **Solutions**:
+
 1. Check browser console for CSP errors
 2. Try "Open in New Tab" button
 3. Verify the generated code is valid HTML
@@ -237,6 +255,7 @@ Returns:
 **Problem**: Generation hangs or times out
 
 **Solutions**:
+
 1. Simplify your prompt (remove unnecessary details)
 2. Try a 2D game instead of 3D (faster generation)
 3. Check your internet connection
@@ -247,6 +266,7 @@ Returns:
 **Problem**: Game looks the same after iteration
 
 **Solutions**:
+
 1. Be more specific in your feedback
 2. Try one change at a time
 3. Refresh the preview manually (click device switcher)

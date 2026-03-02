@@ -8,12 +8,32 @@ import Container from '@/components/Container';
 
 const statusConfig = {
   DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700', icon: '📝' },
-  SUBMITTED: { label: 'Submitted', color: 'bg-blue-100 text-blue-700', icon: '📬' },
-  UNDER_REVIEW: { label: 'Under Review', color: 'bg-purple-100 text-purple-700', icon: '👀' },
-  IN_PROGRESS: { label: 'In Progress', color: 'bg-yellow-100 text-yellow-700', icon: '⚙️' },
-  COMPLETED: { label: 'Completed', color: 'bg-green-100 text-green-700', icon: '✅' },
+  SUBMITTED: {
+    label: 'Submitted',
+    color: 'bg-blue-100 text-blue-700',
+    icon: '📬',
+  },
+  UNDER_REVIEW: {
+    label: 'Under Review',
+    color: 'bg-purple-100 text-purple-700',
+    icon: '👀',
+  },
+  IN_PROGRESS: {
+    label: 'In Progress',
+    color: 'bg-yellow-100 text-yellow-700',
+    icon: '⚙️',
+  },
+  COMPLETED: {
+    label: 'Completed',
+    color: 'bg-green-100 text-green-700',
+    icon: '✅',
+  },
   REJECTED: { label: 'Rejected', color: 'bg-red-100 text-red-700', icon: '❌' },
-  CANCELLED: { label: 'Cancelled', color: 'bg-gray-100 text-gray-700', icon: '🚫' },
+  CANCELLED: {
+    label: 'Cancelled',
+    color: 'bg-gray-100 text-gray-700',
+    icon: '🚫',
+  },
 };
 
 export default function RequestDetailPage() {
@@ -81,8 +101,12 @@ export default function RequestDetailPage() {
             <div className="max-w-4xl mx-auto">
               <div className="bg-coral-50 border-2 border-coral-200 rounded-xl p-8 text-center">
                 <div className="text-5xl mb-4">⚠️</div>
-                <h2 className="text-2xl font-bold text-ink-900 mb-2">Request Not Found</h2>
-                <p className="text-gray-600 mb-6">{error || 'The requested course request could not be found.'}</p>
+                <h2 className="text-2xl font-bold text-ink-900 mb-2">
+                  Request Not Found
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  {error || 'The requested course request could not be found.'}
+                </p>
                 <Link
                   href="/my-requests"
                   className="inline-block px-6 py-3 bg-brand-500 text-white font-semibold rounded-lg hover:bg-brand-600"
@@ -174,9 +198,18 @@ export default function RequestDetailPage() {
                 <DetailRow label="Name" value={request.fullName} />
                 <DetailRow label="Role" value={request.role} />
                 <DetailRow label="Email" value={request.email} />
-                <DetailRow label="Phone" value={request.phone || 'Not provided'} />
-                <DetailRow label="Organization" value={request.organization || 'Not provided'} />
-                <DetailRow label="Preferred Contact" value={request.preferredContact} />
+                <DetailRow
+                  label="Phone"
+                  value={request.phone || 'Not provided'}
+                />
+                <DetailRow
+                  label="Organization"
+                  value={request.organization || 'Not provided'}
+                />
+                <DetailRow
+                  label="Preferred Contact"
+                  value={request.preferredContact}
+                />
               </DetailSection>
 
               {/* Section 2: Student Profile */}
@@ -184,94 +217,173 @@ export default function RequestDetailPage() {
                 <DetailRow label="Student Name" value={request.studentName} />
                 <DetailRow label="Age" value={request.studentAge} />
                 <DetailRow label="Grade Level" value={request.gradeLevel} />
-                <DetailRow label="Number of Students" value={request.numberOfStudents} />
-                {request.learningAccommodations && request.learningAccommodations.length > 0 && (
-                  <DetailRow
-                    label="Learning Accommodations"
-                    value={request.learningAccommodations.join(', ')}
-                  />
-                )}
+                <DetailRow
+                  label="Number of Students"
+                  value={request.numberOfStudents}
+                />
+                {request.learningAccommodations &&
+                  request.learningAccommodations.length > 0 && (
+                    <DetailRow
+                      label="Learning Accommodations"
+                      value={request.learningAccommodations.join(', ')}
+                    />
+                  )}
                 {request.accommodationNotes && (
-                  <DetailRow label="Accommodation Notes" value={request.accommodationNotes} />
+                  <DetailRow
+                    label="Accommodation Notes"
+                    value={request.accommodationNotes}
+                  />
                 )}
               </DetailSection>
 
               {/* Section 3: Subject & Focus */}
               <DetailSection title="Subject & Focus" icon="📚">
-                <DetailRow label="Primary Subject" value={request.primarySubject?.replace('_', ' ')} />
-                {request.specificTopics && request.specificTopics.length > 0 && (
-                  <DetailRow label="Topics" value={request.specificTopics.join(', ')} />
-                )}
+                <DetailRow
+                  label="Primary Subject"
+                  value={request.primarySubject?.replace('_', ' ')}
+                />
+                {request.specificTopics &&
+                  request.specificTopics.length > 0 && (
+                    <DetailRow
+                      label="Topics"
+                      value={request.specificTopics.join(', ')}
+                    />
+                  )}
                 {request.customTopics && (
-                  <DetailRow label="Custom Topics" value={request.customTopics} />
+                  <DetailRow
+                    label="Custom Topics"
+                    value={request.customTopics}
+                  />
                 )}
-                <DetailRow label="Learning Goal" value={request.learningGoal?.replace('_', ' ')} />
+                <DetailRow
+                  label="Learning Goal"
+                  value={request.learningGoal?.replace('_', ' ')}
+                />
               </DetailSection>
 
               {/* Section 4: Learning Challenges */}
-              {request.learningChallenges && request.learningChallenges.length > 0 && (
-                <DetailSection title="Learning Challenges" icon="🎯">
-                  <DetailRow label="Challenges" value={request.learningChallenges.join(', ')} />
-                  {request.challengeObservations && (
-                    <DetailRow label="Observations" value={request.challengeObservations} />
-                  )}
-                </DetailSection>
-              )}
+              {request.learningChallenges &&
+                request.learningChallenges.length > 0 && (
+                  <DetailSection title="Learning Challenges" icon="🎯">
+                    <DetailRow
+                      label="Challenges"
+                      value={request.learningChallenges.join(', ')}
+                    />
+                    {request.challengeObservations && (
+                      <DetailRow
+                        label="Observations"
+                        value={request.challengeObservations}
+                      />
+                    )}
+                  </DetailSection>
+                )}
 
               {/* Section 5: Learning Style */}
               <DetailSection title="Learning Style & Interests" icon="🎨">
-                {request.learningStyles && request.learningStyles.length > 0 && (
-                  <DetailRow label="Learning Styles" value={request.learningStyles.join(', ')} />
-                )}
-                {request.studentInterests && request.studentInterests.length > 0 && (
-                  <DetailRow label="Interests" value={request.studentInterests.join(', ')} />
-                )}
+                {request.learningStyles &&
+                  request.learningStyles.length > 0 && (
+                    <DetailRow
+                      label="Learning Styles"
+                      value={request.learningStyles.join(', ')}
+                    />
+                  )}
+                {request.studentInterests &&
+                  request.studentInterests.length > 0 && (
+                    <DetailRow
+                      label="Interests"
+                      value={request.studentInterests.join(', ')}
+                    />
+                  )}
                 {request.favoriteCharacters && (
-                  <DetailRow label="Favorite Characters/Themes" value={request.favoriteCharacters} />
+                  <DetailRow
+                    label="Favorite Characters/Themes"
+                    value={request.favoriteCharacters}
+                  />
                 )}
               </DetailSection>
 
               {/* Section 6: Course Format */}
               <DetailSection title="Course Format" icon="📅">
-                <DetailRow label="Course Length" value={request.courseLength?.replace('_', ' ')} />
-                {request.courseComponents && request.courseComponents.length > 0 && (
-                  <DetailRow label="Components" value={request.courseComponents.join(', ')} />
-                )}
-                <DetailRow label="Session Duration" value={request.sessionDuration} />
+                <DetailRow
+                  label="Course Length"
+                  value={request.courseLength?.replace('_', ' ')}
+                />
+                {request.courseComponents &&
+                  request.courseComponents.length > 0 && (
+                    <DetailRow
+                      label="Components"
+                      value={request.courseComponents.join(', ')}
+                    />
+                  )}
+                <DetailRow
+                  label="Session Duration"
+                  value={request.sessionDuration}
+                />
               </DetailSection>
 
               {/* Section 7: Assessment */}
-              {(request.successIndicators?.length > 0 || request.reportingPreferences?.length > 0) && (
+              {(request.successIndicators?.length > 0 ||
+                request.reportingPreferences?.length > 0) && (
                 <DetailSection title="Assessment & Success Criteria" icon="📊">
-                  {request.successIndicators && request.successIndicators.length > 0 && (
-                    <DetailRow label="Success Indicators" value={request.successIndicators.join(', ')} />
-                  )}
-                  {request.reportingPreferences && request.reportingPreferences.length > 0 && (
-                    <DetailRow label="Reporting Preferences" value={request.reportingPreferences.join(', ')} />
-                  )}
+                  {request.successIndicators &&
+                    request.successIndicators.length > 0 && (
+                      <DetailRow
+                        label="Success Indicators"
+                        value={request.successIndicators.join(', ')}
+                      />
+                    )}
+                  {request.reportingPreferences &&
+                    request.reportingPreferences.length > 0 && (
+                      <DetailRow
+                        label="Reporting Preferences"
+                        value={request.reportingPreferences.join(', ')}
+                      />
+                    )}
                 </DetailSection>
               )}
 
               {/* Section 8: Delivery */}
               <DetailSection title="Delivery & Logistics" icon="🚀">
-                <DetailRow label="Start Date" value={request.preferredStartDate ? formatDate(request.preferredStartDate) : 'Flexible'} />
-                <DetailRow label="Urgency" value={request.urgencyLevel?.replace('_', ' ')} />
-                {request.devicePreferences && request.devicePreferences.length > 0 && (
-                  <DetailRow label="Devices" value={request.devicePreferences.join(', ')} />
-                )}
-                <DetailRow label="Offline Materials" value={request.offlinePacketsNeeded} />
+                <DetailRow
+                  label="Start Date"
+                  value={
+                    request.preferredStartDate
+                      ? formatDate(request.preferredStartDate)
+                      : 'Flexible'
+                  }
+                />
+                <DetailRow
+                  label="Urgency"
+                  value={request.urgencyLevel?.replace('_', ' ')}
+                />
+                {request.devicePreferences &&
+                  request.devicePreferences.length > 0 && (
+                    <DetailRow
+                      label="Devices"
+                      value={request.devicePreferences.join(', ')}
+                    />
+                  )}
+                <DetailRow
+                  label="Offline Materials"
+                  value={request.offlinePacketsNeeded}
+                />
               </DetailSection>
 
               {/* Section 9: Budget */}
               <DetailSection title="Budget & Reusability" icon="💰">
                 <DetailRow label="Budget Tier" value={request.budgetTier} />
-                <DetailRow label="Course Reuse Permission" value={request.allowCourseReuse} />
+                <DetailRow
+                  label="Course Reuse Permission"
+                  value={request.allowCourseReuse}
+                />
               </DetailSection>
 
               {/* Section 10: Notes */}
               {request.additionalNotes && (
                 <DetailSection title="Additional Notes" icon="📝">
-                  <p className="text-gray-700 whitespace-pre-wrap">{request.additionalNotes}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {request.additionalNotes}
+                  </p>
                 </DetailSection>
               )}
             </div>
@@ -282,16 +394,22 @@ export default function RequestDetailPage() {
   );
 }
 
-function DetailSection({ title, icon, children }: { title: string; icon: string; children: React.ReactNode }) {
+function DetailSection({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-sm">
       <h2 className="text-xl font-bold text-ink-900 mb-4 flex items-center gap-2">
         <span className="text-2xl">{icon}</span>
         {title}
       </h2>
-      <div className="space-y-3">
-        {children}
-      </div>
+      <div className="space-y-3">{children}</div>
     </div>
   );
 }
