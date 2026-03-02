@@ -8,13 +8,10 @@ import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
     const session = await getServerSession(authOptions);
-
-    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Admin or Teacher role required.' },
-        { status: 403 }
-      );
+    if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const {
@@ -33,11 +30,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Security: Validate fileName (path traversal prevention)
+    // Security: Prevent path traversal by using basename
+    // This ensures fileName is just a filename, not a path
     const safeFileName = basename(fileName);
-    if (fileName !== safeFileName || !/^[a-zA-Z0-9._-]+$/.test(fileName)) {
+    if (safeFileName !== fileName) {
       return NextResponse.json(
-        { error: 'Invalid filename. Only alphanumeric, dots, underscores, and hyphens are allowed.' },
+        { error: 'Invalid file name. Path traversal detected.' },
         { status: 400 }
       );
     }
@@ -91,6 +89,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Create directory for the game/lesson
+      const gameId = safeFileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
 
       // Double check path traversal just in case
@@ -147,15 +146,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Security: double check that fileName is safe (already checked for separators above)
-      if (fileName !== basename(fileName)) {
-        return NextResponse.json(
-          { error: 'Invalid filename: must be a base filename' },
-          { status: 400 }
-        );
-      }
-
-      const filePath = join(tierDir, fileName);
+      const filePath = join(tierDir, safeFileName);
 
       // Ensure filePath is safe (though we validated identifier, verify full path)
       const resolvedFilePath = resolve(filePath);
@@ -176,8 +167,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        filePath: `/${type}s/${subscriptionTier}/${fileName}`,
-        isDirectory: false,
+        filePath: `/${type}s/${subscriptionTier}/${safeFileName}`,
+        isDirectory: false
       });
     }
   } catch (error) {
