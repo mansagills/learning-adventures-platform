@@ -6,8 +6,6 @@ import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
@@ -139,14 +137,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!existsSync(resolvedZipPath)) {
+      if (!existsSync(zipFullPath)) {
         return NextResponse.json(
           { error: 'Uploaded zip file not found' },
           { status: 404 }
         );
       }
 
-      const zip = new AdmZip(resolvedZipPath);
+      const zip = new AdmZip(zipFullPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
