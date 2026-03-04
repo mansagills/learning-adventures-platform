@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2026-03-04 - [Missing Authorization on Internal API Route]
+**Vulnerability:** Missing authorization check on `/api/internal/update-catalog/route.ts`.
+**Learning:** In Next.js App Router, middleware is not always sufficient for internal API routes. Explicit `getServerSession` checks are required to prevent unauthorized access.
+**Prevention:** Always add explicit authorization checks to internal API routes using `getServerSession` and `authOptions` to ensure the user is authenticated and authorized.

@@ -2,9 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
+vi.mock('next-auth/next', () => ({
   getServerSession: vi.fn(),
 }));
 
@@ -33,6 +37,7 @@ vi.mock('fs/promises', () => {
 vi.mock('fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
   default: {
+    existsSync: vi.fn().mockReturnValue(true),
     mkdir: vi.fn(),
     writeFile: vi.fn(),
   }
