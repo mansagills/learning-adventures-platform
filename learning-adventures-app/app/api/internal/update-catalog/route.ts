@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 401 }
+      );
+    }
+
     const { metadata } = await request.json();
 
     if (!metadata) {
