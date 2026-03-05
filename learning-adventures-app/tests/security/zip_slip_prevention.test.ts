@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
+import { extractZipSafely } from "@/lib/safe-zip";
+import path from "path";
 import { getServerSession } from 'next-auth';
 
 // Mock next-auth
@@ -34,6 +36,7 @@ vi.mock('fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
   default: {
     mkdir: vi.fn(),
+    existsSync: vi.fn().mockReturnValue(true),
     writeFile: vi.fn(),
   }
 }));
@@ -82,9 +85,8 @@ describe('Security: Zip Slip Prevention', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (fs.mkdir as any).mockResolvedValue(undefined);
-    (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    (mkdirMock as any).mockResolvedValue(undefined);
+    (writeFileMock as any).mockResolvedValue(undefined);
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
@@ -123,7 +125,7 @@ describe('Security: Zip Slip Prevention', () => {
       .rejects
       .toThrow('Security Error: Malicious zip entry detected');
 
-    expect(fs.writeFile).not.toHaveBeenCalled();
+    expect(writeFileMock).not.toHaveBeenCalled();
   });
 
   it('should prevent Zip Slip with absolute paths if supported/attempted', async () => {
@@ -145,7 +147,7 @@ describe('Security: Zip Slip Prevention', () => {
       .rejects
       .toThrow('Security Error: Malicious zip entry detected');
 
-    expect(fs.writeFile).not.toHaveBeenCalled();
+    expect(writeFileMock).not.toHaveBeenCalled();
   });
 
   it('should allow nested directories within target', async () => {
@@ -161,7 +163,7 @@ describe('Security: Zip Slip Prevention', () => {
 
     await extractZipSafely(mockZip as any, mockTargetDir);
 
-    expect(fs.writeFile).toHaveBeenCalledWith(
+    expect(writeFileMock).toHaveBeenCalledWith(
       path.resolve(mockTargetDir, 'level1/level2/file.txt'),
       expect.anything()
     );
