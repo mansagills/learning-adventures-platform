@@ -164,4 +164,28 @@ Abstract input into ACTIONS, not raw keys:
 
 ---
 
+---
+
+## Learning Adventures Platform Routing
+
+If you are working on the **Learning Adventures Platform**, use these platform-specific sub-skills instead of the generic routing above:
+
+| If you are working on... | Use Sub-Skill |
+|--------------------------|---------------|
+| 2D campus world (Phaser 3 scenes, entities, tilemaps, React bridge) | `game-development/2d-world-dev` |
+| HTML mini-games in `public/games/` — new, imported from Sorceress, or iterating | `game-development/html-mini-game-dev` |
+| Integrating Sorceress-exported sprites, tilesets, or audio into Phaser | `game-development/sprite-integration` |
+
+**Tool division for Learning Adventures:**
+
+| Work | Tool |
+|------|------|
+| 2D world code (Phaser scenes, TypeScript entities) | Claude Code + `2d-world-dev` skill |
+| 2D world assets (sprites, tilesets, particle effects, audio) | Sorceress platform → then `sprite-integration` skill |
+| New HTML mini-games (creation, Sorceress import, iteration) | Sorceress draft (optional) → Claude Code + `html-mini-game-dev` skill |
+| Catalog integration (`lib/catalogData.ts`) | Claude Code + `create-adventure` skill |
+| Next.js app infrastructure, auth, database | Claude Code only |
+
+---
+
 > **Remember:** Great games come from iteration, not perfection. Prototype fast, then polish.

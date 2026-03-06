@@ -562,13 +562,13 @@
         clearInterval(timerInterval);
 
         // Notify Learning Adventures world embed on completion
-        if (window.opener) {
-          window.opener.postMessage({
-            type: 'game-complete',
-            adventureId: 'pizza-fraction-frenzy',
-            score: score,
-          }, '*');
-        }
+        const completionMsg = {
+          type: 'game-complete',
+          adventureId: 'pizza-fraction-frenzy',
+          score: score,
+        };
+        if (window.opener) { window.opener.postMessage(completionMsg, '*'); }
+        if (window.parent !== window) { window.parent.postMessage(completionMsg, '*'); }
 
         document.getElementById('main-game').classList.add('hidden');
         document.getElementById('game-over').classList.remove('hidden');

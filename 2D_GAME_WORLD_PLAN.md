@@ -825,8 +825,42 @@ if (!user.character) {
 
 ---
 
-**Plan Status:** Approved and ready for implementation
+**Plan Status:** In progress
 **Estimated Timeline:** 6-8 weeks for proof of concept
 **Risk Level:** Medium (new technology, well-supported framework)
 **Breaking Changes:** None (parallel development approach)
-**Next Step:** Begin Phase 1 - Phaser.js Setup + Basic World
+
+---
+
+## 📊 Implementation Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 1 | Phaser.js Setup + Basic World | ✅ COMPLETE |
+| Phase 2 | Character System + Movement | 🔄 IN PROGRESS — code done, real sprites needed from Sorceress |
+| Phase 3 | Math Building Interior + Embedded Games | ✅ COMPLETE |
+| Phase 4 | Economy + Shop | ✅ COMPLETE (ShopModal, InventoryPanel, /api/shop, /api/inventory, seed data) |
+| Phase 5 | Job System + Native Mini-Games | 🔄 IN PROGRESS — JobBoard + API done, native mini-games not built |
+| Phase 6 | Polish + Testing | ⏳ NOT STARTED |
+
+### Phase 3 Completion Notes (March 2026)
+- All 5 HTML math games wired with dual `window.parent` + `window.opener` postMessage
+- `AdventureEmbed.tsx` rewritten to use inline iframe (no new-tab flow)
+- Auto-completion on postMessage fires `onComplete` → awards 50 XP + 5 coins via `/api/world/award`
+- Manual "I finished!" fallback button retained in header for safety
+- All 5 station `gameId`s in `MathBuildingScene.ts` confirmed matching `GAME_MAP` in AdventureEmbed
+- Full end-to-end tested: server compiles clean, all routes 200, no TS errors in changed files
+
+### Next Priority: Phase 2 Asset Integration
+**What's needed from Sorceress:**
+- 4-6 character sprite sheets (32×32, 4-direction walk, 3 frames per direction)
+- Campus outdoor tileset (grass, paths, building exterior tiles, 32×32)
+- Math building interior tileset (floor, walls, furniture viewed from above, 32×32)
+
+**What Claude Code will do once assets arrive:**
+- Load sprites via `this.load.spritesheet()` in WorldScene/MathBuildingScene `preload()`
+- Wire 4-direction animations via `this.anims.create()` in `create()`
+- Replace placeholder colored rectangles with real Tiled tilemap JSON
+- Use `sprite-integration` skill for the full pipeline
+
+**After Phase 2 assets:** Phase 5 native mini-games (MathDashScene, CafeteriaCashierScene)

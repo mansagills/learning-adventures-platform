@@ -10,9 +10,21 @@ interface AdventureEmbedProps {
   onComplete?: (score?: number) => void;
 }
 
+const GAME_MAP: Record<string, string> = {
+  'pizza-fraction-frenzy': '/games/pizza-fraction-frenzy.html',
+  'math-race-rally': '/games/math-race-rally.html',
+  'multiplication-bingo-bonanza': '/games/multiplication-bingo-bonanza.html',
+  'number-monster-feeding': '/games/number-monster-feeding.html',
+  'math-jeopardy-junior': '/games/math-jeopardy-junior.html',
+  'cafeteria-cashier': '/games/cafeteria-cashier.html',
+  'library-organizer': '/games/math-dash.html',
+  'garden-keeper': '/games/math-dash.html',
+};
+
 /**
- * AdventureEmbed - Modal component for embedding HTML games/lessons
- * Receives postMessage events from embedded content for completion tracking
+ * AdventureEmbed - Modal with inline iframe for embedded HTML games/lessons.
+ * Games signal completion via window.parent.postMessage({ type: 'game-complete', adventureId, score }).
+ * Falls back to a manual "I finished" button for games that don't postMessage.
  */
 export function AdventureEmbed({
   adventureId,
@@ -20,141 +32,81 @@ export function AdventureEmbed({
   onClose,
   onComplete,
 }: AdventureEmbedProps) {
-  const [gameOpened, setGameOpened] = useState(false);
+  const [completed, setCompleted] = useState(false);
+
+  const embedPath = GAME_MAP[adventureId] ?? `/games/${adventureId}.html`;
 
   useEffect(() => {
-    // Listen for postMessage events from embedded game
     const handleMessage = (event: MessageEvent) => {
-      // Security: Verify origin if needed (for now, accept localhost)
-      // if (event.origin !== window.location.origin) return;
-
       const data = event.data;
-
-      // Handle game completion
-      if (data.type === 'game-complete' && data.adventureId === adventureId) {
-        console.log('Game completed:', data);
-        if (onComplete) {
-          onComplete(data.score);
-        }
-      }
-
-      // Handle lesson completion
-      if (data.type === 'lesson-complete' && data.adventureId === adventureId) {
-        console.log('Lesson completed:', data);
-        if (onComplete) {
-          onComplete();
-        }
+      if (
+        (data.type === 'game-complete' || data.type === 'lesson-complete') &&
+        data.adventureId === adventureId
+      ) {
+        setCompleted(true);
+        onComplete?.(data.score);
       }
     };
 
-    // Listen for ESC key to close modal
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
+      if (event.key === 'Escape') onClose();
     };
 
     window.addEventListener('message', handleMessage);
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [adventureId, onComplete, onClose]);
 
-  const getEmbedUrl = () => {
-    // Map adventureId to actual HTML file path
-    const gameMap: Record<string, string> = {
-      // Embedded math adventures
-      'pizza-fraction-frenzy': '/games/pizza-fraction-frenzy.html',
-      'math-race-rally': '/games/math-race-rally.html',
-      'multiplication-bingo-bonanza': '/games/multiplication-bingo-bonanza.html',
-      'number-monster-feeding': '/games/number-monster-feeding.html',
-      'math-jeopardy-junior': '/games/math-jeopardy-junior.html',
-      // Job mini-games
-      'cafeteria-cashier': '/games/cafeteria-cashier.html',
-      'library-organizer': '/games/math-dash.html',
-      'garden-keeper': '/games/math-dash.html',
-    };
-
-    console.log('[AdventureEmbed] adventureId:', adventureId);
-    const path = gameMap[adventureId] ?? `/games/${adventureId}.html`;
-    const url = `${window.location.origin}${path}`;
-    console.log('[AdventureEmbed] loading URL:', url);
-    return url;
-  };
-
-  const handleGameOpen = () => {
-    // Game opened in new tab — advance modal to completion confirmation screen
-    setGameOpened(true);
-  };
-
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      {/* Modal Container */}
-      <div className="relative w-[95vw] h-[95vh] max-w-7xl bg-white rounded-lg shadow-2xl overflow-hidden">
+      <div className="relative w-[95vw] h-[95vh] max-w-7xl bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 text-white" style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}>
+        <div className="flex items-center justify-between px-4 py-3 text-white shrink-0" style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}>
           <h2 className="text-lg font-bold">
             {type === 'game' ? '🎮 Playing Game' : '📚 Learning Activity'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/20 transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Game launcher */}
-        <div className="w-full h-full flex flex-col items-center justify-center gap-6 pt-14 pb-12">
-          {!gameOpened ? (
-            <div className="text-center">
-              <div className="text-6xl mb-4">🎮</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Ready to Play!</h3>
-              <p className="text-gray-500 mb-6">Click below to open the game in a new tab.</p>
-              <a
-                href={getEmbedUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleGameOpen}
-                className="inline-block px-8 py-4 rounded-xl text-white font-bold text-lg transition-transform hover:scale-105"
-                style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}
+          <div className="flex items-center gap-3">
+            {/* Manual fallback — visible if game doesn't auto-postMessage */}
+            {!completed && (
+              <button
+                onClick={() => { setCompleted(true); onComplete?.(); }}
+                className="px-4 py-1.5 rounded-lg bg-green-500 hover:bg-green-400 text-white text-sm font-semibold transition-colors"
               >
-                Open Game
-              </a>
-              <p className="text-sm text-gray-400 mt-4">Come back here when you&apos;re done!</p>
-            </div>
-          ) : (
-            <div className="text-center">
-              <div className="text-6xl mb-4">🏆</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Nice work!</h3>
-              <p className="text-gray-500 mb-6">Did you finish the game?</p>
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={() => onComplete && onComplete()}
-                  className="px-8 py-4 rounded-xl text-white font-bold text-lg transition-transform hover:scale-105"
-                  style={{ background: 'linear-gradient(to right, #10B981, #059669)' }}
-                >
-                  ⭐ Yes, I finished! (+50 XP)
-                </button>
-                <button
-                  onClick={onClose}
-                  className="px-8 py-4 rounded-xl text-gray-700 font-bold text-lg bg-gray-100 hover:bg-gray-200 transition-colors"
-                >
-                  Not yet
-                </button>
-              </div>
-            </div>
-          )}
+                ✅ I finished!
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Instructions Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-4 py-2 text-white text-sm text-center">
-          <p>Complete the activity to earn XP! Press ESC or click the X to exit.</p>
+        {/* Completion banner — shown after auto or manual complete */}
+        {completed && (
+          <div className="shrink-0 bg-green-500 text-white text-center py-3 font-bold text-lg">
+            🏆 Great work! +50 XP earned! Closing in a moment…
+          </div>
+        )}
+
+        {/* Game iframe — fills remaining space */}
+        <iframe
+          src={embedPath}
+          className="w-full flex-1 border-0"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          title={adventureId}
+          allow="autoplay"
+        />
+
+        {/* Footer */}
+        <div className="shrink-0 bg-black/80 px-4 py-2 text-white text-sm text-center">
+          Complete the activity to earn XP! Press ESC or click the X to exit.
         </div>
       </div>
     </div>
