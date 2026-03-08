@@ -6,8 +6,6 @@ import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
@@ -126,11 +124,11 @@ export async function POST(request: NextRequest) {
       await mkdir(gameDir, { recursive: true });
 
       // Prevent path traversal in uploadedZipPath
-      const zipFullPath = resolve(
+      const resolvedZipPath = resolve(
         publicDir,
         uploadedZipPath.replace(/^\//, '')
       );
-      if (!zipFullPath.startsWith(publicDir)) {
+      if (!resolvedZipPath.startsWith(publicDir)) {
         return NextResponse.json(
           {
             error: 'Invalid uploadedZipPath. Must be within public directory.',

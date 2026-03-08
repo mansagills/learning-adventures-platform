@@ -70,6 +70,26 @@ export async function POST(request: NextRequest) {
     let courseRequest;
 
     if (body.id) {
+      // SECURITY: Verify ownership before updating
+      const existingRequest = await prisma.courseRequest.findUnique({
+        where: { id: body.id },
+        select: { userId: true },
+      });
+
+      if (!existingRequest) {
+        return NextResponse.json(
+          { error: 'Course request not found' },
+          { status: 404 }
+        );
+      }
+
+      if (existingRequest.userId !== session.user.id && user.role !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Unauthorized to update this course request' },
+          { status: 403 }
+        );
+      }
+
       // Update existing draft to submitted
       courseRequest = await prisma.courseRequest.update({
         where: { id: body.id },
