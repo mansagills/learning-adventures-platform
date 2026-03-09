@@ -60,6 +60,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Extract internal fields to prevent overriding them
+    const { id, userId, ...updateData } = body;
+
     // Validate all required fields
     const validation = validateCourseRequest(body);
     if (!validation.isValid) {
@@ -69,12 +72,29 @@ export async function POST(request: NextRequest) {
     // Create or update course request
     let courseRequest;
 
-    if (body.id) {
+    if (id) {
+      // Verify ownership before updating
+      const existing = await prisma.courseRequest.findUnique({
+        where: { id },
+        select: { userId: true },
+      });
+
+      if (!existing) {
+        return NextResponse.json({ error: 'Request not found' }, { status: 404 });
+      }
+
+      if (existing.userId !== session.user.id && user.role !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Unauthorized to update this request' },
+          { status: 403 }
+        );
+      }
+
       // Update existing draft to submitted
       courseRequest = await prisma.courseRequest.update({
-        where: { id: body.id },
+        where: { id },
         data: {
-          ...body,
+          ...updateData,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
@@ -84,8 +104,8 @@ export async function POST(request: NextRequest) {
       // Create new submitted request
       courseRequest = await prisma.courseRequest.create({
         data: {
+          ...updateData,
           userId: session.user.id,
-          ...body,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
