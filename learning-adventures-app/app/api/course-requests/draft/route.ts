@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
         where: { id: existingDraft.id },
         data: {
           ...body,
+          id: undefined, // prevent id modification
+          userId: undefined, // prevent userId modification
           isDraft: true,
           status: 'DRAFT',
           updatedAt: new Date(),
@@ -62,8 +64,9 @@ export async function POST(request: NextRequest) {
     // Create new draft
     const draft = await prisma.courseRequest.create({
       data: {
-        userId: session.user.id,
         ...body,
+        id: undefined, // prevent id modification
+        userId: session.user.id, // always override with session user
         isDraft: true,
         status: 'DRAFT',
       },
@@ -141,6 +144,8 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...updateData,
+        id: undefined, // prevent id modification
+        userId: undefined, // prevent userId modification
         isDraft: true,
         status: 'DRAFT',
         updatedAt: new Date(),
