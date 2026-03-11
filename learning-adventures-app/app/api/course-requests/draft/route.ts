@@ -47,6 +47,8 @@ export async function POST(request: NextRequest) {
         where: { id: existingDraft.id },
         data: {
           ...body,
+          id: undefined, // SECURITY: Prevent mass assignment of ID
+          userId: undefined, // SECURITY: Prevent transferring ownership
           isDraft: true,
           status: 'DRAFT',
           updatedAt: new Date(),
@@ -62,8 +64,9 @@ export async function POST(request: NextRequest) {
     // Create new draft
     const draft = await prisma.courseRequest.create({
       data: {
-        userId: session.user.id,
         ...body,
+        id: undefined, // SECURITY: Prevent mass assignment of ID
+        userId: session.user.id, // Ensure correct ownership
         isDraft: true,
         status: 'DRAFT',
       },
@@ -141,6 +144,8 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...updateData,
+        id: undefined, // SECURITY: Prevent mass assignment of ID
+        userId: undefined, // SECURITY: Prevent transferring ownership
         isDraft: true,
         status: 'DRAFT',
         updatedAt: new Date(),
