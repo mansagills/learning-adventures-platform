@@ -28,8 +28,8 @@ vi.mock('fs', () => ({
   existsSync: mocks.existsSync,
 }));
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
+// Mock next-auth/next
+vi.mock('next-auth/next', () => ({
   getServerSession: mocks.getServerSession,
 }));
 
