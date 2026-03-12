@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-03-01 - Path Traversal in extract-metadata API
+**Vulnerability:** The `/api/internal/extract-metadata` endpoint was vulnerable to Path Traversal. The `zipPath` parameter from the JSON body was directly concatenated using `path.join` and passed into `AdmZip` without any validation against traversal sequences (`../`). This allowed an attacker to read/parse arbitrary files on the system outside the intended `public` directory.
+**Learning:** `path.join` does not inherently prevent path traversal when user input contains `../`.  APIs that instantiate `AdmZip` (or perform file reads) using user-provided paths must strictly validate those paths.
+**Prevention:** Always normalize the user-provided path, explicitly reject inputs containing traversing sequences like `..`, use `path.resolve()` to generate the absolute path, and verify that the resolved path strictly `.startsWith()` the expected base directory (e.g., `public`).
