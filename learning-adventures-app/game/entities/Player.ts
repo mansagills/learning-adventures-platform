@@ -27,12 +27,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    // Scale sprite to 64x64 display (sprites are 96x96 per frame)
+    this.setDisplaySize(64, 64);
+
     // Configure physics body
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
-      body.setCollideWorldBounds(true); // Don't let player leave world bounds
-      body.setSize(16, 16); // Collision box size (adjust based on sprite)
-      body.setOffset(8, 16); // Offset collision box if needed
+      body.setCollideWorldBounds(true);
+      body.setSize(40, 40);   // Collision box — slightly smaller than display
+      body.setOffset(28, 40); // Offset within 96px frame to align feet
     }
 
     // Setup controls
@@ -66,9 +69,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private createAnimations(): void {
-    // Placeholder animations - will be replaced with actual sprite sheets
-    // For now, we'll just use tint to indicate direction
-    // TODO: Replace with actual animation frames when sprite sheets are ready
+    // Sprite sheets: 384x384, 4 cols x 4 rows, 96x96 per frame (16 frames total)
+    // Row 0 (frames 0-3):  walk UP   (back of character, walking away)
+    // Row 1 (frames 4-7):  walk SIDE (left-facing; mirror for right via flipX)
+    // Row 2 (frames 8-11): walk DOWN (front of character, facing camera)
+    // Row 3 (frames 12-15): walk SIDE variant / idle
+    const chars = ['human-1', 'human-2', 'robot-blue', 'wizard-purple', 'cat-orange', 'knight-silver'];
+    const anims = [
+      { key: 'walk-up',    start: 0,  end: 3  },
+      { key: 'walk-side',  start: 4,  end: 7  },
+      { key: 'walk-down',  start: 8,  end: 11 },
+      { key: 'idle',       start: 12, end: 15 },
+    ];
+
+    for (const char of chars) {
+      const textureKey = `player-${char}`;
+      if (!this.scene.textures.exists(textureKey)) continue;
+      for (const anim of anims) {
+        const animKey = `${char}-${anim.key}`;
+        if (!this.scene.anims.exists(animKey)) {
+          this.scene.anims.create({
+            key: animKey,
+            frames: this.scene.anims.generateFrameNumbers(textureKey, { start: anim.start, end: anim.end }),
+            frameRate: anim.key === 'idle' ? 3 : 8,
+            repeat: -1,
+          });
+        }
+      }
+    }
   }
 
   private setupEventListeners(): void {
@@ -136,17 +164,35 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private updateSpriteDirection(velocityX: number, velocityY: number): void {
-    // Placeholder visual feedback - change tint based on direction
-    // TODO: Replace with actual sprite animations
+    // Derive the character id from the texture key (e.g. 'player-human-1' → 'human-1')
+    const char = this.texture.key.replace('player-', '');
+    const hasAnims = this.scene.anims.exists(`${char}-walk-down`);
+
+    if (!hasAnims) {
+      // Fallback: keep legacy tint system if animations haven't loaded yet
+      if (velocityX === 0 && velocityY === 0) {
+        this.clearTint();
+      } else if (Math.abs(velocityX) > Math.abs(velocityY)) {
+        this.setTint(velocityX > 0 ? 0xff0000 : 0x0000ff);
+      } else {
+        this.setTint(velocityY > 0 ? 0x00ff00 : 0xffff00);
+      }
+      return;
+    }
+
+    this.clearTint();
+
     if (velocityX === 0 && velocityY === 0) {
-      // Idle - no tint
-      this.clearTint();
+      this.anims.play(`${char}-idle`, true);
     } else if (Math.abs(velocityX) > Math.abs(velocityY)) {
-      // Moving horizontally
-      this.setTint(velocityX > 0 ? 0xff0000 : 0x0000ff); // Red right, blue left
+      this.anims.play(`${char}-walk-side`, true);
+      this.setFlipX(velocityX < 0); // Mirror sprite for left movement
+    } else if (velocityY > 0) {
+      this.anims.play(`${char}-walk-down`, true);
+      this.setFlipX(false);
     } else {
-      // Moving vertically
-      this.setTint(velocityY > 0 ? 0x00ff00 : 0xffff00); // Green down, yellow up
+      this.anims.play(`${char}-walk-up`, true);
+      this.setFlipX(false);
     }
   }
 

@@ -16,12 +16,14 @@ export class InteractableObject extends Phaser.GameObjects.Container {
     x: number,
     y: number,
     texture: string,
-    frame?: string | number
+    frame?: string | number,
+    displaySize: number = 64
   ) {
     super(scene, x, y);
 
-    // Add sprite to container
+    // Add sprite to container, scaled to displaySize
     const sprite = scene.add.image(0, 0, texture, frame);
+    sprite.setDisplaySize(displaySize, displaySize);
     this.add(sprite);
 
     // Add to scene

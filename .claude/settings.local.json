@@ -57,7 +57,10 @@
       "Bash(do)",
       "Bash(echo \"=== $f ===\")",
       "Read(//Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/public/games/**)",
-      "Bash(tr -d \" '',\")"
+      "Bash(tr -d \" '',\")",
+      "Skill(game-development)",
+      "Skill(game-development:*)",
+      "Bash(node -e \":*)"
     ],
     "deny": [],
     "ask": []

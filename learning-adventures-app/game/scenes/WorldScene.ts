@@ -22,51 +22,64 @@ export class WorldScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Placeholder assets - will be replaced with actual pixel art
-    // For now, we'll use simple colored rectangles
+    // Character sprite sheets (384x384, 4 cols x 4 rows, 96x96 per frame)
+    this.load.spritesheet('player-human-1',     '/game-assets/sprites/human-1.png',       { frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet('player-human-2',     '/game-assets/sprites/human-2.png',       { frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet('player-robot-blue',  '/game-assets/sprites/robot-blue.png',    { frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet('player-wizard-purple','/game-assets/sprites/wizard-purple.png',{ frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet('player-cat-orange',  '/game-assets/sprites/cat-orange.png',    { frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet('player-knight-silver','/game-assets/sprites/knight-silver.png',{ frameWidth: 96, frameHeight: 96 });
 
-    // Create a simple placeholder player sprite
-    const playerGraphics = this.add.graphics();
-    playerGraphics.fillStyle(0x8B5CF6, 1); // Vivid violet (brand color)
-    playerGraphics.fillRect(0, 0, 32, 32);
-    playerGraphics.generateTexture('player-placeholder', 32, 32);
-    playerGraphics.destroy();
+    // Ground tiles (1024x1024 seamless, displayed at 64x64)
+    this.load.image('ground-grass-1',    '/game-assets/tilemaps/grass-plain-1.png');
+    this.load.image('ground-grass-2',    '/game-assets/tilemaps/grass-plain-2.png');
+    this.load.image('ground-grass-3',    '/game-assets/tilemaps/grass-plain-3.png');
+    this.load.image('ground-flowers-1',  '/game-assets/tilemaps/grass-flowers-1.png');
+    this.load.image('ground-flowers-2',  '/game-assets/tilemaps/grass-flowers-2.png');
+    this.load.image('ground-path',       '/game-assets/tilemaps/stone-path-1.png');
+    this.load.image('ground-dirt',       '/game-assets/tilemaps/dirt-earth-1.png');
+    this.load.image('ground-water',      '/game-assets/tilemaps/water-1.png');
 
-    // Create placeholder ground tiles
-    const groundGraphics = this.add.graphics();
-    groundGraphics.fillStyle(0x90EE90, 1); // Light green for grass
-    groundGraphics.fillRect(0, 0, 32, 32);
-    groundGraphics.generateTexture('ground-tile', 32, 32);
-    groundGraphics.destroy();
+    // Building wall tiles
+    this.load.image('wall-math-1',       '/game-assets/tilemaps/math-wall-1.png');
+    this.load.image('wall-math-2',       '/game-assets/tilemaps/math-wall-2.png');
+    this.load.image('wall-math-3',       '/game-assets/tilemaps/math-wall-3.png');
+    this.load.image('wall-science-1',    '/game-assets/tilemaps/science-building-1.png');
+    this.load.image('wall-english-1',    '/game-assets/tilemaps/english-building-1.png');
 
-    // Create placeholder wall tiles
-    const wallGraphics = this.add.graphics();
-    wallGraphics.fillStyle(0x8B4513, 1); // Brown for walls/buildings
-    wallGraphics.fillRect(0, 0, 32, 32);
-    wallGraphics.generateTexture('wall-tile', 32, 32);
-    wallGraphics.destroy();
+    // Fallback placeholder textures for doors/collision bodies (generated at runtime)
+    const g = this.add.graphics();
+    g.fillStyle(0xFFD700, 1); g.fillCircle(16, 16, 16);
+    g.generateTexture('door-gold-small', 32, 32); g.destroy();
 
-    // Create placeholder path tiles
-    const pathGraphics = this.add.graphics();
-    pathGraphics.fillStyle(0xD3D3D3, 1); // Light gray for paths
-    pathGraphics.fillRect(0, 0, 32, 32);
-    pathGraphics.generateTexture('path-tile', 32, 32);
-    pathGraphics.destroy();
+    const g2 = this.add.graphics();
+    g2.fillStyle(0x14B8A6, 1); g2.fillCircle(16, 16, 16);
+    g2.generateTexture('door-teal-small', 32, 32); g2.destroy();
+
+    const g3 = this.add.graphics();
+    g3.fillStyle(0xF59E0B, 1); g3.fillCircle(16, 16, 16);
+    g3.generateTexture('door-amber-small', 32, 32); g3.destroy();
+
+    const g4 = this.add.graphics();
+    g4.fillStyle(0x000000, 0); g4.fillRect(0, 0, 64, 64);
+    g4.generateTexture('wall-tile', 64, 64); g4.destroy();
   }
 
   create(): void {
     // Create a simple tile-based world (placeholder until we have real tilemaps)
     this.createPlaceholderWorld();
 
-    // Create player at spawn point (center of campus)
-    this.player = new Player(this, 640, 360, 'player-placeholder');
+    // Create player at spawn point — default to human-1, overridden by CharacterCreator avatarId
+    const avatarId = this.game.registry.get('avatarId') as string | undefined;
+    const playerTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
+    this.player = new Player(this, 640, 360, playerTexture);
 
     // Configure camera to follow player (top-down perspective)
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     this.cameras.main.setZoom(1); // Adjust zoom level as needed
 
-    // Set world bounds
-    this.physics.world.setBounds(0, 0, 1280, 720);
+    // Set world bounds (20x12 tiles at 64px each)
+    this.physics.world.setBounds(0, 0, 1280, 768);
 
     // Setup interaction key
     if (this.input.keyboard) {
@@ -88,235 +101,186 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private createPlaceholderWorld(): void {
-    // Create a simple grid-based world
-    // Ground layer (grass)
-    for (let y = 0; y < 23; y++) {
-      for (let x = 0; x < 40; x++) {
-        const tile = this.add.image(x * 32, y * 32, 'ground-tile');
+    const TS = 64; // tile size — 1024px textures scaled to 64x64
+
+    // Ground layer (grass) — alternate 3 variants for visual variety
+    const grassKeys = ['ground-grass-1', 'ground-grass-2', 'ground-grass-3'];
+    for (let y = 0; y < 12; y++) {
+      for (let x = 0; x < 20; x++) {
+        const key = grassKeys[(x + y * 3) % 3];
+        const tile = this.add.image(x * TS, y * TS, key);
         tile.setOrigin(0, 0);
+        tile.setDisplaySize(TS, TS);
       }
     }
 
-    // Add some paths (horizontal and vertical)
-    // Vertical path (center)
-    for (let y = 0; y < 23; y++) {
-      const tile = this.add.image(19 * 32, y * 32, 'path-tile');
-      tile.setOrigin(0, 0);
-      const tile2 = this.add.image(20 * 32, y * 32, 'path-tile');
-      tile2.setOrigin(0, 0);
+    // Paths — vertical (center columns 9-10)
+    for (let y = 0; y < 12; y++) {
+      [9, 10].forEach(px => {
+        const tile = this.add.image(px * TS, y * TS, 'ground-path');
+        tile.setOrigin(0, 0);
+        tile.setDisplaySize(TS, TS);
+      });
     }
 
-    // Horizontal path (center)
-    for (let x = 0; x < 40; x++) {
-      const tile = this.add.image(x * 32, 11 * 32, 'path-tile');
-      tile.setOrigin(0, 0);
-      const tile2 = this.add.image(x * 32, 12 * 32, 'path-tile');
-      tile2.setOrigin(0, 0);
+    // Paths — horizontal (center rows 5-6)
+    for (let x = 0; x < 20; x++) {
+      [5, 6].forEach(py => {
+        const tile = this.add.image(x * TS, py * TS, 'ground-path');
+        tile.setOrigin(0, 0);
+        tile.setDisplaySize(TS, TS);
+      });
     }
 
-    // Add Math building placeholder (top center)
-    const mathBuildingGroup = this.add.group();
-    for (let y = 2; y < 7; y++) {
-      for (let x = 17; x < 23; x++) {
-        const wall = this.add.image(x * 32, y * 32, 'wall-tile');
+    // Math building (top center) — cols 8–11 (4 wide), rows 1–3 (3 tall)
+    const mathWallKeys = ['wall-math-1', 'wall-math-2', 'wall-math-3'];
+    for (let y = 1; y < 4; y++) {
+      for (let x = 8; x < 12; x++) {
+        const key = mathWallKeys[(x + y) % 3];
+        const wall = this.add.image(x * TS, y * TS, key);
         wall.setOrigin(0, 0);
-        mathBuildingGroup.add(wall);
+        wall.setDisplaySize(TS, TS);
 
-        // Add collision (placeholder - will use tilemap collision later)
-        const wallBody = this.physics.add.staticImage(x * 32 + 16, y * 32 + 16, 'wall-tile');
+        const wallBody = this.physics.add.staticImage(x * TS + TS / 2, y * TS + TS / 2, 'wall-tile');
+        wallBody.setDisplaySize(TS, TS);
         wallBody.setVisible(false);
+        wallBody.refreshBody();
       }
     }
 
-    // Add interactive door to Math building
-    const doorX = 19 * 32 + 16;
-    const doorY = 7 * 32 + 16;
+    // Math building border outline
+    const mathOutline = this.add.graphics();
+    mathOutline.lineStyle(3, 0x6D28D9, 1);
+    mathOutline.strokeRect(8 * TS, 1 * TS, 4 * TS, 3 * TS);
 
-    // Create door graphic if it doesn't exist
-    if (!this.textures.exists('door-gold-small')) {
-      const doorGraphics = this.add.graphics();
-      doorGraphics.fillStyle(0xFFD700, 1); // Gold for door
-      doorGraphics.fillCircle(16, 16, 16);
-      doorGraphics.generateTexture('door-gold-small', 32, 32);
-      doorGraphics.destroy();
-    }
-
-    // Create interactive Door entity
+    // Math building door tile (bottom-center of building, row 4)
+    // Uses door-gold-small placeholder until real door tile arrives from Sorceress
     const mathDoor = new Door(
       this,
-      doorX,
-      doorY,
+      10 * TS,
+      4 * TS,
       'door-gold-small',
-      'MathBuildingScene', // Target scene
-      320, // Spawn X in Math building
-      500  // Spawn Y in Math building
+      'MathBuildingScene',
+      320,
+      500
     );
     mathDoor.setPromptText('Press SPACE: Enter Math Building');
     this.interactables.push(mathDoor);
 
-    // Add text label
-    const mathLabel = this.add.text(19 * 32 + 16, 4 * 32, 'MATH\nBUILDING', {
+    const mathLabel = this.add.text(10 * TS, 2 * TS, 'MATH\nBUILDING', {
       fontSize: '16px',
       color: '#FFFFFF',
-      backgroundColor: '#000000',
-      padding: { x: 4, y: 4 },
+      backgroundColor: '#00000099',
+      padding: { x: 6, y: 4 },
       align: 'center',
     });
     mathLabel.setOrigin(0.5);
 
-    // Add other buildings (locked - placeholder)
     // Science building (bottom left)
-    this.addPlaceholderBuilding(3, 15, 'SCIENCE\n(Coming Soon)', 0x666666);
+    this.addPlaceholderBuilding(1, 7, 'SCIENCE\n(Coming Soon)', 0x14B8A6, 'wall-science-1');
+    const scienceOutline = this.add.graphics();
+    scienceOutline.lineStyle(3, 0x14B8A6, 1);
+    scienceOutline.strokeRect(1 * TS, 7 * TS, 3 * TS, 3 * TS);
 
     // English building (bottom right)
-    this.addPlaceholderBuilding(30, 15, 'ENGLISH\n(Coming Soon)', 0x666666);
+    this.addPlaceholderBuilding(15, 7, 'ENGLISH\n(Coming Soon)', 0xF59E0B, 'wall-english-1');
+    const englishOutline = this.add.graphics();
+    englishOutline.lineStyle(3, 0xF59E0B, 1);
+    englishOutline.strokeRect(15 * TS, 7 * TS, 3 * TS, 3 * TS);
 
-    // Shop (left side) — interactable
-    this.addShopBuilding(3, 8);
+    // Shop (left side)
+    this.addShopBuilding(1, 3);
 
-    // Job Board (right side) — interactable
-    this.addJobBoardBuilding(33, 8);
+    // Job Board (right side)
+    this.addJobBoardBuilding(16, 3);
 
-    // Add welcome text
-    const welcomeText = this.add.text(640, 60, 'Welcome to Learning Adventures Campus!\nUse WASD or Arrow Keys to move', {
-      fontSize: '20px',
+    // Welcome text (fixed to camera)
+    const welcomeText = this.add.text(640, 40, 'Welcome to Learning Adventures Campus!  WASD / Arrow Keys to move', {
+      fontSize: '16px',
       color: '#8B5CF6',
-      backgroundColor: '#FFFFFF',
+      backgroundColor: '#FFFFFFCC',
       padding: { x: 10, y: 5 },
       align: 'center',
     });
-    welcomeText.setOrigin(0.5);
-    welcomeText.setScrollFactor(0); // Fixed to camera (HUD element)
+    welcomeText.setOrigin(0.5, 0);
+    welcomeText.setScrollFactor(0);
   }
 
   private addShopBuilding(tileX: number, tileY: number): void {
-    const color = 0x14B8A6; // Teal accent
-
-    // Draw 4x4 shop building
-    for (let dy = 0; dy < 4; dy++) {
-      for (let dx = 0; dx < 4; dx++) {
-        const wall = this.add.rectangle((tileX + dx) * 32, (tileY + dy) * 32, 32, 32, color);
+    const TS = 64;
+    for (let dy = 0; dy < 3; dy++) {
+      for (let dx = 0; dx < 3; dx++) {
+        const wall = this.add.image((tileX + dx) * TS, (tileY + dy) * TS, 'wall-science-1');
         wall.setOrigin(0, 0);
-        wall.setStrokeStyle(2, 0x000000);
-
-        // Collision bodies (skip front row to allow entry)
-        if (dy < 3) {
-          const wallBody = this.physics.add.staticImage(
-            (tileX + dx) * 32 + 16,
-            (tileY + dy) * 32 + 16,
-            'wall-tile'
-          );
-          wallBody.setVisible(false);
+        wall.setDisplaySize(TS, TS);
+        if (dy < 2) {
+          const wb = this.physics.add.staticImage((tileX + dx) * TS + TS / 2, (tileY + dy) * TS + TS / 2, 'wall-tile');
+          wb.setDisplaySize(TS, TS);
+          wb.setVisible(false);
+          wb.refreshBody();
         }
       }
     }
-
-    // Shop label
-    const shopLabel = this.add.text((tileX + 2) * 32, (tileY + 1.5) * 32, 'SHOP', {
-      fontSize: '14px',
-      color: '#FFFFFF',
-      backgroundColor: '#000000',
-      padding: { x: 4, y: 4 },
-      align: 'center',
+    const shopLabel = this.add.text((tileX + 1.5) * TS, (tileY + 1) * TS, 'SHOP', {
+      fontSize: '14px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
     });
     shopLabel.setOrigin(0.5);
 
-    // Create shop door texture if it doesn't exist
-    if (!this.textures.exists('door-teal-small')) {
-      const g = this.add.graphics();
-      g.fillStyle(0x14B8A6, 1);
-      g.fillCircle(16, 16, 16);
-      g.generateTexture('door-teal-small', 32, 32);
-      g.destroy();
-    }
+    const shopOutline = this.add.graphics();
+    shopOutline.lineStyle(3, 0x14B8A6, 1);
+    shopOutline.strokeRect(tileX * TS, tileY * TS, 3 * TS, 3 * TS);
 
-    // Interactive shop entrance (just below building front)
-    const shopDoorX = (tileX + 1.5) * 32 + 16; // center of building
-    const shopDoorY = (tileY + 4) * 32 + 16;   // just below building
-
-    const shopInteractable = new InteractableObject(
-      this,
-      shopDoorX,
-      shopDoorY,
-      'door-teal-small'
-    );
+    const shopInteractable = new InteractableObject(this, (tileX + 1.5) * TS, (tileY + 3) * TS, 'door-teal-small');
     shopInteractable.setPromptText('Press SPACE: Open Shop');
-    shopInteractable.setOnInteract(() => {
-      EventBus.emit('open-shop', {});
-    });
+    shopInteractable.setOnInteract(() => EventBus.emit('open-shop', {}));
     this.interactables.push(shopInteractable);
   }
 
   private addJobBoardBuilding(tileX: number, tileY: number): void {
-    const color = 0xF59E0B; // Amber for job board
-
-    // Draw 4x4 job board building
-    for (let dy = 0; dy < 4; dy++) {
-      for (let dx = 0; dx < 4; dx++) {
-        const wall = this.add.rectangle((tileX + dx) * 32, (tileY + dy) * 32, 32, 32, color);
+    const TS = 64;
+    for (let dy = 0; dy < 3; dy++) {
+      for (let dx = 0; dx < 3; dx++) {
+        const wall = this.add.image((tileX + dx) * TS, (tileY + dy) * TS, 'wall-english-1');
         wall.setOrigin(0, 0);
-        wall.setStrokeStyle(2, 0x000000);
-
-        if (dy < 3) {
-          const wallBody = this.physics.add.staticImage(
-            (tileX + dx) * 32 + 16,
-            (tileY + dy) * 32 + 16,
-            'wall-tile'
-          );
-          wallBody.setVisible(false);
+        wall.setDisplaySize(TS, TS);
+        if (dy < 2) {
+          const wb = this.physics.add.staticImage((tileX + dx) * TS + TS / 2, (tileY + dy) * TS + TS / 2, 'wall-tile');
+          wb.setDisplaySize(TS, TS);
+          wb.setVisible(false);
+          wb.refreshBody();
         }
       }
     }
-
-    const label = this.add.text((tileX + 2) * 32, (tileY + 1.5) * 32, 'JOB\nBOARD', {
-      fontSize: '13px',
-      color: '#FFFFFF',
-      backgroundColor: '#000000',
-      padding: { x: 4, y: 4 },
-      align: 'center',
+    const label = this.add.text((tileX + 1.5) * TS, (tileY + 1) * TS, 'JOB\nBOARD', {
+      fontSize: '13px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
     });
     label.setOrigin(0.5);
 
-    if (!this.textures.exists('door-amber-small')) {
-      const g = this.add.graphics();
-      g.fillStyle(0xF59E0B, 1);
-      g.fillCircle(16, 16, 16);
-      g.generateTexture('door-amber-small', 32, 32);
-      g.destroy();
-    }
+    const jobOutline = this.add.graphics();
+    jobOutline.lineStyle(3, 0xF59E0B, 1);
+    jobOutline.strokeRect(tileX * TS, tileY * TS, 3 * TS, 3 * TS);
 
-    const doorX = (tileX + 1.5) * 32 + 16;
-    const doorY = (tileY + 4) * 32 + 16;
-
-    const jobInteractable = new InteractableObject(this, doorX, doorY, 'door-amber-small');
+    const jobInteractable = new InteractableObject(this, (tileX + 1.5) * TS, (tileY + 3) * TS, 'door-amber-small');
     jobInteractable.setPromptText('Press SPACE: Open Job Board');
-    jobInteractable.setOnInteract(() => {
-      EventBus.emit('open-job-board', {});
-    });
+    jobInteractable.setOnInteract(() => EventBus.emit('open-job-board', {}));
     this.interactables.push(jobInteractable);
   }
 
-  private addPlaceholderBuilding(x: number, y: number, label: string, color: number): void {
-    // Simple 4x4 building
-    for (let dy = 0; dy < 4; dy++) {
-      for (let dx = 0; dx < 4; dx++) {
-        const wall = this.add.rectangle((x + dx) * 32, (y + dy) * 32, 32, 32, color);
+  private addPlaceholderBuilding(x: number, y: number, label: string, _color: number, wallKey: string): void {
+    const TS = 64;
+    for (let dy = 0; dy < 3; dy++) {
+      for (let dx = 0; dx < 3; dx++) {
+        const wall = this.add.image((x + dx) * TS, (y + dy) * TS, wallKey);
         wall.setOrigin(0, 0);
-        wall.setStrokeStyle(2, 0x000000);
-
-        // Add collision
-        const wallBody = this.physics.add.staticImage((x + dx) * 32 + 16, (y + dy) * 32 + 16, 'wall-tile');
-        wallBody.setVisible(false);
+        wall.setDisplaySize(TS, TS);
+        const wb = this.physics.add.staticImage((x + dx) * TS + TS / 2, (y + dy) * TS + TS / 2, 'wall-tile');
+        wb.setDisplaySize(TS, TS);
+        wb.setVisible(false);
+        wb.refreshBody();
       }
     }
-
-    // Add label
-    const buildingLabel = this.add.text((x + 2) * 32, (y + 1.5) * 32, label, {
-      fontSize: '14px',
-      color: '#FFFFFF',
-      backgroundColor: '#000000',
-      padding: { x: 4, y: 4 },
-      align: 'center',
+    const buildingLabel = this.add.text((x + 1.5) * TS, (y + 1) * TS, label, {
+      fontSize: '14px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
     });
     buildingLabel.setOrigin(0.5);
   }
@@ -326,8 +290,24 @@ export class WorldScene extends Phaser.Scene {
     console.log('Saving player position:', data);
   };
 
+  private handleSetAvatar = (data: { avatarId: string }) => {
+    if (!this.player) return;
+    const textureKey = `player-${data.avatarId}`;
+    if (this.textures.exists(textureKey)) {
+      this.player.setTexture(textureKey);
+      this.player.setDisplaySize(64, 64);
+      // Re-play idle animation for the new character
+      const idleKey = `${data.avatarId}-idle`;
+      if (this.anims.exists(idleKey)) {
+        this.player.anims.play(idleKey, true);
+      }
+      this.game.registry.set('avatarId', data.avatarId);
+    }
+  };
+
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
+    EventBus.on('set-avatar', this.handleSetAvatar);
   }
 
   update(time: number, delta: number): void {
@@ -350,8 +330,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   shutdown(): void {
-    // Clean up event listeners to prevent accumulation on scene restart
     EventBus.off('save-player-position', this.savePositionHandler);
+    EventBus.off('set-avatar', this.handleSetAvatar);
 
     // Clean up interactables before scene stops
     this.interactables.forEach((interactable) => {

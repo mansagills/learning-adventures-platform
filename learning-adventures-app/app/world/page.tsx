@@ -121,6 +121,10 @@ export default function WorldPage() {
 
   const handleSceneReady = (_scene: string) => {
     setGameReady(true);
+    // Pass avatarId to Phaser registry so Player uses the correct sprite sheet
+    if (characterDataRef.current?.avatarId) {
+      EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
+    }
   };
 
   const showNotification = (message: string) => {

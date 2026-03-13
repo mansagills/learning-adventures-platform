@@ -3,20 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Available avatar options (placeholder - will be replaced with actual sprites)
+// Avatar options — sprite sheets live in /game-assets/sprites/
+// Preview uses the first frame (idle-down) clipped via CSS object-fit
 const AVATAR_OPTIONS = [
-  { id: 'human-1', name: 'Student (Brown Hair)', color: '#D4A574' },
-  { id: 'human-2', name: 'Student (Blonde)', color: '#F5DEB3' },
-  { id: 'human-3', name: 'Student (Black Hair)', color: '#4A3728' },
-  { id: 'human-4', name: 'Student (Red Hair)', color: '#C85A44' },
-  { id: 'robot-blue', name: 'Robot (Blue)', color: '#4A90E2' },
-  { id: 'robot-red', name: 'Robot (Red)', color: '#E24A4A' },
-  { id: 'cat-orange', name: 'Cat (Orange)', color: '#FFA500' },
-  { id: 'cat-gray', name: 'Cat (Gray)', color: '#808080' },
-  { id: 'wizard-purple', name: 'Wizard', color: '#8B5CF6' },
-  { id: 'knight-silver', name: 'Knight', color: '#C0C0C0' },
-  { id: 'alien-green', name: 'Alien', color: '#00FF00' },
-  { id: 'bear-brown', name: 'Bear', color: '#8B4513' },
+  { id: 'human-1',       name: 'Student',        spritePath: '/game-assets/sprites/human-1.png' },
+  { id: 'human-2',       name: 'Student 2',       spritePath: '/game-assets/sprites/human-2.png' },
+  { id: 'robot-blue',    name: 'Robot',           spritePath: '/game-assets/sprites/robot-blue.png' },
+  { id: 'wizard-purple', name: 'Wizard',          spritePath: '/game-assets/sprites/wizard-purple.png' },
+  { id: 'cat-orange',    name: 'Cat',             spritePath: '/game-assets/sprites/cat-orange.png' },
+  { id: 'knight-silver', name: 'Knight',          spritePath: '/game-assets/sprites/knight-silver.png' },
 ];
 
 interface CharacterCreatorProps {
@@ -175,17 +170,24 @@ export function CharacterCreator({ onComplete }: CharacterCreatorProps) {
                 <button
                   key={avatar.id}
                   onClick={() => handleAvatarSelect(avatar.id)}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`p-2 rounded-lg border-2 transition-all ${
                     selectedAvatar === avatar.id
                       ? 'border-[#8B5CF6] bg-[#8B5CF6]/10 scale-105'
                       : 'border-gray-300 hover:border-[#8B5CF6] hover:scale-105'
                   }`}
                 >
-                  {/* Placeholder avatar circle */}
-                  <div
-                    className="w-full aspect-square rounded-full mb-2"
-                    style={{ backgroundColor: avatar.color }}
-                  />
+                  {/* Sprite preview — show first frame (top-left 96x96 of 384x384 sheet) */}
+                  <div className="w-full aspect-square overflow-hidden rounded mb-1 bg-[#FFFDF5]">
+                    <img
+                      src={avatar.spritePath}
+                      alt={avatar.name}
+                      style={{
+                        width: '400%',       // 384px sheet shown in ~96px container = 4x zoom
+                        imageRendering: 'pixelated',
+                        transform: 'translate(0, 0)',
+                      }}
+                    />
+                  </div>
                   <p className="text-xs text-center font-medium text-gray-700">
                     {avatar.name}
                   </p>
