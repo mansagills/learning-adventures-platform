@@ -1,3 +1,7 @@
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import { extractZipSafely } from '@/lib/safe-zip';
+import path from 'path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -8,10 +12,11 @@ vi.mock('next-auth', () => ({
   getServerSession: vi.fn(),
 }));
 
-const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
+const { writeFileMock, mkdirMock, mockGetServerSession, existsSyncMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
   mockGetServerSession: vi.fn(),
+  existsSyncMock: vi.fn().mockReturnValue(true),
 }));
 
 // Mock fs/promises and fs
@@ -31,10 +36,9 @@ vi.mock('fs/promises', () => {
 });
 
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: existsSyncMock,
   default: {
-    mkdir: vi.fn(),
-    writeFile: vi.fn(),
+    existsSync: existsSyncMock,
   }
 }));
 
@@ -70,13 +74,6 @@ const maliciousEntry = {
 
 const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
-vi.mock('adm-zip', () => {
-  return {
-    ...actual,
-    existsSync: vi.fn(),
-  };
-});
-
 describe('Security: Zip Slip Prevention', () => {
   const mockTargetDir = '/tmp/safe-dir';
 
@@ -84,12 +81,12 @@ describe('Security: Zip Slip Prevention', () => {
     vi.clearAllMocks();
     (fs.mkdir as any).mockResolvedValue(undefined);
     (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    existsSyncMock.mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
     // Mock admin session
-    (getServerSession as any).mockResolvedValue({
+    mockGetServerSession.mockResolvedValue({
       user: { role: 'ADMIN', id: 'admin' },
     });
 
