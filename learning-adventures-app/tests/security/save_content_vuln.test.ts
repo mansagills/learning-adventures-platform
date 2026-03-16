@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -8,6 +7,10 @@ const mocks = vi.hoisted(() => ({
   writeFile: vi.fn(),
   mkdir: vi.fn(),
   existsSync: vi.fn(),
+}));
+
+vi.mock('next-auth/next', () => ({
+  getServerSession: mocks.getServerSession,
 }));
 
 // Mock fs/promises
@@ -26,11 +29,6 @@ vi.mock('fs', () => ({
     existsSync: mocks.existsSync,
   },
   existsSync: mocks.existsSync,
-}));
-
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: mocks.getServerSession,
 }));
 
 // Mock authOptions (just an object)
