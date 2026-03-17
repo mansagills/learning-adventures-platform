@@ -12,3 +12,8 @@
 **Vulnerability:** Critical internal API endpoints (e.g., `save-content`) relied solely on middleware for authentication. A bug in the implementation (missing imports) caused security checks to crash, potentially leading to DoS or bypass if fail-open.
 **Learning:** Middleware is a good first line of defense, but API routes must also verify authentication explicitly (`getServerSession`). Relying on a single layer is risky. Also, runtime errors in security code can mask vulnerabilities or cause instability.
 **Prevention:** Always implement authentication checks inside the API handler for sensitive operations (Defense in Depth). Ensure security-critical code paths are covered by tests that verify they don't crash (Runtime Safety).
+
+## 2023-10-27 - Zip Slip Vulnerability in Content Upload
+**Vulnerability:** The `/api/internal/save-content/route.ts` endpoint was vulnerable to Zip Slip due to the fact that it was not verifying that the uploaded ZIP file path actually exists before processing it. In fact, `resolvedZipPath` was undefined and was being used instead of `zipFullPath`.
+**Learning:** Even if the extraction mechanism itself is safe (using `extractZipSafely`), failure to correctly reference the sanitized file path (`zipFullPath`) vs an undefined variable (`resolvedZipPath`) can bypass security checks entirely if it fails to resolve properly or throws unchecked errors.
+**Prevention:** Always ensure that variables used for path resolution and file existence checks match the validated variables exactly.
