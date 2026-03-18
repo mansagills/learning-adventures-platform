@@ -12,3 +12,8 @@
 **Vulnerability:** Critical internal API endpoints (e.g., `save-content`) relied solely on middleware for authentication. A bug in the implementation (missing imports) caused security checks to crash, potentially leading to DoS or bypass if fail-open.
 **Learning:** Middleware is a good first line of defense, but API routes must also verify authentication explicitly (`getServerSession`). Relying on a single layer is risky. Also, runtime errors in security code can mask vulnerabilities or cause instability.
 **Prevention:** Always implement authentication checks inside the API handler for sensitive operations (Defense in Depth). Ensure security-critical code paths are covered by tests that verify they don't crash (Runtime Safety).
+
+## 2026-02-02 - Next.js App Router Authentication Mocking Error
+**Vulnerability:** In Next.js App Router, importing `getServerSession` from `next-auth` instead of `next-auth/next` inside API routes caused an exception ('headers was called outside a request scope') which aborted API execution and failed test suites simulating authenticated requests.
+**Learning:** NextAuth handles dynamic contexts differently in the App Router. Using the wrong import path breaks API routes silently under test or specific runtime conditions, potentially leaving endpoints non-functional or bypassing intended flow if not handled securely.
+**Prevention:** Ensure all `getServerSession` imports in Next.js App Router API routes strictly use `next-auth/next`. Additionally, update test mocks (`vi.mock('next-auth/next')`) to reflect this exact path to guarantee tests accurately simulate runtime behavior.
