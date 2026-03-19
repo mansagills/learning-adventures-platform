@@ -59,11 +59,13 @@ describe('Signup API', () => {
     expect(response.status).toBe(201);
 
     // Verify security fix: prisma.user.create was called with role: 'STUDENT'
-    expect(prismaMock.user.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        role: 'STUDENT',
-      }),
-    }));
+    expect(prismaMock.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: 'STUDENT',
+        }),
+      })
+    );
   });
 
   it('should allow PARENT role creation', async () => {
@@ -95,10 +97,12 @@ describe('Signup API', () => {
     expect(response.status).toBe(201);
 
     // Verify: prisma.user.create was called with role: 'PARENT'
-    expect(prismaMock.user.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        role: 'PARENT',
-      }),
-    }));
+    expect(prismaMock.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: 'PARENT',
+        }),
+      })
+    );
   });
 });

@@ -8,7 +8,10 @@ import { existsSync } from 'fs';
  * @param zip The AdmZip instance
  * @param targetDir The directory to extract to
  */
-export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<void> {
+export async function extractZipSafely(
+  zip: AdmZip,
+  targetDir: string
+): Promise<void> {
   const entries = zip.getEntries();
   const targetDirResolved = path.resolve(targetDir);
 
@@ -28,7 +31,9 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
       const isSafe = !relative.startsWith('..') && !path.isAbsolute(relative);
 
       if (!isSafe) {
-        throw new Error(`Security Error: Malicious zip entry detected: ${entry.entryName}`);
+        throw new Error(
+          `Security Error: Malicious zip entry detected: ${entry.entryName}`
+        );
       }
 
       if (!existsSync(dirPath)) {
@@ -45,7 +50,9 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     const isSafe = !relative.startsWith('..') && !path.isAbsolute(relative);
 
     if (!isSafe) {
-      throw new Error(`Security Error: Malicious zip entry detected: ${entryName}`);
+      throw new Error(
+        `Security Error: Malicious zip entry detected: ${entryName}`
+      );
     }
 
     const parentDir = path.dirname(destPath);

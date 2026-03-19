@@ -1,9 +1,8 @@
 ---
-name: "develop-web-game"
-description: "Use when Codex is building or iterating on a web game (HTML/JS) and needs a reliable development + testing loop: implement small changes, run a Playwright-based test script with short input bursts and intentional pauses, inspect screenshots/text, and review console errors with render_game_to_text."
+name: 'develop-web-game'
+description: 'Use when Codex is building or iterating on a web game (HTML/JS) and needs a reliable development + testing loop: implement small changes, run a Playwright-based test script with short input bursts and intentional pauses, inspect screenshots/text, and review console errors with render_game_to_text.'
 author: openai
 ---
-
 
 # Develop Web Game
 
@@ -38,15 +37,22 @@ User-scoped skills install under `$CODEX_HOME/skills` (default: `~/.codex/skills
 14. **Iterate with small deltas.** Change one variable at a time (frames, inputs, timing, positions), then repeat steps 7–13 until stable.
 
 Example command (actions required):
+
 ```
 node "$WEB_GAME_CLIENT" --url http://localhost:5173 --actions-file "$WEB_GAME_ACTIONS" --click-selector "#start-btn" --iterations 3 --pause-ms 250
 ```
 
 Example actions (inline JSON):
+
 ```json
 {
   "steps": [
-    { "buttons": ["left_mouse_button"], "frames": 2, "mouse_x": 120, "mouse_y": 80 },
+    {
+      "buttons": ["left_mouse_button"],
+      "frames": 2,
+      "mouse_x": 120,
+      "mouse_y": 80
+    },
     { "buttons": [], "frames": 6 },
     { "buttons": ["right"], "frames": 8 },
     { "buttons": ["space"], "frames": 4 }
@@ -59,6 +65,7 @@ Example actions (inline JSON):
 Test any new features added for the request and any areas your logic changes could affect. Identify issues, fix them, and re-run the tests to confirm they’re resolved.
 
 Examples of things to test:
+
 - Primary movement/interaction inputs (e.g., move, jump, shoot, confirm/select).
 - Win/lose or success/fail transitions.
 - Score/health/resource changes.
@@ -71,22 +78,26 @@ Examples of things to test:
 - Latest screenshots from the Playwright run.
 - Latest `render_game_to_text` JSON output.
 - Console error logs (fix the first new error before continuing).
-You must actually open and visually inspect the latest screenshots after running the Playwright script, not just generate them. Ensure everything that should be visible on screen is actually visible. Go beyond the start screen and capture gameplay screenshots that cover all newly added features. Treat the screenshots as the source of truth; if something is missing, it is missing in the build. If you suspect a headless/WebGL capture issue, rerun the Playwright script in headed mode and re-check. Fix and rerun in a tight loop until the screenshots and text state look correct. Once fixes are verified, re-test all important interactions and controls, confirm they work, and ensure your changes did not introduce regressions. If they did, fix them and rerun everything in a loop until interactions, text state, and controls all work as expected. Be exhaustive in testing controls; broken games are not acceptable.
+  You must actually open and visually inspect the latest screenshots after running the Playwright script, not just generate them. Ensure everything that should be visible on screen is actually visible. Go beyond the start screen and capture gameplay screenshots that cover all newly added features. Treat the screenshots as the source of truth; if something is missing, it is missing in the build. If you suspect a headless/WebGL capture issue, rerun the Playwright script in headed mode and re-check. Fix and rerun in a tight loop until the screenshots and text state look correct. Once fixes are verified, re-test all important interactions and controls, confirm they work, and ensure your changes did not introduce regressions. If they did, fix them and rerun everything in a loop until interactions, text state, and controls all work as expected. Be exhaustive in testing controls; broken games are not acceptable.
 
 ## Core Game Guidelines
 
 ### Canvas + Layout
+
 - Prefer a single canvas centered in the window.
 
 ### Visuals
+
 - Keep on-screen text minimal; show controls on a start/menu screen rather than overlaying them during play.
 - Avoid overly dark scenes unless the design calls for it. Make key elements easy to see.
 - Draw the background on the canvas itself instead of relying on CSS backgrounds.
 
 ### Text State Output (render_game_to_text)
+
 Expose a `window.render_game_to_text` function that returns a concise JSON string representing the current game state. The text should include enough information to play the game without visuals.
 
 Minimal pattern:
+
 ```js
 function renderGameToText() {
   const payload = {
@@ -104,10 +115,12 @@ Keep the payload succinct and biased toward on-screen/interactive elements. Pref
 Include a clear coordinate system note (origin and axis directions), and encode all player-relevant state: player position/velocity, active obstacles/enemies, collectibles, timers/cooldowns, score, and any mode/state flags needed to make correct decisions. Avoid large histories; only include what's currently relevant and visible.
 
 ### Time Stepping Hook
+
 Provide a deterministic time-stepping hook so the Playwright client can advance the game in controlled increments. Expose `window.advanceTime(ms)` (or a thin wrapper that forwards to your game update loop) and have the game loop use it when present.
 The Playwright test script uses this hook to step frames deterministically during automated testing.
 
 Minimal pattern:
+
 ```js
 window.advanceTime = (ms) => {
   const steps = Math.max(1, Math.round(ms / (1000 / 60)));
@@ -117,6 +130,7 @@ window.advanceTime = (ms) => {
 ```
 
 ### Fullscreen Toggle
+
 - Use a single key (prefer `f`) to toggle fullscreen on/off.
 - Allow `Esc` to exit fullscreen.
 - When fullscreen toggles, resize the canvas/rendering so visuals and input mapping stay correct.

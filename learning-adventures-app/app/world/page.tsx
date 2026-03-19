@@ -42,8 +42,12 @@ export default function WorldPage() {
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
-  useEffect(() => { sessionRef.current = session; }, [session]);
-  useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+  useEffect(() => {
+    characterDataRef.current = characterData;
+  }, [characterData]);
 
   // Check authentication and character — runs once on auth status change
   useEffect(() => {
@@ -86,7 +90,11 @@ export default function WorldPage() {
 
   // Setup EventBus listeners once — use refs for latest values
   useEffect(() => {
-    const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
+    const handleSavePosition = async (data: {
+      x: number;
+      y: number;
+      scene: string;
+    }) => {
       if (!sessionRef.current?.user || !characterDataRef.current) return;
       try {
         await fetch('/api/character/update', {
@@ -99,7 +107,10 @@ export default function WorldPage() {
       }
     };
 
-    const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
+    const handleOpenAdventure = (data: {
+      adventureId: string;
+      type: 'game' | 'lesson';
+    }) => {
       setCurrentAdventure(data);
     };
 
@@ -123,7 +134,9 @@ export default function WorldPage() {
     setGameReady(true);
     // Pass avatarId to Phaser registry so Player uses the correct sprite sheet
     if (characterDataRef.current?.avatarId) {
-      EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
+      EventBus.emit('set-avatar', {
+        avatarId: characterDataRef.current.avatarId,
+      });
     }
   };
 
@@ -152,7 +165,9 @@ export default function WorldPage() {
         setCoins(data.level.currency);
         setUserLevel(data.level.currentLevel);
         if (data.leveledUp) {
-          showNotification(`🎉 Level Up! You're now Level ${data.level.currentLevel}! +100 🪙`);
+          showNotification(
+            `🎉 Level Up! You're now Level ${data.level.currentLevel}! +100 🪙`
+          );
         }
       }
     } catch (err) {
@@ -164,7 +179,10 @@ export default function WorldPage() {
     setCoins(newBalance);
   };
 
-  const handleEquip = (_itemId: string, _equipment: Record<string, string | null>) => {
+  const handleEquip = (
+    _itemId: string,
+    _equipment: Record<string, string | null>
+  ) => {
     // Could emit to Phaser here to update sprite cosmetics in future
   };
 
@@ -176,7 +194,12 @@ export default function WorldPage() {
     }
   };
 
-  const handleJobComplete = (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => {
+  const handleJobComplete = (
+    currencyEarned: number,
+    xpEarned: number,
+    newLevel: number,
+    leveledUp: boolean
+  ) => {
     setCoins((prev) => prev + currencyEarned);
     setXp((prev) => prev + xpEarned);
     setUserLevel(newLevel);
@@ -202,7 +225,7 @@ export default function WorldPage() {
             data.currencyEarned,
             data.xpEarned,
             data.level?.currentLevel ?? userLevel,
-            data.leveledUp ?? false,
+            data.leveledUp ?? false
           );
           if (data.level) {
             setXp(data.level.totalXP);
@@ -241,7 +264,9 @@ export default function WorldPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Unable to Load Game World</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Unable to Load Game World
+          </h1>
           <p className="text-gray-700 mb-6">{error}</p>
           <a
             href="/catalog"
@@ -266,8 +291,13 @@ export default function WorldPage() {
         <AdventureEmbed
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
-          onClose={() => { setCurrentAdventure(null); setActiveJob(null); }}
-          onComplete={() => handleJobAdventureComplete(currentAdventure.adventureId)}
+          onClose={() => {
+            setCurrentAdventure(null);
+            setActiveJob(null);
+          }}
+          onComplete={() =>
+            handleJobAdventureComplete(currentAdventure.adventureId)
+          }
         />
       )}
 
@@ -364,7 +394,8 @@ export default function WorldPage() {
           {/* Bottom-right: Controls hint */}
           <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
             <p className="text-white text-sm">
-              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+              <span className="font-semibold">Controls:</span> WASD or Arrow
+              Keys to move
             </p>
           </div>
         </div>

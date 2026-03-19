@@ -30,13 +30,21 @@ const TYPE_LABELS: Record<string, string> = {
 
 const TYPE_ORDER = ['CONSUMABLE', 'EQUIPMENT', 'PET'];
 
-export function ShopModal({ onClose, onPurchase, currency: initialCurrency, userLevel }: ShopModalProps) {
+export function ShopModal({
+  onClose,
+  onPurchase,
+  currency: initialCurrency,
+  userLevel,
+}: ShopModalProps) {
   const [items, setItems] = useState<ShopItem[]>([]);
   const [ownedItemIds, setOwnedItemIds] = useState<Set<string>>(new Set());
   const [currency, setCurrency] = useState(initialCurrency);
   const [activeTab, setActiveTab] = useState<string>('CONSUMABLE');
   const [purchasing, setPurchasing] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchShopData = useCallback(async () => {
@@ -46,7 +54,9 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
       if (data.items) {
         setItems(data.items);
         setCurrency(data.currency ?? initialCurrency);
-        const owned = new Set<string>((data.inventory ?? []).map((i: any) => i.id as string));
+        const owned = new Set<string>(
+          (data.inventory ?? []).map((i: any) => i.id as string)
+        );
         setOwnedItemIds(owned);
       }
     } catch (err) {
@@ -83,13 +93,23 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
       const data = await res.json();
 
       if (!res.ok) {
-        setFeedback({ type: 'error', message: data.error ?? 'Purchase failed' });
+        setFeedback({
+          type: 'error',
+          message: data.error ?? 'Purchase failed',
+        });
       } else {
         setCurrency(data.newBalance);
         if (item.type !== 'CONSUMABLE') {
-          setOwnedItemIds((prev) => { const next = new Set(prev); next.add(item.itemId); return next; });
+          setOwnedItemIds((prev) => {
+            const next = new Set(prev);
+            next.add(item.itemId);
+            return next;
+          });
         }
-        setFeedback({ type: 'success', message: `Bought ${item.iconEmoji} ${item.name}!` });
+        setFeedback({
+          type: 'success',
+          message: `Bought ${item.iconEmoji} ${item.name}!`,
+        });
         onPurchase?.(item, data.newBalance);
       }
     } catch {
@@ -105,7 +125,6 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative w-[90vw] max-w-3xl max-h-[85vh] flex flex-col bg-[#1a1a2e] rounded-2xl shadow-2xl overflow-hidden border border-[#8B5CF6]/40">
-
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 shrink-0"
@@ -177,7 +196,8 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
                 const meetsLevel = userLevel >= item.levelRequirement;
                 const owned = ownedItemIds.has(item.itemId);
                 const isBuying = purchasing === item.itemId;
-                const disabled = isBuying || (!owned && (!canAfford || !meetsLevel));
+                const disabled =
+                  isBuying || (!owned && (!canAfford || !meetsLevel));
 
                 return (
                   <div
@@ -186,8 +206,8 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
                       owned
                         ? 'border-[#14B8A6]/60 bg-[#14B8A6]/10'
                         : canAfford && meetsLevel
-                        ? 'border-white/20 bg-white/5 hover:border-[#14B8A6]/60 hover:bg-white/10 cursor-pointer'
-                        : 'border-white/10 bg-white/5 opacity-60'
+                          ? 'border-white/20 bg-white/5 hover:border-[#14B8A6]/60 hover:bg-white/10 cursor-pointer'
+                          : 'border-white/10 bg-white/5 opacity-60'
                     }`}
                   >
                     {/* Owned badge */}
@@ -198,7 +218,9 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
                     )}
 
                     {/* Icon */}
-                    <div className="text-4xl mb-2 text-center">{item.iconEmoji}</div>
+                    <div className="text-4xl mb-2 text-center">
+                      {item.iconEmoji}
+                    </div>
 
                     {/* Name & description */}
                     <p className="text-white font-semibold text-sm text-center leading-tight mb-1">
@@ -210,7 +232,9 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
 
                     {/* Level requirement */}
                     {item.levelRequirement > 1 && (
-                      <p className={`text-xs text-center mb-1 font-medium ${meetsLevel ? 'text-gray-400' : 'text-red-400'}`}>
+                      <p
+                        className={`text-xs text-center mb-1 font-medium ${meetsLevel ? 'text-gray-400' : 'text-red-400'}`}
+                      >
                         Lv. {item.levelRequirement}+
                       </p>
                     )}
@@ -223,8 +247,8 @@ export function ShopModal({ onClose, onPurchase, currency: initialCurrency, user
                         owned && item.type !== 'CONSUMABLE'
                           ? 'bg-[#14B8A6]/30 text-[#14B8A6] cursor-default'
                           : canAfford && meetsLevel
-                          ? 'bg-[#14B8A6] hover:bg-[#0D9488] text-white hover:scale-105'
-                          : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            ? 'bg-[#14B8A6] hover:bg-[#0D9488] text-white hover:scale-105'
+                            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                       }`}
                     >
                       {isBuying ? (

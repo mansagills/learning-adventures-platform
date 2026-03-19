@@ -30,27 +30,39 @@ export class MathBuildingScene extends Phaser.Scene {
 
   preload(): void {
     // Interior tiles (1024x1024, displayed at 64x64)
-    this.load.image('floor-wood-1',   '/game-assets/tilemaps/wood-floor-1.png');
-    this.load.image('floor-wood-2',   '/game-assets/tilemaps/wood-floor-2.png');
-    this.load.image('floor-wood-3',   '/game-assets/tilemaps/wood-floor-3.png');
-    this.load.image('floor-stone-1',  '/game-assets/tilemaps/stone-floor-1.png');
-    this.load.image('wall-brick-1',   '/game-assets/tilemaps/brick-wall-1.png');
-    this.load.image('wall-brick-2',   '/game-assets/tilemaps/brick-wall-2.png');
-    this.load.image('wall-brick-3',   '/game-assets/tilemaps/brick-wall-3.png');
+    this.load.image('floor-wood-1', '/game-assets/tilemaps/wood-floor-1.png');
+    this.load.image('floor-wood-2', '/game-assets/tilemaps/wood-floor-2.png');
+    this.load.image('floor-wood-3', '/game-assets/tilemaps/wood-floor-3.png');
+    this.load.image('floor-stone-1', '/game-assets/tilemaps/stone-floor-1.png');
+    this.load.image('wall-brick-1', '/game-assets/tilemaps/brick-wall-1.png');
+    this.load.image('wall-brick-2', '/game-assets/tilemaps/brick-wall-2.png');
+    this.load.image('wall-brick-3', '/game-assets/tilemaps/brick-wall-3.png');
 
     // Interior objects (1024x1024, displayed at 64x64)
-    this.load.image('arcade-cabinet', '/game-assets/tilemaps/arcade-cabinet.png');
-    this.load.image('desk-computer',  '/game-assets/tilemaps/desk-computer.png');
-    this.load.image('door-interior',  '/game-assets/tilemaps/door-interior.png');
-    this.load.image('npc-teacher',    '/game-assets/tilemaps/npc-teacher.png');
+    this.load.image(
+      'arcade-cabinet',
+      '/game-assets/tilemaps/arcade-cabinet.png'
+    );
+    this.load.image('desk-computer', '/game-assets/tilemaps/desk-computer.png');
+    this.load.image('door-interior', '/game-assets/tilemaps/door-interior.png');
+    this.load.image('npc-teacher', '/game-assets/tilemaps/npc-teacher.png');
 
     // Character sprite sheets — force reload by removing stale global cache entries first
-    const chars = ['human-1','human-2','robot-blue','wizard-purple','cat-orange','knight-silver'];
-    chars.forEach(c => {
+    const chars = [
+      'human-1',
+      'human-2',
+      'robot-blue',
+      'wizard-purple',
+      'cat-orange',
+      'knight-silver',
+    ];
+    chars.forEach((c) => {
       const key = `player-${c}`;
-      this.load.spritesheet(key, `/game-assets/sprites/${c}.png`, { frameWidth: 96, frameHeight: 96 });
+      this.load.spritesheet(key, `/game-assets/sprites/${c}.png`, {
+        frameWidth: 96,
+        frameHeight: 96,
+      });
     });
-
   }
 
   create(): void {
@@ -141,12 +153,12 @@ export class MathBuildingScene extends Phaser.Scene {
     const TS = 64;
     // Border walls (10 tiles wide, 10 tall)
     for (let x = 0; x < 10; x++) {
-      this.createWall(x * TS, 0);           // Top
-      this.createWall(x * TS, 9 * TS);      // Bottom
+      this.createWall(x * TS, 0); // Top
+      this.createWall(x * TS, 9 * TS); // Bottom
     }
     for (let y = 1; y < 9; y++) {
-      this.createWall(0, y * TS);            // Left
-      this.createWall(9 * TS, y * TS);      // Right
+      this.createWall(0, y * TS); // Left
+      this.createWall(9 * TS, y * TS); // Right
     }
   }
 
@@ -158,7 +170,11 @@ export class MathBuildingScene extends Phaser.Scene {
     wall.setOrigin(0, 0);
     wall.setDisplaySize(TS, TS);
 
-    const wallBody = this.physics.add.staticImage(x + TS / 2, y + TS / 2, 'wall-tile');
+    const wallBody = this.physics.add.staticImage(
+      x + TS / 2,
+      y + TS / 2,
+      'wall-tile'
+    );
     wallBody.setDisplaySize(TS, TS);
     wallBody.setVisible(false);
     wallBody.refreshBody();
@@ -171,28 +187,65 @@ export class MathBuildingScene extends Phaser.Scene {
   private createGameStations(): void {
     // 10x10 tile interior at 64px — place 5 stations in a cross pattern
     const stations = [
-      { x: 2 * 64, y: 2 * 64, gameId: 'pizza-fraction-frenzy',      name: 'Pizza Fractions' },
-      { x: 7 * 64, y: 2 * 64, gameId: 'math-race-rally',             name: 'Math Race Rally' },
-      { x: 2 * 64, y: 6 * 64, gameId: 'multiplication-bingo-bonanza',name: 'Multiplication Bingo' },
-      { x: 7 * 64, y: 6 * 64, gameId: 'number-monster-feeding',       name: 'Number Monsters' },
-      { x: 4 * 64 + 32, y: 4 * 64, gameId: 'math-jeopardy-junior',   name: 'Math Jeopardy' },
+      {
+        x: 2 * 64,
+        y: 2 * 64,
+        gameId: 'pizza-fraction-frenzy',
+        name: 'Pizza Fractions',
+      },
+      {
+        x: 7 * 64,
+        y: 2 * 64,
+        gameId: 'math-race-rally',
+        name: 'Math Race Rally',
+      },
+      {
+        x: 2 * 64,
+        y: 6 * 64,
+        gameId: 'multiplication-bingo-bonanza',
+        name: 'Multiplication Bingo',
+      },
+      {
+        x: 7 * 64,
+        y: 6 * 64,
+        gameId: 'number-monster-feeding',
+        name: 'Number Monsters',
+      },
+      {
+        x: 4 * 64 + 32,
+        y: 4 * 64,
+        gameId: 'math-jeopardy-junior',
+        name: 'Math Jeopardy',
+      },
     ];
 
     stations.forEach((station) => {
-      const arcade = new InteractableObject(this, station.x, station.y, 'arcade-cabinet');
+      const arcade = new InteractableObject(
+        this,
+        station.x,
+        station.y,
+        'arcade-cabinet'
+      );
       arcade.setPromptText(`Press SPACE: ${station.name}`);
       arcade.setOnInteract(() => this.playGame(station.gameId));
 
       const label = this.add.text(station.x, station.y - 40, station.name, {
-        fontSize: '11px', color: '#000000', backgroundColor: '#FFFFFFCC',
-        padding: { x: 3, y: 2 }, align: 'center',
+        fontSize: '11px',
+        color: '#000000',
+        backgroundColor: '#FFFFFFCC',
+        padding: { x: 3, y: 2 },
+        align: 'center',
       });
       label.setOrigin(0.5);
 
       this.interactables.push(arcade);
 
       if (this.player) {
-        const arcadeBody = this.physics.add.staticImage(station.x, station.y, 'wall-tile');
+        const arcadeBody = this.physics.add.staticImage(
+          station.x,
+          station.y,
+          'wall-tile'
+        );
         arcadeBody.setDisplaySize(64, 64);
         arcadeBody.setVisible(false);
         arcadeBody.refreshBody();
@@ -204,7 +257,8 @@ export class MathBuildingScene extends Phaser.Scene {
   private createMathTeacher(): void {
     const teacher = new NPC(
       this,
-      5 * 64, 3 * 64,
+      5 * 64,
+      3 * 64,
       'npc-teacher',
       'Ms. Numbers',
       [
@@ -217,8 +271,11 @@ export class MathBuildingScene extends Phaser.Scene {
     this.interactables.push(teacher);
 
     const nameLabel = this.add.text(5 * 64, 3 * 64 - 40, 'Ms. Numbers', {
-      fontSize: '11px', color: '#FFFFFF', backgroundColor: '#FF8C00CC',
-      padding: { x: 4, y: 2 }, align: 'center',
+      fontSize: '11px',
+      color: '#FFFFFF',
+      backgroundColor: '#FF8C00CC',
+      padding: { x: 4, y: 2 },
+      align: 'center',
     });
     nameLabel.setOrigin(0.5);
   }
@@ -226,16 +283,21 @@ export class MathBuildingScene extends Phaser.Scene {
   private createExitDoor(): void {
     const exitDoor = Door.createExitDoor(
       this,
-      5 * 64, 9 * 64 - 16,
+      5 * 64,
+      9 * 64 - 16,
       'door-interior',
       'WorldScene',
-      640, 400
+      640,
+      400
     );
     this.interactables.push(exitDoor);
 
     const exitLabel = this.add.text(5 * 64, 9 * 64 - 60, 'EXIT', {
-      fontSize: '14px', color: '#000000', backgroundColor: '#FFD700CC',
-      padding: { x: 6, y: 3 }, align: 'center',
+      fontSize: '14px',
+      color: '#000000',
+      backgroundColor: '#FFD700CC',
+      padding: { x: 6, y: 3 },
+      align: 'center',
     });
     exitLabel.setOrigin(0.5);
   }
@@ -260,7 +322,10 @@ export class MathBuildingScene extends Phaser.Scene {
       });
 
       // Check for interaction key press
-      if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+      if (
+        this.interactKey &&
+        Phaser.Input.Keyboard.JustDown(this.interactKey)
+      ) {
         // Interact with nearby objects
         this.interactables.forEach((interactable) => {
           interactable.interact();
@@ -278,5 +343,4 @@ export class MathBuildingScene extends Phaser.Scene {
     });
     this.interactables = [];
   }
-
 }

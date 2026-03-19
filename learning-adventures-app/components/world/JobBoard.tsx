@@ -24,15 +24,27 @@ interface Job {
 interface JobBoardProps {
   onClose: () => void;
   onStartJob: (job: Job) => void;
-  onJobComplete: (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => void;
+  onJobComplete: (
+    currencyEarned: number,
+    xpEarned: number,
+    newLevel: number,
+    leveledUp: boolean
+  ) => void;
 }
 
-export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) {
+export function JobBoard({
+  onClose,
+  onStartJob,
+  onJobComplete,
+}: JobBoardProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [completedToday, setCompletedToday] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(5);
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -56,7 +68,9 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
 
   // ESC to close
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
@@ -81,7 +95,6 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative w-[90vw] max-w-2xl max-h-[85vh] flex flex-col bg-[#1a1a2e] rounded-2xl shadow-2xl overflow-hidden border border-[#F59E0B]/40">
-
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 shrink-0"
@@ -91,13 +104,17 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
             <Briefcase className="w-6 h-6 text-white" />
             <div>
               <h2 className="text-xl font-bold text-white">Job Board</h2>
-              <p className="text-yellow-100 text-xs">Earn coins by helping out around campus!</p>
+              <p className="text-yellow-100 text-xs">
+                Earn coins by helping out around campus!
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-white text-xs font-semibold">Today</p>
-              <p className="text-yellow-100 text-xs">{completedToday}/{dailyLimit} jobs</p>
+              <p className="text-yellow-100 text-xs">
+                {completedToday}/{dailyLimit} jobs
+              </p>
             </div>
             <button
               onClick={onClose}
@@ -112,26 +129,34 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
         {/* Daily progress bar */}
         <div className="px-6 py-2 bg-black/30 shrink-0">
           <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-            <span>Daily jobs ({completedToday}/{dailyLimit})</span>
+            <span>
+              Daily jobs ({completedToday}/{dailyLimit})
+            </span>
             {completedToday >= dailyLimit && (
-              <span className="text-yellow-400 font-semibold">Daily limit reached!</span>
+              <span className="text-yellow-400 font-semibold">
+                Daily limit reached!
+              </span>
             )}
           </div>
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#F59E0B] rounded-full transition-all"
-              style={{ width: `${Math.min((completedToday / dailyLimit) * 100, 100)}%` }}
+              style={{
+                width: `${Math.min((completedToday / dailyLimit) * 100, 100)}%`,
+              }}
             />
           </div>
         </div>
 
         {/* Feedback toast */}
         {feedback && (
-          <div className={`mx-4 mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-center shrink-0 ${
-            feedback.type === 'success'
-              ? 'bg-green-900/60 text-green-300 border border-green-600'
-              : 'bg-red-900/60 text-red-300 border border-red-600'
-          }`}>
+          <div
+            className={`mx-4 mt-3 px-4 py-2 rounded-lg text-sm font-semibold text-center shrink-0 ${
+              feedback.type === 'success'
+                ? 'bg-green-900/60 text-green-300 border border-green-600'
+                : 'bg-red-900/60 text-red-300 border border-red-600'
+            }`}
+          >
             {feedback.message}
           </div>
         )}
@@ -176,7 +201,9 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
                         </span>
                       )}
                     </div>
-                    <p className="text-gray-400 text-sm leading-snug line-clamp-2">{job.description}</p>
+                    <p className="text-gray-400 text-sm leading-snug line-clamp-2">
+                      {job.description}
+                    </p>
 
                     {/* Status tag */}
                     <div className="flex items-center gap-1 mt-1.5">

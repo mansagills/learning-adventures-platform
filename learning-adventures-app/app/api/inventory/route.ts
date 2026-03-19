@@ -26,7 +26,10 @@ export async function GET() {
     });
 
     if (!user?.character) {
-      return NextResponse.json({ error: 'No character found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'No character found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -36,6 +39,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching inventory:', error);
-    return NextResponse.json({ error: 'Failed to fetch inventory' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch inventory' },
+      { status: 500 }
+    );
   }
 }

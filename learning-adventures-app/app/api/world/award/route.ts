@@ -25,15 +25,28 @@ export async function GET() {
 
     const level = await prisma.userLevel.findUnique({
       where: { userId: user.id },
-      select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
+      select: {
+        currentLevel: true,
+        totalXP: true,
+        currency: true,
+        xpToNextLevel: true,
+      },
     });
 
     return NextResponse.json({
-      level: level ?? { currentLevel: 1, totalXP: 0, currency: 0, xpToNextLevel: 100 },
+      level: level ?? {
+        currentLevel: 1,
+        totalXP: 0,
+        currency: 0,
+        xpToNextLevel: 100,
+      },
     });
   } catch (error) {
     console.error('Error fetching world status:', error);
-    return NextResponse.json({ error: 'Failed to fetch status' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch status' },
+      { status: 500 }
+    );
   }
 }
 
@@ -93,7 +106,12 @@ export async function POST(request: NextRequest) {
 
     const finalLevel = await prisma.userLevel.findUnique({
       where: { userId: user.id },
-      select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
+      select: {
+        currentLevel: true,
+        totalXP: true,
+        currency: true,
+        xpToNextLevel: true,
+      },
     });
 
     return NextResponse.json({

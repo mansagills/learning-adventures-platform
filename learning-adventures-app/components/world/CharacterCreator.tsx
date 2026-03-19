@@ -6,12 +6,36 @@ import { useRouter } from 'next/navigation';
 // Avatar options — sprite sheets live in /game-assets/sprites/
 // Preview uses the first frame (idle-down) clipped via CSS object-fit
 const AVATAR_OPTIONS = [
-  { id: 'human-1',       name: 'Student',        spritePath: '/game-assets/sprites/human-1.png' },
-  { id: 'human-2',       name: 'Student 2',       spritePath: '/game-assets/sprites/human-2.png' },
-  { id: 'robot-blue',    name: 'Robot',           spritePath: '/game-assets/sprites/robot-blue.png' },
-  { id: 'wizard-purple', name: 'Wizard',          spritePath: '/game-assets/sprites/wizard-purple.png' },
-  { id: 'cat-orange',    name: 'Cat',             spritePath: '/game-assets/sprites/cat-orange.png' },
-  { id: 'knight-silver', name: 'Knight',          spritePath: '/game-assets/sprites/knight-silver.png' },
+  {
+    id: 'human-1',
+    name: 'Student',
+    spritePath: '/game-assets/sprites/human-1.png',
+  },
+  {
+    id: 'human-2',
+    name: 'Student 2',
+    spritePath: '/game-assets/sprites/human-2.png',
+  },
+  {
+    id: 'robot-blue',
+    name: 'Robot',
+    spritePath: '/game-assets/sprites/robot-blue.png',
+  },
+  {
+    id: 'wizard-purple',
+    name: 'Wizard',
+    spritePath: '/game-assets/sprites/wizard-purple.png',
+  },
+  {
+    id: 'cat-orange',
+    name: 'Cat',
+    spritePath: '/game-assets/sprites/cat-orange.png',
+  },
+  {
+    id: 'knight-silver',
+    name: 'Knight',
+    spritePath: '/game-assets/sprites/knight-silver.png',
+  },
 ];
 
 interface CharacterCreatorProps {
@@ -72,7 +96,9 @@ export function CharacterCreator({ onComplete }: CharacterCreatorProps) {
       router.push('/world');
     } catch (err) {
       console.error('Error creating character:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create character');
+      setError(
+        err instanceof Error ? err.message : 'Failed to create character'
+      );
       setIsSubmitting(false);
     }
   };
@@ -182,7 +208,7 @@ export function CharacterCreator({ onComplete }: CharacterCreatorProps) {
                       src={avatar.spritePath}
                       alt={avatar.name}
                       style={{
-                        width: '400%',       // 384px sheet shown in ~96px container = 4x zoom
+                        width: '400%', // 384px sheet shown in ~96px container = 4x zoom
                         imageRendering: 'pixelated',
                         transform: 'translate(0, 0)',
                       }}

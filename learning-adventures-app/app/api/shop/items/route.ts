@@ -35,6 +35,9 @@ export async function GET() {
     return NextResponse.json({ items, currency, inventory });
   } catch (error) {
     console.error('Error fetching shop items:', error);
-    return NextResponse.json({ error: 'Failed to fetch shop items' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch shop items' },
+      { status: 500 }
+    );
   }
 }

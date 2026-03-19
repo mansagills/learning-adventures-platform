@@ -13,9 +13,9 @@ vi.mock('@anthropic-ai/sdk', () => {
   return {
     default: class Anthropic {
       messages = {
-        create: mockCreate
-      }
-    }
+        create: mockCreate,
+      };
+    },
   };
 });
 
@@ -34,16 +34,16 @@ import { POST } from '../../app/api/internal/claude-generate/route';
 
 describe('POST /api/internal/claude-generate', () => {
   const validBody = {
-      formData: {
-          type: 'game',
-          subject: 'Math',
-          concept: 'Addition',
-          title: 'Adding Fun',
-          gradeLevel: ['1'],
-          difficulty: 'Easy',
-          skills: ['counting'],
-          estimatedTime: '10m'
-      }
+    formData: {
+      type: 'game',
+      subject: 'Math',
+      concept: 'Addition',
+      title: 'Adding Fun',
+      gradeLevel: ['1'],
+      difficulty: 'Easy',
+      skills: ['counting'],
+      estimatedTime: '10m',
+    },
   };
 
   beforeEach(() => {
@@ -52,7 +52,7 @@ describe('POST /api/internal/claude-generate', () => {
 
     // Default mock behavior for Anthropic
     mockCreate.mockResolvedValue({
-      content: [{ type: 'text', text: 'Generated content' }]
+      content: [{ type: 'text', text: 'Generated content' }],
     });
   });
 
@@ -60,10 +60,13 @@ describe('POST /api/internal/claude-generate', () => {
     // Mock no session
     (getServerSession as any).mockResolvedValue(null);
 
-    const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/claude-generate',
+      {
         method: 'POST',
-        body: JSON.stringify(validBody)
-    });
+        body: JSON.stringify(validBody),
+      }
+    );
 
     const response = await POST(req);
 
@@ -78,13 +81,16 @@ describe('POST /api/internal/claude-generate', () => {
   it('should return 403 and NOT call Anthropic API if user is not ADMIN', async () => {
     // Mock student session
     (getServerSession as any).mockResolvedValue({
-      user: { role: 'STUDENT', email: 'student@example.com' }
+      user: { role: 'STUDENT', email: 'student@example.com' },
     });
 
-    const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/claude-generate',
+      {
         method: 'POST',
-        body: JSON.stringify(validBody)
-    });
+        body: JSON.stringify(validBody),
+      }
+    );
 
     const response = await POST(req);
 
@@ -96,13 +102,16 @@ describe('POST /api/internal/claude-generate', () => {
   it('should call Anthropic API if user IS ADMIN', async () => {
     // Mock admin session
     (getServerSession as any).mockResolvedValue({
-      user: { role: 'ADMIN', email: 'admin@learningadventures.org' }
+      user: { role: 'ADMIN', email: 'admin@learningadventures.org' },
     });
 
-    const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/claude-generate',
+      {
         method: 'POST',
-        body: JSON.stringify(validBody)
-    });
+        body: JSON.stringify(validBody),
+      }
+    );
 
     const response = await POST(req);
 

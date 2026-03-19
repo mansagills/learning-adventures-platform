@@ -55,7 +55,8 @@ export class NPC extends InteractableObject {
     // TODO: Create dialog modal in React (Phase 3 polish)
 
     // Cycle through dialog
-    this.currentDialogIndex = (this.currentDialogIndex + 1) % this.dialog.length;
+    this.currentDialogIndex =
+      (this.currentDialogIndex + 1) % this.dialog.length;
   }
 
   /**

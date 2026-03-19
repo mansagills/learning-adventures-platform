@@ -563,8 +563,12 @@
           adventureId: 'math-race-rally',
           score: gameState.score,
         };
-        if (window.opener) { window.opener.postMessage(completionMsg, '*'); }
-        if (window.parent !== window) { window.parent.postMessage(completionMsg, '*'); }
+        if (window.opener) {
+          window.opener.postMessage(completionMsg, '*');
+        }
+        if (window.parent !== window) {
+          window.parent.postMessage(completionMsg, '*');
+        }
 
         const finalTime = Math.floor((Date.now() - gameState.startTime) / 1000);
         const accuracy = Math.round(

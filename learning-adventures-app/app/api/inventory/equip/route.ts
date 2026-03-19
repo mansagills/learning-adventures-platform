@@ -31,28 +31,42 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user?.character) {
-      return NextResponse.json({ error: 'No character found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'No character found' },
+        { status: 404 }
+      );
     }
 
-    const inventoryItems: any[] = (user.character.inventory?.items as any[]) ?? [];
+    const inventoryItems: any[] =
+      (user.character.inventory?.items as any[]) ?? [];
     const item = inventoryItems.find((i) => i.id === itemId);
 
     if (!item) {
-      return NextResponse.json({ error: 'Item not in inventory' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Item not in inventory' },
+        { status: 400 }
+      );
     }
 
     if (item.type === 'CONSUMABLE') {
-      return NextResponse.json({ error: 'Consumables cannot be equipped' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Consumables cannot be equipped' },
+        { status: 400 }
+      );
     }
 
     // Determine which slot to use from the item's effects
     const slot = item.effects?.slot ?? (item.type === 'PET' ? 'pet' : null);
 
     if (!slot) {
-      return NextResponse.json({ error: 'Item has no equip slot' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Item has no equip slot' },
+        { status: 400 }
+      );
     }
 
-    const currentEquipment = (user.character.equipment as Record<string, string | null>) ?? {};
+    const currentEquipment =
+      (user.character.equipment as Record<string, string | null>) ?? {};
     const newEquipment = { ...currentEquipment, [slot]: itemId };
 
     await prisma.character.update({
@@ -63,6 +77,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, equipment: newEquipment });
   } catch (error) {
     console.error('Error equipping item:', error);
-    return NextResponse.json({ error: 'Failed to equip item' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to equip item' },
+      { status: 500 }
+    );
   }
 }

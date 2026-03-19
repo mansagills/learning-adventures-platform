@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
 
     const job = await prisma.job.findUnique({ where: { jobId } });
     if (!job || !job.isActive) {
-      return NextResponse.json({ error: 'Job not found or inactive' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Job not found or inactive' },
+        { status: 404 }
+      );
     }
 
     const user = await prisma.user.findUnique({
@@ -56,11 +59,18 @@ export async function POST(request: NextRequest) {
 
     if (lastCompletion) {
       const cooldownMs = job.cooldownHours * 60 * 60 * 1000;
-      const cooldownEndsAt = new Date(lastCompletion.completedAt.getTime() + cooldownMs);
+      const cooldownEndsAt = new Date(
+        lastCompletion.completedAt.getTime() + cooldownMs
+      );
       if (cooldownEndsAt > now) {
-        const minutesLeft = Math.ceil((cooldownEndsAt.getTime() - now.getTime()) / 60000);
+        const minutesLeft = Math.ceil(
+          (cooldownEndsAt.getTime() - now.getTime()) / 60000
+        );
         return NextResponse.json(
-          { error: `Job on cooldown. Available in ${minutesLeft} minutes.`, cooldownEndsAt },
+          {
+            error: `Job on cooldown. Available in ${minutesLeft} minutes.`,
+            cooldownEndsAt,
+          },
           { status: 400 }
         );
       }
@@ -125,7 +135,12 @@ export async function POST(request: NextRequest) {
 
     const finalLevel = await prisma.userLevel.findUnique({
       where: { userId: user.id },
-      select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
+      select: {
+        currentLevel: true,
+        totalXP: true,
+        currency: true,
+        xpToNextLevel: true,
+      },
     });
 
     return NextResponse.json({
@@ -140,6 +155,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error completing job:', error);
-    return NextResponse.json({ error: 'Failed to complete job' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to complete job' },
+      { status: 500 }
+    );
   }
 }

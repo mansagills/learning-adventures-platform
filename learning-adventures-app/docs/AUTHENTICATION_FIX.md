@@ -98,7 +98,6 @@ npm run dev
 2. Navigate to `http://localhost:3001`
 3. You should be redirected to `/marketing-preview`
 
-
 4. Click **"Content Studio"** in the header
 5. ✅ Sign-in modal should appear (NOT a redirect loop)
 

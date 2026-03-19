@@ -10,7 +10,8 @@ const jobs = [
   {
     jobId: 'cafeteria-cashier',
     title: 'Cafeteria Cashier',
-    description: 'Help out at the school cafeteria! Calculate the correct change for customers ordering lunch.',
+    description:
+      'Help out at the school cafeteria! Calculate the correct change for customers ordering lunch.',
     type: 'MINI_GAME' as const,
     iconEmoji: '🍕',
     currencyReward: 30,
@@ -23,7 +24,8 @@ const jobs = [
   {
     jobId: 'math-tutor',
     title: 'Math Tutor',
-    description: 'Teach younger students by answering 10 math questions correctly. Help others learn!',
+    description:
+      'Teach younger students by answering 10 math questions correctly. Help others learn!',
     type: 'QUIZ' as const,
     iconEmoji: '📐',
     currencyReward: 20,
@@ -36,7 +38,8 @@ const jobs = [
   {
     jobId: 'library-organizer',
     title: 'Library Organizer',
-    description: 'Sort books by number on the spine! Put numbers in order from smallest to largest.',
+    description:
+      'Sort books by number on the spine! Put numbers in order from smallest to largest.',
     type: 'MINI_GAME' as const,
     iconEmoji: '📚',
     currencyReward: 15,
@@ -49,7 +52,8 @@ const jobs = [
   {
     jobId: 'garden-keeper',
     title: 'Campus Garden Keeper',
-    description: 'Navigate the school garden maze and collect all the vegetables!',
+    description:
+      'Navigate the school garden maze and collect all the vegetables!',
     type: 'MINI_GAME' as const,
     iconEmoji: '🌻',
     currencyReward: 25,
@@ -68,17 +72,23 @@ async function main() {
   let skipped = 0;
 
   for (const job of jobs) {
-    const existing = await prisma.job.findUnique({ where: { jobId: job.jobId } });
+    const existing = await prisma.job.findUnique({
+      where: { jobId: job.jobId },
+    });
     if (existing) {
       skipped++;
       continue;
     }
     await prisma.job.create({ data: job });
     created++;
-    console.log(`  ✅ Created: ${job.iconEmoji} ${job.title} (${job.currencyReward} coins, ${job.xpReward} XP)`);
+    console.log(
+      `  ✅ Created: ${job.iconEmoji} ${job.title} (${job.currencyReward} coins, ${job.xpReward} XP)`
+    );
   }
 
-  console.log(`\n✨ Done! Created ${created} jobs, skipped ${skipped} existing.`);
+  console.log(
+    `\n✨ Done! Created ${created} jobs, skipped ${skipped} existing.`
+  );
 }
 
 main()

@@ -35,7 +35,7 @@ vi.mock('fs', () => ({
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
-  }
+  },
 }));
 
 // Mock next-auth
@@ -114,14 +114,14 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '../../etc/passwd',
-          getData: () => Buffer.from('malicious content')
-        }
-      ]
+          getData: () => Buffer.from('malicious content'),
+        },
+      ],
     };
 
-    await expect(extractZipSafely(mockZip as any, mockTargetDir))
-      .rejects
-      .toThrow('Security Error: Malicious zip entry detected');
+    await expect(
+      extractZipSafely(mockZip as any, mockTargetDir)
+    ).rejects.toThrow('Security Error: Malicious zip entry detected');
 
     expect(fs.writeFile).not.toHaveBeenCalled();
   });
@@ -133,30 +133,30 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '/etc/passwd',
-          getData: () => Buffer.from('malicious content')
-        }
-      ]
+          getData: () => Buffer.from('malicious content'),
+        },
+      ],
     };
 
     // Note: path.resolve('/tmp/safe-dir', '/etc/passwd') -> '/etc/passwd'
     // So this should fail the containment check
 
-    await expect(extractZipSafely(mockZip as any, mockTargetDir))
-      .rejects
-      .toThrow('Security Error: Malicious zip entry detected');
+    await expect(
+      extractZipSafely(mockZip as any, mockTargetDir)
+    ).rejects.toThrow('Security Error: Malicious zip entry detected');
 
     expect(fs.writeFile).not.toHaveBeenCalled();
   });
 
   it('should allow nested directories within target', async () => {
-     const mockZip = {
+    const mockZip = {
       getEntries: () => [
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
-          getData: () => Buffer.from('content')
-        }
-      ]
+          getData: () => Buffer.from('content'),
+        },
+      ],
     };
 
     await extractZipSafely(mockZip as any, mockTargetDir);

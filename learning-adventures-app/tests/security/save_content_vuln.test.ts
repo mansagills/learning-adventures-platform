@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -50,15 +49,18 @@ describe('Save Content Vulnerability Fix', () => {
   it('rejects unauthenticated requests', async () => {
     mocks.getServerSession.mockResolvedValue(null);
 
-    const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
-      method: 'POST',
-      body: JSON.stringify({
-        content: '<h1>Test</h1>',
-        fileName: 'test.html',
-        type: 'game',
-        subscriptionTier: 'free',
-      }),
-    });
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/save-content',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          content: '<h1>Test</h1>',
+          fileName: 'test.html',
+          type: 'game',
+          subscriptionTier: 'free',
+        }),
+      }
+    );
 
     const response = await POST(req);
     expect(response.status).toBe(401);
@@ -70,15 +72,18 @@ describe('Save Content Vulnerability Fix', () => {
       user: { role: 'STUDENT' },
     });
 
-    const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
-      method: 'POST',
-      body: JSON.stringify({
-        content: '<h1>Test</h1>',
-        fileName: 'test.html',
-        type: 'game',
-        subscriptionTier: 'free',
-      }),
-    });
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/save-content',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          content: '<h1>Test</h1>',
+          fileName: 'test.html',
+          type: 'game',
+          subscriptionTier: 'free',
+        }),
+      }
+    );
 
     const response = await POST(req);
     expect(response.status).toBe(401);
@@ -92,15 +97,18 @@ describe('Save Content Vulnerability Fix', () => {
 
     const maliciousFileName = '../../../../tmp/hacked.html';
 
-    const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
-      method: 'POST',
-      body: JSON.stringify({
-        content: '<h1>Hacked</h1>',
-        fileName: maliciousFileName,
-        type: 'game',
-        subscriptionTier: 'free',
-      }),
-    });
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/save-content',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          content: '<h1>Hacked</h1>',
+          fileName: maliciousFileName,
+          type: 'game',
+          subscriptionTier: 'free',
+        }),
+      }
+    );
 
     const response = await POST(req);
 
@@ -119,15 +127,18 @@ describe('Save Content Vulnerability Fix', () => {
 
     const validFileName = 'test_game.html';
 
-    const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
-      method: 'POST',
-      body: JSON.stringify({
-        content: '<h1>Valid Game</h1>',
-        fileName: validFileName,
-        type: 'game',
-        subscriptionTier: 'free',
-      }),
-    });
+    const req = new NextRequest(
+      'http://localhost:3000/api/internal/save-content',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          content: '<h1>Valid Game</h1>',
+          fileName: validFileName,
+          type: 'game',
+          subscriptionTier: 'free',
+        }),
+      }
+    );
 
     const response = await POST(req);
 

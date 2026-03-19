@@ -52,7 +52,7 @@ export class InteractableObject extends Phaser.GameObjects.Container {
 
   private createHighlight(): void {
     this.highlightGraphics = this.scene.add.graphics();
-    this.highlightGraphics.lineStyle(3, 0xFFD700, 1); // Gold outline
+    this.highlightGraphics.lineStyle(3, 0xffd700, 1); // Gold outline
     this.highlightGraphics.strokeCircle(0, 0, 25);
     this.highlightGraphics.setVisible(false);
     this.add(this.highlightGraphics);

@@ -103,7 +103,7 @@ const shopItems = [
   {
     itemId: 'party-hat',
     name: 'Party Hat',
-    description: 'Celebrate every adventure like it\'s a party!',
+    description: "Celebrate every adventure like it's a party!",
     type: 'EQUIPMENT' as const,
     price: 40,
     levelRequirement: 1,
@@ -189,7 +189,8 @@ const shopItems = [
   {
     itemId: 'pet-robot',
     name: 'Robot Companion',
-    description: 'A tiny robot that follows you everywhere and beeps encouragement!',
+    description:
+      'A tiny robot that follows you everywhere and beeps encouragement!',
     type: 'PET' as const,
     price: 200,
     levelRequirement: 5,
@@ -246,10 +247,14 @@ async function main() {
 
     await prisma.shopItem.create({ data: item });
     created++;
-    console.log(`  ✅ Created: ${item.iconEmoji} ${item.name} (${item.price} coins)`);
+    console.log(
+      `  ✅ Created: ${item.iconEmoji} ${item.name} (${item.price} coins)`
+    );
   }
 
-  console.log(`\n✨ Done! Created ${created} items, skipped ${skipped} existing.`);
+  console.log(
+    `\n✨ Done! Created ${created} items, skipped ${skipped} existing.`
+  );
 }
 
 main()

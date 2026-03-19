@@ -23,46 +23,99 @@ export class WorldScene extends Phaser.Scene {
 
   preload(): void {
     // Character sprite sheets (384x384, 4 cols x 4 rows, 96x96 per frame)
-    this.load.spritesheet('player-human-1',     '/game-assets/sprites/human-1.png',       { frameWidth: 96, frameHeight: 96 });
-    this.load.spritesheet('player-human-2',     '/game-assets/sprites/human-2.png',       { frameWidth: 96, frameHeight: 96 });
-    this.load.spritesheet('player-robot-blue',  '/game-assets/sprites/robot-blue.png',    { frameWidth: 96, frameHeight: 96 });
-    this.load.spritesheet('player-wizard-purple','/game-assets/sprites/wizard-purple.png',{ frameWidth: 96, frameHeight: 96 });
-    this.load.spritesheet('player-cat-orange',  '/game-assets/sprites/cat-orange.png',    { frameWidth: 96, frameHeight: 96 });
-    this.load.spritesheet('player-knight-silver','/game-assets/sprites/knight-silver.png',{ frameWidth: 96, frameHeight: 96 });
+    this.load.spritesheet(
+      'player-human-1',
+      '/game-assets/sprites/human-1.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
+    this.load.spritesheet(
+      'player-human-2',
+      '/game-assets/sprites/human-2.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
+    this.load.spritesheet(
+      'player-robot-blue',
+      '/game-assets/sprites/robot-blue.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
+    this.load.spritesheet(
+      'player-wizard-purple',
+      '/game-assets/sprites/wizard-purple.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
+    this.load.spritesheet(
+      'player-cat-orange',
+      '/game-assets/sprites/cat-orange.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
+    this.load.spritesheet(
+      'player-knight-silver',
+      '/game-assets/sprites/knight-silver.png',
+      { frameWidth: 96, frameHeight: 96 }
+    );
 
     // Ground tiles (1024x1024 seamless, displayed at 64x64)
-    this.load.image('ground-grass-1',    '/game-assets/tilemaps/grass-plain-1.png');
-    this.load.image('ground-grass-2',    '/game-assets/tilemaps/grass-plain-2.png');
-    this.load.image('ground-grass-3',    '/game-assets/tilemaps/grass-plain-3.png');
-    this.load.image('ground-flowers-1',  '/game-assets/tilemaps/grass-flowers-1.png');
-    this.load.image('ground-flowers-2',  '/game-assets/tilemaps/grass-flowers-2.png');
-    this.load.image('ground-path',       '/game-assets/tilemaps/stone-path-1.png');
-    this.load.image('ground-dirt',       '/game-assets/tilemaps/dirt-earth-1.png');
-    this.load.image('ground-water',      '/game-assets/tilemaps/water-1.png');
+    this.load.image(
+      'ground-grass-1',
+      '/game-assets/tilemaps/grass-plain-1.png'
+    );
+    this.load.image(
+      'ground-grass-2',
+      '/game-assets/tilemaps/grass-plain-2.png'
+    );
+    this.load.image(
+      'ground-grass-3',
+      '/game-assets/tilemaps/grass-plain-3.png'
+    );
+    this.load.image(
+      'ground-flowers-1',
+      '/game-assets/tilemaps/grass-flowers-1.png'
+    );
+    this.load.image(
+      'ground-flowers-2',
+      '/game-assets/tilemaps/grass-flowers-2.png'
+    );
+    this.load.image('ground-path', '/game-assets/tilemaps/stone-path-1.png');
+    this.load.image('ground-dirt', '/game-assets/tilemaps/dirt-earth-1.png');
+    this.load.image('ground-water', '/game-assets/tilemaps/water-1.png');
 
     // Building wall tiles
-    this.load.image('wall-math-1',       '/game-assets/tilemaps/math-wall-1.png');
-    this.load.image('wall-math-2',       '/game-assets/tilemaps/math-wall-2.png');
-    this.load.image('wall-math-3',       '/game-assets/tilemaps/math-wall-3.png');
-    this.load.image('wall-science-1',    '/game-assets/tilemaps/science-building-1.png');
-    this.load.image('wall-english-1',    '/game-assets/tilemaps/english-building-1.png');
+    this.load.image('wall-math-1', '/game-assets/tilemaps/math-wall-1.png');
+    this.load.image('wall-math-2', '/game-assets/tilemaps/math-wall-2.png');
+    this.load.image('wall-math-3', '/game-assets/tilemaps/math-wall-3.png');
+    this.load.image(
+      'wall-science-1',
+      '/game-assets/tilemaps/science-building-1.png'
+    );
+    this.load.image(
+      'wall-english-1',
+      '/game-assets/tilemaps/english-building-1.png'
+    );
 
     // Fallback placeholder textures for doors/collision bodies (generated at runtime)
     const g = this.add.graphics();
-    g.fillStyle(0xFFD700, 1); g.fillCircle(16, 16, 16);
-    g.generateTexture('door-gold-small', 32, 32); g.destroy();
+    g.fillStyle(0xffd700, 1);
+    g.fillCircle(16, 16, 16);
+    g.generateTexture('door-gold-small', 32, 32);
+    g.destroy();
 
     const g2 = this.add.graphics();
-    g2.fillStyle(0x14B8A6, 1); g2.fillCircle(16, 16, 16);
-    g2.generateTexture('door-teal-small', 32, 32); g2.destroy();
+    g2.fillStyle(0x14b8a6, 1);
+    g2.fillCircle(16, 16, 16);
+    g2.generateTexture('door-teal-small', 32, 32);
+    g2.destroy();
 
     const g3 = this.add.graphics();
-    g3.fillStyle(0xF59E0B, 1); g3.fillCircle(16, 16, 16);
-    g3.generateTexture('door-amber-small', 32, 32); g3.destroy();
+    g3.fillStyle(0xf59e0b, 1);
+    g3.fillCircle(16, 16, 16);
+    g3.generateTexture('door-amber-small', 32, 32);
+    g3.destroy();
 
     const g4 = this.add.graphics();
-    g4.fillStyle(0x000000, 0); g4.fillRect(0, 0, 64, 64);
-    g4.generateTexture('wall-tile', 64, 64); g4.destroy();
+    g4.fillStyle(0x000000, 0);
+    g4.fillRect(0, 0, 64, 64);
+    g4.generateTexture('wall-tile', 64, 64);
+    g4.destroy();
   }
 
   create(): void {
@@ -116,7 +169,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Paths — vertical (center columns 9-10)
     for (let y = 0; y < 12; y++) {
-      [9, 10].forEach(px => {
+      [9, 10].forEach((px) => {
         const tile = this.add.image(px * TS, y * TS, 'ground-path');
         tile.setOrigin(0, 0);
         tile.setDisplaySize(TS, TS);
@@ -125,7 +178,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Paths — horizontal (center rows 5-6)
     for (let x = 0; x < 20; x++) {
-      [5, 6].forEach(py => {
+      [5, 6].forEach((py) => {
         const tile = this.add.image(x * TS, py * TS, 'ground-path');
         tile.setOrigin(0, 0);
         tile.setDisplaySize(TS, TS);
@@ -141,7 +194,11 @@ export class WorldScene extends Phaser.Scene {
         wall.setOrigin(0, 0);
         wall.setDisplaySize(TS, TS);
 
-        const wallBody = this.physics.add.staticImage(x * TS + TS / 2, y * TS + TS / 2, 'wall-tile');
+        const wallBody = this.physics.add.staticImage(
+          x * TS + TS / 2,
+          y * TS + TS / 2,
+          'wall-tile'
+        );
         wallBody.setDisplaySize(TS, TS);
         wallBody.setVisible(false);
         wallBody.refreshBody();
@@ -150,7 +207,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Math building border outline
     const mathOutline = this.add.graphics();
-    mathOutline.lineStyle(3, 0x6D28D9, 1);
+    mathOutline.lineStyle(3, 0x6d28d9, 1);
     mathOutline.strokeRect(8 * TS, 1 * TS, 4 * TS, 3 * TS);
 
     // Math building door tile (bottom-center of building, row 4)
@@ -177,15 +234,27 @@ export class WorldScene extends Phaser.Scene {
     mathLabel.setOrigin(0.5);
 
     // Science building (bottom left)
-    this.addPlaceholderBuilding(1, 7, 'SCIENCE\n(Coming Soon)', 0x14B8A6, 'wall-science-1');
+    this.addPlaceholderBuilding(
+      1,
+      7,
+      'SCIENCE\n(Coming Soon)',
+      0x14b8a6,
+      'wall-science-1'
+    );
     const scienceOutline = this.add.graphics();
-    scienceOutline.lineStyle(3, 0x14B8A6, 1);
+    scienceOutline.lineStyle(3, 0x14b8a6, 1);
     scienceOutline.strokeRect(1 * TS, 7 * TS, 3 * TS, 3 * TS);
 
     // English building (bottom right)
-    this.addPlaceholderBuilding(15, 7, 'ENGLISH\n(Coming Soon)', 0xF59E0B, 'wall-english-1');
+    this.addPlaceholderBuilding(
+      15,
+      7,
+      'ENGLISH\n(Coming Soon)',
+      0xf59e0b,
+      'wall-english-1'
+    );
     const englishOutline = this.add.graphics();
-    englishOutline.lineStyle(3, 0xF59E0B, 1);
+    englishOutline.lineStyle(3, 0xf59e0b, 1);
     englishOutline.strokeRect(15 * TS, 7 * TS, 3 * TS, 3 * TS);
 
     // Shop (left side)
@@ -195,13 +264,18 @@ export class WorldScene extends Phaser.Scene {
     this.addJobBoardBuilding(16, 3);
 
     // Welcome text (fixed to camera)
-    const welcomeText = this.add.text(640, 40, 'Welcome to Learning Adventures Campus!  WASD / Arrow Keys to move', {
-      fontSize: '16px',
-      color: '#8B5CF6',
-      backgroundColor: '#FFFFFFCC',
-      padding: { x: 10, y: 5 },
-      align: 'center',
-    });
+    const welcomeText = this.add.text(
+      640,
+      40,
+      'Welcome to Learning Adventures Campus!  WASD / Arrow Keys to move',
+      {
+        fontSize: '16px',
+        color: '#8B5CF6',
+        backgroundColor: '#FFFFFFCC',
+        padding: { x: 10, y: 5 },
+        align: 'center',
+      }
+    );
     welcomeText.setOrigin(0.5, 0);
     welcomeText.setScrollFactor(0);
   }
@@ -210,27 +284,49 @@ export class WorldScene extends Phaser.Scene {
     const TS = 64;
     for (let dy = 0; dy < 3; dy++) {
       for (let dx = 0; dx < 3; dx++) {
-        const wall = this.add.image((tileX + dx) * TS, (tileY + dy) * TS, 'wall-science-1');
+        const wall = this.add.image(
+          (tileX + dx) * TS,
+          (tileY + dy) * TS,
+          'wall-science-1'
+        );
         wall.setOrigin(0, 0);
         wall.setDisplaySize(TS, TS);
         if (dy < 2) {
-          const wb = this.physics.add.staticImage((tileX + dx) * TS + TS / 2, (tileY + dy) * TS + TS / 2, 'wall-tile');
+          const wb = this.physics.add.staticImage(
+            (tileX + dx) * TS + TS / 2,
+            (tileY + dy) * TS + TS / 2,
+            'wall-tile'
+          );
           wb.setDisplaySize(TS, TS);
           wb.setVisible(false);
           wb.refreshBody();
         }
       }
     }
-    const shopLabel = this.add.text((tileX + 1.5) * TS, (tileY + 1) * TS, 'SHOP', {
-      fontSize: '14px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
-    });
+    const shopLabel = this.add.text(
+      (tileX + 1.5) * TS,
+      (tileY + 1) * TS,
+      'SHOP',
+      {
+        fontSize: '14px',
+        color: '#FFFFFF',
+        backgroundColor: '#00000099',
+        padding: { x: 4, y: 4 },
+        align: 'center',
+      }
+    );
     shopLabel.setOrigin(0.5);
 
     const shopOutline = this.add.graphics();
-    shopOutline.lineStyle(3, 0x14B8A6, 1);
+    shopOutline.lineStyle(3, 0x14b8a6, 1);
     shopOutline.strokeRect(tileX * TS, tileY * TS, 3 * TS, 3 * TS);
 
-    const shopInteractable = new InteractableObject(this, (tileX + 1.5) * TS, (tileY + 3) * TS, 'door-teal-small');
+    const shopInteractable = new InteractableObject(
+      this,
+      (tileX + 1.5) * TS,
+      (tileY + 3) * TS,
+      'door-teal-small'
+    );
     shopInteractable.setPromptText('Press SPACE: Open Shop');
     shopInteractable.setOnInteract(() => EventBus.emit('open-shop', {}));
     this.interactables.push(shopInteractable);
@@ -240,52 +336,92 @@ export class WorldScene extends Phaser.Scene {
     const TS = 64;
     for (let dy = 0; dy < 3; dy++) {
       for (let dx = 0; dx < 3; dx++) {
-        const wall = this.add.image((tileX + dx) * TS, (tileY + dy) * TS, 'wall-english-1');
+        const wall = this.add.image(
+          (tileX + dx) * TS,
+          (tileY + dy) * TS,
+          'wall-english-1'
+        );
         wall.setOrigin(0, 0);
         wall.setDisplaySize(TS, TS);
         if (dy < 2) {
-          const wb = this.physics.add.staticImage((tileX + dx) * TS + TS / 2, (tileY + dy) * TS + TS / 2, 'wall-tile');
+          const wb = this.physics.add.staticImage(
+            (tileX + dx) * TS + TS / 2,
+            (tileY + dy) * TS + TS / 2,
+            'wall-tile'
+          );
           wb.setDisplaySize(TS, TS);
           wb.setVisible(false);
           wb.refreshBody();
         }
       }
     }
-    const label = this.add.text((tileX + 1.5) * TS, (tileY + 1) * TS, 'JOB\nBOARD', {
-      fontSize: '13px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
-    });
+    const label = this.add.text(
+      (tileX + 1.5) * TS,
+      (tileY + 1) * TS,
+      'JOB\nBOARD',
+      {
+        fontSize: '13px',
+        color: '#FFFFFF',
+        backgroundColor: '#00000099',
+        padding: { x: 4, y: 4 },
+        align: 'center',
+      }
+    );
     label.setOrigin(0.5);
 
     const jobOutline = this.add.graphics();
-    jobOutline.lineStyle(3, 0xF59E0B, 1);
+    jobOutline.lineStyle(3, 0xf59e0b, 1);
     jobOutline.strokeRect(tileX * TS, tileY * TS, 3 * TS, 3 * TS);
 
-    const jobInteractable = new InteractableObject(this, (tileX + 1.5) * TS, (tileY + 3) * TS, 'door-amber-small');
+    const jobInteractable = new InteractableObject(
+      this,
+      (tileX + 1.5) * TS,
+      (tileY + 3) * TS,
+      'door-amber-small'
+    );
     jobInteractable.setPromptText('Press SPACE: Open Job Board');
     jobInteractable.setOnInteract(() => EventBus.emit('open-job-board', {}));
     this.interactables.push(jobInteractable);
   }
 
-  private addPlaceholderBuilding(x: number, y: number, label: string, _color: number, wallKey: string): void {
+  private addPlaceholderBuilding(
+    x: number,
+    y: number,
+    label: string,
+    _color: number,
+    wallKey: string
+  ): void {
     const TS = 64;
     for (let dy = 0; dy < 3; dy++) {
       for (let dx = 0; dx < 3; dx++) {
         const wall = this.add.image((x + dx) * TS, (y + dy) * TS, wallKey);
         wall.setOrigin(0, 0);
         wall.setDisplaySize(TS, TS);
-        const wb = this.physics.add.staticImage((x + dx) * TS + TS / 2, (y + dy) * TS + TS / 2, 'wall-tile');
+        const wb = this.physics.add.staticImage(
+          (x + dx) * TS + TS / 2,
+          (y + dy) * TS + TS / 2,
+          'wall-tile'
+        );
         wb.setDisplaySize(TS, TS);
         wb.setVisible(false);
         wb.refreshBody();
       }
     }
     const buildingLabel = this.add.text((x + 1.5) * TS, (y + 1) * TS, label, {
-      fontSize: '14px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 }, align: 'center',
+      fontSize: '14px',
+      color: '#FFFFFF',
+      backgroundColor: '#00000099',
+      padding: { x: 4, y: 4 },
+      align: 'center',
     });
     buildingLabel.setOrigin(0.5);
   }
 
-  private savePositionHandler = (data: { x: number; y: number; scene: string }) => {
+  private savePositionHandler = (data: {
+    x: number;
+    y: number;
+    scene: string;
+  }) => {
     // React world/page.tsx handles the actual API call via its own EventBus listener
     console.log('Saving player position:', data);
   };
@@ -320,7 +456,10 @@ export class WorldScene extends Phaser.Scene {
       });
 
       // Check for interaction key press
-      if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+      if (
+        this.interactKey &&
+        Phaser.Input.Keyboard.JustDown(this.interactKey)
+      ) {
         // Interact with nearby objects
         this.interactables.forEach((interactable) => {
           interactable.interact();
@@ -341,5 +480,4 @@ export class WorldScene extends Phaser.Scene {
     });
     this.interactables = [];
   }
-
 }

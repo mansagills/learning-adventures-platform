@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
     const shopItem = await prisma.shopItem.findUnique({ where: { itemId } });
 
     if (!shopItem || !shopItem.isAvailable) {
-      return NextResponse.json({ error: 'Item not available' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Item not available' },
+        { status: 404 }
+      );
     }
 
     // Load user with level and character
@@ -43,7 +46,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!user.character) {
-      return NextResponse.json({ error: 'No character found' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No character found' },
+        { status: 400 }
+      );
     }
 
     // Check level requirement
@@ -59,20 +65,29 @@ export async function POST(request: NextRequest) {
     const currentCurrency = user.level?.currency ?? 0;
     if (currentCurrency < shopItem.price) {
       return NextResponse.json(
-        { error: `Not enough coins. Need ${shopItem.price}, have ${currentCurrency}` },
+        {
+          error: `Not enough coins. Need ${shopItem.price}, have ${currentCurrency}`,
+        },
         { status: 400 }
       );
     }
 
     // Build updated inventory
     const inventory = user.character.inventory;
-    const existingItems: any[] = Array.isArray(inventory?.items) ? (inventory.items as any[]) : [];
+    const existingItems: any[] = Array.isArray(inventory?.items)
+      ? (inventory.items as any[])
+      : [];
 
     // For equipment/pets, reject if already owned (before touching the DB)
     if (shopItem.type !== 'CONSUMABLE') {
-      const alreadyOwned = existingItems.some((i: any) => i.id === shopItem.itemId);
+      const alreadyOwned = existingItems.some(
+        (i: any) => i.id === shopItem.itemId
+      );
       if (alreadyOwned) {
-        return NextResponse.json({ error: 'You already own this item' }, { status: 400 });
+        return NextResponse.json(
+          { error: 'You already own this item' },
+          { status: 400 }
+        );
       }
     }
 
@@ -91,7 +106,9 @@ export async function POST(request: NextRequest) {
       const existing = existingItems.find((i: any) => i.id === shopItem.itemId);
       if (existing) {
         updatedItems = existingItems.map((i: any) =>
-          i.id === shopItem.itemId ? { ...i, quantity: (i.quantity ?? 1) + 1 } : i
+          i.id === shopItem.itemId
+            ? { ...i, quantity: (i.quantity ?? 1) + 1 }
+            : i
         );
       } else {
         updatedItems = [...existingItems, newItem];

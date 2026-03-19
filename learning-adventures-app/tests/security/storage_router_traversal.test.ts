@@ -29,16 +29,16 @@ describe('Security: Path Traversal in storageRouter', () => {
       name: 'test.html',
       size: 100,
       arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(10)),
-      type: 'text/html'
+      type: 'text/html',
     } as unknown as File;
 
     // Attempt path traversal: try to write to /etc/passwd (simulated)
     const traversalPath = 'games/../../../../etc/passwd';
 
     // We expect this to fail.
-    await expect(routeFileUpload(file, traversalPath))
-      .rejects
-      .toThrow(/Path traversal detected/i);
+    await expect(routeFileUpload(file, traversalPath)).rejects.toThrow(
+      /Path traversal detected/i
+    );
 
     // Verify fs.writeFile was NOT called
     expect(fs.writeFile).not.toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('Security: Path Traversal in storageRouter', () => {
       name: 'valid.html',
       size: 100,
       arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(10)),
-      type: 'text/html'
+      type: 'text/html',
     } as unknown as File;
 
     const validPath = 'games/valid.html';
@@ -62,6 +62,8 @@ describe('Security: Path Traversal in storageRouter', () => {
     const writePath = writeCall[0] as string;
 
     // Check path ends with public/games/valid.html
-    expect(writePath.endsWith(path.join('public', 'games', 'valid.html'))).toBe(true);
+    expect(writePath.endsWith(path.join('public', 'games', 'valid.html'))).toBe(
+      true
+    );
   });
 });

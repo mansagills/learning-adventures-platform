@@ -10,15 +10,15 @@ vi.mock('@/lib/prisma', () => ({
     user: {
       findUnique: vi.fn(),
       create: vi.fn(),
-    }
-  }
+    },
+  },
 }));
 
 // Mock bcrypt
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_password'),
-  }
+  },
 }));
 
 describe('Security: Signup Mass Assignment', () => {
@@ -44,18 +44,20 @@ describe('Security: Signup Mass Assignment', () => {
         name: 'Attacker',
         email: 'attacker@example.com',
         password: 'password123',
-        role: 'ADMIN' // Trying to exploit mass assignment
-      })
+        role: 'ADMIN', // Trying to exploit mass assignment
+      }),
     });
 
     await POST(request);
 
     // Verify prisma.user.create was called with STUDENT role (sanitized)
-    expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        role: 'STUDENT'
+    expect(prisma.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: 'STUDENT',
+        }),
       })
-    }));
+    );
   });
 
   it('should allow valid roles (STUDENT, PARENT, TEACHER)', async () => {
@@ -76,17 +78,19 @@ describe('Security: Signup Mass Assignment', () => {
         name: 'Parent',
         email: 'parent@example.com',
         password: 'password123',
-        role: 'PARENT'
-      })
+        role: 'PARENT',
+      }),
     });
 
     await POST(request);
 
     // Verify prisma.user.create was called with PARENT role
-    expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({
-        role: 'PARENT'
+    expect(prisma.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          role: 'PARENT',
+        }),
       })
-    }));
+    );
   });
 });

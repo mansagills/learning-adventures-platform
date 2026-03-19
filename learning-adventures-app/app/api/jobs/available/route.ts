@@ -52,13 +52,17 @@ export async function GET() {
     // Build per-job status
     const jobsWithStatus = jobs.map((job) => {
       // Find last completion of this job
-      const lastCompletion = recentCompletions.find((c) => c.jobId === job.jobId);
+      const lastCompletion = recentCompletions.find(
+        (c) => c.jobId === job.jobId
+      );
       let cooldownEndsAt: string | null = null;
       let onCooldown = false;
 
       if (lastCompletion) {
         const cooldownMs = job.cooldownHours * 60 * 60 * 1000;
-        const endsAt = new Date(lastCompletion.completedAt.getTime() + cooldownMs);
+        const endsAt = new Date(
+          lastCompletion.completedAt.getTime() + cooldownMs
+        );
         if (endsAt > now) {
           onCooldown = true;
           cooldownEndsAt = endsAt.toISOString();
@@ -96,6 +100,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Error fetching jobs:', error);
-    return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch jobs' },
+      { status: 500 }
+    );
   }
 }

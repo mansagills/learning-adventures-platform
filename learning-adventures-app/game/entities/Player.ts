@@ -17,7 +17,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private lastSaveTime: number = 0;
   private saveInterval: number = 10000; // Save position every 10 seconds
   private currentDirection: 'up' | 'down' | 'left' | 'right' = 'down';
-  private handleTeleport!: (data: { x: number; y: number; scene?: string }) => void;
+  private handleTeleport!: (data: {
+    x: number;
+    y: number;
+    scene?: string;
+  }) => void;
   private handleSpeedChange!: (data: { speed: number }) => void;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
@@ -34,7 +38,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
       body.setCollideWorldBounds(true);
-      body.setSize(40, 40);   // Collision box — slightly smaller than display
+      body.setSize(40, 40); // Collision box — slightly smaller than display
       body.setOffset(28, 40); // Offset within 96px frame to align feet
     }
 
@@ -74,12 +78,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Row 1 (frames 4-7):  walk SIDE (left-facing; mirror for right via flipX)
     // Row 2 (frames 8-11): walk DOWN (front of character, facing camera)
     // Row 3 (frames 12-15): walk SIDE variant / idle
-    const chars = ['human-1', 'human-2', 'robot-blue', 'wizard-purple', 'cat-orange', 'knight-silver'];
+    const chars = [
+      'human-1',
+      'human-2',
+      'robot-blue',
+      'wizard-purple',
+      'cat-orange',
+      'knight-silver',
+    ];
     const anims = [
-      { key: 'walk-up',    start: 0,  end: 3  },
-      { key: 'walk-side',  start: 4,  end: 7  },
-      { key: 'walk-down',  start: 8,  end: 11 },
-      { key: 'idle',       start: 12, end: 15 },
+      { key: 'walk-up', start: 0, end: 3 },
+      { key: 'walk-side', start: 4, end: 7 },
+      { key: 'walk-down', start: 8, end: 11 },
+      { key: 'idle', start: 12, end: 15 },
     ];
 
     for (const char of chars) {
@@ -90,7 +101,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (!this.scene.anims.exists(animKey)) {
           this.scene.anims.create({
             key: animKey,
-            frames: this.scene.anims.generateFrameNumbers(textureKey, { start: anim.start, end: anim.end }),
+            frames: this.scene.anims.generateFrameNumbers(textureKey, {
+              start: anim.start,
+              end: anim.end,
+            }),
             frameRate: anim.key === 'idle' ? 3 : 8,
             repeat: -1,
           });

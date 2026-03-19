@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
     // SECURITY: Prevent privilege escalation by blocking signup with admin domain
     if (email.endsWith('@learningadventures.org')) {
       return NextResponse.json(
-        { error: 'Signups with @learningadventures.org are restricted. Please contact an administrator.' },
+        {
+          error:
+            'Signups with @learningadventures.org are restricted. Please contact an administrator.',
+        },
         { status: 403 }
       );
     }

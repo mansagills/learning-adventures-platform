@@ -64,7 +64,10 @@ export function AdventureEmbed({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative w-[95vw] h-[95vh] max-w-7xl bg-white rounded-lg shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 text-white shrink-0" style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}>
+        <div
+          className="flex items-center justify-between px-4 py-3 text-white shrink-0"
+          style={{ background: 'linear-gradient(to right, #8B5CF6, #6D28D9)' }}
+        >
           <h2 className="text-lg font-bold">
             {type === 'game' ? '🎮 Playing Game' : '📚 Learning Activity'}
           </h2>
@@ -72,7 +75,10 @@ export function AdventureEmbed({
             {/* Manual fallback — visible if game doesn't auto-postMessage */}
             {!completed && (
               <button
-                onClick={() => { setCompleted(true); onComplete?.(); }}
+                onClick={() => {
+                  setCompleted(true);
+                  onComplete?.();
+                }}
                 className="px-4 py-1.5 rounded-lg bg-green-500 hover:bg-green-400 text-white text-sm font-semibold transition-colors"
               >
                 ✅ I finished!

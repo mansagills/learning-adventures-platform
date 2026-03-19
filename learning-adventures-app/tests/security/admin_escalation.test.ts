@@ -1,4 +1,3 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../../app/api/auth/signup/route';
 import { prisma } from '../../lib/prisma';
@@ -34,7 +33,7 @@ describe('Signup Security Controls', () => {
       email: 'attacker@learningadventures.org',
       password: 'password123',
       role: 'STUDENT',
-      gradeLevel: '5'
+      gradeLevel: '5',
     };
 
     const req = {
@@ -45,7 +44,9 @@ describe('Signup Security Controls', () => {
     const data = await response.json();
 
     expect(response.status).toBe(403);
-    expect(data.error).toContain('Signups with @learningadventures.org are restricted');
+    expect(data.error).toContain(
+      'Signups with @learningadventures.org are restricted'
+    );
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
@@ -54,7 +55,7 @@ describe('Signup Security Controls', () => {
       name: 'User',
       email: 'invalid-email',
       password: 'password123',
-      role: 'STUDENT'
+      role: 'STUDENT',
     };
 
     const req = {
@@ -72,7 +73,7 @@ describe('Signup Security Controls', () => {
       name: 'User',
       email: 'user@example.com',
       password: 'short',
-      role: 'STUDENT'
+      role: 'STUDENT',
     };
 
     const req = {
@@ -81,7 +82,9 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
+    expect((await response.json()).error).toBe(
+      'Password must be at least 8 characters long'
+    );
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
@@ -91,7 +94,7 @@ describe('Signup Security Controls', () => {
       email: 'student@example.com',
       password: 'password123',
       role: 'STUDENT',
-      gradeLevel: '5'
+      gradeLevel: '5',
     };
 
     const req = {

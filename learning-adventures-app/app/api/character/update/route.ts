@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!user.character) {
-      return NextResponse.json({ error: 'Character not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Character not found' },
+        { status: 404 }
+      );
     }
 
     // Parse request body

@@ -35,7 +35,9 @@ describe('Signup API Vulnerability Check', () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
 
     // Setup: Create returns the user
-    prismaMock.user.create.mockImplementation((args: any) => Promise.resolve(args.data));
+    prismaMock.user.create.mockImplementation((args: any) =>
+      Promise.resolve(args.data)
+    );
 
     const body = {
       name: 'Attacker',
@@ -66,7 +68,9 @@ describe('Signup API Vulnerability Check', () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
 
     // Setup: Create returns the user
-    prismaMock.user.create.mockImplementation((args: any) => Promise.resolve(args.data));
+    prismaMock.user.create.mockImplementation((args: any) =>
+      Promise.resolve(args.data)
+    );
 
     const body = {
       name: 'Teacher',

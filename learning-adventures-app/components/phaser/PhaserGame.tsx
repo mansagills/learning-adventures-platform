@@ -16,8 +16,12 @@ export function PhaserGame({ onReady, onSceneReady }: PhaserGameProps) {
   // Keep callback refs fresh without triggering effect re-runs
   const onReadyRef = useRef(onReady);
   const onSceneReadyRef = useRef(onSceneReady);
-  useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
-  useEffect(() => { onSceneReadyRef.current = onSceneReady; }, [onSceneReady]);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
+  useEffect(() => {
+    onSceneReadyRef.current = onSceneReady;
+  }, [onSceneReady]);
 
   useEffect(() => {
     if (!containerRef.current) return;

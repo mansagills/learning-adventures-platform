@@ -23,6 +23,7 @@ Create comprehensive performance analysis with automated bottleneck detection, o
 ## Performance Analysis Areas
 
 ### 1. Frame Rate & Rendering Performance
+
 - Analyze draw calls and batching efficiency
 - Identify overdraw and fillrate bottlenecks
 - Review shader complexity and optimization opportunities
@@ -30,6 +31,7 @@ Create comprehensive performance analysis with automated bottleneck detection, o
 - Check lighting and shadow rendering performance
 
 ### 2. Memory Usage Analysis
+
 - Memory allocation patterns and potential leaks
 - Texture memory usage and compression opportunities
 - Audio memory optimization suggestions
@@ -37,6 +39,7 @@ Create comprehensive performance analysis with automated bottleneck detection, o
 - Platform-specific memory constraints evaluation
 
 ### 3. CPU Performance Profiling
+
 - Script execution bottlenecks identification
 - Physics simulation optimization opportunities
 - AI and pathfinding performance analysis
@@ -44,6 +47,7 @@ Create comprehensive performance analysis with automated bottleneck detection, o
 - Threading and parallelization recommendations
 
 ### 4. Platform-Specific Optimization
+
 - Mobile performance considerations (battery, thermal throttling)
 - Console-specific optimization guidelines
 - PC hardware scaling recommendations

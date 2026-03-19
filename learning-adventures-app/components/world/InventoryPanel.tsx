@@ -23,7 +23,10 @@ export function InventoryPanel({ onClose, onEquip }: InventoryPanelProps) {
   const [equipment, setEquipment] = useState<Record<string, string | null>>({});
   const [currency, setCurrency] = useState(0);
   const [equipping, setEquipping] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchInventory = useCallback(async () => {
@@ -68,10 +71,16 @@ export function InventoryPanel({ onClose, onEquip }: InventoryPanelProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setFeedback({ type: 'error', message: data.error ?? 'Failed to equip' });
+        setFeedback({
+          type: 'error',
+          message: data.error ?? 'Failed to equip',
+        });
       } else {
         setEquipment(data.equipment);
-        setFeedback({ type: 'success', message: `Equipped ${item.iconEmoji} ${item.name}!` });
+        setFeedback({
+          type: 'success',
+          message: `Equipped ${item.iconEmoji} ${item.name}!`,
+        });
         onEquip?.(item.id, data.equipment);
       }
     } catch {
@@ -93,14 +102,17 @@ export function InventoryPanel({ onClose, onEquip }: InventoryPanelProps) {
     return equipment[slot] === item.id;
   };
 
-  const equippedSection = items.filter((i) => i.type !== 'CONSUMABLE' && isEquipped(i));
-  const wearableSection = items.filter((i) => i.type !== 'CONSUMABLE' && !isEquipped(i));
+  const equippedSection = items.filter(
+    (i) => i.type !== 'CONSUMABLE' && isEquipped(i)
+  );
+  const wearableSection = items.filter(
+    (i) => i.type !== 'CONSUMABLE' && !isEquipped(i)
+  );
   const consumableSection = items.filter((i) => i.type === 'CONSUMABLE');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative w-[90vw] max-w-2xl max-h-[85vh] flex flex-col bg-[#1a1a2e] rounded-2xl shadow-2xl overflow-hidden border border-[#8B5CF6]/40">
-
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 shrink-0"
@@ -244,8 +256,8 @@ function ItemCard({
         equipped
           ? 'border-[#14B8A6] bg-[#14B8A6]/10 ring-1 ring-[#14B8A6]/50'
           : isConsumable
-          ? 'border-white/10 bg-white/5 cursor-default'
-          : 'border-white/15 bg-white/5 hover:border-[#8B5CF6]/60 hover:bg-white/10 cursor-pointer'
+            ? 'border-white/10 bg-white/5 cursor-default'
+            : 'border-white/15 bg-white/5 hover:border-[#8B5CF6]/60 hover:bg-white/10 cursor-pointer'
       }`}
     >
       {equipped && (
@@ -254,12 +266,16 @@ function ItemCard({
         </div>
       )}
       <span className="text-3xl mb-1">{item.iconEmoji}</span>
-      <span className="text-white text-xs font-medium leading-tight">{item.name}</span>
+      <span className="text-white text-xs font-medium leading-tight">
+        {item.name}
+      </span>
       {item.quantity && item.quantity > 1 && (
         <span className="text-gray-400 text-xs mt-0.5">×{item.quantity}</span>
       )}
       {!isConsumable && !equipped && (
-        <span className="text-[#8B5CF6] text-[10px] mt-1">{equipping ? '...' : 'Equip'}</span>
+        <span className="text-[#8B5CF6] text-[10px] mt-1">
+          {equipping ? '...' : 'Equip'}
+        </span>
       )}
     </button>
   );
