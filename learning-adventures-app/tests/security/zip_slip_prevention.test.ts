@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { extractZipSafely } from '@/lib/safe-zip';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
@@ -30,11 +34,16 @@ vi.mock('fs/promises', () => {
   };
 });
 
+const { existsSyncMock } = vi.hoisted(() => ({
+  existsSyncMock: vi.fn().mockReturnValue(true)
+}));
+
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: existsSyncMock,
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
+    existsSync: existsSyncMock
   }
 }));
 
