@@ -388,64 +388,67 @@ export class WorldScene extends Phaser.Scene {
   }
 
   // ---------------------------------------------------------------------------
-  // SCIENCE BUILDING — always-open interior (cols 1–4, rows 9–12)
+  // SCIENCE BUILDING — always-open interior (cols 0–5, rows 8–12)
   // ---------------------------------------------------------------------------
+  // 6 × 5 footprint. Interior floor: cols 1–4, rows 9–11 (4 × 3 = 12 tiles).
   // Door gap at col 3 in the south wall (row 12). Player enters from row 13.
 
   private createScienceBuilding(): void {
     const TS = 64;
-    const tX = 1, tY = 9; // 4 × 4 footprint
+    const tX = 0, tY = 8; // 6 × 5 footprint
     const floors = ['floor-wood-1', 'floor-wood-2', 'floor-wood-3'];
 
-    // Interior floor (depth 2) — inner 2 × 2: cols 2–3, rows 10–11
-    for (let y = tY + 1; y < tY + 3; y++) {
-      for (let x = tX + 1; x < tX + 3; x++) {
+    // Interior floor (depth 2) — cols 1–4, rows 9–11
+    for (let y = tY + 1; y < tY + 4; y++) {
+      for (let x = tX + 1; x < tX + 5; x++) {
         this.add.image(x * TS, y * TS, floors[(x + y) % 3])
           .setOrigin(0, 0).setDisplaySize(TS, TS).setDepth(2);
       }
     }
 
-    // Top wall — row tY, cols tX–tX+3
-    for (let x = tX; x <= tX + 3; x++) {
+    // Top wall — row tY (row 8), cols tX–tX+5
+    for (let x = tX; x <= tX + 5; x++) {
       this.addWallTile(x * TS, tY * TS, 'wall-science-1');
     }
-    // Left wall — col tX, rows tY+1 to tY+3
-    for (let y = tY + 1; y <= tY + 3; y++) {
+    // Left wall — col tX (col 0), rows tY+1 to tY+4
+    for (let y = tY + 1; y <= tY + 4; y++) {
       this.addWallTile(tX * TS, y * TS, 'wall-science-1');
     }
-    // Right wall — col tX+3, rows tY+1 to tY+3
-    for (let y = tY + 1; y <= tY + 3; y++) {
-      this.addWallTile((tX + 3) * TS, y * TS, 'wall-science-1');
+    // Right wall — col tX+5 (col 5), rows tY+1 to tY+4
+    for (let y = tY + 1; y <= tY + 4; y++) {
+      this.addWallTile((tX + 5) * TS, y * TS, 'wall-science-1');
     }
-    // South wall — row tY+3, gap at col tX+2 (col 3) — door entrance
-    [tX, tX + 1, tX + 3].forEach(x => {
-      this.addWallTile(x * TS, (tY + 3) * TS, 'wall-brick-1');
+    // South wall — row tY+4 (row 12), gap at col 3 (tX+3) — door entrance
+    [tX, tX + 1, tX + 2, tX + 4, tX + 5].forEach(x => {
+      this.addWallTile(x * TS, (tY + 4) * TS, 'wall-brick-1');
     });
 
     // Building label (depth 5)
-    this.add.text((tX + 2) * TS, (tY + 0.6) * TS, 'SCIENCE', {
-      fontSize: '12px', color: '#FFFFFF', backgroundColor: '#00000099',
+    this.add.text((tX + 3) * TS, (tY + 0.6) * TS, 'SCIENCE', {
+      fontSize: '13px', color: '#FFFFFF', backgroundColor: '#00000099',
       padding: { x: 5, y: 3 }, align: 'center',
     }).setOrigin(0.5).setDepth(5);
 
     // "Coming Soon" label inside
-    this.add.text((tX + 2) * TS, (tY + 1.8) * TS, '🔬 Coming\nSoon!', {
+    this.add.text((tX + 3) * TS, (tY + 2) * TS, '🔬 Coming\nSoon!', {
       fontSize: '11px', color: '#14B8A6', backgroundColor: '#FFFFFFEE',
       padding: { x: 5, y: 4 }, align: 'center',
     }).setOrigin(0.5).setDepth(5);
 
-    // Register building zone (interior: cols 2–3, rows 9–12)
+    // Register building zone (interior: cols 1–4, rows 9–11)
     this.buildings.push({
       id: 'science',
-      footprint: new Phaser.Geom.Rectangle((tX + 1) * TS, tY * TS, 2 * TS, 3 * TS),
+      footprint: new Phaser.Geom.Rectangle((tX + 1) * TS, (tY + 1) * TS, 4 * TS, 3 * TS),
       playerInside: false,
     });
 
-    // Interior objects (visual + proximity prompt — no game launch yet)
+    // Interior objects — 4 desk computers at interior corners
     const interiors: InteractableObject[] = [];
     const positions = [
-      { x: (tX + 1.5) * TS, y: (tY + 1) * TS + 16 },
-      { x: (tX + 2.5) * TS, y: (tY + 2) * TS + 16 },
+      { x: (tX + 1) * TS + 32, y: (tY + 1) * TS + 32 },
+      { x: (tX + 4) * TS + 32, y: (tY + 1) * TS + 32 },
+      { x: (tX + 1) * TS + 32, y: (tY + 3) * TS + 32 },
+      { x: (tX + 4) * TS + 32, y: (tY + 3) * TS + 32 },
     ];
     positions.forEach(pos => {
       const desk = new InteractableObject(this, pos.x, pos.y, 'desk-computer');
@@ -459,64 +462,67 @@ export class WorldScene extends Phaser.Scene {
   }
 
   // ---------------------------------------------------------------------------
-  // ENGLISH BUILDING — always-open interior (cols 14–17, rows 9–12)
+  // ENGLISH BUILDING — always-open interior (cols 14–19, rows 8–12)
   // ---------------------------------------------------------------------------
+  // 6 × 5 footprint. Interior floor: cols 15–18, rows 9–11 (4 × 3 = 12 tiles).
   // Door gap at col 16 in the south wall (row 12). Player enters from row 13.
 
   private createEnglishBuilding(): void {
     const TS = 64;
-    const tX = 14, tY = 9; // 4 × 4 footprint
+    const tX = 14, tY = 8; // 6 × 5 footprint
     const floors = ['floor-wood-1', 'floor-wood-2', 'floor-wood-3'];
 
-    // Interior floor (depth 2) — inner 2 × 2: cols 15–16, rows 10–11
-    for (let y = tY + 1; y < tY + 3; y++) {
-      for (let x = tX + 1; x < tX + 3; x++) {
+    // Interior floor (depth 2) — cols 15–18, rows 9–11
+    for (let y = tY + 1; y < tY + 4; y++) {
+      for (let x = tX + 1; x < tX + 5; x++) {
         this.add.image(x * TS, y * TS, floors[(x + y) % 3])
           .setOrigin(0, 0).setDisplaySize(TS, TS).setDepth(2);
       }
     }
 
-    // Top wall — row tY, cols tX–tX+3
-    for (let x = tX; x <= tX + 3; x++) {
+    // Top wall — row tY (row 8), cols tX–tX+5
+    for (let x = tX; x <= tX + 5; x++) {
       this.addWallTile(x * TS, tY * TS, 'wall-english-1');
     }
-    // Left wall — col tX, rows tY+1 to tY+3
-    for (let y = tY + 1; y <= tY + 3; y++) {
+    // Left wall — col tX (col 14), rows tY+1 to tY+4
+    for (let y = tY + 1; y <= tY + 4; y++) {
       this.addWallTile(tX * TS, y * TS, 'wall-english-1');
     }
-    // Right wall — col tX+3, rows tY+1 to tY+3
-    for (let y = tY + 1; y <= tY + 3; y++) {
-      this.addWallTile((tX + 3) * TS, y * TS, 'wall-english-1');
+    // Right wall — col tX+5 (col 19), rows tY+1 to tY+4
+    for (let y = tY + 1; y <= tY + 4; y++) {
+      this.addWallTile((tX + 5) * TS, y * TS, 'wall-english-1');
     }
-    // South wall — row tY+3, gap at col tX+2 (col 16) — door entrance
-    [tX, tX + 1, tX + 3].forEach(x => {
-      this.addWallTile(x * TS, (tY + 3) * TS, 'wall-brick-2');
+    // South wall — row tY+4 (row 12), gap at col 16 (tX+2) — door entrance
+    [tX, tX + 1, tX + 3, tX + 4, tX + 5].forEach(x => {
+      this.addWallTile(x * TS, (tY + 4) * TS, 'wall-brick-2');
     });
 
     // Building label (depth 5)
-    this.add.text((tX + 2) * TS, (tY + 0.6) * TS, 'ENGLISH', {
-      fontSize: '12px', color: '#FFFFFF', backgroundColor: '#00000099',
+    this.add.text((tX + 3) * TS, (tY + 0.6) * TS, 'ENGLISH', {
+      fontSize: '13px', color: '#FFFFFF', backgroundColor: '#00000099',
       padding: { x: 5, y: 3 }, align: 'center',
     }).setOrigin(0.5).setDepth(5);
 
     // "Coming Soon" label inside
-    this.add.text((tX + 2) * TS, (tY + 1.8) * TS, '📚 Coming\nSoon!', {
+    this.add.text((tX + 3) * TS, (tY + 2) * TS, '📚 Coming\nSoon!', {
       fontSize: '11px', color: '#F59E0B', backgroundColor: '#FFFFFFEE',
       padding: { x: 5, y: 4 }, align: 'center',
     }).setOrigin(0.5).setDepth(5);
 
-    // Register building zone (interior: cols 15–16, rows 9–12)
+    // Register building zone (interior: cols 15–18, rows 9–11)
     this.buildings.push({
       id: 'english',
-      footprint: new Phaser.Geom.Rectangle((tX + 1) * TS, tY * TS, 2 * TS, 3 * TS),
+      footprint: new Phaser.Geom.Rectangle((tX + 1) * TS, (tY + 1) * TS, 4 * TS, 3 * TS),
       playerInside: false,
     });
 
-    // Interior objects (visual + proximity prompt — no game launch yet)
+    // Interior objects — 4 desk computers at interior corners
     const interiors: InteractableObject[] = [];
     const positions = [
-      { x: (tX + 1.5) * TS, y: (tY + 1) * TS + 16 },
-      { x: (tX + 2.5) * TS, y: (tY + 2) * TS + 16 },
+      { x: (tX + 1) * TS + 32, y: (tY + 1) * TS + 32 },
+      { x: (tX + 4) * TS + 32, y: (tY + 1) * TS + 32 },
+      { x: (tX + 1) * TS + 32, y: (tY + 3) * TS + 32 },
+      { x: (tX + 4) * TS + 32, y: (tY + 3) * TS + 32 },
     ];
     positions.forEach(pos => {
       const desk = new InteractableObject(this, pos.x, pos.y, 'desk-computer');
