@@ -9,6 +9,7 @@ import {
   WORLD_ROWS,
   TILE_SIZE,
 } from '../world/TilemapGenerator';
+import { ZoneManager } from '../world/ZoneManager';
 
 // ─── Chunk constants ──────────────────────────────────────────────────────────
 const CHUNK_TILE_COLS = 16;  // tiles per chunk horizontally
@@ -31,6 +32,7 @@ export class OpenWorldScene extends Phaser.Scene {
   private player?: Player;
   private interactables: InteractableObject[] = [];
   private interactKey?: Phaser.Input.Keyboard.Key;
+  private zoneManager!: ZoneManager;
 
   // Chunk streaming state
   private mapData: number[][] = [];
@@ -101,6 +103,20 @@ export class OpenWorldScene extends Phaser.Scene {
     this.player = new Player(this, 3072, 2304, playerTexture);
     this.player.setDepth(10);
 
+    // Initialise zone tracker (pure TS, no Phaser dependency)
+    this.zoneManager = new ZoneManager();
+
+    // Emit minimap-position every 100 ms so the React minimap stays in sync
+    this.time.addEvent({
+      delay: 100,
+      loop: true,
+      callback: () => {
+        if (this.player) {
+          EventBus.emit('minimap-position', { x: this.player.x, y: this.player.y });
+        }
+      }
+    });
+
     // Configure camera for open world
     this.cameras.main.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
@@ -131,6 +147,7 @@ export class OpenWorldScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     if (this.player) {
       this.player.update(time, delta);
+      this.zoneManager.update(this.player.x, this.player.y);
 
       // Check proximity to all interactables
       this.interactables.forEach((interactable) => {
