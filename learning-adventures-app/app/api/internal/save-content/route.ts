@@ -1,34 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
-
-async function extractZipSafely(zip: AdmZip, destDir: string): Promise<void> {
-  const resolvedDest = resolve(destDir);
-  const entries = zip.getEntries();
-
-  for (const entry of entries) {
-    const entryPath = join(destDir, entry.entryName);
-    const resolvedEntry = resolve(entryPath);
-
-    // Prevent zip slip: ensure extracted path stays within destDir
-    if (!resolvedEntry.startsWith(resolvedDest + sep) && resolvedEntry !== resolvedDest) {
-      throw new Error(`Zip slip detected in entry: ${entry.entryName}`);
-    }
-
-    if (entry.isDirectory) {
-      await mkdir(resolvedEntry, { recursive: true });
-    } else {
-      await mkdir(join(resolvedEntry, '..'), { recursive: true });
-      await writeFile(resolvedEntry, entry.getData());
-    }
-  }
-}
+import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin or Teacher role required.' },
+        { status: 401 }
+      );
+    }
+
     const {
       content,
       fileName,
@@ -45,14 +35,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Security: Validate fileName to prevent path traversal
-    if (
-      fileName.includes('/') ||
-      fileName.includes('\\') ||
-      fileName.includes('..')
-    ) {
+    // Security: Prevent path traversal by using basename
+    // This ensures fileName is just a filename, not a path
+    const safeFileName = basename(fileName);
+    if (safeFileName !== fileName) {
       return NextResponse.json(
-        { error: 'Invalid filename: contains path traversal characters' },
+        { error: 'Invalid file name. Path traversal detected.' },
         { status: 400 }
       );
     }
@@ -99,10 +87,16 @@ export async function POST(request: NextRequest) {
     if (uploadSource === 'uploaded' && uploadedZipPath) {
       // SECURITY: Prevent path traversal in uploadedZipPath
       // Ensure path doesn't contain '..', and is within allowed directory
-      const normalizedZipPath = normalize(uploadedZipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+      const normalizedZipPath = normalize(uploadedZipPath).replace(
+        /^(\.\.(\/|\\|$))+/,
+        ''
+      );
+
+      // Remove leading slash for checking start
+      const pathToCheck = normalizedZipPath.replace(/^[\/\\]/, '');
 
       // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !normalizedZipPath.startsWith('uploads/temp/')) {
+      if (uploadedZipPath.includes('..') || !pathToCheck.startsWith('uploads/temp/')) {
          console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
          return NextResponse.json(
            { error: 'Invalid path. Path traversal detected.' },
@@ -111,6 +105,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Create directory for the game/lesson
+      const gameId = safeFileName.replace('.html', '');
       const gameDir = join(tierDir, gameId);
 
       // Double check path traversal just in case
@@ -128,19 +123,16 @@ export async function POST(request: NextRequest) {
 
       await mkdir(gameDir, { recursive: true });
 
-      // Extract zip to the game directory
-      // Sanitize uploadedZipPath
-      const safeZipPath = join(publicDir, uploadedZipPath.replace(/^\//, ''));
-      const resolvedZipPath = resolve(safeZipPath);
-      const resolvedPublicDir = resolve(publicDir);
-
-      // Verify that the resolved path is inside the public directory
-      if (
-        !resolvedZipPath.startsWith(resolvedPublicDir + sep) &&
-        resolvedZipPath !== resolvedPublicDir
-      ) {
+      // Prevent path traversal in uploadedZipPath
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^\//, '')
+      );
+      if (!zipFullPath.startsWith(publicDir)) {
         return NextResponse.json(
-          { error: 'Invalid zip path: Path traversal detected' },
+          {
+            error: 'Invalid uploadedZipPath. Must be within public directory.',
+          },
           { status: 400 }
         );
       }
@@ -170,15 +162,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Security: double check that fileName is safe (already checked for separators above)
-      if (fileName !== basename(fileName)) {
-        return NextResponse.json(
-          { error: 'Invalid filename: must be a base filename' },
-          { status: 400 }
-        );
-      }
-
-      const filePath = join(tierDir, fileName);
+      const filePath = join(tierDir, safeFileName);
 
       // Ensure filePath is safe (though we validated identifier, verify full path)
       const resolvedFilePath = resolve(filePath);
@@ -199,8 +183,8 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        filePath: `/${type}s/${subscriptionTier}/${fileName}`,
-        isDirectory: false,
+        filePath: `/${type}s/${subscriptionTier}/${safeFileName}`,
+        isDirectory: false
       });
     }
   } catch (error) {

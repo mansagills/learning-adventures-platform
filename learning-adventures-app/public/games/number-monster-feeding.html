@@ -546,6 +546,15 @@
       }
 
       function gameOver() {
+        // Notify Learning Adventures world embed on completion
+        const completionMsg = {
+          type: 'game-complete',
+          adventureId: 'number-monster-feeding',
+          score: score,
+        };
+        if (window.opener) { window.opener.postMessage(completionMsg, '*'); }
+        if (window.parent !== window) { window.parent.postMessage(completionMsg, '*'); }
+
         document.getElementById('main-game').classList.add('hidden');
         document.getElementById('game-over').classList.remove('hidden');
         document.getElementById('final-score').textContent = score;
