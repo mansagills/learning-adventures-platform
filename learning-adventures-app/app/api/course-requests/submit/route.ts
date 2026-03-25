@@ -75,6 +75,8 @@ export async function POST(request: NextRequest) {
         where: { id: body.id },
         data: {
           ...body,
+          id: undefined, // Prevent mass assignment of ID
+          userId: session.user.id, // Enforce current user
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
@@ -84,8 +86,9 @@ export async function POST(request: NextRequest) {
       // Create new submitted request
       courseRequest = await prisma.courseRequest.create({
         data: {
-          userId: session.user.id,
           ...body,
+          id: undefined, // Prevent mass assignment of ID
+          userId: session.user.id, // Enforce current user
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
