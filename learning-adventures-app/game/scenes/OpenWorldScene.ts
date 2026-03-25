@@ -207,7 +207,7 @@ export class OpenWorldScene extends Phaser.Scene {
     // Destroy chunks no longer needed
     Array.from(this.chunks.keys()).forEach((key) => {
       if (!needed.has(key)) {
-        const [ncx, ncy] = key.split(',').map(Number) as [number, number];
+        const [ncx = 0, ncy = 0] = key.split(',').map(Number);
         this.destroyChunk(ncx, ncy);
       }
     });
@@ -299,9 +299,7 @@ export class OpenWorldScene extends Phaser.Scene {
     this.interactables = [];
 
     // Destroy all active chunks
-    Array.from(this.chunks.entries()).forEach(([key, group]) => {
-      group.destroy(true);
-      this.chunks.delete(key);
-    });
+    this.chunks.forEach(group => group.destroy(true));
+    this.chunks.clear();
   }
 }
