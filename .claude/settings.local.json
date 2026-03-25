@@ -50,17 +50,11 @@
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform/.claude/worktrees/nervous-rhodes branch --show-current:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(python3:*)",
-      "Bash(DATABASE_URL=\"postgresql://mansagills@localhost:5432/template1?sslmode=disable\" npx prisma db push:*)",
-      "Bash(DATABASE_URL=\"postgresql://mansagills@localhost:5432/template1?sslmode=disable\" npx ts-node:*)",
-      "Bash(for f in pizza-fraction-frenzy math-race-rally multiplication-bingo-bonanza number-monster-feeding math-jeopardy-junior)",
-      "Bash(do)",
-      "Bash(echo \"=== $f ===\")",
-      "Read(//Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/public/games/**)",
-      "Bash(tr -d \" '',\")",
-      "Skill(game-development)",
-      "Skill(game-development:*)",
-      "Bash(node -e \":*)"
+      "WebFetch(domain:sorceress.games)",
+      "WebFetch(domain:sorceress.gamemaker.academy)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": [],
     "ask": []
