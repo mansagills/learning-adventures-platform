@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
-import { WorldScene } from './scenes/WorldScene';
+// import { WorldScene } from './scenes/WorldScene'; // kept for reference
+import { OpenWorldScene } from './scenes/OpenWorldScene';
 import { MathBuildingScene } from './scenes/MathBuildingScene';
 
 /**
@@ -32,7 +33,7 @@ export const createPhaserGame = (parent: string): Phaser.Game => {
     },
 
     // Scene configuration
-    scene: [WorldScene, MathBuildingScene], // Multiple scenes for different areas
+    scene: [OpenWorldScene, MathBuildingScene], // Multiple scenes for different areas
 
     // Scaling configuration for responsive design
     scale: {
