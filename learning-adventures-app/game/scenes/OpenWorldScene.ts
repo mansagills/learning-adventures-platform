@@ -1,10 +1,14 @@
 import * as Phaser from 'phaser';
 import { Player } from '../entities/Player';
+import { Door } from '../entities/Door';
+import { NPC } from '../entities/NPC';
 import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
 import {
   generate,
+  getBuildingDoorPositions,
   TILE_ASSET_KEYS,
+  TILE,
   WORLD_COLS,
   WORLD_ROWS,
   TILE_SIZE,
@@ -97,7 +101,7 @@ export class OpenWorldScene extends Phaser.Scene {
     // Set physics world bounds to match open world size
     this.physics.world.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
 
-    // Create player at world centre spawn point
+    // Create player at world centre spawn point (Town Square)
     const avatarId = this.game.registry.get('avatarId') as string | undefined;
     const playerTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
     this.player = new Player(this, 3072, 2304, playerTexture);
@@ -124,6 +128,9 @@ export class OpenWorldScene extends Phaser.Scene {
     // Bootstrap chunk streaming (loads the 3×3 chunks around spawn)
     this.createInitialChunks();
 
+    // Place building doors, NPC placeholders, shop, and job board
+    this.createInteractables();
+
     // Setup interaction key (SPACE)
     if (this.input.keyboard) {
       this.interactKey = this.input.keyboard.addKey(
@@ -141,6 +148,52 @@ export class OpenWorldScene extends Phaser.Scene {
     EventBus.emit('scene-ready', { scene: 'OpenWorldScene' });
 
     console.log('OpenWorldScene created — open world ready!');
+  }
+
+  // ─── Interactables ───────────────────────────────────────────────────────────
+
+  private createInteractables(): void {
+    const doors = getBuildingDoorPositions();
+
+    doors.forEach((config) => {
+      const px = config.doorTileCol * TILE_SIZE;
+      const py = config.doorTileRow * TILE_SIZE;
+
+      if (config.targetScene) {
+        // Fully wired door (Math Building → MathBuildingScene)
+        const door = new Door(
+          this, px, py,
+          'door-gold-small',
+          config.targetScene,
+          config.spawnX,
+          config.spawnY,
+        );
+        this.interactables.push(door);
+      } else {
+        // Placeholder NPC for buildings not yet implemented
+        const npc = new NPC(
+          this, px, py,
+          'door-teal-small',
+          config.building,
+          [{ text: 'Coming soon! Check back later.', speaker: config.building }],
+        );
+        this.interactables.push(npc);
+      }
+    });
+
+    // Shop interactable — front of Shop building (cols 5-7, rows 36-38)
+    // Position at centre-front: col 6, row 39
+    const shop = new InteractableObject(this, 6 * TILE_SIZE, 39 * TILE_SIZE, 'door-teal-small');
+    shop.setPromptText('Press SPACE: Open Shop');
+    shop.setOnInteract(() => EventBus.emit('open-shop', {}));
+    this.interactables.push(shop);
+
+    // Job Board interactable — front of Job Board building (cols 86-88, rows 36-38)
+    // Position at centre-front: col 87, row 39
+    const jobBoard = new InteractableObject(this, 87 * TILE_SIZE, 39 * TILE_SIZE, 'door-amber-small');
+    jobBoard.setPromptText('Press SPACE: Open Job Board');
+    jobBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
+    this.interactables.push(jobBoard);
   }
 
   // ─── update ──────────────────────────────────────────────────────────────────
@@ -242,6 +295,25 @@ export class OpenWorldScene extends Phaser.Scene {
         img.setDisplaySize(TILE_SIZE, TILE_SIZE);
         img.setDepth(0);
         group.add(img);
+
+        // Add invisible static physics body for wall tiles so player cannot walk through
+        if (
+          tileIndex === TILE.WALL_MATH ||
+          tileIndex === TILE.WALL_SCI ||
+          tileIndex === TILE.WALL_ENG ||
+          tileIndex === TILE.WALL_BRICK
+        ) {
+          const wall = this.physics.add.staticImage(
+            px + TILE_SIZE / 2,
+            py + TILE_SIZE / 2,
+            'wall-tile',
+          );
+          wall.setVisible(false).setDisplaySize(TILE_SIZE, TILE_SIZE).refreshBody();
+          if (this.player) {
+            this.physics.add.collider(this.player, wall);
+          }
+          group.add(wall);
+        }
       }
     }
 

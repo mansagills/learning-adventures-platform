@@ -228,8 +228,8 @@ export class MathBuildingScene extends Phaser.Scene {
       this,
       5 * 64, 9 * 64 - 16,
       'door-interior',
-      'WorldScene',
-      640, 400
+      'OpenWorldScene',
+      928, 512
     );
     this.interactables.push(exitDoor);
 
