@@ -99,6 +99,7 @@ export class OpenWorldScene extends Phaser.Scene {
     const avatarId = this.game.registry.get('avatarId') as string | undefined;
     const playerTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
     this.player = new Player(this, 3072, 2304, playerTexture);
+    this.player.setDepth(10);
 
     // Configure camera for open world
     this.cameras.main.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
@@ -222,6 +223,7 @@ export class OpenWorldScene extends Phaser.Scene {
         const img = this.add.image(px, py, assetKey);
         img.setOrigin(0, 0);
         img.setDisplaySize(TILE_SIZE, TILE_SIZE);
+        img.setDepth(0);
         group.add(img);
       }
     }
