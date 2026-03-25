@@ -11,6 +11,9 @@ const MAP_H = 135;
 const CELL_W = MAP_W / 3; // 60
 const CELL_H = MAP_H / 3; // 45
 
+// Static zone data — computed once at module load, not per render
+const ZONES = new ZoneManager().getZones();
+
 function hexToRgb(hex: number): { r: number; g: number; b: number } {
   return {
     r: (hex >> 16) & 0xff,
@@ -59,12 +62,8 @@ export default function Minimap() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Get zones once on mount
-    const zm = new ZoneManager();
-    const zones = zm.getZones();
-
-    // Initial background draw — no active zone highlight on first render
-    drawZones(ctx, zones, activeZoneKeyRef.current);
+    // Initial background draw with town-square highlighted (player spawns there)
+    drawZones(ctx, ZONES, activeZoneKeyRef.current);
     bgRef.current = ctx.getImageData(0, 0, MAP_W, MAP_H);
 
     // minimap-position: restore bg, draw player dot
@@ -83,7 +82,7 @@ export default function Minimap() {
       setZoneName(data.zone.name);
 
       ctx.clearRect(0, 0, MAP_W, MAP_H);
-      drawZones(ctx, zones, data.zone.key);
+      drawZones(ctx, ZONES, data.zone.key);
       bgRef.current = ctx.getImageData(0, 0, MAP_W, MAP_H);
     };
 
