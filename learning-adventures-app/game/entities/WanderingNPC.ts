@@ -16,7 +16,7 @@ interface Waypoint {
 export class WanderingNPC extends NPC {
   private waypoints: Waypoint[] = [];
   private waypointIndex: number = 0;
-  private pauseDuration: number;
+  private pauseDuration: number = 2000;
 
   constructor(
     scene: Phaser.Scene,
