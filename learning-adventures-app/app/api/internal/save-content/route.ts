@@ -6,8 +6,6 @@ import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
