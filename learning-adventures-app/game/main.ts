@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
-import { WorldScene } from './scenes/WorldScene';
-// MathBuildingScene removed — Math Building interior is now always-open inside WorldScene.
+// import { WorldScene } from './scenes/WorldScene'; // kept for reference
+import { OpenWorldScene } from './scenes/OpenWorldScene';
+import { MathBuildingScene } from './scenes/MathBuildingScene';
 
 /**
  * Phaser Game Configuration
@@ -31,8 +32,8 @@ export const createPhaserGame = (parent: string): Phaser.Game => {
       },
     },
 
-    // Scene configuration — single seamless WorldScene, no interior scene transitions.
-    scene: [WorldScene],
+    // Scene configuration
+    scene: [OpenWorldScene, MathBuildingScene], // Multiple scenes for different areas
 
     // Scaling configuration for responsive design
     scale: {

@@ -9,6 +9,7 @@ import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
 import { InventoryPanel } from '@/components/world/InventoryPanel';
 import { JobBoard } from '@/components/world/JobBoard';
+import Minimap from '@/components/world/Minimap';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -105,17 +106,21 @@ export default function WorldPage() {
 
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
+    // Placeholder for Phase D collectible handling
+    const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
+    EventBus.on('collectible-collected', handleCollectibleCollected);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
+      EventBus.off('collectible-collected', handleCollectibleCollected);
     };
   }, []);
 
@@ -367,6 +372,9 @@ export default function WorldPage() {
               <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
             </p>
           </div>
+
+          {/* Bottom-left: Minimap */}
+          <Minimap />
         </div>
       )}
     </div>
