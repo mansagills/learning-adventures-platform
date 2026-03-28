@@ -2,6 +2,15 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 
+if (
+  !process.env.CHILD_SESSION_SECRET &&
+  process.env.NODE_ENV === 'production'
+) {
+  throw new Error(
+    'CHILD_SESSION_SECRET environment variable must be set in production for security'
+  );
+}
+
 const CHILD_SESSION_SECRET = new TextEncoder().encode(
   process.env.CHILD_SESSION_SECRET ||
     'child-session-secret-change-in-production'
