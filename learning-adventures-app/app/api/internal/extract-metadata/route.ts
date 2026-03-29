@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve, normalize } from 'path';
 import AdmZip from 'adm-zip';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
 interface ExtractedMetadata {
@@ -39,8 +39,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert relative path to absolute path
-    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
+    // Security: Validate zipPath to prevent Path Traversal
+    const normalizedZipPath = normalize(zipPath).replace(/^(\.\.(\/|\\|$))+/, '');
+
+    // Convert backslashes to forward slashes for cross-platform matching
+    const standardPath = normalizedZipPath.replace(/\\/g, '/');
+    if (zipPath.includes('..') || !standardPath.replace(/^\//, '').startsWith('uploads/temp/')) {
+       return NextResponse.json(
+         { error: 'Invalid path. Path traversal detected.' },
+         { status: 400 }
+       );
+    }
+
+    const publicDir = join(process.cwd(), 'public');
+    const fullPath = resolve(publicDir, normalizedZipPath.replace(/^\//, ''));
+
+    if (!fullPath.startsWith(publicDir)) {
+      return NextResponse.json(
+        { error: 'Invalid path. Must be within public directory.' },
+        { status: 400 }
+      );
+    }
 
     // Read the zip file
     const zip = new AdmZip(fullPath);

@@ -124,11 +124,11 @@ export async function POST(request: NextRequest) {
       await mkdir(gameDir, { recursive: true });
 
       // Prevent path traversal in uploadedZipPath
-      const zipFullPath = resolve(
+      const resolvedZipPath = resolve(
         publicDir,
         uploadedZipPath.replace(/^\//, '')
       );
-      if (!zipFullPath.startsWith(publicDir)) {
+      if (!resolvedZipPath.startsWith(publicDir)) {
         return NextResponse.json(
           {
             error: 'Invalid uploadedZipPath. Must be within public directory.',
