@@ -60,7 +60,9 @@
       "Bash(tr -d \" '',\")",
       "Skill(game-development)",
       "Skill(game-development:*)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(npx ts-node:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
