@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Prevent mass assignment
+    const { id, userId, createdAt, updatedAt, status, isDraft, submittedAt, ...safeData } = body;
+
     // Check if user already has a draft
     const existingDraft = await prisma.courseRequest.findFirst({
       where: {
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
       const updated = await prisma.courseRequest.update({
         where: { id: existingDraft.id },
         data: {
-          ...body,
+          ...safeData,
           isDraft: true,
           status: 'DRAFT',
           updatedAt: new Date(),
@@ -62,8 +65,8 @@ export async function POST(request: NextRequest) {
     // Create new draft
     const draft = await prisma.courseRequest.create({
       data: {
+        ...safeData,
         userId: session.user.id,
-        ...body,
         isDraft: true,
         status: 'DRAFT',
       },
@@ -104,6 +107,9 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Prevent mass assignment
+    const { userId, createdAt, updatedAt, status, isDraft, submittedAt, clientLastSaved, ...safeUpdateData } = updateData;
+
     // Verify ownership
     const existing = await prisma.courseRequest.findUnique({
       where: { id },
@@ -140,7 +146,7 @@ export async function PUT(request: NextRequest) {
     const updated = await prisma.courseRequest.update({
       where: { id },
       data: {
-        ...updateData,
+        ...safeUpdateData,
         isDraft: true,
         status: 'DRAFT',
         updatedAt: new Date(),

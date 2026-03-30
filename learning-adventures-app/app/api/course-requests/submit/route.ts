@@ -69,12 +69,29 @@ export async function POST(request: NextRequest) {
     // Create or update course request
     let courseRequest;
 
-    if (body.id) {
+    // Prevent mass assignment
+    const { id, userId, createdAt, updatedAt, status, isDraft, submittedAt, ...safeData } = body;
+
+    if (id) {
+      // Ensure user owns the draft they are submitting
+      const existingRequest = await prisma.courseRequest.findUnique({
+        where: { id },
+        select: { userId: true },
+      });
+
+      if (!existingRequest) {
+        return NextResponse.json({ error: 'Request not found' }, { status: 404 });
+      }
+
+      if (existingRequest.userId !== session.user.id) {
+        return NextResponse.json({ error: 'Unauthorized to update this request' }, { status: 403 });
+      }
+
       // Update existing draft to submitted
       courseRequest = await prisma.courseRequest.update({
-        where: { id: body.id },
+        where: { id },
         data: {
-          ...body,
+          ...safeData,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
@@ -84,8 +101,8 @@ export async function POST(request: NextRequest) {
       // Create new submitted request
       courseRequest = await prisma.courseRequest.create({
         data: {
+          ...safeData,
           userId: session.user.id,
-          ...body,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
