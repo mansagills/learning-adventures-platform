@@ -4,7 +4,7 @@
     {
       "name": "Next.js Dev Server",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees/competent-dhawan/learning-adventures-app", "run", "dev"],
+      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees/vibrant-stonebraker/learning-adventures-app", "run", "dev"],
       "port": 3000
     },
     {
