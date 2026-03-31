@@ -137,14 +137,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!existsSync(resolvedZipPath)) {
+      if (!existsSync(zipFullPath)) {
         return NextResponse.json(
           { error: 'Uploaded zip file not found' },
           { status: 404 }
         );
       }
 
-      const zip = new AdmZip(resolvedZipPath);
+      const zip = new AdmZip(zipFullPath);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({
