@@ -67,7 +67,16 @@
       "Skill(game-development:*)",
       "Bash(node -e \":*)",
       "mcp__claude_ai_Three_js_3D_Viewer__show_threejs_scene",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npx vercel@latest ls --prod)",
+      "Bash(npx vercel@latest inspect learning-adventures-3nmtg3nvf-mansas-projects-1952820c.vercel.app)",
+      "Bash(npx vercel@latest logs learning-adventures-3nmtg3nvf-mansas-projects-1952820c.vercel.app)",
+      "Bash(npx vercel@latest inspect dpl_5L6Qj1cz9ohma4fNRtQhkKctuEuD --logs)",
+      "Bash(mv docs:*)",
+      "Bash(rm -rf lib)",
+      "Bash(rsync -a --exclude='node_modules' --exclude='.next' --exclude='.vercel' learning-adventures-app/ .)",
+      "Bash(npm run:*)",
+      "Bash(npx next:*)"
     ],
     "deny": [],
     "ask": []

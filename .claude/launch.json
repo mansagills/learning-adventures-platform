@@ -2,16 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Next.js Dev Server",
+      "name": "learning-adventures",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees/vibrant-stonebraker/learning-adventures-app", "run", "dev"],
+      "runtimeArgs": ["run", "dev"],
       "port": 3000
-    },
-    {
-      "name": "Prisma Studio",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/mansagills/Documents/GitHub/learning-adventures-platform/learning-adventures-app/.claude/worktrees-practical-rubin/learning-adventures-app", "run", "db:studio"],
-      "port": 5555
     }
   ]
 }

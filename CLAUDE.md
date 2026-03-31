@@ -66,7 +66,6 @@ When asked to continue development work:
 
 ```bash
 # Start development server
-cd learning-adventures-app
 npm run dev
 
 # Database operations
@@ -149,17 +148,16 @@ learning-adventures-platform/
 │   ├── interactive-learning-prompts.txt
 │   ├── finished-games/
 │   └── finished-lessons/
-└── learning-adventures-app/        # Main Next.js application
-    ├── public/
-    │   ├── games/                  # HTML game files
-    │   └── lessons/                # HTML lesson files
-    └── lib/catalogData.ts          # Catalog metadata
+├── public/
+│   ├── games/                  # HTML game files
+│   └── lessons/                # HTML lesson files
+└── lib/catalogData.ts          # Catalog metadata
 ```
 
 ### 🎯 File Locations for New Content
-- **Lessons**: `/learning-adventures-app/public/lessons/[lesson-name].html`
-- **Games**: `/learning-adventures-app/public/games/[game-name].html`
-- **Catalog Updates**: `/learning-adventures-app/lib/catalogData.ts`
+- **Lessons**: `/public/lessons/[lesson-name].html`
+- **Games**: `/public/games/[game-name].html`
+- **Catalog Updates**: `/lib/catalogData.ts`
 
 ### 🔄 Integration Process
 1. Create HTML files in appropriate public directories
@@ -191,7 +189,6 @@ learning-adventures-platform/
 ### 🧪 Development Commands
 ```bash
 # Start development server
-cd learning-adventures-app
 npm run dev
 
 # Test specific lesson/game

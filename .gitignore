@@ -51,21 +51,14 @@ coverage/
 # nyc test coverage
 .nyc_output
 
-# Dependency directories
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
 # TypeScript build info
 *.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Prisma generated
+/lib/generated/prisma
+
+# RocketRide
 .rocketride/
