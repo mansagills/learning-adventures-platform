@@ -8,7 +8,6 @@ import Button from './Button';
 import Icon from './Icon';
 import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
-import { getAppUrl } from '@/lib/utils/urls';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,19 +15,19 @@ export default function Header() {
 
   const handleCTAClick = () => {
     if (session) {
-      window.location.href = getAppUrl('/dashboard');
+      window.location.href = '/dashboard';
     } else {
-      window.location.href = getAppUrl('/login?mode=signup');
+      window.location.href = '/login?mode=signup';
     }
     analytics.clickCTA('Header CTA', 'header');
   };
 
   const handleSignIn = () => {
-    window.location.href = getAppUrl('/login?mode=signin');
+    window.location.href = '/login?mode=signin';
   };
 
   const handleSignUp = () => {
-    window.location.href = getAppUrl('/login?mode=signup');
+    window.location.href = '/login?mode=signup';
   };
 
   const toggleMenu = () => {

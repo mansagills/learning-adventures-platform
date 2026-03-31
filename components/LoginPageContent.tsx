@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Button from './Button';
 import Icon from './Icon';
-import { getAppUrl, getMarketingUrl } from '@/lib/utils/urls';
+
 
 interface LoginPageContentProps {
   defaultMode?: 'signin' | 'signup';
@@ -16,7 +16,7 @@ export default function LoginPageContent({
   defaultMode = 'signin',
   callbackUrl,
 }: LoginPageContentProps) {
-  const resolvedCallbackUrl = callbackUrl || getAppUrl('/dashboard');
+  const resolvedCallbackUrl = callbackUrl || '/dashboard';
 
   const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [isLoading, setIsLoading] = useState(false);
@@ -129,7 +129,7 @@ export default function LoginPageContent({
       {/* Branding */}
       <div className="mb-8 text-center">
         <Link
-          href={getMarketingUrl('/')}
+          href={'/'}
           className="inline-flex items-center space-x-2 font-display font-bold text-2xl text-brand-500"
         >
           <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center">
@@ -324,7 +324,7 @@ export default function LoginPageContent({
       {/* Back to marketing */}
       <div className="mt-6">
         <Link
-          href={getMarketingUrl('/')}
+          href={'/'}
           className="text-sm text-ink-400 hover:text-ink-600 transition-colors"
         >
           ← Back to home

@@ -8,36 +8,8 @@ const ADMIN_DOMAIN = '@learningadventures.org';
 // Child session cookie name
 const CHILD_SESSION_COOKIE = 'child_session';
 
-// Subdomain configuration
-const APP_SUBDOMAIN = 'app';
-const MARKETING_DOMAIN =
-  process.env.NEXT_PUBLIC_MARKETING_URL || 'https://learningadventures.org';
-const APP_DOMAIN =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://app.learningadventures.org';
-
-/**
- * Detect which subdomain the request is coming from
- */
-function getSubdomain(request: NextRequest): 'app' | 'marketing' | 'localhost' {
-  const hostname = request.headers.get('host') || '';
-
-  // Local development - treat as marketing (landing page)
-  if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
-    return 'localhost';
-  }
-
-  // Check for app subdomain
-  if (hostname.startsWith(`${APP_SUBDOMAIN}.`)) {
-    return 'app';
-  }
-
-  // Default to marketing (main domain)
-  return 'marketing';
-}
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const subdomain = getSubdomain(request);
 
   // Get the NextAuth token to check user role
   const token = await getToken({
@@ -52,53 +24,66 @@ export async function middleware(request: NextRequest) {
   // CHILD ROUTES PROTECTION
   // ========================================================================
 
-  // Child dashboard requires child session
   if (pathname.startsWith('/child/dashboard')) {
     if (!childSessionToken) {
       return NextResponse.redirect(new URL('/child/login', request.url));
     }
-    // Note: Full JWT verification happens in the API/page, not middleware
-    // (Edge runtime limitations prevent full crypto operations)
-  }
-
-  // Child login page - redirect to dashboard if already logged in as child
-  if (pathname === '/child/login' && childSessionToken) {
-    // Let the page handle verification - it will redirect if valid
   }
 
   // ========================================================================
-  // ADULT AUTH ROUTES
+  // PROTECTED ROUTES — require authentication
   // ========================================================================
 
-  // After successful login, redirect based on role
-  // This handles the redirect after OAuth callbacks complete
-  if (pathname === '/dashboard' || pathname === '/') {
-    if (token) {
-      const userRole = token.role as string;
-      const userEmail = token.email as string;
+  const protectedRoutes = [
+    '/dashboard',
+    '/profile',
+    '/progress',
+    '/my-library',
+    '/my-requests',
+    '/courses',
+    '/practice',
+    '/assessments',
+    '/tutorials',
+    '/course-request',
+    '/parent',
+    '/teacher',
+    '/world',
+  ];
 
-      // Check if user is admin (by role or by email domain)
-      const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
 
-      // If admin and trying to access main dashboard, redirect to internal
-      // But only if they haven't explicitly navigated there (check for referrer)
-      const referer = request.headers.get('referer') || '';
-      const isFromAuth =
-        referer.includes('/api/auth') || referer.includes('/auth/signin');
+  if (isProtectedRoute && !token) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
-      if (isAdmin && isFromAuth && pathname === '/dashboard') {
-        return NextResponse.redirect(new URL('/internal', request.url));
-      }
+  // ========================================================================
+  // ROLE-BASED PROTECTION
+  // ========================================================================
+
+  // After successful login, redirect admins to /internal
+  if (pathname === '/dashboard' && token) {
+    const userRole = token.role as string;
+    const userEmail = token.email as string;
+    const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+    const referer = request.headers.get('referer') || '';
+    const isFromAuth =
+      referer.includes('/api/auth') || referer.includes('/auth/signin');
+
+    if (isAdmin && isFromAuth) {
+      return NextResponse.redirect(new URL('/internal', request.url));
     }
   }
 
-  // Protect /internal routes - only allow ADMIN users
+  // Protect /internal and /staging — ADMIN only
   if (pathname.startsWith('/internal') || pathname.startsWith('/staging')) {
     if (!token) {
-      // Not logged in, redirect to sign in
-      const signInUrl = new URL('/api/auth/signin', request.url);
-      signInUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(signInUrl);
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
     const userRole = token.role as string;
@@ -106,17 +91,16 @@ export async function middleware(request: NextRequest) {
     const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
 
     if (!isAdmin) {
-      // Not an admin, redirect to unauthorized page
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
-  // Protect /parent routes - only allow PARENT users
+  // Protect /parent routes — PARENT or ADMIN only
   if (pathname.startsWith('/parent')) {
     if (!token) {
-      const signInUrl = new URL('/api/auth/signin', request.url);
-      signInUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(signInUrl);
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
     const userRole = token.role as string;
@@ -125,45 +109,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ========================================================================
-  // SUBDOMAIN-BASED ROUTING
-  // ========================================================================
-
-  // On app subdomain, require authentication for most routes
-  if (subdomain === 'app') {
-    // Allow public routes on app subdomain
-    const publicAppRoutes = ['/api/auth', '/unauthorized', '/login'];
-    const isPublicRoute = publicAppRoutes.some((route) =>
-      pathname.startsWith(route)
-    );
-
-    if (!isPublicRoute && !token) {
-      // Redirect to the app's dedicated login page
-      const loginUrl = new URL('/login', APP_DOMAIN);
-      loginUrl.searchParams.set('callbackUrl', `${APP_DOMAIN}${pathname}`);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // Add subdomain info to response headers for pages to access
-  const response = NextResponse.next();
-  response.headers.set('x-subdomain', subdomain);
-
-  return response;
+  return NextResponse.next();
 }
 
-// Configure which routes the middleware should run on
 export const config = {
   matcher: [
-    // Match all routes except static files, api routes, and game/lesson HTML files
     '/((?!_next/static|_next/image|favicon.ico|public|games|lessons|api(?!/auth)).*)',
-    // Include dashboard and internal routes
     '/dashboard',
     '/internal/:path*',
     '/staging/:path*',
-    // Child routes
     '/child/:path*',
-    // Parent routes
     '/parent/:path*',
   ],
 };

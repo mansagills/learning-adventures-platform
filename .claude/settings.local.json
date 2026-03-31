@@ -76,7 +76,13 @@
       "Bash(rm -rf lib)",
       "Bash(rsync -a --exclude='node_modules' --exclude='.next' --exclude='.vercel' learning-adventures-app/ .)",
       "Bash(npm run:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(sed -i '' \"s|import { getAppUrl } from ''@/lib/utils/urls'';||g\" app/catalog/page.tsx components/preview/AdventurePreviewGrid.tsx app/login/page.tsx)",
+      "Bash(sed -i '' \"s|window.location.href = getAppUrl\\(''/login?mode=signup''\\)|window.location.href = ''/login?mode=signup''|g\" app/catalog/page.tsx components/preview/AdventurePreviewGrid.tsx)",
+      "Bash(sed -i '' \"s|window.location.href = getAppUrl\\(''/login?mode=signin''\\)|window.location.href = ''/login?mode=signin''|g\" app/catalog/page.tsx components/preview/AdventurePreviewGrid.tsx)",
+      "Bash(sed -i '' \"s|redirect\\(getAppUrl\\(''/dashboard''\\)\\)|redirect\\(''/dashboard''\\)|g\" app/login/page.tsx)",
+      "Bash(sed -i '' '/NEXT_PUBLIC_APP_URL/d' .env.local .env.local.example)",
+      "Bash(sed -i '' '/NEXT_PUBLIC_MARKETING_URL/d' .env.local .env.local.example)"
     ],
     "deny": [],
     "ask": []

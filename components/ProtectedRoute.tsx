@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
 import LoadingSpinner from './LoadingSpinner';
-import { getMarketingUrl } from '@/lib/utils/urls';
+
 
 type UserRole = 'ADMIN' | 'TEACHER' | 'PARENT' | 'STUDENT';
 
@@ -33,8 +33,7 @@ export default function ProtectedRoute({
 
     // If authentication is required but user is not authenticated
     if (requireAuth && !session) {
-      // Redirect to marketing site homepage
-      window.location.href = getMarketingUrl();
+      window.location.href = '/login';
       return;
     }
 

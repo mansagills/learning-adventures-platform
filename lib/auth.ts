@@ -110,29 +110,16 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // After login, redirect to app subdomain dashboard
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || baseUrl;
-
-      // If the URL is a relative path, redirect to app subdomain
+      // If url is a relative path, resolve against baseUrl
       if (url.startsWith('/')) {
-        // Preserve the original path if it's a callback URL
-        if (
-          url.startsWith('/dashboard') ||
-          url.startsWith('/games') ||
-          url.startsWith('/profile')
-        ) {
-          return `${appUrl}${url}`;
-        }
-        return `${appUrl}/dashboard`;
+        return `${baseUrl}${url}`;
       }
-
-      // If URL is already an app subdomain URL, use it
-      if (url.startsWith(appUrl)) {
+      // If url is already on the same origin, allow it
+      if (url.startsWith(baseUrl)) {
         return url;
       }
-
-      // Default: go to app dashboard
-      return `${appUrl}/dashboard`;
+      // Default: go to dashboard
+      return `${baseUrl}/dashboard`;
     },
     async jwt({ token, user, account, trigger }) {
       // Initial sign in

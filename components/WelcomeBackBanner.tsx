@@ -11,7 +11,6 @@ export default function WelcomeBackBanner({
   userName,
 }: WelcomeBackBannerProps) {
   const displayName = userName?.split(' ')[0] || 'Adventurer';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || '';
 
   return (
     <div className="bg-gradient-to-r from-pg-violet to-pg-pink border-b-2 border-pg-border">
@@ -23,7 +22,7 @@ export default function WelcomeBackBanner({
               Welcome back, {displayName}!
             </p>
           </div>
-          <Link href={`${appUrl}/dashboard`}>
+          <Link href="/dashboard">
             <Button
               variant="candy"
               size="md"

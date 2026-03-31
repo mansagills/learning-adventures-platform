@@ -5,7 +5,7 @@ import { signIn } from 'next-auth/react';
 import Modal from './Modal';
 import Button from './Button';
 import Icon from './Icon';
-import { getAppUrl } from '@/lib/utils/urls';
+
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export default function AuthModal({
     setError(null);
     try {
       // Always redirect to dashboard on app subdomain
-      await signIn('google', { callbackUrl: getAppUrl('/dashboard') });
+      await signIn('google', { callbackUrl: '/dashboard' });
     } catch (err) {
       setError('Failed to sign in with Google');
     } finally {
@@ -50,7 +50,7 @@ export default function AuthModal({
     setError(null);
     try {
       // Always redirect to dashboard on app subdomain
-      await signIn('apple', { callbackUrl: getAppUrl('/dashboard') });
+      await signIn('apple', { callbackUrl: '/dashboard' });
     } catch (err) {
       setError('Failed to sign in with Apple');
     } finally {
@@ -89,7 +89,7 @@ export default function AuthModal({
           await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            callbackUrl: getAppUrl('/dashboard'),
+            callbackUrl: '/dashboard',
           });
         } else {
           const data = await response.json();
@@ -111,7 +111,7 @@ export default function AuthModal({
       } else if (result?.ok) {
         onClose();
         // Always redirect to dashboard on app subdomain
-        window.location.href = getAppUrl('/dashboard');
+        window.location.href = '/dashboard';
       }
     }
 

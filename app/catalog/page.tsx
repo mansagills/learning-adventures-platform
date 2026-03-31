@@ -7,7 +7,7 @@ import CategorySection from '@/components/CategorySection';
 import AdventureCard from '@/components/AdventureCard';
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
-import { getAppUrl } from '@/lib/utils/urls';
+
 
 export default function CatalogPage() {
   const { status } = useSession();
@@ -146,13 +146,13 @@ export default function CatalogPage() {
                   </p>
                   <div className="flex items-center justify-center space-x-4">
                     <button
-                      onClick={() => { window.location.href = getAppUrl('/login?mode=signup'); }}
+                      onClick={() => { window.location.href = '/login?mode=signup'; }}
                       className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
                     >
                       Create Free Account
                     </button>
                     <button
-                      onClick={() => { window.location.href = getAppUrl('/login?mode=signin'); }}
+                      onClick={() => { window.location.href = '/login?mode=signin'; }}
                       className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
                     >
                       Sign In
@@ -217,13 +217,13 @@ export default function CatalogPage() {
               </div>
               <div className="flex items-center justify-center space-x-4">
                 <button
-                  onClick={() => { window.location.href = getAppUrl('/login?mode=signup'); }}
+                  onClick={() => { window.location.href = '/login?mode=signup'; }}
                   className="px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors font-medium"
                 >
                   Create Free Account
                 </button>
                 <button
-                  onClick={() => { window.location.href = getAppUrl('/login?mode=signin'); }}
+                  onClick={() => { window.location.href = '/login?mode=signin'; }}
                   className="px-6 py-3 bg-white text-brand-600 border border-brand-300 rounded-lg hover:bg-brand-50 hover:border-brand-400 transition-colors font-medium"
                 >
                   Sign In
