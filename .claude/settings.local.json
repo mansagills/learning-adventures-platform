@@ -82,7 +82,21 @@
       "Bash(sed -i '' \"s|window.location.href = getAppUrl\\(''/login?mode=signin''\\)|window.location.href = ''/login?mode=signin''|g\" app/catalog/page.tsx components/preview/AdventurePreviewGrid.tsx)",
       "Bash(sed -i '' \"s|redirect\\(getAppUrl\\(''/dashboard''\\)\\)|redirect\\(''/dashboard''\\)|g\" app/login/page.tsx)",
       "Bash(sed -i '' '/NEXT_PUBLIC_APP_URL/d' .env.local .env.local.example)",
-      "Bash(sed -i '' '/NEXT_PUBLIC_MARKETING_URL/d' .env.local .env.local.example)"
+      "Bash(sed -i '' '/NEXT_PUBLIC_MARKETING_URL/d' .env.local .env.local.example)",
+      "Bash(npx vercel@latest ls)",
+      "Bash(npx vercel@latest inspect learning-adventures-a96b7zjxe-mansas-projects-1952820c.vercel.app --logs)",
+      "Bash(npx vercel@latest project ls)",
+      "Bash(npx vercel@latest link --project learning-adventures-platform)",
+      "Bash(npx vercel@latest link --project learning-adventures-platform --yes)",
+      "Bash(npx vercel@latest inspect --wait)",
+      "Bash(npx vercel@latest inspect learning-adventures-platform-ep4psvzvo-mansas-projects-1952820c.vercel.app --logs)",
+      "Bash(npx vercel@latest inspect learning-adventures-platform-o2d46empw-mansas-projects-1952820c.vercel.app --logs)",
+      "Bash(npx pnpm:*)",
+      "Bash(git worktree:*)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform worktree list)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform add -A .claude/worktrees/)",
+      "Bash(git -C:*)",
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform push origin main)"
     ],
     "deny": [],
     "ask": []
