@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Learning Adventures — Mascot Concepts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f172a;
+    font-family: 'Courier New', monospace;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #f0abfc;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.75rem;
+    margin-bottom: 48px;
+    letter-spacing: 2px;
+  }
+  .grid {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+  }
+  .card.nova  { border-color: #3b82f6; }
+  .card.quill { border-color: #6366f1; }
+  .card.zippy { border-color: #f59e0b; }
+  .card.byte  { border-color: #10b981; }
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  .name {
+    font-size: 1.4rem;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .nova  .name { color: #60a5fa; }
+  .quill .name { color: #a5b4fc; }
+  .zippy .name { color: #fbbf24; }
+  .byte  .name { color: #34d399; }
+  .role {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: -8px;
+  }
+  .badge {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .nova  .badge { background: #1d4ed8; color: #bfdbfe; }
+  .quill .badge { background: #3730a3; color: #c7d2fe; }
+  .zippy .badge { background: #b45309; color: #fde68a; }
+  .byte  .badge { background: #065f46; color: #a7f3d0; }
+  .tagline {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    font-style: italic;
+    text-align: center;
+  }
+  .desc {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .trait {
+    font-size: 0.6rem;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: #64748b;
+    letter-spacing: 0.5px;
+  }
+  .ref-tag {
+    font-size: 0.6rem;
+    color: #f59e0b;
+    letter-spacing: 1px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #1e293b;
+    width: 80%;
+  }
+  footer {
+    text-align: center;
+    color: #334155;
+    font-size: 0.65rem;
+    margin-top: 60px;
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<h1>⭐ Learning Adventures — Mascot Concepts ⭐</h1>
+<p class="subtitle">Pixel art · Race & gender neutral · Kid-friendly</p>
+
+<div class="grid">
+
+  <!-- NOVA -->
+  <div class="card nova">
+    <canvas id="c-nova" width="96" height="144" style="width:96px;height:144px"></canvas>
+    <div class="name">Nova</div>
+    <div class="role">The Robot Kid</div>
+    <span class="badge">★ Favourite</span>
+    <div class="tagline">"Your AI adventure buddy"</div>
+    <hr>
+    <div class="desc">Friendly robot with a glowing heart screen. Lives in the pixel campus world — works perfectly as an NPC in the 2D game.</div>
+    <div class="traits">
+      <span class="trait">Gender neutral</span>
+      <span class="trait">Tech savvy</span>
+      <span class="trait">NPC-ready</span>
+      <span class="trait">Warm</span>
+    </div>
+    <div class="ref-tag">★ CURRENT FAVOURITE</div>
+  </div>
+
+  <!-- QUILL -->
+  <div class="card quill">
+    <canvas id="c-quill" width="96" height="144" style="width:96px;height:144px"></canvas>
+    <div class="name">Quill</div>
+    <div class="role">The Inkdrop</div>
+    <span class="badge">New Concept</span>
+    <div class="tagline">"Words create worlds"</div>
+    <hr>
+    <div class="desc">A living inkblot with a quill-pen tail. Perfect for English & History. Whimsical, imaginative, mysteriously cute.</div>
+    <div class="traits">
+      <span class="trait">Artistic</span>
+      <span class="trait">Whimsical</span>
+      <span class="trait">All-subject</span>
+      <span class="trait">Unique</span>
+    </div>
+  </div>
+
+  <!-- ZIPPY -->
+  <div class="card zippy">
+    <canvas id="c-zippy" width="96" height="144" style="width:96px;height:144px"></canvas>
+    <div class="name">Zippy</div>
+    <div class="role">The Shooting Star</div>
+    <span class="badge">New Concept</span>
+    <div class="tagline">"Every adventure starts here"</div>
+    <hr>
+    <div class="desc">A comet-tailed star character bursting with energy. The star = rewards earned. Adventure energy built-in.</div>
+    <div class="traits">
+      <span class="trait">Energetic</span>
+      <span class="trait">Cheerful</span>
+      <span class="trait">Brand-aligned</span>
+      <span class="trait">Iconic</span>
+    </div>
+  </div>
+
+  <!-- BYTE -->
+  <div class="card byte">
+    <canvas id="c-byte" width="96" height="144" style="width:96px;height:144px"></canvas>
+    <div class="name">Byte</div>
+    <div class="role">The Dragon</div>
+    <span class="badge">New Concept</span>
+    <div class="tagline">"Brave minds, fierce hearts"</div>
+    <hr>
+    <div class="desc">A tiny graduation-capped teal dragon. Universally loved across cultures. Feels epic — like you're on a real quest.</div>
+    <div class="traits">
+      <span class="trait">Brave</span>
+      <span class="trait">Fantasy</span>
+      <span class="trait">Epic</span>
+      <span class="trait">Cross-cultural</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>LEARNING ADVENTURES PLATFORM · INTERNAL DESIGN CONCEPTS · 2026</footer>
+
+<script>
+function px(ctx, color, x, y, w, h) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * 3, y * 3, w * 3, h * 3);
+}
+
+// ── NOVA ──────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('c-nova');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const p = (c,x,y,w=1,h=1) => px(ctx,c,x,y,w,h);
+  // Legs
+  p('#60A5FA',10,32,5,8); p('#60A5FA',17,32,5,8);
+  // Body
+  p('#3B82F6',8,20,16,14);
+  // Screen
+  p('#1E40AF',11,23,10,7);
+  p('#22D3EE',12,24,8,5);
+  // Heart
+  p('#EF4444',14,25); p('#EF4444',17,25);
+  p('#EF4444',13,26,6); p('#EF4444',14,27,4); p('#EF4444',15,28,2);
+  // Arms
+  p('#2563EB',3,21,6,4); p('#2563EB',23,21,6,4);
+  p('#60A5FA',3,24,5,3); p('#60A5FA',24,24,5,3);
+  // Head
+  p('#3B82F6',8,8,16,13);
+  // Eyes
+  p('#22D3EE',10,12,4,4); p('#22D3EE',18,12,4,4);
+  p('#fff',11,13,2,2); p('#fff',19,13,2,2);
+  p('#0f172a',12,14); p('#20,14',20,14); // pupils
+  ctx.fillStyle='#0f172a'; ctx.fillRect(12*3,14*3,3,3); ctx.fillRect(20*3,14*3,3,3);
+  // Antenna
+  p('#60A5FA',15,3,2,6);
+  p('#FBBF24',14,1,4,4);
+  // Mouth smile line
+  p('#22D3EE',12,19,8,1);
+  // Ear nubs
+  p('#2563EB',6,9,3,4); p('#6,9',23,9,3,4);
+  ctx.fillStyle='#2563EB'; ctx.fillRect(23*3,9*3,3*3,4*3);
+})();
+
+// ── QUILL ─────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('c-quill');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const p = (c,x,y,w=1,h=1) => px(ctx,c,x,y,w,h);
+  // Body blob
+  p('#312e81',11,22,10,14);
+  p('#312e81',10,18,12,8);
+  p('#312e81',12,14,8,6);
+  // Head
+  p('#4338ca',9,8,14,12);
+  p('#4338ca',10,6,12,4);
+  p('#312e81',11,4,10,4);
+  // Ink splats
+  p('#6366f1',13,25,3,3);
+  p('#6366f1',18,28,3,2);
+  p('#6366f1',12,30,2,2);
+  // Eyes
+  p('#e0e7ff',11,10,5,5);
+  p('#e0e7ff',18,10,5,5);
+  p('#6366f1',12,11,3,3);
+  p('#6366f1',19,11,3,3);
+  p('#fff',13,11); p('#fff',20,11);
+  // Smile
+  p('#c7d2fe',13,17,6,1);
+  p('#c7d2fe',12,16); p('#c7d2fe',19,16);
+  // Quill tail
+  p('#f9a8d4',19,30,3,8);
+  p('#f9a8d4',20,28,2,4);
+  p('#fce7f3',21,32,2,5);
+  p('#9d174d',20,37,2,3);
+  // Floating star
+  p('#fbbf24',7,8,2,2);
+  p('#fbbf24',6,9,4);
+  p('#fbbf24',7,7,2,4);
+  // Cheek blush
+  p('#a5b4fc',10,15,2,1); p('#a5b4fc',20,15,2,1);
+})();
+
+// ── ZIPPY ─────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('c-zippy');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const p = (c,x,y,w=1,h=1) => px(ctx,c,x,y,w,h);
+  // Comet tail
+  p('#fde68a',1,28,6,3);
+  p('#fde68a',3,25,4,4);
+  p('#fcd34d',4,22,4,5);
+  p('#f59e0b',5,19,4,5);
+  // Star body
+  p('#fbbf24',10,14,12,14);
+  p('#fbbf24',8,18,16,8);
+  p('#fbbf24',12,12,8,4);
+  p('#f59e0b',8,14,4,4);
+  p('#f59e0b',20,14,4,4);
+  p('#f59e0b',8,26,4,4);
+  p('#f59e0b',20,26,4,4);
+  p('#f59e0b',4,18,6,4);
+  p('#f59e0b',22,18,6,4);
+  // Bottom spike
+  p('#fbbf24',12,28,8,4);
+  // Face
+  p('#fffbeb',11,17,10,10);
+  // Eyes
+  p('#0f172a',12,19,3,3); p('#0f172a',17,19,3,3);
+  p('#fff',13,19); p('#18,19',18,19);
+  ctx.fillStyle='#fff'; ctx.fillRect(18*3,19*3,3,3);
+  // Blush
+  p('#fca5a5',11,22,3,2); p('#fca5a5',18,22,3,2);
+  // Smile
+  p('#0f172a',13,24,6);
+  p('#0f172a',12,23,2); p('#0f172a',18,23,2);
+  // Speed lines
+  p('#fde68a',1,20,3); p('#fde68a',2,22,2); p('#fde68a',1,24,3);
+})();
+
+// ── BYTE ──────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('c-byte');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  const p = (c,x,y,w=1,h=1) => px(ctx,c,x,y,w,h);
+  // Tail
+  p('#34d399',22,34,4,8); p('#34d399',24,32,4,6); p('#34d399',25,30,3,4);
+  // Body
+  p('#10b981',9,20,14,16);
+  // Belly
+  p('#6ee7b7',11,22,10,12);
+  // Wings
+  p('#059669',2,18,8,10); p('#059669',22,18,8,10);
+  p('#34d399',3,19,5,6); p('#34d399',24,19,5,6);
+  // Legs
+  p('#10b981',10,36,5,6); p('#10b981',17,36,5,6);
+  // Claws
+  p('#fbbf24',10,41,2,2); p('#fbbf24',13,41,2,2);
+  p('#fbbf24',17,41,2,2); p('#fbbf24',20,41,2,2);
+  // Neck
+  p('#10b981',12,12,8,10);
+  // Head
+  p('#10b981',8,6,16,12);
+  // Snout
+  p('#34d399',10,13,12,6);
+  p('#34d399',12,17,8,3);
+  // Nostrils
+  p('#059669',12,14,2,2); p('#059669',18,14,2,2);
+  // Eyes
+  p('#fbbf24',9,8,5,5); p('#fbbf24',18,8,5,5);
+  p('#0f172a',10,9,3,3); p('#0f172a',19,9,3,3);
+  p('#fff',11,9); p('#fff',20,9);
+  // Horns
+  p('#fbbf24',9,2,3,5); p('#fbbf24',20,2,3,5);
+  // Graduation cap
+  p('#1e1b4b',7,3,18,3); p('#1e1b4b',14,0,4,4);
+  p('#f97316',17,0,4,2);
+  // Fire breath
+  p('#f97316',22,16,4,2); p('#fbbf24',24,15,4,2); p('#fde68a',26,14,3,2);
+})();
+
+// Bob animations
+const cards = document.querySelectorAll('.card');
+let t = 0;
+function bob() {
+  t += 0.03;
+  cards.forEach((card, i) => {
+    card.style.transform = `translateY(${Math.sin(t + i * 1.6) * 5}px)`;
+  });
+  requestAnimationFrame(bob);
+}
+bob();
+</script>
+</body>
+</html>

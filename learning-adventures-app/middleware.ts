@@ -132,14 +132,14 @@ export async function middleware(request: NextRequest) {
   // On app subdomain, require authentication for most routes
   if (subdomain === 'app') {
     // Allow public routes on app subdomain
-    const publicAppRoutes = ['/api/auth', '/unauthorized'];
+    const publicAppRoutes = ['/api/auth', '/unauthorized', '/login'];
     const isPublicRoute = publicAppRoutes.some((route) =>
       pathname.startsWith(route)
     );
 
     if (!isPublicRoute && !token) {
-      // Redirect to marketing site's NextAuth sign-in page
-      const loginUrl = new URL('/api/auth/signin', MARKETING_DOMAIN);
+      // Redirect to the app's dedicated login page
+      const loginUrl = new URL('/login', APP_DOMAIN);
       loginUrl.searchParams.set('callbackUrl', `${APP_DOMAIN}${pathname}`);
       return NextResponse.redirect(loginUrl);
     }

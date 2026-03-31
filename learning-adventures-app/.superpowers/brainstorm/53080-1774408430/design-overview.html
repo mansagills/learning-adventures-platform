@@ -1,0 +1,157 @@
+<h2>Open World Campus — Proposed Design</h2>
+<p class="subtitle">~96×72 tile world (6,144×4,608px). Each of 9 zones is 32×24 tiles. Camera viewport stays 1280×720.</p>
+
+<div class="section">
+  <h3>World Map (to scale)</h3>
+  <div style="display:flex;justify-content:center;margin:12px 0">
+    <div style="position:relative;width:288px;height:216px;border:2px solid #444;border-radius:6px;overflow:hidden">
+
+      <!-- Zone backgrounds — 3×3 grid, each zone 96px × 72px -->
+
+      <!-- Row 1 -->
+      <div style="position:absolute;left:0;top:0;width:96px;height:72px;background:#162d50;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;border-bottom:1px solid #333">
+        <div style="font-size:16px">⚡</div>
+        <div style="font-size:8px;color:#7ab4ff;font-weight:bold;margin-top:2px">MATH</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">deep blue crystal</div>
+      </div>
+      <div style="position:absolute;left:96px;top:0;width:96px;height:72px;background:#1a1a30;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;border-bottom:1px solid #333">
+        <div style="font-size:16px">📚</div>
+        <div style="font-size:8px;color:#c77dff;font-weight:bold;margin-top:2px">LIBRARY</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">purple stone halls</div>
+      </div>
+      <div style="position:absolute;left:192px;top:0;width:96px;height:72px;background:#0d2a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:1px solid #333">
+        <div style="font-size:16px">🔬</div>
+        <div style="font-size:8px;color:#6affa0;font-weight:bold;margin-top:2px">SCIENCE</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">teal lab district</div>
+      </div>
+
+      <!-- Row 2 -->
+      <div style="position:absolute;left:0;top:72px;width:96px;height:72px;background:#2a1010;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;border-bottom:1px solid #333">
+        <div style="font-size:16px">🏛️</div>
+        <div style="font-size:8px;color:#ff7675;font-weight:bold;margin-top:2px">HISTORY</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">sandstone ruins</div>
+      </div>
+      <!-- Center: Town Square — golden border -->
+      <div style="position:absolute;left:96px;top:72px;width:96px;height:72px;background:#1e1e10;border:2px solid #ffd700;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-size:18px">🏙️</div>
+        <div style="font-size:9px;color:#ffd700;font-weight:bold;margin-top:2px">TOWN SQUARE</div>
+        <div style="font-size:6px;color:#887700;margin-top:1px">spawn • cobblestone plaza</div>
+        <!-- player spawn dot -->
+        <div style="position:absolute;bottom:10px;right:10px;width:6px;height:6px;background:#ff6b6b;border-radius:50%;border:1px solid white;box-shadow:0 0 4px #ff6b6b"></div>
+        <div style="position:absolute;bottom:5px;right:17px;font-size:5px;color:#ff9999">spawn</div>
+      </div>
+      <div style="position:absolute;left:192px;top:72px;width:96px;height:72px;background:#0d1e30;display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #333;border-bottom:1px solid #333">
+        <div style="font-size:16px">✒️</div>
+        <div style="font-size:8px;color:#48cae4;font-weight:bold;margin-top:2px">ENGLISH</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">ocean-blue village</div>
+      </div>
+
+      <!-- Row 3 -->
+      <div style="position:absolute;left:0;top:144px;width:96px;height:72px;background:#0a1e0a;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;border-top:1px solid #333">
+        <div style="font-size:16px">🌿</div>
+        <div style="font-size:8px;color:#52b788;font-weight:bold;margin-top:2px">NATURE PARK</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">dense forest paths</div>
+      </div>
+      <div style="position:absolute;left:96px;top:144px;width:96px;height:72px;background:#1e120a;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #333;border-top:1px solid #333">
+        <div style="font-size:16px">🍽️</div>
+        <div style="font-size:8px;color:#ffd166;font-weight:bold;margin-top:2px">MARKET</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">warm amber bazaar</div>
+      </div>
+      <div style="position:absolute;left:192px;top:144px;width:96px;height:72px;background:#0a1a2a;display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:1px solid #333">
+        <div style="font-size:16px">🌐</div>
+        <div style="font-size:8px;color:#a8dadc;font-weight:bold;margin-top:2px">INTERDISC.</div>
+        <div style="font-size:6px;color:#456;margin-top:1px">shifting terrain mix</div>
+      </div>
+
+      <!-- Grid lines -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+        <line x1="96" y1="0" x2="96" y2="216" stroke="#333" stroke-width="1"/>
+        <line x1="192" y1="0" x2="192" y2="216" stroke="#333" stroke-width="1"/>
+        <line x1="0" y1="72" x2="288" y2="72" stroke="#333" stroke-width="1"/>
+        <line x1="0" y1="144" x2="288" y2="144" stroke="#333" stroke-width="1"/>
+        <!-- Paths crossing zones -->
+        <line x1="144" y1="0" x2="144" y2="216" stroke="#8B7355" stroke-width="3" opacity="0.5" stroke-dasharray="4,4"/>
+        <line x1="0" y1="108" x2="288" y2="108" stroke="#8B7355" stroke-width="3" opacity="0.5" stroke-dasharray="4,4"/>
+      </svg>
+
+      <!-- Camera viewport overlay -->
+      <div style="position:absolute;left:88px;top:64px;width:112px;height:88px;border:2px solid #ffd700;border-radius:2px;pointer-events:none;opacity:0.6">
+        <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:7px;color:#ffd700;white-space:nowrap">camera viewport</div>
+      </div>
+    </div>
+  </div>
+  <p class="subtitle" style="text-align:center;font-size:11px">Each zone: 32×24 tiles (2,048×1,536px) — 5× larger than the entire current world<br>Dashed lines = main paths. Golden box = camera viewport at max zoom.</p>
+</div>
+
+<div class="section">
+  <h3 style="margin-top:16px">Minimap — Corner Overlay</h3>
+  <div style="display:flex;gap:24px;align-items:flex-start;margin:8px 0">
+    <div style="position:relative;width:200px;height:150px;background:#1a1a2e;border:2px solid #333;border-radius:6px;overflow:hidden;flex-shrink:0">
+      <!-- Simulated game view -->
+      <div style="position:absolute;inset:0;background:#1e1e10"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#555;font-size:10px">game world</div>
+
+      <!-- Minimap in bottom-left -->
+      <div style="position:absolute;left:6px;bottom:6px;width:64px;height:48px;background:rgba(0,0,0,0.75);border:1px solid #555;border-radius:3px;overflow:hidden">
+        <!-- 3x3 mini zones -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:100%;height:100%">
+          <div style="background:#162d50;opacity:0.9"></div>
+          <div style="background:#1a1a30;opacity:0.9"></div>
+          <div style="background:#0d2a1a;opacity:0.9"></div>
+          <div style="background:#2a1010;opacity:0.9"></div>
+          <div style="background:#1e1e10;border:1px solid #ffd700;opacity:0.9;position:relative">
+            <!-- player dot -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:4px;height:4px;background:#ff6b6b;border-radius:50%"></div>
+          </div>
+          <div style="background:#0d1e30;opacity:0.9"></div>
+          <div style="background:#0a1e0a;opacity:0.9"></div>
+          <div style="background:#1e120a;opacity:0.9"></div>
+          <div style="background:#0a1a2a;opacity:0.9"></div>
+        </div>
+        <!-- zone label -->
+        <div style="position:absolute;bottom:1px;left:0;right:0;text-align:center;font-size:5px;color:#aaa">TOWN SQUARE</div>
+      </div>
+
+      <!-- HUD elements -->
+      <div style="position:absolute;top:6px;left:6px;font-size:7px;color:#ffd700">⭐ Lv.4 Alex</div>
+      <div style="position:absolute;top:6px;right:6px;font-size:7px;color:#aaa">💰 340</div>
+    </div>
+
+    <div style="flex:1">
+      <div style="font-size:12px;font-weight:bold;color:#e0e0e0;margin-bottom:6px">How it works</div>
+      <ul style="margin:0;padding-left:16px;font-size:11px;line-height:1.8;color:#bbb">
+        <li>React <code style="font-size:10px;background:#222;padding:1px 3px;border-radius:2px">&lt;canvas&gt;</code> overlay — no extra Phaser camera needed</li>
+        <li>Zone color rectangles drawn once on mount</li>
+        <li>Player dot redraws on each <code style="font-size:10px;background:#222;padding:1px 3px;border-radius:2px">position-update</code> EventBus event</li>
+        <li>Active zone highlighted with a bright border</li>
+        <li>Zone name label updates as player moves between zones</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3 style="margin-top:8px">Technical Architecture</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+    <div style="background:#1a1a2e;padding:12px;border-radius:6px;border:1px solid #333">
+      <div style="font-size:10px;font-weight:bold;color:#7ab4ff;margin-bottom:6px">NEW FILES</div>
+      <div style="font-size:9px;color:#aaa;line-height:1.9">
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">OpenWorldScene.ts</code> — replaces WorldScene</div>
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">ZoneManager.ts</code> — zone boundary tracking</div>
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">TilemapGenerator.ts</code> — 96×72 tile array builder</div>
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">WanderingNPC.ts</code> — extends NPC with waypoints</div>
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">CollectibleSystem.ts</code> — secrets &amp; hidden items</div>
+        <div><span style="color:#6affa0">+</span> <code style="color:#e0e0e0">Minimap.tsx</code> — React canvas overlay</div>
+      </div>
+    </div>
+    <div style="background:#1a1a2e;padding:12px;border-radius:6px;border:1px solid #333">
+      <div style="font-size:10px;font-weight:bold;color:#ffd166;margin-bottom:6px">MODIFIED FILES</div>
+      <div style="font-size:9px;color:#aaa;line-height:1.9">
+        <div><span style="color:#ffd166">~</span> <code style="color:#e0e0e0">main.ts</code> — add OpenWorldScene</div>
+        <div><span style="color:#ffd166">~</span> <code style="color:#e0e0e0">MathBuildingScene.ts</code> — exit → OpenWorldScene</div>
+        <div><span style="color:#ffd166">~</span> <code style="color:#e0e0e0">world/page.tsx</code> — add Minimap, zone HUD label</div>
+        <div><span style="color:#ffd166">~</span> <code style="color:#e0e0e0">EventBus.ts</code> — add zone-changed, position-update events</div>
+      </div>
+    </div>
+  </div>
+</div>

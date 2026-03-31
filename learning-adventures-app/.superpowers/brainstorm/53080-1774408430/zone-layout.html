@@ -1,0 +1,71 @@
+<h2>Campus zone layout — which arrangement feels right?</h2>
+<p class="subtitle">All 9 zones, seamless movement between them. Town Square is always the spawn point. Click to pick a layout.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#111;padding:12px;min-height:200px;display:flex;align-items:center;justify-content:center">
+      <!-- Option A: Hub-and-spoke — Town Square center, subjects radiate out -->
+      <div style="position:relative;width:220px;height:190px">
+        <!-- Nature Park background -->
+        <div style="position:absolute;inset:0;background:#0d200d;border-radius:6px;border:1px solid #2a4a2a"></div>
+        <!-- Zone blocks -->
+        <!-- Top row -->
+        <div style="position:absolute;left:2px;top:2px;width:66px;height:56px;background:#1a3a5c;border:1px solid #4a90d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#7ab4ff;font-weight:bold;text-align:center">⚡ MATH<br><span style="font-size:6px;color:#5a8abf;font-weight:normal">numbers &amp; logic</span></div>
+        <div style="position:absolute;left:76px;top:2px;width:66px;height:56px;background:#2a1a4a;border:1px solid #9b59b6;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#c77dff;font-weight:bold;text-align:center">📚 LIBRARY<br><span style="font-size:6px;color:#9b59b6;font-weight:normal">research hub</span></div>
+        <div style="position:absolute;right:2px;top:2px;width:66px;height:56px;background:#1a3a1a;border:1px solid #4a9e42;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6affa0;font-weight:bold;text-align:center">🔬 SCIENCE<br><span style="font-size:6px;color:#4a9e42;font-weight:normal">experiments</span></div>
+        <!-- Middle row -->
+        <div style="position:absolute;left:2px;top:66px;width:66px;height:56px;background:#3a1a1a;border:1px solid #c0392b;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ff7675;font-weight:bold;text-align:center">🏛️ HISTORY<br><span style="font-size:6px;color:#c0392b;font-weight:normal">past &amp; culture</span></div>
+        <!-- Town Square center -->
+        <div style="position:absolute;left:76px;top:66px;width:66px;height:56px;background:#2a2a1a;border:2px solid #ffd700;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ffd700;font-weight:bold;text-align:center">🏙️ TOWN<br>SQUARE<br><span style="font-size:6px;color:#c8a000;font-weight:normal">spawn + hub</span></div>
+        <div style="position:absolute;right:2px;top:66px;width:66px;height:56px;background:#1a3040;border:1px solid #00b4d8;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#48cae4;font-weight:bold;text-align:center">✒️ ENGLISH<br><span style="font-size:6px;color:#0096b4;font-weight:normal">words &amp; stories</span></div>
+        <!-- Bottom row -->
+        <div style="position:absolute;left:2px;bottom:2px;width:66px;height:56px;background:#0d2a0d;border:1px solid #2d8a2d;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#52b788;font-weight:bold;text-align:center">🌿 NATURE<br>PARK<br><span style="font-size:6px;color:#2d8a2d;font-weight:normal">outdoors</span></div>
+        <div style="position:absolute;left:76px;bottom:2px;width:66px;height:56px;background:#2a1a0a;border:1px solid #e8a838;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ffd166;font-weight:bold;text-align:center">🍽️ MARKET<br><span style="font-size:6px;color:#e8a838;font-weight:normal">shop &amp; food</span></div>
+        <div style="position:absolute;right:2px;bottom:2px;width:66px;height:56px;background:#1a2a3a;border:1px solid #457b9d;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#a8dadc;font-weight:bold;text-align:center">🌐 INTER-<br>DISC.<br><span style="font-size:6px;color:#457b9d;font-weight:normal">crossover</span></div>
+        <!-- path lines connecting to center -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+          <line x1="68" y1="22" x2="76" y2="90" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="142" y1="22" x2="142" y2="66" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="152" y1="22" x2="152" y2="66" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="68" y1="90" x2="76" y2="90" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="142" y1="90" x2="152" y2="90" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="68" y1="132" x2="76" y2="120" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="142" y1="160" x2="142" y2="122" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+          <line x1="152" y1="160" x2="152" y2="122" stroke="#8B7355" stroke-width="3" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 3×3 Grid (Recommended)</h3>
+      <p>Town Square at center, 8 zones surrounding it like compass points. Balanced, easy to navigate. Each zone is immediately accessible from the hub.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#111;padding:12px;min-height:200px;display:flex;align-items:center;justify-content:center">
+      <!-- Option B: Town Square top-center, zones below in a campus style -->
+      <div style="position:relative;width:220px;height:190px">
+        <div style="position:absolute;inset:0;background:#0d200d;border-radius:6px;border:1px solid #2a4a2a"></div>
+        <!-- Top: Town Square + Library side by side -->
+        <div style="position:absolute;left:40px;top:2px;width:140px;height:44px;background:#2a2a1a;border:2px solid #ffd700;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ffd700;font-weight:bold;text-align:center">🏙️ TOWN SQUARE &amp; MARKET &nbsp; <span style="font-size:7px;color:#c8a000">spawn</span></div>
+        <!-- Row 2: Library + Nature centered -->
+        <div style="position:absolute;left:2px;top:52px;width:66px;height:44px;background:#1a3a5c;border:1px solid #4a90d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#7ab4ff;font-weight:bold;text-align:center">⚡ MATH</div>
+        <div style="position:absolute;left:76px;top:52px;width:66px;height:44px;background:#2a1a4a;border:1px solid #9b59b6;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#c77dff;font-weight:bold;text-align:center">📚 LIBRARY</div>
+        <div style="position:absolute;right:2px;top:52px;width:66px;height:44px;background:#1a3a1a;border:1px solid #4a9e42;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6affa0;font-weight:bold;text-align:center">🔬 SCIENCE</div>
+        <!-- Row 3 -->
+        <div style="position:absolute;left:2px;top:102px;width:66px;height:44px;background:#3a1a1a;border:1px solid #c0392b;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ff7675;font-weight:bold;text-align:center">🏛️ HISTORY</div>
+        <div style="position:absolute;left:76px;top:102px;width:66px;height:44px;background:#1a3040;border:1px solid #00b4d8;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#48cae4;font-weight:bold;text-align:center">✒️ ENGLISH</div>
+        <div style="position:absolute;right:2px;top:102px;width:66px;height:44px;background:#1a2a3a;border:1px solid #457b9d;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#a8dadc;font-weight:bold;text-align:center">🌐 INTERDISC.</div>
+        <!-- Bottom -->
+        <div style="position:absolute;left:2px;bottom:2px;width:105px;height:40px;background:#0d2a0d;border:1px solid #2d8a2d;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#52b788;font-weight:bold;text-align:center">🌿 NATURE PARK</div>
+        <div style="position:absolute;right:2px;bottom:2px;width:105px;height:40px;background:#2a1a0a;border:1px solid #e8a838;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#ffd166;font-weight:bold;text-align:center">🍽️ MARKET DIST.</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Town Square at Top</h3>
+      <p>Social hub at the entrance, subject zones spread downward like a real school campus. Nature Park and Market stretch across the bottom as leisure areas.</p>
+    </div>
+  </div>
+
+</div>

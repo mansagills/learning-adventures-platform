@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Nunito, Inter, Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import GameRegistryInitializer from '@/components/GameRegistryInitializer';
+import HeaderFooterWrapper, {
+  FooterWrapper,
+} from '@/components/navigation/HeaderFooterWrapper';
 import AppLayout from '@/components/navigation/AppLayout';
 import { Providers } from '@/components/Providers';
 import {
@@ -92,13 +93,13 @@ export default function RootLayout({
         <Providers>
           <div className="min-h-screen flex flex-col">
             <GameRegistryInitializer />
-            <Header />
+            <HeaderFooterWrapper />
 
             <main id="main-content" className="flex-1">
               <AppLayout>{children}</AppLayout>
             </main>
 
-            <Footer />
+            <FooterWrapper />
           </div>
         </Providers>
 

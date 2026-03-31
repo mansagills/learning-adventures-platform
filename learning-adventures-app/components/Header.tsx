@@ -6,40 +6,29 @@ import { useSession } from 'next-auth/react';
 import Container from './Container';
 import Button from './Button';
 import Icon from './Icon';
-import AuthModal from './AuthModal';
 import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
 import { getAppUrl } from '@/lib/utils/urls';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [authCallbackUrl, setAuthCallbackUrl] = useState<string>('/');
   const { data: session, status } = useSession();
 
   const handleCTAClick = () => {
     if (session) {
-      // Redirect logged-in users to app subdomain dashboard
       window.location.href = getAppUrl('/dashboard');
     } else {
-      // If not logged in, open signup modal
-      setAuthMode('signup');
-      setIsAuthModalOpen(true);
+      window.location.href = getAppUrl('/login?mode=signup');
     }
     analytics.clickCTA('Header CTA', 'header');
   };
 
-  const handleSignIn = (callbackUrl: string = '/') => {
-    setAuthMode('signin');
-    setAuthCallbackUrl(callbackUrl);
-    setIsAuthModalOpen(true);
+  const handleSignIn = () => {
+    window.location.href = getAppUrl('/login?mode=signin');
   };
 
-  const handleSignUp = (callbackUrl: string = '/') => {
-    setAuthMode('signup');
-    setAuthCallbackUrl(callbackUrl);
-    setIsAuthModalOpen(true);
+  const handleSignUp = () => {
+    window.location.href = getAppUrl('/login?mode=signup');
   };
 
   const toggleMenu = () => {
@@ -253,13 +242,6 @@ export default function Header() {
         )}
       </Container>
 
-      {/* Authentication Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        defaultMode={authMode}
-        callbackUrl={authCallbackUrl}
-      />
     </header>
   );
 }

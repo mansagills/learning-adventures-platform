@@ -1,0 +1,96 @@
+<h2>How big should the expanded campus feel?</h2>
+<p class="subtitle">Current world: 20×12 tiles (fits exactly in one screen, no scrolling). Pick the scale that feels right.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-height:160px">
+      <!-- Current: 20x12 grid -->
+      <div style="position:relative;width:200px;height:120px;background:#2d5a27;border:2px solid #4a9e42;border-radius:4px;overflow:hidden">
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(20,10px);grid-template-rows:repeat(12,10px)">
+        </div>
+        <!-- paths -->
+        <div style="position:absolute;left:88px;top:0;width:24px;height:120px;background:#8B7355;opacity:0.7"></div>
+        <div style="position:absolute;left:0;top:48px;width:200px;height:24px;background:#8B7355;opacity:0.7"></div>
+        <!-- buildings -->
+        <div style="position:absolute;left:64px;top:4px;width:48px;height:28px;background:#4a90d9;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;color:white;font-weight:bold">MATH</div>
+        <div style="position:absolute;left:8px;top:76px;width:28px;height:24px;background:#e8a838;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:6px;color:white;font-weight:bold">SCI</div>
+        <div style="position:absolute;left:152px;top:76px;width:32px;height:24px;background:#6ab04c;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:6px;color:white;font-weight:bold">ENG</div>
+        <div style="position:absolute;left:8px;top:28px;width:24px;height:20px;background:#c0392b;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:6px;color:white;font-weight:bold">SHOP</div>
+        <div style="position:absolute;left:160px;top:28px;width:28px;height:20px;background:#9b59b6;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:5px;color:white;font-weight:bold">JOBS</div>
+        <!-- player dot -->
+        <div style="position:absolute;left:96px;top:52px;width:8px;height:8px;background:#ff6b6b;border-radius:50%;border:1px solid white"></div>
+        <!-- screen border -->
+        <div style="position:absolute;inset:0;border:3px solid #ffd700;border-radius:4px;pointer-events:none"></div>
+      </div>
+      <div style="color:#aaa;font-size:11px;margin-top:8px">1280×768 px — fits in screen</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Same Size, More Content</h3>
+      <p>Keep the 20×12 footprint but fill it better — denser buildings, more NPCs, hidden areas, secrets. No camera scrolling needed. Simpler to implement.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-height:160px">
+      <!-- 3x world -->
+      <div style="position:relative;width:200px;height:150px;background:#1e3a1a;border:2px solid #4a9e42;border-radius:4px;overflow:hidden">
+        <!-- world is bigger than the yellow camera box -->
+        <!-- paths horizontal/vertical -->
+        <div style="position:absolute;left:0;right:0;top:66px;height:18px;background:#8B7355;opacity:0.6"></div>
+        <div style="position:absolute;top:0;bottom:0;left:90px;width:18px;background:#8B7355;opacity:0.6"></div>
+        <!-- zone labels -->
+        <div style="position:absolute;left:4px;top:4px;width:78px;height:55px;background:rgba(74,144,217,0.15);border:1px dashed #4a90d9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4a90d9;font-weight:bold">ACADEMIC<br>ZONE</div>
+        <div style="position:absolute;right:4px;top:4px;width:78px;height:55px;background:rgba(232,168,56,0.15);border:1px dashed #e8a838;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#e8a838;font-weight:bold">SCIENCE<br>DISTRICT</div>
+        <div style="position:absolute;left:4px;bottom:4px;width:78px;height:55px;background:rgba(192,57,43,0.15);border:1px dashed #c0392b;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#c0392b;font-weight:bold">MARKET<br>SQUARE</div>
+        <div style="position:absolute;right:4px;bottom:4px;width:78px;height:55px;background:rgba(106,176,76,0.15);border:1px dashed #6ab04c;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#6ab04c;font-weight:bold">NATURE<br>PARK</div>
+        <!-- camera viewport -->
+        <div style="position:absolute;left:34px;top:40px;width:88px;height:66px;border:3px solid #ffd700;border-radius:3px;pointer-events:none"></div>
+        <!-- player dot -->
+        <div style="position:absolute;left:75px;top:68px;width:8px;height:8px;background:#ff6b6b;border-radius:50%;border:1px solid white"></div>
+      </div>
+      <div style="color:#aaa;font-size:11px;margin-top:8px">~3× bigger — camera scrolls to follow player</div>
+    </div>
+    <div class="card-body">
+      <h3>B — 4-Zone Campus (~3× bigger)</h3>
+      <p>Expand to ~60×36 tiles. Four distinct zones: Academic, Science, Market, Nature. Camera scrolls to follow player. A minimap shows your position.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="C" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-height:160px">
+      <!-- large open world -->
+      <div style="position:relative;width:200px;height:150px;background:#0d1f0d;border:2px solid #4a9e42;border-radius:4px;overflow:hidden">
+        <!-- biome regions with soft edges -->
+        <div style="position:absolute;left:0;top:0;width:80px;height:70px;background:linear-gradient(135deg,#1a3a5c,#0d2744);opacity:0.9;border-radius:0 0 60px 0"></div>
+        <div style="position:absolute;right:0;top:0;width:80px;height:70px;background:linear-gradient(225deg,#2a4a1a,#1a3a10);opacity:0.9;border-radius:0 0 0 60px"></div>
+        <div style="position:absolute;left:0;bottom:0;width:80px;height:70px;background:linear-gradient(45deg,#3a2a0a,#2a1a04);opacity:0.9;border-radius:0 60px 0 0"></div>
+        <div style="position:absolute;right:0;bottom:0;width:80px;height:70px;background:linear-gradient(315deg,#2a0a2a,#1a041a);opacity:0.9;border-radius:60px 0 0 0"></div>
+        <!-- center campus -->
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:50px;background:rgba(100,80,40,0.5);border:1px solid #8B7355;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:7px;color:#d4b483;font-weight:bold;text-align:center">MAIN<br>CAMPUS</div>
+        <!-- zone labels -->
+        <div style="position:absolute;left:8px;top:10px;font-size:7px;color:#6ab4ff;font-weight:bold">MATH</div>
+        <div style="position:absolute;right:8px;top:10px;font-size:7px;color:#6affa0;font-weight:bold">SCIENCE</div>
+        <div style="position:absolute;left:8px;bottom:10px;font-size:7px;color:#ffd700;font-weight:bold">HISTORY</div>
+        <div style="position:absolute;right:8px;bottom:10px;font-size:7px;color:#ff6bff;font-weight:bold">ENGLISH</div>
+        <!-- winding paths -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%">
+          <path d="M100,75 Q60,50 25,25" stroke="#8B7355" stroke-width="4" fill="none" opacity="0.7"/>
+          <path d="M100,75 Q140,50 175,25" stroke="#8B7355" stroke-width="4" fill="none" opacity="0.7"/>
+          <path d="M100,75 Q60,100 25,125" stroke="#8B7355" stroke-width="4" fill="none" opacity="0.7"/>
+          <path d="M100,75 Q140,100 175,125" stroke="#8B7355" stroke-width="4" fill="none" opacity="0.7"/>
+        </svg>
+        <!-- camera viewport -->
+        <div style="position:absolute;left:58px;top:44px;width:84px;height:62px;border:3px solid #ffd700;border-radius:3px;pointer-events:none"></div>
+        <!-- player dot -->
+        <div style="position:absolute;left:96px;top:71px;width:8px;height:8px;background:#ff6b6b;border-radius:50%;border:1px solid white"></div>
+      </div>
+      <div style="color:#aaa;font-size:11px;margin-top:8px">~6–8× bigger — open-world feel, biome zones</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Open World Campus (~6–8× bigger)</h3>
+      <p>Large open campus, ~100×80 tiles. Each subject has its own visual biome (forest, city, desert, ocean). Winding paths. Feels like a real exploreable world.</p>
+    </div>
+  </div>
+
+</div>
