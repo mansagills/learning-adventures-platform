@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Container from './Container';
 import Button from './Button';
 
@@ -5,59 +6,43 @@ export default function HowItWorks() {
   const steps = [
     {
       number: '01',
-      title: 'Create Your Profile',
+      title: 'Create Your Character',
       description:
-        "Tell us about your child's grade level, interests, and learning goals.",
-      emoji: '👤',
+        'Pick your look, name your hero, and choose your starting gear. Your adventure identity is yours to keep.',
+      emoji: '🧙',
       color: 'violet' as const,
     },
     {
       number: '02',
-      title: 'Explore Adventures',
+      title: 'Explore the Campus',
       description:
-        'Browse our library of interactive games and lessons designed for fun learning.',
+        'Roam a living pixel world — discover buildings, meet quirky NPCs, and find hidden secrets around every corner.',
       emoji: '🗺️',
       color: 'pink' as const,
     },
     {
       number: '03',
-      title: 'Learn & Progress',
+      title: 'Go on Quests',
       description:
-        'Watch your child engage with adaptive content that grows with them.',
-      emoji: '📈',
+        'Accept missions, solve challenges, and battle through mini-games to earn XP, coins, and rare gear.',
+      emoji: '⚔️',
       color: 'yellow' as const,
     },
     {
       number: '04',
-      title: 'See Results',
+      title: 'Level Up',
       description:
-        "Get detailed insights into your child's learning journey and achievements.",
+        'Unlock new areas, power up your character, and collect badges as you grow stronger — and smarter.',
       emoji: '🏆',
       color: 'mint' as const,
     },
   ];
 
   const colorClasses = {
-    violet: {
-      bg: 'bg-pg-violet',
-      text: 'text-pg-violet',
-      shadow: 'shadow-pop',
-    },
-    pink: {
-      bg: 'bg-pg-pink',
-      text: 'text-pg-pink',
-      shadow: 'shadow-pop',
-    },
-    yellow: {
-      bg: 'bg-pg-yellow',
-      text: 'text-pg-yellow',
-      shadow: 'shadow-pop',
-    },
-    mint: {
-      bg: 'bg-pg-mint',
-      text: 'text-pg-mint',
-      shadow: 'shadow-pop',
-    },
+    violet: { bg: 'bg-pg-violet', text: 'text-pg-violet', shadow: 'shadow-pop' },
+    pink: { bg: 'bg-pg-pink', text: 'text-pg-pink', shadow: 'shadow-pop' },
+    yellow: { bg: 'bg-pg-yellow', text: 'text-pg-yellow', shadow: 'shadow-pop' },
+    mint: { bg: 'bg-pg-mint', text: 'text-pg-mint', shadow: 'shadow-pop' },
   };
 
   return (
@@ -65,23 +50,22 @@ export default function HowItWorks() {
       id="how-it-works"
       className="py-20 bg-white relative overflow-hidden"
     >
-      {/* Background decoration */}
       <div className="absolute inset-0 bg-dot-grid opacity-10"></div>
 
       <Container>
         {/* Section Header */}
         <div className="text-center mb-16 relative z-10">
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
-            <span className="text-lg">🎯</span>
+            <span className="text-lg">🎮</span>
             <span className="text-sm font-bold text-foreground uppercase tracking-wide">
               How It Works
             </span>
           </div>
 
           <h2 className="font-outfit text-4xl md:text-5xl font-extrabold text-foreground mb-4">
-            Start Your{' '}
+            Your Quest Starts{' '}
             <span className="relative inline-block">
-              <span className="text-pg-pink">Adventure</span>
+              <span className="text-pg-pink">Here</span>
               <svg
                 className="absolute -bottom-1 left-0 w-full h-3"
                 viewBox="0 0 200 8"
@@ -95,12 +79,11 @@ export default function HowItWorks() {
                   strokeLinecap="round"
                 />
               </svg>
-            </span>{' '}
-            in 4 Easy Steps
+            </span>
           </h2>
 
           <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
-            Getting started is simple. Your child will be learning in no time!
+            Four steps from sign-up to legendary adventurer.
           </p>
         </div>
 
@@ -110,7 +93,7 @@ export default function HowItWorks() {
             const colors = colorClasses[step.color];
             return (
               <div key={step.number} className="relative">
-                {/* Squiggle Connector Line (hidden on mobile, except last) */}
+                {/* Dashed connector line */}
                 {index < steps.length - 1 && (
                   <div className="hidden lg:block absolute top-12 left-[60%] w-[80%] z-0">
                     <svg
@@ -133,22 +116,17 @@ export default function HowItWorks() {
 
                 {/* Step Card */}
                 <div className="card-sticker group hover:-translate-y-1 transition-all duration-200 ease-bounce text-center relative">
-                  {/* Large Number Circle */}
                   <div
-                    className={`w-20 h-20 ${colors.bg} border-2 border-pg-border rounded-full ${colors.shadow} flex items-center justify-center mx-auto -mt-2 mb-4 group-hover:scale-110 transition-transform duration-200`}
+                    className={`w-20 h-20 ${colors.bg} border-2 border-pg-border rounded-xl ${colors.shadow} flex items-center justify-center mx-auto -mt-2 mb-4 group-hover:scale-110 transition-transform duration-200`}
                   >
                     <span className="font-outfit text-2xl font-extrabold text-white">
                       {step.number}
                     </span>
                   </div>
 
-                  {/* Emoji Icon */}
                   <div className="text-4xl mb-4">{step.emoji}</div>
 
-                  {/* Content */}
-                  <h3
-                    className={`font-outfit text-xl font-bold ${colors.text} mb-3`}
-                  >
+                  <h3 className={`font-outfit text-xl font-bold ${colors.text} mb-3`}>
                     {step.title}
                   </h3>
                   <p className="font-plus-jakarta text-foreground/70 text-sm leading-relaxed">
@@ -160,33 +138,34 @@ export default function HowItWorks() {
           })}
         </div>
 
-        {/* Call to Action Card */}
+        {/* CTA Card */}
         <div className="mt-20 relative z-10">
           <div className="card-sticker-featured max-w-2xl mx-auto text-center p-10">
-            {/* Floating decorative elements */}
             <div className="absolute -top-4 -left-4 w-10 h-10 bg-pg-yellow border-2 border-pg-border rounded-lg shadow-pop rotate-12 flex items-center justify-center">
-              <span className="text-lg">🎉</span>
+              <span className="text-lg">⚡</span>
             </div>
             <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-pg-mint border-2 border-pg-border rounded-full shadow-pop flex items-center justify-center">
-              <span className="text-sm">✨</span>
+              <span className="text-sm">🗡️</span>
             </div>
 
             <h3 className="font-outfit text-3xl font-extrabold text-foreground mb-4">
-              Ready to Get Started?
+              Ready to Begin?
             </h3>
             <p className="font-plus-jakarta text-lg text-foreground/70 mb-8">
-              Join thousands of families who have transformed their child's
-              learning experience.
+              Your character is waiting. The world is open. What happens next is
+              up to you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="candy" size="lg">
-                <span className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center mr-2">
-                  🚀
-                </span>
-                Start Free Trial
-              </Button>
+              <Link href="/world">
+                <Button variant="candy" size="lg">
+                  <span className="w-6 h-6 bg-white/20 rounded-sm flex items-center justify-center mr-2">
+                    🌍
+                  </span>
+                  Enter the World
+                </Button>
+              </Link>
               <Button variant="outline-pop" size="lg">
-                Watch Demo Video
+                Watch a Preview →
               </Button>
             </div>
           </div>

@@ -96,7 +96,10 @@
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform worktree list)",
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform add -A .claude/worktrees/)",
       "Bash(git -C:*)",
-      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform push origin main)"
+      "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform push origin main)",
+      "Bash(wc -l /Users/mansagills/Documents/GitHub/learning-adventures-platform/components/*.tsx)",
+      "Bash(wc -l /Users/mansagills/Documents/GitHub/learning-adventures-platform/lib/*.ts)",
+      "Bash(pnpm add:*)"
     ],
     "deny": [],
     "ask": []

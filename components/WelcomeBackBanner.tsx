@@ -19,16 +19,16 @@ export default function WelcomeBackBanner({
           <div className="flex items-center gap-3">
             <span className="text-2xl">👋</span>
             <p className="text-white font-semibold text-lg">
-              Welcome back, {displayName}!
+              Welcome back, {displayName}! Your world awaits.
             </p>
           </div>
-          <Link href="/dashboard">
+          <Link href="/world">
             <Button
               variant="candy"
               size="md"
               className="bg-white text-pg-violet hover:bg-pg-yellow hover:text-foreground"
             >
-              Continue to Dashboard →
+              Enter the World →
             </Button>
           </Link>
         </div>

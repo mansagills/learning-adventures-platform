@@ -16,41 +16,40 @@ export default function Faq() {
 
   const faqItems: FAQItem[] = [
     {
-      id: 'accessibility',
-      question:
-        'Is Learning Adventures accessible for children with special needs?',
+      id: 'what-is-it',
+      question: 'What exactly is Learning Adventures?',
       answer:
-        'Yes! Our platform is designed with accessibility as a core principle. We provide keyboard navigation, screen reader compatibility, high contrast modes, adjustable text sizes, and support for various assistive technologies.',
+        'Learning Adventures is a 2D pixel game world where kids explore a living campus, go on quests, and earn XP — with math, science, reading, and more woven into every challenge. Think Adventure Academy meets an open-world RPG.',
     },
     {
-      id: 'pricing',
-      question: 'How much does Learning Adventures cost?',
+      id: 'age-range',
+      question: 'What ages is it for?',
       answer:
-        'We offer flexible pricing plans starting at $9.99/month for individual families. All plans include a 14-day free trial with no credit card required, so you can explore our full library risk-free.',
+        'The world is designed for kids ages 5–12 (grades K–5). Quests and challenges automatically scale to match your child\'s level, so a 6-year-old and a 12-year-old can both be in the world at the same time.',
     },
     {
-      id: 'offline',
-      question: 'Can my child use Learning Adventures without internet?',
+      id: 'learning',
+      question: 'Does my kid actually learn anything, or is it just a game?',
       answer:
-        'Many of our activities can be downloaded for offline use, perfect for travel or areas with limited connectivity. Core learning content remains accessible offline through our mobile app.',
+        'Both — by design. Every quest, mini-game, and challenge is built around real curriculum standards (math, science, reading, history). Kids are solving real problems; they just don\'t realize it because they\'re trying to beat the dungeon.',
     },
     {
       id: 'progress',
-      question: "How do I track my child's learning progress?",
+      question: "How do I know what my child is doing in the world?",
       answer:
-        'Our comprehensive parent dashboard provides detailed insights including completed activities, skill progression, time spent learning, and areas that may need additional practice.',
+        'Parents get a dashboard showing XP earned, quests completed, subjects covered, and time spent. You can see exactly which skills your child is working on without interrupting their game.',
     },
     {
-      id: 'ai-features',
-      question: 'How does the AI personalization work?',
+      id: 'pricing',
+      question: 'How much does it cost?',
       answer:
-        "Our adaptive learning AI analyzes your child's responses and preferences to customize content difficulty. It identifies knowledge gaps and provides targeted practice while keeping your child appropriately challenged.",
+        'You can start for free — no credit card needed. Premium plans unlock the full world, all quest lines, and exclusive gear. We\'ll always keep a meaningful free tier so every kid can explore.',
     },
     {
       id: 'privacy',
-      question: "How do you protect my child's privacy?",
+      question: "Is it safe for kids?",
       answer:
-        'We take privacy seriously and are fully COPPA compliant. We never share personal information with third parties, use bank-level encryption, and parents have full control over account settings.',
+        'Absolutely. We are fully COPPA-compliant, never share personal data, and the world is moderated. Kids use display names — never real names — and parents have full control over their child\'s account.',
     },
   ];
 
@@ -135,8 +134,8 @@ export default function Faq() {
           </h2>
 
           <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
-            Have questions? We've got answers. Can't find what you're looking
-            for? Contact our support team.
+            Questions about the world? We've got answers. Can't find what you're
+            looking for? Reach out to our team.
           </p>
         </div>
 
@@ -223,8 +222,8 @@ export default function Faq() {
               Still have questions?
             </h3>
             <p className="font-plus-jakarta text-foreground/70 mb-6">
-              Our support team is here to help you get the most out of Learning
-              Adventures.
+              Our team is here to help you and your adventurer get the most out
+              of the world.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="candy" size="md">
