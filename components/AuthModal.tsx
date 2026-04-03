@@ -85,11 +85,12 @@ export default function AuthModal({
         });
 
         if (response.ok) {
-          // Auto sign in after successful signup and redirect to dashboard
+          // Students go to character creation; everyone else goes to dashboard
+          const postSignupUrl = formData.role === 'STUDENT' ? '/world/create' : '/dashboard';
           await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            callbackUrl: '/dashboard',
+            callbackUrl: postSignupUrl,
           });
         } else {
           const data = await response.json();
@@ -110,8 +111,12 @@ export default function AuthModal({
         setError('Invalid email or password');
       } else if (result?.ok) {
         onClose();
-        // Always redirect to dashboard on app subdomain
-        window.location.href = '/dashboard';
+        // Students go to the world; the world page redirects to /world/create if no character yet
+        if (formData.role === 'STUDENT') {
+          window.location.href = '/world';
+        } else {
+          window.location.href = '/dashboard';
+        }
       }
     }
 
