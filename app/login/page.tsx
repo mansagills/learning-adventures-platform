@@ -1,23 +1,28 @@
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+'use client';
+
+import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import LoginPageContent from '@/components/LoginPageContent';
 
+export default function LoginPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-interface LoginPageProps {
-  searchParams: Promise<{ mode?: string; callbackUrl?: string }>;
-}
+  const mode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const callbackUrl = searchParams.get('callbackUrl') ?? undefined;
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await getServerSession(authOptions);
+  // If already authenticated, redirect away
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
+    }
+  }, [status, router]);
 
-  if (session) {
-    redirect('/dashboard');
-  }
-
-  const params = await searchParams;
-  const mode = params.mode === 'signup' ? 'signup' : 'signin';
-  const callbackUrl = params.callbackUrl;
+  if (status === 'loading') return null;
+  if (session) return null;
 
   return <LoginPageContent defaultMode={mode} callbackUrl={callbackUrl} />;
 }

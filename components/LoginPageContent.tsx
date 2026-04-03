@@ -16,8 +16,6 @@ export default function LoginPageContent({
   defaultMode = 'signin',
   callbackUrl,
 }: LoginPageContentProps) {
-  const resolvedCallbackUrl = callbackUrl || '/dashboard';
-
   const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,11 +28,16 @@ export default function LoginPageContent({
     gradeLevel: '',
   });
 
+  const getPostAuthUrl = () => {
+    if (callbackUrl) return callbackUrl;
+    return formData.role === 'STUDENT' ? '/world' : '/dashboard';
+  };
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl: resolvedCallbackUrl });
+      await signIn('google', { callbackUrl: getPostAuthUrl() });
     } catch {
       setError('Failed to sign in with Google');
       setIsLoading(false);
@@ -45,7 +48,7 @@ export default function LoginPageContent({
     setIsLoading(true);
     setError(null);
     try {
-      await signIn('apple', { callbackUrl: resolvedCallbackUrl });
+      await signIn('apple', { callbackUrl: getPostAuthUrl() });
     } catch {
       setError('Failed to sign in with Apple');
       setIsLoading(false);
@@ -78,10 +81,12 @@ export default function LoginPageContent({
         });
 
         if (response.ok) {
+          // Students go to character creation on first signup
+          const postSignupUrl = formData.role === 'STUDENT' ? '/world/create' : '/dashboard';
           await signIn('credentials', {
             email: formData.email,
             password: formData.password,
-            callbackUrl: resolvedCallbackUrl,
+            callbackUrl: postSignupUrl,
           });
         } else {
           const data = await response.json();
@@ -100,7 +105,8 @@ export default function LoginPageContent({
       if (result?.error) {
         setError('Invalid email or password');
       } else if (result?.ok) {
-        window.location.href = resolvedCallbackUrl;
+        // Returning students go to /world; world page handles redirect to /world/create if no character
+        window.location.href = getPostAuthUrl();
       }
     }
 
