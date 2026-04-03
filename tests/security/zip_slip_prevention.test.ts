@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
-
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
+import { getServerSession } from 'next-auth/next';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -30,20 +29,20 @@ vi.mock('fs/promises', () => {
   };
 });
 
+const { mockExistsSync } = vi.hoisted(() => ({
+  mockExistsSync: vi.fn().mockReturnValue(true),
+}));
+
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: mockExistsSync,
   default: {
-    mkdir: vi.fn(),
-    writeFile: vi.fn(),
+    existsSync: mockExistsSync,
   }
 }));
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
+vi.mock('next-auth/next', () => ({
   getServerSession: mockGetServerSession,
-  default: {
-    getServerSession: mockGetServerSession,
-  },
 }));
 
 // Mock authOptions
@@ -70,10 +69,10 @@ const maliciousEntry = {
 
 const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
-vi.mock('adm-zip', () => {
+vi.mock('adm-zip', async () => {
+  const actual = await vi.importActual('adm-zip');
   return {
-    ...actual,
-    existsSync: vi.fn(),
+    ...actual as any,
   };
 });
 
@@ -84,7 +83,7 @@ describe('Security: Zip Slip Prevention', () => {
     vi.clearAllMocks();
     (fs.mkdir as any).mockResolvedValue(undefined);
     (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    mockExistsSync.mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
