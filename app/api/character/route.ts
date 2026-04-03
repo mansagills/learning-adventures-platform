@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
         equipment: user.character.equipment,
         inventory: user.character.inventory,
       },
+      hasCompletedOnboarding: user.hasCompletedOnboarding,
     });
   } catch (error) {
     console.error('Error fetching character:', error);
