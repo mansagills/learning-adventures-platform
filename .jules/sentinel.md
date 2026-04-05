@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-10-24 - [Path Traversal in extract-metadata]
+**Vulnerability:** A Path Traversal vulnerability existed in `app/api/internal/extract-metadata/route.ts`. The API endpoint accepted a `zipPath` parameter from user input and directly joined it to the `public` directory path. Since `path.join` automatically resolves `../` segments, an attacker could supply a path like `../../../../etc/passwd` to traverse outside the intended directory and potentially read arbitrary system files (if AdmZip parses it or throws an error disclosing file existence).
+**Learning:** `path.join` does not inherently protect against path traversal if the input contains `../`. The application must verify the resolved absolute path.
+**Prevention:** Always use `path.resolve` after `path.join` to obtain the absolute path, and then strictly verify that the resolved path starts with the intended base directory (including a trailing separator) or exactly matches it.

@@ -40,10 +40,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert relative path to absolute path
-    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
+    const publicDir = join(process.cwd(), 'public');
+    // Security: Prevent path traversal by resolving to absolute path and ensuring it starts with the intended directory
+    const fullPath = join(publicDir, zipPath.replace(/^\//, ''));
+    const resolvedFullPath = require('path').resolve(fullPath);
+
+    if (!resolvedFullPath.startsWith(publicDir + require('path').sep) && resolvedFullPath !== publicDir) {
+      return NextResponse.json(
+        { error: 'Invalid path. Path traversal detected.' },
+        { status: 400 }
+      );
+    }
 
     // Read the zip file
-    const zip = new AdmZip(fullPath);
+    const zip = new AdmZip(resolvedFullPath);
     const zipEntries = zip.getEntries();
 
     // Look for metadata.json in the root or common locations

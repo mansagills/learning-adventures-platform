@@ -32,6 +32,9 @@ vi.mock('fs', () => ({
 vi.mock('next-auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
+vi.mock('next-auth/next', () => ({
+  getServerSession: mocks.getServerSession,
+}));
 
 // Mock authOptions (just an object)
 vi.mock('@/lib/auth', () => ({
