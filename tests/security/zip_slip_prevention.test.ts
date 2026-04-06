@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import * as fs from 'fs/promises';
+import { existsSync } from 'fs';
+import { extractZipSafely } from '@/lib/safe-zip';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
