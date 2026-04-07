@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -40,7 +40,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert relative path to absolute path
-    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
+    const publicDir = join(process.cwd(), 'public');
+    const fullPath = resolve(publicDir, zipPath.replace(/^\//, ''));
+
+    // Security: Prevent path traversal
+    if (!fullPath.startsWith(publicDir + sep) && fullPath !== publicDir) {
+      return NextResponse.json(
+        { error: 'Invalid path. Path traversal detected.' },
+        { status: 400 }
+      );
+    }
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
