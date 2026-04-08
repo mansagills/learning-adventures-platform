@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
 
@@ -24,8 +23,8 @@ interface GenerateRequest {
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'ADMIN') {
+    const { apiUser, error: authError } = await getApiUser();
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -108,7 +107,7 @@ export async function POST(req: NextRequest) {
     // 9. Save to database
     const geminiContent = await prisma.geminiContent.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         title,
         prompt,
         generatedCode: gameCode,
@@ -133,7 +132,7 @@ export async function POST(req: NextRequest) {
 
     await prisma.geminiUsage.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         operation: 'generate',
         model: 'gemini-3-pro-preview',
         tokensInput,
@@ -167,11 +166,11 @@ export async function POST(req: NextRequest) {
 
     // Track failed attempt
     try {
-      const session = await getServerSession(authOptions);
-      if (session) {
+      const { apiUser, error: authError } = await getApiUser();
+      if (apiUser) {
         await prisma.geminiUsage.create({
           data: {
-            userId: session.user.id,
+            userId: apiUser.id,
             operation: 'generate',
             model: 'gemini-3-pro-preview',
             tokensInput: 0,

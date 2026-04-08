@@ -1,9 +1,8 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import AdmZip from 'adm-zip';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
 interface ExtractedMetadata {
   title?: string;
@@ -21,9 +20,9 @@ interface ExtractedMetadata {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and authorization
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+    if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(
         { error: 'Unauthorized. Admin or Teacher role required.' },
         { status: 403 }

@@ -1,15 +1,14 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -33,7 +32,7 @@ export async function PUT(request: NextRequest) {
     // Update user profile
     const updatedUser = await prisma.user.update({
       where: {
-        id: session.user.id,
+        id: apiUser.id,
       },
       data: {
         name: name.trim(),
@@ -68,9 +67,9 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -79,7 +78,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: session.user.id,
+        id: apiUser.id,
       },
       select: {
         id: true,

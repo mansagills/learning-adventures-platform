@@ -46,8 +46,9 @@ jobs:
 
     env:
       DATABASE_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
-      NEXTAUTH_SECRET: "ci-test-secret-not-real"
-      NEXTAUTH_URL: "http://localhost:3000"
+      DIRECT_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-placeholder-anon-key"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
 
     steps:

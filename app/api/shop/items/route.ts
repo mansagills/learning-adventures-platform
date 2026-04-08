@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 
-/**
- * GET /api/shop/items
- * Returns all available shop items and the user's current coin balance.
- */
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +15,7 @@ export async function GET() {
         orderBy: [{ type: 'asc' }, { price: 'asc' }],
       }),
       prisma.user.findUnique({
-        where: { email: session.user.email },
+        where: { id: apiUser.id },
         include: {
           level: { select: { currency: true } },
           character: { include: { inventory: true } },

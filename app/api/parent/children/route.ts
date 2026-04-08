@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hashPIN } from '@/lib/childAuth';
 import { generateUniqueUsername } from '@/lib/usernameGenerator';
@@ -30,9 +29,9 @@ const AVATARS = [
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -41,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Verify user is a parent and is verified
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true, isVerifiedAdult: true },
     });
 
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // Get all children for this parent
     const children = await prisma.childProfile.findMany({
-      where: { parentId: session.user.id },
+      where: { parentId: apiUser.id },
       select: {
         id: true,
         displayName: true,
@@ -87,9 +86,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -98,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     // Verify user is a verified parent
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true, isVerifiedAdult: true },
     });
 
@@ -170,7 +169,7 @@ export async function POST(request: NextRequest) {
     // Create child profile
     const child = await prisma.childProfile.create({
       data: {
-        parentId: session.user.id,
+        parentId: apiUser.id,
         displayName,
         username,
         authCode: hashedPIN,

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Container from './Container';
 import Button from './Button';
 import Icon from './Icon';
@@ -11,11 +11,11 @@ import { analytics } from '@/lib/analytics';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { user, status } = useAuth();
 
   const handleCTAClick = () => {
-    if (session) {
-      window.location.href = '/dashboard';
+    if (user) {
+      window.location.href = '/world';
     } else {
       window.location.href = '/login?mode=signup';
     }
@@ -57,10 +57,10 @@ export default function Header() {
             >
               Adventure Catalog
             </Link>
-            {session &&
-              (session.user.role === 'PARENT' ||
-                session.user.role === 'TEACHER' ||
-                session.user.role === 'ADMIN') && (
+            {user &&
+              (user.role === 'PARENT' ||
+                user.role === 'TEACHER' ||
+                user.role === 'ADMIN') && (
                 <Link
                   href="/course-request"
                   className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
@@ -100,9 +100,9 @@ export default function Header() {
               <div className="animate-pulse">
                 <div className="h-10 w-24 bg-gray-200 rounded-lg"></div>
               </div>
-            ) : session ? (
+            ) : user ? (
               <div className="flex items-center space-x-3">
-                {session.user.role === 'ADMIN' && (
+                {user.role === 'ADMIN' && (
                   <Link
                     href="/internal"
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-600 transition-all"
@@ -112,10 +112,10 @@ export default function Header() {
                   </Link>
                 )}
                 <Link
-                  href="/dashboard"
+                  href="/world"
                   className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
                 >
-                  Dashboard
+                  Play Campus
                 </Link>
                 <UserMenu />
               </div>
@@ -189,9 +189,9 @@ export default function Header() {
               </Link>
 
               <div className="pt-4">
-                {session ? (
+                {user ? (
                   <div className="space-y-3">
-                    {session.user.role === 'ADMIN' && (
+                    {user.role === 'ADMIN' && (
                       <Link
                         href="/internal"
                         className="flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium"
@@ -202,11 +202,11 @@ export default function Header() {
                       </Link>
                     )}
                     <Link
-                      href="/dashboard"
+                      href="/world"
                       className="block text-center py-2 text-brand-500 font-medium"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Dashboard
+                      Play Campus
                     </Link>
                     <div className="flex justify-center">
                       <UserMenu />

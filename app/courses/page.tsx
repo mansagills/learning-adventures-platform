@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import CourseCard from '@/components/courses/CourseCard';
 import { CourseCatalogSkeleton } from '@/components/LoadingSkeleton';
@@ -31,7 +31,7 @@ interface Course {
 }
 
 export default function CourseCatalogPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +68,7 @@ export default function CourseCatalogPage() {
 
           // Check if user has premium access (from session or user profile)
           // For now, we'll use a simple check - you may want to add this to the API response
-          const hasPremium = session?.user?.role === 'ADMIN' || false; // TODO: Add premium field to user
+          const hasPremium = session?.role === 'ADMIN' || false; // TODO: Add premium field to user
           setIsPremiumUser(hasPremium);
         }
       } else {

@@ -1,23 +1,22 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Debug endpoint to check session data
  * DELETE THIS FILE after debugging
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
     return NextResponse.json(
       {
-        session: session,
-        hasSession: !!session,
-        user: session?.user || null,
-        role: session?.user?.role || null,
-        roleType: typeof session?.user?.role,
+        session: apiUser,
+        hasSession: !!apiUser,
+        user: apiUser || null,
+        role: apiUser?.role || null,
+        roleType: typeof apiUser?.role,
       },
       { status: 200 }
     );

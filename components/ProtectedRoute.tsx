@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
 import LoadingSpinner from './LoadingSpinner';
@@ -17,6 +17,8 @@ export interface ProtectedRouteProps {
   showLoading?: boolean;
 }
 
+const roleHierarchy = { ADMIN: 4, TEACHER: 3, PARENT: 2, STUDENT: 1 };
+
 export default function ProtectedRoute({
   children,
   requireAuth = true,
@@ -25,57 +27,35 @@ export default function ProtectedRoute({
   fallbackUrl = '/',
   showLoading = true,
 }: ProtectedRouteProps) {
-  const { data: session, status } = useSession();
+  const { user, status } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return; // Still loading session
+    if (status === 'loading') return;
 
-    // If authentication is required but user is not authenticated
-    if (requireAuth && !session) {
+    if (requireAuth && !user) {
       window.location.href = '/login';
       return;
     }
 
-    // If allowed roles are specified, check if user has one of them
     if (allowedRoles && allowedRoles.length > 0) {
-      const userRole = session?.user?.role as UserRole;
+      const userRole = user?.role as UserRole;
       if (!allowedRoles.includes(userRole) && userRole !== 'ADMIN') {
         router.push('/unauthorized');
         return;
       }
     }
 
-    // If specific role is required but user doesn't have it
-    if (requiredRole && session?.user?.role !== requiredRole) {
-      // Check if user has higher permissions
-      const roleHierarchy = {
-        ADMIN: 4,
-        TEACHER: 3,
-        PARENT: 2,
-        STUDENT: 1,
-      };
-
-      const userRoleLevel =
-        roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
+    if (requiredRole && user?.role !== requiredRole) {
+      const userRoleLevel = roleHierarchy[user?.role as keyof typeof roleHierarchy] || 0;
       const requiredRoleLevel = roleHierarchy[requiredRole];
-
       if (userRoleLevel < requiredRoleLevel) {
         router.push('/unauthorized');
         return;
       }
     }
-  }, [
-    session,
-    status,
-    requireAuth,
-    requiredRole,
-    allowedRoles,
-    router,
-    fallbackUrl,
-  ]);
+  }, [user, status, requireAuth, requiredRole, allowedRoles, router, fallbackUrl]);
 
-  // Show loading state while checking authentication
   if (status === 'loading') {
     return showLoading ? (
       <div className="min-h-screen flex items-center justify-center">
@@ -84,31 +64,20 @@ export default function ProtectedRoute({
     ) : null;
   }
 
-  // Don't render children if authentication requirements aren't met
-  if (requireAuth && !session) {
+  if (requireAuth && !user) {
     return null;
   }
 
-  // Check allowedRoles
   if (allowedRoles && allowedRoles.length > 0) {
-    const userRole = session?.user?.role as UserRole;
+    const userRole = user?.role as UserRole;
     if (!allowedRoles.includes(userRole) && userRole !== 'ADMIN') {
       return null;
     }
   }
 
   if (requiredRole) {
-    const roleHierarchy = {
-      ADMIN: 4,
-      TEACHER: 3,
-      PARENT: 2,
-      STUDENT: 1,
-    };
-
-    const userRoleLevel =
-      roleHierarchy[session?.user?.role as keyof typeof roleHierarchy] || 0;
+    const userRoleLevel = roleHierarchy[user?.role as keyof typeof roleHierarchy] || 0;
     const requiredRoleLevel = roleHierarchy[requiredRole];
-
     if (userRoleLevel < requiredRoleLevel) {
       return null;
     }

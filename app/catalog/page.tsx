@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { catalogData, getFeaturedAdventures } from '@/lib/catalogData';
 import Container from '@/components/Container';
 import CategorySection from '@/components/CategorySection';
@@ -10,7 +10,7 @@ import Icon from '@/components/Icon';
 
 
 export default function CatalogPage() {
-  const { status } = useSession();
+  const { status } = useAuth();
   const isAuthenticated = status === 'authenticated';
   const featuredAdventures = getFeaturedAdventures();
 

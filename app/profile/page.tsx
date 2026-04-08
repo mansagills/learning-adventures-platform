@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import Container from '@/components/Container';
 import ProfileSettings from '@/components/ProfileSettings';
@@ -12,7 +12,7 @@ import CertificatesSection from '@/components/profile/CertificatesSection';
 
 export default function ProfilePage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
 
   return (
     <ProtectedRoute>
@@ -32,27 +32,27 @@ export default function ProfilePage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-accent-500 rounded-full flex items-center justify-center">
-                    {session?.user?.image ? (
+                    {session?.image ? (
                       <img
-                        src={session.user.image}
-                        alt={session.user.name || 'User avatar'}
+                        src={session.image}
+                        alt={session.name || 'User avatar'}
                         className="w-16 h-16 rounded-full object-cover"
                       />
                     ) : (
                       <span className="text-white text-xl font-medium">
-                        {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                        {session?.name?.charAt(0).toUpperCase() || 'U'}
                       </span>
                     )}
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-ink-800">
-                      {session?.user?.name || 'User'}
+                      {session?.name || 'User'}
                     </h2>
-                    <p className="text-ink-600 mb-1">{session?.user?.email}</p>
+                    <p className="text-ink-600 mb-1">{session?.email}</p>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800">
-                      {session?.user?.role
-                        ? session.user.role.charAt(0) +
-                          session.user.role.slice(1).toLowerCase()
+                      {session?.role
+                        ? session.role.charAt(0) +
+                          session.role.slice(1).toLowerCase()
                         : 'User'}
                     </span>
                   </div>
@@ -81,33 +81,33 @@ export default function ProfilePage() {
                       Full Name
                     </label>
                     <p className="text-ink-800">
-                      {session?.user?.name || 'Not set'}
+                      {session?.name || 'Not set'}
                     </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-ink-600">
                       Email
                     </label>
-                    <p className="text-ink-800">{session?.user?.email}</p>
+                    <p className="text-ink-800">{session?.email}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-ink-600">
                       Account Type
                     </label>
                     <p className="text-ink-800">
-                      {session?.user?.role
-                        ? session.user.role.charAt(0) +
-                          session.user.role.slice(1).toLowerCase()
+                      {session?.role
+                        ? session.role.charAt(0) +
+                          session.role.slice(1).toLowerCase()
                         : 'User'}
                     </p>
                   </div>
-                  {session?.user?.role === 'STUDENT' && (
+                  {session?.role === 'STUDENT' && (
                     <div>
                       <label className="text-sm font-medium text-ink-600">
                         Grade Level
                       </label>
                       <p className="text-ink-800">
-                        {session?.user?.gradeLevel || 'Not set'}
+                        {session?.gradeLevel || 'Not set'}
                       </p>
                     </div>
                   )}
@@ -124,9 +124,9 @@ export default function ProfilePage() {
                     Subject Interests
                   </label>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {session?.user?.subjects &&
-                    session.user.subjects.length > 0 ? (
-                      session.user.subjects.map((subject: string) => (
+                    {session?.subjects &&
+                    session.subjects.length > 0 ? (
+                      session.subjects.map((subject: string) => (
                         <span
                           key={subject}
                           className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-100 text-accent-800"

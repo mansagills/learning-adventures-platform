@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface CalendarEvent {
   id: string;
@@ -44,13 +44,13 @@ interface UseCalendarOptions {
 }
 
 export function useCalendar(options: UseCalendarOptions = {}) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchEvents = useCallback(async () => {
-    if (!session?.user) {
+    if (!session) {
       setLoading(false);
       return;
     }

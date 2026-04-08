@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * POST /api/agents/files/upload
  *
@@ -5,8 +6,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
@@ -24,13 +23,13 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (!apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check permissions
-    const userRole = session.user.role;
+    const userRole = apiUser.role;
     if (userRole !== 'ADMIN' && userRole !== 'TEACHER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
     // Create database record (initial state)
     const uploadedFile = await prisma.uploadedFile.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         conversationId: conversationId || undefined,
         originalName: file.name,
         fileName: fileName,

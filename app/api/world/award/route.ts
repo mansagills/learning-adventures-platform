@@ -1,30 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 
-/**
- * GET /api/world/award
- * Returns the player's current world status (level, XP, currency).
- */
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     const level = await prisma.userLevel.findUnique({
-      where: { userId: user.id },
+      where: { userId: apiUser.id },
       select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
     });
 
@@ -37,35 +23,19 @@ export async function GET() {
   }
 }
 
-/**
- * POST /api/world/award
- * Body: { xp?: number, coins?: number }
- * Awards XP and/or coins to the authenticated user after a world adventure completes.
- */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { xp = 0, coins = 0 } = await request.json();
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Upsert UserLevel — create if first time, otherwise increment
     const updatedLevel = await prisma.userLevel.upsert({
-      where: { userId: user.id },
+      where: { userId: apiUser.id },
       create: {
-        userId: user.id,
+        userId: apiUser.id,
         totalXP: xp,
         currency: coins,
         currentLevel: 1,
@@ -77,12 +47,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Simple level-up check: every 100 XP = 1 level
     const newLevel = Math.floor(updatedLevel.totalXP / 100) + 1;
     if (newLevel !== updatedLevel.currentLevel) {
       const levelUpBonus = (newLevel - updatedLevel.currentLevel) * 100;
       await prisma.userLevel.update({
-        where: { userId: user.id },
+        where: { userId: apiUser.id },
         data: {
           currentLevel: newLevel,
           xpToNextLevel: newLevel * 100,
@@ -92,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     const finalLevel = await prisma.userLevel.findUnique({
-      where: { userId: user.id },
+      where: { userId: apiUser.id },
       select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
     });
 

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getApiUser } from '@/lib/api-auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { SPARK_SYSTEM_PROMPT } from '@/lib/agents/sparkPrompt';
 
@@ -14,8 +13,8 @@ interface Message {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const { apiUser, error } = await getApiUser();
+  if (error || !apiUser) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -30,10 +29,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  // Personalise the system prompt with the student's name if available
-  const studentName = session.user.name ?? null;
-  const systemPrompt = studentName
-    ? `${SPARK_SYSTEM_PROMPT}\n\nThe student's name is ${studentName}. Address them by name occasionally.`
+  const systemPrompt = apiUser.name
+    ? `${SPARK_SYSTEM_PROMPT}\n\nThe student's name is ${apiUser.name}. Address them by name occasionally.`
     : SPARK_SYSTEM_PROMPT;
 
   const encoder = new TextEncoder();

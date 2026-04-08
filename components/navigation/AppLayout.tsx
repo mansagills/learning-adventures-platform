@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import AppSideNav from './AppSideNav';
 
@@ -25,7 +25,7 @@ const APP_ROUTES = [
 const EXCLUDE_ROUTES = ['/', '/catalog', '/internal', '/lessons'];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const pathname = usePathname();
 
   // Check if current route should show side nav

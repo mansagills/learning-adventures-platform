@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Games Progress API Route
  *
@@ -6,22 +7,20 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Fetch all game progress for user
     const progress = await prisma.userProgress.findMany({
       where: {
-        userId: session.user.id,
+        userId: apiUser.id,
         adventureType: 'game', // Only games, not lessons
       },
       select: {

@@ -8,7 +8,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Message {
   id: string;
@@ -49,7 +49,7 @@ const skillNames: Record<string, string> = {
 };
 
 export default function LearningBuilderChat() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

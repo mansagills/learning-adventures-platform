@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import PremiumPaywallModal from './PremiumPaywallModal';
 
@@ -28,7 +28,7 @@ export default function EnrollButton({
   isPremium,
   onEnrollmentChange,
 }: EnrollButtonProps) {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

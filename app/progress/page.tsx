@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Container from '@/components/Container';

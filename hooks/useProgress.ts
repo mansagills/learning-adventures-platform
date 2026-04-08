@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface UserProgress {
   id: string;
@@ -44,13 +44,13 @@ export interface UserProgressData {
  * Hook to fetch and manage user progress data
  */
 export function useUserProgress() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const [data, setData] = useState<UserProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProgress = async () => {
-    if (status !== 'authenticated' || !session?.user) {
+    if (status !== 'authenticated' || !session) {
       setLoading(false);
       return;
     }

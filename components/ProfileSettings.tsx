@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Button from './Button';
 import Icon from './Icon';
 import Modal from './Modal';
@@ -41,7 +41,7 @@ export default function ProfileSettings({
   isOpen,
   onClose,
 }: ProfileSettingsProps) {
-  const { data: session, update } = useSession();
+  const { user: session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,13 +56,13 @@ export default function ProfileSettings({
 
   // Load current user data when modal opens
   useEffect(() => {
-    if (isOpen && session?.user) {
+    if (isOpen && session) {
       setProfileData({
-        name: session.user.name || '',
-        email: session.user.email || '',
-        gradeLevel: session.user.gradeLevel || '',
-        subjects: session.user.subjects || [],
-        role: session.user.role || 'STUDENT',
+        name: session.name || '',
+        email: session.email || '',
+        gradeLevel: session.gradeLevel || '',
+        subjects: session.subjects || [],
+        role: session.role || 'STUDENT',
       });
     }
   }, [isOpen, session]);
@@ -111,13 +111,6 @@ export default function ProfileSettings({
         const data = await response.json();
         throw new Error(data.error || 'Failed to update profile');
       }
-
-      // Update the session with new data
-      await update({
-        name: profileData.name,
-        gradeLevel: profileData.gradeLevel,
-        subjects: profileData.subjects,
-      });
 
       setSuccess('Profile updated successfully!');
       setTimeout(() => {

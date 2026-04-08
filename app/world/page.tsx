@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -23,7 +23,7 @@ const XP_PER_GAME = 50;
 const COINS_PER_GAME = 5;
 
 export default function WorldPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
   const [gameReady, setGameReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export default function WorldPage() {
   // Setup EventBus listeners once — use refs for latest values
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
-      if (!sessionRef.current?.user || !characterDataRef.current) return;
+      if (!sessionRef.current || !characterDataRef.current) return;
       try {
         await fetch('/api/character/update', {
           method: 'POST',
@@ -338,7 +338,7 @@ export default function WorldPage() {
           {/* Top-left: Character info */}
           <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
             <p className="text-white font-semibold">
-              {characterData?.name || session?.user?.name || 'Player'}
+              {characterData?.name || session?.name || 'Player'}
             </p>
             <p className="text-xs text-gray-300">Level {userLevel}</p>
           </div>
@@ -379,7 +379,7 @@ export default function WorldPage() {
               💼 Jobs
             </button>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/')}
               className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Exit World

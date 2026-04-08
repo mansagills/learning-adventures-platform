@@ -1,9 +1,4 @@
-/**
- * LandingPage Component
- *
- * The marketing landing page for learningadventures.org
- * Showcases the 2D pixel world experience — explore, quest, level up.
- */
+'use client';
 
 import Hero from '@/components/Hero';
 import Benefits from '@/components/Benefits';
@@ -12,19 +7,13 @@ import SocialProof from '@/components/SocialProof';
 import SecondaryCta from '@/components/SecondaryCta';
 import Faq from '@/components/Faq';
 import WelcomeBackBanner from '@/components/WelcomeBackBanner';
+import { useAuth } from '@/hooks/useAuth';
 
-interface LandingPageProps {
-  isAuthenticated?: boolean;
-  userName?: string | null;
-}
-
-export default function LandingPage({
-  isAuthenticated,
-  userName,
-}: LandingPageProps) {
+export default function LandingPage() {
+  const { user } = useAuth();
   return (
     <>
-      {isAuthenticated && <WelcomeBackBanner userName={userName} />}
+      {user && <WelcomeBackBanner userName={user.name} />}
       <Hero />
       <HowItWorks />
       <Benefits />

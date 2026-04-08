@@ -1,29 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
+import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 
-/**
- * GET /api/character
- * Fetch the authenticated user's character data
- */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user with character
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: apiUser.id },
       include: {
         character: {
-          include: {
-            inventory: true,
-          },
+          include: { inventory: true },
         },
       },
     });
@@ -32,7 +22,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Return null if no character exists (user needs to create one)
     if (!user.character) {
       return NextResponse.json({ character: null });
     }
@@ -51,9 +40,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching character:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch character' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch character' }, { status: 500 });
   }
 }

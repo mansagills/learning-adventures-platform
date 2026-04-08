@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * AI Agent Studio - Main Discovery Page
  *
@@ -6,8 +7,6 @@
  */
 
 import { Metadata } from 'next';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import AgentDiscovery from '@/components/agents/AgentDiscovery';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -18,25 +17,25 @@ export const metadata: Metadata = {
 };
 
 export default async function AgentStudioPage() {
-  const session = await getServerSession(authOptions);
+  const { apiUser, error: authError } = await getApiUser();
 
   // DEBUG: Log session data
   console.log('🔍 Agent Studio Access Attempt:', {
-    hasSession: !!session,
-    hasUser: !!session?.user,
-    userEmail: session?.user?.email,
-    userRole: session?.user?.role,
-    roleType: typeof session?.user?.role,
+    hasSession: !!apiUser,
+    hasUser: !!apiUser,
+    userEmail: apiUser?.email,
+    userRole: apiUser?.role,
+    roleType: typeof apiUser?.role,
   });
 
   // Redirect non-authenticated users
-  if (!session) {
+  if (!apiUser) {
     console.log('❌ No session - redirecting to login');
     redirect('/auth/login?callbackUrl=/agents');
   }
 
   // Check if user has permission to access Agent Studio
-  const userRole = session.user?.role;
+  const userRole = apiUser?.role;
   console.log('🔐 Role check:', {
     userRole,
     isAdmin: userRole === 'ADMIN',

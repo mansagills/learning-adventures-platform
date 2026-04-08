@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   useStartAdventure,
   useUpdateProgress,
@@ -15,7 +15,7 @@ import { AchievementGrid } from '@/components/progress/AchievementBadge';
 import ProgressStats from '@/components/progress/ProgressStats';
 
 function ProgressTestContent() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [adventureId, setAdventureId] = useState(
     'test-adventure-' + Date.now()
   );
@@ -87,7 +87,7 @@ function ProgressTestContent() {
           </h1>
           <p className="text-ink-600">
             Logged in as:{' '}
-            <span className="font-medium">{session?.user?.email}</span>
+            <span className="font-medium">{session?.email}</span>
           </p>
         </div>
 

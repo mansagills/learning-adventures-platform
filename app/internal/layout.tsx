@@ -1,8 +1,10 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminPanel from '@/components/admin/AdminPanel';
 
@@ -11,7 +13,13 @@ interface InternalLayoutProps {
 }
 
 export default function InternalLayout({ children }: InternalLayoutProps) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
+  const router = useRouter();
+  const supabase = createClient();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
 
   return (
     <ProtectedRoute requiredRole="ADMIN">
@@ -55,22 +63,22 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium">
-                  {session?.user?.name || 'Admin'}
+                  {session?.name || 'Admin'}
                 </p>
                 <p className="text-xs text-indigo-200">
-                  {session?.user?.email}
+                  {session?.email}
                 </p>
               </div>
-              {session?.user?.image ? (
+              {session?.image ? (
                 <img
-                  src={session.user.image}
+                  src={session.image}
                   alt="Profile"
                   className="w-9 h-9 rounded-full border-2 border-white/30"
                 />
               ) : (
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
                   <span className="text-sm font-medium">
-                    {session?.user?.name?.charAt(0) || 'A'}
+                    {session?.name?.charAt(0) || 'A'}
                   </span>
                 </div>
               )}
@@ -81,7 +89,7 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
 
             {/* Switch to User View */}
             <Link
-              href="/dashboard"
+              href="/world"
               className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-sm font-medium"
             >
               <svg
@@ -102,7 +110,7 @@ export default function InternalLayout({ children }: InternalLayoutProps) {
 
             {/* Sign Out */}
             <button
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={handleSignOut}
               className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-red-500/80 rounded-lg transition-colors text-sm font-medium"
             >
               <svg

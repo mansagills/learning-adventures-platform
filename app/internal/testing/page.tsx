@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -98,7 +98,7 @@ interface Feedback {
 }
 
 export default function TestingAdminPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 

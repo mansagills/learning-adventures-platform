@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Icon from './Icon';
 
@@ -10,7 +12,9 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ className = '' }: UserMenuProps) {
-  const { data: session } = useSession();
+  const { user } = useAuth();
+  const router = useRouter();
+  const supabase = createClient();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -28,11 +32,10 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
     };
   }, []);
 
-  if (!session?.user) {
+  if (!user) {
     return null;
   }
 
-  const user = session.user;
   const userInitial =
     user.name?.charAt(0).toUpperCase() ||
     user.email?.charAt(0).toUpperCase() ||
@@ -40,79 +43,21 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
 
   const handleSignOut = async () => {
     setIsOpen(false);
-    await signOut({ callbackUrl: '/' });
+    await supabase.auth.signOut();
+    router.push('/');
   };
 
   const menuItems = [
-    {
-      label: 'Dashboard',
-      href: '/dashboard',
-      icon: 'dashboard',
-    },
-    {
-      label: 'My Progress',
-      href: '/dashboard/progress',
-      icon: 'chart',
-    },
-    {
-      label: 'Achievements',
-      href: '/dashboard/achievements',
-      icon: 'trophy',
-    },
-    {
-      label: 'Profile Settings',
-      href: '/profile',
-      icon: 'settings',
-    },
+    { label: 'Play Campus', href: '/world', icon: 'academic' },
+    { label: 'Profile Settings', href: '/profile', icon: 'settings' },
   ];
 
-  // Add course request menu items for PARENT and TEACHER
-  if (
-    user.role === 'PARENT' ||
-    user.role === 'TEACHER' ||
-    user.role === 'ADMIN'
-  ) {
-    menuItems.splice(1, 0, {
-      label: 'Request Custom Course',
-      href: '/course-request',
-      icon: 'plus',
-    });
-    menuItems.splice(2, 0, {
-      label: 'My Requests',
-      href: '/my-requests',
-      icon: 'clipboard',
-    });
-  }
-
-  // Add parent-specific menu items
-  if (user.role === 'PARENT') {
-    menuItems.splice(1, 0, {
-      label: 'Manage Children',
-      href: '/parent/children',
-      icon: 'users',
-    });
-  }
-
-  // Add admin/teacher specific menu items based on role
   if (user.role === 'ADMIN') {
-    menuItems.push(
-      {
-        label: 'Content Studio',
-        href: '/internal',
-        icon: 'upload',
-      },
-      {
-        label: 'Analytics',
-        href: '/internal/analytics',
-        icon: 'chart',
-      }
-    );
+    menuItems.push({ label: 'Content Studio', href: '/internal', icon: 'upload' });
   } else if (user.role === 'TEACHER') {
-    menuItems.push({
-      label: 'My Classroom',
-      href: '/teacher/classroom',
-      icon: 'users',
-    });
+    menuItems.push({ label: 'My Classroom', href: '/teacher/classroom', icon: 'users' });
+  } else if (user.role === 'PARENT') {
+    menuItems.push({ label: 'Manage Children', href: '/parent/children', icon: 'users' });
   }
 
   return (

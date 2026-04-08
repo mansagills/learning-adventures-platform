@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -14,9 +13,9 @@ import { prisma } from '@/lib/prisma';
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Verify user has PARENT role
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true },
     });
 
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     // Update user to verified adult
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       data: { isVerifiedAdult: true },
       select: {
         id: true,
@@ -67,14 +66,14 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json({ verified: false });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { isVerifiedAdult: true },
     });
 

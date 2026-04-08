@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Subscription Status API Route
  *
@@ -6,8 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import {
   getUserSubscription,
   getSubscriptionFeatures,
@@ -16,13 +15,13 @@ import {
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user's subscription
-    const subscription = await getUserSubscription(session.user.id);
+    const subscription = await getUserSubscription(apiUser.id);
 
     // Default to FREE tier if no subscription found
     const tier = subscription?.tier || 'FREE';

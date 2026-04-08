@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // Basic validation function
@@ -34,15 +33,15 @@ function validateCourseRequest(data: any): {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has PARENT or TEACHER role
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true, email: true },
     });
 
@@ -84,7 +83,7 @@ export async function POST(request: NextRequest) {
       // Create new submitted request
       courseRequest = await prisma.courseRequest.create({
         data: {
-          userId: session.user.id,
+          userId: apiUser.id,
           ...body,
           isDraft: false,
           status: 'SUBMITTED',

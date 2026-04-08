@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 
-/**
- * POST /api/jobs/complete
- * Body: { jobId: string, score?: number }
- * Awards XP + coins for completing a job. Respects cooldowns and daily limits.
- */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -29,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: apiUser.id },
       select: { id: true, level: { select: { currentLevel: true } } },
     });
 
@@ -37,18 +31,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Level check
     const userLevel = user.level?.currentLevel ?? 1;
     if (userLevel < job.minLevel) {
-      return NextResponse.json(
-        { error: `Requires Level ${job.minLevel}` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: `Requires Level ${job.minLevel}` }, { status: 400 });
     }
 
     const now = new Date();
 
-    // Cooldown check
     const lastCompletion = await prisma.jobCompletion.findFirst({
       where: { userId: user.id, jobId },
       orderBy: { completedAt: 'desc' },
@@ -66,7 +55,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Daily limit check
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
     const completedToday = await prisma.jobCompletion.count({
@@ -74,14 +62,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (completedToday >= DAILY_JOB_LIMIT) {
-      return NextResponse.json(
-        { error: 'Daily job limit reached. Come back tomorrow!' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Daily job limit reached. Come back tomorrow!' }, { status: 400 });
     }
 
-    // Award XP + coins atomically
-    const [completion, updatedLevel] = await prisma.$transaction([
+    const [, updatedLevel] = await prisma.$transaction([
       prisma.jobCompletion.create({
         data: {
           userId: user.id,
@@ -107,7 +91,6 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    // Level-up check
     const newLevel = Math.floor(updatedLevel.totalXP / 100) + 1;
     let leveledUp = false;
     if (newLevel !== updatedLevel.currentLevel) {

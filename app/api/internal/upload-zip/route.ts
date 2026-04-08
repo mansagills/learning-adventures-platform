@@ -1,15 +1,14 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and authorization
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+    if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(
         { error: 'Unauthorized. Admin or Teacher role required.' },
         { status: 403 }
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create temp directory for this user if it doesn't exist
-    const userId = session.user.id;
+    const userId = apiUser.id;
     const tempDir = join(process.cwd(), 'public', 'uploads', 'temp', userId);
     await mkdir(tempDir, { recursive: true });
 
