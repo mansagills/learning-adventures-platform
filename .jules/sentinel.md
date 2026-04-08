@@ -6,3 +6,10 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - Unauthenticated Code Modification in update-catalog
+**Vulnerability:** The `/api/internal/update-catalog/route.ts` endpoint was completely unauthenticated. It modifies the source code file `lib/catalogData.ts` via regex search and replace based on user-provided JSON. This is an extremely dangerous operation that could lead to Remote Code Execution (RCE), Cross-Site Scripting (XSS), or permanent corruption of the catalog data.
+**Learning:** Middleware alone is not sufficient protection for sensitive endpoints, especially those that write directly to the application source code. Any code that modifies source code must have strict, defense-in-depth authentication mechanisms built into the route handler itself.
+**Prevention:**
+1. Always add `getServerSession` checks explicitly within Next.js API route handlers, even if middleware is configured, especially for high-risk operations.
+2. Avoid programmatic modification of source files (`.ts`) in production environments; use a database instead for catalog/inventory data. If file modification is strictly required, it must be gated behind robust admin-only authentication.
