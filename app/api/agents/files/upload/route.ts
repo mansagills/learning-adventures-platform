@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 /**
  * POST /api/agents/files/upload
