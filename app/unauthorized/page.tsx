@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Icon from '@/components/Icon';
 
 export default function UnauthorizedPage() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -23,20 +23,19 @@ export default function UnauthorizedPage() {
 
           {/* Description */}
           <p className="text-ink-600 mb-6">
-            {session?.user
+            {session
               ? "You don't have permission to access this page. Your current role doesn't allow you to view this content."
               : 'You need to be logged in to access this page.'}
           </p>
 
           {/* User Info */}
-          {session?.user && (
+          {session && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <p className="text-sm text-ink-500 mb-1">Logged in as:</p>
-              <p className="font-medium text-ink-800">{session.user.email}</p>
+              <p className="font-medium text-ink-800">{session.email}</p>
               <p className="text-sm text-brand-600 font-medium mt-1">
                 Role:{' '}
-                {session.user.role?.charAt(0) +
-                  session.user.role?.slice(1).toLowerCase()}
+                {session.role?.charAt(0) + session.role?.slice(1).toLowerCase()}
               </p>
             </div>
           )}
@@ -50,12 +49,12 @@ export default function UnauthorizedPage() {
               Go to Homepage
             </Link>
 
-            {session?.user ? (
+            {session ? (
               <Link
-                href="/dashboard"
+                href="/world"
                 className="block w-full px-6 py-3 bg-gray-100 text-ink-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
               >
-                Go to Dashboard
+                Go to Campus
               </Link>
             ) : (
               <Link

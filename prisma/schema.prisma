@@ -7,61 +7,33 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "library"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-// NextAuth.js required models
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?   // For email/password authentication
-  role          UserRole  @default(STUDENT)
+  id          String   @id @default(cuid())
+  supabaseId  String?  @unique
+  name        String?
+  email       String   @unique
+  image       String?
+  role        UserRole @default(STUDENT)
   gradeLevel    String?   // For students
   subjects      String[]  // Array of subjects they're interested in
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Onboarding state
+  hasCompletedOnboarding Boolean @default(false) // Set true after Jaylen guide completes
+
   // Parent account verification (COPPA compliance)
   isVerifiedAdult Boolean @default(false)  // Parent gate verification
   childProfiles   ChildProfile[]           // Parent's children
 
-  accounts    Account[]
-  sessions    Session[]
   progress    UserProgress[]
   achievements UserAchievement[]
   enrollments ClassroomEnrollment[]
@@ -94,14 +66,6 @@ model User {
   character Character?
   // Job system relations
   jobCompletions JobCompletion[]
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
 }
 
 // User management and progress tracking

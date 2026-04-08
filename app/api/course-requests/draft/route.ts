@@ -1,20 +1,19 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // POST - Create new draft
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has PARENT or TEACHER role
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true },
     });
 
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Check if user already has a draft
     const existingDraft = await prisma.courseRequest.findFirst({
       where: {
-        userId: session.user.id,
+        userId: apiUser.id,
         isDraft: true,
         status: 'DRAFT',
       },
@@ -62,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Create new draft
     const draft = await prisma.courseRequest.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         ...body,
         isDraft: true,
         status: 'DRAFT',
@@ -88,9 +87,9 @@ export async function POST(request: NextRequest) {
 // PUT - Update existing draft
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -114,7 +113,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
     }
 
-    if (existing.userId !== session.user.id) {
+    if (existing.userId !== apiUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized to update this draft' },
         { status: 403 }
@@ -166,15 +165,15 @@ export async function PUT(request: NextRequest) {
 // GET - Retrieve user's draft
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const draft = await prisma.courseRequest.findFirst({
       where: {
-        userId: session.user.id,
+        userId: apiUser.id,
         isDraft: true,
         status: 'DRAFT',
       },

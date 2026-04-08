@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -33,7 +33,7 @@ interface TestCourse {
 }
 
 export default function StagingCoursePreviewPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
@@ -46,7 +46,7 @@ export default function StagingCoursePreviewPage() {
   useEffect(() => {
     if (status === 'loading') return;
 
-    if (!session || session.user?.role !== 'ADMIN') {
+    if (!session || session?.role !== 'ADMIN') {
       router.push('/unauthorized');
       return;
     }

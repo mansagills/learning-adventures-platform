@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
@@ -98,9 +97,9 @@ Create a single HTML file interactive learning lesson for elementary students th
 export async function POST(request: NextRequest) {
   try {
     // Security check: Ensure user is authenticated and is an admin
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized. Admin access required.' },
         { status: 403 }

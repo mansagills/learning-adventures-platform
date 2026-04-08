@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Workflow Execution API
  *
@@ -6,21 +7,19 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { WorkflowExecutor } from '@/lib/agents/WorkflowExecutor';
 
 export async function POST(request: NextRequest) {
   try {
     // Authenticate
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify role
-    const userRole = session.user.role;
+    const userRole = apiUser.role;
     if (userRole !== 'ADMIN' && userRole !== 'TEACHER') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Create workflow execution record
     const execution = await prisma.workflowExecution.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         workflowType: workflowId,
         status: 'RUNNING',
         currentStep: 0,
@@ -48,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Initialize executor
-    const executor = new WorkflowExecutor(execution.id, session.user.id);
+    const executor = new WorkflowExecutor(execution.id, apiUser.id);
 
     // Execute workflow in background (streaming response)
     const encoder = new TextEncoder();

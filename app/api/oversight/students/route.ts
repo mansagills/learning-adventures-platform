@@ -1,19 +1,18 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/oversight/students - Get students for teacher/parent
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true },
     });
 
@@ -34,7 +33,7 @@ export async function GET(request: Request) {
     if (user.role === 'TEACHER' || user.role === 'ADMIN') {
       // Get students from teacher's classrooms
       const classrooms = await prisma.classroom.findMany({
-        where: user.role === 'TEACHER' ? { teacherId: session.user.id } : {},
+        where: user.role === 'TEACHER' ? { teacherId: apiUser.id } : {},
         include: {
           enrollments: {
             where: { isActive: true },
@@ -64,7 +63,7 @@ export async function GET(request: Request) {
     } else if (user.role === 'PARENT') {
       // Get children from ChildProfile for this parent
       const childProfiles = await prisma.childProfile.findMany({
-        where: { parentId: session.user.id },
+        where: { parentId: apiUser.id },
         select: {
           id: true,
           displayName: true,

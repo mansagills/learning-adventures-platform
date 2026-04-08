@@ -1,124 +1,86 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { updateSession } from '@/lib/supabase/middleware';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+import { prisma } from '@/lib/prisma';
 
-// Admin domain for automatic admin access
 const ADMIN_DOMAIN = '@learningadventures.org';
 
-// Child session cookie name
-const CHILD_SESSION_COOKIE = 'child_session';
+// Routes that require a logged-in user
+const PROTECTED_ROUTES = [
+  '/profile',
+  '/progress',
+  '/my-library',
+  '/my-requests',
+  '/courses',
+  '/practice',
+  '/assessments',
+  '/tutorials',
+  '/course-request',
+  '/parent',
+  '/teacher',
+  '/world',
+];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get the NextAuth token to check user role
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  // Refresh Supabase session cookie + get current user
+  const { supabaseResponse, user } = await updateSession(request);
 
-  // Check for child session cookie
-  const childSessionToken = request.cookies.get(CHILD_SESSION_COOKIE)?.value;
-
-  // ========================================================================
-  // CHILD ROUTES PROTECTION
-  // ========================================================================
-
-  if (pathname.startsWith('/child/dashboard')) {
-    if (!childSessionToken) {
-      return NextResponse.redirect(new URL('/child/login', request.url));
-    }
-  }
-
-  // ========================================================================
-  // PROTECTED ROUTES — require authentication
-  // ========================================================================
-
-  const protectedRoutes = [
-    '/dashboard',
-    '/profile',
-    '/progress',
-    '/my-library',
-    '/my-requests',
-    '/courses',
-    '/practice',
-    '/assessments',
-    '/tutorials',
-    '/course-request',
-    '/parent',
-    '/teacher',
-    '/world',
-  ];
-
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  if (isProtectedRoute && !token) {
+  // ── Protected routes ──────────────────────────────────────────────────────
+  const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
+  if (isProtected && !user) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // ========================================================================
-  // ROLE-BASED PROTECTION
-  // ========================================================================
-
-  // After successful login, redirect admins to /internal
-  if (pathname === '/dashboard' && token) {
-    const userRole = token.role as string;
-    const userEmail = token.email as string;
-    const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
-    const referer = request.headers.get('referer') || '';
-    const isFromAuth =
-      referer.includes('/api/auth') || referer.includes('/auth/signin');
-
-    if (isAdmin && isFromAuth) {
-      return NextResponse.redirect(new URL('/internal', request.url));
-    }
-  }
-
-  // Protect /internal and /staging — ADMIN only
+  // ── Role-based: /internal and /staging — ADMIN only ──────────────────────
   if (pathname.startsWith('/internal') || pathname.startsWith('/staging')) {
-    if (!token) {
+    if (!user) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    const userRole = token.role as string;
-    const userEmail = token.email as string;
-    const isAdmin = userRole === 'ADMIN' || userEmail?.endsWith(ADMIN_DOMAIN);
+    const isAdminEmail = user.email?.endsWith(ADMIN_DOMAIN) ?? false;
+    if (!isAdminEmail) {
+      // Check role in DB — only when needed for admin routes
+      try {
+        const profile = await prisma.user.findUnique({
+          where: { supabaseId: user.id },
+          select: { role: true },
+        });
+        if (profile?.role !== 'ADMIN') {
+          return NextResponse.redirect(new URL('/unauthorized', request.url));
+        }
+      } catch {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+    }
+  }
 
-    if (!isAdmin) {
+  // ── Role-based: /parent — PARENT or ADMIN only ────────────────────────────
+  if (pathname.startsWith('/parent') && user) {
+    try {
+      const profile = await prisma.user.findUnique({
+        where: { supabaseId: user.id },
+        select: { role: true },
+      });
+      if (profile?.role !== 'PARENT' && profile?.role !== 'ADMIN') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      }
+    } catch {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
-  // Protect /parent routes — PARENT or ADMIN only
-  if (pathname.startsWith('/parent')) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    const userRole = token.role as string;
-    if (userRole !== 'PARENT' && userRole !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/unauthorized', request.url));
-    }
-  }
-
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|public|games|lessons|api(?!/auth)).*)',
-    '/dashboard',
-    '/internal/:path*',
-    '/staging/:path*',
-    '/child/:path*',
-    '/parent/:path*',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

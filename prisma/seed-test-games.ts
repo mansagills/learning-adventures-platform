@@ -204,8 +204,6 @@ async function main() {
     { email: 'admin3@learningadventures.org', name: 'Admin Three' },
   ];
 
-  const hashedPassword = await bcrypt.hash('admin123', 10); // Change this password!
-
   for (const admin of adminEmails) {
     const existingUser = await prisma.user.findUnique({
       where: { email: admin.email },
@@ -216,9 +214,7 @@ async function main() {
         data: {
           email: admin.email,
           name: admin.name,
-          password: hashedPassword,
           role: 'ADMIN',
-          emailVerified: new Date(),
         },
       });
       console.log(`  ✅ Created admin: ${admin.email}`);

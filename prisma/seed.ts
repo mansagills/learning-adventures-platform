@@ -1,15 +1,36 @@
 import { PrismaClient, Difficulty, LessonType } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
+
+async function createSupabaseUser(email: string, password: string, name: string) {
+  // Delete from Supabase Auth if already exists
+  const { data: list } = await supabaseAdmin.auth.admin.listUsers();
+  const existing = list?.users.find((u) => u.email === email);
+  if (existing) {
+    await supabaseAdmin.auth.admin.deleteUser(existing.id);
+  }
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: name },
+  });
+  if (error || !data.user) throw new Error(`Failed to create Supabase user ${email}: ${error?.message}`);
+  return data.user.id;
+}
+
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // Hash password for all test accounts
-  const hashedPassword = await bcrypt.hash('password123', 10);
-
-  // Clear existing test data (optional - be careful in production!)
+  // Clear existing test data
   console.log('🧹 Cleaning existing test users...');
   await prisma.user.deleteMany({
     where: {
@@ -19,7 +40,6 @@ async function main() {
           'teacher@test.com',
           'parent@test.com',
           'admin@test.com',
-          // Demo accounts for investors/grant reviewers
           'demo.parent@learningadventures.io',
           'demo.teacher@learningadventures.io',
           'demo.admin@learningadventures.io',
@@ -39,58 +59,54 @@ async function main() {
 
   // Create Student test user
   console.log('👨‍🎓 Creating Student test user...');
+  const studentSupabaseId = await createSupabaseUser('student@test.com', 'password123', 'Alex Student');
   const studentUser = await prisma.user.create({
     data: {
+      supabaseId: studentSupabaseId,
       email: 'student@test.com',
       name: 'Alex Student',
-      password: hashedPassword,
       role: 'STUDENT',
       gradeLevel: '3',
       subjects: ['math', 'science', 'english'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
   // Create Teacher test user
   console.log('👩‍🏫 Creating Teacher test user...');
+  const teacherSupabaseId = await createSupabaseUser('teacher@test.com', 'password123', 'Sarah Teacher');
   const teacherUser = await prisma.user.create({
     data: {
+      supabaseId: teacherSupabaseId,
       email: 'teacher@test.com',
       name: 'Sarah Teacher',
-      password: hashedPassword,
       role: 'TEACHER',
       subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
   // Create Parent test user
   console.log('👨‍👩‍👧‍👦 Creating Parent test user...');
+  const parentSupabaseId = await createSupabaseUser('parent@test.com', 'password123', 'Maria Parent');
   const parentUser = await prisma.user.create({
     data: {
+      supabaseId: parentSupabaseId,
       email: 'parent@test.com',
       name: 'Maria Parent',
-      password: hashedPassword,
       role: 'PARENT',
       subjects: ['math', 'science', 'english'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
   // Create Admin test user
   console.log('👩‍💼 Creating Admin test user...');
+  const adminSupabaseId = await createSupabaseUser('admin@test.com', 'password123', 'Jordan Admin');
   const adminUser = await prisma.user.create({
     data: {
+      supabaseId: adminSupabaseId,
       email: 'admin@test.com',
       name: 'Jordan Admin',
-      password: hashedPassword,
       role: 'ADMIN',
       subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
@@ -99,48 +115,43 @@ async function main() {
   // ============================================================================
   console.log('\n🎯 Creating demo accounts for presentations...');
 
-  const demoPassword = await bcrypt.hash('demo2024', 10);
-
   // Demo Parent (for showing parent features)
   console.log('👨‍👩‍👧 Creating Demo Parent...');
+  const demoParentSupabaseId = await createSupabaseUser('demo.parent@learningadventures.io', 'demo2024', 'Demo Parent');
   const demoParent = await prisma.user.create({
     data: {
+      supabaseId: demoParentSupabaseId,
       email: 'demo.parent@learningadventures.io',
       name: 'Demo Parent',
-      password: demoPassword,
       role: 'PARENT',
       isVerifiedAdult: true,
       subjects: ['math', 'science', 'english'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
   // Demo Teacher (for showing teacher features)
   console.log('👩‍🏫 Creating Demo Teacher...');
+  const demoTeacherSupabaseId = await createSupabaseUser('demo.teacher@learningadventures.io', 'demo2024', 'Demo Teacher');
   const demoTeacher = await prisma.user.create({
     data: {
+      supabaseId: demoTeacherSupabaseId,
       email: 'demo.teacher@learningadventures.io',
       name: 'Demo Teacher',
-      password: demoPassword,
       role: 'TEACHER',
       subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 
   // Demo Admin (for showing admin/content features)
   console.log('👩‍💼 Creating Demo Admin...');
+  const demoAdminSupabaseId = await createSupabaseUser('demo.admin@learningadventures.io', 'demo2024', 'Demo Admin');
   const demoAdmin = await prisma.user.create({
     data: {
+      supabaseId: demoAdminSupabaseId,
       email: 'demo.admin@learningadventures.io',
       name: 'Demo Admin',
-      password: demoPassword,
       role: 'ADMIN',
       subjects: ['math', 'science', 'english', 'history', 'interdisciplinary'],
-      createdAt: new Date(),
-      updatedAt: new Date(),
     },
   });
 

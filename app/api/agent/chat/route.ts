@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Learning Builder Agent Chat API
  * POST /api/agent/chat - Send message to learning builder agent
@@ -5,8 +6,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { LearningBuilderAgent } from '@/lib/agents/LearningBuilderAgent';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 
 // Initialize learning builder agent (singleton)
 let learningBuilderAgent: LearningBuilderAgent | null = null;
@@ -21,7 +20,7 @@ async function getLearningBuilderAgent(): Promise<LearningBuilderAgent> {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
     const body = await request.json();
 
     const { message, conversationId, context } = body;
@@ -39,8 +38,8 @@ export async function POST(request: NextRequest) {
     // Execute user request
     const result = await agent.execute(
       message,
-      conversationId || `user-${session?.user?.id || 'anonymous'}`,
-      session?.user?.id
+      conversationId || `user-${apiUser?.id || 'anonymous'}`,
+      apiUser?.id
     );
 
     return NextResponse.json(result);

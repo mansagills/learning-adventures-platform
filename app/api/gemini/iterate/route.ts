@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
 
@@ -13,8 +12,8 @@ interface IterateRequest {
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'ADMIN') {
+    const { apiUser, error: authError } = await getApiUser();
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -48,7 +47,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Verify ownership (admins can edit all content)
-    if (session.user.role !== 'ADMIN' && content.userId !== session.user.id) {
+    if (apiUser.role !== 'ADMIN' && content.userId !== apiUser.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -144,7 +143,7 @@ Start your response with: <!DOCTYPE html>
 
     await prisma.geminiUsage.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         operation: 'iterate',
         model: 'gemini-3-pro-preview',
         tokensInput,
@@ -179,11 +178,11 @@ Start your response with: <!DOCTYPE html>
 
     // Track failed attempt
     try {
-      const session = await getServerSession(authOptions);
-      if (session) {
+      const { apiUser, error: authError } = await getApiUser();
+      if (apiUser) {
         await prisma.geminiUsage.create({
           data: {
-            userId: session.user.id,
+            userId: apiUser.id,
             operation: 'iterate',
             model: 'gemini-3-pro-preview',
             tokensInput: 0,

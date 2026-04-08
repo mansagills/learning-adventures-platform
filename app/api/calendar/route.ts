@@ -1,14 +1,13 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/calendar - Get calendar events for a date range
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -19,7 +18,7 @@ export async function GET(request: Request) {
     const includeGoals = searchParams.get('includeGoals') === 'true';
 
     const where: any = {
-      userId: session.user.id,
+      userId: apiUser.id,
     };
 
     // Date range filter
@@ -45,7 +44,7 @@ export async function GET(request: Request) {
     if (includeGoals) {
       const goals = await prisma.learningGoal.findMany({
         where: {
-          userId: session.user.id,
+          userId: apiUser.id,
           status: 'ACTIVE',
           deadline: {
             gte: startDate ? new Date(startDate) : undefined,
@@ -85,9 +84,9 @@ export async function GET(request: Request) {
 // POST /api/calendar - Create a new calendar event
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -137,7 +136,7 @@ export async function POST(request: Request) {
 
     const event = await prisma.calendarEvent.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         title,
         description,
         eventType,

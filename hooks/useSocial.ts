@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 // Leaderboard Hook
 export function useLeaderboard(
@@ -10,7 +10,7 @@ export function useLeaderboard(
     limit?: number;
   } = {}
 ) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ export function useLeaderboard(
   const { period = 'all-time', category, type = 'xp', limit = 50 } = options;
 
   const fetchLeaderboard = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.id) return;
 
     try {
       setLoading(true);
@@ -50,7 +50,7 @@ export function useLeaderboard(
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, period, category, type, limit]);
+  }, [session?.id, period, category, type, limit]);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -69,13 +69,13 @@ export function useLeaderboard(
 export function useFriends(
   status: 'ACCEPTED' | 'PENDING' | 'BLOCKED' = 'ACCEPTED'
 ) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [friends, setFriends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchFriends = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.id) return;
 
     try {
       setLoading(true);
@@ -95,7 +95,7 @@ export function useFriends(
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, status]);
+  }, [session?.id, status]);
 
   const sendFriendRequest = async (friendId: string) => {
     try {
@@ -176,13 +176,13 @@ export function useFriends(
 export function useChallenges(
   status: 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'DECLINED' = 'ACTIVE'
 ) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [challenges, setChallenges] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchChallenges = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.id) return;
 
     try {
       setLoading(true);
@@ -202,7 +202,7 @@ export function useChallenges(
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, status]);
+  }, [session?.id, status]);
 
   const createChallenge = async (challengeData: {
     challengedId: string;

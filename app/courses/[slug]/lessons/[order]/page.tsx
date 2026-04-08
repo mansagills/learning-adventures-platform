@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import XPReward from '@/components/courses/XPReward';
 import LevelUpModal from '@/components/courses/LevelUpModal';
@@ -21,7 +21,7 @@ interface LessonPlayerProps {
 
 export default function LessonPlayerPage({ params }: LessonPlayerProps) {
   const { slug, order } = params;
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
 
   const [course, setCourse] = useState<any>(null);

@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Quiz Answer Reveal API Route
  *
@@ -6,8 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import {
   revealAnswerWithXP,
@@ -21,8 +20,8 @@ export async function POST(
 ) {
   try {
     // Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -66,7 +65,7 @@ export async function POST(
 
     // Get user level to calculate cost
     const userLevel = await prisma.userLevel.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: apiUser.id },
       select: { currentLevel: true },
     });
 
@@ -76,7 +75,7 @@ export async function POST(
       calculateRevealCost(question.points, userLevel?.currentLevel || 1);
 
     // Deduct XP and reveal answer
-    const result = await revealAnswerWithXP(session.user.id, finalXpCost);
+    const result = await revealAnswerWithXP(apiUser.id, finalXpCost);
 
     if (!result.success) {
       return NextResponse.json({ error: result.reason }, { status: 400 });

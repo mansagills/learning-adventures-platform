@@ -1,14 +1,13 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/admin/test-games - List all test games
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -39,9 +38,9 @@ export async function GET(req: NextRequest) {
 // POST /api/admin/test-games - Create new test game entry
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
         filePath,
         isHtmlGame: isHtmlGame ?? true,
         isReactComponent: isReactComponent ?? false,
-        createdBy: session.user.id,
+        createdBy: apiUser.id,
         status: 'NOT_TESTED',
       },
     });

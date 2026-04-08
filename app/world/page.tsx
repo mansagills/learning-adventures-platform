@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -10,6 +10,8 @@ import { ShopModal } from '@/components/world/ShopModal';
 import { InventoryPanel } from '@/components/world/InventoryPanel';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
+import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
+import { SparkChat } from '@/components/world/SparkChat';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -21,7 +23,7 @@ const XP_PER_GAME = 50;
 const COINS_PER_GAME = 5;
 
 export default function WorldPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
   const [gameReady, setGameReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +41,8 @@ export default function WorldPage() {
   const [showInventory, setShowInventory] = useState(false);
   const [showJobBoard, setShowJobBoard] = useState(false);
   const [activeJob, setActiveJob] = useState<any>(null);
+  const [showJaylen, setShowJaylen] = useState(false);
+  const [showSpark, setShowSpark] = useState(false);
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -72,6 +76,10 @@ export default function WorldPage() {
               setCoins(levelData.level.currency ?? 0);
               setUserLevel(levelData.level.currentLevel ?? 1);
             }
+            // Show Jaylen guide on first-ever world visit
+            if (!charData.hasCompletedOnboarding) {
+              setShowJaylen(true);
+            }
             setIsCheckingCharacter(false);
           }
         } catch (err) {
@@ -88,7 +96,7 @@ export default function WorldPage() {
   // Setup EventBus listeners once — use refs for latest values
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
-      if (!sessionRef.current?.user || !characterDataRef.current) return;
+      if (!sessionRef.current || !characterDataRef.current) return;
       try {
         await fetch('/api/character/update', {
           method: 'POST',
@@ -303,6 +311,18 @@ export default function WorldPage() {
         />
       )}
 
+      {/* Jaylen onboarding guide — shown on first visit only */}
+      {showJaylen && (
+        <JaylenGuide onComplete={() => setShowJaylen(false)} />
+      )}
+
+      {/* SPARK chat panel — slides in from right */}
+      {showSpark && (
+        <div className="absolute right-0 top-0 bottom-0 w-80 z-40 shadow-2xl flex flex-col">
+          <SparkChat onClose={() => setShowSpark(false)} />
+        </div>
+      )}
+
       {/* Notification Toast */}
       {notification && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
@@ -318,13 +338,13 @@ export default function WorldPage() {
           {/* Top-left: Character info */}
           <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
             <p className="text-white font-semibold">
-              {characterData?.name || session?.user?.name || 'Player'}
+              {characterData?.name || session?.name || 'Player'}
             </p>
             <p className="text-xs text-gray-300">Level {userLevel}</p>
           </div>
 
           {/* Top-center: XP + Coins */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
+          <div id="xp-display" className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
             <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
               <span className="text-yellow-400 text-lg">⭐</span>
               <span className="text-white font-bold">{xp} XP</span>
@@ -359,18 +379,28 @@ export default function WorldPage() {
               💼 Jobs
             </button>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/')}
               className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Exit World
             </button>
           </div>
 
-          {/* Bottom-right: Controls hint */}
-          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
-            <p className="text-white text-sm">
-              <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
-            </p>
+          {/* Bottom-right: SPARK button + Controls hint */}
+          <div className="absolute bottom-4 right-4 flex flex-col items-end gap-2">
+            <button
+              id="spark-button"
+              onClick={() => setShowSpark((prev) => !prev)}
+              className="pointer-events-auto bg-yellow-400 hover:bg-yellow-300 text-[#1F1F2E] px-4 py-2 rounded-xl font-bold text-sm shadow-lg transition-colors flex items-center gap-2"
+              title="Chat with SPARK"
+            >
+              ⚡ SPARK
+            </button>
+            <div id="controls-hint" className="bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
+              <p className="text-white text-sm">
+                <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+              </p>
+            </div>
           </div>
 
           {/* Bottom-left: Minimap */}

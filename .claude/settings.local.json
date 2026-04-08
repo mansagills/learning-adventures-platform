@@ -99,7 +99,13 @@
       "Bash(git -C /Users/mansagills/Documents/GitHub/learning-adventures-platform push origin main)",
       "Bash(wc -l /Users/mansagills/Documents/GitHub/learning-adventures-platform/components/*.tsx)",
       "Bash(wc -l /Users/mansagills/Documents/GitHub/learning-adventures-platform/lib/*.ts)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm test:*)",
+      "Bash(npm list:*)",
+      "mcp__claude_ai_Supabase__list_projects",
+      "Bash(npm uninstall:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": [],
     "ask": []

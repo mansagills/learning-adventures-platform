@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // POST /api/goals/[id]/progress - Update goal progress
@@ -9,9 +8,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,7 +27,7 @@ export async function POST(
       return NextResponse.json({ error: 'Goal not found' }, { status: 404 });
     }
 
-    if (existingGoal.userId !== session.user.id) {
+    if (existingGoal.userId !== apiUser.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

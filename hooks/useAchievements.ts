@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface UserAchievement {
   id: string;
@@ -29,13 +29,13 @@ export interface AchievementData {
  * Hook to fetch and manage user achievements
  */
 export function useAchievements() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const [data, setData] = useState<AchievementData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAchievements = async () => {
-    if (status !== 'authenticated' || !session?.user) {
+    if (status !== 'authenticated' || !session) {
       setLoading(false);
       return;
     }

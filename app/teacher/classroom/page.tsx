@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Icon from '@/components/Icon';
@@ -72,7 +72,7 @@ function StudentCard({ student, onClick }: StudentCardProps) {
 }
 
 function ClassroomDashboard() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const router = useRouter();
   const { students, loading, error } = useOversight();
 
@@ -111,7 +111,7 @@ function ClassroomDashboard() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">My Classroom</h1>
               <p className="mt-1 text-gray-600">
-                Welcome back, {session?.user?.name || 'Teacher'}
+                Welcome back, {session?.name || 'Teacher'}
               </p>
             </div>
             <Link

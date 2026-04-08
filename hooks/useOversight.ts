@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface StudentStats {
   totalAdventures: number;
@@ -52,13 +52,13 @@ export interface DetailedStudent extends Student {
 }
 
 export function useOversight() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStudents = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.id) return;
 
     try {
       setLoading(true);
@@ -78,7 +78,7 @@ export function useOversight() {
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id]);
+  }, [session?.id]);
 
   useEffect(() => {
     fetchStudents();
@@ -93,13 +93,13 @@ export function useOversight() {
 }
 
 export function useStudentDetail(studentId: string | null) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [student, setStudent] = useState<DetailedStudent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStudent = useCallback(async () => {
-    if (!session?.user?.id || !studentId) return;
+    if (!session?.id || !studentId) return;
 
     try {
       setLoading(true);
@@ -127,7 +127,7 @@ export function useStudentDetail(studentId: string | null) {
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, studentId]);
+  }, [session?.id, studentId]);
 
   useEffect(() => {
     fetchStudent();

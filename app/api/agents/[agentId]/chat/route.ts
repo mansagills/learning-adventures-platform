@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * POST /api/agents/[agentId]/chat
  *
@@ -5,8 +6,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
@@ -15,13 +14,13 @@ export async function POST(
 ) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (!apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check permissions
-    const userRole = session.user.role;
+    const userRole = apiUser.role;
     if (userRole !== 'ADMIN' && userRole !== 'TEACHER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -41,7 +40,7 @@ export async function POST(
       const files = await prisma.uploadedFile.findMany({
         where: {
           id: { in: fileIds },
-          userId: session.user.id,
+          userId: apiUser.id,
         },
       });
 
@@ -81,7 +80,7 @@ export async function POST(
         include: { messages: true },
       });
 
-      if (!conversation || conversation.userId !== session.user.id) {
+      if (!conversation || conversation.userId !== apiUser.id) {
         return NextResponse.json(
           { error: 'Conversation not found' },
           { status: 404 }
@@ -91,7 +90,7 @@ export async function POST(
       // Create new conversation
       conversation = await prisma.agentConversation.create({
         data: {
-          userId: session.user.id,
+          userId: apiUser.id,
           agentType: params.agentId,
           title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
         },
@@ -176,7 +175,7 @@ export async function POST(
         // Record metrics
         await prisma.agentMetrics.create({
           data: {
-            userId: session.user.id,
+            userId: apiUser.id,
             agentType: params.agentId,
             actionType: 'chat',
             tokensUsed: mockResponse.length / 4, // Rough estimate

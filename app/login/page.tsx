@@ -1,23 +1,32 @@
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+'use client';
+
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import LoginPageContent from '@/components/LoginPageContent';
+import { Suspense } from 'react';
 
+function LoginInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const callbackUrl = searchParams.get('callbackUrl') ?? undefined;
+  const supabase = createClient();
 
-interface LoginPageProps {
-  searchParams: Promise<{ mode?: string; callbackUrl?: string }>;
-}
-
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await getServerSession(authOptions);
-
-  if (session) {
-    redirect('/dashboard');
-  }
-
-  const params = await searchParams;
-  const mode = params.mode === 'signup' ? 'signup' : 'signin';
-  const callbackUrl = params.callbackUrl;
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) router.replace('/');
+    });
+  }, []);
 
   return <LoginPageContent defaultMode={mode} callbackUrl={callbackUrl} />;
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginInner />
+    </Suspense>
+  );
 }

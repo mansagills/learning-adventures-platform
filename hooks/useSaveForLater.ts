@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SavedAdventure {
   adventureId: string;
@@ -9,7 +9,7 @@ interface SavedAdventure {
 }
 
 export function useSaveForLater() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [savedAdventures, setSavedAdventures] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,8 +17,8 @@ export function useSaveForLater() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const storageKey = session?.user?.email
-      ? `savedAdventures_${session.user.email}`
+    const storageKey = session?.email
+      ? `savedAdventures_${session.email}`
       : 'savedAdventures_guest';
 
     const saved = localStorage.getItem(storageKey);
@@ -33,13 +33,13 @@ export function useSaveForLater() {
       }
     }
     setIsLoading(false);
-  }, [session?.user?.email]);
+  }, [session?.email]);
 
   const saveAdventure = (adventureId: string) => {
     if (savedAdventures.includes(adventureId)) return;
 
-    const storageKey = session?.user?.email
-      ? `savedAdventures_${session.user.email}`
+    const storageKey = session?.email
+      ? `savedAdventures_${session.email}`
       : 'savedAdventures_guest';
 
     const newSaved = [...savedAdventures, adventureId];
@@ -54,14 +54,14 @@ export function useSaveForLater() {
     localStorage.setItem(storageKey, JSON.stringify(savedData));
 
     // TODO: If user is authenticated, also save to database
-    if (session?.user) {
+    if (session) {
       // Future: POST /api/saved-adventures
     }
   };
 
   const unsaveAdventure = (adventureId: string) => {
-    const storageKey = session?.user?.email
-      ? `savedAdventures_${session.user.email}`
+    const storageKey = session?.email
+      ? `savedAdventures_${session.email}`
       : 'savedAdventures_guest';
 
     const newSaved = savedAdventures.filter((id) => id !== adventureId);
@@ -76,7 +76,7 @@ export function useSaveForLater() {
     localStorage.setItem(storageKey, JSON.stringify(savedData));
 
     // TODO: If user is authenticated, also remove from database
-    if (session?.user) {
+    if (session) {
       // Future: DELETE /api/saved-adventures/:id
     }
   };

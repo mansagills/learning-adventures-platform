@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { ReactNode } from 'react';
 
 interface RoleGuardProps {
@@ -31,19 +31,17 @@ export default function RoleGuard({
   fallback = null,
   requireAll = false,
 }: RoleGuardProps) {
-  const { data: session, status } = useSession();
+  const { user, status } = useAuth();
 
-  // Don't render anything while loading
   if (status === 'loading') {
     return null;
   }
 
-  // If user is not authenticated, show fallback
-  if (!session?.user) {
+  if (!user) {
     return <>{fallback}</>;
   }
 
-  const userRole = session.user.role;
+  const userRole = user.role;
 
   // Role hierarchy for permission checking
   const roleHierarchy = {
