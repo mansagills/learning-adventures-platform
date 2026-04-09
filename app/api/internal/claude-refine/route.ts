@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { getApiUser } from '@/lib/api-auth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -7,6 +8,23 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
+    // Security check: Ensure user is authenticated and is an admin or teacher
+    const { apiUser, error: authError } = await getApiUser();
+
+    if (!apiUser) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
+
+    if (apiUser.role !== 'ADMIN' && apiUser.role !== 'TEACHER') {
+      return NextResponse.json(
+        { error: 'Forbidden. Admin or Teacher access required.' },
+        { status: 403 }
+      );
+    }
+
     const formData = await request.json();
 
     if (!process.env.ANTHROPIC_API_KEY) {

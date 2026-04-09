@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - Unauthenticated AI Endpoint in claude-refine
+**Vulnerability:** The `/api/internal/claude-refine/route.ts` endpoint lacked any authentication or authorization checks, directly calling the Anthropic API. This allowed unauthenticated actors to exhaust API credits and bypass intended access controls.
+**Learning:** Internal tool endpoints, particularly those wrapping paid third-party APIs, must be explicitly secured at the route level rather than relying solely on middleware or client-side UI hiding.
+**Prevention:** Always enforce role-based access control (e.g., `getServerSession` checking for `ADMIN` or `TEACHER`) on all backend API routes before interacting with external services.
