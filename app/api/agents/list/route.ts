@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * GET /api/agents/list
  *
@@ -5,8 +6,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 
 const agents = [
   {
@@ -73,13 +72,13 @@ const agents = [
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (!apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user has access to AI Agent Studio
-    const userRole = session.user.role;
+    const userRole = apiUser.role;
     if (userRole !== 'ADMIN' && userRole !== 'TEACHER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

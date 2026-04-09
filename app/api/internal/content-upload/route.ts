@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { routeFileUpload } from '@/lib/storage/storageRouter';
 import {
   extractMetadata,
@@ -10,8 +9,8 @@ import { prisma } from '@/lib/prisma';
 import { ContentType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== 'ADMIN') {
+  const { apiUser, error: authError } = await getApiUser();
+  if (apiUser?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -88,10 +87,10 @@ export async function POST(request: NextRequest) {
         filePath: url,
         fileSize: file.size,
         mimeType: file.type || 'application/octet-stream',
-        uploadedBy: session.user.id,
+        uploadedBy: apiUser.id,
         publishStatus: 'PUBLISHED', // Direct publish workflow
         publishedAt: new Date(),
-        publishedBy: session.user.id,
+        publishedBy: apiUser.id,
       },
     });
 

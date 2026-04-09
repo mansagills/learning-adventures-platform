@@ -1,14 +1,13 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { FriendshipStatus } from '@prisma/client';
 
 // GET /api/friends - Get user's friends and pending requests
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -20,8 +19,8 @@ export async function GET(request: NextRequest) {
     const friendships = await prisma.friendship.findMany({
       where: {
         OR: [
-          { userId: session.user.id, status },
-          { friendId: session.user.id, status },
+          { userId: apiUser.id, status },
+          { friendId: apiUser.id, status },
         ],
       },
       include: {
@@ -53,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // Format the response to always show the "other" user
     const formattedFriendships = friendships.map((friendship) => {
-      const isInitiator = friendship.userId === session.user.id;
+      const isInitiator = friendship.userId === apiUser.id;
       const friendData = isInitiator ? friendship.friend : friendship.user;
 
       return {
@@ -89,8 +88,8 @@ export async function GET(request: NextRequest) {
 // POST /api/friends - Send friend request
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (friendId === session.user.id) {
+    if (friendId === apiUser.id) {
       return NextResponse.json(
         { error: 'Cannot add yourself as a friend' },
         { status: 400 }
@@ -115,8 +114,8 @@ export async function POST(request: NextRequest) {
     const existingFriendship = await prisma.friendship.findFirst({
       where: {
         OR: [
-          { userId: session.user.id, friendId },
-          { userId: friendId, friendId: session.user.id },
+          { userId: apiUser.id, friendId },
+          { userId: friendId, friendId: apiUser.id },
         ],
       },
     });
@@ -131,7 +130,7 @@ export async function POST(request: NextRequest) {
     // Create friend request
     const friendship = await prisma.friendship.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         friendId,
         status: 'PENDING',
       },
@@ -172,8 +171,8 @@ export async function POST(request: NextRequest) {
 // DELETE /api/friends?friendshipId=xxx - Remove friend or reject request
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -191,7 +190,7 @@ export async function DELETE(request: NextRequest) {
     const friendship = await prisma.friendship.findFirst({
       where: {
         id: friendshipId,
-        OR: [{ userId: session.user.id }, { friendId: session.user.id }],
+        OR: [{ userId: apiUser.id }, { friendId: apiUser.id }],
       },
     });
 

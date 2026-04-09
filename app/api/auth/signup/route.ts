@@ -1,94 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
+import { createServiceClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+
+const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'] as const;
+const ADMIN_DOMAIN = '@learningadventures.org';
 
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password, role, gradeLevel } = await request.json();
 
-    // Validate required fields
     if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: 'Name, email, and password are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
     }
 
-    // SECURITY: Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    // SECURITY: Prevent privilege escalation by blocking signup with admin domain
-    if (email.endsWith('@learningadventures.org')) {
+    if (email.endsWith(ADMIN_DOMAIN)) {
       return NextResponse.json(
-        { error: 'Signups with @learningadventures.org are restricted. Please contact an administrator.' },
+        { error: 'Signups with @learningadventures.org are restricted.' },
         { status: 403 }
       );
     }
 
-    // SECURITY: Enforce password policy (min 8 chars)
     if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters long' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const safeRole = ALLOWED_ROLES.includes(role) ? role : 'STUDENT';
+
+    // Create Supabase Auth user
+    const supabase = createServiceClient();
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // auto-confirm for now; add email verification later
+      user_metadata: { name },
     });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 409 }
-      );
+    if (authError) {
+      if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
+        return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
+      }
+      console.error('Supabase signup error:', authError);
+      return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const supabaseUser = authData.user;
 
-    // Sanitize role to prevent mass assignment of privileged roles
-    const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'];
-    const safeRole = role && ALLOWED_ROLES.includes(role) ? role : 'STUDENT';
-
-    // Create user
+    // Create Prisma User profile linked to Supabase UID
     const user = await prisma.user.create({
       data: {
+        supabaseId: supabaseUser.id,
         name,
         email,
-        password: hashedPassword,
         role: safeRole,
-        gradeLevel: safeRole === 'STUDENT' ? gradeLevel : null,
+        gradeLevel: safeRole === 'STUDENT' ? (gradeLevel ?? null) : null,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        gradeLevel: true,
-        createdAt: true,
-      },
+      select: { id: true, name: true, email: true, role: true, gradeLevel: true, createdAt: true },
     });
 
-    return NextResponse.json(
-      {
-        message: 'User created successfully',
-        user,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: 'Account created successfully', user }, { status: 201 });
   } catch (error) {
     console.error('Signup error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

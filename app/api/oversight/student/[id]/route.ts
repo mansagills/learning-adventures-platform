@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/oversight/student/[id] - Get detailed student progress
@@ -9,14 +8,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: apiUser.id },
       select: { role: true },
     });
 

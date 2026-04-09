@@ -1,14 +1,13 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/goals - Get all goals for the current user
 export async function GET(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -17,7 +16,7 @@ export async function GET(request: Request) {
     const type = searchParams.get('type');
 
     const where: any = {
-      userId: session.user.id,
+      userId: apiUser.id,
     };
 
     if (status) {
@@ -67,9 +66,9 @@ export async function GET(request: Request) {
 // POST /api/goals - Create a new goal
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -123,7 +122,7 @@ export async function POST(request: Request) {
 
     const goal = await prisma.learningGoal.create({
       data: {
-        userId: session.user.id,
+        userId: apiUser.id,
         title,
         description,
         type,

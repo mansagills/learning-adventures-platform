@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 
-/**
- * POST /api/shop/purchase
- * Body: { itemId: string }
- * Deducts coins and adds the item to the character's inventory atomically.
- */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.email) {
+    const { apiUser, error } = await getApiUser();
+    if (error || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -22,16 +15,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing itemId' }, { status: 400 });
     }
 
-    // Load shop item
     const shopItem = await prisma.shopItem.findUnique({ where: { itemId } });
-
     if (!shopItem || !shopItem.isAvailable) {
       return NextResponse.json({ error: 'Item not available' }, { status: 404 });
     }
 
-    // Load user with level and character
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: apiUser.id },
       include: {
         level: true,
         character: { include: { inventory: true } },
@@ -46,16 +36,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No character found' }, { status: 400 });
     }
 
-    // Check level requirement
     const userLevel = user.level?.currentLevel ?? 1;
     if (userLevel < shopItem.levelRequirement) {
-      return NextResponse.json(
-        { error: `Requires Level ${shopItem.levelRequirement}` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: `Requires Level ${shopItem.levelRequirement}` }, { status: 400 });
     }
 
-    // Check sufficient coins
     const currentCurrency = user.level?.currency ?? 0;
     if (currentCurrency < shopItem.price) {
       return NextResponse.json(
@@ -64,11 +49,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Build updated inventory
     const inventory = user.character.inventory;
     const existingItems: any[] = Array.isArray(inventory?.items) ? (inventory.items as any[]) : [];
 
-    // For equipment/pets, reject if already owned (before touching the DB)
     if (shopItem.type !== 'CONSUMABLE') {
       const alreadyOwned = existingItems.some((i: any) => i.id === shopItem.itemId);
       if (alreadyOwned) {
@@ -100,7 +83,6 @@ export async function POST(request: NextRequest) {
       updatedItems = [...existingItems, newItem];
     }
 
-    // Atomically deduct coins and update inventory in a single transaction
     const [updatedLevel] = await prisma.$transaction([
       prisma.userLevel.update({
         where: { userId: user.id },

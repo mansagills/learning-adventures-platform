@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { hashPIN } from '@/lib/childAuth';
 
@@ -32,9 +31,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -44,7 +43,7 @@ export async function GET(
     const child = await prisma.childProfile.findFirst({
       where: {
         id: params.id,
-        parentId: session.user.id, // Ensure parent owns this child
+        parentId: apiUser.id, // Ensure parent owns this child
       },
       select: {
         id: true,
@@ -80,9 +79,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -93,7 +92,7 @@ export async function PUT(
     const existingChild = await prisma.childProfile.findFirst({
       where: {
         id: params.id,
-        parentId: session.user.id,
+        parentId: apiUser.id,
       },
     });
 
@@ -196,9 +195,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (!apiUser?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -209,7 +208,7 @@ export async function DELETE(
     const existingChild = await prisma.childProfile.findFirst({
       where: {
         id: params.id,
-        parentId: session.user.id,
+        parentId: apiUser.id,
       },
     });
 

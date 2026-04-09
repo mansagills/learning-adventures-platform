@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CharacterCreator } from '@/components/world/CharacterCreator';
@@ -10,7 +10,7 @@ import { CharacterCreator } from '@/components/world/CharacterCreator';
  * Entry point for creating a new character before entering the 2D world
  */
 export default function CreateCharacterPage() {
-  const { data: session, status } = useSession();
+  const { status } = useAuth();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
 

@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import AdmZip from 'adm-zip';
 import {
   processCoursePackage,
@@ -14,8 +13,8 @@ import {
 } from '@/lib/upload/gamePackageHandler';
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (session?.user?.role !== 'ADMIN') {
+  const { apiUser, error: authError } = await getApiUser();
+  if (apiUser?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -66,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     let result;
     if (isGame) {
-      result = await processGamePackage(newFile, session.user.id);
+      result = await processGamePackage(newFile, apiUser.id);
       return NextResponse.json({
         ...result,
         type: 'game',
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
           'Game uploaded to staging successfully. Visit the Testing page to review and approve.',
       });
     } else {
-      result = await processCoursePackage(newFile, session.user.id);
+      result = await processCoursePackage(newFile, apiUser.id);
       return NextResponse.json({
         ...result,
         type: 'course',

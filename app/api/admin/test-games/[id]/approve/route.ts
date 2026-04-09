@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { TestGameStatus } from '@prisma/client';
 
@@ -10,9 +9,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -30,8 +29,8 @@ export async function POST(
     const approval = await prisma.gameApproval.create({
       data: {
         testGameId: params.id,
-        userId: session.user.id,
-        userName: session.user.name || session.user.email || 'Unknown',
+        userId: apiUser.id,
+        userName: apiUser.name || apiUser.email || 'Unknown',
         decision,
         notes,
         educationalQuality,

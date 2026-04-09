@@ -1,13 +1,12 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { startOfWeek, startOfMonth, subWeeks, subMonths } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -194,7 +193,7 @@ export async function GET(request: NextRequest) {
 
     // Find current user's position
     const currentUserRank = rankedLeaderboard.findIndex(
-      (entry) => entry.userId === session.user.id
+      (entry) => entry.userId === apiUser.id
     );
 
     return NextResponse.json({

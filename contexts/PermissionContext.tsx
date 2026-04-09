@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Permission types available in the platform
@@ -101,8 +101,8 @@ function getPermissionsForRole(role: string | undefined): Permissions {
  * }
  */
 export function PermissionProvider({ children }: { children: ReactNode }) {
-  const { data: session } = useSession();
-  const userRole = session?.user?.role as
+  const { user } = useAuth();
+  const userRole = user?.role as
     | 'ADMIN'
     | 'TEACHER'
     | 'PARENT'

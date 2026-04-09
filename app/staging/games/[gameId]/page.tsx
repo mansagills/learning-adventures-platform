@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ interface TestGame {
 }
 
 export default function StagingGamePreviewPage() {
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const params = useParams();
   const router = useRouter();
   const gameId = params.gameId as string;
@@ -34,7 +34,7 @@ export default function StagingGamePreviewPage() {
   useEffect(() => {
     if (status === 'loading') return;
 
-    if (!session || session.user?.role !== 'ADMIN') {
+    if (!session || session?.role !== 'ADMIN') {
       router.push('/unauthorized');
       return;
     }

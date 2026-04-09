@@ -147,7 +147,7 @@ function CourseRequestSuccessContent() {
                 View My Requests
               </Link>
               <Link
-                href="/dashboard"
+                href="/world"
                 className="
                   px-6 py-4 rounded-xl border-2 border-gray-300
                   text-gray-700 font-semibold text-center
@@ -155,7 +155,7 @@ function CourseRequestSuccessContent() {
                   transition-all
                 "
               >
-                Back to Dashboard
+                Back to Campus
               </Link>
             </div>
 

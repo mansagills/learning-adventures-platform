@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { promoteCourseToProduction } from '@/lib/upload/coursePackageHandler';
 
@@ -10,9 +9,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -40,7 +39,7 @@ export async function POST(
     }
 
     // Promote the course
-    const result = await promoteCourseToProduction(params.id, session.user.id);
+    const result = await promoteCourseToProduction(params.id, apiUser.id);
 
     return NextResponse.json({
       ...result,

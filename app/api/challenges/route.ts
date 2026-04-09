@@ -1,14 +1,13 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { addDays, addWeeks } from 'date-fns';
 
 // GET /api/challenges - Get user's challenges
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -18,7 +17,7 @@ export async function GET(request: NextRequest) {
     // Get challenges where user is either creator or challenged
     const challenges = await prisma.challenge.findMany({
       where: {
-        OR: [{ creatorId: session.user.id }, { challengedId: session.user.id }],
+        OR: [{ creatorId: apiUser.id }, { challengedId: apiUser.id }],
         status: status as any,
       },
       include: {
@@ -62,8 +61,8 @@ export async function GET(request: NextRequest) {
 // POST /api/challenges - Create a new challenge
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -85,7 +84,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (challengedId === session.user.id) {
+    if (challengedId === apiUser.id) {
       return NextResponse.json(
         { error: 'Cannot challenge yourself' },
         { status: 400 }
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     const challenge = await prisma.challenge.create({
       data: {
-        creatorId: session.user.id,
+        creatorId: apiUser.id,
         challengedId,
         type,
         category,
@@ -152,8 +151,8 @@ export async function POST(request: NextRequest) {
 // DELETE /api/challenges?id=xxx - Cancel/decline a challenge
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -171,7 +170,7 @@ export async function DELETE(request: NextRequest) {
     const challenge = await prisma.challenge.findFirst({
       where: {
         id: challengeId,
-        OR: [{ creatorId: session.user.id }, { challengedId: session.user.id }],
+        OR: [{ creatorId: apiUser.id }, { challengedId: apiUser.id }],
       },
     });
 
@@ -185,7 +184,7 @@ export async function DELETE(request: NextRequest) {
     // If challenged user declines, mark as DECLINED
     // If creator cancels, delete the challenge
     if (
-      challenge.challengedId === session.user.id &&
+      challenge.challengedId === apiUser.id &&
       challenge.status === 'PENDING'
     ) {
       await prisma.challenge.update({

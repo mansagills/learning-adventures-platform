@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(
@@ -8,8 +7,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -19,7 +18,7 @@ export async function POST(
     const challenge = await prisma.challenge.findFirst({
       where: {
         id: challengeId,
-        challengedId: session.user.id,
+        challengedId: apiUser.id,
         status: 'PENDING',
       },
     });

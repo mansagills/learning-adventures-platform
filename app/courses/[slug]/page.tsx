@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import EnrollButton from '@/components/courses/EnrollButton';
 import LessonList from '@/components/courses/LessonList';
@@ -21,7 +21,7 @@ interface CourseDetailProps {
 
 export default function CourseDetailPage({ params }: CourseDetailProps) {
   const { slug } = params;
-  const { data: session, status } = useSession();
+  const { user: session, status } = useAuth();
   const router = useRouter();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);

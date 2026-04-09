@@ -1,3 +1,4 @@
+import { getApiUser } from '@/lib/api-auth';
 /**
  * Quiz Submission API Route
  *
@@ -6,8 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { validateQuizAnswers, type QuizData } from '@/lib/courses/quizHelpers';
 import { completeLesson } from '@/lib/courses/progressHelpers';
@@ -18,8 +17,8 @@ export async function POST(
 ) {
   try {
     // Authenticate user
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const { apiUser, error: authError } = await getApiUser();
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -67,7 +66,7 @@ export async function POST(
     // Users can still complete the lesson even if they don't pass the quiz
     if (result.passed) {
       const completionResult = await completeLesson(
-        session.user.id,
+        apiUser.id,
         params.lessonId,
         result.score
       );

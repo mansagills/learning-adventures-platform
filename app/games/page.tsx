@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import Container from '@/components/Container';
 import Icon from '@/components/Icon';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -26,7 +26,7 @@ interface UserProgress {
 }
 
 function GamesContent() {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [games, setGames] = useState<Adventure[]>([]);
   const [userProgress, setUserProgress] = useState<
     Record<string, UserProgress>
@@ -45,7 +45,7 @@ function GamesContent() {
         setGames(allGames);
 
         // Fetch user progress if authenticated
-        if (session?.user?.id) {
+        if (session?.id) {
           const response = await fetch('/api/progress/games');
           if (response.ok) {
             const data = await response.json();
@@ -67,7 +67,7 @@ function GamesContent() {
     };
 
     fetchData();
-  }, [session?.user?.id]);
+  }, [session?.id]);
 
   // Get unique subjects for filter dropdown
   const subjects = useMemo(() => getUniqueSubjects(games), [games]);

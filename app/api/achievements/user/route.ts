@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -11,9 +10,9 @@ const prisma = new PrismaClient();
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.email) {
+    if (authError || !apiUser) {
       return NextResponse.json(
         { error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // Find user by email
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { email: apiUser.email },
       include: {
         achievements: {
           orderBy: {

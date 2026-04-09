@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET - Fetch single request by ID
@@ -9,9 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session?.user?.id) {
+    if (authError || !apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -25,8 +24,8 @@ export async function GET(
 
     // Verify ownership (or admin access)
     if (
-      courseRequest.userId !== session.user.id &&
-      session.user.role !== 'ADMIN'
+      courseRequest.userId !== apiUser.id &&
+      apiUser.role !== 'ADMIN'
     ) {
       return NextResponse.json(
         { error: 'Unauthorized to view this request' },

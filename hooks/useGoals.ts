@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 
 export interface LearningGoal {
   id: string;
@@ -39,13 +39,13 @@ interface UseGoalsOptions {
 }
 
 export function useGoals(options: UseGoalsOptions = {}) {
-  const { data: session } = useSession();
+  const { user: session } = useAuth();
   const [goals, setGoals] = useState<LearningGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchGoals = useCallback(async () => {
-    if (!session?.user) {
+    if (!session) {
       setLoading(false);
       return;
     }

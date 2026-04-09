@@ -1,6 +1,5 @@
+import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
 import { join, resolve, sep, basename, normalize } from 'path';
 import { existsSync } from 'fs';
@@ -10,9 +9,9 @@ import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const { apiUser, error: authError } = await getApiUser();
 
-    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
+    if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(
         { error: 'Unauthorized. Admin or Teacher role required.' },
         { status: 401 }
