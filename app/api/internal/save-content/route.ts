@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         publicDir,
         uploadedZipPath.replace(/^\//, '')
       );
-      if (!zipFullPath.startsWith(publicDir)) {
+      if (!zipFullPath.startsWith(publicDir + sep) && zipFullPath !== publicDir) {
         return NextResponse.json(
           {
             error: 'Invalid uploadedZipPath. Must be within public directory.',
