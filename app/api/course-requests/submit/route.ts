@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    // Destructure id and userId out so they can't be injected via the body
+    const { id: requestId, userId: _ignoredUserId, ...safeBody } = body;
 
     // Validate all required fields
-    const validation = validateCourseRequest(body);
+    const validation = validateCourseRequest(safeBody);
     if (!validation.isValid) {
       return NextResponse.json({ errors: validation.errors }, { status: 400 });
     }
@@ -69,23 +71,36 @@ export async function POST(request: NextRequest) {
     // Create or update course request
     let courseRequest;
 
-    if (body.id) {
-      // Update existing draft to submitted
+    if (requestId) {
+      // Verify ownership before updating
+      const existing = await prisma.courseRequest.findUnique({
+        where: { id: requestId },
+        select: { userId: true },
+      });
+
+      if (!existing) {
+        return NextResponse.json({ error: 'Request not found' }, { status: 404 });
+      }
+
+      if (existing.userId !== apiUser.id && user.role !== 'ADMIN') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
       courseRequest = await prisma.courseRequest.update({
-        where: { id: body.id },
+        where: { id: requestId },
         data: {
-          ...body,
+          ...safeBody,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
         },
       });
     } else {
-      // Create new submitted request
+      // Create new submitted request — userId always comes from session
       courseRequest = await prisma.courseRequest.create({
         data: {
+          ...safeBody,
           userId: apiUser.id,
-          ...body,
           isDraft: false,
           status: 'SUBMITTED',
           submittedAt: new Date(),
