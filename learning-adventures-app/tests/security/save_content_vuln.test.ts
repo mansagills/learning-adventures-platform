@@ -29,7 +29,7 @@ vi.mock('fs', () => ({
 }));
 
 // Mock next-auth
-vi.mock('next-auth/next', () => ({
+vi.mock('next-auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
 
