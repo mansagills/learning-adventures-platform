@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -97,15 +95,6 @@ Create a single HTML file interactive learning lesson for elementary students th
 
 export async function POST(request: NextRequest) {
   try {
-    // Security: Validate admin or teacher role
-    const session = await getServerSession(authOptions);
-    if (!session || !['ADMIN', 'TEACHER'].includes(session.user.role)) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Admin or Teacher role required.' },
-        { status: 403 }
-      );
-    }
-
     const { formData, refinements } = await request.json();
 
     if (!process.env.ANTHROPIC_API_KEY) {
