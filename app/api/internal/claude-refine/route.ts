@@ -1,12 +1,21 @@
 export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { getApiUser } from '@/lib/api-auth';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
 });
 
 export async function POST(request: NextRequest) {
+  const { apiUser, error } = await getApiUser();
+  if (error || !apiUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (apiUser.role !== 'ADMIN' && apiUser.role !== 'TEACHER') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   try {
     const formData = await request.json();
 

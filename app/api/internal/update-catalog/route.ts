@@ -2,8 +2,17 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
+import { getApiUser } from '@/lib/api-auth';
 
 export async function POST(request: NextRequest) {
+  const { apiUser, error } = await getApiUser();
+  if (error || !apiUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  if (apiUser.role !== 'ADMIN' && apiUser.role !== 'TEACHER') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   try {
     const { metadata } = await request.json();
 
