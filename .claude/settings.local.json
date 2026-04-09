@@ -105,7 +105,9 @@
       "Bash(npm list:*)",
       "mcp__claude_ai_Supabase__list_projects",
       "Bash(npm uninstall:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(pnpm install:*)",
+      "Bash(sudo npm:*)"
     ],
     "deny": [],
     "ask": []
