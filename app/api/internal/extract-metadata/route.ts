@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import path, { join, resolve } from 'path';
+import { join } from 'path';
 import AdmZip from 'adm-zip';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -40,36 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert relative path to absolute path
-    const publicDir = join(process.cwd(), 'public');
-    // Normalize path to prevent directory traversal
-    const normalizedZipPath = path.normalize(zipPath).replace(/^(\.\.(\/|\\|$))+/, '');
-
-    // Check for ".." manually as well to be completely safe against variations
-    if (zipPath.includes('..')) {
-      return NextResponse.json(
-        { error: 'Invalid path. Path traversal detected.' },
-        { status: 400 }
-      );
-    }
-
-    // Ensure absolute path inputs like "/etc/passwd" do not bypass resolve by stripping the leading slash,
-    // but better yet, resolve from publicDir, then check path properly.
-    // If someone passes an absolute path, we can either reject it or treat it as relative to publicDir.
-    // Given the endpoint likely expects relative paths within public, let's treat it as relative to public
-    // by removing leading slashes.
-    // However, if we simply remove leading slashes, path.resolve(publicDir, 'etc/passwd')
-    // becomes /app/public/etc/passwd which is "within public directory".
-    // Is that acceptable? The user is restricted to the public directory.
-    // Let's ensure that if they supply an absolute path, it is strictly checked or just rely on the '..' check + startswith public.
-    const fullPath = resolve(publicDir, normalizedZipPath.replace(/^[\/\\]+/, ''));
-
-    // Ensure the resolved path is within the public directory
-    if (!fullPath.startsWith(publicDir + path.sep) && fullPath !== publicDir) {
-      return NextResponse.json(
-        { error: 'Invalid path. Must be within public directory.' },
-        { status: 400 }
-      );
-    }
+    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
