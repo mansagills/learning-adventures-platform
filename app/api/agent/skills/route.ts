@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 /**
  * Skills API
  * GET /api/agent/skills - List available skills

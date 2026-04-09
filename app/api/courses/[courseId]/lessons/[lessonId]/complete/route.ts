@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 /**
  * POST /api/courses/[courseId]/lessons/[lessonId]/complete
  *
