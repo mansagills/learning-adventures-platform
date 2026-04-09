@@ -2,9 +2,11 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 
+if (!process.env.CHILD_SESSION_SECRET) {
+  throw new Error('CHILD_SESSION_SECRET environment variable is required');
+}
 const CHILD_SESSION_SECRET = new TextEncoder().encode(
-  process.env.CHILD_SESSION_SECRET ||
-    'child-session-secret-change-in-production'
+  process.env.CHILD_SESSION_SECRET
 );
 const CHILD_SESSION_DURATION = 4 * 60 * 60; // 4 hours in seconds
 

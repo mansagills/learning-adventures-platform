@@ -4,8 +4,6 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
 
-const ADMIN_DOMAIN = '@learningadventures.org';
-
 // Routes that require a logged-in user
 const PROTECTED_ROUTES = [
   '/profile',
@@ -44,20 +42,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    const isAdminEmail = user.email?.endsWith(ADMIN_DOMAIN) ?? false;
-    if (!isAdminEmail) {
-      // Check role in DB — only when needed for admin routes
-      try {
-        const profile = await prisma.user.findUnique({
-          where: { supabaseId: user.id },
-          select: { role: true },
-        });
-        if (profile?.role !== 'ADMIN') {
-          return NextResponse.redirect(new URL('/unauthorized', request.url));
-        }
-      } catch {
+    // Always check role in DB — no email-domain shortcuts
+    try {
+      const profile = await prisma.user.findUnique({
+        where: { supabaseId: user.id },
+        select: { role: true },
+      });
+      if (profile?.role !== 'ADMIN') {
         return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
+    } catch {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
