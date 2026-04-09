@@ -107,7 +107,9 @@
       "Bash(npm uninstall:*)",
       "Bash(npx prisma:*)",
       "Bash(pnpm install:*)",
-      "Bash(sudo npm:*)"
+      "Bash(sudo npm:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []
