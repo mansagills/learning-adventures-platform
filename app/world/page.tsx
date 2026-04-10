@@ -12,6 +12,7 @@ import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
+import { QuestLog } from '@/components/world/QuestLog';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -43,6 +44,7 @@ export default function WorldPage() {
   const [activeJob, setActiveJob] = useState<any>(null);
   const [showJaylen, setShowJaylen] = useState(false);
   const [showSpark, setShowSpark] = useState(false);
+  const [showQuestLog, setShowQuestLog] = useState(false);
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -302,6 +304,11 @@ export default function WorldPage() {
         />
       )}
 
+      {/* Quest Log */}
+      {showQuestLog && (
+        <QuestLog onClose={() => setShowQuestLog(false)} />
+      )}
+
       {/* Job Board */}
       {showJobBoard && (
         <JobBoard
@@ -370,6 +377,13 @@ export default function WorldPage() {
               title="Open Shop"
             >
               🛒 Shop
+            </button>
+            <button
+              onClick={() => setShowQuestLog(true)}
+              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Quest Log"
+            >
+              📋 Quests
             </button>
             <button
               onClick={() => setShowJobBoard(true)}
