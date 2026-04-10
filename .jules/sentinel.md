@@ -6,3 +6,9 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-05-20 - Path Traversal in extract-metadata route
+**Vulnerability:** The `/api/internal/extract-metadata` endpoint allowed an attacker to read arbitrary zip files anywhere on the system (e.g. `../../../../etc/passwd` ending in .zip) by not securely checking the bounds of the resolved file path against the expected `public` directory.
+**Learning:** `path.join()` inherently resolves `../` tokens but does not guarantee the resulting path stays within a safe root directory. This makes it unsafe to use with user-provided path segments unless followed by an explicit prefix check.
+**Prevention:**
+Always use `path.resolve` to get the absolute target path, resolve the allowed root directory, and verify the target path strictly starts with `rootDir + path.sep` (or equals the `rootDir`). Do not use relative `path.join` for untrusted path construction.
