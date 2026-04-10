@@ -4,6 +4,7 @@ import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
+  getApiUser: vi.fn(),
   getServerSession: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
@@ -33,6 +34,11 @@ vi.mock('next-auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
 
+// Mock api-auth
+vi.mock("@/lib/api-auth", () => ({
+  getApiUser: mocks.getApiUser,
+}));
+
 // Mock authOptions (just an object)
 vi.mock('@/lib/auth', () => ({
   authOptions: {},
@@ -45,10 +51,12 @@ describe('Save Content Vulnerability Fix', () => {
     mocks.writeFile.mockResolvedValue(undefined);
     mocks.mkdir.mockResolvedValue(undefined);
     mocks.existsSync.mockReturnValue(true);
+    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: null });
   });
 
   it('rejects unauthenticated requests', async () => {
     mocks.getServerSession.mockResolvedValue(null);
+    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: "Unauthorized" });
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -69,6 +77,7 @@ describe('Save Content Vulnerability Fix', () => {
     mocks.getServerSession.mockResolvedValue({
       user: { role: 'STUDENT' },
     });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'STUDENT' }, error: null });
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -89,6 +98,7 @@ describe('Save Content Vulnerability Fix', () => {
     mocks.getServerSession.mockResolvedValue({
       user: { role: 'ADMIN' },
     });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' }, error: null });
 
     const maliciousFileName = '../../../../tmp/hacked.html';
 
@@ -116,6 +126,7 @@ describe('Save Content Vulnerability Fix', () => {
     mocks.getServerSession.mockResolvedValue({
       user: { role: 'ADMIN' },
     });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' }, error: null });
 
     const validFileName = 'test_game.html';
 

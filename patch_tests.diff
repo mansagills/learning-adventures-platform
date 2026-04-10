@@ -1,0 +1,82 @@
+--- tests/security/save_content_vuln.test.ts
++++ tests/security/save_content_vuln.test.ts
+@@ -2,12 +2,15 @@
+ import { describe, it, expect, vi, beforeEach } from 'vitest';
+ import { POST } from '@/app/api/internal/save-content/route';
+ import { NextRequest } from 'next/server';
+
+ const mocks = vi.hoisted(() => ({
+   getServerSession: vi.fn(),
++  getApiUser: vi.fn(),
+   writeFile: vi.fn(),
+   mkdir: vi.fn(),
+   existsSync: vi.fn(),
+ }));
+
+ // Mock fs/promises
+@@ -25,23 +28,29 @@
+ }));
+
+ // Mock next-auth
+ vi.mock('next-auth', () => ({
+   getServerSession: mocks.getServerSession,
+ }));
++
++// Mock api-auth
++vi.mock('@/lib/api-auth', () => ({
++  getApiUser: mocks.getApiUser,
++}));
+
+ // Mock authOptions (just an object)
+ vi.mock('@/lib/auth', () => ({
+   authOptions: {},
+ }));
+
+ describe('Save Content Vulnerability Fix', () => {
+   beforeEach(() => {
+     vi.clearAllMocks();
+     // Default mocks
+     mocks.writeFile.mockResolvedValue(undefined);
+     mocks.mkdir.mockResolvedValue(undefined);
+     mocks.existsSync.mockReturnValue(true);
++    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: null });
+   });
+
+   it('rejects unauthenticated requests', async () => {
+     mocks.getServerSession.mockResolvedValue(null);
++    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: 'Unauthorized' });
+
+     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
+       method: 'POST',
+@@ -62,6 +71,9 @@
+   it('rejects unauthorized users (e.g. STUDENT)', async () => {
+     mocks.getServerSession.mockResolvedValue({
+       user: { role: 'STUDENT' },
+     });
++    mocks.getApiUser.mockResolvedValue({
++      apiUser: { role: 'STUDENT' },
++    });
+
+     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
+       method: 'POST',
+@@ -79,6 +91,9 @@
+   it('rejects path traversal attempts from authorized users', async () => {
+     mocks.getServerSession.mockResolvedValue({
+       user: { role: 'ADMIN' },
+     });
++    mocks.getApiUser.mockResolvedValue({
++      apiUser: { role: 'ADMIN' },
++    });
+
+     const maliciousFileName = '../../../../tmp/hacked.html';
+
+@@ -104,6 +119,9 @@
+   it('allows valid requests from authorized users', async () => {
+     mocks.getServerSession.mockResolvedValue({
+       user: { role: 'ADMIN' },
+     });
++    mocks.getApiUser.mockResolvedValue({
++      apiUser: { role: 'ADMIN' },
++    });
+
+     const validFileName = 'test_game.html';
