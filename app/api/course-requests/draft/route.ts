@@ -32,6 +32,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Prevent mass assignment of sensitive fields
+    const { id: _ignoredId, userId: _ignoredUserId, ...safeData } = body;
+
     // Check if user already has a draft
     const existingDraft = await prisma.courseRequest.findFirst({
       where: {
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
       const updated = await prisma.courseRequest.update({
         where: { id: existingDraft.id },
         data: {
-          ...body,
+          ...safeData,
           isDraft: true,
           status: 'DRAFT',
           updatedAt: new Date(),
@@ -62,8 +65,8 @@ export async function POST(request: NextRequest) {
     // Create new draft
     const draft = await prisma.courseRequest.create({
       data: {
+        ...safeData,
         userId: apiUser.id,
-        ...body,
         isDraft: true,
         status: 'DRAFT',
       },
@@ -95,7 +98,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, ...updateData } = body;
+    const { id, userId: _ignoredUserId, ...safeData } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -123,8 +126,8 @@ export async function PUT(request: NextRequest) {
 
     // Conflict detection: check if server version is newer
     if (
-      updateData.clientLastSaved &&
-      existing.updatedAt > new Date(updateData.clientLastSaved)
+      safeData.clientLastSaved &&
+      existing.updatedAt > new Date(safeData.clientLastSaved)
     ) {
       return NextResponse.json(
         {
@@ -140,7 +143,7 @@ export async function PUT(request: NextRequest) {
     const updated = await prisma.courseRequest.update({
       where: { id },
       data: {
-        ...updateData,
+        ...safeData,
         isDraft: true,
         status: 'DRAFT',
         updatedAt: new Date(),
