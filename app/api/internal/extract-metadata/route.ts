@@ -2,7 +2,8 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { existsSync } from 'fs';
+import { join, resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
 
 interface ExtractedMetadata {
@@ -40,7 +41,31 @@ export async function POST(request: NextRequest) {
     }
 
     // Convert relative path to absolute path
-    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
+    const publicDir = join(process.cwd(), 'public');
+    const fullPath = join(publicDir, zipPath.replace(/^\//, ''));
+
+    // Security: Prevent path traversal
+    const resolvedPath = resolve(fullPath);
+    const resolvedPublicDir = resolve(publicDir);
+
+    if (
+      zipPath.includes('..') ||
+      (!resolvedPath.startsWith(resolvedPublicDir + sep) &&
+        resolvedPath !== resolvedPublicDir)
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid path. Path traversal detected.' },
+        { status: 400 }
+      );
+    }
+
+    // Check if file exists
+    if (!existsSync(fullPath)) {
+      return NextResponse.json(
+        { error: 'Zip file not found' },
+        { status: 404 }
+      );
+    }
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
