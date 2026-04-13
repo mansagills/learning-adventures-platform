@@ -29,6 +29,15 @@ vi.mock('fs', () => ({
 }));
 
 // Mock next-auth
+// Mock api-auth
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: async () => {
+    const session = await mocks.getServerSession();
+    if (!session) return { apiUser: null };
+    return { apiUser: { id: 'user-123', role: session.user.role } };
+  }
+}));
+
 vi.mock('next-auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
