@@ -39,6 +39,9 @@ interface BuildingZone {
  *   2. Update animation row layout in Player.ts (see comment there).
  *   3. Update Player body.setSize / setOffset for the smaller frame.
  */
+/** Quest status per buildingId — 'available' | 'in_progress' | 'completed' | 'none' */
+type BuildingQuestStatus = 'available' | 'in_progress' | 'completed' | 'none';
+
 export class WorldScene extends Phaser.Scene {
   private player?: Player;
   private wallGroup?: Phaser.Physics.Arcade.StaticGroup;
@@ -53,6 +56,13 @@ export class WorldScene extends Phaser.Scene {
   private buildings: BuildingZone[] = [];
 
   private interactKey?: Phaser.Input.Keyboard.Key;
+
+  /**
+   * Quest marker text objects — keyed by buildingId.
+   * '!' (yellow) = quests available/in-progress, '✓' (green) = all completed.
+   */
+  private questMarkers: Map<string, Phaser.GameObjects.Text> = new Map();
+  private questMarkerTween: Map<string, Phaser.Tweens.Tween> = new Map();
 
   constructor() {
     super({ key: 'WorldScene' });
@@ -555,6 +565,71 @@ export class WorldScene extends Phaser.Scene {
   }
 
   // ---------------------------------------------------------------------------
+  // QUEST MARKERS
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Building anchor points (world pixels) for quest markers.
+   * Placed above each building's entrance label area.
+   */
+  private readonly BUILDING_MARKER_POSITIONS: Record<string, { x: number; y: number }> = {
+    'math-building':     { x: 10 * 64,      y: 0 * 64 - 18 },  // top of Math Building
+    'science-building':  { x: 3 * 64,       y: 8 * 64 - 18 },  // top of Science Building
+    'business-building': { x: 17.5 * 64,    y: 2 * 64 - 18 },  // top of Job Board area (placeholder)
+  };
+
+  /**
+   * Create or update a floating quest marker above a building.
+   * Called when React emits 'quest-status-update'.
+   */
+  private setQuestMarker(buildingId: string, status: BuildingQuestStatus): void {
+    const pos = this.BUILDING_MARKER_POSITIONS[buildingId];
+    if (!pos) return;
+
+    // Remove existing marker
+    const existing = this.questMarkers.get(buildingId);
+    const existingTween = this.questMarkerTween.get(buildingId);
+    if (existingTween) existingTween.destroy();
+    if (existing) existing.destroy();
+
+    if (status === 'none') return;
+
+    const isComplete = status === 'completed';
+    const markerText = isComplete ? '✓' : '!';
+    const bgColor    = isComplete ? '#16a34a' : '#ca8a04';  // green : amber
+    const textColor  = '#ffffff';
+
+    const marker = this.add.text(pos.x, pos.y, markerText, {
+      fontSize: '18px',
+      fontStyle: 'bold',
+      color: textColor,
+      backgroundColor: bgColor,
+      padding: { x: 6, y: 3 },
+    }).setOrigin(0.5, 1).setDepth(8).setScrollFactor(1);
+
+    // Gentle bob animation
+    const tween = this.tweens.add({
+      targets: marker,
+      y: pos.y - 8,
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.questMarkers.set(buildingId, marker);
+    this.questMarkerTween.set(buildingId, tween);
+  }
+
+  /**
+   * Called from React via EventBus when quest data is loaded.
+   * Payload: Array of { buildingId, status } entries.
+   */
+  private handleQuestStatusUpdate = (data: { buildingId: string; status: BuildingQuestStatus }[]) => {
+    data.forEach(({ buildingId, status }) => this.setQuestMarker(buildingId, status));
+  };
+
+  // ---------------------------------------------------------------------------
   // EVENT LISTENERS
   // ---------------------------------------------------------------------------
 
@@ -578,6 +653,7 @@ export class WorldScene extends Phaser.Scene {
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);
+    EventBus.on('quest-status-update', this.handleQuestStatusUpdate);
   }
 
   // ---------------------------------------------------------------------------
@@ -625,6 +701,7 @@ export class WorldScene extends Phaser.Scene {
   shutdown(): void {
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
+    EventBus.off('quest-status-update', this.handleQuestStatusUpdate);
 
     const all = [
       ...this.interactables,
@@ -634,5 +711,10 @@ export class WorldScene extends Phaser.Scene {
 
     this.interactables = [];
     this.interiorInteractables.clear();
+
+    this.questMarkerTween.forEach(t => t.destroy());
+    this.questMarkers.forEach(m => m.destroy());
+    this.questMarkerTween.clear();
+    this.questMarkers.clear();
   }
 }

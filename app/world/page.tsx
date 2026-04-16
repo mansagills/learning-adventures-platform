@@ -52,6 +52,47 @@ export default function WorldPage() {
   useEffect(() => { sessionRef.current = session; }, [session]);
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
 
+  // Quest marker data — computed from the active quest list and emitted to Phaser
+  const questMarkerDataRef = useRef<{ buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]>([]);
+
+  /** Fetch quests and build per-building marker status, then emit to Phaser. */
+  const fetchAndEmitQuestMarkers = async () => {
+    try {
+      const res = await fetch('/api/quests/active');
+      if (!res.ok) return;
+      const { quests } = await res.json();
+      if (!Array.isArray(quests)) return;
+
+      // Group quests by buildingId and compute status
+      const buildingMap = new Map<string, { available: number; inProgress: number; completed: number }>();
+      for (const q of quests) {
+        const entry = buildingMap.get(q.buildingId) ?? { available: 0, inProgress: 0, completed: 0 };
+        if (q.status === 'completed') entry.completed++;
+        else if (q.status === 'active') entry.inProgress++;
+        else if (q.status === 'available') entry.available++;
+        buildingMap.set(q.buildingId, entry);
+      }
+
+      const markerData = Array.from(buildingMap.entries()).map(([buildingId, counts]) => {
+        let status: 'available' | 'in_progress' | 'completed' | 'none' = 'none';
+        const total = counts.available + counts.inProgress + counts.completed;
+        if (total === 0) {
+          status = 'none';
+        } else if (counts.inProgress > 0 || counts.available > 0) {
+          status = counts.inProgress > 0 ? 'in_progress' : 'available';
+        } else {
+          status = 'completed';
+        }
+        return { buildingId, status };
+      });
+
+      questMarkerDataRef.current = markerData;
+      EventBus.emit('quest-status-update', markerData);
+    } catch {
+      // Non-critical — markers just won't appear
+    }
+  };
+
   // Check authentication and character — runs once on auth status change
   useEffect(() => {
     const checkCharacter = async () => {
@@ -83,6 +124,8 @@ export default function WorldPage() {
               setShowJaylen(true);
             }
             setIsCheckingCharacter(false);
+            // Pre-fetch quest markers so they're ready when Phaser scene fires
+            fetchAndEmitQuestMarkers();
           }
         } catch (err) {
           console.error('Error fetching character:', err);
@@ -140,6 +183,12 @@ export default function WorldPage() {
     if (characterDataRef.current?.avatarId) {
       EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
     }
+    // Emit cached quest markers or fetch fresh ones
+    if (questMarkerDataRef.current.length > 0) {
+      EventBus.emit('quest-status-update', questMarkerDataRef.current);
+    } else {
+      fetchAndEmitQuestMarkers();
+    }
   };
 
   const showNotification = (message: string) => {
@@ -173,6 +222,9 @@ export default function WorldPage() {
     } catch (err) {
       console.error('Failed to save adventure reward:', err);
     }
+
+    // Refresh quest markers — completing a game may unlock new quests
+    fetchAndEmitQuestMarkers();
   };
 
   const handleShopPurchase = (_item: any, newBalance: number) => {
