@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { join, resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
 
 interface ExtractedMetadata {
@@ -39,8 +39,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert relative path to absolute path
-    const fullPath = join(process.cwd(), 'public', zipPath.replace(/^\//, ''));
+    // Resolve absolute path and enforce public directory boundary
+    const publicDir = resolve(process.cwd(), 'public');
+    const fullPath = resolve(publicDir, zipPath.replace(/^\//, ''));
+
+    if (!fullPath.startsWith(publicDir + sep) && fullPath !== publicDir) {
+      return NextResponse.json(
+        { error: 'Invalid zipPath. Must be within public directory.' },
+        { status: 400 }
+      );
+    }
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
