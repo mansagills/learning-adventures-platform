@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    // Strip system-controlled fields so they cannot be injected via payload
+    const { id: _id, userId: _userId, status: _status, isDraft: _isDraft, createdAt: _createdAt, updatedAt: _updatedAt, ...safeData } = body;
 
     // Check if user already has a draft
     const existingDraft = await prisma.courseRequest.findFirst({
@@ -46,7 +48,7 @@ export async function POST(request: NextRequest) {
       const updated = await prisma.courseRequest.update({
         where: { id: existingDraft.id },
         data: {
-          ...body,
+          ...safeData,
           isDraft: true,
           status: 'DRAFT',
           updatedAt: new Date(),
@@ -59,11 +61,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create new draft
+    // Create new draft — userId always comes from session
     const draft = await prisma.courseRequest.create({
       data: {
+        ...safeData,
         userId: apiUser.id,
-        ...body,
         isDraft: true,
         status: 'DRAFT',
       },
