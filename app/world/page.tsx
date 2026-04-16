@@ -54,43 +54,43 @@ export default function WorldPage() {
 
   // Quest marker data — computed from the active quest list and emitted to Phaser
   const questMarkerDataRef = useRef<{ buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]>([]);
+  const questMarkerAbortRef = useRef<AbortController | null>(null);
 
-  /** Fetch quests and build per-building marker status, then emit to Phaser. */
-  const fetchAndEmitQuestMarkers = async () => {
-    try {
-      const res = await fetch('/api/quests/active');
-      if (!res.ok) return;
-      const { quests } = await res.json();
-      if (!Array.isArray(quests)) return;
+  const fetchAndEmitQuestMarkers = () => {
+    // Cancel any in-flight fetch before starting a new one
+    questMarkerAbortRef.current?.abort();
+    const controller = new AbortController();
+    questMarkerAbortRef.current = controller;
 
-      // Group quests by buildingId and compute status
-      const buildingMap = new Map<string, { available: number; inProgress: number; completed: number }>();
-      for (const q of quests) {
-        const entry = buildingMap.get(q.buildingId) ?? { available: 0, inProgress: 0, completed: 0 };
-        if (q.status === 'completed') entry.completed++;
-        else if (q.status === 'active') entry.inProgress++;
-        else if (q.status === 'available') entry.available++;
-        buildingMap.set(q.buildingId, entry);
-      }
+    fetch('/api/quests/active', { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !Array.isArray(data.quests)) return;
 
-      const markerData = Array.from(buildingMap.entries()).map(([buildingId, counts]) => {
-        let status: 'available' | 'in_progress' | 'completed' | 'none' = 'none';
-        const total = counts.available + counts.inProgress + counts.completed;
-        if (total === 0) {
-          status = 'none';
-        } else if (counts.inProgress > 0 || counts.available > 0) {
-          status = counts.inProgress > 0 ? 'in_progress' : 'available';
-        } else {
-          status = 'completed';
+        const buildingMap = new Map<string, { available: number; inProgress: number; completed: number }>();
+        for (const q of data.quests) {
+          const entry = buildingMap.get(q.buildingId) ?? { available: 0, inProgress: 0, completed: 0 };
+          if (q.status === 'completed') entry.completed++;
+          else if (q.status === 'active') entry.inProgress++;
+          else if (q.status === 'available') entry.available++;
+          buildingMap.set(q.buildingId, entry);
         }
-        return { buildingId, status };
-      });
 
-      questMarkerDataRef.current = markerData;
-      EventBus.emit('quest-status-update', markerData);
-    } catch {
-      // Non-critical — markers just won't appear
-    }
+        const markerData = Array.from(buildingMap.entries()).map(([buildingId, counts]) => ({
+          buildingId,
+          status: (counts.inProgress > 0 ? 'in_progress'
+            : counts.available > 0 ? 'available'
+            : counts.completed > 0 ? 'completed'
+            : 'none') as 'available' | 'in_progress' | 'completed' | 'none',
+        }));
+
+        questMarkerDataRef.current = markerData;
+        EventBus.emit('quest-status-update', markerData);
+      })
+      .catch((err) => {
+        // AbortError is expected when a newer fetch cancels this one
+        if (err?.name !== 'AbortError') console.error('Quest marker fetch failed:', err);
+      });
   };
 
   // Check authentication and character — runs once on auth status change
@@ -136,6 +136,7 @@ export default function WorldPage() {
     };
 
     checkCharacter();
+    return () => { questMarkerAbortRef.current?.abort(); };
   }, [status, router]);
 
   // Setup EventBus listeners once — use refs for latest values
@@ -375,9 +376,9 @@ export default function WorldPage() {
         <JaylenGuide onComplete={() => setShowJaylen(false)} />
       )}
 
-      {/* SPARK chat panel — slides in from right */}
+      {/* SPARK chat panel — fixed floating panel, bottom-right */}
       {showSpark && (
-        <div className="absolute right-0 top-0 bottom-0 w-80 z-40 shadow-2xl flex flex-col">
+        <div className="fixed bottom-16 right-4 w-80 max-w-[85vw] h-[420px] z-50 shadow-2xl flex flex-col rounded-2xl overflow-hidden pointer-events-auto">
           <SparkChat onClose={() => setShowSpark(false)} />
         </div>
       )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { X, CheckCircle, Lock, Circle, Star, Coins } from 'lucide-react';
+import { X, CheckCircle, Lock, Circle, Star } from 'lucide-react';
 
 type QuestStatus = 'completed' | 'active' | 'available' | 'locked';
 
@@ -130,15 +130,20 @@ function QuestCard({ quest }: { quest: Quest }) {
 export function QuestLog({ onClose }: QuestLogProps) {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<QuestStatus>('active');
+  const [fetchError, setFetchError] = useState(false);
+  const [activeTab, setActiveTab] = useState<QuestStatus>('available');
 
   const fetchQuests = useCallback(async () => {
     try {
       const res = await fetch('/api/quests/active');
       const data = await res.json();
-      if (res.ok) setQuests(data.quests ?? []);
-    } catch (err) {
-      console.error('Failed to load quests:', err);
+      if (res.ok) {
+        setQuests(data.quests ?? []);
+      } else {
+        setFetchError(true);
+      }
+    } catch {
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -213,6 +218,11 @@ export function QuestLog({ onClose }: QuestLogProps) {
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]" />
+            </div>
+          ) : fetchError ? (
+            <div className="text-center py-12 text-white/40">
+              <p className="text-4xl mb-3">⚠️</p>
+              <p className="text-sm">Couldn't load quests. Try closing and reopening.</p>
             </div>
           ) : tabQuests.length === 0 ? (
             <div className="text-center py-12 text-white/40">
