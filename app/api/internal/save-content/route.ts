@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
         ''
       );
 
-      // Remove leading slash for checking start
-      const pathToCheck = normalizedZipPath.replace(/^[\/\\]/, '');
+      // Remove leading slash for checking start and normalize backslashes to forward slashes for cross-platform checking
+      const pathToCheck = normalizedZipPath.replace(/^[\/\\]/, '').replace(/\\/g, '/');
 
       // Strict check: must be in uploads/temp/ and no traversal attempts
       if (uploadedZipPath.includes('..') || !pathToCheck.startsWith('uploads/temp/')) {
