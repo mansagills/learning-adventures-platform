@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-23 - Cross-Platform Path Traversal Prevention
+**Vulnerability:** The `/api/internal/save-content` endpoint attempted to prevent path traversal by checking `!pathToCheck.startsWith('uploads/temp/')`. However, on Windows, `path.normalize` converts forward slashes to backslashes (`\`), causing this check to always fail and reject valid file uploads.
+**Learning:** Hardcoded path separators in `.startsWith()` checks are not cross-platform safe when used in conjunction with `path.normalize()`.
+**Prevention:** Always normalize slashes to a consistent format (e.g., `.replace(/\\/g, '/')`) before performing string-based path prefix validation.
