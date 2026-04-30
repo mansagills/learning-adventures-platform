@@ -46,40 +46,23 @@ export async function POST(request: NextRequest) {
       sourceCodeUrl: metadata.sourceCodeUrl,
     };
 
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    // Security Fix: Prevent Server-Side Template Injection (SSTI)
+    // Serialize object to string safely instead of using string concatenation
+    const cleanObject = Object.fromEntries(
+      Object.entries(newAdventure).filter(([k, v]) => {
+        if (v === undefined || v === null || v === '') return false;
+        if (k === 'subscriptionTier' && v === 'free') return false;
+        if (k === 'uploadedContent' && v === false) return false;
+        // explicitly include 'featured' even if false, to match prior behavior
+        return true;
+      })
+    );
 
-    // Add premium/uploaded content fields if applicable
-    if (
-      newAdventure.subscriptionTier &&
-      newAdventure.subscriptionTier !== 'free'
-    ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
-    }
-
-    if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
-    }
-
-    if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
-    }
-
-    if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
-    }
-
-    adventureString += `\n  }`;
+    // Format the JSON string to match the indentation of the array
+    const adventureString = JSON.stringify(cleanObject, null, 2)
+      .split('\n')
+      .map((line, i) => (i === 0 ? `  ${line}` : `  ${line}`))
+      .join('\n');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
