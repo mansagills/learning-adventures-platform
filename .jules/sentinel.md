@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - SSTI/RCE via Unsafe Code Generation in update-catalog
+**Vulnerability:** The `/api/internal/update-catalog` endpoint modifies a `.ts` source file dynamically by directly concatenating user input (`request.json()`) into template literals. This is Server-Side Template Injection (SSTI) and allows arbitrary Code Injection / RCE. An authenticated TEACHER or ADMIN could inject executable JS code by passing payloads like `title: "Malicious', executeCode(), description: '"`.
+**Learning:** Whenever an application programmatically generates or modifies executable source code (like `.ts` or `.js` files) based on user input, raw string concatenation is inherently dangerous. Standard input validation is insufficient because quotes and structural characters can break out of the intended string context.
+**Prevention:** Always use safe serialization formats (like `JSON.stringify()`) to embed dynamic data into source code templates. This guarantees that strings are properly escaped and treated strictly as literal data, completely preventing injection breakouts.
