@@ -46,6 +46,7 @@
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/adm-zip": "^0.5.7",
