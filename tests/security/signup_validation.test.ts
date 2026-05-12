@@ -14,19 +14,19 @@ vi.mock('../../lib/prisma', () => ({
   },
 }));
 
-// Mock bcrypt
-vi.mock('bcryptjs', () => {
-  const hash = vi.fn();
-  const compare = vi.fn();
-  return {
-    default: {
-      hash,
-      compare,
+// Mock Supabase
+vi.mock('../../lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'supabase-id' } },
+          error: null,
+        }),
+      },
     },
-    hash,
-    compare,
-  };
-});
+  }),
+}));
 
 describe('Signup API Security Validation', () => {
   beforeEach(() => {
@@ -107,11 +107,11 @@ describe('Signup API Security Validation', () => {
     });
 
     (prisma.user.findUnique as any).mockResolvedValue(null);
-    (bcrypt.hash as any).mockResolvedValue('hashed_password');
     (prisma.user.create as any).mockResolvedValue({
       id: 'user-id',
       email: 'valid@example.com',
       role: 'STUDENT',
+      createdAt: new Date(),
     });
 
     const res = await POST(req);

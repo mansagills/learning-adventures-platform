@@ -29,42 +29,46 @@ export async function POST(request: NextRequest) {
 
     // Create the new adventure object
     const newAdventure = {
-      id: metadata.id,
-      title: metadata.title,
-      description: metadata.description,
-      type: metadata.type,
-      category: metadata.category,
-      gradeLevel: metadata.gradeLevel,
-      difficulty: metadata.difficulty,
-      skills: metadata.skills,
-      estimatedTime: metadata.estimatedTime,
-      featured: metadata.featured || false,
-      htmlPath: metadata.htmlPath,
-      subscriptionTier: metadata.subscriptionTier || 'free',
-      uploadedContent: metadata.uploadedContent || false,
-      platform: metadata.platform,
-      sourceCodeUrl: metadata.sourceCodeUrl,
+      id: String(metadata.id || ''),
+      title: String(metadata.title || ''),
+      description: String(metadata.description || ''),
+      type: String(metadata.type || ''),
+      category: String(metadata.category || ''),
+      gradeLevel: Array.isArray(metadata.gradeLevel)
+        ? metadata.gradeLevel.map(String)
+        : [],
+      difficulty: String(metadata.difficulty || ''),
+      skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
+      estimatedTime: String(metadata.estimatedTime || ''),
+      featured: Boolean(metadata.featured),
+      htmlPath: metadata.htmlPath ? String(metadata.htmlPath) : undefined,
+      subscriptionTier: String(metadata.subscriptionTier || 'free'),
+      uploadedContent: Boolean(metadata.uploadedContent),
+      platform: metadata.platform ? String(metadata.platform) : undefined,
+      sourceCodeUrl: metadata.sourceCodeUrl
+        ? String(metadata.sourceCodeUrl)
+        : undefined,
     };
 
-    // Format the new adventure as a string with optional premium fields
+    // Format the new adventure as a string with optional premium fields safely
     let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    id: ${JSON.stringify(newAdventure.id)},
+    title: ${JSON.stringify(newAdventure.title)},
+    description: ${JSON.stringify(newAdventure.description)},
+    type: ${JSON.stringify(newAdventure.type)},
+    category: ${JSON.stringify(newAdventure.category)},
+    gradeLevel: ${JSON.stringify(newAdventure.gradeLevel)},
+    difficulty: ${JSON.stringify(newAdventure.difficulty)},
+    skills: ${JSON.stringify(newAdventure.skills)},
+    estimatedTime: ${JSON.stringify(newAdventure.estimatedTime)},
+    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: ${JSON.stringify(newAdventure.htmlPath)}` : ''}`;
 
     // Add premium/uploaded content fields if applicable
     if (
       newAdventure.subscriptionTier &&
       newAdventure.subscriptionTier !== 'free'
     ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
+      adventureString += `,\n    subscriptionTier: ${JSON.stringify(newAdventure.subscriptionTier)}`;
     }
 
     if (newAdventure.uploadedContent) {
@@ -72,11 +76,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
+      adventureString += `,\n    platform: ${JSON.stringify(newAdventure.platform)}`;
     }
 
     if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
+      adventureString += `,\n    sourceCodeUrl: ${JSON.stringify(newAdventure.sourceCodeUrl)}`;
     }
 
     adventureString += `\n  }`;

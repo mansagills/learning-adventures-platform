@@ -13,12 +13,18 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-// Mock bcrypt
-vi.mock('bcryptjs', () => ({
-  default: {
-    hash: vi.fn().mockResolvedValue('hashed_password'),
-    compare: vi.fn().mockResolvedValue(true),
-  },
+// Mock Supabase
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'supabase-id' } },
+          error: null,
+        }),
+      },
+    },
+  }),
 }));
 
 describe('Authentication Security - Role Validation', () => {

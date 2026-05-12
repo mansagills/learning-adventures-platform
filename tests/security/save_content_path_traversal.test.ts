@@ -3,23 +3,17 @@ import { NextRequest } from 'next/server';
 import path from 'path';
 import { getServerSession } from 'next-auth/next';
 
-// Mock next-auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: {
+// Mock API Auth
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockResolvedValue({
+    apiUser: {
       name: 'Admin',
       email: 'admin@example.com',
       role: 'ADMIN',
     },
+    error: null
   }),
 }));
-
-// Mock auth options
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
-import { POST } from '@/app/api/internal/save-content/route';
 
 const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -72,25 +66,18 @@ vi.mock('adm-zip', () => {
   };
 });
 
-// Mock Auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
 // Import after mocking
 import { POST } from '@/app/api/internal/save-content/route';
+import { getApiUser } from '@/lib/api-auth';
 
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
-      user: {
+    (getApiUser as any).mockResolvedValue({
+      apiUser: {
         role: 'ADMIN',
       },
+      error: null,
     });
   });
 
@@ -114,7 +101,7 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return 400 Bad Request
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toMatch(/Invalid filename/);
+    expect(json.error).toMatch(/Invalid file name/);
 
     const mkdirCalls = mkdirMock.mock.calls;
     console.log('mkdir calls:', mkdirCalls);
