@@ -15,12 +15,18 @@ vi.mock('../../lib/prisma', () => ({
   },
 }));
 
-// Mock bcrypt
-vi.mock('bcryptjs', () => ({
-  default: {
-    hash: vi.fn().mockResolvedValue('hashed_password'),
-    compare: vi.fn().mockResolvedValue(true),
-  },
+// Mock Supabase
+vi.mock('../../lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'supabase-id' } },
+          error: null,
+        }),
+      },
+    },
+  }),
 }));
 
 describe('Signup Security Controls', () => {
@@ -81,7 +87,7 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
+    expect((await response.json()).error).toBe('Password must be at least 8 characters');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
