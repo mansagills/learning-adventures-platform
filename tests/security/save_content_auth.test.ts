@@ -2,12 +2,8 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Mock dependencies
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 vi.mock('fs/promises', () => ({
@@ -45,7 +41,7 @@ vi.mock('adm-zip', () => {
 
 // Import the route handler AFTER mocking
 import { POST } from '@/app/api/internal/save-content/route';
-import { getServerSession } from 'next-auth/next';
+import { getApiUser } from '@/lib/api-auth';
 
 describe('Save Content Authentication', () => {
   beforeEach(() => {
@@ -53,7 +49,7 @@ describe('Save Content Authentication', () => {
   });
 
   it('should reject unauthorized requests with 401', async () => {
-    (getServerSession as any).mockResolvedValue(null);
+    (getApiUser as any).mockResolvedValue({ apiUser: null, error: { status: 401 } });
 
     const request = new NextRequest(
       'http://localhost:3000/api/internal/save-content',
@@ -74,10 +70,11 @@ describe('Save Content Authentication', () => {
   });
 
   it('should reject requests from non-admin/non-teacher users with 401', async () => {
-    (getServerSession as any).mockResolvedValue({
-      user: {
+    (getApiUser as any).mockResolvedValue({
+      apiUser: {
         role: 'STUDENT',
       },
+      error: null,
     });
 
     const request = new NextRequest(
@@ -99,10 +96,11 @@ describe('Save Content Authentication', () => {
   });
 
   it('should allow requests from ADMIN', async () => {
-    (getServerSession as any).mockResolvedValue({
-      user: {
+    (getApiUser as any).mockResolvedValue({
+      apiUser: {
         role: 'ADMIN',
       },
+      error: null,
     });
 
     const request = new NextRequest(
@@ -125,10 +123,11 @@ describe('Save Content Authentication', () => {
   });
 
   it('should allow requests from TEACHER', async () => {
-    (getServerSession as any).mockResolvedValue({
-      user: {
+    (getApiUser as any).mockResolvedValue({
+      apiUser: {
         role: 'TEACHER',
       },
+      error: null,
     });
 
     const request = new NextRequest(
