@@ -27,59 +27,40 @@ export async function POST(request: NextRequest) {
     // Find the appropriate array to update
     const arrayName = `${metadata.category}${metadata.type === 'game' ? 'Games' : 'Lessons'}`;
 
-    // Create the new adventure object
-    const newAdventure = {
-      id: metadata.id,
-      title: metadata.title,
-      description: metadata.description,
-      type: metadata.type,
-      category: metadata.category,
-      gradeLevel: metadata.gradeLevel,
-      difficulty: metadata.difficulty,
-      skills: metadata.skills,
-      estimatedTime: metadata.estimatedTime,
-      featured: metadata.featured || false,
-      htmlPath: metadata.htmlPath,
-      subscriptionTier: metadata.subscriptionTier || 'free',
-      uploadedContent: metadata.uploadedContent || false,
-      platform: metadata.platform,
-      sourceCodeUrl: metadata.sourceCodeUrl,
+    // Create the new adventure object with strict type coercion to prevent injection
+    const newAdventure: Record<string, any> = {
+      id: String(metadata.id),
+      title: String(metadata.title),
+      description: String(metadata.description),
+      type: String(metadata.type),
+      category: String(metadata.category),
+      gradeLevel: Array.isArray(metadata.gradeLevel)
+        ? metadata.gradeLevel.map(String)
+        : [],
+      difficulty: String(metadata.difficulty),
+      skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
+      estimatedTime: String(metadata.estimatedTime),
+      featured: Boolean(metadata.featured),
     };
 
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
-
-    // Add premium/uploaded content fields if applicable
-    if (
-      newAdventure.subscriptionTier &&
-      newAdventure.subscriptionTier !== 'free'
-    ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
+    if (metadata.htmlPath) newAdventure.htmlPath = String(metadata.htmlPath);
+    if (metadata.subscriptionTier && metadata.subscriptionTier !== 'free') {
+      newAdventure.subscriptionTier = String(metadata.subscriptionTier);
     }
+    if (metadata.uploadedContent)
+      newAdventure.uploadedContent = Boolean(metadata.uploadedContent);
+    if (metadata.platform) newAdventure.platform = String(metadata.platform);
+    if (metadata.sourceCodeUrl)
+      newAdventure.sourceCodeUrl = String(metadata.sourceCodeUrl);
 
-    if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
-    }
-
-    if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
-    }
-
-    if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
-    }
-
-    adventureString += `\n  }`;
+    // Safely serialize the object to prevent SSTI
+    // Use JSON.stringify and pad the lines for nice formatting
+    const serializedAdventure = JSON.stringify(newAdventure, null, 2);
+    // Indent the serialized string by 2 spaces to match the array formatting
+    const adventureString = serializedAdventure
+      .split('\n')
+      .map((line, i) => (i === 0 ? `  ${line}` : `  ${line}`))
+      .join('\n');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
