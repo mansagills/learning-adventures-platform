@@ -6,3 +6,9 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - Code Injection / SSTI in app/api/internal/update-catalog/route.ts
+**Vulnerability:** The API endpoint dynamically wrote user-provided content into `lib/catalogData.ts` using raw template literal concatenation. This meant attackers could use unescaped quotes (`'`) to escape the JS object literal context and execute arbitrary JS payloads or break the syntax.
+**Learning:** Programmatic modification of source code files (`.ts`, `.js`) should never rely on raw string building with untrusted user input, as it acts as a vector for Code Injection/Server-Side Template Injection.
+**Prevention:**
+1. Always use standard serialization methods like `JSON.stringify()` when generating executable code blocks based on user data to safely encode string boundaries and malicious payloads.
