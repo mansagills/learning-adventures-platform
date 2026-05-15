@@ -46,40 +46,31 @@ export async function POST(request: NextRequest) {
       sourceCodeUrl: metadata.sourceCodeUrl,
     };
 
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    // Ensure all user input is properly cast and validated before serializing
+    const safeAdventure: any = {
+      id: String(newAdventure.id),
+      title: String(newAdventure.title),
+      description: String(newAdventure.description),
+      type: String(newAdventure.type),
+      category: String(newAdventure.category),
+      gradeLevel: Array.isArray(newAdventure.gradeLevel) ? newAdventure.gradeLevel.map(String) : [],
+      difficulty: String(newAdventure.difficulty),
+      skills: Array.isArray(newAdventure.skills) ? newAdventure.skills.map(String) : [],
+      estimatedTime: String(newAdventure.estimatedTime),
+      featured: Boolean(newAdventure.featured),
+    };
 
-    // Add premium/uploaded content fields if applicable
-    if (
-      newAdventure.subscriptionTier &&
-      newAdventure.subscriptionTier !== 'free'
-    ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
-    }
+    if (newAdventure.htmlPath) safeAdventure.htmlPath = String(newAdventure.htmlPath);
+    if (newAdventure.subscriptionTier && newAdventure.subscriptionTier !== 'free') safeAdventure.subscriptionTier = String(newAdventure.subscriptionTier);
+    if (newAdventure.uploadedContent) safeAdventure.uploadedContent = Boolean(newAdventure.uploadedContent);
+    if (newAdventure.platform) safeAdventure.platform = String(newAdventure.platform);
+    if (newAdventure.sourceCodeUrl) safeAdventure.sourceCodeUrl = String(newAdventure.sourceCodeUrl);
 
-    if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
-    }
-
-    if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
-    }
-
-    if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
-    }
-
-    adventureString += `\n  }`;
+    // Format the new adventure as a string using JSON.stringify to safely escape inputs and prevent SSTI
+    const adventureString = JSON.stringify(safeAdventure, null, 2)
+      .split('\n')
+      .map((line) => `  ${line}`)
+      .join('\n');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
