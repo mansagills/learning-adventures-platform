@@ -51,8 +51,7 @@ export async function POST(request: NextRequest) {
       Object.entries(newAdventure).filter(([_, v]) => v !== undefined)
     );
     // Serialize to JSON, then indent it to match the file's formatting
-    const adventureString =
-      '  ' + JSON.stringify(cleanAdventure, null, 2).split('\n').join('\n  ');
+    const adventureString = '  ' + JSON.stringify(cleanAdventure, null, 2).split('\n').join('\n  ');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
