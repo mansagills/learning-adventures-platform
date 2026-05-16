@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - SSTI / RCE via String Concatenation in update-catalog
+**Vulnerability:** The `/api/internal/update-catalog/route.ts` API dynamically generates TypeScript code (`lib/catalogData.ts`) by concatenating raw user input (`metadata.title`, `metadata.description`, etc.) directly into a template literal. An attacker could inject arbitrary JavaScript code (Server-Side Template Injection) leading to Remote Code Execution when the file is executed by the server.
+**Learning:** Programmatically updating source code files (e.g., `.ts` files) using string concatenation with user-supplied data is inherently dangerous and bypasses normal input validation layers.
+**Prevention:** Always serialize untrusted user data using `JSON.stringify()` when generating or updating source code files. This treats the input purely as data, correctly escaping quotes and special characters, and prevents arbitrary code execution.
