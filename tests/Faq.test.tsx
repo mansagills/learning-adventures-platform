@@ -21,9 +21,22 @@ describe('FAQ Component', () => {
 
     expect(screen.getByText('Questions')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'What exactly is Learning Adventures?'
-      )
+      screen.getByText('How much does it cost?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('What exactly is Learning Adventures?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('What ages is it for?')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Does my kid actually learn anything, or is it just a game?")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("How do I know what my child is doing in the world?")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Is it safe for kids?")
     ).toBeInTheDocument();
   });
 
@@ -31,7 +44,7 @@ describe('FAQ Component', () => {
     render(<Faq />);
 
     const firstQuestion = screen.getByText(
-      'What exactly is Learning Adventures?'
+      'How much does it cost?'
     );
     const firstButton = firstQuestion.closest('button');
 
@@ -56,7 +69,7 @@ describe('FAQ Component', () => {
     render(<Faq />);
 
     const firstQuestion = screen.getByText(
-      'What exactly is Learning Adventures?'
+      'How much does it cost?'
     );
     const firstButton = firstQuestion.closest('button');
 
@@ -64,7 +77,7 @@ describe('FAQ Component', () => {
 
     await waitFor(() => {
       expect(analytics.openFAQ).toHaveBeenCalledWith(
-        'What exactly is Learning Adventures?'
+        'How much does it cost?'
       );
     });
   });

@@ -64,19 +64,19 @@ export async function POST(request: NextRequest) {
       newAdventure.subscriptionTier &&
       newAdventure.subscriptionTier !== 'free'
     ) {
-      adventureString += `,\n    subscriptionTier: ${JSON.stringify(newAdventure.subscriptionTier)}`;
+      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
     }
 
     if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${Boolean(newAdventure.uploadedContent)}`;
+      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
     }
 
     if (newAdventure.platform) {
-      adventureString += `,\n    platform: ${JSON.stringify(newAdventure.platform)}`;
+      adventureString += `,\n    platform: '${newAdventure.platform}'`;
     }
 
     if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: ${JSON.stringify(newAdventure.sourceCodeUrl)}`;
+      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
     }
 
     adventureString += `\n  }`;
