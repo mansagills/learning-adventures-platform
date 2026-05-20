@@ -48,16 +48,16 @@ export async function POST(request: NextRequest) {
 
     // Format the new adventure as a string with optional premium fields
     let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    id: ${JSON.stringify(newAdventure.id)},
+    title: ${JSON.stringify(newAdventure.title)},
+    description: ${JSON.stringify(newAdventure.description)},
+    type: ${JSON.stringify(newAdventure.type)},
+    category: ${JSON.stringify(newAdventure.category)},
+    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => JSON.stringify(g)).join(', ')}],
+    difficulty: ${JSON.stringify(newAdventure.difficulty)},
+    skills: [${newAdventure.skills.map((s: string) => JSON.stringify(s)).join(', ')}],
+    estimatedTime: ${JSON.stringify(newAdventure.estimatedTime)},
+    featured: ${Boolean(newAdventure.featured)}${newAdventure.htmlPath ? `,\n    htmlPath: ${JSON.stringify(newAdventure.htmlPath)}` : ''}`;
 
     // Add premium/uploaded content fields if applicable
     if (
