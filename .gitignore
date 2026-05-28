@@ -62,3 +62,6 @@ coverage/
 
 # RocketRide
 .rocketride/
+
+# Local brainstorming companion sessions
+.superpowers/
