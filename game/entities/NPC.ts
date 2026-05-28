@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { InteractableObject } from './InteractableObject';
+import { EventBus } from '@/components/phaser/EventBus';
 
 export interface DialogLine {
   text: string;
@@ -49,10 +50,7 @@ export class NPC extends InteractableObject {
       hasMore: this.currentDialogIndex < this.dialog.length - 1,
     };
 
-    console.log('NPC Dialog:', eventData);
-
-    // For now, just log to console
-    // TODO: Create dialog modal in React (Phase 3 polish)
+    EventBus.emit('npc-dialog', eventData);
 
     // Cycle through dialog
     this.currentDialogIndex = (this.currentDialogIndex + 1) % this.dialog.length;

@@ -2,12 +2,20 @@ import * as Phaser from 'phaser';
 // import { WorldScene } from './scenes/WorldScene'; // kept for reference
 import { OpenWorldScene } from './scenes/OpenWorldScene';
 import { MathBuildingScene } from './scenes/MathBuildingScene';
+import {
+  setPendingWorldBootstrap,
+  type WorldBootstrap,
+} from './worldBootstrap';
 
 /**
  * Phaser Game Configuration
  * Top-down 2D pixel art educational game world
  */
-export const createPhaserGame = (parent: string): Phaser.Game => {
+export const createPhaserGame = (
+  parent: string,
+  bootstrap?: WorldBootstrap | null
+): Phaser.Game => {
+  setPendingWorldBootstrap(bootstrap ?? null);
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO, // Auto-detect: WebGL → Canvas → fail gracefully
     parent, // DOM element ID to mount game
@@ -56,5 +64,17 @@ export const createPhaserGame = (parent: string): Phaser.Game => {
     },
   };
 
-  return new Phaser.Game(config);
+  const game = new Phaser.Game(config);
+
+  if (bootstrap?.lastScene === 'MathBuildingScene') {
+    const pos = bootstrap.position;
+    game.scene.stop('WorldScene');
+    game.scene.start('MathBuildingScene', {
+      spawnX: pos?.x ?? 320,
+      spawnY: pos?.y ?? 500,
+      fromScene: 'WorldScene',
+    });
+  }
+
+  return game;
 };

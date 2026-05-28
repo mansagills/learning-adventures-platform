@@ -1,21 +1,42 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import Container from './Container';
 import Button from './Button';
+import AuthModal from './AuthModal';
 import { analytics } from '@/lib/analytics';
 
 export default function Hero() {
+  const router = useRouter();
+  const { status } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+
   const handleEnterWorld = () => {
     analytics.clickCTA('Enter the World', 'hero');
+    if (status === 'authenticated') {
+      router.push('/world');
+      return;
+    }
+    setAuthMode('signin');
+    setIsAuthModalOpen(true);
   };
 
   const handleCreateCharacter = () => {
     analytics.clickCTA('Create Your Character', 'hero');
+    if (status === 'authenticated') {
+      router.push('/world/create');
+      return;
+    }
+    setAuthMode('signup');
+    setIsAuthModalOpen(true);
   };
 
   return (
+    <>
     <section className="relative bg-background pt-20 pb-24 overflow-hidden">
       {/* Dot grid pattern background */}
       <div className="absolute inset-0 bg-dot-grid opacity-40"></div>
@@ -82,18 +103,23 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/world" onClick={handleEnterWorld}>
-                <Button variant="candy" size="lg" className="text-lg w-full sm:w-auto">
+              <Button
+                variant="candy"
+                size="lg"
+                className="text-lg w-full sm:w-auto"
+                onClick={handleEnterWorld}
+                disabled={status === 'loading'}
+              >
                   <span className="w-7 h-7 bg-white/20 rounded-sm flex items-center justify-center mr-2">
                     🌍
                   </span>
                   Enter the World
-                </Button>
-              </Link>
+              </Button>
               <Button
                 variant="outline-pop"
                 size="lg"
                 onClick={handleCreateCharacter}
+                disabled={status === 'loading'}
               >
                 Create Your Character →
               </Button>
@@ -188,5 +214,12 @@ export default function Hero() {
         </div>
       </Container>
     </section>
+    <AuthModal
+      key={authMode}
+      isOpen={isAuthModalOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      defaultMode={authMode}
+    />
+    </>
   );
 }
