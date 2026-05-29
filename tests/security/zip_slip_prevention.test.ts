@@ -1,17 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import path from 'path';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import { extractZipSafely } from '@/lib/safe-zip';
+import { getApiUser } from '@/lib/api-auth';
 
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
-}));
-
-const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
+const { writeFileMock, mkdirMock, mockGetApiUser } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
-  mockGetServerSession: vi.fn(),
+  mockGetApiUser: vi.fn(),
+}));
+
+// Mock api-auth
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: mockGetApiUser,
 }));
 
 // Mock fs/promises and fs
@@ -30,25 +34,17 @@ vi.mock('fs/promises', () => {
   };
 });
 
+const { mockExistsSync } = vi.hoisted(() => ({
+  mockExistsSync: vi.fn().mockReturnValue(true)
+}));
+
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: mockExistsSync,
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
+    existsSync: mockExistsSync,
   }
-}));
-
-// Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: mockGetServerSession,
-  default: {
-    getServerSession: mockGetServerSession,
-  },
-}));
-
-// Mock authOptions
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
 }));
 
 // Mock AdmZip
@@ -72,8 +68,10 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
-    existsSync: vi.fn(),
+    default: vi.fn().mockImplementation(() => ({
+      extractAllTo: mockExtractAllTo,
+      getEntries: mockGetEntries,
+    })),
   };
 });
 
@@ -84,13 +82,14 @@ describe('Security: Zip Slip Prevention', () => {
     vi.clearAllMocks();
     (fs.mkdir as any).mockResolvedValue(undefined);
     (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    vi.mocked(existsSync).mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
     // Mock admin session
-    (getServerSession as any).mockResolvedValue({
-      user: { role: 'ADMIN', id: 'admin' },
+    mockGetApiUser.mockResolvedValue({
+      apiUser: { role: 'ADMIN', id: 'admin' },
+      error: null
     });
 
     const req = new NextRequest(

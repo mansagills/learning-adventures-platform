@@ -25,20 +25,20 @@ vi.mock('fs/promises', () => {
   };
 });
 
-// Mock next-auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: {
+const { mockGetApiUser } = vi.hoisted(() => ({
+  mockGetApiUser: vi.fn().mockResolvedValue({
+    apiUser: {
       name: 'Admin',
       email: 'admin@example.com',
       role: 'ADMIN',
     },
-  }),
+    error: null
+  })
 }));
 
-// Mock auth options
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+// Mock api-auth
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: mockGetApiUser
 }));
 
 vi.mock('fs', () => ({
@@ -69,25 +69,17 @@ vi.mock('adm-zip', () => {
   };
 });
 
-// Mock Auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
 // Import after mocking
 import { POST } from '@/app/api/internal/save-content/route';
 
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
-      user: {
+    mockGetApiUser.mockResolvedValue({
+      apiUser: {
         role: 'ADMIN',
       },
+      error: null
     });
   });
 

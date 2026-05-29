@@ -5,6 +5,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import crypto from 'crypto';
 
 /**
  * Generate a unique certificate number
@@ -41,8 +42,10 @@ export async function generateVerificationCode(): Promise<string> {
   // Keep generating until we get a unique code
   while (!isUnique) {
     code = '';
+    // Security enhancement: use cryptographically secure random generation
+    // to prevent predictable verification codes and brute-force guessing.
     for (let i = 0; i < 12; i++) {
-      code += characters.charAt(Math.floor(Math.random() * characters.length));
+      code += characters.charAt(crypto.randomInt(characters.length));
     }
 
     // Check if code already exists

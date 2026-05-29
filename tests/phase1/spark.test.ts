@@ -23,8 +23,23 @@ describe('SPARK system prompt', () => {
 
 // ─── SPARK chat API route ────────────────────────────────────────────────────
 
-vi.mock('next-auth', () => ({
+const mocks = vi.hoisted(() => ({
   getServerSession: vi.fn(),
+}));
+
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockImplementation(async () => {
+    const session = await mocks.getServerSession();
+    if (!session?.user) return { apiUser: null, error: new Response(null, { status: 401 }) };
+    return {
+      apiUser: session.user,
+      error: null
+    };
+  })
+}));
+
+vi.mock('next-auth', () => ({
+  getServerSession: mocks.getServerSession,
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -52,8 +67,7 @@ describe('POST /api/agents/spark/chat', () => {
   });
 
   it('returns 401 for unauthenticated requests', async () => {
-    const { getServerSession } = await import('next-auth');
-    vi.mocked(getServerSession).mockResolvedValueOnce(null);
+    mocks.getServerSession.mockResolvedValueOnce(null);
 
     const { POST } = await import('@/app/api/agents/spark/chat/route');
     const req = new Request('http://localhost/api/agents/spark/chat', {
@@ -67,8 +81,7 @@ describe('POST /api/agents/spark/chat', () => {
   });
 
   it('returns 400 for empty messages array', async () => {
-    const { getServerSession } = await import('next-auth');
-    vi.mocked(getServerSession).mockResolvedValueOnce({
+    mocks.getServerSession.mockResolvedValueOnce({
       user: { id: 'user-1', name: 'Test' },
       expires: '9999',
     });
@@ -85,8 +98,7 @@ describe('POST /api/agents/spark/chat', () => {
   });
 
   it('returns a streaming response for valid authenticated requests', async () => {
-    const { getServerSession } = await import('next-auth');
-    vi.mocked(getServerSession).mockResolvedValueOnce({
+    mocks.getServerSession.mockResolvedValueOnce({
       user: { id: 'user-1', name: 'Test Student' },
       expires: '9999',
     });

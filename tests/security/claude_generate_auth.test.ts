@@ -4,9 +4,23 @@ import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
 // 1. Mock dependencies BEFORE importing the module under test
-const { mockCreate } = vi.hoisted(() => {
-  return { mockCreate: vi.fn() };
+const { mockCreate, mockGetServerSession } = vi.hoisted(() => {
+  return {
+    mockCreate: vi.fn(),
+    mockGetServerSession: vi.fn()
+  };
 });
+
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockImplementation(async () => {
+    const session = await mockGetServerSession();
+    if (!session?.user) return { apiUser: null, error: new Response(null, { status: 401 }) };
+    return {
+      apiUser: session.user,
+      error: null
+    };
+  })
+}));
 
 // Mock Anthropic SDK
 vi.mock('@anthropic-ai/sdk', () => {
@@ -21,7 +35,7 @@ vi.mock('@anthropic-ai/sdk', () => {
 
 // Mock next-auth/next (simulating auth functions)
 vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue(null), // Default to no session
+  getServerSession: mockGetServerSession,
 }));
 
 // Mock @/lib/auth (to avoid prisma issues)
@@ -58,7 +72,7 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should return 403 and NOT call Anthropic API if unauthenticated', async () => {
     // Mock no session
-    (getServerSession as any).mockResolvedValue(null);
+    mockGetServerSession.mockResolvedValue(null);
 
     const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
         method: 'POST',
@@ -77,7 +91,7 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should return 403 and NOT call Anthropic API if user is not ADMIN', async () => {
     // Mock student session
-    (getServerSession as any).mockResolvedValue({
+    mockGetServerSession.mockResolvedValue({
       user: { role: 'STUDENT', email: 'student@example.com' }
     });
 
@@ -95,7 +109,7 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should call Anthropic API if user IS ADMIN', async () => {
     // Mock admin session
-    (getServerSession as any).mockResolvedValue({
+    mockGetServerSession.mockResolvedValue({
       user: { role: 'ADMIN', email: 'admin@learningadventures.org' }
     });
 
