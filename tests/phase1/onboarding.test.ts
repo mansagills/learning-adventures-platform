@@ -11,8 +11,23 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('next-auth', () => ({
+const mocks = vi.hoisted(() => ({
   getServerSession: vi.fn(),
+}));
+
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockImplementation(async () => {
+    const session = await mocks.getServerSession();
+    if (!session?.user) return { apiUser: null, error: new Response(null, { status: 401 }) };
+    return {
+      apiUser: session.user,
+      error: null
+    };
+  })
+}));
+
+vi.mock('next-auth', () => ({
+  getServerSession: mocks.getServerSession,
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -25,8 +40,7 @@ describe('POST /api/onboarding/complete', () => {
   });
 
   it('returns 401 when user is not authenticated', async () => {
-    const { getServerSession } = await import('next-auth');
-    vi.mocked(getServerSession).mockResolvedValueOnce(null);
+    mocks.getServerSession.mockResolvedValueOnce(null);
 
     const { POST } = await import('@/app/api/onboarding/complete/route');
     const res = await POST();
@@ -36,8 +50,7 @@ describe('POST /api/onboarding/complete', () => {
   });
 
   it('marks onboarding complete for authenticated user', async () => {
-    const { getServerSession } = await import('next-auth');
-    vi.mocked(getServerSession).mockResolvedValueOnce({
+    mocks.getServerSession.mockResolvedValueOnce({
       user: { id: 'user-1', name: 'Test Student', email: 'student@test.com' },
       expires: '9999',
     });
