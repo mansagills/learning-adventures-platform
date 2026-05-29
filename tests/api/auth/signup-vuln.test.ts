@@ -25,6 +25,20 @@ vi.mock('bcryptjs', () => ({
   },
 }));
 
+// Mock Supabase
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn(() => ({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'test-supabase-uid' } },
+          error: null,
+        }),
+      },
+    },
+  })),
+}));
+
 describe('Signup API Vulnerability Check', () => {
   beforeEach(() => {
     vi.clearAllMocks();
