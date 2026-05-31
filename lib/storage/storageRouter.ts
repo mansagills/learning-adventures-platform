@@ -35,7 +35,8 @@ export async function routeFileUpload(
   const resolvedTarget = path.resolve(publicDir, targetPath);
 
   // Check if the resolved target is still inside the public directory
-  if (!resolvedTarget.startsWith(publicDir)) {
+  // Adding path.sep prevents prefix-matching bypasses (e.g. /app/public_secret.txt starts with /app/public)
+  if (!resolvedTarget.startsWith(publicDir + path.sep) && resolvedTarget !== publicDir) {
     throw new Error('Security Error: Path traversal detected');
   }
 
