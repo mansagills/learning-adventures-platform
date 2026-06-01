@@ -78,3 +78,36 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Global mocks for common services
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn(() => ({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: 'mock-supabase-id-123'
+            }
+          },
+          error: null
+        })
+      }
+    }
+  })),
+  createClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: 'test-uid' } },
+        error: null
+      })
+    }
+  }))
+}));
+
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockResolvedValue({
+    apiUser: { id: 'test-user', role: 'ADMIN' },
+    error: null
+  })
+}));
