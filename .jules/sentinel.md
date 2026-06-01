@@ -6,8 +6,3 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
-
-## 2025-02-23 - Insecure Randomness in Security-Sensitive Fields
-**Vulnerability:** `Math.random()` was being used to generate supposedly unguessable values, specifically certificate verification codes and anonymous child usernames.
-**Learning:** `Math.random()` uses an insecure PRNG (pseudo-random number generator) that is predictable. In security contexts like verification codes (which prove authenticity) or anonymous usernames (which provide privacy), predictability can lead to enumeration or forgery.
-**Prevention:** Always use cryptographically secure methods like Node's `crypto.randomBytes()` or `crypto.randomInt()` when generating tokens, verification codes, or anonymizing identifiers. `crypto.randomInt()` is preferred over modulo arithmetic to avoid modulo bias when picking items from an array.
