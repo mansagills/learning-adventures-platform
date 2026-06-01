@@ -81,7 +81,7 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
+    expect((await response.json()).error).toBe('Password must be at least 8 characters');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
