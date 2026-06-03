@@ -46,40 +46,50 @@ export async function POST(request: NextRequest) {
       sourceCodeUrl: metadata.sourceCodeUrl,
     };
 
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    // Format the new adventure as a string securely using JSON.stringify
+    // This prevents Server-Side Template Injection (SSTI) / Remote Code Execution (RCE)
+    const secureAdventure: any = {
+      id: newAdventure.id,
+      title: newAdventure.title,
+      description: newAdventure.description,
+      type: newAdventure.type,
+      category: newAdventure.category,
+      gradeLevel: newAdventure.gradeLevel,
+      difficulty: newAdventure.difficulty,
+      skills: newAdventure.skills,
+      estimatedTime: newAdventure.estimatedTime,
+      featured: newAdventure.featured,
+    };
 
-    // Add premium/uploaded content fields if applicable
+    if (newAdventure.htmlPath) {
+      secureAdventure.htmlPath = newAdventure.htmlPath;
+    }
+
     if (
       newAdventure.subscriptionTier &&
       newAdventure.subscriptionTier !== 'free'
     ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
+      secureAdventure.subscriptionTier = newAdventure.subscriptionTier;
     }
 
     if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
+      secureAdventure.uploadedContent = newAdventure.uploadedContent;
     }
 
     if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
+      secureAdventure.platform = newAdventure.platform;
     }
 
     if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
+      secureAdventure.sourceCodeUrl = newAdventure.sourceCodeUrl;
     }
 
-    adventureString += `\n  }`;
+    const jsonString = JSON.stringify(secureAdventure, null, 2);
+    // Indent to match array formatting
+    const adventureString = jsonString
+      .split('\n')
+      .map((line) => '  ' + line)
+      .join('\n');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
