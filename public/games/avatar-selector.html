@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Your Hero — Learning Adventures Campus</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#04060f;min-height:100vh;font-family:'Orbitron','Courier New',monospace;overflow-x:hidden;color:#e2e8f0}
+.sky{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,#3b0a6b 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 15% 20%,#1a0040 0%,transparent 50%),linear-gradient(180deg,#080012 0%,#0c0018 35%,#07000e 65%,#04060f 100%)}
+.moon{position:fixed;top:60px;right:12%;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ede9fe,#c4b5fd 50%,#7c3aed 100%);box-shadow:0 0 40px 15px rgba(167,139,250,0.3),0 0 80px 30px rgba(124,58,237,0.15);z-index:0}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{position:absolute;border-radius:50%;animation:twinkle var(--dur,3s) ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:var(--a1,.3);transform:scale(1)}to{opacity:var(--a2,.9);transform:scale(1.2)}}
+.city-wrap{position:fixed;bottom:0;left:0;right:0;height:50vh;z-index:1;pointer-events:none}
+.city-svg{width:100%;height:100%;display:block}
+.fog{position:fixed;bottom:0;left:0;right:0;height:130px;z-index:2;pointer-events:none;background:linear-gradient(to top,#04060f 25%,transparent 100%)}
+.page{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 20px 100px}
+.platform-badge{font-size:.5rem;letter-spacing:5px;text-transform:uppercase;color:#6d28d9;border:1px solid #3b0764;border-radius:20px;padding:5px 18px;margin-bottom:28px;background:rgba(109,40,217,.1)}
+.headline{font-family:'Press Start 2P',monospace;font-size:clamp(1rem,4vw,2rem);text-align:center;line-height:1.6;margin-bottom:10px;background:linear-gradient(135deg,#c084fc 0%,#818cf8 50%,#60a5fa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(168,85,247,.5))}
+.subhead{font-size:.55rem;color:#4b5563;letter-spacing:4px;text-transform:uppercase;margin-bottom:56px}
+.chars-row{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;max-width:1100px;width:100%;margin-bottom:52px}
+.char-card{--clr:#a855f7;background:rgba(8,12,26,.88);border:2px solid rgba(255,255,255,.07);border-radius:18px;padding:24px 18px 22px;width:185px;min-height:420px;display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease;position:relative;backdrop-filter:blur(14px)}
+.char-card:hover{transform:translateY(-14px);border-color:var(--clr);box-shadow:0 20px 60px -10px color-mix(in srgb,var(--clr) 35%,transparent),0 0 0 1px color-mix(in srgb,var(--clr) 20%,transparent)}
+.char-card.selected{border-color:var(--clr);box-shadow:0 20px 60px -10px color-mix(in srgb,var(--clr) 50%,transparent),0 0 0 1px color-mix(in srgb,var(--clr) 30%,transparent),inset 0 0 30px color-mix(in srgb,var(--clr) 8%,transparent)}
+.char-card.selected::before{content:'SELECTED';position:absolute;top:-14px;font-family:'Press Start 2P',monospace;font-size:.32rem;letter-spacing:2px;background:var(--clr);color:#000;padding:4px 12px;border-radius:10px}
+.canvas-wrap{background:rgba(0,0,0,.35);border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,.04);animation:idle-float 3s ease-in-out infinite;animation-delay:var(--delay,0s)}
+.char-card.selected .canvas-wrap{animation:idle-selected 2s ease-in-out infinite}
+@keyframes idle-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes idle-selected{0%,100%{transform:translateY(0) scale(1.04)}50%{transform:translateY(-6px) scale(1.04)}}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+.char-name{font-family:'Press Start 2P',monospace;font-size:.7rem;color:var(--clr);letter-spacing:2px;text-align:center}
+.char-class{font-size:.5rem;color:#64748b;letter-spacing:3px;text-transform:uppercase;text-align:center}
+.char-subject{font-size:.55rem;padding:4px 12px;border-radius:20px;background:color-mix(in srgb,var(--clr) 15%,transparent);color:var(--clr);border:1px solid color-mix(in srgb,var(--clr) 30%,transparent)}
+.char-desc{font-size:.48rem;color:#475569;text-align:center;line-height:1.8;letter-spacing:.5px}
+.stat-block{width:100%;display:flex;flex-direction:column;gap:7px}
+.stat-row{display:flex;align-items:center;gap:6px}
+.stat-label{font-size:.42rem;color:#374151;letter-spacing:1px;text-transform:uppercase;width:48px;flex-shrink:0}
+.stat-bar{flex:1;height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.stat-fill{height:100%;border-radius:2px;background:linear-gradient(to right,var(--clr),color-mix(in srgb,var(--clr) 60%,white));transition:width .6s ease}
+.cta-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+.enter-btn{font-family:'Press Start 2P',monospace;font-size:.65rem;padding:16px 44px;border-radius:30px;border:none;cursor:pointer;letter-spacing:2px;transition:all .3s ease;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white}
+.enter-btn:not(:disabled):hover{transform:scale(1.06) translateY(-2px);box-shadow:0 0 50px rgba(124,58,237,.6),0 8px 30px rgba(0,0,0,.4)}
+.enter-btn:disabled{opacity:.35;cursor:not-allowed;background:#1e2a4a}
+.hint{font-size:.48rem;color:#374151;letter-spacing:3px;text-transform:uppercase}
+.confirm-overlay{position:fixed;inset:0;z-index:100;background:rgba(4,6,15,.95);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s ease}
+.confirm-overlay.show{opacity:1;pointer-events:all}
+.confirm-box{border:2px solid #7c3aed;border-radius:20px;padding:48px 60px;text-align:center;background:rgba(10,8,24,.95);box-shadow:0 0 60px rgba(124,58,237,.4)}
+.confirm-title{font-family:'Press Start 2P',monospace;font-size:.6rem;color:#6b7280;letter-spacing:3px;margin-bottom:16px}
+.confirm-name{font-family:'Press Start 2P',monospace;font-size:1.2rem;color:#f59e0b;margin:12px 0 20px;filter:drop-shadow(0 0 12px rgba(245,158,11,.6))}
+.confirm-loading{font-size:.5rem;color:#4b5563;letter-spacing:4px;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+<div class="moon"></div>
+<div class="stars" id="stars"></div>
+<div class="city-wrap">
+<svg class="city-svg" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="neon"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="gsoft"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<pattern id="wc" x="0" y="0" width="14" height="20" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="7" height="9" fill="rgba(34,211,238,.18)" rx="1"/><rect x="2" y="13" width="7" height="4" fill="rgba(96,165,250,.12)" rx="1"/></pattern>
+<pattern id="wp" x="0" y="0" width="12" height="18" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="6" height="8" fill="rgba(167,139,250,.2)" rx="1"/><rect x="2" y="12" width="6" height="4" fill="rgba(192,132,252,.1)" rx="1"/></pattern>
+<linearGradient id="bf" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0a0c24"/><stop offset="100%" stop-color="#060810"/></linearGradient>
+<linearGradient id="bf2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0d1030"/><stop offset="100%" stop-color="#070920"/></linearGradient>
+<radialGradient id="hg" cx="50%" cy="100%" r="60%"><stop offset="0%" stop-color="#2d0050" stop-opacity=".5"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+</defs>
+<rect x="0" y="200" width="1440" height="200" fill="url(#hg)"/>
+<!-- Far bg -->
+<rect x="0" y="220" width="70" height="180" fill="#05070f"/>
+<rect x="30" y="180" width="45" height="220" fill="#05070f"/>
+<rect x="90" y="200" width="55" height="200" fill="#060810"/>
+<rect x="140" y="150" width="38" height="250" fill="#05070f"/>
+<rect x="190" y="110" width="50" height="290" fill="#060810"/>
+<rect x="1300" y="200" width="70" height="200" fill="#05070f"/>
+<rect x="1320" y="155" width="50" height="245" fill="#060810"/>
+<rect x="1370" y="100" width="70" height="300" fill="#05070f"/>
+<!-- Left cluster -->
+<rect x="250" y="150" width="72" height="250" fill="url(#bf)"/>
+<rect x="250" y="149" width="72" height="3" fill="#6b21a8" filter="url(#neon)"/>
+<rect x="258" y="155" width="57" height="140" fill="url(#wp)" opacity=".7"/>
+<rect x="340" y="90" width="88" height="310" fill="url(#bf2)"/>
+<rect x="340" y="88" width="88" height="4" fill="#2563eb" filter="url(#neon)"/>
+<rect x="348" y="100" width="72" height="200" fill="url(#wc)" opacity=".8"/>
+<rect x="444" y="120" width="66" height="280" fill="url(#bf)"/>
+<rect x="444" y="118" width="66" height="3" fill="#7c3aed" filter="url(#neon)"/>
+<!-- Center focal -->
+<rect x="524" y="48" width="82" height="352" fill="#0d1030"/>
+<rect x="524" y="45" width="82" height="5" fill="#a855f7" filter="url(#neon)"/>
+<rect x="532" y="60" width="66" height="280" fill="url(#wp)" opacity=".9"/>
+<rect x="559" y="15" width="10" height="35" fill="#0d1030"/>
+<circle cx="564" cy="15" r="7" fill="#a855f7" filter="url(#gsoft)" opacity=".9"/>
+<circle cx="564" cy="15" r="3" fill="#ddd6fe"/>
+<rect x="533" y="55" width="3" height="345" fill="#a855f7" opacity=".2" filter="url(#neon)"/>
+<rect x="624" y="25" width="106" height="375" fill="#0f1235"/>
+<rect x="624" y="22" width="106" height="6" fill="#818cf8" filter="url(#neon)"/>
+<rect x="632" y="38" width="90" height="300" fill="url(#wc)" opacity=".85"/>
+<rect x="664" y="0" width="12" height="28" fill="#0f1235"/>
+<circle cx="670" cy="0" r="8" fill="#60a5fa" filter="url(#gsoft)" opacity=".9"/>
+<circle cx="670" cy="0" r="3" fill="#bae6fd"/>
+<rect x="688" y="5" width="8" height="22" fill="#0f1235"/>
+<circle cx="692" cy="5" r="5" fill="#818cf8" filter="url(#gsoft)" opacity=".8"/>
+<rect x="635" y="30" width="3" height="370" fill="#818cf8" opacity=".15"/>
+<rect x="718" y="30" width="3" height="370" fill="#60a5fa" opacity=".15"/>
+<rect x="746" y="55" width="78" height="345" fill="#0d1030"/>
+<rect x="746" y="52" width="78" height="5" fill="#c084fc" filter="url(#neon)"/>
+<rect x="754" y="65" width="62" height="270" fill="url(#wp)" opacity=".7"/>
+<rect x="780" y="22" width="10" height="35" fill="#0d1030"/>
+<circle cx="785" cy="22" r="7" fill="#c084fc" filter="url(#gsoft)" opacity=".9"/>
+<circle cx="785" cy="22" r="3" fill="#f0abfc"/>
+<!-- Right cluster -->
+<rect x="840" y="105" width="72" height="295" fill="url(#bf)"/>
+<rect x="840" y="102" width="72" height="4" fill="#3b82f6" filter="url(#neon)"/>
+<rect x="848" y="115" width="56" height="200" fill="url(#wc)" opacity=".65"/>
+<rect x="930" y="75" width="90" height="325" fill="url(#bf2)"/>
+<rect x="930" y="72" width="90" height="5" fill="#8b5cf6" filter="url(#neon)"/>
+<rect x="938" y="88" width="74" height="220" fill="url(#wp)" opacity=".75"/>
+<rect x="1038" y="65" width="68" height="335" fill="url(#bf)"/>
+<rect x="1038" y="62" width="68" height="4" fill="#06b6d4" filter="url(#neon)"/>
+<rect x="1122" y="88" width="74" height="312" fill="url(#bf2)"/>
+<rect x="1122" y="85" width="74" height="4" fill="#a78bfa" filter="url(#neon)"/>
+<rect x="1130" y="100" width="58" height="220" fill="url(#wp)" opacity=".7"/>
+<rect x="1210" y="125" width="80" height="275" fill="url(#bf)"/>
+<rect x="1210" y="122" width="80" height="4" fill="#4f46e5" filter="url(#neon)"/>
+<rect x="0" y="396" width="1440" height="4" fill="#1e1040" opacity=".6"/>
+</svg>
+</div>
+<div class="fog"></div>
+<div class="confirm-overlay" id="confirmOverlay">
+<div class="confirm-box">
+<div class="confirm-title">WELCOME BACK,</div>
+<div class="confirm-name" id="confirmName">HERO</div>
+<div class="confirm-loading">Loading Campus...</div>
+</div>
+</div>
+<div class="page">
+<div class="platform-badge">Learning Adventures Campus &middot; 2026</div>
+<h1 class="headline">CHOOSE YOUR<br>HERO</h1>
+<p class="subhead">Select your avatar to begin the adventure</p>
+<div class="chars-row">
+<!-- ZAX -->
+<div class="char-card" style="--clr:#a855f7;--delay:0s" data-name="ZAX" onclick="selectHero(this)">
+<div class="canvas-wrap"><canvas id="cv-zax" width="128" height="192"></canvas></div>
+<div class="char-name">ZAX</div>
+<div class="char-class">Math Wizard</div>
+<div class="char-subject">&#128208; Mathematics</div>
+<div class="char-desc">Master of equations and arcane numbers. Wields a staff that solves any problem.</div>
+<div class="stat-block">
+<div class="stat-row"><span class="stat-label">Power</span><div class="stat-bar"><div class="stat-fill" style="width:88%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Speed</span><div class="stat-bar"><div class="stat-fill" style="width:55%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Logic</span><div class="stat-bar"><div class="stat-fill" style="width:96%"></div></div></div>
+</div>
+</div>
+<!-- REX -->
+<div class="char-card" style="--clr:#f59e0b;--delay:.4s" data-name="REX" onclick="selectHero(this)">
+<div class="canvas-wrap"><canvas id="cv-rex" width="128" height="192"></canvas></div>
+<div class="char-name">REX</div>
+<div class="char-class">History Commander</div>
+<div class="char-subject">&#9876;&#65039; History</div>
+<div class="char-desc">Battle-hardened veteran. Commands armies and unlocks secrets of the past.</div>
+<div class="stat-block">
+<div class="stat-row"><span class="stat-label">Power</span><div class="stat-bar"><div class="stat-fill" style="width:92%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Speed</span><div class="stat-bar"><div class="stat-fill" style="width:68%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Logic</span><div class="stat-bar"><div class="stat-fill" style="width:76%"></div></div></div>
+</div>
+</div>
+<!-- NOVA -->
+<div class="char-card" style="--clr:#22d3ee;--delay:.8s" data-name="NOVA" onclick="selectHero(this)">
+<div class="canvas-wrap"><canvas id="cv-nova" width="128" height="192"></canvas></div>
+<div class="char-name">NOVA</div>
+<div class="char-class">Science Explorer</div>
+<div class="char-subject">&#128300; Science</div>
+<div class="char-desc">Gadget genius with green punk hair. Hacks reality with tech and curiosity.</div>
+<div class="stat-block">
+<div class="stat-row"><span class="stat-label">Power</span><div class="stat-bar"><div class="stat-fill" style="width:72%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Speed</span><div class="stat-bar"><div class="stat-fill" style="width:85%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Logic</span><div class="stat-bar"><div class="stat-fill" style="width:94%"></div></div></div>
+</div>
+</div>
+<!-- LYRA -->
+<div class="char-card" style="--clr:#34d399;--delay:1.2s" data-name="LYRA" onclick="selectHero(this)">
+<div class="canvas-wrap"><canvas id="cv-lyra" width="128" height="192"></canvas></div>
+<div class="char-name">LYRA</div>
+<div class="char-class">English Bard</div>
+<div class="char-subject">&#128214; English</div>
+<div class="char-desc">Silver-haired storyteller. Her glowing tome holds every tale ever told.</div>
+<div class="stat-block">
+<div class="stat-row"><span class="stat-label">Power</span><div class="stat-bar"><div class="stat-fill" style="width:60%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Speed</span><div class="stat-bar"><div class="stat-fill" style="width:78%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Logic</span><div class="stat-bar"><div class="stat-fill" style="width:82%"></div></div></div>
+</div>
+</div>
+<!-- TERRA -->
+<div class="char-card" style="--clr:#4ade80;--delay:1.6s" data-name="TERRA" onclick="selectHero(this)">
+<div class="canvas-wrap"><canvas id="cv-terra" width="128" height="192"></canvas></div>
+<div class="char-name">TERRA</div>
+<div class="char-class">Nature Ranger</div>
+<div class="char-subject">&#127807; Nature Science</div>
+<div class="char-desc">Forest guardian with a parrot companion. Swift, resourceful, wild at heart.</div>
+<div class="stat-block">
+<div class="stat-row"><span class="stat-label">Power</span><div class="stat-bar"><div class="stat-fill" style="width:78%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Speed</span><div class="stat-bar"><div class="stat-fill" style="width:96%"></div></div></div>
+<div class="stat-row"><span class="stat-label">Logic</span><div class="stat-bar"><div class="stat-fill" style="width:68%"></div></div></div>
+</div>
+</div>
+</div>
+<div class="cta-wrap">
+<button class="enter-btn" id="enterBtn" disabled onclick="enterCampus()">ENTER CAMPUS</button>
+<p class="hint" id="hintText">Select a hero to continue</p>
+</div>
+</div>
+<script>
+(function(){
+  var el=document.getElementById('stars');
+  for(var i=0;i<140;i++){
+    var s=document.createElement('div');
+    s.className='star';
+    var sz=Math.random()<.8?1:2;
+    var a1=(Math.random()*.3+.1).toFixed(2);
+    var a2=(Math.random()*.5+.5).toFixed(2);
+    s.style.cssText='left:'+(Math.random()*100).toFixed(1)+'%;top:'+(Math.random()*60).toFixed(1)+'%;width:'+sz+'px;height:'+sz+'px;--a1:'+a1+';--a2:'+a2+';--dur:'+(Math.random()*3+2).toFixed(1)+'s;animation-delay:'+(Math.random()*4).toFixed(1)+'s;';
+    el.appendChild(s);
+  }
+})();
+
+function px(ctx,s,col,x,y,w,h){if(!col)return;w=w||1;h=h||1;ctx.fillStyle=col;ctx.fillRect(x*s,y*s,w*s,h*s);}
+function initC(id){var c=document.getElementById(id);var ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;var s=4;return{ctx:ctx,p:function(col,x,y,w,h){px(ctx,s,col,x,y,w,h);},s:s};}
+
+/* ZAX - Math Wizard */
+(function(){
+  var _=initC('cv-zax'),ctx=_.ctx,p=_.p,s=_.s;
+  var SK='#8B5E3C',SKD='#6B4226',SKL='#A07248';
+  var R1='#6D28D9',R2='#7C3AED',RL='#A78BFA',RD='#4C1D95';
+  var H1='#4C1D95',HB='#F59E0B';
+  var GLD='#F59E0B',GLD_D='#B45309',GLD_L='#FCD34D';
+  var W='#F8FAFC',DK='#0A0A0A',SYM='#FDE68A';
+  p(GLD_D,2,6,2,38);p(GLD,3,6,1,38);
+  p(SYM,1,2,4,5);p(GLD_L,2,3,2,3);
+  ctx.fillStyle='rgba(253,230,138,.12)';ctx.fillRect(0,0,7*s,10*s);
+  p(RD,5,18,22,28);
+  p(DK,10,44,5,4);p(DK,17,44,5,4);p('#1a1040',10,46,5,2);p('#1a1040',17,46,5,2);
+  p(R1,7,20,18,22);p(R2,8,21,16,20);p(RL,12,22,6,15);p(RD,7,23,3,18);p(RD,22,23,3,18);
+  p(R1,5,39,22,5);p(RD,5,42,3,2);p(RD,24,42,3,2);
+  p(GLD,8,30,16,3);p(GLD_D,9,31,14,1);p(SYM,14,30,4,3);
+  p(R2,5,20,4,16);p(R2,23,20,4,16);p(RL,6,21,2,12);p(RL,24,21,2,12);
+  p(RD,5,32,4,4);p(RD,23,32,4,4);
+  p(GLD,5,35,4,2);p(GLD,23,35,4,2);
+  p(SK,5,37,4,4);p(SK,23,37,4,4);p(SKD,6,40,2,1);p(SKD,24,40,2,1);
+  p(SYM,14,24,4,1);p(SYM,15,23,2,3);p(SYM,13,33,2,2);p(SYM,17,33,2,2);
+  p(SK,13,16,6,4);p(SKD,14,18,4,2);
+  p(SK,10,8,12,10);p(SKL,11,9,8,6);p(SKD,10,16,12,2);
+  p(W,11,11,4,3);p(W,17,11,4,3);
+  p('#3B1F0A',12,12,2,2);p('#3B1F0A',18,12,2,2);
+  p(DK,13,12,1,1);p(DK,19,12,1,1);
+  ctx.fillStyle=W;ctx.fillRect(13*s+2,12*s+1,2,2);ctx.fillRect(19*s+2,12*s+1,2,2);
+  p(DK,11,10,4,1);p(DK,17,10,4,1);
+  p(SKD,14,14,3,2);p(SKD,12,16,2,1);p(SKD,18,16,2,1);p(DK,13,16,6,1);
+  p(DK,10,7,12,3);p(DK,9,9,2,4);p(DK,21,9,2,4);
+  p(H1,15,0,2,2);p(H1,14,1,4,2);p(H1,13,2,6,2);p(H1,12,3,8,3);p(RL,15,0,1,6);
+  p(H1,10,5,12,3);p(H1,7,7,18,2);p(RL,8,7,14,1);p(HB,7,8,18,1);
+  p(SYM,13,3,1,1);p(SYM,17,5,1,1);p(SYM,11,5,1,1);p(SYM,15,6,1,1);
+})();
+
+/* REX - History Commander */
+(function(){
+  var _=initC('cv-rex'),ctx=_.ctx,p=_.p,s=_.s;
+  var SK='#C68642',SKD='#A0522D',SKL='#D4956A';
+  var U1='#1E3A5F',U2='#243F6E',UL='#2E5080',UD='#122340';
+  var GLD='#F59E0B',GD='#B45309',GL='#FCD34D';
+  var CAP='#0F1F33',RED='#DC2626';
+  var W='#F8FAFC',DK='#0A0A0A',BT='#1C1917';
+  p(BT,10,43,5,5);p(BT,17,43,5,5);p('#2C2C2C',11,43,3,4);p('#2C2C2C',18,43,3,4);
+  p(GLD,10,45,5,1);p(GLD,17,45,5,1);
+  p(U1,10,33,5,11);p(U1,17,33,5,11);p(UD,12,34,1,9);p(UD,19,34,1,9);
+  p(UL,10,34,2,8);p(UL,17,34,2,8);p(RED,11,33,1,11);p(RED,18,33,1,11);
+  p(U1,7,18,18,16);p(U2,8,19,16,14);p(UL,9,20,7,13);p(UD,21,21,3,12);
+  p(GLD,15,20,2,2);p(GLD,15,24,2,2);p(GLD,15,28,2,2);p(GLD,15,32,2,2);
+  p(RED,10,18,12,2);p(RED,8,18,3,5);p(RED,21,18,3,5);
+  p(GLD,9,19,2,3);p(GLD,21,19,2,3);
+  p(GLD,5,18,5,3);p(GLD,22,18,5,3);p(GD,5,20,5,1);p(GD,22,20,5,1);p(GL,5,18,5,1);p(GL,22,18,5,1);
+  p(GLD,5,21,1,3);p(GLD,7,21,1,3);p(GLD,9,21,1,3);p(GLD,22,21,1,3);p(GLD,24,21,1,3);p(GLD,26,21,1,3);
+  p(U1,5,21,4,14);p(U1,23,21,4,14);p(UL,5,22,2,10);
+  p(GLD,5,33,4,2);p(GLD,23,33,4,2);
+  p(SK,5,35,4,5);p(SK,23,35,4,5);p(SKD,6,39,2,1);p(SKD,24,39,2,1);
+  p(SK,13,16,6,4);p(SKD,14,18,4,2);
+  p(SK,9,8,14,10);p(SKL,10,9,10,6);p(SKD,9,16,14,2);
+  p(W,11,11,4,3);p(W,17,11,4,3);
+  p('#2C1810',12,12,2,2);p('#2C1810',18,12,2,2);
+  p(DK,13,12,1,1);p(DK,19,12,1,1);
+  ctx.fillStyle=W;ctx.fillRect(13*s+1,12*s+1,2,2);ctx.fillRect(19*s+1,12*s+1,2,2);
+  p(DK,11,10,5,1);p(DK,17,10,5,1);p(SKD,14,14,3,2);p(SKD,13,16,6,1);
+  p('#1C1007',9,7,14,3);p('#1C1007',9,9,2,3);p('#1C1007',21,9,2,3);
+  p(CAP,7,7,18,2);p('#1a2a40',8,7,16,1);p(GLD,8,6,16,2);
+  p(CAP,9,2,14,5);p('#1a2a40',10,3,12,4);p(CAP,8,1,16,2);p('#1a2a40',9,1,14,1);
+  p(GL,14,7,4,2);p(GLD,15,5,2,3);p(GLD,14,7,4,1);
+})();
+
+/* NOVA - Science Explorer */
+(function(){
+  var _=initC('cv-nova'),ctx=_.ctx,p=_.p,s=_.s;
+  var SK='#C8956C',SKD='#A0724E',SKL='#DDAA88';
+  var J1='#EA580C',J2='#F97316',JL='#FDBA74',JD='#C2410C';
+  var PNT='#374151',PND='#1F2937';
+  var CYN='#22D3EE',CND='#0E7490';
+  var W='#F8FAFC',DK='#0A0A0A';
+  var HR='#16A34A',HRL='#22C55E';
+  var BT='#1F2937',GL2='#6EE7B7';
+  p(BT,10,43,5,5);p(BT,17,43,5,5);p('#374151',11,43,3,3);p('#374151',18,43,3,3);
+  p(CYN,10,45,5,1);p(CYN,17,45,5,1);
+  p(PNT,10,33,5,11);p(PNT,17,33,5,11);p(PND,12,34,1,9);p(PND,19,34,1,9);
+  p('#4B5563',10,34,2,8);p(PND,10,35,4,3);p(PND,18,35,4,3);
+  p(J1,7,18,18,16);p(J2,8,19,16,14);p(JL,9,20,8,11);p(JD,21,20,4,12);
+  p(JD,14,18,2,15);p(W,14,19,2,13);
+  p(JD,10,18,5,4);p(JD,17,18,5,4);p(JL,11,18,3,3);
+  p(CND,8,22,4,4);p(CYN,9,23,2,2);p(CYN,8,23,1,1);
+  p(CYN,4,24,4,2);p(CYN,24,24,4,2);
+  p('#374151',25,18,5,13);p(CYN,26,20,3,9);p(CND,25,22,1,5);
+  p(J1,4,18,4,14);p(J2,5,19,3,12);p(JL,5,20,2,10);
+  p(J1,24,18,4,14);p(JD,25,20,2,10);
+  p(SK,4,32,4,5);p(SK,24,32,4,5);p(SKD,5,36,2,1);p(SKD,25,36,2,1);
+  p(CND,24,30,6,4);p(CYN,25,31,4,2);p(W,26,31,2,1);
+  p(DK,6,10,5,8);p('#374151',7,11,3,6);p(CYN,7,13,3,2);
+  p(DK,21,10,5,8);p('#374151',22,11,3,6);p(CYN,22,13,3,2);
+  p(DK,6,8,20,3);p('#4B5563',8,8,16,2);p('#374151',9,9,14,1);
+  p(SK,13,16,6,4);p(SKD,14,18,4,2);
+  p(SK,9,9,14,9);p(SKL,10,10,10,5);p(SKD,9,16,14,2);
+  p(DK,10,10,12,4);
+  p(GL2,11,11,4,2);p(GL2,17,11,4,2);p(DK,15,12,2,1);
+  p(W,12,11,1,1);p(W,18,11,1,1);
+  p('#374151',9,10,14,1);p('#374151',9,13,14,1);
+  p(SK,10,13,12,5);
+  p('#422006',12,14,2,2);p('#422006',18,14,2,2);p(DK,13,14,1,1);p(DK,19,14,1,1);
+  p(SKD,14,15,3,2);
+  p(DK,12,17,8,1);p(W,13,17,6,1);p(DK,12,17,1,1);p(DK,19,17,1,1);
+  p(HR,10,6,12,5);
+  p(HR,10,4,3,3);p(HRL,11,3,1,2);p(HR,14,3,3,4);p(HRL,15,2,1,2);
+  p(HR,18,4,3,3);p(HRL,19,3,1,2);p(HR,9,7,2,3);p(HR,21,7,2,3);
+})();
+
+/* LYRA - English Bard */
+(function(){
+  var _=initC('cv-lyra'),ctx=_.ctx,p=_.p,s=_.s;
+  var SK='#EAD5C4',SKD='#C8A898',SKL='#F5EDE8';
+  var R1='#E2E8F0',R2='#F8FAFC',RL2='#FFFFFF',RD='#94A3B8',RS='#CBD5E1';
+  var BL='#60A5FA',BD='#2563EB',BLL='#BAE6FD';
+  var HR='#E0E7FF',HRD='#818CF8';
+  var DK='#0A0A0A',GLD='#F59E0B';
+  var GRN='#10B981',GRL='#6EE7B7';
+  var W='#F8FAFC',LIP='#F87171';
+  p(RD,11,44,4,4);p(RD,17,44,4,4);p(RS,11,44,4,2);
+  p(RD,5,20,22,24);p(R1,7,21,18,22);p(R2,9,22,14,20);
+  p(RL2,12,23,7,16);p(RD,7,24,3,18);p(RD,22,24,3,18);
+  p(R1,5,38,22,6);p(RD,5,42,22,2);
+  p(BL,7,21,18,2);p(BD,7,22,18,1);p(BLL,7,21,18,1);
+  p(BL,5,33,5,2);p(BL,22,33,5,2);
+  p(BLL,12,28,2,2);p(BLL,11,29,4,1);p(BLL,18,26,2,2);p(BLL,17,27,4,1);
+  p(BLL,14,34,2,1);p(BLL,14,36,2,1);
+  p(R1,5,21,4,14);p(R2,6,22,3,12);p(R1,23,21,4,14);p(RD,24,23,2,10);
+  p(SK,5,35,4,5);p(SK,23,35,4,5);p(SKD,6,39,2,1);p(SKD,24,39,2,1);
+  p(GRN,22,34,7,8);p(GRL,23,35,5,6);p('#065F46',22,34,1,8);
+  p('#ECFDF5',24,36,4,2);p('#ECFDF5',24,39,3,1);
+  ctx.fillStyle='rgba(16,185,129,.12)';ctx.fillRect(19*s,32*s,12*s,14*s);
+  p(SK,13,16,6,5);p(SKD,14,19,4,2);
+  p(SK,10,7,12,11);p(SKL,11,8,9,7);p(SKD,10,16,12,2);
+  p(W,11,10,5,3);p(W,17,10,5,3);
+  p('#1E3A5F',12,11,3,2);p('#1E3A5F',18,11,3,2);
+  p(DK,13,11,1,1);p(DK,19,11,1,1);
+  ctx.fillStyle=W;ctx.fillRect(13*s+2,11*s+1,2,2);ctx.fillRect(19*s+2,11*s+1,2,2);
+  p(DK,11,10,5,1);p(DK,17,10,5,1);
+  p(SKD,15,13,2,2);
+  p(LIP,13,15,6,2);p('#EF9A9A',14,15,4,1);p(SKD,13,15,1,1);p(SKD,18,15,1,1);
+  p(HR,9,5,14,7);p(HRD,9,6,14,1);
+  p(HR,9,8,2,8);p(HRD,9,10,2,4);p(HR,21,8,2,10);p(HRD,21,10,2,5);
+  p(HR,7,20,3,16);p(HRD,8,22,2,11);p(HR,22,20,3,16);p(HRD,22,22,2,11);
+  p(RD,9,4,14,4);p(RS,9,4,14,2);
+  p(BL,22,0,3,6);p(BLL,23,0,2,4);p(BD,22,4,4,3);p(BL,24,2,2,4);p(BLL,25,1,2,3);
+  p(GLD,9,7,14,1);
+})();
+
+/* TERRA - Nature Ranger */
+(function(){
+  var _=initC('cv-terra'),ctx=_.ctx,p=_.p,s=_.s;
+  var SK='#D4A574',SKD='#B8845A',SKL='#E8C4A0';
+  var G1='#15803D',G2='#16A34A',GL='#4ADE80',GD='#14532D';
+  var BR='#92400E',BRL='#B45309',BRD='#78350F';
+  var LF='#22C55E',LFD='#15803D';
+  var HR='#7C2D12',HRL='#92400E';
+  var DK='#0A0A0A',W='#F8FAFC',GLD='#F59E0B';
+  var PR='#EF4444',PG='#22C55E',PY='#FCD34D';
+  p(BRD,10,43,5,5);p(BRD,17,43,5,5);p(BR,11,43,3,3);p(BRL,11,43,2,2);
+  p(GL,11,44,3,1);p(GL,18,44,3,1);
+  p(BR,10,33,5,11);p(BR,17,33,5,11);p(BRD,12,34,1,9);p(BRD,19,34,1,9);
+  p(BRL,10,34,2,8);p(G1,10,33,5,2);p(G1,17,33,5,2);
+  p(GD,7,18,18,16);p(G1,8,19,16,14);p(G2,9,20,12,12);p(GL,10,21,6,10);p(GD,20,21,4,12);
+  p(BRD,7,30,18,4);p(BR,8,31,16,2);p(BRL,9,31,6,1);
+  p(GLD,14,30,4,4);p(GLD,15,29,2,6);
+  p(BR,9,19,14,11);p(BRL,10,20,10,8);p(BRD,9,25,14,5);
+  p(BRD,14,19,4,10);p(GL,15,20,2,8);
+  p(BRD,14,21,1,1);p(BRD,17,21,1,1);p(BRD,14,24,1,1);p(BRD,17,24,1,1);
+  p(G2,5,18,4,14);p(GL,6,19,2,12);p(G2,23,18,4,14);p(GD,25,20,2,10);
+  p(BR,5,28,4,4);p(BR,23,28,4,4);p(BRL,5,28,4,2);p(BRL,23,28,4,2);
+  p(SK,5,32,4,6);p(SK,23,32,4,6);p(SKD,6,37,2,1);p(SKD,24,37,2,1);
+  p(PG,3,14,5,6);p(PR,3,15,5,3);p(PG,2,16,2,3);p(PG,7,15,2,4);
+  p(PG,4,12,3,4);p(PY,4,13,3,2);p(DK,5,13,1,1);
+  ctx.fillStyle=W;ctx.fillRect(5*s,13*s,s,s);
+  p(PG,3,19,2,4);p(PY,4,20,1,3);p(PY,2,16,1,2);p(PY,7,15,1,2);
+  p(SK,13,16,6,4);p(SKD,14,18,4,2);
+  p(SK,10,8,12,10);p(SKL,11,9,9,6);p(SKD,10,16,12,2);
+  p(W,11,11,4,3);p(W,17,11,4,3);
+  p('#3B1F0A',12,12,2,2);p('#3B1F0A',18,12,2,2);
+  p(DK,13,12,1,1);p(DK,19,12,1,1);
+  ctx.fillStyle=W;ctx.fillRect(13*s+1,12*s+1,2,2);ctx.fillRect(19*s+1,12*s+1,2,2);
+  p(HR,11,10,4,1);p(HR,18,10,4,1);
+  p(SKD,14,14,3,2);p(DK,14,16,4,1);p(SKD,13,16,1,1);p(SKD,18,16,1,1);
+  p(HR,10,6,12,5);p(HRL,11,7,10,3);p(HR,9,9,2,5);p(HR,21,9,2,5);
+  p(HR,8,11,3,8);p(HRL,9,12,1,6);
+  p(GD,8,5,16,4);p(G1,9,4,14,4);p(G2,10,3,12,3);p(GL,11,3,8,2);
+  p(LF,8,6,3,3);p(LFD,8,8,3,1);p(LF,21,5,3,4);p(LFD,21,8,3,1);
+  p(LF,14,2,4,3);p(LFD,15,4,2,1);
+  p(PY,22,2,2,5);p(PG,22,3,2,3);
+  p(GD,6,8,20,2);p(G2,7,8,18,1);
+})();
+
+var chosen=null;
+function selectHero(card){
+  document.querySelectorAll('.char-card').forEach(function(c){c.classList.remove('selected');});
+  card.classList.add('selected');
+  chosen=card.dataset.name;
+  document.getElementById('enterBtn').disabled=false;
+  document.getElementById('hintText').textContent=chosen+' is ready to enter the campus!';
+}
+function enterCampus(){
+  if(!chosen)return;
+  var overlay=document.getElementById('confirmOverlay');
+  document.getElementById('confirmName').textContent=chosen;
+  overlay.classList.add('show');
+  setTimeout(function(){
+    var m={ZAX:'wizard-purple',REX:'knight-silver',NOVA:'robot-blue',LYRA:'human-2',TERRA:'human-1'};
+    try{localStorage.setItem('pending_avatar',JSON.stringify({name:chosen,avatarId:m[chosen]}));}catch(e){}
+    window.location.href='/world';
+  },2200);
+}
+</script>
+</body>
+</html>
