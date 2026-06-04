@@ -1,3 +1,7 @@
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { extractZipSafely } from "@/lib/safe-zip";
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -8,10 +12,11 @@ vi.mock('next-auth', () => ({
   getServerSession: vi.fn(),
 }));
 
-const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
+const { writeFileMock, mkdirMock, mockGetServerSession, existsSyncMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
   mockGetServerSession: vi.fn(),
+  existsSyncMock: vi.fn().mockReturnValue(true)
 }));
 
 // Mock fs/promises and fs
@@ -30,13 +35,16 @@ vi.mock('fs/promises', () => {
   };
 });
 
-vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
-  default: {
-    mkdir: vi.fn(),
-    writeFile: vi.fn(),
+vi.mock('fs', () => {
+  return {
+    existsSync: existsSyncMock,
+    default: {
+      mkdir: vi.fn(),
+      writeFile: vi.fn(),
+      existsSync: existsSyncMock
+    }
   }
-}));
+});
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
