@@ -6,8 +6,3 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
-
-## 2025-02-23 - Insecure Randomness in Certificate Verification Codes
-**Vulnerability:** The `generateVerificationCode` function in `lib/certificates/certificateUtils.ts` used `Math.random()` to generate a 12-character alphanumeric code for course certificates. `Math.random()` is not cryptographically secure and can be predicted, potentially allowing attackers to forge or guess verification codes.
-**Learning:** Functions that generate sensitive or unguessable values (tokens, passwords, verification codes) often mistakenly rely on standard `Math.random()` rather than a secure RNG.
-**Prevention:** Always use Node.js `crypto` module (e.g., `crypto.randomInt()`, `crypto.randomBytes()`) or the Web Crypto API for generating tokens that are used for verification or authentication.
