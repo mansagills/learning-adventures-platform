@@ -1,4 +1,5 @@
 // TilemapGenerator.ts
+import { CAMPUS_BUILDINGS } from './campusLayout';
 // Pure TypeScript module — NO Phaser dependency.
 // Generates the tile data array for the 96×72 open world campus.
 
@@ -51,6 +52,8 @@ export const TILE_ASSET_KEYS: _TileCoverage = {
 
 // ─── Building door interface ──────────────────────────────────────────────────
 export interface BuildingDoorConfig {
+  id: string;
+  zoneId: string;
   building: string;
   doorTileCol: number;
   doorTileRow: number;
@@ -61,7 +64,10 @@ export interface BuildingDoorConfig {
   wallKey: string;             // asset key for wall texture
   wallTileCol: number;         // top-left tile col of 4×3 building footprint
   wallTileRow: number;         // top-left tile row of 4×3 building footprint
+  wallTileW: number;
+  wallTileH: number;
   tileIndex: number;           // tile index (8-11) for wall tiles
+  dialog: string;
 }
 
 // ─── Helper: fill a rectangular region with a single tile index ───────────────
@@ -232,72 +238,24 @@ export function generate(): number[][] {
     tiles[PATH_ROW_B][c] = TILE.PATH;
   }
 
-  // ── Step 4: Branch paths (2 tiles wide, connecting zone centers) ──────────
-  // Math zone center ≈ col 16. Branch: cols 15-16, rows 12 down to PATH_ROW_A (35)
-  for (let r = 12; r <= PATH_ROW_A; r++) {
-    tiles[r][15] = TILE.PATH;
-    tiles[r][16] = TILE.PATH;
-  }
-
-  // Science zone center ≈ col 80. Branch: cols 79-80, rows 12 down to PATH_ROW_A
-  for (let r = 12; r <= PATH_ROW_A; r++) {
-    tiles[r][79] = TILE.PATH;
-    tiles[r][80] = TILE.PATH;
-  }
-
-  // History zone center ≈ col 16. Already on horizontal path at row 35-36.
-  // (Branch rows 36-36 is already the horizontal path — nothing extra needed.)
-
-  // English zone center ≈ col 80. Add rows 36-40 for visibility.
-  for (let r = PATH_ROW_B; r <= 40; r++) {
-    tiles[r][79] = TILE.PATH;
-    tiles[r][80] = TILE.PATH;
-  }
-
-  // Nature Park center ≈ col 16. Branch: cols 15-16, rows 60 up to PATH_ROW_B (36)
-  for (let r = PATH_ROW_B; r <= 60; r++) {
-    tiles[r][15] = TILE.PATH;
-    tiles[r][16] = TILE.PATH;
-  }
-
-  // Market center col 48 — already on vertical cross-path. Nothing extra needed.
-
-  // Interdisciplinary center ≈ col 80. Branch: cols 79-80, rows 60 up to PATH_ROW_B (36)
-  for (let r = PATH_ROW_B; r <= 60; r++) {
-    tiles[r][79] = TILE.PATH;
-    tiles[r][80] = TILE.PATH;
-  }
-
-  // ── Step 5: Building footprints (4 wide × 3 tall) ─────────────────────────
-  // Math Building: rows 4-6, cols 13-16
-  fillRect(tiles, 4, 6, 13, 16, TILE.WALL_MATH);
-
-  // Science Building: rows 4-6, cols 68-71
-  fillRect(tiles, 4, 6, 68, 71, TILE.WALL_SCI);
-
-  // English Building: rows 28-30, cols 68-71
-  fillRect(tiles, 28, 30, 68, 71, TILE.WALL_ENG);
-
-  // History Building: rows 28-30, cols 13-16
-  fillRect(tiles, 28, 30, 13, 16, TILE.WALL_BRICK);
-
-  // Library Building: rows 4-6, cols 44-47
-  fillRect(tiles, 4, 6, 44, 47, TILE.WALL_BRICK);
-
-  // Nature Center: rows 52-54, cols 13-16
-  fillRect(tiles, 52, 54, 13, 16, TILE.WALL_SCI);
-
-  // Market Hall: rows 52-54, cols 44-47
-  fillRect(tiles, 52, 54, 44, 47, TILE.WALL_BRICK);
-
-  // Interdisciplinary Hub: rows 52-54, cols 68-71
-  fillRect(tiles, 52, 54, 68, 71, TILE.WALL_ENG);
-
-  // Shop: rows 36-38, cols 5-7  (preserved from old WorldScene; intentionally 3×3, not 4×3 like academic buildings)
-  fillRect(tiles, 36, 38, 5, 7, TILE.WALL_BRICK);
-
-  // Job Board: rows 36-38, cols 86-88  (preserved from old WorldScene; intentionally 3×3, not 4×3 like academic buildings)
-  fillRect(tiles, 36, 38, 86, 88, TILE.WALL_BRICK);
+  // Step 4: Campus V1 approach paths to the hub, buildings, and guide points.
+  fillRect(tiles, 32, 39, 44, 51, TILE.PATH); // Main Hub plaza
+  fillRect(tiles, 31, PATH_ROW_B, 14, 16, TILE.PATH); // Math Hall approach
+  fillRect(tiles, 8, 10, 41, PATH_COL_B, TILE.PATH); // Discovery Lab approach
+  fillRect(tiles, 31, PATH_ROW_B, 79, 80, TILE.PATH); // Story Grove approach
+  fillRect(tiles, 37, 43, 43, 45, TILE.PATH); // Quest Board approach
+  fillRect(tiles, 56, 58, PATH_COL_B, 54, TILE.PATH); // Commons shop approach
+  // Step 5: Building footprints from the stable Campus V1 layout.
+  CAMPUS_BUILDINGS.forEach((building) => {
+    fillRect(
+      tiles,
+      building.wallTileRow,
+      building.wallTileRow + building.wallTileH - 1,
+      building.wallTileCol,
+      building.wallTileCol + building.wallTileW - 1,
+      building.tileIndex,
+    );
+  });
 
   // ── Step 6: Water pond — rows 60-65, cols 8-12 ───────────────────────────
   fillRect(tiles, 60, 65, 8, 12, TILE.WATER);
@@ -307,114 +265,8 @@ export function generate(): number[][] {
 
 // ─── Building door positions ──────────────────────────────────────────────────
 /**
- * Returns the door configuration for every named building.
- * Shop and Job Board are excluded — handled separately as InteractableObjects.
+ * Returns the stable Campus V1 building and interaction configuration.
  */
 export function getBuildingDoorPositions(): BuildingDoorConfig[] {
-  return [
-    {
-      building:    'Math Building',
-      doorTileCol: 14,
-      doorTileRow: 7,
-      targetScene: 'MathBuildingScene',
-      spawnX:      320,
-      spawnY:      500,
-      label:       'MATH\nBUILDING',
-      wallKey:     'wall-math-1',
-      wallTileCol: 13,
-      wallTileRow: 4,
-      tileIndex:   8,
-    },
-    {
-      building:    'Science Building',
-      doorTileCol: 69,
-      doorTileRow: 7,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'SCIENCE\nBUILDING',
-      wallKey:     'wall-science-1',
-      wallTileCol: 68,
-      wallTileRow: 4,
-      tileIndex:   9,
-    },
-    {
-      building:    'English Building',
-      doorTileCol: 69,
-      doorTileRow: 31,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'ENGLISH\nBUILDING',
-      wallKey:     'wall-english-1',
-      wallTileCol: 68,
-      wallTileRow: 28,
-      tileIndex:   10,
-    },
-    {
-      building:    'History Building',
-      doorTileCol: 14,
-      doorTileRow: 31,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'HISTORY\nBUILDING',
-      wallKey:     'wall-brick-1',
-      wallTileCol: 13,
-      wallTileRow: 28,
-      tileIndex:   11,
-    },
-    {
-      building:    'Library',
-      doorTileCol: 45,
-      doorTileRow: 7,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'LIBRARY',
-      wallKey:     'wall-brick-1',
-      wallTileCol: 44,
-      wallTileRow: 4,
-      tileIndex:   11,
-    },
-    {
-      building:    'Nature Center',
-      doorTileCol: 14,
-      doorTileRow: 55,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'NATURE\nCENTER',
-      wallKey:     'wall-science-1',
-      wallTileCol: 13,
-      wallTileRow: 52,
-      tileIndex:   9,
-    },
-    {
-      building:    'Market Hall',
-      doorTileCol: 45,
-      doorTileRow: 55,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'MARKET\nHALL',
-      wallKey:     'wall-brick-1',
-      wallTileCol: 44,
-      wallTileRow: 52,
-      tileIndex:   11,
-    },
-    {
-      building:    'Interdisciplinary Hub',
-      doorTileCol: 69,
-      doorTileRow: 55,
-      targetScene: null,
-      spawnX:      0,
-      spawnY:      0,
-      label:       'INTERDISCIP.\nHUB',
-      wallKey:     'wall-english-1',
-      wallTileCol: 68,
-      wallTileRow: 52,
-      tileIndex:   10,
-    },
-  ];
+  return CAMPUS_BUILDINGS;
 }

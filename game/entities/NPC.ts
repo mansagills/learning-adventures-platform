@@ -21,7 +21,8 @@ export class NPC extends InteractableObject {
     y: number,
     texture: string,
     npcName: string,
-    dialog: DialogLine[]
+    dialog: DialogLine[],
+    private readonly onFinalDialogLine?: () => void
   ) {
     super(scene, x, y, texture);
 
@@ -51,6 +52,13 @@ export class NPC extends InteractableObject {
     };
 
     EventBus.emit('npc-dialog', eventData);
+
+    if (
+      this.currentDialogIndex === this.dialog.length - 1 &&
+      this.onFinalDialogLine
+    ) {
+      this.onFinalDialogLine();
+    }
 
     // Cycle through dialog
     this.currentDialogIndex = (this.currentDialogIndex + 1) % this.dialog.length;
