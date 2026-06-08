@@ -4,7 +4,6 @@
  * Helper functions for certificate generation
  */
 
-import { randomInt } from 'crypto';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -43,7 +42,7 @@ export async function generateVerificationCode(): Promise<string> {
   while (!isUnique) {
     code = '';
     for (let i = 0; i < 12; i++) {
-      code += characters.charAt(randomInt(characters.length));
+      code += characters.charAt(Math.floor(Math.random() * characters.length));
     }
 
     // Check if code already exists
