@@ -1,3 +1,4 @@
+import { randomInt } from 'crypto';
 import { prisma } from '@/lib/prisma';
 
 const ADJECTIVES = [
@@ -64,9 +65,9 @@ export async function generateUniqueUsername(
   maxAttempts = 10
 ): Promise<string> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-    const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-    const number = Math.floor(Math.random() * 100)
+    const adjective = ADJECTIVES[randomInt(ADJECTIVES.length)];
+    const animal = ANIMALS[randomInt(ANIMALS.length)];
+    const number = randomInt(100)
       .toString()
       .padStart(2, '0');
 
