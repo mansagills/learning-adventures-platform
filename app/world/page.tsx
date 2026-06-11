@@ -358,6 +358,13 @@ export default function WorldPage() {
           {/* Top-right: Buttons */}
           <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
             <button
+              onClick={() => router.push('/world/campus')}
+              className="bg-black/70 hover:bg-[#4ade80]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Try the Gather-style campus"
+            >
+              🏫 Campus
+            </button>
+            <button
               onClick={() => setShowInventory(true)}
               className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
               title="Open Inventory"

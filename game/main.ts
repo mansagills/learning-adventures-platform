@@ -2,10 +2,14 @@ import * as Phaser from 'phaser';
 // import { WorldScene } from './scenes/WorldScene'; // kept for reference
 import { OpenWorldScene } from './scenes/OpenWorldScene';
 import { MathBuildingScene } from './scenes/MathBuildingScene';
+import { GatherCampusScene } from './scenes/GatherCampusScene';
 import {
   setPendingWorldBootstrap,
   type WorldBootstrap,
 } from './worldBootstrap';
+
+/** Which world experience to boot. 'gather' is the Gather-style campus. */
+export type WorldVariant = 'open' | 'gather';
 
 /**
  * Phaser Game Configuration
@@ -13,7 +17,8 @@ import {
  */
 export const createPhaserGame = (
   parent: string,
-  bootstrap?: WorldBootstrap | null
+  bootstrap?: WorldBootstrap | null,
+  variant: WorldVariant = 'open'
 ): Phaser.Game => {
   setPendingWorldBootstrap(bootstrap ?? null);
   const config: Phaser.Types.Core.GameConfig = {
@@ -41,7 +46,10 @@ export const createPhaserGame = (
     },
 
     // Scene configuration
-    scene: [OpenWorldScene, MathBuildingScene], // Multiple scenes for different areas
+    scene:
+      variant === 'gather'
+        ? [GatherCampusScene]
+        : [OpenWorldScene, MathBuildingScene],
 
     // Scaling configuration for responsive design
     scale: {
@@ -66,7 +74,7 @@ export const createPhaserGame = (
 
   const game = new Phaser.Game(config);
 
-  if (bootstrap?.lastScene === 'MathBuildingScene') {
+  if (variant === 'open' && bootstrap?.lastScene === 'MathBuildingScene') {
     const pos = bootstrap.position;
     game.scene.stop('WorldScene');
     game.scene.start('MathBuildingScene', {

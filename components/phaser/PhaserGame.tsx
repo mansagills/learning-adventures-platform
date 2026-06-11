@@ -6,11 +6,13 @@ import type { WorldBootstrap } from '@/game/worldBootstrap';
 
 interface PhaserGameProps {
   bootstrap?: WorldBootstrap | null;
+  /** 'open' = chunked open world (default), 'gather' = Gather-style campus */
+  variant?: 'open' | 'gather';
   onReady?: (game: Phaser.Game) => void;
   onSceneReady?: (scene: string) => void;
 }
 
-export function PhaserGame({ bootstrap, onReady, onSceneReady }: PhaserGameProps) {
+export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady }: PhaserGameProps) {
   const gameRef = useRef<Phaser.Game | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [loadPhase, setLoadPhase] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -39,7 +41,8 @@ export function PhaserGame({ bootstrap, onReady, onSceneReady }: PhaserGameProps
 
         const game = createPhaserGame(
           'phaser-game-container',
-          bootstrapRef.current ?? null
+          bootstrapRef.current ?? null,
+          variant
         );
         gameRef.current = game;
         onReadyRef.current?.(game);
