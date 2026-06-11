@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-23 - Secure Random Number Generation Enhancement
+**Vulnerability:** Weak random number generation using `Math.random()` was identified in security-sensitive contexts, such as username generation, verification code generation, and internal workflow IDs. `Math.random()` is inherently predictable and should not be used for cryptographic purposes.
+**Learning:** In contexts where values must be unguessable or collision-resistant (e.g., `lib/certificates/certificateUtils.ts`, `lib/usernameGenerator.ts`), developers may inadvertently use `Math.random()` for convenience, introducing potential security risks.
+**Prevention:** Establish a pattern of using Node.js built-in `crypto` utilities (`crypto.randomInt()`, `crypto.randomUUID()`) for generating any random identifiers, tokens, or codes across the application. Prohibit the use of `Math.random()` for these purposes.
