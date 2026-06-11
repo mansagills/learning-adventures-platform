@@ -22,25 +22,25 @@ describe('FAQ Component', () => {
     expect(screen.getByText('Frequently Asked Questions')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Is Learning Adventures accessible for children with special needs?'
+        'What exactly is Learning Adventures?'
       )
     ).toBeInTheDocument();
     expect(
-      screen.getByText('How much does Learning Adventures cost?')
+      screen.getByText('What ages is it for?')
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Can my child use Learning Adventures without an internet connection?'
+        'Does my kid actually learn anything, or is it just a game?'
       )
     ).toBeInTheDocument();
     expect(
-      screen.getByText("How do I track my child's learning progress?")
+      screen.getByText("How do I know what my child is doing in the world?")
     ).toBeInTheDocument();
     expect(
-      screen.getByText('How does the AI personalization work?')
+      screen.getByText('How much does it cost?')
     ).toBeInTheDocument();
     expect(
-      screen.getByText("How do you protect my child's privacy and data?")
+      screen.getByText("Is it safe for kids?")
     ).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe('FAQ Component', () => {
     render(<Faq />);
 
     const firstQuestion = screen.getByText(
-      'Is Learning Adventures accessible for children with special needs?'
+      'What exactly is Learning Adventures?'
     );
     const firstButton = firstQuestion.closest('button');
 
@@ -62,7 +62,7 @@ describe('FAQ Component', () => {
     });
 
     expect(
-      screen.getByText(/Yes! Our platform is designed with accessibility/)
+      screen.getByText(/Learning Adventures is a 2D pixel game world/)
     ).toBeInTheDocument();
 
     // Click to collapse
@@ -77,7 +77,7 @@ describe('FAQ Component', () => {
     render(<Faq />);
 
     const firstQuestion = screen.getByText(
-      'Is Learning Adventures accessible for children with special needs?'
+      'What exactly is Learning Adventures?'
     );
     const firstButton = firstQuestion.closest('button');
 
@@ -85,7 +85,7 @@ describe('FAQ Component', () => {
 
     await waitFor(() => {
       expect(analytics.openFAQ).toHaveBeenCalledWith(
-        'Is Learning Adventures accessible for children with special needs?'
+        'What exactly is Learning Adventures?'
       );
     });
   });
