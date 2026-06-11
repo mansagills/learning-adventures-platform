@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect, FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
+import { EventBus } from '@/components/phaser/EventBus';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -31,8 +32,20 @@ export function SparkChat({ onClose }: SparkChatProps) {
 
   // Focus input when panel opens
   useEffect(() => {
-    inputRef.current?.focus();
+    EventBus.emit('world-pause', true);
+    const focusInput = window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(focusInput);
+      EventBus.emit('world-pause', false);
+    };
   }, []);
+
+  const stopGameKeyboardHandling = (e: KeyboardEvent) => {
+    e.stopPropagation();
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -88,7 +101,11 @@ export function SparkChat({ onClose }: SparkChatProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div
+      className="flex flex-col h-full bg-white"
+      onKeyDownCapture={stopGameKeyboardHandling}
+      onKeyUpCapture={stopGameKeyboardHandling}
+    >
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-[#1F1F2E] flex-shrink-0">
         <div className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-lg">

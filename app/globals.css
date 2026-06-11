@@ -47,6 +47,36 @@
   /* Error */
   --error-500: #ef4444;
 
+  /* ===== CAMPUS WORLD DESIGN SYSTEM ===== */
+
+  /* Global campus neutrals */
+  --campus-void: #050810;
+  --campus-ground-base: #0d1320;
+  --campus-ground-mid: #1a2540;
+  --campus-ground-light: #2a3a5c;
+  --campus-grid-line: #1e2d4a;
+  --campus-path-base: #162840;
+  --campus-outline: #ccddff;
+
+  /* Zone accent colors (neon) */
+  --zone-nexus-accent: #00ccff;
+  --zone-nexus-dim: #004466;
+  --zone-quantum-accent: #9b5cff;
+  --zone-quantum-dim: #3a1a6a;
+  --zone-science-accent: #00ffb3;
+  --zone-science-dim: #006644;
+  --zone-archive-accent: #ff4dcc;
+  --zone-archive-dim: #661a55;
+  --zone-commons-accent: #ffb300;
+  --zone-commons-dim: #664400;
+
+  /* Active HUD accent — updated dynamically via JS when zone changes */
+  --hud-accent: #00ccff;
+  --hud-accent-dim: #004466;
+
+  /* Pixel font */
+  --font-pixel: 'Press Start 2P', monospace;
+
   /* Playful Geometric shadows */
   --shadow-pop: 4px 4px 0px 0px #1e293b;
   --shadow-pop-hover: 6px 6px 0px 0px #1e293b;
@@ -285,6 +315,61 @@
     background-image: url("data:image/svg+xml,%3Csvg width='100' height='8' viewBox='0 0 100 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4C10 4 10 1 20 1C30 1 30 7 40 7C50 7 50 1 60 1C70 1 70 7 80 7C90 7 90 4 100 4' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: repeat-x;
     background-size: 50px 8px;
+  }
+
+  /* ===== CAMPUS WORLD HUD COMPONENTS ===== */
+
+  /* HUD Panel — all world overlay boxes */
+  .hud-panel {
+    background: rgba(5, 8, 16, 0.85);
+    border: 1px solid var(--hud-accent);
+    border-radius: 4px;
+    color: #ccddff;
+    font-family: var(--font-pixel);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--hud-accent) 30%, transparent);
+    transition: border-color 500ms ease, box-shadow 500ms ease;
+    position: relative;
+  }
+
+  /* Scanline overlay for all HUD panels */
+  .hud-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+    border-radius: 4px;
+  }
+
+  /* Zone name banner — slides in from top on zone change */
+  .zone-banner {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background: rgba(5, 8, 16, 0.92);
+    border: 1px solid var(--hud-accent);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 8px 20px;
+    color: var(--hud-accent);
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--hud-accent) 40%, transparent);
+    white-space: nowrap;
+    transition: border-color 500ms ease, color 500ms ease, box-shadow 500ms ease;
+  }
+
+  .zone-banner.visible {
+    animation: zone-banner-slide 2.8s ease forwards;
   }
 
   /* Floating badge for cards */
@@ -557,5 +642,21 @@
       transform: scale(1);
       opacity: 1;
     }
+  }
+
+  /* ===== CAMPUS WORLD ANIMATIONS ===== */
+
+  /* Zone banner slide-in from top, hold, slide out */
+  @keyframes zone-banner-slide {
+    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    12% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    75% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+  }
+
+  /* Pixel canvas — ensure crisp rendering */
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
 }

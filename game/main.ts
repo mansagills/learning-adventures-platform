@@ -26,7 +26,7 @@ export const createPhaserGame = (
     parent, // DOM element ID to mount game
     width: 1280, // Game viewport width
     height: 720, // Game viewport height
-    backgroundColor: '#FFFDF5', // Warm cream background (matches platform design)
+    backgroundColor: '#050810', // Campus void — deep space dark
 
     // Pixel art settings
     render: {
@@ -73,6 +73,10 @@ export const createPhaserGame = (
   };
 
   const game = new Phaser.Game(config);
+
+  if (bootstrap?.avatarId) {
+    game.registry.set('avatarId', bootstrap.avatarId);
+  }
 
   if (variant === 'open' && bootstrap?.lastScene === 'MathBuildingScene') {
     const pos = bootstrap.position;

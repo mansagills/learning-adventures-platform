@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Nunito, Inter, Outfit, Plus_Jakarta_Sans } from 'next/font/google';
+import { Nunito, Inter, Outfit, Plus_Jakarta_Sans, Press_Start_2P } from 'next/font/google';
 import './globals.css';
 import GameRegistryInitializer from '@/components/GameRegistryInitializer';
 import HeaderFooterWrapper, {
@@ -43,6 +43,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700'],
 });
 
+const pressStart2P = Press_Start_2P({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-pixel',
+  weight: '400',
+});
+
 export const metadata: Metadata = generateMetadata();
 
 export default function RootLayout({
@@ -56,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${nunito.variable} ${inter.variable} ${outfit.variable} ${plusJakartaSans.variable}`}
+      className={`${nunito.variable} ${inter.variable} ${outfit.variable} ${plusJakartaSans.variable} ${pressStart2P.variable}`}
     >
       <head>
         {/* JSON-LD Structured Data */}

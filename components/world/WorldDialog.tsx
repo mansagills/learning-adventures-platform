@@ -17,22 +17,75 @@ interface WorldDialogProps {
 export function WorldDialog({ dialog, onClose }: WorldDialogProps) {
   return (
     <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 w-[min(92vw,28rem)] pointer-events-auto">
-      <div className="bg-white border-2 border-[#8B5CF6] rounded-2xl shadow-2xl p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <p className="text-sm font-bold text-[#8B5CF6]">{dialog.speaker}</p>
+      <div
+        className="relative p-4 rounded"
+        style={{
+          background: 'rgba(5,8,16,0.95)',
+          border: '2px solid var(--hud-accent, #00ccff)',
+          boxShadow: '0 0 20px color-mix(in srgb, var(--hud-accent, #00ccff) 30%, transparent)',
+        }}
+      >
+        {/* Name chip */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span
+            style={{
+              fontFamily: 'var(--font-pixel, monospace)',
+              fontSize: '8px',
+              color: '#050810',
+              background: 'var(--hud-accent, #00ccff)',
+              padding: '3px 8px',
+              borderRadius: '2px',
+              letterSpacing: '1px',
+            }}
+          >
+            {dialog.speaker}
+          </span>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-500"
+            className="p-1 rounded transition-all hover:brightness-125"
+            style={{ border: '1px solid rgba(204,221,255,0.3)', color: '#ccddff' }}
             aria-label="Close dialog"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3 h-3" />
           </button>
         </div>
-        <p className="text-gray-800 text-sm leading-relaxed">{dialog.text}</p>
-        <p className="text-xs text-gray-400 mt-3">
-          {dialog.hasMore ? 'Press SPACE again for more' : 'Walk away or close when done'}
+
+        {/* Dialog text */}
+        <p
+          style={{
+            fontFamily: 'var(--font-pixel, monospace)',
+            fontSize: '8px',
+            color: '#ccddff',
+            lineHeight: '1.8',
+          }}
+        >
+          {dialog.text}
         </p>
+
+        {/* Advance cue */}
+        <p
+          style={{
+            fontFamily: 'var(--font-pixel, monospace)',
+            fontSize: '6px',
+            color: 'var(--hud-accent, #00ccff)',
+            marginTop: '10px',
+            opacity: 0.8,
+          }}
+        >
+          {dialog.hasMore ? 'SPACE — next ▼' : 'SPACE / walk away to close'}
+        </p>
+
+        {/* Scanline overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px)',
+            pointerEvents: 'none',
+            borderRadius: '2px',
+          }}
+        />
       </div>
     </div>
   );

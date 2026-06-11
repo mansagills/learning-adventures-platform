@@ -17,6 +17,7 @@ export class MathBuildingScene extends Phaser.Scene {
   private player?: Player;
   private interactables: InteractableObject[] = [];
   private interactKey?: Phaser.Input.Keyboard.Key;
+  private isExiting = false;
 
   constructor() {
     super({ key: 'MathBuildingScene' });
@@ -67,19 +68,23 @@ export class MathBuildingScene extends Phaser.Scene {
     const spawnX = this.registry.get('spawnX') as number;
     const spawnY = this.registry.get('spawnY') as number;
     const avatarId = this.game.registry.get('avatarId') as string | undefined;
-    const playerTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
+    const requestedTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
+    const playerTexture = this.textures.exists(requestedTexture)
+      ? requestedTexture
+      : 'player-human-1';
     this.player = new Player(this, spawnX, spawnY, playerTexture);
 
     // Build the interior (walls and arcade colliders need this.player)
     this.createInterior();
 
-    // Configure camera
-    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    // Keep the small interior room fixed on screen while the avatar moves inside it.
+    this.cameras.main.setBounds(0, 0, 640, 640);
+    this.cameras.main.centerOn(320, 320);
     this.cameras.main.setZoom(1);
     this.cameras.main.fadeIn(500);
 
-    // Set world bounds (10x10 tiles at 64px each)
-    this.physics.world.setBounds(64, 64, 512, 512);
+    // Set world bounds to the full 10x10 room. Wall colliders define blocked edges.
+    this.physics.world.setBounds(0, 0, 640, 640);
 
     // Setup interaction key
     if (this.input.keyboard) {
@@ -117,11 +122,12 @@ export class MathBuildingScene extends Phaser.Scene {
     this.createWalls();
 
     // Add title (fixed to camera)
-    const title = this.add.text(320, 16, 'MATH BUILDING', {
-      fontSize: '22px',
-      color: '#8B5CF6',
-      backgroundColor: '#FFFFFFCC',
-      padding: { x: 10, y: 5 },
+    const title = this.add.text(320, 16, 'QUANTUM LAB', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '10px',
+      color: '#9b5cff',
+      backgroundColor: '#050810CC',
+      padding: { x: 10, y: 6 },
       align: 'center',
     });
     title.setOrigin(0.5, 0);
@@ -130,7 +136,7 @@ export class MathBuildingScene extends Phaser.Scene {
     // Place game stations (5 arcade cabinets)
     this.createGameStations();
 
-    // Create Math Teacher NPC
+    // Create Professor Numbers NPC
     this.createMathTeacher();
 
     // Create exit door
@@ -142,7 +148,9 @@ export class MathBuildingScene extends Phaser.Scene {
     // Border walls (10 tiles wide, 10 tall)
     for (let x = 0; x < 10; x++) {
       this.createWall(x * TS, 0);           // Top
-      this.createWall(x * TS, 9 * TS);      // Bottom
+      if (x < 4 || x > 6) {
+        this.createWall(x * TS, 9 * TS);    // Bottom, with doorway gap
+      }
     }
     for (let y = 1; y < 9; y++) {
       this.createWall(0, y * TS);            // Left
@@ -184,7 +192,8 @@ export class MathBuildingScene extends Phaser.Scene {
       arcade.setOnInteract(() => this.playGame(station.gameId));
 
       const label = this.add.text(station.x, station.y - 40, station.name, {
-        fontSize: '11px', color: '#000000', backgroundColor: '#FFFFFFCC',
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '6px', color: '#ccddff', backgroundColor: '#050810CC',
         padding: { x: 3, y: 2 }, align: 'center',
       });
       label.setOrigin(0.5);
@@ -206,18 +215,19 @@ export class MathBuildingScene extends Phaser.Scene {
       this,
       5 * 64, 3 * 64,
       'npc-teacher',
-      'Ms. Numbers',
+      'Professor Numbers',
       [
-        { text: 'Welcome to the Math Building!' },
-        { text: 'Try out our fun math games at the arcade stations!' },
-        { text: 'Each game will help you practice different math skills.' },
-        { text: 'Have fun learning!' },
-      ]
+        { text: 'Professor Ivy told me you were coming. Your first Math Lab quest is ready.' },
+        { text: 'Start Math Race Rally from the Quest Board, solve the challenge, and bring your result back to campus.' },
+        { text: 'Quest reward: 100 XP and the Math Explorer badge. Let us begin!' },
+      ],
+      () => EventBus.emit('open-job-board', {}),
     );
     this.interactables.push(teacher);
 
-    const nameLabel = this.add.text(5 * 64, 3 * 64 - 40, 'Ms. Numbers', {
-      fontSize: '11px', color: '#FFFFFF', backgroundColor: '#FF8C00CC',
+    const nameLabel = this.add.text(5 * 64, 3 * 64 - 40, 'Prof. Numbers', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '6px', color: '#9b5cff', backgroundColor: '#050810CC',
       padding: { x: 4, y: 2 }, align: 'center',
     });
     nameLabel.setOrigin(0.5);
@@ -226,16 +236,23 @@ export class MathBuildingScene extends Phaser.Scene {
   private createExitDoor(): void {
     const exitDoor = Door.createExitDoor(
       this,
-      5 * 64, 9 * 64 - 16,
+      5 * 64, 8 * 64,
       'door-interior',
       'OpenWorldScene',
-      928, 512
+      14 * 64,
+      32 * 64
     );
+    exitDoor.setInteractRadius(96);
     this.interactables.push(exitDoor);
 
-    const exitLabel = this.add.text(5 * 64, 9 * 64 - 60, 'EXIT', {
-      fontSize: '14px', color: '#000000', backgroundColor: '#FFD700CC',
-      padding: { x: 6, y: 3 }, align: 'center',
+    const exitPad = this.add.rectangle(5 * 64, 8 * 64, 160, 80, 0xffb300, 0.28);
+    exitPad.setStrokeStyle(3, 0xfff1a6, 0.9);
+    exitPad.setDepth(1);
+
+    const exitLabel = this.add.text(5 * 64, 8 * 64 - 58, 'EXIT TO CAMPUS', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '8px', color: '#ffb300', backgroundColor: '#050810CC',
+      padding: { x: 6, y: 4 }, align: 'center',
     });
     exitLabel.setOrigin(0.5);
   }
@@ -253,6 +270,7 @@ export class MathBuildingScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     if (this.player) {
       this.player.update(time, delta);
+      this.checkExitZone();
 
       // Check proximity to all interactables
       this.interactables.forEach((interactable) => {
@@ -267,6 +285,25 @@ export class MathBuildingScene extends Phaser.Scene {
         });
       }
     }
+  }
+
+  private checkExitZone(): void {
+    if (!this.player || this.isExiting) return;
+
+    const isInExitColumn = this.player.x >= 240 && this.player.x <= 400;
+    const isAtExitThreshold = this.player.y >= 472;
+    if (!isInExitColumn || !isAtExitThreshold) return;
+
+    this.isExiting = true;
+    this.cameras.main.fadeOut(250, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.stop();
+      this.scene.start('OpenWorldScene', {
+        spawnX: 14 * 64,
+        spawnY: 32 * 64,
+        fromScene: this.scene.key,
+      });
+    });
   }
 
   shutdown(): void {

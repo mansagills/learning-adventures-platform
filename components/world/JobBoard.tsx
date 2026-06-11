@@ -80,47 +80,62 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="relative w-[90vw] max-w-2xl max-h-[85vh] flex flex-col bg-[#1a1a2e] rounded-2xl shadow-2xl overflow-hidden border border-[#F59E0B]/40">
+      <div
+        className="relative w-[90vw] max-w-2xl max-h-[85vh] flex flex-col rounded shadow-2xl overflow-hidden"
+        style={{ background: '#050810', border: '1px solid #ffb300', boxShadow: '0 0 24px rgba(255,179,0,0.2)' }}
+      >
 
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 shrink-0"
-          style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)' }}
+          style={{ background: 'rgba(5,8,16,0.97)', borderBottom: '1px solid #ffb300' }}
         >
           <div className="flex items-center gap-3">
-            <Briefcase className="w-6 h-6 text-white" />
+            <Briefcase className="w-5 h-5" style={{ color: '#ffb300' }} />
             <div>
-              <h2 className="text-xl font-bold text-white">Job Board</h2>
-              <p className="text-yellow-100 text-xs">Earn coins by helping out around campus!</p>
+              <h2
+                style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '9px', color: '#ffb300', letterSpacing: '1px' }}
+              >
+                QUEST BOARD
+              </h2>
+              <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ccddff', marginTop: '4px' }}>
+                Choose a quest · earn campus rewards
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-white text-xs font-semibold">Today</p>
-              <p className="text-yellow-100 text-xs">{completedToday}/{dailyLimit} jobs</p>
+              <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ffb300' }}>TODAY</p>
+              <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ccddff', marginTop: '2px' }}>{completedToday}/{dailyLimit}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white"
-              aria-label="Close job board"
+              className="p-1.5 rounded transition-all hover:brightness-125"
+              style={{ border: '1px solid rgba(255,179,0,0.3)', color: '#ffb300' }}
+              aria-label="Close quest board"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Daily progress bar */}
-        <div className="px-6 py-2 bg-black/30 shrink-0">
-          <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
-            <span>Daily jobs ({completedToday}/{dailyLimit})</span>
+        <div className="px-6 py-2 shrink-0" style={{ background: 'rgba(5,8,16,0.8)', borderBottom: '1px solid rgba(255,179,0,0.2)' }}>
+          <div className="flex items-center justify-between mb-1">
+            <span style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ccddff' }}>
+              DAILY QUESTS ({completedToday}/{dailyLimit})
+            </span>
             {completedToday >= dailyLimit && (
-              <span className="text-yellow-400 font-semibold">Daily limit reached!</span>
+              <span style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ffb300' }}>LIMIT REACHED</span>
             )}
           </div>
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-2 overflow-hidden rounded-none" style={{ background: '#0d1320' }}>
             <div
-              className="h-full bg-[#F59E0B] rounded-full transition-all"
-              style={{ width: `${Math.min((completedToday / dailyLimit) * 100, 100)}%` }}
+              className="h-full transition-all"
+              style={{
+                width: `${Math.min((completedToday / dailyLimit) * 100, 100)}%`,
+                background: 'linear-gradient(90deg, #ffb300, #ff8c00)',
+              }}
             />
           </div>
         </div>
@@ -140,12 +155,12 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {loading ? (
             <div className="flex items-center justify-center h-32 text-gray-400">
-              Loading jobs...
+              Loading quests...
             </div>
           ) : jobs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-gray-500 gap-2">
               <p className="text-4xl">📋</p>
-              <p>No jobs available right now.</p>
+              <p>No quests available right now.</p>
             </div>
           ) : (
             jobs.map((job) => {
@@ -213,7 +228,7 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
                     </div>
                     {job.available && (
                       <div className="mt-2 px-3 py-1 bg-[#F59E0B] text-white text-xs font-bold rounded-lg">
-                        Take Job →
+                        Start Quest
                       </div>
                     )}
                   </div>
@@ -224,7 +239,7 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
         </div>
 
         <div className="px-6 py-3 border-t border-white/10 text-center text-xs text-gray-500 shrink-0">
-          Complete jobs to earn coins • Max {dailyLimit} jobs per day
+          Complete quests to earn XP and coins. Max {dailyLimit} quests per day.
         </div>
       </div>
     </div>

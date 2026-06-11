@@ -1,34 +1,25 @@
 import { EventBus } from '@/components/phaser/EventBus';
+import { CAMPUS_ZONES } from './campusLayout';
 
 export interface ZoneInfo {
   name: string;
+  displayName: string;
   key: string;
-  color: number;  // hex for minimap rendering
+  color: number;
+  neonAccent: string;
+  neonDim: string;
   pixelX: number;
   pixelY: number;
-  pixelW: number;  // always 2048
-  pixelH: number;  // always 1536
+  pixelW: number;
+  pixelH: number;
 }
 
-const ZONE_W = 2048;
-const ZONE_H = 1536;
-
-const ZONES: ZoneInfo[] = [
-  { key: 'math',              name: 'Math Zone',          color: 0x8B5CF6, pixelX: 0,    pixelY: 0,    pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'library',           name: 'Library',            color: 0x3B82F6, pixelX: 2048, pixelY: 0,    pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'science',           name: 'Science Zone',       color: 0x14B8A6, pixelX: 4096, pixelY: 0,    pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'history',           name: 'History Zone',       color: 0xF59E0B, pixelX: 0,    pixelY: 1536, pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'town-square',       name: 'Town Square',        color: 0x10B981, pixelX: 2048, pixelY: 1536, pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'english',           name: 'English Zone',       color: 0xEC4899, pixelX: 4096, pixelY: 1536, pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'nature',            name: 'Nature Park',        color: 0x22C55E, pixelX: 0,    pixelY: 3072, pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'market',            name: 'Market',             color: 0xEF4444, pixelX: 2048, pixelY: 3072, pixelW: ZONE_W, pixelH: ZONE_H },
-  { key: 'interdisciplinary', name: 'Interdisciplinary',  color: 0xA78BFA, pixelX: 4096, pixelY: 3072, pixelW: ZONE_W, pixelH: ZONE_H },
-];
+const ZONES: ZoneInfo[] = CAMPUS_ZONES;
 
 /**
  * ZoneManager — plain TypeScript class (no Phaser dependency).
  *
- * Tracks which of the 9 campus zones the player is currently in and emits
+ * Tracks which Campus V1 zone the player is currently in and emits
  * a 'zone-changed' event on the EventBus whenever the player crosses a boundary.
  *
  * Usage:
@@ -39,14 +30,14 @@ const ZONES: ZoneInfo[] = [
 export class ZoneManager {
   private currentZoneKey: string = '';
 
-  /** Returns the static array of all 9 zones (used by Minimap). */
+  /** Returns the static array of Campus V1 zones (used by Minimap). */
   getZones(): ZoneInfo[] {
     return ZONES;
   }
 
   /**
    * Returns the ZoneInfo that contains the given world coordinates.
-   * Falls back to town-square if no zone matches (should not happen in a valid world).
+   * Falls back to Main Hub if no zone matches.
    */
   getCurrentZone(worldX: number, worldY: number): ZoneInfo {
     for (const zone of ZONES) {
@@ -59,8 +50,8 @@ export class ZoneManager {
         return zone;
       }
     }
-    // Fallback: return town-square
-    return ZONES.find((z) => z.key === 'town-square')!;
+    // Fallback: return main hub
+    return ZONES.find((z) => z.key === 'main-hub')!;
   }
 
   /**
