@@ -12,6 +12,7 @@ import {
   WORLD_COLS,
   WORLD_ROWS,
   TILE_SIZE,
+  type BuildingDoorConfig,
 } from '../world/TilemapGenerator';
 import { ZoneManager } from '../world/ZoneManager';
 import { CollectibleSystem } from '../world/CollectibleSystem';
@@ -108,8 +109,8 @@ export class OpenWorldScene extends Phaser.Scene {
 
   // ─── create ──────────────────────────────────────────────────────────────────
   create(): void {
-    // Generate tile data for the full 96×72 world
-    this.mapData = generate();
+    // Generate tile data for the full 96×72 world (subclasses may post-process)
+    this.mapData = this.generateMap();
 
     // Set physics world bounds to match open world size
     this.physics.world.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
@@ -183,52 +184,66 @@ export class OpenWorldScene extends Phaser.Scene {
     console.log(`${this.scene.key} created — open world ready!`);
   }
 
+  // ─── Map generation hook ─────────────────────────────────────────────────────
+
+  /** Tile data for the world. Subclasses can post-process (e.g. open rooms). */
+  protected generateMap(): number[][] {
+    return generate();
+  }
+
   // ─── Interactables ───────────────────────────────────────────────────────────
 
   private createInteractables(): void {
-    const doors = getBuildingDoorPositions();
-
-    doors.forEach((config) => {
-      const px = config.doorTileCol * TILE_SIZE;
-      const py = config.doorTileRow * TILE_SIZE;
-
-      if (config.targetScene) {
-        const door = new Door(
-          this, px, py,
-          'door-gold-small',
-          config.targetScene,
-          config.spawnX,
-          config.spawnY,
-        );
-        door.setPromptText(`Press SPACE: Enter ${config.building}`);
-        this.interactables.push(door);
-      } else if (config.id === 'building_quest_board') {
-        const questBoard = new InteractableObject(this, px, py, 'door-amber-small');
-        questBoard.setPromptText('Press SPACE: Open Quest Board');
-        questBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
-        this.interactables.push(questBoard);
-      } else if (config.id === 'building_campus_shop') {
-        const shop = new InteractableObject(this, px, py, 'door-teal-small');
-        shop.setPromptText('Press SPACE: Open Campus Shop');
-        shop.setOnInteract(() => EventBus.emit('open-shop', {}));
-        this.interactables.push(shop);
-      } else {
-        const npc = new NPC(
-          this, px, py,
-          'door-teal-small',
-          config.building,
-          [{ text: config.dialog, speaker: config.building }],
-        );
-        this.interactables.push(npc);
-      }
-
-      this.addBuildingLabel(config.label, px, py - 88);
-    });
+    getBuildingDoorPositions().forEach((config) =>
+      this.createBuildingInteractable(config),
+    );
 
     this.createCampusNPCs();
 
     this.collectibles = new CollectibleSystem(this);
     this.interactables.push(...this.collectibles.getObjects());
+  }
+
+  /**
+   * Creates the interaction for one building from the shared campus layout.
+   * Subclasses override to change building behaviour (e.g. open walk-in rooms
+   * instead of teleport doors).
+   */
+  protected createBuildingInteractable(config: BuildingDoorConfig): void {
+    const px = config.doorTileCol * TILE_SIZE;
+    const py = config.doorTileRow * TILE_SIZE;
+
+    if (config.targetScene) {
+      const door = new Door(
+        this, px, py,
+        'door-gold-small',
+        config.targetScene,
+        config.spawnX,
+        config.spawnY,
+      );
+      door.setPromptText(`Press SPACE: Enter ${config.building}`);
+      this.interactables.push(door);
+    } else if (config.id === 'building_quest_board') {
+      const questBoard = new InteractableObject(this, px, py, 'door-amber-small');
+      questBoard.setPromptText('Press SPACE: Open Quest Board');
+      questBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
+      this.interactables.push(questBoard);
+    } else if (config.id === 'building_campus_shop') {
+      const shop = new InteractableObject(this, px, py, 'door-teal-small');
+      shop.setPromptText('Press SPACE: Open Campus Shop');
+      shop.setOnInteract(() => EventBus.emit('open-shop', {}));
+      this.interactables.push(shop);
+    } else {
+      const npc = new NPC(
+        this, px, py,
+        'door-teal-small',
+        config.building,
+        [{ text: config.dialog, speaker: config.building }],
+      );
+      this.interactables.push(npc);
+    }
+
+    this.addBuildingLabel(config.label, px, py - 88);
   }
 
   protected createCampusNPCs(): void {

@@ -9,9 +9,22 @@ other instead of pressing a key to open dialogs.
 It runs on the **same expanded 96×72 zoned campus** as the classic `/world`
 (Nexus Plaza hub, Quantum Lab, Science Nexus, Chronicle Archive, Stellar
 Commons — defined in `game/world/campusLayout.ts`), so both worlds share one
-source of truth for zones, buildings, and NPCs. The Gather variant
-(`GatherCampusScene`) extends `OpenWorldScene` and swaps the press-SPACE NPC
-markers for walk-up-and-talk characters plus per-zone learning stations.
+source of truth for zones and NPCs. The Gather variant (`GatherCampusScene`)
+extends `OpenWorldScene` and Gather-ifies it:
+
+- **Open walk-in buildings.** Instead of doors that teleport to interior
+  scenes, the four learning buildings are **open rooms carved into the map**
+  (perimeter walls + a 2-tile doorway + stone floor). You walk in and out
+  seamlessly — no scene transitions, no loading. Each room holds that
+  subject's learning stations and its host NPC.
+- **Walk-up-and-talk NPCs** with animated sprites replace the press-SPACE
+  markers.
+- **Math Hall** contains the full Math Lab game set (Pizza Fractions, Math
+  Race Rally, Multiplication Bingo, Number Monsters, Math Jeopardy) and
+  **Professor Numbers**, the quest giver: finishing his dialogue opens the
+  Quest Board to start the Math Race Rally quest (100 XP + Math Explorer
+  badge), exactly as in the classic world's `MathBuildingScene` — but inline,
+  no interior scene.
 
 ## How to Test
 
@@ -34,10 +47,11 @@ Both worlds use the **same** 96×72 zoned map; only the interaction layer differ
 | | `/world` (open world) | `/world/campus` (Gather-style) |
 |---|---|---|
 | Map | 96×72 chunked zoned campus | **same** 96×72 chunked zoned campus |
+| Buildings | Doors teleport to interior scenes | **Open rooms you walk into** — no scene change |
 | Talking | Press SPACE near an NPC marker | **Automatic**: walk up → conversation starts, walk away → it ends |
 | Dialogue UI | `WorldDialog` panel | In-canvas typewriter speech bubble + React chat panel |
 | NPCs | Door-colored circles | Animated 16-bit character sprites with name tags + connection rings |
-| Stations | Math Hall interior only | Per-zone walk-up stations across the overworld |
+| Stations | Math Hall interior scene only | Inside every open room (Math Hall games included inline) |
 
 ## Mechanics
 
@@ -48,24 +62,37 @@ Both worlds use the **same** 96×72 zoned map; only the interaction layer differ
   instantly restart. The six campus guides (Jaylen, Professor Ivy, Professor
   Numbers, Dr. Spark, Story Sage, Commons Host) come straight from
   `campusLayout.ts` — same characters and dialogue as the classic world.
-- **Learning stations**: 13 arcade cabinets/desks spread across the four
-  learning zones. SPACE/tap launches the game in the existing `AdventureEmbed`
-  iframe; completion awards XP/coins via `/api/world/award`.
-- **Quest board & shop**: the campus buildings and Professor Numbers' final
-  dialogue line open the Job/Quest board and shop, same as `/world`.
+- **Open walk-in rooms**: the four learning buildings are carved into the map
+  as hollow rooms (`carveGatherRooms`) — perimeter walls (with collision), a
+  stone floor, and a 2-tile doorway. Walls block; only the doorway passes.
+  Each room's host NPC and stations live inside.
+- **Learning stations**: 14 arcade cabinets/desks placed inside the rooms
+  (5 in Math Hall, 4 in Discovery Lab, 3 in Story Grove, 2 in The Commons).
+  SPACE/tap launches the game in the existing `AdventureEmbed` iframe;
+  completion awards XP/coins via `/api/world/award`.
+- **Quest loop**: Professor Numbers (in Math Hall) gives the Math Race Rally
+  quest; his final dialogue line opens the Quest Board (`open-job-board`),
+  which runs the same `/api/jobs/*` flow as the classic world. Math Race Rally
+  is also a station inside the room for direct play.
+- **Quest board & shop**: open via the hub Quest Board building, the shop
+  inside The Commons, and Professor Numbers' final line — same events as
+  `/world`.
 - **Zone banners**: crossing a zone boundary fires `zone-changed` (from the
   inherited `ZoneManager`) and shows a neon banner with that zone's accent.
-- **Buildings**: Math Hall's door still enters `MathBuildingScene`; its exit
-  returns to whichever variant you came from.
 - **Position persistence**: reuses `/api/character/update`; returning players
   respawn where they left off if their `lastScene` is `GatherCampusScene`.
 
 ## Key Files
 
-- `game/scenes/GatherCampusScene.ts` — extends `OpenWorldScene`; swaps in
-  TalkableNPCs + stations, keeps chunk streaming, zones, doors, collectibles
+- `game/scenes/GatherCampusScene.ts` — extends `OpenWorldScene`; carves open
+  rooms (`generateMap`), suppresses teleport doors (`createBuildingInteractable`),
+  swaps in TalkableNPCs + in-room stations; keeps chunk streaming, zones,
+  collectibles
 - `game/world/gatherPresentation.ts` — Gather presentation layer over the
-  shared `campusLayout.ts`: character sprite + patrol per NPC, per-zone stations
+  shared `campusLayout.ts`: open-room geometry + carving, character sprite and
+  in-room placement per NPC, and the in-room stations
+- `game/scenes/OpenWorldScene.ts` — base scene, made subclass-friendly with
+  `generateMap()` and `createBuildingInteractable()` hooks
 - `game/entities/TalkableNPC.ts` — proximity conversation entity
 - `game/world/campusLayout.ts` — shared zone/building/NPC source of truth
   (from the merged zone branch; used by both world variants)

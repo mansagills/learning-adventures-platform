@@ -3,8 +3,11 @@ import { OpenWorldScene } from './OpenWorldScene';
 import { TalkableNPC } from '../entities/TalkableNPC';
 import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
+import type { BuildingDoorConfig } from '../world/TilemapGenerator';
 import {
   buildGatherNpcConfigs,
+  carveGatherRooms,
+  getGatherRoomLabels,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
 
@@ -12,17 +15,20 @@ import {
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
  *
  * Inherits the full zoned open world from OpenWorldScene (chunk-streamed
- * tilemap from campusLayout.ts, zone tracking/banners, building doors,
- * collectibles) and replaces press-SPACE NPC circles with walk-up-and-talk
- * characters:
+ * tilemap from campusLayout.ts, zone tracking/banners, collectibles) and
+ * makes it Gather-style:
  *
+ * - Buildings are OPEN walk-in rooms (carved into the map: perimeter walls +
+ *   a doorway + stone floor) instead of teleport doors — you walk in and out
+ *   seamlessly, no scene transitions. Each room holds that subject's learning
+ *   stations and its host NPC (Math Hall has the full Math Lab game set and
+ *   Professor Numbers, the quest giver).
  * - Campus NPCs become TalkableNPCs — animated 16-bit sprites with name tags
  *   that auto-start a conversation when the player walks up (typewriter
  *   speech bubble + React chat panel) and end it when the player walks away.
- * - Each zone gets walk-up learning stations that launch adventures via the
- *   existing `open-adventure` embed flow.
- * - SPACE/E or tap advances the active conversation; otherwise interacts
- *   with stations, doors, the quest board, and the shop as usual.
+ * - Stations launch adventures via the existing `open-adventure` embed flow.
+ * - SPACE/E or tap advances the active conversation; otherwise interacts with
+ *   stations, the quest board, and the shop.
  */
 export class GatherCampusScene extends OpenWorldScene {
   private npcs: TalkableNPC[] = [];
@@ -45,6 +51,11 @@ export class GatherCampusScene extends OpenWorldScene {
   create(): void {
     super.create();
 
+    // Building signs over the open rooms
+    getGatherRoomLabels().forEach((label) => {
+      this.addBuildingLabel(label.text, label.x, label.y);
+    });
+
     // E as an alternate interact key (base scene registers SPACE)
     if (this.input.keyboard) {
       this.extraInteractKey = this.input.keyboard.addKey(
@@ -60,9 +71,32 @@ export class GatherCampusScene extends OpenWorldScene {
     this.events.once('destroy', this.cleanupGather, this);
   }
 
+  /** Carve the open walk-in rooms into the base campus tile grid. */
+  protected generateMap(): number[][] {
+    const tiles = super.generateMap();
+    carveGatherRooms(tiles);
+    return tiles;
+  }
+
+  /**
+   * Buildings are open rooms here, so suppress the teleport door and the
+   * press-SPACE "coming soon" building NPCs. The quest board and shop stay as
+   * SPACE interactions (handled by the base implementation).
+   */
+  protected createBuildingInteractable(config: BuildingDoorConfig): void {
+    if (
+      config.id === 'building_quest_board' ||
+      config.id === 'building_campus_shop'
+    ) {
+      super.createBuildingInteractable(config);
+    }
+    // math hall / discovery lab / story grove: open rooms — their TalkableNPC
+    // and stations live inside; no door, no label here (room signs added above)
+  }
+
   /**
    * Replaces the base press-SPACE campus NPCs with walk-up-and-talk
-   * characters, and adds the per-zone learning stations.
+   * characters, and adds the in-room learning stations.
    */
   protected createCampusNPCs(): void {
     buildGatherNpcConfigs().forEach((config) => {

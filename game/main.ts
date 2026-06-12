@@ -45,10 +45,11 @@ export const createPhaserGame = (
       },
     },
 
-    // Scene configuration
+    // Scene configuration. Gather buildings are open rooms (no interior scene),
+    // so the gather variant needs only its single scene.
     scene:
       variant === 'gather'
-        ? [GatherCampusScene, MathBuildingScene]
+        ? [GatherCampusScene]
         : [OpenWorldScene, MathBuildingScene],
 
     // Scaling configuration for responsive design

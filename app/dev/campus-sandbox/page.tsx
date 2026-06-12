@@ -48,6 +48,11 @@ export default function CampusSandboxPage() {
       setNotice('🛒 Shop would open here (requires login)');
       setTimeout(() => setNotice(null), 3000);
     };
+    const handleOpenJobBoard = () => {
+      (window as any).__campusTest.questBoardOpened = true;
+      setNotice('📋 Quest Board would open here (requires login)');
+      setTimeout(() => setNotice(null), 3000);
+    };
     const handlePosition = (data: { x: number; y: number }) => {
       (window as any).__campusTest.position = data;
     };
@@ -58,6 +63,7 @@ export default function CampusSandboxPage() {
       adventure: null,
       position: null,
       shopOpened: false,
+      questBoardOpened: false,
       move: (x: number, y: number) => EventBus.emit('touch-move', { x, y }),
       teleport: (x: number, y: number) => EventBus.emit('teleport-player', { x, y }),
     };
@@ -66,6 +72,7 @@ export default function CampusSandboxPage() {
     EventBus.on('npc-conversation-end', handleConversationEnd);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
+    EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
 
     return () => {
@@ -73,6 +80,7 @@ export default function CampusSandboxPage() {
       EventBus.off('npc-conversation-end', handleConversationEnd);
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
+      EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
       delete (window as any).__campusTest;
     };
