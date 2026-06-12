@@ -12,10 +12,12 @@ import {
   WORLD_COLS,
   WORLD_ROWS,
   TILE_SIZE,
+  type BuildingDoorConfig,
 } from '../world/TilemapGenerator';
 import { ZoneManager } from '../world/ZoneManager';
-import { WanderingNPC } from '../entities/WanderingNPC';
 import { CollectibleSystem } from '../world/CollectibleSystem';
+import { CAMPUS_NPCS } from '../world/campusLayout';
+import { clearWorldBootstrap, getWorldBootstrap } from '../worldBootstrap';
 
 // ─── Chunk constants ──────────────────────────────────────────────────────────
 const CHUNK_TILE_COLS = 16;  // tiles per chunk horizontally
@@ -35,19 +37,28 @@ const TOTAL_CHUNK_ROWS = WORLD_ROWS / CHUNK_TILE_ROWS;  // 6
  * Only the 3×3 area of chunks surrounding the camera centre is active at any time.
  */
 export class OpenWorldScene extends Phaser.Scene {
-  private player?: Player;
-  private interactables: InteractableObject[] = [];
-  private interactKey?: Phaser.Input.Keyboard.Key;
-  private zoneManager!: ZoneManager;
+  protected player?: Player;
+  protected interactables: InteractableObject[] = [];
+  protected interactKey?: Phaser.Input.Keyboard.Key;
+  protected zoneManager!: ZoneManager;
   private collectibles?: CollectibleSystem;
+  private transitionSpawn?: { x: number; y: number };
 
   // Chunk streaming state
   private mapData: number[][] = [];
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
   private lastCameraChunk = { cx: -1, cy: -1 };
 
-  constructor() {
-    super({ key: 'OpenWorldScene' });
+  /** Subclasses (e.g. GatherCampusScene) pass their own scene key. */
+  constructor(key: string = 'OpenWorldScene') {
+    super({ key });
+  }
+
+  init(data: { spawnX?: number; spawnY?: number } = {}): void {
+    this.transitionSpawn =
+      typeof data.spawnX === 'number' && typeof data.spawnY === 'number'
+        ? { x: data.spawnX, y: data.spawnY }
+        : undefined;
   }
 
   // ─── preload ─────────────────────────────────────────────────────────────────
@@ -98,16 +109,34 @@ export class OpenWorldScene extends Phaser.Scene {
 
   // ─── create ──────────────────────────────────────────────────────────────────
   create(): void {
-    // Generate tile data for the full 96×72 world
-    this.mapData = generate();
+    // Generate tile data for the full 96×72 world (subclasses may post-process)
+    this.mapData = this.generateMap();
 
     // Set physics world bounds to match open world size
     this.physics.world.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
 
-    // Create player at world centre spawn point (Town Square)
-    const avatarId = this.game.registry.get('avatarId') as string | undefined;
-    const playerTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
-    this.player = new Player(this, 3072, 2304, playerTexture);
+    // Create player at saved campus position when available, otherwise Main Hub.
+    const bootstrap = getWorldBootstrap();
+    const savedPosition = bootstrap && bootstrap.lastScene !== 'MathBuildingScene'
+      ? bootstrap.position
+      : null;
+    const spawnX = this.transitionSpawn?.x ?? (savedPosition?.scene === 'WorldScene' ? 3072 : savedPosition?.x);
+    const spawnY = this.transitionSpawn?.y ?? (savedPosition?.scene === 'WorldScene' ? 2304 : savedPosition?.y);
+    const avatarId = bootstrap?.avatarId ?? (this.game.registry.get('avatarId') as string | undefined);
+    const requestedTexture = avatarId ? `player-${avatarId}` : 'player-human-1';
+    const playerTexture = this.textures.exists(requestedTexture)
+      ? requestedTexture
+      : 'player-human-1';
+    this.player = new Player(
+      this,
+      spawnX ?? 3072,
+      spawnY ?? 2304,
+      playerTexture,
+    );
+    if (avatarId && playerTexture === requestedTexture) {
+      this.game.registry.set('avatarId', avatarId);
+    }
+    clearWorldBootstrap();
     this.player.setDepth(10);
 
     // Initialise zone tracker (pure TS, no Phaser dependency)
@@ -131,7 +160,7 @@ export class OpenWorldScene extends Phaser.Scene {
     // Bootstrap chunk streaming (loads the 3×3 chunks around spawn)
     this.createInitialChunks();
 
-    // Place building doors, NPC placeholders, shop, and job board
+    // Place Campus V1 buildings, NPCs, shop, and quest board
     this.createInteractables();
 
     // Setup interaction key (SPACE)
@@ -144,126 +173,126 @@ export class OpenWorldScene extends Phaser.Scene {
     // Wire up EventBus listeners
     this.setupEventListeners();
 
-    // Shutdown cleanup
+    // Cleanup on scene stop AND on whole-game teardown (page unmount / HMR),
+    // which fires 'destroy' without a preceding 'shutdown'.
     this.events.once('shutdown', this.shutdown, this);
+    this.events.once('destroy', this.shutdown, this);
 
     // Signal React that the scene is ready
-    EventBus.emit('scene-ready', { scene: 'OpenWorldScene' });
+    EventBus.emit('scene-ready', { scene: this.scene.key });
 
-    console.log('OpenWorldScene created — open world ready!');
+    console.log(`${this.scene.key} created — open world ready!`);
+  }
+
+  // ─── Map generation hook ─────────────────────────────────────────────────────
+
+  /** Tile data for the world. Subclasses can post-process (e.g. open rooms). */
+  protected generateMap(): number[][] {
+    return generate();
   }
 
   // ─── Interactables ───────────────────────────────────────────────────────────
 
   private createInteractables(): void {
-    const doors = getBuildingDoorPositions();
+    getBuildingDoorPositions().forEach((config) =>
+      this.createBuildingInteractable(config),
+    );
 
-    doors.forEach((config) => {
-      const px = config.doorTileCol * TILE_SIZE;
-      const py = config.doorTileRow * TILE_SIZE;
+    this.createCampusNPCs();
 
-      if (config.targetScene) {
-        // Fully wired door (Math Building → MathBuildingScene)
-        const door = new Door(
-          this, px, py,
-          'door-gold-small',
-          config.targetScene,
-          config.spawnX,
-          config.spawnY,
-        );
-        this.interactables.push(door);
-      } else {
-        // Placeholder NPC for buildings not yet implemented
-        const npc = new NPC(
-          this, px, py,
-          'door-teal-small',
-          config.building,
-          [{ text: 'Coming soon! Check back later.', speaker: config.building }],
-        );
-        this.interactables.push(npc);
-      }
-    });
-
-    // Shop interactable — front of Shop building (cols 5-7, rows 36-38)
-    // Position at centre-front: col 6, row 39
-    const shop = new InteractableObject(this, 6 * TILE_SIZE, 39 * TILE_SIZE, 'door-teal-small');
-    shop.setPromptText('Press SPACE: Open Shop');
-    shop.setOnInteract(() => EventBus.emit('open-shop', {}));
-    this.interactables.push(shop);
-
-    // Job Board interactable — front of Job Board building (cols 86-88, rows 36-38)
-    // Position at centre-front: col 87, row 39
-    const jobBoard = new InteractableObject(this, 87 * TILE_SIZE, 39 * TILE_SIZE, 'door-amber-small');
-    jobBoard.setPromptText('Press SPACE: Open Job Board');
-    jobBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
-    this.interactables.push(jobBoard);
-
-    // Wandering NPCs — 3 per zone (27 total)
-    this.createWanderingNPCs();
-
-    // Collectibles — 45 stars (5 per zone)
     this.collectibles = new CollectibleSystem(this);
-    // Include collectibles in the proximity loop
     this.interactables.push(...this.collectibles.getObjects());
   }
 
-  private createWanderingNPCs(): void {
-    const T = TILE_SIZE;
-    // Helper to push a wandering NPC with waypoints
-    const addNPC = (name: string, texture: string, waypoints: { x: number; y: number }[], dialog: string) => {
-      const start = waypoints[0];
-      const npc = new WanderingNPC(this, start.x, start.y, texture, name, [{ text: dialog, speaker: name }]);
-      npc.startWandering(waypoints);
+  /**
+   * Creates the interaction for one building from the shared campus layout.
+   * Subclasses override to change building behaviour (e.g. open walk-in rooms
+   * instead of teleport doors).
+   */
+  protected createBuildingInteractable(config: BuildingDoorConfig): void {
+    const px = config.doorTileCol * TILE_SIZE;
+    const py = config.doorTileRow * TILE_SIZE;
+
+    if (config.targetScene) {
+      const door = new Door(
+        this, px, py,
+        'door-gold-small',
+        config.targetScene,
+        config.spawnX,
+        config.spawnY,
+      );
+      door.setPromptText(`Press SPACE: Enter ${config.building}`);
+      this.interactables.push(door);
+    } else if (config.id === 'building_quest_board') {
+      const questBoard = new InteractableObject(this, px, py, 'door-amber-small');
+      questBoard.setPromptText('Press SPACE: Open Quest Board');
+      questBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
+      this.interactables.push(questBoard);
+    } else if (config.id === 'building_campus_shop') {
+      const shop = new InteractableObject(this, px, py, 'door-teal-small');
+      shop.setPromptText('Press SPACE: Open Campus Shop');
+      shop.setOnInteract(() => EventBus.emit('open-shop', {}));
+      this.interactables.push(shop);
+    } else {
+      const npc = new NPC(
+        this, px, py,
+        'door-teal-small',
+        config.building,
+        [{ text: config.dialog, speaker: config.building }],
+      );
       this.interactables.push(npc);
-    };
+    }
 
-    // Math Zone (cols 0-31, rows 0-23)
-    addNPC('Professor Euler',  'door-gold-small',  [{ x: 8*T, y: 10*T }, { x: 20*T, y: 10*T }, { x: 14*T, y: 18*T }], 'Math is the language of the universe!');
-    addNPC('Axiom Alice',      'door-teal-small',  [{ x: 4*T, y: 4*T },  { x: 28*T, y: 4*T },  { x: 28*T, y: 20*T }], 'Every problem has a pattern. Find it!');
-    addNPC('Count Von Count',  'door-amber-small', [{ x: 16*T, y: 8*T }, { x: 26*T, y: 14*T }, { x: 10*T, y: 20*T }], 'One, two, three — wonderful numbers!');
-
-    // Library Zone (cols 32-63, rows 0-23)
-    addNPC('Librarian Owl',    'door-gold-small',  [{ x: 36*T, y: 8*T }, { x: 52*T, y: 8*T },  { x: 44*T, y: 18*T }], 'Shhh... knowledge lives in these halls.');
-    addNPC('Scholar Sam',      'door-teal-small',  [{ x: 34*T, y: 14*T }, { x: 58*T, y: 14*T }, { x: 46*T, y: 20*T }], "Books are the world's greatest treasure!");
-    addNPC('Dewey',            'door-amber-small', [{ x: 40*T, y: 4*T },  { x: 60*T, y: 20*T }, { x: 34*T, y: 20*T }], 'Everything is organised if you know how to look.');
-
-    // Science Zone (cols 64-95, rows 0-23)
-    addNPC('Dr. Bunsen',       'door-gold-small',  [{ x: 70*T, y: 10*T }, { x: 86*T, y: 10*T }, { x: 78*T, y: 20*T }], "Don't forget your safety goggles!");
-    addNPC('Lab Rat Rita',     'door-teal-small',  [{ x: 66*T, y: 4*T },  { x: 90*T, y: 4*T },  { x: 78*T, y: 16*T }], 'Hypothesis first, then experiment!');
-    addNPC('Newton Jr.',       'door-amber-small', [{ x: 68*T, y: 18*T }, { x: 88*T, y: 6*T },  { x: 80*T, y: 12*T }], 'What goes up must come down — and WHY?');
-
-    // History Zone (cols 0-31, rows 24-47)
-    addNPC('Knight Harold',    'door-gold-small',  [{ x: 6*T, y: 28*T }, { x: 26*T, y: 28*T }, { x: 14*T, y: 42*T }], 'Those who forget history are doomed to repeat it!');
-    addNPC('Lady Chronos',     'door-teal-small',  [{ x: 4*T, y: 36*T }, { x: 28*T, y: 36*T }, { x: 16*T, y: 44*T }], 'Every era tells a story.');
-    addNPC('Fossil Fred',      'door-amber-small', [{ x: 10*T, y: 26*T }, { x: 28*T, y: 44*T }, { x: 4*T, y: 44*T }],  'Dig deep enough and the past reveals itself!');
-
-    // Town Square (cols 32-63, rows 24-47)
-    addNPC('Mayor Maple',      'door-gold-small',  [{ x: 40*T, y: 30*T }, { x: 56*T, y: 30*T }, { x: 48*T, y: 44*T }], 'Welcome to the campus, adventurer!');
-    addNPC('Courier Coco',     'door-teal-small',  [{ x: 34*T, y: 26*T }, { x: 62*T, y: 26*T }, { x: 48*T, y: 40*T }], 'News travels fast in this town!');
-    addNPC('Merchant Mo',      'door-amber-small', [{ x: 36*T, y: 42*T }, { x: 60*T, y: 42*T }, { x: 48*T, y: 34*T }], 'The best deals are right here in town!');
-
-    // English Zone (cols 64-95, rows 24-47)
-    addNPC('Grammar Gary',     'door-gold-small',  [{ x: 70*T, y: 28*T }, { x: 88*T, y: 28*T }, { x: 80*T, y: 42*T }], 'A well-placed comma can save a life!');
-    addNPC('Poet Penelope',    'door-teal-small',  [{ x: 66*T, y: 36*T }, { x: 92*T, y: 36*T }, { x: 80*T, y: 26*T }], 'Let your words paint a thousand pictures.');
-    addNPC('Narrator Nick',    'door-amber-small', [{ x: 68*T, y: 44*T }, { x: 90*T, y: 44*T }, { x: 78*T, y: 32*T }], 'Every story needs a beginning, middle, and end.');
-
-    // Nature Park (cols 0-31, rows 48-71)
-    addNPC('Ranger Robin',     'door-gold-small',  [{ x: 8*T, y: 54*T }, { x: 26*T, y: 54*T }, { x: 14*T, y: 66*T }], 'Respect nature and it will reward you!');
-    addNPC('Botanist Bea',     'door-teal-small',  [{ x: 4*T, y: 60*T }, { x: 28*T, y: 60*T }, { x: 16*T, y: 70*T }], 'Every plant has a story to tell.');
-    addNPC('Tracker Theo',     'door-amber-small', [{ x: 6*T, y: 50*T }, { x: 28*T, y: 68*T }, { x: 4*T, y: 68*T }],  'Follow the path — it always leads somewhere.');
-
-    // Market Zone (cols 32-63, rows 48-71)
-    addNPC('Vendor Victor',    'door-gold-small',  [{ x: 36*T, y: 54*T }, { x: 60*T, y: 54*T }, { x: 48*T, y: 66*T }], 'Best prices in the whole campus!');
-    addNPC('Baker Bella',      'door-teal-small',  [{ x: 34*T, y: 60*T }, { x: 62*T, y: 60*T }, { x: 48*T, y: 70*T }], 'Freshly baked ideas are always welcome!');
-    addNPC('Trader Tomas',     'door-amber-small', [{ x: 38*T, y: 50*T }, { x: 58*T, y: 68*T }, { x: 44*T, y: 68*T }], 'Every trade is an opportunity to learn!');
-
-    // Interdisciplinary Zone (cols 64-95, rows 48-71)
-    addNPC('Professor Poly',   'door-gold-small',  [{ x: 70*T, y: 54*T }, { x: 88*T, y: 54*T }, { x: 80*T, y: 66*T }], 'The best ideas cross every boundary!');
-    addNPC('Crossroads Casey', 'door-teal-small',  [{ x: 66*T, y: 60*T }, { x: 92*T, y: 60*T }, { x: 78*T, y: 50*T }], 'Where subjects meet, magic happens!');
-    addNPC('Fusion Felix',     'door-amber-small', [{ x: 68*T, y: 70*T }, { x: 90*T, y: 70*T }, { x: 80*T, y: 58*T }], 'Mix math with art, science with poetry!');
+    this.addBuildingLabel(config.label, px, py - 88);
   }
 
-  // ─── update ──────────────────────────────────────────────────────────────────
+  protected createCampusNPCs(): void {
+    CAMPUS_NPCS.forEach((config) => {
+      const x = config.tileCol * TILE_SIZE;
+      const y = config.tileRow * TILE_SIZE;
+      const npc = new NPC(
+        this,
+        x,
+        y,
+        config.texture,
+        config.name,
+        config.dialog.map((text) => ({ text, speaker: config.name })),
+        config.onFinalDialogLine === 'openQuestBoard'
+          ? () => EventBus.emit('open-job-board', {})
+          : undefined,
+      );
+      this.interactables.push(npc);
+      this.addNameLabel(config.name, x, y - 44);
+    });
+  }
+
+  protected addBuildingLabel(label: string, x: number, y: number): void {
+    const text = this.add.text(x, y, label, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '8px',
+      color: '#ccddff',
+      backgroundColor: '#050810DD',
+      padding: { x: 6, y: 4 },
+      align: 'center',
+    });
+    text.setOrigin(0.5);
+    text.setDepth(8);
+  }
+
+  protected addNameLabel(label: string, x: number, y: number): void {
+    const text = this.add.text(x, y, label, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '6px',
+      color: '#00ccff',
+      backgroundColor: '#050810CC',
+      padding: { x: 4, y: 2 },
+      align: 'center',
+    });
+    text.setOrigin(0.5);
+    text.setDepth(11);
+  }
+
+  // --- update ──────────────────────────────────────────────────────────────────
   update(time: number, delta: number): void {
     if (this.player) {
       this.player.update(time, delta);
@@ -276,14 +305,19 @@ export class OpenWorldScene extends Phaser.Scene {
 
       // Check for interaction key press
       if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
-        this.interactables.forEach((interactable) => {
-          interactable.interact();
-        });
+        this.handleInteract();
       }
     }
 
     // Chunk streaming: check if camera chunk changed
     this.updateChunks();
+  }
+
+  /** Interact action — subclasses can reroute (e.g. advance a conversation). */
+  protected handleInteract(): void {
+    this.interactables.forEach((interactable) => {
+      interactable.interact();
+    });
   }
 
   // ─── Chunk streaming ─────────────────────────────────────────────────────────
@@ -425,7 +459,11 @@ export class OpenWorldScene extends Phaser.Scene {
   }
 
   // ─── shutdown ────────────────────────────────────────────────────────────────
+  private cleanedUp = false;
+
   shutdown(): void {
+    if (this.cleanedUp) return;
+    this.cleanedUp = true;
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
 

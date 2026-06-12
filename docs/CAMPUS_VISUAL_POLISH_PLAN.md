@@ -28,7 +28,7 @@ Follow-on work after **Phase 6** (functional polish). This plan turns the placeh
 4. Wire arcade physics colliders from collision layer (not per-tile static bodies).
 
 ### A2. Building exteriors
-1. Distinct sprites for Math (active), Science/English (locked), Shop, Job Board.
+1. Distinct sprites for Math (active), Discovery/Story (locked), Shop, Quest Board.
 2. Animated door tiles or sprite overlays at entrance coordinates.
 3. Remove colored `rectangle` placeholders in `addPlaceholderBuilding` / shop/job helpers.
 
