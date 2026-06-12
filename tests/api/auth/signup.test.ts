@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+
 // Hoist the mock object
 const prismaMock = vi.hoisted(() => ({
   user: {
@@ -22,6 +25,17 @@ vi.mock('bcryptjs', () => ({
 
 // Import AFTER mocking
 import { POST } from '@/app/api/auth/signup/route';
+
+
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({ data: { user: { id: 'supa-123' } }, error: null }),
+      },
+    },
+  }),
+}));
 
 describe('Signup API', () => {
   beforeEach(() => {

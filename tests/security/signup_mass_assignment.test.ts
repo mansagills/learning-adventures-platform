@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/auth/signup/route';
 import { prisma } from '@/lib/prisma';
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-key";
+
 import bcrypt from 'bcryptjs';
 import { NextRequest } from 'next/server';
 
@@ -19,6 +22,17 @@ vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_password'),
   }
+}));
+
+
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({ data: { user: { id: 'supa-123' } }, error: null }),
+      },
+    },
+  }),
 }));
 
 describe('Security: Signup Mass Assignment', () => {
