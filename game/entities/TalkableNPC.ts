@@ -1,6 +1,20 @@
 import * as Phaser from 'phaser';
 import { EventBus } from '@/components/phaser/EventBus';
-import type { CampusNpcDef } from '../world/GatherCampusMap';
+
+export interface TalkableNpcConfig {
+  id: string;
+  name: string;
+  /** Character sheet id — texture key is `player-${charKey}` */
+  charKey: string;
+  x: number;
+  y: number;
+  /** Lines spoken in order when the player walks up */
+  lines: string[];
+  /** Optional patrol waypoints (pixel coords). NPC wanders when not talking. */
+  wander?: { x: number; y: number }[];
+  /** Optional EventBus event emitted when the conversation finishes */
+  onComplete?: { event: string; payload?: Record<string, unknown> };
+}
 
 /**
  * TalkableNPC — Gather-style "walk up and talk" character.
@@ -33,7 +47,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   public readonly npcId: string;
   public readonly npcName: string;
 
-  private def: CampusNpcDef;
+  private def: TalkableNpcConfig;
   private sprite: Phaser.GameObjects.Sprite;
   private nameTag: Phaser.GameObjects.Text;
   private ring: Phaser.GameObjects.Graphics;
@@ -54,7 +68,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   private typeTimer?: Phaser.Time.TimerEvent;
   private fullLineText = '';
 
-  constructor(scene: Phaser.Scene, def: CampusNpcDef) {
+  constructor(scene: Phaser.Scene, def: TalkableNpcConfig) {
     super(scene, def.x, def.y);
     this.def = def;
     this.npcId = def.id;

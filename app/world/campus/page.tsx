@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
+import { JobBoard } from '@/components/world/JobBoard';
+import Minimap from '@/components/world/Minimap';
 import {
   ConversationPanel,
   type NpcConversationState,
@@ -47,6 +49,8 @@ export default function CampusWorldPage() {
   const [userLevel, setUserLevel] = useState(1);
   const [notification, setNotification] = useState<string | null>(null);
   const [showShop, setShowShop] = useState(false);
+  const [showJobBoard, setShowJobBoard] = useState(false);
+  const [zoneBanner, setZoneBanner] = useState<string | null>(null);
 
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
@@ -107,6 +111,8 @@ export default function CampusWorldPage() {
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
       if (!sessionRef.current || !characterDataRef.current) return;
+      // Only persist overworld positions (not building interiors)
+      if (data.scene !== 'GatherCampusScene') return;
       try {
         await fetch('/api/character/update', {
           method: 'POST',
@@ -122,28 +128,40 @@ export default function CampusWorldPage() {
       setCurrentAdventure(data);
     };
     const handleOpenShop = () => setShowShop(true);
+    const handleOpenJobBoard = () => setShowJobBoard(true);
     const handleConversation = (data: NpcConversationState) => setConversation(data);
     const handleConversationEnd = () => setConversation(null);
+
+    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
+      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
+      setZoneBanner(data.zone.displayName);
+      setTimeout(() => setZoneBanner(null), 2800);
+    };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
+    EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('npc-conversation', handleConversation);
     EventBus.on('npc-conversation-end', handleConversationEnd);
+    EventBus.on('zone-changed', handleZoneChanged);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
+      EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('npc-conversation', handleConversation);
       EventBus.off('npc-conversation-end', handleConversationEnd);
+      EventBus.off('zone-changed', handleZoneChanged);
     };
   }, []);
 
-  // Freeze player movement while a modal (game embed / shop) is open
+  // Freeze player movement while a modal (game embed / shop / quests) is open
   useEffect(() => {
-    EventBus.emit('world-pause', Boolean(currentAdventure || showShop));
-  }, [currentAdventure, showShop]);
+    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showJobBoard));
+  }, [currentAdventure, showShop, showJobBoard]);
 
   const handleSceneReady = (_scene: string) => {
     setGameReady(true);
@@ -245,8 +263,33 @@ export default function CampusWorldPage() {
         />
       )}
 
+      {/* Quest Board — opened by the quest board building or Professor Numbers */}
+      {showJobBoard && (
+        <JobBoard
+          onClose={() => setShowJobBoard(false)}
+          onStartJob={(job: any) => {
+            if (job.gamePath) {
+              setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
+            }
+          }}
+          onJobComplete={() => {}}
+        />
+      )}
+
       {/* NPC conversation panel */}
       {conversation && <ConversationPanel conversation={conversation} />}
+
+      {/* Zone banner — shown when crossing into a new campus zone */}
+      {zoneBanner && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+          <div
+            className="px-8 py-3 rounded-2xl font-extrabold text-xl tracking-widest text-white shadow-2xl"
+            style={{ background: 'var(--hud-accent-dim, #004466)', border: '2px solid var(--hud-accent, #00ccff)' }}
+          >
+            {zoneBanner}
+          </div>
+        </div>
+      )}
 
       {/* Notification Toast */}
       {notification && (
@@ -305,6 +348,9 @@ export default function CampusWorldPage() {
               <span className="font-semibold">Play:</span> SPACE at a station
             </p>
           </div>
+
+          {/* Bottom-left: Minimap with zone overview */}
+          <Minimap />
         </div>
       )}
     </div>

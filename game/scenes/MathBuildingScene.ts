@@ -24,9 +24,11 @@ export class MathBuildingScene extends Phaser.Scene {
   }
 
   init(data: { spawnX?: number; spawnY?: number; fromScene?: string }) {
-    // Store spawn position from scene transition data
+    // Store spawn position and origin scene from transition data so the exit
+    // door returns to whichever world variant the player came from.
     this.registry.set('spawnX', data.spawnX || 320);
     this.registry.set('spawnY', data.spawnY || 500);
+    this.registry.set('mathBuildingFromScene', data.fromScene || 'OpenWorldScene');
   }
 
   preload(): void {
@@ -234,11 +236,14 @@ export class MathBuildingScene extends Phaser.Scene {
   }
 
   private createExitDoor(): void {
+    const returnScene =
+      (this.registry.get('mathBuildingFromScene') as string | undefined) ??
+      'OpenWorldScene';
     const exitDoor = Door.createExitDoor(
       this,
       5 * 64, 8 * 64,
       'door-interior',
-      'OpenWorldScene',
+      returnScene,
       14 * 64,
       32 * 64
     );

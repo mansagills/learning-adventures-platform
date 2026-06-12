@@ -59,6 +59,7 @@ export default function CampusSandboxPage() {
       position: null,
       shopOpened: false,
       move: (x: number, y: number) => EventBus.emit('touch-move', { x, y }),
+      teleport: (x: number, y: number) => EventBus.emit('teleport-player', { x, y }),
     };
 
     EventBus.on('npc-conversation', handleConversation);

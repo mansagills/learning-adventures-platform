@@ -36,10 +36,10 @@ const TOTAL_CHUNK_ROWS = WORLD_ROWS / CHUNK_TILE_ROWS;  // 6
  * Only the 3×3 area of chunks surrounding the camera centre is active at any time.
  */
 export class OpenWorldScene extends Phaser.Scene {
-  private player?: Player;
-  private interactables: InteractableObject[] = [];
-  private interactKey?: Phaser.Input.Keyboard.Key;
-  private zoneManager!: ZoneManager;
+  protected player?: Player;
+  protected interactables: InteractableObject[] = [];
+  protected interactKey?: Phaser.Input.Keyboard.Key;
+  protected zoneManager!: ZoneManager;
   private collectibles?: CollectibleSystem;
   private transitionSpawn?: { x: number; y: number };
 
@@ -48,8 +48,9 @@ export class OpenWorldScene extends Phaser.Scene {
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
   private lastCameraChunk = { cx: -1, cy: -1 };
 
-  constructor() {
-    super({ key: 'OpenWorldScene' });
+  /** Subclasses (e.g. GatherCampusScene) pass their own scene key. */
+  constructor(key: string = 'OpenWorldScene') {
+    super({ key });
   }
 
   init(data: { spawnX?: number; spawnY?: number } = {}): void {
@@ -171,13 +172,15 @@ export class OpenWorldScene extends Phaser.Scene {
     // Wire up EventBus listeners
     this.setupEventListeners();
 
-    // Shutdown cleanup
+    // Cleanup on scene stop AND on whole-game teardown (page unmount / HMR),
+    // which fires 'destroy' without a preceding 'shutdown'.
     this.events.once('shutdown', this.shutdown, this);
+    this.events.once('destroy', this.shutdown, this);
 
     // Signal React that the scene is ready
-    EventBus.emit('scene-ready', { scene: 'OpenWorldScene' });
+    EventBus.emit('scene-ready', { scene: this.scene.key });
 
-    console.log('OpenWorldScene created — open world ready!');
+    console.log(`${this.scene.key} created — open world ready!`);
   }
 
   // ─── Interactables ───────────────────────────────────────────────────────────
@@ -228,7 +231,7 @@ export class OpenWorldScene extends Phaser.Scene {
     this.interactables.push(...this.collectibles.getObjects());
   }
 
-  private createCampusNPCs(): void {
+  protected createCampusNPCs(): void {
     CAMPUS_NPCS.forEach((config) => {
       const x = config.tileCol * TILE_SIZE;
       const y = config.tileRow * TILE_SIZE;
@@ -248,7 +251,7 @@ export class OpenWorldScene extends Phaser.Scene {
     });
   }
 
-  private addBuildingLabel(label: string, x: number, y: number): void {
+  protected addBuildingLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '8px',
@@ -261,7 +264,7 @@ export class OpenWorldScene extends Phaser.Scene {
     text.setDepth(8);
   }
 
-  private addNameLabel(label: string, x: number, y: number): void {
+  protected addNameLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '6px',
@@ -287,14 +290,19 @@ export class OpenWorldScene extends Phaser.Scene {
 
       // Check for interaction key press
       if (this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
-        this.interactables.forEach((interactable) => {
-          interactable.interact();
-        });
+        this.handleInteract();
       }
     }
 
     // Chunk streaming: check if camera chunk changed
     this.updateChunks();
+  }
+
+  /** Interact action — subclasses can reroute (e.g. advance a conversation). */
+  protected handleInteract(): void {
+    this.interactables.forEach((interactable) => {
+      interactable.interact();
+    });
   }
 
   // ─── Chunk streaming ─────────────────────────────────────────────────────────
@@ -436,7 +444,11 @@ export class OpenWorldScene extends Phaser.Scene {
   }
 
   // ─── shutdown ────────────────────────────────────────────────────────────────
+  private cleanedUp = false;
+
   shutdown(): void {
+    if (this.cleanedUp) return;
+    this.cleanedUp = true;
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
 

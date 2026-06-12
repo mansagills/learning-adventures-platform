@@ -48,7 +48,7 @@ export const createPhaserGame = (
     // Scene configuration
     scene:
       variant === 'gather'
-        ? [GatherCampusScene]
+        ? [GatherCampusScene, MathBuildingScene]
         : [OpenWorldScene, MathBuildingScene],
 
     // Scaling configuration for responsive design
