@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## $(date +%Y-%m-%d) - [CRITICAL] Fixed Server-Side Template Injection (SSTI) in update-catalog API
+**Vulnerability:** The `app/api/internal/update-catalog/route.ts` API endpoint, designed to programmatically update `lib/catalogData.ts`, constructed TypeScript object literals manually using template strings. Attackers could inject arbitrary code or break the source file structure by including unescaped characters (like single quotes) in JSON fields.
+**Learning:** Whenever dynamically writing source code to a `.ts` file, never construct strings manually via interpolation for complex nested user objects. Code generation is inherently dangerous and must rely on standard safe serialization.
+**Prevention:** Use `JSON.stringify(object)` to convert data into syntactically valid JSON (and thus TypeScript) literals securely.
