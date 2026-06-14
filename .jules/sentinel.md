@@ -10,3 +10,7 @@
 **Vulnerability:** Weak random number generation using `Math.random()`. `Math.random()` is not cryptographically secure and produces predictable outputs. This was used to generate child usernames, certificate verification codes, and workflow IDs, which could theoretically allow predictability or collision attacks.
 **Learning:** Even internal workflow IDs and display names benefit from strong entropy to prevent subtle business logic collisions or profiling. Node.js `crypto` module methods (`crypto.randomInt`, `crypto.randomUUID`) provide an easy, secure drop-in replacement.
 **Prevention:** Avoid `Math.random()` for any values that require uniqueness, unguessability, or security. Always use `crypto.randomInt` (to avoid modulo bias) or `crypto.randomUUID` in Node.js backend code.
+## 2024-06-14 - Fix Next.js ESLint Interactive Prompt in CI
+**Vulnerability:** CI Pipelines freezing or failing unexpectedly on `npm run lint`.
+**Learning:** Next.js `next lint` acts interactively if `.eslintrc.json` is completely missing. This causes CI environments to fail because they cannot respond to the setup prompt.
+**Prevention:** Ensure a basic `.eslintrc.json` (even just extending `next/core-web-vitals` and handling project-specific overrides) is committed to the repository.
