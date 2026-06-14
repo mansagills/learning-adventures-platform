@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-06-14 - Replace Insecure Math.random with Crypto
+**Vulnerability:** Weak random number generation using `Math.random()`. `Math.random()` is not cryptographically secure and produces predictable outputs. This was used to generate child usernames, certificate verification codes, and workflow IDs, which could theoretically allow predictability or collision attacks.
+**Learning:** Even internal workflow IDs and display names benefit from strong entropy to prevent subtle business logic collisions or profiling. Node.js `crypto` module methods (`crypto.randomInt`, `crypto.randomUUID`) provide an easy, secure drop-in replacement.
+**Prevention:** Avoid `Math.random()` for any values that require uniqueness, unguessability, or security. Always use `crypto.randomInt` (to avoid modulo bias) or `crypto.randomUUID` in Node.js backend code.
