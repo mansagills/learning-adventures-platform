@@ -6,3 +6,4 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-05-18 - Prevented Insecure Randomness\n**Vulnerability:** Weak random number generation (`Math.random()`) was used for sensitive values like verification codes, workflow IDs, and anonymous child usernames.\n**Learning:** In Node.js, `Math.random()` is not cryptographically secure and can be predicted, opening vectors for brute-force attacks on verification mechanisms or session/workflow manipulation.\n**Prevention:** Always use the built-in `crypto` module (e.g., `crypto.randomInt()`, `crypto.randomUUID()`) when generating unguessable strings, codes, or identifiers. `crypto.randomInt()` is preferred over `crypto.randomBytes() % n` to avoid modulo bias when picking from arrays.
