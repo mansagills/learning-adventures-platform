@@ -46,40 +46,21 @@ export async function POST(request: NextRequest) {
       sourceCodeUrl: metadata.sourceCodeUrl,
     };
 
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
+    // Clean up empty optional fields to keep the output clean
+    if (!newAdventure.htmlPath) delete newAdventure.htmlPath;
+    if (newAdventure.subscriptionTier === 'free') delete newAdventure.subscriptionTier;
+    if (!newAdventure.uploadedContent) delete newAdventure.uploadedContent;
+    if (!newAdventure.platform) delete newAdventure.platform;
+    if (!newAdventure.sourceCodeUrl) delete newAdventure.sourceCodeUrl;
 
-    // Add premium/uploaded content fields if applicable
-    if (
-      newAdventure.subscriptionTier &&
-      newAdventure.subscriptionTier !== 'free'
-    ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
-    }
+    // Format the new adventure securely using JSON.stringify
+    const adventureString = JSON.stringify(newAdventure, null, 2)
+      .split('\n')
+      .map(line => `  ${line}`)
+      .join('\n')
+      .trimStart();
 
-    if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
-    }
-
-    if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
-    }
-
-    if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
-    }
-
-    adventureString += `\n  }`;
+    const finalAdventureString = `  ${adventureString}`;
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
@@ -99,8 +80,8 @@ export async function POST(request: NextRequest) {
 
     // Add the new adventure to the array
     const updatedArrayContent = arrayContent.trim()
-      ? arrayContent + ',\n' + adventureString
-      : '\n' + adventureString + '\n';
+      ? arrayContent + ',\n' + finalAdventureString
+      : '\n' + finalAdventureString + '\n';
 
     const updatedCatalog = catalogContent.replace(
       fullMatch,
