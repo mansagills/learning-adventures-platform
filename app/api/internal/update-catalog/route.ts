@@ -47,11 +47,11 @@ export async function POST(request: NextRequest) {
     };
 
     // Clean up empty optional fields to keep the output clean
-    if (!newAdventure.htmlPath) delete newAdventure.htmlPath;
-    if (newAdventure.subscriptionTier === 'free') delete newAdventure.subscriptionTier;
-    if (!newAdventure.uploadedContent) delete newAdventure.uploadedContent;
-    if (!newAdventure.platform) delete newAdventure.platform;
-    if (!newAdventure.sourceCodeUrl) delete newAdventure.sourceCodeUrl;
+    if (!newAdventure.htmlPath) delete (newAdventure as any).htmlPath;
+    if (newAdventure.subscriptionTier === 'free') delete (newAdventure as any).subscriptionTier;
+    if (!newAdventure.uploadedContent) delete (newAdventure as any).uploadedContent;
+    if (!newAdventure.platform) delete (newAdventure as any).platform;
+    if (!newAdventure.sourceCodeUrl) delete (newAdventure as any).sourceCodeUrl;
 
     // Format the new adventure securely using JSON.stringify
     const adventureString = JSON.stringify(newAdventure, null, 2)
