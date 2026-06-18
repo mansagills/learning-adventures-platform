@@ -3,20 +3,6 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/auth/signup/route';
 import { prisma } from '@/lib/prisma';
 
-// Mock Supabase
-vi.mock('@/lib/supabase/server', () => ({
-  createServiceClient: vi.fn().mockReturnValue({
-    auth: {
-      admin: {
-        createUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'mock-supabase-id' } },
-          error: null,
-        }),
-      },
-    },
-  }),
-}));
-
 // Mock prisma
 vi.mock('@/lib/prisma', () => ({
   prisma: {

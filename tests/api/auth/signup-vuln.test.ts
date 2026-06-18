@@ -2,20 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/auth/signup/route';
 import { NextRequest } from 'next/server';
 
-// Mock Supabase
-vi.mock('@/lib/supabase/server', () => ({
-  createServiceClient: vi.fn().mockReturnValue({
-    auth: {
-      admin: {
-        createUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'mock-supabase-id' } },
-          error: null,
-        }),
-      },
-    },
-  }),
-}));
-
 // Mock prisma using vi.hoisted to handle hoisting
 const { prismaMock } = vi.hoisted(() => {
   return {

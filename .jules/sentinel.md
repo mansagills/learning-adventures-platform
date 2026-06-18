@@ -6,7 +6,3 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
-## 2025-02-23 - Insecure Randomness in Security Contexts
-**Vulnerability:** `Math.random()` was used for generating usernames, verification codes, and workflow IDs.
-**Learning:** Predictable RNGs can lead to collisions, predictable IDs, or bypasses. Crypto-secure methods are essential where uniqueness and security are required.
-**Prevention:** Replace `Math.random()` with `crypto.randomInt()` or `crypto.randomUUID()`.

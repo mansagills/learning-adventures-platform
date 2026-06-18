@@ -4,20 +4,6 @@ import { POST } from '../../app/api/auth/signup/route';
 import { prisma } from '../../lib/prisma';
 import { NextRequest } from 'next/server';
 
-// Mock Supabase
-vi.mock('../../lib/supabase/server', () => ({
-  createServiceClient: vi.fn().mockReturnValue({
-    auth: {
-      admin: {
-        createUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'mock-supabase-id' } },
-          error: null,
-        }),
-      },
-    },
-  }),
-}));
-
 // Mock Prisma
 vi.mock('../../lib/prisma', () => ({
   prisma: {
@@ -95,7 +81,7 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters');
+    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 

@@ -3,8 +3,6 @@
  * Coordinates multi-agent workflows for content creation
  */
 
-import crypto from 'crypto';
-
 import {
   AgentWorkflow,
   WorkflowStep,
@@ -269,7 +267,7 @@ export class ContentAgentOrchestrator {
    * Utility: Generate workflow ID
    */
   private generateWorkflowId(): string {
-    return `workflow-${Date.now()}-${crypto.randomUUID().split('-')[0]}`;
+    return `workflow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
