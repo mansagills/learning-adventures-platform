@@ -2,11 +2,16 @@
  * Seed script for 2D World job definitions
  * Run with: DATABASE_URL="..." npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-jobs.ts
  */
+import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { FIRST_MATH_LAB_QUEST } from '../lib/world/mathLabQuest';
+
+config({ path: '.env.local' });
 
 const prisma = new PrismaClient();
 
 const jobs = [
+  FIRST_MATH_LAB_QUEST,
   {
     jobId: 'cafeteria-cashier',
     title: 'Cafeteria Cashier',
@@ -65,20 +70,25 @@ async function main() {
   console.log('💼 Seeding job definitions...');
 
   let created = 0;
-  let skipped = 0;
+  let updated = 0;
 
   for (const job of jobs) {
     const existing = await prisma.job.findUnique({ where: { jobId: job.jobId } });
     if (existing) {
-      skipped++;
-      continue;
+      updated++;
+    } else {
+      created++;
     }
-    await prisma.job.create({ data: job });
-    created++;
-    console.log(`  ✅ Created: ${job.iconEmoji} ${job.title} (${job.currencyReward} coins, ${job.xpReward} XP)`);
+
+    await prisma.job.upsert({
+      where: { jobId: job.jobId },
+      create: job,
+      update: job,
+    });
+    console.log(`  Saved: ${job.title} (${job.currencyReward} coins, ${job.xpReward} XP)`);
   }
 
-  console.log(`\n✨ Done! Created ${created} jobs, skipped ${skipped} existing.`);
+  console.log(`\nDone! Created ${created} jobs, updated ${updated} existing.`);
 }
 
 main()

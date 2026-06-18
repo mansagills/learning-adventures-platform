@@ -1,20 +1,41 @@
 'use client';
 
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import Container from './Container';
 import Button from './Button';
+import AuthModal from './AuthModal';
 import { analytics } from '@/lib/analytics';
 
 export default function SecondaryCta() {
+  const router = useRouter();
+  const { status } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+
   const handleEnterWorld = () => {
     analytics.clickCTA('Enter the World', 'secondary-cta');
+    if (status === 'authenticated') {
+      router.push('/world');
+      return;
+    }
+    setAuthMode('signin');
+    setIsAuthModalOpen(true);
   };
 
   const handleCreateCharacter = () => {
     analytics.clickCTA('Create Your Character', 'secondary-cta');
+    if (status === 'authenticated') {
+      router.push('/world/create');
+      return;
+    }
+    setAuthMode('signup');
+    setIsAuthModalOpen(true);
   };
 
   return (
+    <>
     <section className="py-24 bg-pg-violet relative overflow-hidden">
       <div className="absolute inset-0 bg-dot-grid opacity-10"></div>
 
@@ -69,22 +90,23 @@ export default function SecondaryCta() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-            <Link href="/world" onClick={handleEnterWorld}>
-              <Button
-                variant="candy-pink"
-                size="lg"
-                className="bg-white text-pg-violet border-pg-border hover:bg-pg-yellow hover:text-foreground w-full sm:w-auto"
-              >
+            <Button
+              variant="candy-pink"
+              size="lg"
+              className="bg-white text-pg-violet border-pg-border hover:bg-pg-yellow hover:text-foreground w-full sm:w-auto"
+              onClick={handleEnterWorld}
+              disabled={status === 'loading'}
+            >
                 <span className="w-6 h-6 bg-pg-violet/20 rounded-sm flex items-center justify-center mr-2">
                   🌍
                 </span>
                 Enter the World
-              </Button>
-            </Link>
+            </Button>
             <Button
               variant="outline-pop"
               size="lg"
               onClick={handleCreateCharacter}
+              disabled={status === 'loading'}
               className="bg-transparent border-white text-white hover:bg-pg-yellow hover:text-foreground hover:border-pg-border"
             >
               Create Your Character →
@@ -121,5 +143,12 @@ export default function SecondaryCta() {
         </div>
       </Container>
     </section>
+    <AuthModal
+      key={authMode}
+      isOpen={isAuthModalOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      defaultMode={authMode}
+    />
+    </>
   );
 }

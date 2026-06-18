@@ -10,6 +10,7 @@ export class Door extends InteractableObject {
   private targetScene: string;
   private spawnX: number;
   private spawnY: number;
+  private isTransitioning = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -26,14 +27,16 @@ export class Door extends InteractableObject {
     this.spawnX = spawnX;
     this.spawnY = spawnY;
 
-    // Set prompt text
-    this.setPromptText('Press SPACE to enter');
+    this.setPromptText('Walk through door');
 
     // Set interaction callback
     this.setOnInteract(() => this.enterDoor());
   }
 
   private enterDoor(): void {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+
     console.log(`Entering door to ${this.targetScene}`);
 
     // Save player position before transition
@@ -63,6 +66,14 @@ export class Door extends InteractableObject {
     );
   }
 
+  public checkPlayerProximity(playerX: number, playerY: number): boolean {
+    const isNearby = super.checkPlayerProximity(playerX, playerY);
+    if (isNearby) {
+      this.enterDoor();
+    }
+    return isNearby;
+  }
+
   /**
    * Create a door that returns to a previous scene
    */
@@ -76,7 +87,7 @@ export class Door extends InteractableObject {
     spawnY: number = 360
   ): Door {
     const door = new Door(scene, x, y, texture, targetScene, spawnX, spawnY);
-    door.setPromptText('Press SPACE to exit');
+    door.setPromptText('Walk through exit');
     return door;
   }
 }

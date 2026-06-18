@@ -2,18 +2,31 @@ import * as Phaser from 'phaser';
 // import { WorldScene } from './scenes/WorldScene'; // kept for reference
 import { OpenWorldScene } from './scenes/OpenWorldScene';
 import { MathBuildingScene } from './scenes/MathBuildingScene';
+import { GatherCampusScene } from './scenes/GatherCampusScene';
+import {
+  setPendingWorldBootstrap,
+  type WorldBootstrap,
+} from './worldBootstrap';
+
+/** Which world experience to boot. 'gather' is the Gather-style campus. */
+export type WorldVariant = 'open' | 'gather';
 
 /**
  * Phaser Game Configuration
  * Top-down 2D pixel art educational game world
  */
-export const createPhaserGame = (parent: string): Phaser.Game => {
+export const createPhaserGame = (
+  parent: string,
+  bootstrap?: WorldBootstrap | null,
+  variant: WorldVariant = 'open'
+): Phaser.Game => {
+  setPendingWorldBootstrap(bootstrap ?? null);
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO, // Auto-detect: WebGL → Canvas → fail gracefully
     parent, // DOM element ID to mount game
     width: 1280, // Game viewport width
     height: 720, // Game viewport height
-    backgroundColor: '#FFFDF5', // Warm cream background (matches platform design)
+    backgroundColor: '#050810', // Campus void — deep space dark
 
     // Pixel art settings
     render: {
@@ -32,8 +45,12 @@ export const createPhaserGame = (parent: string): Phaser.Game => {
       },
     },
 
-    // Scene configuration
-    scene: [OpenWorldScene, MathBuildingScene], // Multiple scenes for different areas
+    // Scene configuration. Gather buildings are open rooms (no interior scene),
+    // so the gather variant needs only its single scene.
+    scene:
+      variant === 'gather'
+        ? [GatherCampusScene]
+        : [OpenWorldScene, MathBuildingScene],
 
     // Scaling configuration for responsive design
     scale: {
@@ -56,5 +73,21 @@ export const createPhaserGame = (parent: string): Phaser.Game => {
     },
   };
 
-  return new Phaser.Game(config);
+  const game = new Phaser.Game(config);
+
+  if (bootstrap?.avatarId) {
+    game.registry.set('avatarId', bootstrap.avatarId);
+  }
+
+  if (variant === 'open' && bootstrap?.lastScene === 'MathBuildingScene') {
+    const pos = bootstrap.position;
+    game.scene.stop('WorldScene');
+    game.scene.start('MathBuildingScene', {
+      spawnX: pos?.x ?? 320,
+      spawnY: pos?.y ?? 500,
+      fromScene: 'WorldScene',
+    });
+  }
+
+  return game;
 };

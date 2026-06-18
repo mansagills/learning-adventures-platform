@@ -14,10 +14,6 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-placeholder-anon-key"
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -423,36 +423,41 @@ model DailyXP {
 
 ---
 
-### Phase 6: Polish + Testing (Week 7-8)
+### Phase 6: Polish + Testing (Week 7-8) — IN PROGRESS ✅ (core complete)
 **Duration:** 10-12 days
 
 **UI/UX Polish (4-5 days):**
-1. Add sound effects (footsteps, door open, coin collect)
-2. Add background music (muted by default)
-3. Improve transition animations
-4. Add particle effects (XP gain sparkles)
-5. Create tutorial NPC for first-time users
-6. Add pause menu with settings
-7. Improve mobile touch controls
+1. Add sound effects (footsteps, door open, coin collect) — _deferred; settings stub in pause menu_
+2. Add background music (muted by default) — _deferred; toggle in pause menu_
+3. Improve transition animations — ✅ door fade transitions (existing)
+4. Add particle effects (XP gain sparkles) — ✅ XP burst overlay on rewards
+5. Create tutorial NPC for first-time users — ✅ Campus Guide + first-visit dialog
+6. Add pause menu with settings — ✅ `WorldPauseMenu`
+7. Improve mobile touch controls — ✅ `TouchControls` virtual joystick
 
 **Performance Optimization (3-4 days):**
-8. Optimize sprite sheet sizes
-9. Implement asset lazy loading
-10. Add loading screens with progress bars
-11. Test on low-end devices
-12. Optimize React-Phaser communication
-13. Add error boundaries and fallbacks
+8. Optimize sprite sheet sizes — _see `docs/CAMPUS_VISUAL_POLISH_PLAN.md`_
+9. Implement asset lazy loading — _deferred_
+10. Add loading screens with progress bars — ✅ Phaser load progress UI
+11. Test on low-end devices — _manual QA pending_
+12. Optimize React-Phaser communication — ✅ bootstrap + force-save events
+13. Add error boundaries and fallbacks — ✅ `WorldErrorBoundary` + Phaser init error state
 
 **Testing & Bug Fixes (3-4 days):**
-14. Cross-browser testing
-15. Mobile testing (iOS Safari, Android Chrome)
-16. Test with existing user accounts
-17. Test progress persistence
-18. Test daily limits and edge cases
-19. Fix critical bugs
-20. Security review
+14. Cross-browser testing — _manual QA pending_
+15. Mobile testing (iOS Safari, Android Chrome) — _manual QA pending_
+16. Test with existing user accounts — _manual QA pending_
+17. Test progress persistence — ✅ position/scene restore + `/api/progress` sync on complete
+18. Test daily limits and edge cases — _manual QA pending_
+19. Fix critical bugs — ✅ iframe `postMessage`, job-without-game feedback
+20. Security review — _pending_
 
-**Deliverable:** Production-ready proof of concept
+**Also shipped in Phase 6:**
+- Adventure iframe embed (replaces new-tab-only flow) with `notifyWorldComplete` in math HTML games
+- Catalog progress sync via `syncWorldAdventureProgress`
+- Visual polish roadmap: **`docs/CAMPUS_VISUAL_POLISH_PLAN.md`**
+
+**Deliverable:** Production-ready proof of concept (functional); pixel art pass tracked separately
 
 ---
 
