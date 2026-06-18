@@ -124,9 +124,10 @@ export default function Minimap() {
         style={{
           color: 'var(--hud-accent, #00ccff)',
           fontFamily: 'var(--font-pixel, monospace)',
-          fontSize: '6px',
+          fontSize: '10px',
+          fontWeight: 700,
           textAlign: 'center',
-          marginBottom: '2px',
+          marginBottom: '3px',
           background: 'rgba(5,8,16,0.85)',
           border: '1px solid var(--hud-accent, #00ccff)',
           borderRadius: '2px',

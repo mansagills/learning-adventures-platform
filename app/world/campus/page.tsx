@@ -9,11 +9,24 @@ import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
+import { TouchControls } from '@/components/world/TouchControls';
 import {
   ConversationPanel,
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
+
+/**
+ * Shared neon HUD panel styling so every overlay chip matches the zone
+ * accent system (--hud-accent) that the minimap and zone banner already use.
+ */
+const hudPanel: React.CSSProperties = {
+  background: 'rgba(5,8,16,0.82)',
+  border: '1px solid var(--hud-accent, #00ccff)',
+  borderRadius: '8px',
+  boxShadow: '0 0 12px color-mix(in srgb, var(--hud-accent, #00ccff) 30%, transparent)',
+  transition: 'border-color 500ms ease, box-shadow 500ms ease',
+};
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -291,33 +304,63 @@ export default function CampusWorldPage() {
         </div>
       )}
 
-      {/* Notification Toast */}
+      {/* Notification Toast — sits below the zone banner so they never overlap */}
       {notification && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+        <div className="absolute top-32 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
           <div className="bg-yellow-400 text-yellow-900 font-extrabold text-xl px-8 py-3 rounded-2xl shadow-2xl animate-bounce">
             ⭐ {notification}
           </div>
         </div>
       )}
 
+      {/* On-screen joystick — mobile only (md:hidden inside the component). */}
+      {gameReady && (
+        <TouchControls disabled={Boolean(currentAdventure || showShop || showJobBoard)} />
+      )}
+
       {/* HUD Overlay */}
       {gameReady && (
         <div className="absolute inset-0 pointer-events-none">
-          {/* Top-left: Character info */}
-          <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
-            <p className="text-white font-semibold">
+          {/* Top-left: Character info + level progress */}
+          <div
+            className="absolute top-4 left-4 px-4 py-2 pointer-events-auto min-w-[10rem]"
+            style={hudPanel}
+          >
+            <p className="text-white font-semibold leading-tight">
               {characterData?.name || session?.name || 'Player'}
             </p>
-            <p className="text-xs text-gray-300">Level {userLevel}</p>
+            <p
+              className="text-xs font-semibold mb-1"
+              style={{ color: 'var(--hud-accent, #00ccff)' }}
+            >
+              Level {userLevel}
+            </p>
+            {/* XP-to-next-level bar (100 XP per level) */}
+            <div
+              className="h-1.5 w-full rounded-full overflow-hidden bg-white/15"
+              role="progressbar"
+              aria-label={`${xp % 100} of 100 XP to next level`}
+              aria-valuenow={xp % 100}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full rounded-full transition-[width] duration-500"
+                style={{
+                  width: `${xp % 100}%`,
+                  background: 'var(--hud-accent, #00ccff)',
+                }}
+              />
+            </div>
           </div>
 
           {/* Top-center: XP + Coins */}
           <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
-            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+            <div className="px-4 py-2 flex items-center gap-2" style={hudPanel}>
               <span className="text-yellow-400 text-lg">⭐</span>
               <span className="text-white font-bold">{xp} XP</span>
             </div>
-            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
+            <div className="px-4 py-2 flex items-center gap-2" style={hudPanel}>
               <span className="text-yellow-300 text-lg">🪙</span>
               <span className="text-white font-bold">{coins}</span>
             </div>
@@ -327,25 +370,33 @@ export default function CampusWorldPage() {
           <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
             <button
               onClick={() => router.push('/world')}
-              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              className="text-white px-3 py-2 transition-colors text-sm font-semibold hover:text-[var(--hud-accent,#00ccff)]"
+              style={hudPanel}
               title="Switch to the classic open world"
+              aria-label="Switch to the classic open world"
             >
               🗺️ Classic World
             </button>
             <button
               onClick={() => router.push('/')}
-              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
+              className="text-white px-4 py-2 transition-colors font-semibold hover:text-[var(--hud-accent,#00ccff)]"
+              style={hudPanel}
+              title="Exit campus and return home"
+              aria-label="Exit campus and return home"
             >
               Exit Campus
             </button>
           </div>
 
           {/* Bottom-right: Controls hint */}
-          <div className="absolute bottom-4 right-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
+          <div
+            className="absolute bottom-4 right-4 px-4 py-2 pointer-events-none hidden md:block"
+            style={hudPanel}
+          >
             <p className="text-white text-sm">
-              <span className="font-semibold">Move:</span> WASD / Arrows ·{' '}
-              <span className="font-semibold">Talk:</span> walk up to anyone ·{' '}
-              <span className="font-semibold">Play:</span> SPACE at a station
+              <span className="font-semibold" style={{ color: 'var(--hud-accent, #00ccff)' }}>Move:</span> WASD / Arrows ·{' '}
+              <span className="font-semibold" style={{ color: 'var(--hud-accent, #00ccff)' }}>Talk:</span> walk up to anyone ·{' '}
+              <span className="font-semibold" style={{ color: 'var(--hud-accent, #00ccff)' }}>Play:</span> SPACE at a station
             </p>
           </div>
 
