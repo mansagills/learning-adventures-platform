@@ -4,6 +4,20 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { NextRequest } from 'next/server';
 
+// Mock Supabase
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'mock-supabase-id' } },
+          error: null,
+        }),
+      },
+    },
+  }),
+}));
+
 // Mock prisma
 vi.mock('@/lib/prisma', () => ({
   prisma: {
