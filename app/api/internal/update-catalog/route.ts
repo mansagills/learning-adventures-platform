@@ -47,37 +47,36 @@ export async function POST(request: NextRequest) {
     };
 
     // Format the new adventure as a string with optional premium fields
-    // SECURITY: Use JSON.stringify and explicit coercion to prevent Server-Side Template Injection (SSTI) and RCE
     let adventureString = `  {
-    id: ${JSON.stringify(String(newAdventure.id || ''))},
-    title: ${JSON.stringify(String(newAdventure.title || ''))},
-    description: ${JSON.stringify(String(newAdventure.description || ''))},
-    type: ${JSON.stringify(String(newAdventure.type || ''))},
-    category: ${JSON.stringify(String(newAdventure.category || ''))},
-    gradeLevel: ${JSON.stringify(Array.isArray(newAdventure.gradeLevel) ? newAdventure.gradeLevel.map(String) : [])},
-    difficulty: ${JSON.stringify(String(newAdventure.difficulty || ''))},
-    skills: ${JSON.stringify(Array.isArray(newAdventure.skills) ? newAdventure.skills.map(String) : [])},
-    estimatedTime: ${JSON.stringify(String(newAdventure.estimatedTime || ''))},
-    featured: ${Boolean(newAdventure.featured)}${newAdventure.htmlPath ? `,\n    htmlPath: ${JSON.stringify(String(newAdventure.htmlPath))}` : ''}`;
+    id: '${newAdventure.id}',
+    title: '${newAdventure.title}',
+    description: '${newAdventure.description}',
+    type: '${newAdventure.type}',
+    category: '${newAdventure.category}',
+    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
+    difficulty: '${newAdventure.difficulty}',
+    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
+    estimatedTime: '${newAdventure.estimatedTime}',
+    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
 
     // Add premium/uploaded content fields if applicable
     if (
       newAdventure.subscriptionTier &&
       newAdventure.subscriptionTier !== 'free'
     ) {
-      adventureString += `,\n    subscriptionTier: ${JSON.stringify(String(newAdventure.subscriptionTier))}`;
+      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
     }
 
     if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${Boolean(newAdventure.uploadedContent)}`;
+      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
     }
 
     if (newAdventure.platform) {
-      adventureString += `,\n    platform: ${JSON.stringify(String(newAdventure.platform))}`;
+      adventureString += `,\n    platform: '${newAdventure.platform}'`;
     }
 
     if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: ${JSON.stringify(String(newAdventure.sourceCodeUrl))}`;
+      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
     }
 
     adventureString += `\n  }`;
