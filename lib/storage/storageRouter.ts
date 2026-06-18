@@ -34,8 +34,14 @@ export async function routeFileUpload(
   // Resolve the absolute path of the requested target
   const resolvedTarget = path.resolve(publicDir, targetPath);
 
-  // Check if the resolved target is still inside the public directory
-  if (!resolvedTarget.startsWith(publicDir)) {
+  // Check if the resolved target is still inside the public directory.
+  // A bare startsWith(publicDir) is bypassable — e.g. ".../public-evil"
+  // starts with ".../public". Require an exact match or a path that begins
+  // with publicDir + the OS path separator.
+  if (
+    resolvedTarget !== publicDir &&
+    !resolvedTarget.startsWith(publicDir + path.sep)
+  ) {
     throw new Error('Security Error: Path traversal detected');
   }
 

@@ -20,15 +20,67 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
     }
 
+    // ── Input validation ──────────────────────────────────────────────────
+    // Everything here is interpolated into a source file, so validate the
+    // values that drive control flow (array name) and reject anything that
+    // isn't the shape we expect before serializing.
+    const ALLOWED_CATEGORIES = [
+      'math',
+      'science',
+      'english',
+      'history',
+      'interdisciplinary',
+    ];
+    const IDENTIFIER_RE = /^[a-z0-9-]+$/i;
+    const isStr = (v: unknown): v is string =>
+      typeof v === 'string' && v.length > 0;
+    const isStrArray = (v: unknown): v is string[] =>
+      Array.isArray(v) && v.every((s) => typeof s === 'string');
+
+    if (metadata.type !== 'game' && metadata.type !== 'lesson') {
+      return NextResponse.json(
+        { error: "Invalid type. Must be 'game' or 'lesson'." },
+        { status: 400 }
+      );
+    }
+    if (!ALLOWED_CATEGORIES.includes(metadata.category)) {
+      return NextResponse.json(
+        { error: `Invalid category. Must be one of: ${ALLOWED_CATEGORIES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+    if (!isStr(metadata.id) || !IDENTIFIER_RE.test(metadata.id)) {
+      return NextResponse.json(
+        { error: 'Invalid id. Must be alphanumeric with hyphens only.' },
+        { status: 400 }
+      );
+    }
+    if (
+      !isStr(metadata.title) ||
+      !isStr(metadata.description) ||
+      !isStr(metadata.difficulty) ||
+      !isStr(metadata.estimatedTime) ||
+      !isStrArray(metadata.gradeLevel) ||
+      !isStrArray(metadata.skills)
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid or missing required adventure fields.' },
+        { status: 400 }
+      );
+    }
+
     // Read the current catalog data
     const catalogPath = join(process.cwd(), 'lib', 'catalogData.ts');
     const catalogContent = await readFile(catalogPath, 'utf8');
 
-    // Find the appropriate array to update
+    // Find the appropriate array to update (category/type validated above)
     const arrayName = `${metadata.category}${metadata.type === 'game' ? 'Games' : 'Lessons'}`;
 
-    // Create the new adventure object
-    const newAdventure = {
+    // Build the new adventure as a plain object, including only the optional
+    // fields that apply. Values are NOT trusted — they are serialized with
+    // JSON.stringify below, which escapes quotes/newlines/backslashes and
+    // makes string-breakout / code injection (SSTI/RCE) impossible.
+    const newAdventure: Record<string, unknown> = {
       id: metadata.id,
       title: metadata.title,
       description: metadata.description,
@@ -38,48 +90,22 @@ export async function POST(request: NextRequest) {
       difficulty: metadata.difficulty,
       skills: metadata.skills,
       estimatedTime: metadata.estimatedTime,
-      featured: metadata.featured || false,
-      htmlPath: metadata.htmlPath,
-      subscriptionTier: metadata.subscriptionTier || 'free',
-      uploadedContent: metadata.uploadedContent || false,
-      platform: metadata.platform,
-      sourceCodeUrl: metadata.sourceCodeUrl,
+      featured: Boolean(metadata.featured),
     };
-
-    // Format the new adventure as a string with optional premium fields
-    let adventureString = `  {
-    id: '${newAdventure.id}',
-    title: '${newAdventure.title}',
-    description: '${newAdventure.description}',
-    type: '${newAdventure.type}',
-    category: '${newAdventure.category}',
-    gradeLevel: [${newAdventure.gradeLevel.map((g: string) => `'${g}'`).join(', ')}],
-    difficulty: '${newAdventure.difficulty}',
-    skills: [${newAdventure.skills.map((s: string) => `'${s}'`).join(', ')}],
-    estimatedTime: '${newAdventure.estimatedTime}',
-    featured: ${newAdventure.featured}${newAdventure.htmlPath ? `,\n    htmlPath: '${newAdventure.htmlPath}'` : ''}`;
-
-    // Add premium/uploaded content fields if applicable
-    if (
-      newAdventure.subscriptionTier &&
-      newAdventure.subscriptionTier !== 'free'
-    ) {
-      adventureString += `,\n    subscriptionTier: '${newAdventure.subscriptionTier}'`;
+    if (isStr(metadata.htmlPath)) newAdventure.htmlPath = metadata.htmlPath;
+    if (isStr(metadata.subscriptionTier) && metadata.subscriptionTier !== 'free') {
+      newAdventure.subscriptionTier = metadata.subscriptionTier;
     }
+    if (metadata.uploadedContent) newAdventure.uploadedContent = true;
+    if (isStr(metadata.platform)) newAdventure.platform = metadata.platform;
+    if (isStr(metadata.sourceCodeUrl)) newAdventure.sourceCodeUrl = metadata.sourceCodeUrl;
 
-    if (newAdventure.uploadedContent) {
-      adventureString += `,\n    uploadedContent: ${newAdventure.uploadedContent}`;
-    }
-
-    if (newAdventure.platform) {
-      adventureString += `,\n    platform: '${newAdventure.platform}'`;
-    }
-
-    if (newAdventure.sourceCodeUrl) {
-      adventureString += `,\n    sourceCodeUrl: '${newAdventure.sourceCodeUrl}'`;
-    }
-
-    adventureString += `\n  }`;
+    // Serialize safely, then indent two spaces to sit inside the array.
+    // JSON is valid TypeScript object-literal syntax.
+    const adventureString = JSON.stringify(newAdventure, null, 2)
+      .split('\n')
+      .map((line) => `  ${line}`)
+      .join('\n');
 
     // Find the array and add the new adventure
     const arrayRegex = new RegExp(
