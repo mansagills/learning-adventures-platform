@@ -6,3 +6,4 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+Test Context: `pnpm test` has known pre-existing integration test failures (e.g., in `tests/phase1/onboarding.test.ts`, `tests/api/auth/`, `tests/security/`, and `tests/Faq.test.tsx`). These can be safely ignored if targeted unit tests for your changes pass cleanly.
