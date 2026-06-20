@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-06-20 - Cross-Platform Path Traversal Validation Vulnerability
+**Vulnerability:** Attempting to fix Windows-specific path normalization issues by replacing backslashes with forward slashes (`.replace(/\\/g, '/')`) on untrusted strings before checking them with `.startsWith` introduces a bypass vulnerability on Linux, where backslashes are valid filename characters.
+**Learning:** Using string manipulation and regular expressions for path validation is highly error-prone and insecure across different operating systems.
+**Prevention:** Always use OS-agnostic library functions like `path.resolve` to calculate true absolute paths, and strictly use those absolute resolved paths against safe bounds (e.g., `path.startsWith(safeRoot + path.sep)`). Never rely on regex to "fix" paths prior to validation.
