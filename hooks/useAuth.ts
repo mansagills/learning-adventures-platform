@@ -16,7 +16,14 @@ export interface AuthUser {
 
 interface UseAuthReturn {
   user: AuthUser | null;
-  status: 'loading' | 'authenticated' | 'unauthenticated';
+  /**
+   * - `authenticated`   — signed in and profile loaded
+   * - `unauthenticated` — no valid session
+   * - `error`           — signed in at Supabase, but the profile/DB lookup
+   *                       failed (server error). Distinct from logged-out so
+   *                       pages can show a real message instead of bouncing.
+   */
+  status: 'loading' | 'authenticated' | 'unauthenticated' | 'error';
 }
 
 /**
@@ -26,7 +33,7 @@ interface UseAuthReturn {
  */
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated' | 'error'>('loading');
   const supabase = createClient();
 
   useEffect(() => {
@@ -51,13 +58,21 @@ export function useAuth(): UseAuthReturn {
             subjects: profile.subjects ?? [],
           });
           setStatus('authenticated');
-        } else {
+        } else if (res.status === 401) {
+          // Session genuinely invalid server-side → logged out.
           setUser(null);
           setStatus('unauthenticated');
+        } else {
+          // We DO have a Supabase session, but the profile lookup failed
+          // (e.g. 500 from a DB hiccup). Surface as 'error' so the UI can
+          // tell the user instead of pretending they're logged out.
+          setUser(null);
+          setStatus('error');
         }
       } catch {
+        // Network/unexpected failure while we have a session → error, not logout.
         setUser(null);
-        setStatus('unauthenticated');
+        setStatus('error');
       }
     };
 
