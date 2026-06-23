@@ -21,6 +21,20 @@ vi.mock('bcryptjs', () => ({
   }
 }));
 
+// Mock Supabase Server Client
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'test-supabase-id' } },
+          error: null
+        })
+      }
+    }
+  })
+}));
+
 describe('Security: Signup Mass Assignment', () => {
   beforeEach(() => {
     vi.clearAllMocks();
