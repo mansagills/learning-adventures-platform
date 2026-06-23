@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2026-06-23 - [Weak RNG for Temporary IDs]
+**Vulnerability:** Using Math.random() to generate temporary file IDs in client-side components and workflow IDs in server-side orchestrators.
+**Learning:** Math.random() is predictable and vulnerable to seed recovery. Using it for any form of unique identifier creation breaks defense-in-depth principles, even in low-risk scenarios like temporary frontend IDs.
+**Prevention:** Standardize on cryptographically secure UUIDs natively available in the environment: crypto.randomUUID() for browsers and randomUUID() from 'crypto' module for Node.js backends.
