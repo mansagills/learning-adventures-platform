@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-05-18 - [Cryptographically Weak Randomness]
+**Vulnerability:** Weak random number generation using `Math.random()` to generate workflow IDs and temporary file IDs.
+**Learning:** In Next.js client/server environments, predictability in generated IDs (like those returned from `Math.random()`) could potentially allow ID collision attacks or predictability vectors across the platform. Using `Math.random()` in places like workflow IDs or file uploaders bypasses secure requirements.
+**Prevention:** Use `crypto.randomUUID()` in the frontend and `crypto.randomUUID()` or `randomInt` in Node.js for generating secure unique identifiers instead of using `Math.random()`.

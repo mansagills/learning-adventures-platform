@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 /**
  * Content Agent Orchestrator
  * Coordinates multi-agent workflows for content creation
@@ -267,7 +268,7 @@ export class ContentAgentOrchestrator {
    * Utility: Generate workflow ID
    */
   private generateWorkflowId(): string {
-    return `workflow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `workflow-${Date.now()}-${randomUUID().split("-")[0]}`;
   }
 
   /**
