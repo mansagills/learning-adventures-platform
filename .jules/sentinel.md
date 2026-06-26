@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-06-26 - [Predictable ID Generation]
+**Vulnerability:** Weak Random Number Generation (`Math.random()`) used for generating temporary file IDs and Agent Workflow IDs.
+**Learning:** Even for identifiers that aren't cryptographic keys (like temporary upload IDs or internal system workflow IDs), predictability allows potential attackers to guess these identifiers. In the case of agent workflows or uploads, predicting these could theoretically allow an attacker to hijack a session, view another user's content, or perform denial-of-service by pre-creating IDs.
+**Prevention:** Use natively supported Cryptographically Secure Pseudo-Random Number Generators (CSPRNGs) like `crypto.randomUUID()` in both browser (`window.crypto`) and Node.js environments.
