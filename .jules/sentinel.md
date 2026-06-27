@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-05-18 - [Weak PRNG]
+**Vulnerability:** Weak Random Number Generation in `generateWorkflowId()` (`lib/agents/ContentAgentOrchestrator.ts`) and `uploadFile()` (`components/agents/FileUploader.tsx`) using `Math.random()`.
+**Learning:** `Math.random()` generates predictable values. Using it to generate workflow or temporary IDs can lead to enumeration or collisions.
+**Prevention:** Use natively supported secure pseudorandom number generators like `crypto.randomUUID()` in the Web Crypto API or Node's `crypto` module to ensure unique unguessable values.
