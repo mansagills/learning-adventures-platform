@@ -1,25 +1,37 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { POST } from '@/app/api/auth/signup/route';
-import { prisma } from '@/lib/prisma';
 
-// Mock prisma
-vi.mock('@/lib/prisma', () => ({
-  prisma: {
+const { prismaMock, supabaseMock } = vi.hoisted(() => ({
+  prismaMock: {
     user: {
       findUnique: vi.fn(),
       create: vi.fn(),
     },
   },
+  supabaseMock: {
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({ data: { user: { id: 'supabase-id' } }, error: null })
+      }
+    }
+  }
 }));
 
-// Mock bcrypt
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue(supabaseMock)
+}));
+
+vi.mock('@/lib/prisma', () => ({
+  prisma: prismaMock,
+}));
+
 vi.mock('bcryptjs', () => ({
   default: {
     hash: vi.fn().mockResolvedValue('hashed_password'),
-    compare: vi.fn().mockResolvedValue(true),
   },
 }));
+
+import { POST } from '@/app/api/auth/signup/route';
 
 describe('Authentication Security - Role Validation', () => {
   beforeEach(() => {
@@ -27,37 +39,32 @@ describe('Authentication Security - Role Validation', () => {
   });
 
   it('should sanitize invalid roles (e.g. ADMIN) to STUDENT', async () => {
-    // Setup mock request with ADMIN role
-    const body = {
-      name: 'Hacker',
-      email: 'hacker@example.com',
-      password: 'password123',
-      role: 'ADMIN',
-    };
-
-    const req = new NextRequest('http://localhost/api/auth/signup', {
+    const req = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        name: 'Sneaky User',
+        email: 'sneaky@example.com',
+        password: 'strongpassword123',
+        role: 'ADMIN', // Malicious input trying to escalate privileges
+      }),
     });
 
-    // Mock Prisma responses
-    (prisma.user.findUnique as any).mockResolvedValue(null);
-    (prisma.user.create as any).mockResolvedValue({
-      id: '123',
-      name: body.name,
-      email: body.email,
-      role: 'STUDENT', // Simulate successful creation with sanitized role
-      createdAt: new Date(),
+    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.user.create.mockResolvedValue({
+      id: 'sneaky-id',
+      name: 'Sneaky User',
+      email: 'sneaky@example.com',
+      role: 'STUDENT',
     });
 
-    // Execute the handler
-    await POST(req);
+    const response = await POST(req);
+    expect(response.status).toBe(201);
 
     // Verify if ADMIN role was sanitized to STUDENT
-    expect(prisma.user.create).toHaveBeenCalledWith(
+    expect(prismaMock.user.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          role: 'STUDENT',
+          role: 'STUDENT', // Assert it was coerced safely
         }),
       })
     );
