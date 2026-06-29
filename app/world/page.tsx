@@ -13,6 +13,7 @@ import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
 import { QuestLog } from '@/components/world/QuestLog';
+import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -45,6 +46,15 @@ export default function WorldPage() {
   const [showJaylen, setShowJaylen] = useState(false);
   const [showSpark, setShowSpark] = useState(false);
   const [showQuestLog, setShowQuestLog] = useState(false);
+  const [questOffer, setQuestOffer] = useState<{
+    npcName: string;
+    questId: string;
+    questTitle: string;
+    questDescription: string;
+    xpReward: number;
+    coinReward: number;
+    status: 'available' | 'active';
+  } | null>(null);
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -160,13 +170,34 @@ export default function WorldPage() {
 
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
-    // Placeholder for Phase D collectible handling
-    const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
+    const handleQuestOffer = (data: typeof questOffer) => setQuestOffer(data);
+    const handleCollectibleCollected = async (data: { id: string; xp: number; coins: number }) => {
+      setXp((prev) => prev + data.xp);
+      setCoins((prev) => prev + data.coins);
+      showNotification(`+${data.xp} XP  +${data.coins} coins`);
+
+      try {
+        const res = await fetch('/api/world/award', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ xp: data.xp, coins: data.coins }),
+        });
+        const reward = await res.json();
+        if (res.ok && reward.level) {
+          setXp(reward.level.totalXP);
+          setCoins(reward.level.currency);
+          setUserLevel(reward.level.currentLevel);
+        }
+      } catch (err) {
+        console.error('Failed to save collectible reward:', err);
+      }
+    };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
+    EventBus.on('quest-offer', handleQuestOffer);
     EventBus.on('collectible-collected', handleCollectibleCollected);
 
     return () => {
@@ -174,6 +205,7 @@ export default function WorldPage() {
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
+      EventBus.off('quest-offer', handleQuestOffer);
       EventBus.off('collectible-collected', handleCollectibleCollected);
     };
   }, []);
@@ -360,6 +392,18 @@ export default function WorldPage() {
       {/* Quest Log */}
       {showQuestLog && (
         <QuestLog onClose={() => setShowQuestLog(false)} />
+      )}
+
+      {/* Quest Offer Dialog — shown when player talks to a quest-giver NPC */}
+      {questOffer && (
+        <QuestOfferDialog
+          offer={questOffer}
+          onAccept={() => {
+            setQuestOffer(null);
+            setShowQuestLog(true);
+          }}
+          onClose={() => setQuestOffer(null)}
+        />
       )}
 
       {/* Job Board */}

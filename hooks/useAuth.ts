@@ -30,6 +30,16 @@ export function useAuth(): UseAuthReturn {
   const supabase = createClient();
 
   useEffect(() => {
+    const fallbackUser = (supabaseUser: User): AuthUser => ({
+      id: supabaseUser.id,
+      email: supabaseUser.email ?? '',
+      name: supabaseUser.user_metadata?.full_name ?? supabaseUser.email ?? null,
+      image: supabaseUser.user_metadata?.avatar_url ?? null,
+      role: supabaseUser.user_metadata?.role ?? 'STUDENT',
+      gradeLevel: supabaseUser.user_metadata?.gradeLevel ?? null,
+      subjects: [],
+    });
+
     // Fetch current session + profile on mount
     const loadUser = async (supabaseUser: User | null) => {
       if (!supabaseUser) {
@@ -52,12 +62,12 @@ export function useAuth(): UseAuthReturn {
           });
           setStatus('authenticated');
         } else {
-          setUser(null);
-          setStatus('unauthenticated');
+          setUser(fallbackUser(supabaseUser));
+          setStatus('authenticated');
         }
       } catch {
-        setUser(null);
-        setStatus('unauthenticated');
+        setUser(fallbackUser(supabaseUser));
+        setStatus('authenticated');
       }
     };
 

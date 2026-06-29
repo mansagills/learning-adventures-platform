@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Container from './Container';
-import Button from './Button';
 import { analytics } from '@/lib/analytics';
 
 export default function Hero() {
@@ -82,21 +81,23 @@ export default function Hero() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link href="/world" onClick={handleEnterWorld}>
-                <Button variant="candy" size="lg" className="text-lg w-full sm:w-auto">
-                  <span className="w-7 h-7 bg-white/20 rounded-sm flex items-center justify-center mr-2">
-                    🌍
-                  </span>
-                  Enter the World
-                </Button>
+              <Link
+                href="/world/create"
+                className="relative inline-flex items-center justify-center gap-2 font-bold rounded-full border-2 border-pg-border transition-all duration-200 ease-bounce focus:outline-none focus:ring-2 focus:ring-pg-violet focus:ring-offset-2 bg-pg-violet text-white shadow-pop hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-active px-8 py-4 text-lg w-full sm:w-auto"
+                onClick={handleEnterWorld}
+              >
+                <span className="w-7 h-7 bg-white/20 rounded-sm flex items-center justify-center mr-2">
+                  🌍
+                </span>
+                Enter the World
               </Link>
-              <Button
-                variant="outline-pop"
-                size="lg"
+              <Link
+                href="/world/create"
+                className="relative inline-flex items-center justify-center gap-2 font-bold rounded-full border-2 border-pg-border transition-all duration-200 ease-bounce focus:outline-none focus:ring-2 focus:ring-pg-violet focus:ring-offset-2 bg-transparent text-foreground hover:bg-pg-yellow hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-active px-8 py-4 text-lg"
                 onClick={handleCreateCharacter}
               >
                 Create Your Character →
-              </Button>
+              </Link>
             </div>
           </div>
 

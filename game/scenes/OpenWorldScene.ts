@@ -34,6 +34,61 @@ const TOTAL_CHUNK_ROWS = WORLD_ROWS / CHUNK_TILE_ROWS;  // 6
  * The world is divided into a 6×6 grid of 16×12-tile chunks.
  * Only the 3×3 area of chunks surrounding the camera centre is active at any time.
  */
+// Quest-giver NPC definitions — buildingId matches Quest.buildingId in DB
+const QUEST_GIVERS: {
+  buildingId: string;
+  building: string;
+  npcName: string;
+  doorTileCol: number;
+  doorTileRow: number;
+  questId: string;
+  questTitle: string;
+  questDescription: string;
+  xpReward: number;
+  coinReward: number;
+  greetingDialog: string;
+}[] = [
+  {
+    buildingId: 'math-building',
+    building: 'Math Building',
+    npcName: 'Professor Pi',
+    doorTileCol: 14,
+    doorTileRow: 7,
+    questId: 'fraction-fundamentals',
+    questTitle: 'Fraction Fundamentals',
+    questDescription: 'Master fractions by completing the Fraction Frenzy game. Score 80% or higher!',
+    xpReward: 50,
+    coinReward: 25,
+    greetingDialog: 'Welcome to the Math Building! I have a quest for you, young mathematician.',
+  },
+  {
+    buildingId: 'science-building',
+    building: 'Science Building',
+    npcName: 'Dr. Nova',
+    doorTileCol: 69,
+    doorTileRow: 7,
+    questId: 'lab-safety-basics',
+    questTitle: 'Lab Safety Basics',
+    questDescription: 'Pass the Lab Safety Quiz with a perfect score before entering the labs.',
+    xpReward: 40,
+    coinReward: 20,
+    greetingDialog: 'Safety goggles on! I have an important quest before you enter the lab.',
+  },
+  {
+    buildingId: 'business-building',
+    building: 'Business Building',
+    npcName: 'CEO Cleo',
+    doorTileCol: 14,
+    doorTileRow: 31,
+    questId: 'entrepreneurship-101',
+    questTitle: 'Entrepreneurship 101',
+    questDescription: 'Learn the core concepts of entrepreneurship and identify 3 business ideas.',
+    xpReward: 50,
+    coinReward: 25,
+    greetingDialog: "Welcome, future entrepreneur! I've got just the quest to get you started.",
+  },
+];
+
 export class OpenWorldScene extends Phaser.Scene {
   private player?: Player;
   private interactables: InteractableObject[] = [];
@@ -45,6 +100,11 @@ export class OpenWorldScene extends Phaser.Scene {
   private mapData: number[][] = [];
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
   private lastCameraChunk = { cx: -1, cy: -1 };
+
+  // Quest markers — keyed by buildingId
+  private questMarkers: Map<string, { marker: Phaser.GameObjects.Text; tween?: Phaser.Tweens.Tween }> = new Map();
+  // Quest-giver NPCs — keyed by buildingId for status updates
+  private questGiverNPCs: Map<string, NPC> = new Map();
 
   constructor() {
     super({ key: 'OpenWorldScene' });
@@ -133,6 +193,7 @@ export class OpenWorldScene extends Phaser.Scene {
 
     // Place building doors, NPC placeholders, shop, and job board
     this.createInteractables();
+    this.createCampusSignage();
 
     // Setup interaction key (SPACE)
     if (this.input.keyboard) {
@@ -155,15 +216,41 @@ export class OpenWorldScene extends Phaser.Scene {
 
   // ─── Interactables ───────────────────────────────────────────────────────────
 
+  private createQuestGiverNPC(
+    qg: typeof QUEST_GIVERS[number],
+    texture: string,
+    x: number,
+    y: number,
+  ): void {
+    const npc = new NPC(
+      this, x, y, texture,
+      qg.npcName,
+      [{ text: qg.greetingDialog, speaker: qg.npcName }],
+      {
+        questId: qg.questId,
+        questTitle: qg.questTitle,
+        questDescription: qg.questDescription,
+        xpReward: qg.xpReward,
+        coinReward: qg.coinReward,
+      },
+    );
+    this.interactables.push(npc);
+    this.questGiverNPCs.set(qg.buildingId, npc);
+    this.createQuestMarker(qg.buildingId, x, y);
+  }
+
   private createInteractables(): void {
     const doors = getBuildingDoorPositions();
+    // Build a lookup of quest-giver configs by building name for fast access
+    const questGiverByBuilding = new Map(QUEST_GIVERS.map((qg) => [qg.building, qg]));
 
     doors.forEach((config) => {
       const px = config.doorTileCol * TILE_SIZE;
       const py = config.doorTileRow * TILE_SIZE;
+      const questGiver = questGiverByBuilding.get(config.building);
 
       if (config.targetScene) {
-        // Fully wired door (Math Building → MathBuildingScene)
+        // Fully wired door — but also place a quest-giver NPC slightly in front of it
         const door = new Door(
           this, px, py,
           'door-gold-small',
@@ -172,8 +259,16 @@ export class OpenWorldScene extends Phaser.Scene {
           config.spawnY,
         );
         this.interactables.push(door);
+
+        // Quest-giver NPC stands just below the door
+        if (questGiver) {
+          this.createQuestGiverNPC(questGiver, 'door-gold-small', px, py + TILE_SIZE);
+        }
+      } else if (questGiver) {
+        // Quest-giver NPC replacing the "coming soon" placeholder
+        this.createQuestGiverNPC(questGiver, 'door-teal-small', px, py);
       } else {
-        // Placeholder NPC for buildings not yet implemented
+        // Plain placeholder NPC for buildings with no quest yet
         const npc = new NPC(
           this, px, py,
           'door-teal-small',
@@ -205,6 +300,109 @@ export class OpenWorldScene extends Phaser.Scene {
     this.collectibles = new CollectibleSystem(this);
     // Include collectibles in the proximity loop
     this.interactables.push(...this.collectibles.getObjects());
+  }
+
+  private createCampusSignage(): void {
+    const signStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontSize: '14px',
+      fontStyle: 'bold',
+      color: '#111827',
+      backgroundColor: '#FFFFFFDD',
+      padding: { x: 6, y: 4 },
+      align: 'center',
+    };
+
+    getBuildingDoorPositions().forEach((config) => {
+      const label = this.add.text(
+        config.doorTileCol * TILE_SIZE,
+        (config.doorTileRow - 1) * TILE_SIZE + 12,
+        config.label,
+        signStyle,
+      );
+      label.setOrigin(0.5);
+      label.setDepth(12);
+    });
+
+    [
+      { text: 'SHOP', x: 6 * TILE_SIZE, y: 35 * TILE_SIZE + 16 },
+      { text: 'JOB BOARD', x: 87 * TILE_SIZE, y: 35 * TILE_SIZE + 16 },
+      { text: 'TOWN SQUARE', x: 48 * TILE_SIZE, y: 33 * TILE_SIZE },
+      { text: 'NATURE PARK', x: 16 * TILE_SIZE, y: 50 * TILE_SIZE },
+      { text: 'MARKET WALK', x: 48 * TILE_SIZE, y: 50 * TILE_SIZE },
+    ].forEach((sign) => {
+      const label = this.add.text(sign.x, sign.y, sign.text, signStyle);
+      label.setOrigin(0.5);
+      label.setDepth(12);
+    });
+  }
+
+  // ─── Quest Markers ───────────────────────────────────────────────────────────
+
+  private createQuestMarker(buildingId: string, x: number, y: number): void {
+    // Start hidden — shown/updated when quest-status-update arrives
+    const marker = this.add.text(x, y - 48, '!', {
+      fontSize: '28px',
+      fontStyle: 'bold',
+      color: '#F59E0B',
+      stroke: '#000000',
+      strokeThickness: 4,
+    });
+    marker.setOrigin(0.5);
+    marker.setDepth(20);
+    marker.setVisible(false);
+
+    const tween = this.tweens.add({
+      targets: marker,
+      y: y - 56,
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      paused: true,
+    });
+
+    this.questMarkers.set(buildingId, { marker, tween });
+  }
+
+  private updateQuestMarkers(
+    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
+  ): void {
+    // Build lookup for O(1) access and track which buildings were included
+    const incoming = new Map(markerData.map((d) => [d.buildingId, d.status]));
+
+    // Hide markers for buildings not present in markerData
+    this.questMarkers.forEach(({ marker, tween }, buildingId) => {
+      if (!incoming.has(buildingId)) {
+        marker.setVisible(false);
+        tween?.pause();
+      }
+    });
+
+    for (const { buildingId, status } of markerData) {
+      const entry = this.questMarkers.get(buildingId);
+      const npc = this.questGiverNPCs.get(buildingId);
+
+      // Keep NPC quest status in sync so interaction shows the right dialog
+      if (npc) npc.questStatus = status === 'in_progress' ? 'active' : status === 'none' ? 'none' : status;
+
+      if (!entry) continue;
+      const { marker, tween } = entry;
+
+      if (status === 'available' || status === 'in_progress') {
+        marker.setText('!');
+        marker.setColor(status === 'in_progress' ? '#A78BFA' : '#F59E0B');
+        marker.setVisible(true);
+        if (tween && tween.isPaused()) tween.resume();
+      } else if (status === 'completed') {
+        marker.setText('✓');
+        marker.setColor('#4ADE80');
+        marker.setVisible(true);
+        tween?.pause();
+      } else {
+        marker.setVisible(false);
+        tween?.pause();
+      }
+    }
   }
 
   private createWanderingNPCs(): void {
@@ -419,15 +617,29 @@ export class OpenWorldScene extends Phaser.Scene {
     }
   };
 
+  private handleQuestStatusUpdate = (
+    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
+  ) => this.updateQuestMarkers(markerData);
+
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);
+    EventBus.on('quest-status-update', this.handleQuestStatusUpdate);
   }
 
   // ─── shutdown ────────────────────────────────────────────────────────────────
   shutdown(): void {
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
+    EventBus.off('quest-status-update', this.handleQuestStatusUpdate);
+
+    // Destroy quest markers
+    this.questMarkers.forEach(({ marker, tween }) => {
+      tween?.destroy();
+      marker.destroy();
+    });
+    this.questMarkers.clear();
+    this.questGiverNPCs.clear();
 
     // Clean up interactables before scene stops
     this.interactables.forEach((interactable) => {

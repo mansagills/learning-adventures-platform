@@ -284,6 +284,9 @@ export function generate(): number[][] {
   // Library Building: rows 4-6, cols 44-47
   fillRect(tiles, 4, 6, 44, 47, TILE.WALL_BRICK);
 
+  // Business Building: rows 28-30, cols 44-47
+  fillRect(tiles, 28, 30, 44, 47, TILE.WALL_BRICK);
+
   // Nature Center: rows 52-54, cols 13-16
   fillRect(tiles, 52, 54, 13, 16, TILE.WALL_SCI);
 
@@ -375,6 +378,19 @@ export function getBuildingDoorPositions(): BuildingDoorConfig[] {
       wallKey:     'wall-brick-1',
       wallTileCol: 44,
       wallTileRow: 4,
+      tileIndex:   11,
+    },
+    {
+      building:    'Business Building',
+      doorTileCol: 45,
+      doorTileRow: 31,
+      targetScene: null,
+      spawnX:      0,
+      spawnY:      0,
+      label:       'BUSINESS\nBUILDING',
+      wallKey:     'wall-brick-1',
+      wallTileCol: 44,
+      wallTileRow: 28,
       tileIndex:   11,
     },
     {

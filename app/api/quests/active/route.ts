@@ -25,11 +25,10 @@ export async function GET() {
 
     let status: 'completed' | 'active' | 'available' | 'locked';
     if (isCompleted) status = 'completed';
-    else if (!prerequisitesMet) status = 'locked';
-    // 'active' = part of a chain the user has already started (has at least one completed prereq)
-    // 'available' = starter quest or chain not yet begun
+    else if (prerequisitesMet) status = 'available';
+    // 'active' = chain started but not all prereqs done yet (some done, some not)
     else if (prereqs.length > 0 && prereqs.some((id) => completedIds.has(id))) status = 'active';
-    else status = 'available';
+    else status = 'locked';
 
     return {
       id: q.id,
@@ -40,7 +39,7 @@ export async function GET() {
       buildingId: q.buildingId,
       xpReward: q.xpReward,
       coinReward: q.coinReward,
-      objectives: q.objectives,
+      objectives: Array.isArray(q.objectives) ? q.objectives : [],
       prerequisites: q.prerequisites,
       order: q.order,
       status,

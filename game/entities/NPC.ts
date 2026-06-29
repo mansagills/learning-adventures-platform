@@ -1,18 +1,32 @@
 import * as Phaser from 'phaser';
 import { InteractableObject } from './InteractableObject';
+import { EventBus } from '@/components/phaser/EventBus';
 
 export interface DialogLine {
   text: string;
   speaker?: string;
 }
 
+export interface QuestGiverConfig {
+  questId: string;
+  questTitle: string;
+  questDescription: string;
+  xpReward: number;
+  coinReward: number;
+}
+
 /**
- * NPC - Non-player character with dialog system
+ * NPC - Non-player character with dialog and optional quest-giving.
+ * If constructed with a QuestGiverConfig, interaction emits 'quest-offer'
+ * to React instead of plain dialog when the quest is available.
  */
 export class NPC extends InteractableObject {
   private npcName: string;
   private dialog: DialogLine[];
   private currentDialogIndex: number = 0;
+  private questConfig?: QuestGiverConfig;
+  // Injected by OpenWorldScene after each quest-status-update
+  questStatus: 'available' | 'active' | 'completed' | 'locked' | 'none' = 'none';
 
   constructor(
     scene: Phaser.Scene,
@@ -20,41 +34,47 @@ export class NPC extends InteractableObject {
     y: number,
     texture: string,
     npcName: string,
-    dialog: DialogLine[]
+    dialog: DialogLine[],
+    questConfig?: QuestGiverConfig,
   ) {
     super(scene, x, y, texture);
 
     this.npcName = npcName;
     this.dialog = dialog;
+    this.questConfig = questConfig;
 
-    // Set prompt text
     this.setPromptText(`Press SPACE to talk to ${npcName}`);
+    this.setOnInteract(() => this.onInteract());
+  }
 
-    // Set interaction callback
-    this.setOnInteract(() => this.showDialog());
+  private onInteract(): void {
+    // If this NPC has an available quest, offer it
+    if (this.questConfig && (this.questStatus === 'available' || this.questStatus === 'active')) {
+      EventBus.emit('quest-offer', {
+        npcName: this.npcName,
+        questId: this.questConfig.questId,
+        questTitle: this.questConfig.questTitle,
+        questDescription: this.questConfig.questDescription,
+        xpReward: this.questConfig.xpReward,
+        coinReward: this.questConfig.coinReward,
+        status: this.questStatus,
+      });
+      return;
+    }
+
+    // Otherwise show regular dialog
+    this.showDialog();
   }
 
   private showDialog(): void {
     if (this.dialog.length === 0) return;
-
-    // Get current dialog line
     const dialogLine = this.dialog[this.currentDialogIndex];
-
-    // Emit event to React to show dialog modal
-    // (React component will handle the actual UI)
-    const eventData = {
+    EventBus.emit('npc-dialog', {
       npcName: this.npcName,
       text: dialogLine.text,
-      speaker: dialogLine.speaker || this.npcName,
+      speaker: dialogLine.speaker ?? this.npcName,
       hasMore: this.currentDialogIndex < this.dialog.length - 1,
-    };
-
-    console.log('NPC Dialog:', eventData);
-
-    // For now, just log to console
-    // TODO: Create dialog modal in React (Phase 3 polish)
-
-    // Cycle through dialog
+    });
     this.currentDialogIndex = (this.currentDialogIndex + 1) % this.dialog.length;
   }
 

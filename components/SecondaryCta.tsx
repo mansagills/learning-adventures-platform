@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Container from './Container';
-import Button from './Button';
 import { analytics } from '@/lib/analytics';
 
 export default function SecondaryCta() {
@@ -69,26 +68,23 @@ export default function SecondaryCta() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-            <Link href="/world" onClick={handleEnterWorld}>
-              <Button
-                variant="candy-pink"
-                size="lg"
-                className="bg-white text-pg-violet border-pg-border hover:bg-pg-yellow hover:text-foreground w-full sm:w-auto"
-              >
-                <span className="w-6 h-6 bg-pg-violet/20 rounded-sm flex items-center justify-center mr-2">
-                  🌍
-                </span>
-                Enter the World
-              </Button>
+            <Link
+              href="/world/create"
+              onClick={handleEnterWorld}
+              className="relative inline-flex items-center justify-center gap-2 font-bold rounded-full border-2 border-pg-border transition-all duration-200 ease-bounce focus:outline-none focus:ring-2 focus:ring-pg-violet focus:ring-offset-2 bg-white text-pg-violet shadow-pop hover:bg-pg-yellow hover:text-foreground hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-active px-8 py-4 text-lg w-full sm:w-auto"
+            >
+              <span className="w-6 h-6 bg-pg-violet/20 rounded-sm flex items-center justify-center mr-2">
+                🌍
+              </span>
+              Enter the World
             </Link>
-            <Button
-              variant="outline-pop"
-              size="lg"
+            <Link
+              href="/world/create"
               onClick={handleCreateCharacter}
-              className="bg-transparent border-white text-white hover:bg-pg-yellow hover:text-foreground hover:border-pg-border"
+              className="relative inline-flex items-center justify-center gap-2 font-bold rounded-full border-2 transition-all duration-200 ease-bounce focus:outline-none focus:ring-2 focus:ring-pg-violet focus:ring-offset-2 bg-transparent border-white text-white hover:bg-pg-yellow hover:text-foreground hover:border-pg-border hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop active:translate-x-0.5 active:translate-y-0.5 active:shadow-pop-active px-8 py-4 text-lg"
             >
               Create Your Character →
-            </Button>
+            </Link>
           </div>
 
           {/* Trust indicators */}

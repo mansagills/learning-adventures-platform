@@ -67,11 +67,13 @@ export default function Minimap() {
     bgRef.current = ctx.getImageData(0, 0, MAP_W, MAP_H);
 
     // minimap-position: restore bg, draw player dot
-    const handlePosition = (data: { playerX: number; playerY: number }) => {
+    const handlePosition = (data: { x?: number; y?: number; playerX?: number; playerY?: number }) => {
       if (!bgRef.current) return;
       ctx.putImageData(bgRef.current, 0, 0);
-      const dotX = (data.playerX / WORLD_W) * MAP_W;
-      const dotY = (data.playerY / WORLD_H) * MAP_H;
+      const worldX = data.x ?? data.playerX ?? 0;
+      const worldY = data.y ?? data.playerY ?? 0;
+      const dotX = (worldX / WORLD_W) * MAP_W;
+      const dotY = (worldY / WORLD_H) * MAP_H;
       ctx.fillStyle = 'white';
       ctx.fillRect(dotX - 2, dotY - 2, 4, 4);
     };
