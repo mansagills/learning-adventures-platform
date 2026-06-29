@@ -153,6 +153,12 @@ export default function Faq() {
                 >
                   <button
                     onClick={() => toggleItem(item.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleItem(item.id);
+                      }
+                    }}
                     className="w-full px-6 py-5 text-left flex items-center justify-between transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-pg-violet focus:ring-offset-2 rounded-xl"
                     aria-expanded={isOpen(item.id)}
                     aria-controls={`faq-answer-${item.id}`}

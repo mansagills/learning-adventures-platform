@@ -23,6 +23,20 @@ vi.mock('bcryptjs', () => ({
   },
 }));
 
+// Mock Supabase to avoid missing env var errors
+vi.mock('../../lib/supabase/server', () => ({
+  createServiceClient: vi.fn().mockReturnValue({
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'supabase-123' } },
+          error: null,
+        }),
+      },
+    },
+  }),
+}));
+
 describe('Signup Security Controls', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,6 +46,27 @@ describe('Signup Security Controls', () => {
     const body = {
       name: 'Attacker',
       email: 'attacker@learningadventures.org',
+      password: 'password123',
+      role: 'STUDENT',
+      gradeLevel: '5'
+    };
+
+    const req = {
+      json: async () => body,
+    } as unknown as NextRequest;
+
+    const response = await POST(req);
+    const data = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(data.error).toContain('Signups with @learningadventures.org are restricted');
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
+  it('PREVENTS creating a user with mixed-case admin email like @LearningAdventures.org (Case-Sensitivity Bypass Prevention)', async () => {
+    const body = {
+      name: 'Attacker',
+      email: 'attacker@LearningAdventures.org',
       password: 'password123',
       role: 'STUDENT',
       gradeLevel: '5'
@@ -81,7 +116,7 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
+    expect((await response.json()).error).toBe('Password must be at least 8 characters');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 

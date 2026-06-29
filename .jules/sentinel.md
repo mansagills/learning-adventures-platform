@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-05-24 - [Admin Privilege Escalation] Case-Sensitive Domain Check Bypass
+**Vulnerability:** In `app/api/auth/signup/route.ts`, admin domain restriction (`@learningadventures.org`) was checked using case-sensitive `email.endsWith(ADMIN_DOMAIN)`. This allowed attackers to bypass the restriction by registering with mixed-case domains like `Attacker@LearningAdventures.org`.
+**Learning:** String comparisons for emails and domains must always account for case-insensitivity because standard email infrastructure treats them interchangeably.
+**Prevention:** Always normalize email inputs to lowercase using `.toLowerCase()` before performing domain restriction checks or use case-insensitive matching mechanisms.
