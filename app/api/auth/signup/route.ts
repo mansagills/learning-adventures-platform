@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    if (email.endsWith(ADMIN_DOMAIN)) {
+    // Security check: Normalize email to lowercase to prevent case-sensitive bypass
+    if (email.toLowerCase().endsWith(ADMIN_DOMAIN)) {
       return NextResponse.json(
         { error: 'Signups with @learningadventures.org are restricted.' },
         { status: 403 }
