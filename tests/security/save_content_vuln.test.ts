@@ -4,7 +4,6 @@ import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
-  getApiUser: vi.fn(),
   getServerSession: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
@@ -34,11 +33,6 @@ vi.mock('next-auth', () => ({
   getServerSession: mocks.getServerSession,
 }));
 
-// Mock api-auth
-vi.mock('@/lib/api-auth', () => ({
-  getApiUser: mocks.getApiUser,
-}));
-
 // Mock authOptions (just an object)
 vi.mock('@/lib/auth', () => ({
   authOptions: {},
@@ -54,7 +48,7 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects unauthenticated requests', async () => {
-    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: { status: 401 } });
+    mocks.getServerSession.mockResolvedValue(null);
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -72,7 +66,9 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects unauthorized users (e.g. STUDENT)', async () => {
-    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'STUDENT' }, error: null });
+    mocks.getServerSession.mockResolvedValue({
+      user: { role: 'STUDENT' },
+    });
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -90,7 +86,9 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects path traversal attempts from authorized users', async () => {
-    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' }, error: null });
+    mocks.getServerSession.mockResolvedValue({
+      user: { role: 'ADMIN' },
+    });
 
     const maliciousFileName = '../../../../tmp/hacked.html';
 
@@ -115,7 +113,9 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('allows valid requests from authorized users', async () => {
-    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' }, error: null });
+    mocks.getServerSession.mockResolvedValue({
+      user: { role: 'ADMIN' },
+    });
 
     const validFileName = 'test_game.html';
 
