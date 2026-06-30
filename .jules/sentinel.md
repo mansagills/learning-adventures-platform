@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## $(date +%Y-%m-%d) - [Extract Metadata DoS]
+**Vulnerability:** Zip Bomb Denial of Service.
+**Learning:** `adm-zip` reads entire entry files directly into memory when using `.getData()`. If an uploaded zip contains extremely large files, this causes OOM and DoS.
+**Prevention:** Always verify `entry.header.size` against a fixed maximum (e.g. 1MB) before calling `getData()` or buffering any zip entry payload.
