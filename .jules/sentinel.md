@@ -10,3 +10,9 @@
 **Vulnerability:** The `/api/internal/extract-metadata` endpoint was vulnerable to Zip Bomb DoS attacks. It read the uncompressed contents of `metadata.json` directly into memory using `AdmZip`'s `metadataEntry.getData()` without checking the uncompressed file size first.
 **Learning:** Using `adm-zip` safely requires validating uncompressed file sizes (`entry.header.size`) before attempting to buffer them into memory. The application's architecture handles arbitrary user-uploaded zip files, making this a critical defense point.
 **Prevention:** Always enforce a strict maximum size limit (e.g., 1MB) on individual files before calling `entry.getData()` or extracting them to disk.
+## 2025-02-23 - Mocking Supabase in Security Tests
+**Vulnerability:** Not a direct vulnerability, but a significant testing gap. Security tests relying on `getApiUser` were failing because the underlying implementation required a `cookies` context via Supabase `createClient()`, which was throwing Next.js environment errors during `vitest` execution.
+**Learning:** When mocking authorization modules like `lib/api-auth.ts`, the mock must account for the specific data structure expected by the route handler. Furthermore, when `next-auth` is replaced by Supabase, all associated mock dependencies in unit tests must be updated to prevent `cookies() was called outside a request scope` errors. The tests had `getServerSession` calls mapped to `next-auth`, which conflicted with the actual codebase relying on `getApiUser`.
+**Prevention:**
+1. Always migrate mocks simultaneously with authentication implementations (e.g., from `next-auth` to Supabase).
+2. Explicitly mock `@/lib/supabase/server`'s `createClient()` with valid objects when unit-testing Next.js Route Handlers utilizing `getApiUser`.

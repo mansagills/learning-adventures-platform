@@ -4,8 +4,8 @@ import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
@@ -39,8 +39,8 @@ vi.mock('fs', () => ({
 }));
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: mockGetServerSession,
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: mockGetServerSession,
   default: {
     getServerSession: mockGetServerSession,
   },
@@ -76,6 +76,15 @@ vi.mock('adm-zip', () => {
     existsSync: vi.fn(),
   };
 });
+
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
+}));
 
 describe('Security: Zip Slip Prevention', () => {
   const mockTargetDir = '/tmp/safe-dir';

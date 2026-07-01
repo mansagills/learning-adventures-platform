@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 // Mock dependencies
 vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
+  getApiUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -45,7 +45,16 @@ vi.mock('adm-zip', () => {
 
 // Import the route handler AFTER mocking
 import { POST } from '@/app/api/internal/save-content/route';
-import { getServerSession } from 'next-auth/next';
+import { getApiUser } from 'next-auth/next';
+
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
+}));
 
 describe('Save Content Authentication', () => {
   beforeEach(() => {
@@ -53,7 +62,7 @@ describe('Save Content Authentication', () => {
   });
 
   it('should reject unauthorized requests with 401', async () => {
-    (getServerSession as any).mockResolvedValue(null);
+    (getApiUser as any).mockResolvedValue(null);
 
     const request = new NextRequest(
       'http://localhost:3000/api/internal/save-content',
@@ -74,9 +83,9 @@ describe('Save Content Authentication', () => {
   });
 
   it('should reject requests from non-admin/non-teacher users with 401', async () => {
-    (getServerSession as any).mockResolvedValue({
+    (getApiUser as any).mockResolvedValue({
       user: {
-        role: 'STUDENT',
+        apiUser: { role: 'STUDENT' },
       },
     });
 
@@ -99,9 +108,9 @@ describe('Save Content Authentication', () => {
   });
 
   it('should allow requests from ADMIN', async () => {
-    (getServerSession as any).mockResolvedValue({
+    (getApiUser as any).mockResolvedValue({
       user: {
-        role: 'ADMIN',
+        apiUser: { role: 'ADMIN' },
       },
     });
 
@@ -125,9 +134,9 @@ describe('Save Content Authentication', () => {
   });
 
   it('should allow requests from TEACHER', async () => {
-    (getServerSession as any).mockResolvedValue({
+    (getApiUser as any).mockResolvedValue({
       user: {
-        role: 'TEACHER',
+        apiUser: { role: 'TEACHER' },
       },
     });
 

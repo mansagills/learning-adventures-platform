@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import path from 'path';
-import { getServerSession } from 'next-auth/next';
+import { getApiUser } from 'next-auth/next';
 
 // Mock next-auth
 vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
+  getApiUser: vi.fn().mockResolvedValue({
     user: {
       name: 'Admin',
       email: 'admin@example.com',
-      role: 'ADMIN',
+      apiUser: { role: 'ADMIN' },
     },
   }),
 }));
@@ -74,7 +74,7 @@ vi.mock('adm-zip', () => {
 
 // Mock Auth
 vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
+  getApiUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -84,12 +84,21 @@ vi.mock('@/lib/auth', () => ({
 // Import after mocking
 import { POST } from '@/app/api/internal/save-content/route';
 
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
+}));
+
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
+    (getApiUser as any).mockResolvedValue({
       user: {
-        role: 'ADMIN',
+        apiUser: { role: 'ADMIN' },
       },
     });
   });
