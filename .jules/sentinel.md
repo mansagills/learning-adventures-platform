@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-23 - Zip Bomb / DoS via AdmZip getData()
+**Vulnerability:** The `/api/internal/extract-metadata` endpoint was vulnerable to Zip Bomb DoS attacks. It read the uncompressed contents of `metadata.json` directly into memory using `AdmZip`'s `metadataEntry.getData()` without checking the uncompressed file size first.
+**Learning:** Using `adm-zip` safely requires validating uncompressed file sizes (`entry.header.size`) before attempting to buffer them into memory. The application's architecture handles arbitrary user-uploaded zip files, making this a critical defense point.
+**Prevention:** Always enforce a strict maximum size limit (e.g., 1MB) on individual files before calling `entry.getData()` or extracting them to disk.

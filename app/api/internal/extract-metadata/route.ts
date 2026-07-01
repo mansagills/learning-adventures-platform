@@ -113,6 +113,13 @@ export async function POST(request: NextRequest) {
 
     // Extract metadata if found
     if (metadataEntry) {
+      const MAX_METADATA_SIZE = 1048576; // 1MB
+      if (metadataEntry.header.size > MAX_METADATA_SIZE) {
+        return NextResponse.json(
+          { error: 'Metadata file is too large (exceeds 1MB limit)' },
+          { status: 400 }
+        );
+      }
       const metadataContent = metadataEntry.getData().toString('utf8');
       extractedMetadata = JSON.parse(metadataContent);
     }
