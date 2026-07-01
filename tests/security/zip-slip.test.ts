@@ -48,6 +48,15 @@ vi.mock('@/lib/auth', () => ({
 import { POST } from '@/app/api/internal/save-content/route';
 import { getServerSession } from 'next-auth/next';
 
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
+}));
+
 describe('Security: Zip Slip & Path Traversal', () => {
   beforeEach(() => {
     vi.clearAllMocks();

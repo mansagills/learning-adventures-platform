@@ -4,7 +4,7 @@ import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 
 const mocks = vi.hoisted(() => ({
-  getServerSession: vi.fn(),
+  getApiUser: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
   existsSync: vi.fn(),
@@ -29,13 +29,22 @@ vi.mock('fs', () => ({
 }));
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: mocks.getServerSession,
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: mocks.getApiUser,
 }));
 
 // Mock authOptions (just an object)
 vi.mock('@/lib/auth', () => ({
   authOptions: {},
+}));
+
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
 }));
 
 describe('Save Content Vulnerability Fix', () => {
@@ -48,7 +57,7 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects unauthenticated requests', async () => {
-    mocks.getServerSession.mockResolvedValue(null);
+    mocks.getApiUser.mockResolvedValue({ apiUser: null, error: 'Unauthorized' });
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -66,9 +75,7 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects unauthorized users (e.g. STUDENT)', async () => {
-    mocks.getServerSession.mockResolvedValue({
-      user: { role: 'STUDENT' },
-    });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'STUDENT' } });
 
     const req = new NextRequest('http://localhost:3000/api/internal/save-content', {
       method: 'POST',
@@ -86,9 +93,7 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('rejects path traversal attempts from authorized users', async () => {
-    mocks.getServerSession.mockResolvedValue({
-      user: { role: 'ADMIN' },
-    });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' } });
 
     const maliciousFileName = '../../../../tmp/hacked.html';
 
@@ -113,9 +118,7 @@ describe('Save Content Vulnerability Fix', () => {
   });
 
   it('allows valid requests from authorized users', async () => {
-    mocks.getServerSession.mockResolvedValue({
-      user: { role: 'ADMIN' },
-    });
+    mocks.getApiUser.mockResolvedValue({ apiUser: { role: 'ADMIN' } });
 
     const validFileName = 'test_game.html';
 

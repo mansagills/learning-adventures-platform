@@ -32,6 +32,15 @@ vi.mock('@/lib/auth', () => ({
 // 2. Import the module under test AFTER mocks
 import { POST } from '../../app/api/internal/claude-generate/route';
 
+// Mock supabase to prevent cookie errors
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn().mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+    },
+  }),
+}));
+
 describe('POST /api/internal/claude-generate', () => {
   const validBody = {
       formData: {
