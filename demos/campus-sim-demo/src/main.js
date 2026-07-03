@@ -6,8 +6,42 @@
   const dialog = document.getElementById('dialog');
   const race = document.getElementById('race');
 
+  ctx.imageSmoothingEnabled = false;
+
+  const TILE_SIZE = 64;
   const world = { width: 1920, height: 1280 };
   const keys = new Set();
+  const assets = {};
+  const assetManifest = {
+    'human-1': './assets/sprites/human-1.png',
+    'human-2': './assets/sprites/human-2.png',
+    'robot-blue': './assets/sprites/robot-blue.png',
+    'wizard-purple': './assets/sprites/wizard-purple.png',
+    'cat-orange': './assets/sprites/cat-orange.png',
+    'knight-silver': './assets/sprites/knight-silver.png',
+    grass1: './assets/tilemaps/grass-plain-1.png',
+    grass2: './assets/tilemaps/grass-plain-2.png',
+    grass3: './assets/tilemaps/grass-plain-3.png',
+    flowers1: './assets/tilemaps/grass-flowers-1.png',
+    flowers2: './assets/tilemaps/grass-flowers-2.png',
+    path: './assets/tilemaps/stone-path-1.png',
+    dirt: './assets/tilemaps/dirt-earth-1.png',
+    water: './assets/tilemaps/water-1.png',
+    mathWall: './assets/tilemaps/math-wall-1.png',
+    scienceWall: './assets/tilemaps/science-building-1.png',
+    englishWall: './assets/tilemaps/english-building-1.png',
+    brickWall: './assets/tilemaps/brick-wall-1.png',
+    arcade: './assets/tilemaps/arcade-cabinet.png',
+    desk: './assets/tilemaps/desk-computer.png',
+  };
+
+  Object.entries(assetManifest).forEach(([key, src]) => {
+    const image = new Image();
+    image.src = src;
+    image.onload = render;
+    assets[key] = image;
+  });
+
   const stages = [
     'Talk to Mrs. Numbers',
     'Collect rally parts',
@@ -21,16 +55,30 @@
     { id: 'fraction-fuel-cell', label: 'Fraction Fuel Cell', x: 850, y: 540 },
     { id: 'turbo-token', label: 'Turbo Token', x: 1110, y: 690 },
   ];
-  const npc = { id: 'mrs-numbers', name: 'Mrs. Numbers', x: 940, y: 400 };
+  const npc = {
+    id: 'mrs-numbers',
+    name: 'Mrs. Numbers',
+    x: 940,
+    y: 400,
+    sprite: 'wizard-purple',
+    facing: 'down',
+  };
   const arcade = { id: 'math-race-rally', label: 'Math Race Rally', x: 720, y: 375 };
-  const player = { x: 1260, y: 760, speed: 190, facing: 1 };
+  const player = {
+    x: 1260,
+    y: 760,
+    speed: 190,
+    facing: 'down',
+    moving: false,
+    sprite: 'human-1',
+  };
   const students = [
-    { name: 'Maya', x: 1260, y: 520, color: '#ff5ca8', route: [[1260, 520], [1450, 560], [1420, 750]] },
-    { name: 'Theo', x: 410, y: 850, color: '#54f7a7', route: [[410, 850], [610, 900], [660, 760]] },
-    { name: 'Ari', x: 1040, y: 930, color: '#ffd166', route: [[1040, 930], [1210, 880], [1180, 1030]] },
-    { name: 'June', x: 530, y: 420, color: '#39d9ff', route: [[530, 420], [650, 500], [500, 620]] },
-    { name: 'Sol', x: 1510, y: 920, color: '#b58cff', route: [[1510, 920], [1600, 720], [1390, 720]] },
-    { name: 'Nia', x: 870, y: 1040, color: '#ff8f4c', route: [[870, 1040], [760, 940], [930, 900]] },
+    { name: 'Maya', x: 1260, y: 520, sprite: 'human-2', route: [[1260, 520], [1450, 560], [1420, 750]], facing: 'down' },
+    { name: 'Theo', x: 410, y: 850, sprite: 'robot-blue', route: [[410, 850], [610, 900], [660, 760]], facing: 'down' },
+    { name: 'Ari', x: 1040, y: 930, sprite: 'cat-orange', route: [[1040, 930], [1210, 880], [1180, 1030]], facing: 'down' },
+    { name: 'June', x: 530, y: 420, sprite: 'human-1', route: [[530, 420], [650, 500], [500, 620]], facing: 'down' },
+    { name: 'Sol', x: 1510, y: 920, sprite: 'wizard-purple', route: [[1510, 920], [1600, 720], [1390, 720]], facing: 'down' },
+    { name: 'Nia', x: 870, y: 1040, sprite: 'knight-silver', route: [[870, 1040], [760, 940], [930, 900]], facing: 'down' },
   ];
 
   const quest = {
@@ -54,6 +102,10 @@
 
   function distance(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  function imageReady(key) {
+    return assets[key] && assets[key].complete && assets[key].naturalWidth > 0;
   }
 
   function showToast(message) {
@@ -212,6 +264,11 @@
     showToast('Move closer to Mrs. Numbers, a rally part, or the arcade.');
   }
 
+  function updateFacing(entity, dx, dy) {
+    if (Math.abs(dx) > Math.abs(dy)) entity.facing = dx > 0 ? 'right' : 'left';
+    else if (dy !== 0) entity.facing = dy > 0 ? 'down' : 'up';
+  }
+
   function update(dt) {
     let dx = 0;
     let dy = 0;
@@ -220,15 +277,19 @@
     if (keys.has('arrowup') || keys.has('w')) dy -= 1;
     if (keys.has('arrowdown') || keys.has('s')) dy += 1;
     const len = Math.hypot(dx, dy) || 1;
+    player.moving = dx !== 0 || dy !== 0;
     player.x = Math.max(70, Math.min(world.width - 70, player.x + (dx / len) * player.speed * dt));
     player.y = Math.max(70, Math.min(world.height - 70, player.y + (dy / len) * player.speed * dt));
-    if (dx !== 0) player.facing = Math.sign(dx);
+    if (player.moving) updateFacing(player, dx, dy);
 
     students.forEach((student, index) => {
       const routeIndex = Math.floor((performance.now() / 1800 + index) % student.route.length);
       const target = student.route[routeIndex];
-      student.x += (target[0] - student.x) * Math.min(1, dt * 1.7);
-      student.y += (target[1] - student.y) * Math.min(1, dt * 1.7);
+      const stepX = (target[0] - student.x) * Math.min(1, dt * 1.7);
+      const stepY = (target[1] - student.y) * Math.min(1, dt * 1.7);
+      student.x += stepX;
+      student.y += stepY;
+      if (Math.abs(stepX) + Math.abs(stepY) > 0.2) updateFacing(student, stepX, stepY);
     });
 
     camera.x = Math.max(0, Math.min(world.width - canvas.width, player.x - canvas.width / 2));
@@ -239,77 +300,154 @@
     }
   }
 
-  function drawRect(x, y, w, h, color) {
+  function drawFallbackRect(x, y, w, h, color) {
     ctx.fillStyle = color;
     ctx.fillRect(Math.round(x - camera.x), Math.round(y - camera.y), w, h);
   }
 
-  function drawSprite(entity, color, label) {
+  function drawImage(key, x, y, w = TILE_SIZE, h = TILE_SIZE) {
+    if (!imageReady(key)) {
+      drawFallbackRect(x, y, w, h, '#20344b');
+      return;
+    }
+    ctx.drawImage(assets[key], Math.round(x - camera.x), Math.round(y - camera.y), w, h);
+  }
+
+  function drawTiledRect(key, x, y, w, h) {
+    for (let tileX = x; tileX < x + w; tileX += TILE_SIZE) {
+      for (let tileY = y; tileY < y + h; tileY += TILE_SIZE) {
+        drawImage(key, tileX, tileY, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+
+  function drawWorldTiles() {
+    const startCol = Math.floor(camera.x / TILE_SIZE);
+    const endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
+    const startRow = Math.floor(camera.y / TILE_SIZE);
+    const endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
+
+    for (let row = startRow; row <= endRow; row += 1) {
+      for (let col = startCol; col <= endCol; col += 1) {
+        const worldX = col * TILE_SIZE;
+        const worldY = row * TILE_SIZE;
+        let key = 'grass1';
+        if ((col + row) % 11 === 0) key = 'flowers1';
+        else if ((col * row) % 13 === 0) key = 'flowers2';
+        else if ((col + row) % 5 === 0) key = 'grass2';
+        else if ((col + row) % 7 === 0) key = 'grass3';
+        if (col >= 7 && col <= 8) key = 'path';
+        if (row >= 8 && row <= 9) key = 'path';
+        drawImage(key, worldX, worldY);
+      }
+    }
+  }
+
+  function drawLabel(text, x, y, align = 'left') {
+    ctx.save();
+    ctx.font = 'bold 18px monospace';
+    ctx.textAlign = align;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(5,8,16,0.82)';
+    ctx.fillStyle = '#f8fbff';
+    ctx.strokeText(text, Math.round(x - camera.x), Math.round(y - camera.y));
+    ctx.fillText(text, Math.round(x - camera.x), Math.round(y - camera.y));
+    ctx.restore();
+  }
+
+  function drawProp(key, x, y, size, label) {
+    if (imageReady(key)) {
+      ctx.drawImage(assets[key], Math.round(x - size / 2 - camera.x), Math.round(y - size / 2 - camera.y), size, size);
+    } else {
+      drawFallbackRect(x - size / 2, y - size / 2, size, size, '#101827');
+    }
+    drawLabel(label, x, y + size / 2 + 18, 'center');
+  }
+
+  function drawQuestItem(item) {
+    drawProp('desk', item.x, item.y, 42, item.label);
+    ctx.save();
+    ctx.fillStyle = '#ffd166';
+    ctx.strokeStyle = '#101827';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(Math.round(item.x - camera.x), Math.round(item.y - 30 - camera.y), 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSprite(entity, label) {
+    const image = assets[entity.sprite];
     const x = Math.round(entity.x - camera.x);
     const y = Math.round(entity.y - camera.y);
+    const frame = Math.floor(performance.now() / 160) % 4;
+    const moving = entity === player ? player.moving : true;
+    const row = entity.facing === 'up' ? 0 : entity.facing === 'down' ? 2 : moving ? 1 : 3;
+    const col = moving ? frame : 0;
+
+    ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.28)';
-    ctx.fillRect(x - 14, y + 14, 28, 6);
-    ctx.fillStyle = color;
-    ctx.fillRect(x - 10, y - 18, 20, 28);
-    ctx.fillStyle = '#f8fbff';
-    ctx.fillRect(x - 6, y - 26, 12, 10);
-    ctx.fillStyle = '#08111c';
-    ctx.fillRect(x - 4, y - 22, 3, 3);
-    ctx.fillRect(x + 2, y - 22, 3, 3);
-    ctx.fillStyle = '#f8fbff';
-    ctx.font = '12px monospace';
+    ctx.fillRect(x - 18, y + 16, 36, 8);
+
+    if (image && image.complete && image.naturalWidth > 0) {
+      const flip = entity.facing === 'right';
+      ctx.translate(x, y);
+      if (flip) ctx.scale(-1, 1);
+      ctx.drawImage(image, col * 96, row * 96, 96, 96, -32, -54, 64, 64);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - 12, y - 30, 24, 42);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.font = 'bold 12px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(label, x, y - 34);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(5,8,16,0.86)';
+    ctx.fillStyle = '#f8fbff';
+    ctx.strokeText(label, x, y - 58);
+    ctx.fillText(label, x, y - 58);
+    ctx.restore();
   }
 
   function drawCampus() {
-    ctx.fillStyle = '#0a1320';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawWorldTiles();
 
-    for (let x = -camera.x % 64; x < canvas.width; x += 64) {
-      for (let y = -camera.y % 64; y < canvas.height; y += 64) {
-        ctx.fillStyle = (Math.floor((x + camera.x) / 64) + Math.floor((y + camera.y) / 64)) % 2
-          ? '#0e1b2b'
-          : '#102036';
-        ctx.fillRect(x, y, 64, 64);
-      }
+    drawTiledRect('mathWall', 360, 250, 920, 64);
+    drawTiledRect('brickWall', 360, 314, 64, 496);
+    drawTiledRect('brickWall', 1216, 314, 64, 496);
+    drawTiledRect('path', 424, 314, 792, 496);
+
+    drawTiledRect('scienceWall', 1330, 530, 430, 64);
+    drawTiledRect('path', 1360, 594, 370, 326);
+
+    drawTiledRect('englishWall', 260, 890, 640, 64);
+    drawTiledRect('path', 290, 954, 580, 186);
+
+    drawTiledRect('water', 120, 1040, 240, 160);
+
+    drawLabel('MATH HALL', 420, 305);
+    drawLabel('NEXUS PLAZA', 1380, 590);
+    drawLabel('STUDY COMMONS', 320, 955);
+
+    drawProp('arcade', arcade.x, arcade.y, 66, arcade.label);
+    if (!quest.raceUnlocked) {
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      drawFallbackRect(arcade.x - 33, arcade.y - 33, 66, 66, '#06111dcc');
+      ctx.restore();
     }
 
-    drawRect(360, 250, 920, 560, '#17263a');
-    drawRect(390, 280, 860, 500, '#1d324a');
-    drawRect(390, 280, 860, 34, '#39d9ff');
-    drawRect(1330, 530, 430, 390, '#17263a');
-    drawRect(1360, 560, 370, 330, '#24364d');
-    drawRect(260, 890, 640, 250, '#17263a');
-    drawRect(290, 920, 580, 190, '#20344b');
-
-    ctx.fillStyle = '#f8fbff';
-    ctx.font = '18px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('MATH HALL', 420 - camera.x, 305 - camera.y);
-    ctx.fillText('NEXUS PLAZA', 1380 - camera.x, 590 - camera.y);
-    ctx.fillText('STUDY COMMONS', 320 - camera.x, 955 - camera.y);
-
-    drawRect(arcade.x - 28, arcade.y - 35, 56, 70, '#101827');
-    drawRect(arcade.x - 19, arcade.y - 25, 38, 26, quest.raceUnlocked ? '#54f7a7' : '#697386');
-    ctx.fillStyle = '#f8fbff';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(arcade.label, arcade.x - camera.x, arcade.y + 55 - camera.y);
-
     items.forEach((item) => {
-      if (quest.collected.includes(item.id)) return;
-      drawRect(item.x - 14, item.y - 14, 28, 28, '#ffd166');
-      drawRect(item.x - 7, item.y - 22, 14, 8, '#39d9ff');
-      ctx.fillStyle = '#f8fbff';
-      ctx.font = '12px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(item.label, item.x - camera.x, item.y + 34 - camera.y);
+      if (!quest.collected.includes(item.id)) drawQuestItem(item);
     });
 
-    students.forEach((student) => drawSprite(student, student.color, student.name));
-    drawSprite(npc, '#b58cff', npc.name);
-    drawSprite(player, '#ffffff', 'You');
+    students.forEach((student) => drawSprite(student, student.name));
+    drawSprite(npc, npc.name);
+    drawSprite(player, 'You');
   }
 
   function render() {
@@ -343,17 +481,15 @@
   window.addEventListener('keyup', (event) => keys.delete(event.key.toLowerCase()));
   canvas.addEventListener('click', interact);
 
-  window.advanceTime = (ms) => {
-    const steps = Math.max(1, Math.round(ms / (1000 / 60)));
-    for (let index = 0; index < steps; index += 1) update(1 / 60);
-    render();
-  };
-
-  window.render_game_to_text = () =>
-    JSON.stringify({
+  function renderGameToText() {
+    return JSON.stringify({
       coordinateSystem: 'origin top-left, x right, y down',
-      player: { x: Math.round(player.x), y: Math.round(player.y) },
+      player: { x: Math.round(player.x), y: Math.round(player.y), sprite: player.sprite },
       quest,
+      assets: {
+        sprites: students.map((student) => student.sprite).concat([player.sprite, npc.sprite]),
+        tilemapsLoaded: Object.keys(assetManifest).filter((key) => imageReady(key)),
+      },
       visibleItems: items.filter((item) => !quest.collected.includes(item.id)).map((item) => item.id),
       race: {
         active: raceState.active,
@@ -361,7 +497,16 @@
         correct: raceState.correct,
       },
     });
+  }
 
+  function advanceTime(ms) {
+    const steps = Math.max(1, Math.round(ms / (1000 / 60)));
+    for (let index = 0; index < steps; index += 1) update(1 / 60);
+    render();
+  }
+
+  window.advanceTime = advanceTime;
+  window.render_game_to_text = renderGameToText;
   window.demoTest = {
     setPlayerPosition(x, y) {
       player.x = x;
@@ -372,7 +517,7 @@
     interact,
     answerRace,
     getState() {
-      return JSON.parse(window.render_game_to_text());
+      return JSON.parse(renderGameToText());
     },
   };
 

@@ -7,6 +7,17 @@ const requiredFiles = [
   'styles.css',
   'src/main.js',
   'server.js',
+  'assets/sprites/human-1.png',
+  'assets/sprites/human-2.png',
+  'assets/sprites/robot-blue.png',
+  'assets/sprites/wizard-purple.png',
+  'assets/sprites/cat-orange.png',
+  'assets/sprites/knight-silver.png',
+  'assets/tilemaps/grass-plain-1.png',
+  'assets/tilemaps/stone-path-1.png',
+  'assets/tilemaps/math-wall-1.png',
+  'assets/tilemaps/arcade-cabinet.png',
+  'assets/tilemaps/desk-computer.png',
 ];
 
 for (const file of requiredFiles) {
@@ -26,6 +37,8 @@ const checks = [
   ['80 percent gate', js.includes('score >= 80')],
   ['text render hook', js.includes('render_game_to_text')],
   ['deterministic time hook', js.includes('advanceTime')],
+  ['original sprite sheets', js.includes('./assets/sprites/human-1.png')],
+  ['original tilemaps', js.includes('./assets/tilemaps/grass-plain-1.png')],
 ];
 
 const failed = checks.filter(([, passed]) => !passed);
