@@ -10,6 +10,7 @@ import {
 } from '@/components/world/ConversationPanel';
 import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { QuestTracker } from '@/components/world/QuestTracker';
+import { ExplorationTracker } from '@/components/world/ExplorationTracker';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -61,6 +62,9 @@ export default function CampusSandboxPage() {
     const handleQuestUpdate = (snapshot: unknown) => {
       (window as any).__campusTest.quest = snapshot;
     };
+    const handleExplorationUpdate = (snapshot: unknown) => {
+      (window as any).__campusTest.exploration = snapshot;
+    };
 
     // Deterministic test hooks for automated browser testing
     (window as any).__campusTest = {
@@ -68,6 +72,7 @@ export default function CampusSandboxPage() {
       adventure: null,
       position: null,
       quest: null,
+      exploration: null,
       shopOpened: false,
       questBoardOpened: false,
       move: (x: number, y: number) => EventBus.emit('touch-move', { x, y }),
@@ -84,6 +89,7 @@ export default function CampusSandboxPage() {
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
     EventBus.on('quest-updated', handleQuestUpdate);
+    EventBus.on('exploration-updated', handleExplorationUpdate);
 
     return () => {
       EventBus.off('npc-conversation', handleConversation);
@@ -93,6 +99,7 @@ export default function CampusSandboxPage() {
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
       EventBus.off('quest-updated', handleQuestUpdate);
+      EventBus.off('exploration-updated', handleExplorationUpdate);
       delete (window as any).__campusTest;
     };
   }, []);
@@ -129,6 +136,9 @@ export default function CampusSandboxPage() {
 
       {/* Demo quest objective HUD (same as /world/campus) */}
       <QuestTracker />
+
+      {/* Buildings-visited checklist (same as /world/campus) */}
+      <ExplorationTracker />
 
       {notice && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">

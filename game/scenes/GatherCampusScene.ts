@@ -3,13 +3,15 @@ import { OpenWorldScene } from './OpenWorldScene';
 import { TalkableNPC } from '../entities/TalkableNPC';
 import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
-import type { BuildingDoorConfig } from '../world/TilemapGenerator';
+import { TILE_SIZE, type BuildingDoorConfig } from '../world/TilemapGenerator';
 import {
   buildGatherNpcConfigs,
   carveGatherRooms,
   getGatherRoomLabels,
+  GATHER_ROOMS,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
+import { exploration } from '../world/explorationState';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import {
@@ -46,6 +48,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private extraInteractKey?: Phaser.Input.Keyboard.Key;
   private questGiver?: TalkableNPC;
   private questItems: Phaser.GameObjects.Image[] = [];
+  /** Throttle for the exploration room check (no need to test every frame). */
+  private nextExplorationCheck = 0;
 
   constructor() {
     super('GatherCampusScene');
@@ -85,6 +89,25 @@ export class GatherCampusScene extends OpenWorldScene {
     this.events.once('destroy', this.cleanupGather, this);
 
     this.setupQuest();
+
+    // Hydrate the exploration HUD with any previously-visited rooms
+    exploration.announce();
+  }
+
+  /** Mark the room the player is standing inside (if any) as explored. */
+  private checkExploration(time: number): void {
+    if (!this.player || time < this.nextExplorationCheck) return;
+    this.nextExplorationCheck = time + 400;
+
+    const col = Math.floor(this.player.x / TILE_SIZE);
+    const row = Math.floor(this.player.y / TILE_SIZE);
+    for (const room of GATHER_ROOMS) {
+      // Strictly inside the walls (walking past outside doesn't count)
+      if (col > room.c0 && col < room.c1 && row > room.r0 && row < room.r1) {
+        exploration.markVisited(room.id);
+        return;
+      }
+    }
   }
 
   // ─── Demo quest: Professor Numbers → power cells → Math Race Rally 80+ ──────
@@ -243,6 +266,8 @@ export class GatherCampusScene extends OpenWorldScene {
     super.update(time, delta);
 
     if (!this.player) return;
+
+    this.checkExploration(time);
 
     // Proximity conversations — only one NPC may talk at a time
     let talkingNpc: TalkableNPC | null = null;
