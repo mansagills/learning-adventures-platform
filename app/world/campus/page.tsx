@@ -9,6 +9,7 @@ import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
+import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { TouchControls } from '@/components/world/TouchControls';
 import {
   ConversationPanel,
@@ -402,6 +403,9 @@ export default function CampusWorldPage() {
 
           {/* Bottom-left: Minimap with zone overview */}
           <Minimap />
+
+          {/* Ambient campus activity ticker — right of the minimap */}
+          <ActivityFeed />
         </div>
       )}
     </div>

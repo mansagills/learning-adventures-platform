@@ -11,6 +11,7 @@ import {
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
 import { buildSimStudentConfigs } from '../world/simStudents';
+import { applyFuturisticTiles } from '../world/futuristicTiles';
 
 /**
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
@@ -50,6 +51,10 @@ export class GatherCampusScene extends OpenWorldScene {
   }
 
   create(): void {
+    // Swap the campus tile art for the futuristic set BEFORE the base scene
+    // builds the tilemap images (keys stay the same, only pixels change)
+    applyFuturisticTiles(this);
+
     super.create();
 
     // Building signs over the open rooms

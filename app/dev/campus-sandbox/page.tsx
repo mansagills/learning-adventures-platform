@@ -8,6 +8,7 @@ import {
   ConversationPanel,
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
+import { ActivityFeed } from '@/components/world/ActivityFeed';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -106,6 +107,9 @@ export default function CampusSandboxPage() {
       )}
 
       {conversation && <ConversationPanel conversation={conversation} />}
+
+      {/* Ambient campus activity ticker (same as /world/campus) */}
+      <ActivityFeed />
 
       {notice && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
