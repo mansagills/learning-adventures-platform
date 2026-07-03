@@ -6,6 +6,46 @@
 
 ---
 
+## ⚡ Futuristic Restyle — Sci-Fi Packs (for later)
+
+**Current state (July 2026)**: the Gather campus already has a futuristic look via
+`game/world/futuristicTiles.ts` — a procedural tile set (dark alloy panels, neon
+walkways, per-subject accent-lit walls) generated at scene start. No downloads
+needed for the demo. This section is for upgrading to hand-drawn art later.
+
+### Recommended free sci-fi packs to download (manual browser download)
+
+| Pack | Where | License | Why |
+|------|-------|---------|-----|
+| **Kenney — Sci-Fi RTS** | https://kenney.nl/assets/sci-fi-rts | CC0 | Top-down terrain + structures, 64px, huge and cohesive |
+| **Kenney — Roguelike/RPG pack** | https://kenney.nl/assets/roguelike-rpg-pack | CC0 | Fills interior/prop gaps that pure sci-fi packs miss |
+| **itch.io sci-fi tilesets (browse)** | https://itch.io/game-assets/free/tag-science-fiction/tag-tileset | varies | Cyberpunk city / neon lab styles; check each pack's license |
+| **itch.io 32×32 sci-fi (browse)** | https://itch.io/game-assets/tag-32x32/tag-science-fiction | varies | Matches our 32px grid without rescaling |
+
+**Note**: Kenney and itch.io downloads are JS/browser-driven — they can't be
+fetched by a script. Download the zips manually, then drop them in the repo
+(e.g. `public/game-assets/scifi-pack/`) and ask Claude to integrate.
+
+### How integration works (already wired for this)
+
+`futuristicTiles.ts` swaps textures **behind the existing tile keys**, so a
+downloaded pack replaces it with zero changes to the map generator:
+
+1. Cut the pack's sheet into per-tile PNGs (or use `load.spritesheet` + frames).
+2. Save as `public/game-assets/tilemaps/scifi-*.png`.
+3. In `GatherCampusScene.preload()`, `load.image()` each file under the same
+   keys the campus uses (`ground-grass-1..3`, `ground-flowers-1..2`,
+   `ground-path`, `ground-dirt`, `ground-water`, `wall-math-1`,
+   `wall-science-1`, `wall-english-1`, `wall-brick-1`).
+4. Delete the `applyFuturisticTiles(this)` call in `GatherCampusScene.create()`
+   (or keep it as a fallback when a PNG fails to load).
+
+Keep the per-subject wall accent idea (math=gold, science=teal,
+english=magenta) — tint the pack's wall tiles with `setTint()` if the pack
+only ships one wall color.
+
+---
+
 ## Step 1: Download Tilesets
 
 ### Primary Tileset (Campus Environment)
