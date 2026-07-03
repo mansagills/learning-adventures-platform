@@ -8,13 +8,19 @@
 
 ## ⚡ Futuristic Restyle — Sci-Fi Packs (for later)
 
-**Current state (July 2026)**: the Gather campus uses the **RCC apartment
-tileset** (user-supplied, cyberpunk style) — sheets in `public/game-assets/rcc/`,
-frame picks in `game/world/rccTiles.ts`, toggled by `USE_RCC_TILES` in
-`GatherCampusScene.ts`. Set the flag to `false` to revert to the procedural
-futuristic set (`game/world/futuristicTiles.ts`), which remains as fallback.
-⚠️ The RCC pack shipped without a license file — confirm its terms before any
-public release. This section covers swapping in other packs later.
+**Current state (July 2026)**: the campus art is selected by `CAMPUS_ART` in
+`GatherCampusScene.ts` — three options, all revertible by changing that one
+constant:
+
+| Value | Look | Source |
+|-------|------|--------|
+| `'modern'` (current) | Bright contemporary campus: grass, sidewalks, colored school walls | Modern Interiors/Exteriors (LimeZu) — `public/game-assets/modern/`, `game/world/modernTiles.ts` |
+| `'rcc'` | Cyberpunk: starry asphalt, teal walkways, trim-lit walls | RCC apartment pack — `public/game-assets/rcc/`, `game/world/rccTiles.ts` |
+| `'procedural'` | Neon/alloy sci-fi generated at runtime | `game/world/futuristicTiles.ts` (always loaded as fallback) |
+
+⚠️ Licenses: the RCC pack shipped without a license file; LimeZu's Modern packs
+permit game use but NOT redistribution of raw asset files. Keep the repo
+private or clear both licenses before public release.
 
 ### Recommended free sci-fi packs to download (manual browser download)
 
