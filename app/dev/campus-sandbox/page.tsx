@@ -1,13 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
+import { CampusQuestHud } from '@/components/world/CampusQuestHud';
 import {
   ConversationPanel,
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
+import {
+  advanceCampusGuidedQuest,
+  getCampusGuidedQuestStage,
+  type CampusGuidedQuestEvent,
+  type CampusGuidedQuestStageId,
+} from '@/game/world/campusGuidedQuest';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -29,11 +36,28 @@ export default function CampusSandboxPage() {
     type: 'game' | 'lesson';
   } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [questStage, setQuestStage] =
+    useState<CampusGuidedQuestStageId>('find-professor-numbers');
+  const questStageRef = useRef<CampusGuidedQuestStageId>('find-professor-numbers');
 
   useEffect(() => {
+    questStageRef.current = questStage;
+  }, [questStage]);
+
+  useEffect(() => {
+    const advanceQuest = (event: CampusGuidedQuestEvent) => {
+      setQuestStage((current) => {
+        const next = advanceCampusGuidedQuest(current, event);
+        questStageRef.current = next;
+        (window as any).__campusTest.questStage = next;
+        return next;
+      });
+    };
+
     const handleConversation = (data: NpcConversationState) => {
       setConversation(data);
       (window as any).__campusTest.conversation = data;
+      advanceQuest({ type: 'talked-to-npc', npcId: data.npcId });
     };
     const handleConversationEnd = () => {
       setConversation(null);
@@ -42,6 +66,7 @@ export default function CampusSandboxPage() {
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
       setCurrentAdventure(data);
       (window as any).__campusTest.adventure = data;
+      advanceQuest({ type: 'opened-adventure', adventureId: data.adventureId });
     };
     const handleOpenShop = () => {
       (window as any).__campusTest.shopOpened = true;
@@ -56,11 +81,22 @@ export default function CampusSandboxPage() {
     const handlePosition = (data: { x: number; y: number }) => {
       (window as any).__campusTest.position = data;
     };
+    const handleZoneChanged = (data: { zone: { key: string; neonAccent: string; neonDim: string } }) => {
+      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
+      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
+      advanceQuest({ type: 'entered-zone', zoneKey: data.zone.key });
+    };
+    const handleAdventureCompleted = (data: { adventureId?: string }) => {
+      if (data.adventureId) {
+        advanceQuest({ type: 'completed-adventure', adventureId: data.adventureId });
+      }
+    };
 
     // Deterministic test hooks for automated browser testing
     (window as any).__campusTest = {
       conversation: null,
       adventure: null,
+      questStage: questStageRef.current,
       position: null,
       shopOpened: false,
       questBoardOpened: false,
@@ -74,6 +110,8 @@ export default function CampusSandboxPage() {
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
+    EventBus.on('zone-changed', handleZoneChanged);
+    EventBus.on('adventure-completed', handleAdventureCompleted);
 
     return () => {
       EventBus.off('npc-conversation', handleConversation);
@@ -82,6 +120,8 @@ export default function CampusSandboxPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
+      EventBus.off('zone-changed', handleZoneChanged);
+      EventBus.off('adventure-completed', handleAdventureCompleted);
       delete (window as any).__campusTest;
     };
   }, []);
@@ -101,11 +141,17 @@ export default function CampusSandboxPage() {
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={() => setCurrentAdventure(null)}
-          onComplete={() => setCurrentAdventure(null)}
+          onComplete={() => {
+            EventBus.emit('adventure-completed', {
+              adventureId: currentAdventure.adventureId,
+            });
+            setCurrentAdventure(null);
+          }}
         />
       )}
 
       {conversation && <ConversationPanel conversation={conversation} />}
+      <CampusQuestHud stage={getCampusGuidedQuestStage(questStage)} />
 
       {notice && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">

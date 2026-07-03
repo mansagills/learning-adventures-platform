@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
+import { CampusQuestHud } from '@/components/world/CampusQuestHud';
 import { ShopModal } from '@/components/world/ShopModal';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
@@ -15,6 +16,12 @@ import {
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
+import {
+  advanceCampusGuidedQuest,
+  getCampusGuidedQuestStage,
+  type CampusGuidedQuestEvent,
+  type CampusGuidedQuestStageId,
+} from '@/game/world/campusGuidedQuest';
 
 /**
  * Shared neon HUD panel styling so every overlay chip matches the zone
@@ -64,11 +71,17 @@ export default function CampusWorldPage() {
   const [showShop, setShowShop] = useState(false);
   const [showJobBoard, setShowJobBoard] = useState(false);
   const [zoneBanner, setZoneBanner] = useState<string | null>(null);
+  const [questStage, setQuestStage] =
+    useState<CampusGuidedQuestStageId>('find-professor-numbers');
 
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
   useEffect(() => { sessionRef.current = session; }, [session]);
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
+
+  const advanceQuest = (event: CampusGuidedQuestEvent) => {
+    setQuestStage((current) => advanceCampusGuidedQuest(current, event));
+  };
 
   // Check authentication and character
   useEffect(() => {
@@ -139,17 +152,22 @@ export default function CampusWorldPage() {
 
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
       setCurrentAdventure(data);
+      advanceQuest({ type: 'opened-adventure', adventureId: data.adventureId });
     };
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
-    const handleConversation = (data: NpcConversationState) => setConversation(data);
+    const handleConversation = (data: NpcConversationState) => {
+      setConversation(data);
+      advanceQuest({ type: 'talked-to-npc', npcId: data.npcId });
+    };
     const handleConversationEnd = () => setConversation(null);
 
-    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+    const handleZoneChanged = (data: { zone: { displayName: string; key: string; neonAccent: string; neonDim: string } }) => {
       document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
       document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
       setZoneBanner(data.zone.displayName);
       setTimeout(() => setZoneBanner(null), 2800);
+      advanceQuest({ type: 'entered-zone', zoneKey: data.zone.key });
     };
 
     EventBus.on('save-player-position', handleSavePosition);
@@ -193,6 +211,7 @@ export default function CampusWorldPage() {
     setCoins((prev) => prev + COINS_PER_GAME);
     setCurrentAdventure(null);
     EventBus.emit('adventure-completed', { adventureId });
+    advanceQuest({ type: 'completed-adventure', adventureId });
     showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
 
     try {
@@ -282,6 +301,7 @@ export default function CampusWorldPage() {
           onClose={() => setShowJobBoard(false)}
           onStartJob={(job: any) => {
             if (job.gamePath) {
+              advanceQuest({ type: 'opened-adventure', adventureId: job.jobId });
               setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
             }
           }}
@@ -402,6 +422,10 @@ export default function CampusWorldPage() {
 
           {/* Bottom-left: Minimap with zone overview */}
           <Minimap />
+          <CampusQuestHud
+            stage={getCampusGuidedQuestStage(questStage)}
+            className="left-4 bottom-28"
+          />
         </div>
       )}
     </div>
