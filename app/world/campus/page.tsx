@@ -17,8 +17,10 @@ import {
 } from '@/components/world/ConversationPanel';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
 import {
+  MATH_RACE_RALLY_ID,
   advanceCampusGuidedQuest,
-  getCampusGuidedQuestStage,
+  getCampusGuidedQuestStageView,
+  isPassingMathRaceScore,
   type CampusGuidedQuestEvent,
   type CampusGuidedQuestStageId,
 } from '@/game/world/campusGuidedQuest';
@@ -97,7 +99,9 @@ function CampusWorldContent() {
   const [showJobBoard, setShowJobBoard] = useState(false);
   const [zoneBanner, setZoneBanner] = useState<string | null>(null);
   const [questStage, setQuestStage] =
-    useState<CampusGuidedQuestStageId>('find-professor-numbers');
+    useState<CampusGuidedQuestStageId>('get-quest-from-mrs-numbers');
+  const [collectedItemIds, setCollectedItemIds] = useState<string[]>([]);
+  const [lastMathRaceScore, setLastMathRaceScore] = useState<number | undefined>();
 
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
@@ -105,7 +109,14 @@ function CampusWorldContent() {
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
 
   const advanceQuest = (event: CampusGuidedQuestEvent) => {
-    setQuestStage((current) => advanceCampusGuidedQuest(current, event));
+    setQuestStage((current) => {
+      const next = advanceCampusGuidedQuest(current, event);
+      if (next === 'start-math-race-rally') {
+        EventBus.emit('campus-quest-math-race-unlocked');
+        showNotification('Math Race Rally unlocked. Score 80% or better to finish.');
+      }
+      return next;
+    });
   };
 
   // Check authentication and character
@@ -210,6 +221,13 @@ function CampusWorldContent() {
       setTimeout(() => setZoneBanner(null), 2800);
       advanceQuest({ type: 'entered-zone', zoneKey: data.zone.key });
     };
+    const handleQuestItemCollected = (data: { itemId: string; collectedItemIds: string[] }) => {
+      setCollectedItemIds(data.collectedItemIds);
+      advanceQuest({ type: 'collected-quest-item', ...data });
+    };
+    const handleQuestNotice = (data: { message: string }) => {
+      showNotification(data.message);
+    };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
@@ -218,6 +236,8 @@ function CampusWorldContent() {
     EventBus.on('npc-conversation', handleConversation);
     EventBus.on('npc-conversation-end', handleConversationEnd);
     EventBus.on('zone-changed', handleZoneChanged);
+    EventBus.on('campus-quest-item-collected', handleQuestItemCollected);
+    EventBus.on('campus-quest-notice', handleQuestNotice);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
@@ -227,6 +247,8 @@ function CampusWorldContent() {
       EventBus.off('npc-conversation', handleConversation);
       EventBus.off('npc-conversation-end', handleConversationEnd);
       EventBus.off('zone-changed', handleZoneChanged);
+      EventBus.off('campus-quest-item-collected', handleQuestItemCollected);
+      EventBus.off('campus-quest-notice', handleQuestNotice);
     };
   }, [isDemoMode]);
 
@@ -247,12 +269,21 @@ function CampusWorldContent() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleAdventureComplete = async (adventureId: string) => {
+  const handleAdventureComplete = async (adventureId: string, score?: number) => {
+    if (adventureId === MATH_RACE_RALLY_ID) {
+      setLastMathRaceScore(score);
+      if (!isPassingMathRaceScore(score)) {
+        showNotification(`Score ${score ?? 0}%. Try again for 80% or better.`);
+        advanceQuest({ type: 'completed-adventure', adventureId, score });
+        return;
+      }
+    }
+
     setXp((prev) => prev + XP_PER_GAME);
     setCoins((prev) => prev + COINS_PER_GAME);
     setCurrentAdventure(null);
-    EventBus.emit('adventure-completed', { adventureId });
-    advanceQuest({ type: 'completed-adventure', adventureId });
+    EventBus.emit('adventure-completed', { adventureId, score });
+    advanceQuest({ type: 'completed-adventure', adventureId, score });
     showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
 
     if (isDemoMode) return;
@@ -317,7 +348,16 @@ function CampusWorldContent() {
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={() => setCurrentAdventure(null)}
-          onComplete={() => handleAdventureComplete(currentAdventure.adventureId)}
+          manualCompleteScore={
+            currentAdventure.adventureId === MATH_RACE_RALLY_ID ? 100 : undefined
+          }
+          isCompletionAccepted={(score) =>
+            currentAdventure.adventureId !== MATH_RACE_RALLY_ID ||
+            isPassingMathRaceScore(score)
+          }
+          onComplete={(score) =>
+            handleAdventureComplete(currentAdventure.adventureId, score)
+          }
         />
       )}
 
@@ -467,7 +507,11 @@ function CampusWorldContent() {
           {/* Bottom-left: Minimap with zone overview */}
           <Minimap />
           <CampusQuestHud
-            stage={getCampusGuidedQuestStage(questStage)}
+            stage={getCampusGuidedQuestStageView(
+              questStage,
+              collectedItemIds,
+              lastMathRaceScore,
+            )}
             className="left-4 bottom-28"
           />
         </div>

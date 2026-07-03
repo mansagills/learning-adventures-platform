@@ -22,6 +22,11 @@ import {
   getFuturisticLandmarkSkin,
   getFuturisticRoomSkin,
 } from '../world/futuristicCampusArt';
+import {
+  CAMPUS_QUEST_ITEMS,
+  MATH_RACE_RALLY_ID,
+  type CampusQuestItem,
+} from '../world/campusGuidedQuest';
 
 /**
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
@@ -48,6 +53,9 @@ export class GatherCampusScene extends OpenWorldScene {
   private futuristicFacadeLayer?: Phaser.GameObjects.Container;
   private studyCircleLayer?: Phaser.GameObjects.Graphics;
   private stations: InteractableObject[] = [];
+  private questItems: InteractableObject[] = [];
+  private collectedQuestItemIds = new Set<string>();
+  private isMathRaceUnlocked = false;
   private activeNpc: TalkableNPC | null = null;
   private isPaused = false;
   private extraInteractKey?: Phaser.Input.Keyboard.Key;
@@ -85,6 +93,7 @@ export class GatherCampusScene extends OpenWorldScene {
 
     EventBus.on('world-pause', this.handleWorldPause);
     EventBus.on('adventure-completed', this.handleAdventureCompleted);
+    EventBus.on('campus-quest-math-race-unlocked', this.handleMathRaceUnlocked);
     this.events.once('shutdown', this.cleanupGather, this);
     this.events.once('destroy', this.cleanupGather, this);
   }
@@ -121,6 +130,7 @@ export class GatherCampusScene extends OpenWorldScene {
       this.npcs.push(new TalkableNPC(this, config));
     });
     this.createStations();
+    this.createQuestItems();
     this.createSimLearners();
   }
 
@@ -300,6 +310,12 @@ export class GatherCampusScene extends OpenWorldScene {
       const station = new InteractableObject(this, def.x, def.y, def.texture);
       station.setPromptText(`Press SPACE: ${def.name}`);
       station.setOnInteract(() => {
+        if (def.adventureId === MATH_RACE_RALLY_ID && !this.isMathRaceUnlocked) {
+          EventBus.emit('campus-quest-notice', {
+            message: 'Bring the rally parts back to Mrs. Numbers first.',
+          });
+          return;
+        }
         EventBus.emit('open-adventure', { adventureId: def.adventureId, type: 'game' });
       });
       station.setDepth(5);
@@ -313,6 +329,33 @@ export class GatherCampusScene extends OpenWorldScene {
       if (this.player) {
         this.physics.add.collider(this.player, body);
       }
+    });
+  }
+
+  private createQuestItems(): void {
+    CAMPUS_QUEST_ITEMS.forEach((item) => {
+      const questItem = new InteractableObject(this, item.x, item.y, 'desk-computer', undefined, 38);
+      questItem.setPromptText(`Pick up: ${item.label}`);
+      questItem.setInteractRadius(58);
+      questItem.setOnInteract(() => this.collectQuestItem(item, questItem));
+      questItem.setDepth(6);
+      this.questItems.push(questItem);
+      this.interactables.push(questItem);
+      this.addNameLabel(item.label, item.x, item.y + 34);
+    });
+  }
+
+  private collectQuestItem(item: CampusQuestItem, questItem: InteractableObject): void {
+    if (this.collectedQuestItemIds.has(item.id)) return;
+
+    this.collectedQuestItemIds.add(item.id);
+    this.questItems = this.questItems.filter((candidate) => candidate !== questItem);
+    this.interactables = this.interactables.filter((candidate) => candidate !== questItem);
+    questItem.destroy();
+
+    EventBus.emit('campus-quest-item-collected', {
+      itemId: item.id,
+      collectedItemIds: Array.from(this.collectedQuestItemIds),
     });
   }
 
@@ -355,6 +398,10 @@ export class GatherCampusScene extends OpenWorldScene {
     this.isPaused = paused;
   };
 
+  private handleMathRaceUnlocked = () => {
+    this.isMathRaceUnlocked = true;
+  };
+
   private handleAdventureCompleted = (data: { adventureId?: string }) => {
     const adventureId = data.adventureId ?? 'unknown-activity';
     this.simLearners.forEach((learner) => learner.reactToCelebration(adventureId));
@@ -390,12 +437,17 @@ export class GatherCampusScene extends OpenWorldScene {
     this.gatherCleaned = true;
     EventBus.off('world-pause', this.handleWorldPause);
     EventBus.off('adventure-completed', this.handleAdventureCompleted);
+    EventBus.off('campus-quest-math-race-unlocked', this.handleMathRaceUnlocked);
     this.npcs.forEach((npc) => npc.destroy());
     this.simLearners.forEach((learner) => learner.destroy());
+    this.questItems.forEach((item) => item.destroy());
     this.futuristicFacadeLayer?.destroy();
     this.studyCircleLayer?.destroy();
     this.npcs = [];
     this.simLearners = [];
+    this.questItems = [];
+    this.collectedQuestItemIds.clear();
+    this.isMathRaceUnlocked = false;
     this.futuristicFacadeLayer = undefined;
     this.studyCircleLayer = undefined;
     this.stations = []; // destroyed by the base interactables cleanup
