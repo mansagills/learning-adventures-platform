@@ -3,7 +3,10 @@ import type { NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
-import { isCampusDemoBypassPath } from '@/lib/campusDemoAccess';
+import {
+  isCampusDemoBypassPath,
+  isNoAuthCampusDemoPath,
+} from '@/lib/campusDemoAccess';
 
 // Routes that require a logged-in user
 const PROTECTED_ROUTES = [
@@ -23,6 +26,10 @@ const PROTECTED_ROUTES = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isNoAuthCampusDemoPath(pathname, request.nextUrl.searchParams)) {
+    return NextResponse.next();
+  }
 
   // Refresh Supabase session cookie + get current user
   const { supabaseResponse, user } = await updateSession(request);

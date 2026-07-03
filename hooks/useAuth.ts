@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, hasSupabaseBrowserEnv } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
@@ -27,9 +27,16 @@ interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  const supabase = createClient();
 
   useEffect(() => {
+    if (!hasSupabaseBrowserEnv()) {
+      setUser(null);
+      setStatus('unauthenticated');
+      return;
+    }
+
+    const supabase = createClient();
+
     // Fetch current session + profile on mount
     const loadUser = async (supabaseUser: User | null) => {
       if (!supabaseUser) {

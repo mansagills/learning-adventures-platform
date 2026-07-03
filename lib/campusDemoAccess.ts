@@ -13,3 +13,10 @@ export function isCampusDemoBypassPath(
 ): boolean {
   return pathname === '/world/campus' && isCampusDemoMode(search);
 }
+
+export function isNoAuthCampusDemoPath(
+  pathname: string,
+  search: string | URLSearchParams,
+): boolean {
+  return pathname === '/dev/campus-sandbox' || isCampusDemoBypassPath(pathname, search);
+}

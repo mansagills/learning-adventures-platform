@@ -4,7 +4,10 @@ import {
   CAMPUS_DEMO_PACKAGE,
   isCampusDemoMode,
 } from '@/game/world/campusDemoPackage';
-import { isCampusDemoBypassPath } from '@/lib/campusDemoAccess';
+import {
+  isCampusDemoBypassPath,
+  isNoAuthCampusDemoPath,
+} from '@/lib/campusDemoAccess';
 
 describe('campus demo package', () => {
   it('defines the stakeholder and developer campus demo routes', () => {
@@ -47,5 +50,12 @@ describe('campus demo package', () => {
     expect(isCampusDemoBypassPath('/world/campus', '')).toBe(false);
     expect(isCampusDemoBypassPath('/world', '?demo=1')).toBe(false);
     expect(isCampusDemoBypassPath('/world/create', '?demo=1')).toBe(false);
+  });
+
+  it('marks only the packaged campus demo routes as no-auth demos', () => {
+    expect(isNoAuthCampusDemoPath('/dev/campus-sandbox', '')).toBe(true);
+    expect(isNoAuthCampusDemoPath('/world/campus', '?demo=1')).toBe(true);
+    expect(isNoAuthCampusDemoPath('/world/campus', '')).toBe(false);
+    expect(isNoAuthCampusDemoPath('/world', '?demo=1')).toBe(false);
   });
 });
