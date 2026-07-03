@@ -1,9 +1,15 @@
 import * as Phaser from 'phaser';
 import { OpenWorldScene } from './OpenWorldScene';
 import { TalkableNPC } from '../entities/TalkableNPC';
+import { SimLearner } from '../entities/SimLearner';
 import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
 import type { BuildingDoorConfig } from '../world/TilemapGenerator';
+import {
+  buildSimLearnerConfigs,
+  findStudyCircles,
+  type StudyCircle,
+} from '../world/simLearners';
 import {
   buildGatherNpcConfigs,
   carveGatherRooms,
@@ -32,6 +38,8 @@ import {
  */
 export class GatherCampusScene extends OpenWorldScene {
   private npcs: TalkableNPC[] = [];
+  private simLearners: SimLearner[] = [];
+  private studyCircleLayer?: Phaser.GameObjects.Graphics;
   private stations: InteractableObject[] = [];
   private activeNpc: TalkableNPC | null = null;
   private isPaused = false;
@@ -67,6 +75,7 @@ export class GatherCampusScene extends OpenWorldScene {
     this.input.on('pointerdown', this.handleInteract, this);
 
     EventBus.on('world-pause', this.handleWorldPause);
+    EventBus.on('adventure-completed', this.handleAdventureCompleted);
     this.events.once('shutdown', this.cleanupGather, this);
     this.events.once('destroy', this.cleanupGather, this);
   }
@@ -103,6 +112,15 @@ export class GatherCampusScene extends OpenWorldScene {
       this.npcs.push(new TalkableNPC(this, config));
     });
     this.createStations();
+    this.createSimLearners();
+  }
+
+  private createSimLearners(): void {
+    this.studyCircleLayer = this.add.graphics();
+    this.studyCircleLayer.setDepth(7);
+    buildSimLearnerConfigs().forEach((config) => {
+      this.simLearners.push(new SimLearner(this, config));
+    });
   }
 
   private createStations(): void {
@@ -140,6 +158,7 @@ export class GatherCampusScene extends OpenWorldScene {
       }
     }
     this.activeNpc = talkingNpc;
+    this.renderStudyCircles();
 
     // E key mirrors the base scene's SPACE handling
     if (
@@ -164,14 +183,47 @@ export class GatherCampusScene extends OpenWorldScene {
     this.isPaused = paused;
   };
 
+  private handleAdventureCompleted = (data: { adventureId?: string }) => {
+    const adventureId = data.adventureId ?? 'unknown-activity';
+    this.simLearners.forEach((learner) => learner.reactToCelebration(adventureId));
+  };
+
+  private renderStudyCircles(): void {
+    if (!this.studyCircleLayer) return;
+
+    const circles = findStudyCircles(
+      this.simLearners.map((learner) => learner.getStudyCircleParticipant()),
+      150,
+    );
+
+    const layer = this.studyCircleLayer;
+    layer.clear();
+    circles.forEach((circle) => this.drawStudyCircle(layer, circle));
+  }
+
+  private drawStudyCircle(
+    layer: Phaser.GameObjects.Graphics,
+    circle: StudyCircle,
+  ): void {
+    layer.lineStyle(3, 0x38bdf8, 0.38);
+    layer.fillStyle(0x38bdf8, 0.08);
+    layer.fillCircle(circle.centerX, circle.centerY + 8, circle.radius);
+    layer.strokeCircle(circle.centerX, circle.centerY + 8, circle.radius);
+  }
+
   private gatherCleaned = false;
 
   private cleanupGather(): void {
     if (this.gatherCleaned) return;
     this.gatherCleaned = true;
     EventBus.off('world-pause', this.handleWorldPause);
+    EventBus.off('adventure-completed', this.handleAdventureCompleted);
     this.npcs.forEach((npc) => npc.destroy());
+    this.simLearners.forEach((learner) => learner.destroy());
+    this.studyCircleLayer?.destroy();
     this.npcs = [];
+    this.simLearners = [];
+    this.studyCircleLayer = undefined;
     this.stations = []; // destroyed by the base interactables cleanup
     this.activeNpc = null;
   }
