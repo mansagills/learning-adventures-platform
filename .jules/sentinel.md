@@ -6,3 +6,10 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2023-10-27 - Zip Bomb Denial-of-Service in Zip Extraction
+**Vulnerability:** The `/api/internal/extract-metadata` endpoint parsed uploaded zip files using `adm-zip` and immediately read `metadataEntry.getData()` without checking the uncompressed file size of the entry. This could lead to memory exhaustion and Denial-of-Service (DoS) attacks if a small zip archive expands to an enormous size in memory (Zip Bomb).
+**Learning:** File compression introduces asymmetry between storage and memory requirements. When buffering uncompressed files into memory via methods like `.getData()`, the `header.size` property must always be validated against a strict limit prior to memory allocation.
+**Prevention:**
+1. Enforce strict size limits on uncompressed file extraction using properties like `header.size` before attempting to buffer or write them.
+2. Consider using stream-based parsing for untrusted archive files to avoid buffering the entire file into memory at once.
