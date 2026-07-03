@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Learning Adventures Campus Sim Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="game-panel" aria-label="Learning Adventures campus demo">
+        <canvas id="game" width="960" height="640"></canvas>
+        <div id="hud" class="hud"></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div id="dialog" class="dialog" aria-live="polite"></div>
+        <div id="race" class="race" aria-live="polite"></div>
+      </section>
+      <aside class="side-panel">
+        <p class="eyebrow">Standalone Demo</p>
+        <h1>Campus Quest Loop</h1>
+        <p>
+          Get a quest from Mrs. Numbers, collect rally parts, return to unlock
+          Math Race Rally, then score 80% or better.
+        </p>
+        <dl>
+          <div><dt>Move</dt><dd>WASD or arrow keys</dd></div>
+          <div><dt>Interact</dt><dd>Space or E</dd></div>
+          <div><dt>Fullscreen</dt><dd>F</dd></div>
+        </dl>
+      </aside>
+    </main>
+    <script src="./src/main.js"></script>
+  </body>
+</html>
