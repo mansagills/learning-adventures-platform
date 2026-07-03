@@ -4,7 +4,8 @@ import { TalkableNPC } from '../entities/TalkableNPC';
 import { SimLearner } from '../entities/SimLearner';
 import { InteractableObject } from '../entities/InteractableObject';
 import { EventBus } from '@/components/phaser/EventBus';
-import type { BuildingDoorConfig } from '../world/TilemapGenerator';
+import { TILE_SIZE, type BuildingDoorConfig } from '../world/TilemapGenerator';
+import { CAMPUS_BUILDINGS } from '../world/campusLayout';
 import {
   buildSimLearnerConfigs,
   findStudyCircles,
@@ -14,8 +15,13 @@ import {
   buildGatherNpcConfigs,
   carveGatherRooms,
   getGatherRoomLabels,
+  GATHER_ROOMS,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
+import {
+  getFuturisticLandmarkSkin,
+  getFuturisticRoomSkin,
+} from '../world/futuristicCampusArt';
 
 /**
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
@@ -39,6 +45,7 @@ import {
 export class GatherCampusScene extends OpenWorldScene {
   private npcs: TalkableNPC[] = [];
   private simLearners: SimLearner[] = [];
+  private futuristicFacadeLayer?: Phaser.GameObjects.Container;
   private studyCircleLayer?: Phaser.GameObjects.Graphics;
   private stations: InteractableObject[] = [];
   private activeNpc: TalkableNPC | null = null;
@@ -58,6 +65,8 @@ export class GatherCampusScene extends OpenWorldScene {
 
   create(): void {
     super.create();
+
+    this.createFuturisticRoomFacades();
 
     // Building signs over the open rooms
     getGatherRoomLabels().forEach((label) => {
@@ -120,6 +129,169 @@ export class GatherCampusScene extends OpenWorldScene {
     this.studyCircleLayer.setDepth(7);
     buildSimLearnerConfigs().forEach((config) => {
       this.simLearners.push(new SimLearner(this, config));
+    });
+  }
+
+  private createFuturisticRoomFacades(): void {
+    this.futuristicFacadeLayer = this.add.container(0, 0);
+    this.futuristicFacadeLayer.setDepth(4);
+
+    GATHER_ROOMS.forEach((room) => {
+      const skin = getFuturisticRoomSkin(room.id);
+      if (!skin) return;
+
+      const x = room.c0 * TILE_SIZE;
+      const y = room.r0 * TILE_SIZE;
+      const width = (room.c1 - room.c0 + 1) * TILE_SIZE;
+      const height = (room.r1 - room.r0 + 1) * TILE_SIZE;
+      const roomGraphics = this.add.graphics();
+
+      roomGraphics.fillStyle(skin.darkColor, 0.52);
+      roomGraphics.fillRoundedRect(x + 4, y + 4, width - 8, height - 8, 8);
+      roomGraphics.lineStyle(6, skin.accentColor, 0.95);
+      roomGraphics.strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 7);
+      roomGraphics.lineStyle(2, skin.glassColor, 0.7);
+      roomGraphics.strokeRoundedRect(x + 18, y + 18, width - 36, height - 36, 5);
+
+      this.drawGlassPanels(roomGraphics, x, y, width, height, skin.glassColor);
+      this.drawInteriorGrid(roomGraphics, x, y, width, height, skin.glassColor);
+      this.drawDoorGlow(roomGraphics, room, skin.accentColor);
+      this.drawCornerCaps(roomGraphics, x, y, width, height, skin.accentColor);
+
+      this.futuristicFacadeLayer?.add(roomGraphics);
+
+      const sign = this.add.text(x + width / 2, y + 24, skin.shortLabel, {
+        fontFamily: 'monospace',
+        fontSize: '16px',
+        color: '#f8fafc',
+        backgroundColor: '#020617cc',
+        padding: { x: 8, y: 4 },
+      });
+      sign.setOrigin(0.5);
+      sign.setDepth(7);
+      this.futuristicFacadeLayer?.add(sign);
+    });
+
+    this.createFuturisticLandmarkFacades();
+  }
+
+  private drawGlassPanels(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    glassColor: number,
+  ): void {
+    graphics.fillStyle(glassColor, 0.23);
+
+    for (let panelX = x + 44; panelX < x + width - 44; panelX += 96) {
+      graphics.fillRect(panelX, y + 14, 48, 10);
+      graphics.fillRect(panelX, y + height - 24, 48, 10);
+    }
+
+    for (let panelY = y + 52; panelY < y + height - 52; panelY += 92) {
+      graphics.fillRect(x + 14, panelY, 10, 42);
+      graphics.fillRect(x + width - 24, panelY, 10, 42);
+    }
+  }
+
+  private drawInteriorGrid(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    glassColor: number,
+  ): void {
+    graphics.lineStyle(1, glassColor, 0.18);
+
+    for (let gridX = x + TILE_SIZE * 2; gridX < x + width - TILE_SIZE; gridX += TILE_SIZE * 2) {
+      graphics.lineBetween(gridX, y + TILE_SIZE, gridX, y + height - TILE_SIZE);
+    }
+
+    for (let gridY = y + TILE_SIZE * 2; gridY < y + height - TILE_SIZE; gridY += TILE_SIZE * 2) {
+      graphics.lineBetween(x + TILE_SIZE, gridY, x + width - TILE_SIZE, gridY);
+    }
+  }
+
+  private drawDoorGlow(
+    graphics: Phaser.GameObjects.Graphics,
+    room: (typeof GATHER_ROOMS)[number],
+    accentColor: number,
+  ): void {
+    room.door.forEach((doorTile) => {
+      const doorX = doorTile.c * TILE_SIZE;
+      const doorY = doorTile.r * TILE_SIZE;
+
+      graphics.fillStyle(accentColor, 0.4);
+      graphics.fillRoundedRect(doorX + 6, doorY + 18, TILE_SIZE - 12, 34, 6);
+      graphics.lineStyle(3, accentColor, 0.9);
+      graphics.lineBetween(doorX + 8, doorY + 54, doorX + TILE_SIZE - 8, doorY + 54);
+    });
+  }
+
+  private drawCornerCaps(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    accentColor: number,
+  ): void {
+    const capSize = 28;
+    graphics.fillStyle(accentColor, 0.85);
+    graphics.fillRect(x + 12, y + 12, capSize, 8);
+    graphics.fillRect(x + 12, y + 12, 8, capSize);
+    graphics.fillRect(x + width - 40, y + 12, capSize, 8);
+    graphics.fillRect(x + width - 20, y + 12, 8, capSize);
+    graphics.fillRect(x + 12, y + height - 20, capSize, 8);
+    graphics.fillRect(x + 12, y + height - 40, 8, capSize);
+    graphics.fillRect(x + width - 40, y + height - 20, capSize, 8);
+    graphics.fillRect(x + width - 20, y + height - 40, 8, capSize);
+  }
+
+  private createFuturisticLandmarkFacades(): void {
+    CAMPUS_BUILDINGS.forEach((building) => {
+      const skin = getFuturisticLandmarkSkin(building.id);
+      if (!skin) return;
+
+      const x = building.wallTileCol * TILE_SIZE;
+      const y = building.wallTileRow * TILE_SIZE;
+      const width = building.wallTileW * TILE_SIZE;
+      const height = building.wallTileH * TILE_SIZE;
+      const graphics = this.add.graphics();
+
+      graphics.fillStyle(skin.darkColor, 0.72);
+      graphics.fillRoundedRect(x + 3, y + 3, width - 6, height - 6, 8);
+      graphics.lineStyle(5, skin.accentColor, 0.96);
+      graphics.strokeRoundedRect(x + 8, y + 8, width - 16, height - 16, 7);
+      graphics.fillStyle(skin.glassColor, 0.25);
+      graphics.fillRect(x + 22, y + 20, width - 44, 16);
+      graphics.fillRect(x + 22, y + height - 38, width - 44, 12);
+      graphics.lineStyle(2, skin.glassColor, 0.65);
+      graphics.lineBetween(x + 18, y + height / 2, x + width - 18, y + height / 2);
+
+      const doorX = building.doorTileCol * TILE_SIZE;
+      const doorY = building.doorTileRow * TILE_SIZE;
+      graphics.fillStyle(skin.accentColor, 0.4);
+      graphics.fillRoundedRect(doorX + 8, doorY + 18, TILE_SIZE - 16, 36, 6);
+      graphics.lineStyle(3, skin.accentColor, 0.9);
+      graphics.lineBetween(doorX + 10, doorY + 55, doorX + TILE_SIZE - 10, doorY + 55);
+
+      this.drawCornerCaps(graphics, x, y, width, height, skin.accentColor);
+      this.futuristicFacadeLayer?.add(graphics);
+
+      const sign = this.add.text(x + width / 2, y + 24, skin.shortLabel, {
+        fontFamily: 'monospace',
+        fontSize: '14px',
+        color: '#f8fafc',
+        backgroundColor: '#020617cc',
+        padding: { x: 7, y: 3 },
+      });
+      sign.setOrigin(0.5);
+      sign.setDepth(7);
+      this.futuristicFacadeLayer?.add(sign);
     });
   }
 
@@ -220,9 +392,11 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('adventure-completed', this.handleAdventureCompleted);
     this.npcs.forEach((npc) => npc.destroy());
     this.simLearners.forEach((learner) => learner.destroy());
+    this.futuristicFacadeLayer?.destroy();
     this.studyCircleLayer?.destroy();
     this.npcs = [];
     this.simLearners = [];
+    this.futuristicFacadeLayer = undefined;
     this.studyCircleLayer = undefined;
     this.stations = []; // destroyed by the base interactables cleanup
     this.activeNpc = null;
