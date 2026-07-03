@@ -9,6 +9,7 @@ import {
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
 import { ActivityFeed } from '@/components/world/ActivityFeed';
+import { QuestTracker } from '@/components/world/QuestTracker';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -57,16 +58,23 @@ export default function CampusSandboxPage() {
     const handlePosition = (data: { x: number; y: number }) => {
       (window as any).__campusTest.position = data;
     };
+    const handleQuestUpdate = (snapshot: unknown) => {
+      (window as any).__campusTest.quest = snapshot;
+    };
 
     // Deterministic test hooks for automated browser testing
     (window as any).__campusTest = {
       conversation: null,
       adventure: null,
       position: null,
+      quest: null,
       shopOpened: false,
       questBoardOpened: false,
       move: (x: number, y: number) => EventBus.emit('touch-move', { x, y }),
       teleport: (x: number, y: number) => EventBus.emit('teleport-player', { x, y }),
+      // Simulate a finished game (e.g. quest score gate) without playing it
+      completeAdventure: (adventureId: string, score?: number) =>
+        EventBus.emit('adventure-completed', { adventureId, score }),
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -75,6 +83,7 @@ export default function CampusSandboxPage() {
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
+    EventBus.on('quest-updated', handleQuestUpdate);
 
     return () => {
       EventBus.off('npc-conversation', handleConversation);
@@ -83,6 +92,7 @@ export default function CampusSandboxPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
+      EventBus.off('quest-updated', handleQuestUpdate);
       delete (window as any).__campusTest;
     };
   }, []);
@@ -102,7 +112,13 @@ export default function CampusSandboxPage() {
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={() => setCurrentAdventure(null)}
-          onComplete={() => setCurrentAdventure(null)}
+          onComplete={(score) => {
+            EventBus.emit('adventure-completed', {
+              adventureId: currentAdventure.adventureId,
+              score,
+            });
+            setCurrentAdventure(null);
+          }}
         />
       )}
 
@@ -110,6 +126,9 @@ export default function CampusSandboxPage() {
 
       {/* Ambient campus activity ticker (same as /world/campus) */}
       <ActivityFeed />
+
+      {/* Demo quest objective HUD (same as /world/campus) */}
+      <QuestTracker />
 
       {notice && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">

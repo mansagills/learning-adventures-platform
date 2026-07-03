@@ -12,6 +12,12 @@ import {
 } from '../world/gatherPresentation';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
+import {
+  mathQuest,
+  QUEST_NPC_ID,
+  QUEST_GAME_ID,
+  QUEST_ITEM_POSITIONS,
+} from '../world/mathQuest';
 
 /**
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
@@ -38,6 +44,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private activeNpc: TalkableNPC | null = null;
   private isPaused = false;
   private extraInteractKey?: Phaser.Input.Keyboard.Key;
+  private questGiver?: TalkableNPC;
+  private questItems: Phaser.GameObjects.Image[] = [];
 
   constructor() {
     super('GatherCampusScene');
@@ -75,6 +83,101 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.on('world-pause', this.handleWorldPause);
     this.events.once('shutdown', this.cleanupGather, this);
     this.events.once('destroy', this.cleanupGather, this);
+
+    this.setupQuest();
+  }
+
+  // ─── Demo quest: Professor Numbers → power cells → Math Race Rally 80+ ──────
+
+  private setupQuest(): void {
+    this.questGiver = this.npcs.find((n) => n.npcId === QUEST_NPC_ID);
+    if (!this.questGiver) return;
+
+    // Glowing power-cell texture (matches the futuristic tile palette)
+    if (!this.textures.exists('quest-power-cell')) {
+      const g = this.add.graphics();
+      g.fillStyle(0x22d3ee, 0.25); g.fillCircle(16, 16, 15);
+      g.fillStyle(0x0e7490, 1);    g.fillRoundedRect(9, 6, 14, 20, 4);
+      g.fillStyle(0x67e8f9, 1);    g.fillRoundedRect(12, 9, 8, 14, 2);
+      g.fillStyle(0xffffff, 0.9);  g.fillRect(14, 11, 2, 4);
+      g.generateTexture('quest-power-cell', 32, 32);
+      g.destroy();
+    }
+
+    this.questGiver.setQuestDialogue(mathQuest.dialogue());
+    EventBus.emit('quest-updated', mathQuest.snapshot());
+
+    EventBus.on('npc-conversation-end', this.handleQuestConversation);
+    EventBus.on('adventure-completed', this.handleQuestGameResult);
+  }
+
+  private handleQuestConversation = (data: { npcId: string; completed: boolean }) => {
+    if (data.npcId !== QUEST_NPC_ID || !data.completed || !this.questGiver) return;
+
+    switch (mathQuest.currentStage) {
+      case 'available':
+        if (mathQuest.accept()) this.spawnQuestItems();
+        break;
+      case 'return':
+        if (mathQuest.turnIn()) {
+          // She boots the simulator: launch Math Race Rally right away
+          EventBus.emit('open-adventure', { adventureId: QUEST_GAME_ID, type: 'game' });
+        }
+        break;
+      case 'play':
+        // Talking to her again re-opens the game for another attempt
+        EventBus.emit('open-adventure', { adventureId: QUEST_GAME_ID, type: 'game' });
+        break;
+    }
+    this.questGiver.setQuestDialogue(mathQuest.dialogue());
+  };
+
+  private handleQuestGameResult = (data: { adventureId: string; score?: number }) => {
+    if (data.adventureId !== QUEST_GAME_ID) return;
+    mathQuest.reportScore(data.score);
+    this.questGiver?.setQuestDialogue(mathQuest.dialogue());
+  };
+
+  private spawnQuestItems(): void {
+    QUEST_ITEM_POSITIONS.forEach((pos) => {
+      const cell = this.physics.add.staticImage(pos.x, pos.y, 'quest-power-cell');
+      cell.setDepth(6);
+      // Pulse so it reads as a pickup from across the path
+      this.tweens.add({
+        targets: cell,
+        scale: { from: 1, to: 1.25 },
+        alpha: { from: 1, to: 0.75 },
+        duration: 700,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+      if (this.player) {
+        this.physics.add.overlap(this.player, cell, () => this.collectQuestItem(cell));
+      }
+      this.questItems.push(cell);
+    });
+  }
+
+  private collectQuestItem(cell: Phaser.GameObjects.Image): void {
+    if (!cell.active) return;
+    const body = cell.body as Phaser.Physics.Arcade.StaticBody | null;
+    if (!body?.enable) return; // already collected this frame
+    body.enable = false;
+    this.tweens.killTweensOf(cell);
+    // Pickup flourish: pop up and fade
+    this.tweens.add({
+      targets: cell,
+      y: cell.y - 40,
+      alpha: 0,
+      scale: 1.6,
+      duration: 350,
+      ease: 'Cubic.easeOut',
+      onComplete: () => cell.destroy(),
+    });
+    this.questItems = this.questItems.filter((c) => c !== cell);
+    mathQuest.collectItem();
+    this.questGiver?.setQuestDialogue(mathQuest.dialogue());
   }
 
   /** Carve the open walk-in rooms into the base campus tile grid. */
@@ -180,6 +283,11 @@ export class GatherCampusScene extends OpenWorldScene {
     if (this.gatherCleaned) return;
     this.gatherCleaned = true;
     EventBus.off('world-pause', this.handleWorldPause);
+    EventBus.off('npc-conversation-end', this.handleQuestConversation);
+    EventBus.off('adventure-completed', this.handleQuestGameResult);
+    this.questItems.forEach((c) => c.destroy());
+    this.questItems = [];
+    this.questGiver = undefined;
     this.npcs.forEach((npc) => npc.destroy());
     this.npcs = [];
     this.stations = []; // destroyed by the base interactables cleanup

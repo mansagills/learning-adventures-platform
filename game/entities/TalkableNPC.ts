@@ -79,6 +79,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   /** Lines for the current conversation (rotates through def.lineSets). */
   private activeLines: string[];
   private encounterCount = 0;
+  /** Quest override: fixed dialogue replacing lineSets rotation while set. */
+  private questLines: string[] | null = null;
 
   private wanderTween?: Phaser.Tweens.Tween;
   private wanderIndex = 0;
@@ -276,11 +278,23 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     return this.isTalking;
   }
 
+  /**
+   * Quest override: replace the NPC's dialogue with quest-stage lines.
+   * While set, lineSets rotation AND the config onComplete event are
+   * suppressed (quest flow owns this NPC). Pass null to restore normal
+   * behaviour.
+   */
+  public setQuestDialogue(lines: string[] | null): void {
+    this.questLines = lines;
+  }
+
   private startConversation(playerX: number): void {
     this.isTalking = true;
     this.lineIndex = 0;
-    // Rotate through dialogue sets so repeat visits hear something new
-    if (this.def.lineSets && this.def.lineSets.length > 0) {
+    if (this.questLines) {
+      this.activeLines = this.questLines;
+    } else if (this.def.lineSets && this.def.lineSets.length > 0) {
+      // Rotate through dialogue sets so repeat visits hear something new
       this.activeLines = this.def.lineSets[this.encounterCount % this.def.lineSets.length];
     }
     this.encounterCount++;
@@ -338,7 +352,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
 
     EventBus.emit('npc-conversation-end', { npcId: this.npcId, completed });
 
-    if (completed && this.def.onComplete) {
+    // Quest override suppresses the config onComplete (quest flow owns this NPC)
+    if (completed && this.def.onComplete && !this.questLines) {
       EventBus.emit(this.def.onComplete.event, this.def.onComplete.payload ?? {});
     }
   }

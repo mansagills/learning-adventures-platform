@@ -10,6 +10,7 @@ import { ShopModal } from '@/components/world/ShopModal';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
 import { ActivityFeed } from '@/components/world/ActivityFeed';
+import { QuestTracker } from '@/components/world/QuestTracker';
 import { TouchControls } from '@/components/world/TouchControls';
 import {
   ConversationPanel,
@@ -189,11 +190,11 @@ export default function CampusWorldPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleAdventureComplete = async (adventureId: string) => {
+  const handleAdventureComplete = async (adventureId: string, score?: number) => {
     setXp((prev) => prev + XP_PER_GAME);
     setCoins((prev) => prev + COINS_PER_GAME);
     setCurrentAdventure(null);
-    EventBus.emit('adventure-completed', { adventureId });
+    EventBus.emit('adventure-completed', { adventureId, score });
     showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
 
     try {
@@ -263,7 +264,7 @@ export default function CampusWorldPage() {
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={() => setCurrentAdventure(null)}
-          onComplete={() => handleAdventureComplete(currentAdventure.adventureId)}
+          onComplete={(score) => handleAdventureComplete(currentAdventure.adventureId, score)}
         />
       )}
 
@@ -406,6 +407,9 @@ export default function CampusWorldPage() {
 
           {/* Ambient campus activity ticker — right of the minimap */}
           <ActivityFeed />
+
+          {/* Demo quest objective — under the character panel */}
+          <QuestTracker />
         </div>
       )}
     </div>
