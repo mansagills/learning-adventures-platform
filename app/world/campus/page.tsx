@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
@@ -22,6 +22,10 @@ import {
   type CampusGuidedQuestEvent,
   type CampusGuidedQuestStageId,
 } from '@/game/world/campusGuidedQuest';
+import {
+  CAMPUS_DEMO_PACKAGE,
+  isCampusDemoMode,
+} from '@/game/world/campusDemoPackage';
 
 /**
  * Shared neon HUD panel styling so every overlay chip matches the zone
@@ -44,6 +48,25 @@ const PhaserGame = dynamic(
 const XP_PER_GAME = 50;
 const COINS_PER_GAME = 5;
 
+function CampusLoading({ message }: { message: string }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B5CF6]" />
+        <p className="mt-4 text-lg text-[#8B5CF6] font-semibold">{message}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function CampusWorldPage() {
+  return (
+    <Suspense fallback={<CampusLoading message="Loading campus..." />}>
+      <CampusWorldContent />
+    </Suspense>
+  );
+}
+
 /**
  * /world/campus — Gather-style campus world.
  *
@@ -51,9 +74,11 @@ const COINS_PER_GAME = 5;
  * to NPCs to talk (proximity conversations) and walk up to stations to play
  * learning games. Reuses the same auth, character, and reward APIs.
  */
-export default function CampusWorldPage() {
+function CampusWorldContent() {
   const { user: session, status } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDemoMode = isCampusDemoMode(searchParams);
   const [gameReady, setGameReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [characterData, setCharacterData] = useState<any>(null);
@@ -86,6 +111,21 @@ export default function CampusWorldPage() {
   // Check authentication and character
   useEffect(() => {
     const checkCharacter = async () => {
+      if (isDemoMode) {
+        setCharacterData({
+          name: CAMPUS_DEMO_PACKAGE.demoPlayer.name,
+          avatarId: CAMPUS_DEMO_PACKAGE.demoPlayer.avatarId,
+          lastScene: 'GatherCampusScene',
+          position: null,
+        });
+        setXp(CAMPUS_DEMO_PACKAGE.demoPlayer.xp);
+        setCoins(CAMPUS_DEMO_PACKAGE.demoPlayer.coins);
+        setUserLevel(CAMPUS_DEMO_PACKAGE.demoPlayer.level);
+        setBootstrap(null);
+        setIsCheckingCharacter(false);
+        return;
+      }
+
       if (status === 'unauthenticated') {
         router.push('/');
         return;
@@ -131,11 +171,12 @@ export default function CampusWorldPage() {
     };
 
     checkCharacter();
-  }, [status, router]);
+  }, [status, router, isDemoMode]);
 
   // EventBus listeners
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
+      if (isDemoMode) return;
       if (!sessionRef.current || !characterDataRef.current) return;
       // Only persist overworld positions (not building interiors)
       if (data.scene !== 'GatherCampusScene') return;
@@ -187,7 +228,7 @@ export default function CampusWorldPage() {
       EventBus.off('npc-conversation-end', handleConversationEnd);
       EventBus.off('zone-changed', handleZoneChanged);
     };
-  }, []);
+  }, [isDemoMode]);
 
   // Freeze player movement while a modal (game embed / shop / quests) is open
   useEffect(() => {
@@ -214,6 +255,8 @@ export default function CampusWorldPage() {
     advanceQuest({ type: 'completed-adventure', adventureId });
     showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
 
+    if (isDemoMode) return;
+
     try {
       const res = await fetch('/api/world/award', {
         method: 'POST',
@@ -236,14 +279,7 @@ export default function CampusWorldPage() {
 
   if (status === 'loading' || isCheckingCharacter) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B5CF6]" />
-          <p className="mt-4 text-lg text-[#8B5CF6] font-semibold">
-            {isCheckingCharacter ? 'Loading character...' : 'Loading...'}
-          </p>
-        </div>
-      </div>
+      <CampusLoading message={isCheckingCharacter ? 'Loading character...' : 'Loading...'} />
     );
   }
 
@@ -346,6 +382,14 @@ export default function CampusWorldPage() {
             className="absolute top-4 left-4 px-4 py-2 pointer-events-auto min-w-[10rem]"
             style={hudPanel}
           >
+            {isDemoMode && (
+              <p
+                className="text-[10px] font-bold uppercase tracking-wide mb-1"
+                style={{ color: 'var(--hud-accent, #00ccff)' }}
+              >
+                Stakeholder Demo
+              </p>
+            )}
             <p className="text-white font-semibold leading-tight">
               {characterData?.name || session?.name || 'Player'}
             </p>
@@ -389,13 +433,13 @@ export default function CampusWorldPage() {
           {/* Top-right: Buttons */}
           <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
             <button
-              onClick={() => router.push('/world')}
+              onClick={() => router.push(isDemoMode ? '/' : '/world')}
               className="text-white px-3 py-2 transition-colors text-sm font-semibold hover:text-[var(--hud-accent,#00ccff)]"
               style={hudPanel}
-              title="Switch to the classic open world"
-              aria-label="Switch to the classic open world"
+              title={isDemoMode ? 'Exit stakeholder demo' : 'Switch to the classic open world'}
+              aria-label={isDemoMode ? 'Exit stakeholder demo' : 'Switch to the classic open world'}
             >
-              🗺️ Classic World
+              {isDemoMode ? 'Exit Demo' : 'Classic World'}
             </button>
             <button
               onClick={() => router.push('/')}
