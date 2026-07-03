@@ -14,6 +14,13 @@ import {
 import { exploration } from '../world/explorationState';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
+import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
+
+/**
+ * Campus art source: true = RCC apartment pack (public/game-assets/rcc/),
+ * false = procedural futuristic tiles only. Flip to revert the pack look.
+ */
+const USE_RCC_TILES = true;
 import {
   mathQuest,
   QUEST_NPC_ID,
@@ -60,12 +67,19 @@ export class GatherCampusScene extends OpenWorldScene {
     // Station objects (1024×1024 sources displayed at 64×64)
     this.load.image('arcade-cabinet', '/game-assets/tilemaps/arcade-cabinet.png');
     this.load.image('desk-computer', '/game-assets/tilemaps/desk-computer.png');
+    if (USE_RCC_TILES) {
+      preloadRccSheets(this);
+    }
   }
 
   create(): void {
-    // Swap the campus tile art for the futuristic set BEFORE the base scene
-    // builds the tilemap images (keys stay the same, only pixels change)
+    // Swap the campus tile art BEFORE the base scene builds the tilemap
+    // images (keys stay the same, only pixels change). Procedural futuristic
+    // set first as the fallback, then the RCC pack overrides when enabled.
     applyFuturisticTiles(this);
+    if (USE_RCC_TILES) {
+      applyRccTiles(this);
+    }
 
     super.create();
 

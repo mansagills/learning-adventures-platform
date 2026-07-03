@@ -8,10 +8,13 @@
 
 ## ⚡ Futuristic Restyle — Sci-Fi Packs (for later)
 
-**Current state (July 2026)**: the Gather campus already has a futuristic look via
-`game/world/futuristicTiles.ts` — a procedural tile set (dark alloy panels, neon
-walkways, per-subject accent-lit walls) generated at scene start. No downloads
-needed for the demo. This section is for upgrading to hand-drawn art later.
+**Current state (July 2026)**: the Gather campus uses the **RCC apartment
+tileset** (user-supplied, cyberpunk style) — sheets in `public/game-assets/rcc/`,
+frame picks in `game/world/rccTiles.ts`, toggled by `USE_RCC_TILES` in
+`GatherCampusScene.ts`. Set the flag to `false` to revert to the procedural
+futuristic set (`game/world/futuristicTiles.ts`), which remains as fallback.
+⚠️ The RCC pack shipped without a license file — confirm its terms before any
+public release. This section covers swapping in other packs later.
 
 ### Recommended free sci-fi packs to download (manual browser download)
 
