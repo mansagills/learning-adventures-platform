@@ -10,6 +10,7 @@ import {
   getGatherRoomLabels,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
+import { buildSimStudentConfigs } from '../world/simStudents';
 
 /**
  * GatherCampusScene — Gather.town-style variant of the 96×72 campus world.
@@ -100,6 +101,10 @@ export class GatherCampusScene extends OpenWorldScene {
    */
   protected createCampusNPCs(): void {
     buildGatherNpcConfigs().forEach((config) => {
+      this.npcs.push(new TalkableNPC(this, config));
+    });
+    // Simulated students — ambient "other players" patrolling the campus paths
+    buildSimStudentConfigs().forEach((config) => {
       this.npcs.push(new TalkableNPC(this, config));
     });
     this.createStations();

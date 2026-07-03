@@ -8,6 +8,16 @@ import { type NextRequest, NextResponse } from 'next/server';
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  // No Supabase env (e.g. fresh clone / worktree without .env.local): treat the
+  // visitor as signed out rather than crashing every request. Protected routes
+  // still redirect to /login, so this fails closed.
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return { supabaseResponse, user: null };
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
