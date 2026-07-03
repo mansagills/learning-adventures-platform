@@ -2,6 +2,8 @@ import * as Phaser from 'phaser';
 import {
   getAmbientChatLine,
   getCelebrationLine,
+  getSimLearnerStatusVisual,
+  getSimLearnerSubjectVisual,
   type SimLearnerConfig,
   type SimLearnerWaypoint,
   type StudyCircleParticipant,
@@ -21,6 +23,7 @@ export class SimLearner extends Phaser.GameObjects.Container {
   public readonly simId: string;
 
   private sprite: Phaser.GameObjects.Sprite;
+  private subjectRing: Phaser.GameObjects.Graphics;
   private nameTag: Phaser.GameObjects.Text;
   private statusTag: Phaser.GameObjects.Text;
   private chatBubble: Phaser.GameObjects.Container;
@@ -34,6 +37,7 @@ export class SimLearner extends Phaser.GameObjects.Container {
   private hideChatTimer?: Phaser.Time.TimerEvent;
   private charKey: string;
   private chatSequence = 0;
+  private subjectColor: number;
 
   constructor(scene: Phaser.Scene, config: SimLearnerConfig) {
     const firstWaypoint = config.waypoints[0];
@@ -42,6 +46,12 @@ export class SimLearner extends Phaser.GameObjects.Container {
     this.simId = config.id;
     this.charKey = config.charKey;
     this.waypoints = config.waypoints;
+    const subjectVisual = getSimLearnerSubjectVisual(config.favoriteSubject);
+    this.subjectColor = subjectVisual.color;
+
+    this.subjectRing = scene.add.graphics();
+    this.drawSubjectRing(0.24);
+    this.add(this.subjectRing);
 
     this.sprite = scene.add.sprite(0, 0, `player-${config.charKey}`);
     this.sprite.setDisplaySize(56, 56);
@@ -61,13 +71,14 @@ export class SimLearner extends Phaser.GameObjects.Container {
     this.statusTag = scene.add.text(0, -58, config.status, {
       fontSize: '10px',
       fontFamily: 'monospace',
-      color: '#bbf7d0',
-      backgroundColor: '#064e3be6',
+      color: '#052e16',
+      backgroundColor: '#bbf7d0e6',
       padding: { x: 6, y: 2 },
       align: 'center',
     });
     this.statusTag.setOrigin(0.5);
     this.add(this.statusTag);
+    this.setStatus(config.status);
 
     this.chatBubbleBg = scene.add.graphics();
     this.chatBubbleText = scene.add.text(0, 0, '', {
@@ -118,7 +129,8 @@ export class SimLearner extends Phaser.GameObjects.Container {
     const distance = Math.hypot(dx, dy);
 
     this.faceMovement(dx, dy);
-    this.statusTag.setText('Traveling');
+    this.setStatus('Traveling');
+    this.drawSubjectRing(0.34);
 
     this.moveTween = this.scene.tweens.add({
       targets: this,
@@ -128,7 +140,8 @@ export class SimLearner extends Phaser.GameObjects.Container {
       ease: 'Linear',
       onComplete: () => {
         this.waypointIndex = nextIndex;
-        this.statusTag.setText(waypoint.status);
+        this.setStatus(waypoint.status);
+        this.drawSubjectRing(0.24);
         this.playAnim('idle');
         this.waitTimer = this.scene.time.delayedCall(STOP_DELAY_MS, () => {
           this.moveToNextWaypoint();
@@ -155,6 +168,24 @@ export class SimLearner extends Phaser.GameObjects.Container {
     if (this.scene.anims.exists(key)) {
       this.sprite.anims.play(key, true);
     }
+  }
+
+  private setStatus(status: string): void {
+    const visual = getSimLearnerStatusVisual(status);
+    this.statusTag.setText(visual.label);
+    this.statusTag.setColor(visual.textColor);
+    this.statusTag.setStyle({
+      backgroundColor: visual.backgroundColor,
+      padding: { x: 6, y: 2 },
+    });
+  }
+
+  private drawSubjectRing(alpha: number): void {
+    this.subjectRing.clear();
+    this.subjectRing.fillStyle(this.subjectColor, alpha * 0.35);
+    this.subjectRing.lineStyle(2, this.subjectColor, alpha);
+    this.subjectRing.fillEllipse(0, 21, 48, 18);
+    this.subjectRing.strokeEllipse(0, 21, 48, 18);
   }
 
   private scheduleAmbientChat(delayMs: number): void {

@@ -37,7 +37,7 @@ export function CampusQuestHud({ stage, className }: CampusQuestHudProps) {
               className="text-[0.7rem] font-bold uppercase tracking-normal"
               style={{ color: 'var(--hud-accent, #9b5cff)' }}
             >
-              First Quest
+              First Quest · Step {activeIndex + 1} of {CAMPUS_GUIDED_QUEST_STAGES.length}
             </p>
             <h2 className="mt-0.5 text-base font-extrabold leading-tight">
               {stage.title}
@@ -56,7 +56,9 @@ export function CampusQuestHud({ stage, className }: CampusQuestHudProps) {
           )}
         </div>
 
-        <p className="mt-2 text-sm leading-snug text-white/90">{stage.objective}</p>
+        <p className="mt-2 text-sm font-semibold leading-snug text-white/92">
+          {stage.objective}
+        </p>
         <p className="mt-1 text-xs leading-snug text-white/62">{stage.hint}</p>
 
         <div className="mt-3 grid grid-cols-4 gap-1.5" aria-hidden="true">

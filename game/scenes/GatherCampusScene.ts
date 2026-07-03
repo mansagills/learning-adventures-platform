@@ -205,8 +205,8 @@ export class GatherCampusScene extends OpenWorldScene {
     layer: Phaser.GameObjects.Graphics,
     circle: StudyCircle,
   ): void {
-    layer.lineStyle(3, 0x38bdf8, 0.38);
-    layer.fillStyle(0x38bdf8, 0.08);
+    layer.lineStyle(3, circle.color, 0.42);
+    layer.fillStyle(circle.color, 0.08);
     layer.fillCircle(circle.centerX, circle.centerY + 8, circle.radius);
     layer.strokeCircle(circle.centerX, circle.centerY + 8, circle.radius);
   }

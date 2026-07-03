@@ -6,6 +6,8 @@ import {
   findStudyCircles,
   getAmbientChatLine,
   getCelebrationLine,
+  getSimLearnerStatusVisual,
+  getSimLearnerSubjectVisual,
   getWaypointById,
 } from '@/game/world/simLearners';
 
@@ -93,7 +95,31 @@ describe('simulated campus learners', () => {
         centerY: 110,
         memberIds: ['sim-maya', 'sim-zara'],
         radius: 74,
+        color: 0x38bdf8,
       },
     ]);
+  });
+
+  it('assigns readable visual accents by favorite subject', () => {
+    expect(getSimLearnerSubjectVisual('math')).toEqual({
+      label: 'Math',
+      color: 0xf59e0b,
+      textColor: '#fff7ed',
+      backgroundColor: '#7c2d12e6',
+    });
+    expect(getSimLearnerSubjectVisual('science').label).toBe('Science');
+    expect(getSimLearnerSubjectVisual('reading').label).toBe('Reading');
+    expect(getSimLearnerSubjectVisual('commons').label).toBe('Social');
+  });
+
+  it('maps activity statuses to compact chips and circle colors', () => {
+    expect(getSimLearnerStatusVisual('Questing')).toEqual({
+      label: 'Quest',
+      color: 0x4ade80,
+      textColor: '#052e16',
+      backgroundColor: '#bbf7d0e6',
+    });
+    expect(getSimLearnerStatusVisual('Looking for help').label).toBe('Help');
+    expect(getSimLearnerStatusVisual('Unexpected Status').label).toBe('Here');
   });
 });

@@ -42,6 +42,14 @@ export interface StudyCircle {
   centerY: number;
   memberIds: string[];
   radius: number;
+  color: number;
+}
+
+export interface SimLearnerVisual {
+  label: string;
+  color: number;
+  textColor: string;
+  backgroundColor: string;
 }
 
 const T = TILE_SIZE;
@@ -151,6 +159,79 @@ const INITIAL_STATUS: Record<string, string> = {
   'sim-ben': 'Exploring',
 };
 
+const SUBJECT_VISUALS: Record<SimLearnerSubject, SimLearnerVisual> = {
+  math: {
+    label: 'Math',
+    color: 0xf59e0b,
+    textColor: '#fff7ed',
+    backgroundColor: '#7c2d12e6',
+  },
+  science: {
+    label: 'Science',
+    color: 0x22d3ee,
+    textColor: '#ecfeff',
+    backgroundColor: '#164e63e6',
+  },
+  reading: {
+    label: 'Reading',
+    color: 0xf472b6,
+    textColor: '#fdf2f8',
+    backgroundColor: '#831843e6',
+  },
+  commons: {
+    label: 'Social',
+    color: 0xa3e635,
+    textColor: '#f7fee7',
+    backgroundColor: '#365314e6',
+  },
+};
+
+const STATUS_VISUALS: Record<string, SimLearnerVisual> = {
+  Questing: {
+    label: 'Quest',
+    color: 0x4ade80,
+    textColor: '#052e16',
+    backgroundColor: '#bbf7d0e6',
+  },
+  Studying: {
+    label: 'Study',
+    color: 0x60a5fa,
+    textColor: '#eff6ff',
+    backgroundColor: '#1d4ed8e6',
+  },
+  Exploring: {
+    label: 'Roam',
+    color: 0xfacc15,
+    textColor: '#422006',
+    backgroundColor: '#fef08ae6',
+  },
+  'Taking a break': {
+    label: 'Break',
+    color: 0xc084fc,
+    textColor: '#faf5ff',
+    backgroundColor: '#6b21a8e6',
+  },
+  'Looking for help': {
+    label: 'Help',
+    color: 0xfb7185,
+    textColor: '#fff1f2',
+    backgroundColor: '#9f1239e6',
+  },
+  Traveling: {
+    label: 'Move',
+    color: 0x94a3b8,
+    textColor: '#f8fafc',
+    backgroundColor: '#334155e6',
+  },
+};
+
+const FALLBACK_STATUS_VISUAL: SimLearnerVisual = {
+  label: 'Here',
+  color: 0x94a3b8,
+  textColor: '#f8fafc',
+  backgroundColor: '#334155e6',
+};
+
 const AMBIENT_CHAT_LINES: Record<string, string[]> = {
   'sim-maya': [
     'I am trying to beat my Math Race time.',
@@ -220,6 +301,16 @@ export function getCelebrationLine(activityId: string, simLearnerId: string): st
   return activityLines[simLearnerId] ?? activityLines.default;
 }
 
+export function getSimLearnerSubjectVisual(
+  subject: SimLearnerSubject,
+): SimLearnerVisual {
+  return SUBJECT_VISUALS[subject];
+}
+
+export function getSimLearnerStatusVisual(status: string): SimLearnerVisual {
+  return STATUS_VISUALS[status] ?? FALLBACK_STATUS_VISUAL;
+}
+
 export function findStudyCircles(
   participants: StudyCircleParticipant[],
   proximityRadius: number,
@@ -251,6 +342,7 @@ export function findStudyCircles(
       centerY,
       memberIds: members.map((member) => member.id),
       radius: Math.round(proximityRadius * 0.8) + 2,
+      color: 0x38bdf8,
     });
   }
 
