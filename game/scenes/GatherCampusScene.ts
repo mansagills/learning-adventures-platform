@@ -63,6 +63,13 @@ export class GatherCampusScene extends OpenWorldScene {
   private questItems: Phaser.GameObjects.Image[] = [];
   /** Throttle for the exploration room check (no need to test every frame). */
   private nextExplorationCheck = 0;
+  // Quest guidance: pulsing marker at the target + screen-edge arrow
+  private questPulse?: Phaser.GameObjects.Arc;
+  private questArrow?: Phaser.GameObjects.Triangle;
+  private nextGuidanceUpdate = 0;
+  private shopDoor?: { x: number; y: number };
+  private simStudents: TalkableNPC[] = [];
+  private chatterTimer?: Phaser.Time.TimerEvent;
 
   constructor() {
     super('GatherCampusScene');
@@ -162,6 +169,155 @@ export class GatherCampusScene extends OpenWorldScene {
 
     EventBus.on('npc-conversation-end', this.handleQuestConversation);
     EventBus.on('adventure-completed', this.handleQuestGameResult);
+
+    this.createQuestGuidance();
+    this.startAmbientChatter();
+  }
+
+  // ─── Quest guidance: pulsing target marker + screen-edge arrow ─────────────
+
+  private createQuestGuidance(): void {
+    // Pulsing ring at the target (world space)
+    this.questPulse = this.add.circle(0, 0, 26);
+    this.questPulse.setStrokeStyle(4, 0xffd700, 0.9);
+    this.questPulse.setDepth(9);
+    this.questPulse.setVisible(false);
+    this.tweens.add({
+      targets: this.questPulse,
+      scale: { from: 0.7, to: 1.3 },
+      alpha: { from: 0.95, to: 0.25 },
+      duration: 900,
+      repeat: -1,
+      ease: 'Sine.easeOut',
+    });
+
+    // Edge arrow (screen space) pointing at off-screen targets
+    this.questArrow = this.add.triangle(0, 0, 0, 22, 11, 0, 22, 22, 0xffd700, 0.95);
+    this.questArrow.setStrokeStyle(2, 0x92600a, 1);
+    this.questArrow.setScrollFactor(0);
+    this.questArrow.setDepth(50);
+    this.questArrow.setVisible(false);
+    this.tweens.add({
+      targets: this.questArrow,
+      scale: { from: 0.85, to: 1.15 },
+      duration: 550,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  /** Where should the player go right now? null = no guidance (all done). */
+  private questTarget(): { x: number; y: number } | null {
+    switch (mathQuest.currentStage) {
+      case 'available':
+      case 'return':
+      case 'play':
+        return this.questGiver ? { x: this.questGiver.x, y: this.questGiver.y } : null;
+      case 'gather': {
+        // Nearest uncollected power cell
+        if (!this.player || this.questItems.length === 0) return null;
+        let best: { x: number; y: number } | null = null;
+        let bestDist = Number.POSITIVE_INFINITY;
+        for (const cell of this.questItems) {
+          const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, cell.x, cell.y);
+          if (d < bestDist) {
+            bestDist = d;
+            best = { x: cell.x, y: cell.y };
+          }
+        }
+        return best;
+      }
+      case 'complete':
+        return this.shopDoor ?? null;
+    }
+  }
+
+  private updateQuestGuidance(time: number): void {
+    if (!this.player || !this.questPulse || !this.questArrow) return;
+    if (time < this.nextGuidanceUpdate) return;
+    this.nextGuidanceUpdate = time + 120;
+
+    const target = this.questTarget();
+    if (!target) {
+      this.questPulse.setVisible(false);
+      this.questArrow.setVisible(false);
+      return;
+    }
+
+    // Pulse sits at the target in world space (visible whenever on camera)
+    this.questPulse.setPosition(target.x, target.y);
+    this.questPulse.setVisible(true);
+
+    const view = this.cameras.main.worldView;
+    const margin = 32;
+    const onScreen =
+      target.x > view.x + margin && target.x < view.right - margin &&
+      target.y > view.y + margin && target.y < view.bottom - margin;
+
+    if (onScreen) {
+      this.questArrow.setVisible(false);
+      return;
+    }
+
+    // Clamp the arrow to the screen edge along the player→target direction
+    const cam = this.cameras.main;
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
+    const inset = 42;
+    const cx = cam.width / 2;
+    const cy = cam.height / 2;
+    const halfW = cam.width / 2 - inset;
+    const halfH = cam.height / 2 - inset;
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+    const scale = Math.min(
+      halfW / Math.max(Math.abs(dx), 1e-6),
+      halfH / Math.max(Math.abs(dy), 1e-6),
+    );
+    this.questArrow.setPosition(cx + dx * scale, cy + dy * scale);
+    this.questArrow.setRotation(angle + Math.PI / 2);
+    this.questArrow.setVisible(true);
+  }
+
+  // ─── Ambient chatter: overheard student lines, quest-aware ──────────────────
+
+  private startAmbientChatter(): void {
+    const CHATTER: Record<string, string[]> = {
+      any: [
+        'Race you to the fountain!',
+        'I love this campus.',
+        'The Discovery Lab games are so cool.',
+        'Almost recess time!',
+      ],
+      available: [
+        'Professor Numbers looked worried earlier...',
+        'Something broke in Math Hall, I heard.',
+      ],
+      gather: [
+        'Whoa, are those glowing power cells?',
+        'I saw something sparkly by the paths!',
+      ],
+      return: ['Did you find all the cells? Nice!'],
+      play: ['Good luck on the race!', 'The sevens table is sneaky!'],
+      complete: [
+        'You got the Racing License?! So cool!',
+        'Congrats on the race! 🏁',
+        'Campus Shop has new stuff, go look!',
+      ],
+    };
+
+    const tick = () => {
+      const pool = [
+        ...CHATTER.any,
+        ...(CHATTER[mathQuest.currentStage] ?? []),
+      ];
+      const student = Phaser.Utils.Array.GetRandom(this.simStudents);
+      if (student && pool.length > 0) {
+        student.chatter(Phaser.Utils.Array.GetRandom(pool));
+      }
+      this.chatterTimer = this.time.delayedCall(9000 + Math.random() * 8000, tick);
+    };
+    this.chatterTimer = this.time.delayedCall(6000, tick);
   }
 
   private handleQuestConversation = (data: { npcId: string; completed: boolean }) => {
@@ -187,8 +343,12 @@ export class GatherCampusScene extends OpenWorldScene {
 
   private handleQuestGameResult = (data: { adventureId: string; score?: number }) => {
     if (data.adventureId !== QUEST_GAME_ID) return;
-    mathQuest.reportScore(data.score);
+    const completed = mathQuest.reportScore(data.score);
     this.questGiver?.setQuestDialogue(mathQuest.dialogue());
+    if (completed) {
+      // The whole campus celebrates the new Racing License
+      this.simStudents.forEach((s) => s.celebrate());
+    }
   };
 
   private spawnQuestItems(): void {
@@ -246,6 +406,13 @@ export class GatherCampusScene extends OpenWorldScene {
    * SPACE interactions (handled by the base implementation).
    */
   protected createBuildingInteractable(config: BuildingDoorConfig): void {
+    if (config.id === 'building_campus_shop') {
+      // Post-quest guidance points here ("spend your XP at the shop")
+      this.shopDoor = {
+        x: config.doorTileCol * TILE_SIZE,
+        y: config.doorTileRow * TILE_SIZE,
+      };
+    }
     if (
       config.id === 'building_quest_board' ||
       config.id === 'building_campus_shop'
@@ -266,7 +433,9 @@ export class GatherCampusScene extends OpenWorldScene {
     });
     // Simulated students — ambient "other players" patrolling the campus paths
     buildSimStudentConfigs().forEach((config) => {
-      this.npcs.push(new TalkableNPC(this, config));
+      const student = new TalkableNPC(this, config);
+      this.npcs.push(student);
+      this.simStudents.push(student);
     });
     this.createStations();
   }
@@ -298,6 +467,7 @@ export class GatherCampusScene extends OpenWorldScene {
     if (!this.player) return;
 
     this.checkExploration(time);
+    this.updateQuestGuidance(time);
 
     // Proximity conversations — only one NPC may talk at a time
     let talkingNpc: TalkableNPC | null = null;
@@ -340,11 +510,14 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('world-pause', this.handleWorldPause);
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
+    this.chatterTimer?.remove();
+    this.chatterTimer = undefined;
     this.questItems.forEach((c) => c.destroy());
     this.questItems = [];
     this.questGiver = undefined;
     this.npcs.forEach((npc) => npc.destroy());
     this.npcs = [];
+    this.simStudents = [];
     this.stations = []; // destroyed by the base interactables cleanup
     this.activeNpc = null;
   }

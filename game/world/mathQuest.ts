@@ -40,6 +40,8 @@ export interface QuestSnapshot {
   total: number;
   /** One-line objective for the HUD tracker. */
   objective: string;
+  /** Follow-up guidance under the objective ("where do I go?"). */
+  hint: string;
 }
 
 class MathQuest {
@@ -57,6 +59,7 @@ class MathQuest {
       collected: this.collected,
       total: QUEST_ITEM_POSITIONS.length,
       objective: this.objective(),
+      hint: this.hint(),
     };
   }
 
@@ -67,6 +70,16 @@ class MathQuest {
       case 'return':    return 'Return the cells to Professor Numbers';
       case 'play':      return `Score ${QUEST_PASS_SCORE}+ in Math Race Rally`;
       case 'complete':  return 'Racing License earned! 🏁';
+    }
+  }
+
+  private hint(): string {
+    switch (this.stage) {
+      case 'available': return 'Follow the gold arrow to Math Hall (south-west)';
+      case 'gather':    return 'The arrow points to the nearest glowing cell';
+      case 'return':    return 'Head back to Math Hall — she is waiting!';
+      case 'play':      return 'Talk to Professor Numbers to start the race';
+      case 'complete':  return 'Spend your XP at the Campus Shop! 🏪';
     }
   }
 

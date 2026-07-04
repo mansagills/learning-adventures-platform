@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { EventBus } from '@/components/phaser/EventBus';
 
 /**
  * ActivityFeed — ambient "other students are playing" ticker for the campus.
@@ -89,11 +90,25 @@ export function ActivityFeed() {
       timer = setTimeout(addEntry, nextDelay());
     };
 
+    // Quest completion: the player's own achievement headlines the feed
+    const handleQuestCompleted = () => {
+      const id = ++idRef.current;
+      setEntries((prev) => [
+        ...prev.slice(-(MAX_VISIBLE - 1)),
+        { id, icon: '🏁', text: 'YOU earned the Racing License!' },
+      ]);
+      setTimeout(() => {
+        setEntries((prev) => prev.filter((e) => e.id !== id));
+      }, ENTRY_LIFETIME_MS);
+    };
+    EventBus.on('quest-completed', handleQuestCompleted);
+
     // First entry appears quickly so the feed reads as "live" on load
     timer = setTimeout(addEntry, 2_500);
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      EventBus.off('quest-completed', handleQuestCompleted);
     };
   }, []);
 

@@ -231,6 +231,44 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
       this.emoteTag.setVisible(false);
       this.emoteTag.setY(-64);
     }
+    this.chatterTag?.setVisible(false);
+  }
+
+  // ─── Ambient life (scene-driven, no conversation state) ─────────────────────
+
+  private chatterTag?: Phaser.GameObjects.Text;
+
+  /**
+   * Show a short overheard line above the NPC (ambient chatter — the campus
+   * talking to itself, not a conversation). Ignored while actually talking.
+   */
+  public chatter(text: string, durationMs = 3500): void {
+    if (this.isTalking || !this.scene) return;
+    if (!this.chatterTag) {
+      this.chatterTag = this.scene.add.text(0, -60, '', {
+        fontSize: '11px',
+        fontFamily: 'monospace',
+        color: '#1f2937',
+        backgroundColor: '#ffffffe6',
+        padding: { x: 6, y: 3 },
+        align: 'center',
+        wordWrap: { width: 150 },
+      });
+      this.chatterTag.setOrigin(0.5, 1);
+      this.add(this.chatterTag);
+    }
+    this.chatterTag.setText(text);
+    this.chatterTag.setVisible(true);
+    this.scene.time.delayedCall(durationMs, () => {
+      this.chatterTag?.setVisible(false);
+    });
+  }
+
+  /** Quest celebration: bounce a 🎉 above the NPC. */
+  public celebrate(): void {
+    if (!this.isTalking) {
+      this.showEmote('🎉', 4000);
+    }
   }
 
   private pauseWandering(): void {

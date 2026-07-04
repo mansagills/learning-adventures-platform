@@ -13,6 +13,7 @@ interface QuestSnapshot {
   collected: number;
   total: number;
   objective: string;
+  hint?: string;
 }
 
 const STAGE_ICON: Record<QuestSnapshot['stage'], string> = {
@@ -66,6 +67,11 @@ export function QuestTracker() {
           <span aria-hidden className="mr-1.5">{STAGE_ICON[quest.stage]}</span>
           {quest.objective}
         </p>
+        {quest.hint && (
+          <p className="text-[11px] leading-snug mt-0.5" style={{ color: 'rgba(255,215,0,0.85)' }}>
+            → {quest.hint}
+          </p>
+        )}
         {quest.stage === 'gather' && (
           <div className="flex gap-1 mt-1.5" aria-hidden>
             {Array.from({ length: quest.total }, (_, i) => (
