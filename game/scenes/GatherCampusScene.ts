@@ -67,6 +67,7 @@ export class GatherCampusScene extends OpenWorldScene {
   private questPulse?: Phaser.GameObjects.Arc;
   private questArrow?: Phaser.GameObjects.Triangle;
   private nextGuidanceUpdate = 0;
+  private lastGuidanceTarget: { x: number; y: number } | null = null;
   private shopDoor?: { x: number; y: number };
   private simStudents: TalkableNPC[] = [];
   private chatterTimer?: Phaser.Time.TimerEvent;
@@ -239,6 +240,17 @@ export class GatherCampusScene extends OpenWorldScene {
     this.nextGuidanceUpdate = time + 120;
 
     const target = this.questTarget();
+
+    // Keep the minimap's gold quest dot in sync (only emit on real change)
+    const prev = this.lastGuidanceTarget;
+    const moved =
+      (target === null) !== (prev === null) ||
+      (target && prev && (Math.abs(target.x - prev.x) > 2 || Math.abs(target.y - prev.y) > 2));
+    if (moved) {
+      this.lastGuidanceTarget = target;
+      EventBus.emit('quest-guidance', target);
+    }
+
     if (!target) {
       this.questPulse.setVisible(false);
       this.questArrow.setVisible(false);

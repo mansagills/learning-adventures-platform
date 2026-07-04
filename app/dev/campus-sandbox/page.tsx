@@ -12,6 +12,7 @@ import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { QuestTracker } from '@/components/world/QuestTracker';
 import { ExplorationTracker } from '@/components/world/ExplorationTracker';
 import { DemoShop, DemoXpChip } from '@/components/world/DemoShop';
+import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 
 const PhaserGame = dynamic(
@@ -155,6 +156,9 @@ export default function CampusSandboxPage() {
       {/* Demo economy: XP chip + campus shop (sandbox-local, no backend) */}
       <DemoXpChip />
       {showShop && <DemoShop onClose={() => setShowShop(false)} />}
+
+      {/* Zone minimap with player + quest-target dots (same as /world/campus) */}
+      <Minimap />
 
       {/* Buildings-visited checklist (same as /world/campus) */}
       <ExplorationTracker />
