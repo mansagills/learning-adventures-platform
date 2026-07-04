@@ -60,6 +60,7 @@ canvas {
 .toast,
 .dialog,
 .race,
+.store,
 .side-panel {
   position: absolute;
   background: var(--panel);
@@ -102,11 +103,13 @@ canvas {
 }
 
 .dialog.visible,
-.race.visible {
+.race.visible,
+.store.visible {
   display: block;
 }
 
-.race {
+.race,
+.store {
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%);
   width: min(32rem, calc(100% - 2rem));
@@ -209,6 +212,39 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
+}
+
+.store__balance {
+  display: inline-flex;
+  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  color: #05120d;
+  background: var(--yellow);
+  font-weight: 900;
+}
+
+.store__grid {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.store__item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.store__item p {
+  margin-bottom: 0.35rem;
+}
+
+.store__item button:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 @media (max-width: 920px) {

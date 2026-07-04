@@ -42,6 +42,8 @@ const checks = [
   ['objective guidance', js.includes('objectiveHint') && js.includes('drawObjectiveMarker')],
   ['ambient student chatter', js.includes('studentLine') && js.includes('drawSpeechBubble')],
   ['race result feedback', js.includes('Math Explorer Badge')],
+  ['xp reward loop', js.includes('awardQuestXp') && js.includes('progression.xp += 100')],
+  ['campus store purchase loop', js.includes('Campus Store') && js.includes('purchaseStoreItem')],
 ];
 
 const failed = checks.filter(([, passed]) => !passed);

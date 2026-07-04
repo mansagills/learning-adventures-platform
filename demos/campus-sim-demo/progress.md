@@ -10,6 +10,7 @@ Original prompt: Create a standalone demo folder in main so the campus demo can 
 - Replaced rectangle placeholder rendering with original character sprites, campus tiles, and props.
 - Fixed standalone sprite anchoring so characters stand on the ground plane and face their walking direction.
 - Added first-two-minutes polish: objective markers, clearer HUD guidance, ambient student chatter, and stronger Math Race result feedback.
+- Added post-quest progression loop: completing Math Race awards 100 XP, then players can spend XP at the Campus Store.
 
 ## Notes
 
@@ -21,4 +22,5 @@ Original prompt: Create a standalone demo folder in main so the campus demo can 
 
 - Tune campus layout scale/positioning to more closely match the integrated Phaser campus.
 - Tune simulated student chatter density and add more quest celebration animation polish.
+- Replace the simulated store/economy with account-backed inventory once the authenticated app flow is ready.
 - Add a browser automation test that drives the full quest loop.

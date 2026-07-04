@@ -5,6 +5,7 @@
   const toast = document.getElementById('toast');
   const dialog = document.getElementById('dialog');
   const race = document.getElementById('race');
+  const storePanel = document.getElementById('store');
 
   ctx.imageSmoothingEnabled = false;
 
@@ -64,6 +65,12 @@
     facing: 'down',
   };
   const arcade = { id: 'math-race-rally', label: 'Math Race Rally', x: 720, y: 375 };
+  const store = { id: 'campus-store', label: 'Campus Store', x: 1510, y: 710 };
+  const storeItems = [
+    { id: 'neon-backpack', name: 'Neon Backpack', cost: 100, description: 'Adds a bright quest-runner glow to your avatar.' },
+    { id: 'focus-headphones', name: 'Focus Headphones', cost: 75, description: 'A study-ready cosmetic for the next campus run.' },
+    { id: 'rally-stickers', name: 'Rally Sticker Pack', cost: 25, description: 'A quick reward to show the XP store economy.' },
+  ];
   const player = {
     x: 1260,
     y: 760,
@@ -87,6 +94,13 @@
     raceUnlocked: false,
     lastScore: null,
     complete: false,
+  };
+  const progression = {
+    xp: 0,
+    totalXp: 0,
+    xpAwarded: false,
+    purchases: [],
+    equipped: null,
   };
 
   const raceState = {
@@ -119,10 +133,12 @@
   function stageText() {
     if (quest.stage === 1) return `Collect rally parts (${quest.collected.length}/${items.length}).`;
     if (quest.stage === 4 && quest.lastScore !== null) return `Last score: ${quest.lastScore}%. Need 80%.`;
+    if (quest.complete) return `Quest complete. XP balance: ${progression.xp}.`;
     return stages[quest.stage];
   }
 
   function objectiveTarget() {
+    if (quest.complete && progression.xp > 0 && progression.purchases.length === 0) return store;
     if (quest.stage === 0 || quest.stage === 2 || quest.complete) return npc;
     if (quest.stage === 1) {
       return items.find((item) => !quest.collected.includes(item.id)) || npc;
@@ -137,6 +153,8 @@
     if (quest.stage === 2) return 'Return to Mrs. Numbers to unlock the rally arcade.';
     if (quest.stage === 3) return 'Walk to Math Race Rally and press E to start.';
     if (quest.stage === 4) return 'Answer 8 of 10 questions correctly to finish the quest.';
+    if (progression.xp > 0 && progression.purchases.length === 0) return 'Spend your 100 XP at the Campus Store.';
+    if (progression.purchases.length > 0) return `${storeItems.find((item) => item.id === progression.equipped)?.name || 'Reward'} purchased. Demo loop complete.`;
     return 'Badge earned. Talk to Mrs. Numbers for the celebration beat.';
   }
 
@@ -145,6 +163,7 @@
       <p class="hud__label">First Quest - Step ${quest.stage + 1} of ${stages.length}</p>
       <h2>${stages[quest.stage]}</h2>
       <p>${stageText()}</p>
+      <p class="hud__label">XP ${progression.xp}</p>
       <p class="hud__hint">${objectiveHint()}</p>
       <div class="steps">${stages
         .map((_, index) => `<span class="step ${index <= quest.stage ? 'active' : ''}"></span>`)
@@ -159,6 +178,17 @@
 
   function closeDialog() {
     dialog.classList.remove('visible');
+  }
+
+  function closeStore() {
+    storePanel.classList.remove('visible');
+  }
+
+  function awardQuestXp() {
+    if (progression.xpAwarded) return;
+    progression.xpAwarded = true;
+    progression.xp += 100;
+    progression.totalXp += 100;
   }
 
   function talkToMrsNumbers() {
@@ -260,10 +290,11 @@
       if (score >= 80) {
         quest.stage = 5;
         quest.complete = true;
+        awardQuestXp();
         showToast(`Quest complete. Math Race score: ${score}%.`);
         campusCheer = 'Badge earned! Great rally run!';
         campusCheerTimer = 7;
-        openDialog('Math Explorer Badge', `Score ${score}%. Quest complete. The campus is cheering for your win.`);
+        openDialog('Math Explorer Badge', `Score ${score}%. Quest complete. You earned 100 XP. Visit the Campus Store to spend it.`);
       } else {
         quest.stage = 4;
         showToast(`Score ${score}%. Try Math Race Rally again.`);
@@ -277,7 +308,64 @@
     renderRace();
   }
 
+  function renderStore() {
+    const rows = storeItems
+      .map((item) => {
+        const owned = progression.purchases.includes(item.id);
+        const affordable = progression.xp >= item.cost;
+        const buttonText = owned ? 'Owned' : affordable ? `Buy - ${item.cost} XP` : `Need ${item.cost} XP`;
+        return `
+          <article class="store__item">
+            <h3>${item.name}</h3>
+            <p>${item.description}</p>
+            <button data-store-item="${item.id}" ${owned || !affordable ? 'disabled' : ''}>${buttonText}</button>
+          </article>
+        `;
+      })
+      .join('');
+    storePanel.innerHTML = `
+      <h2>Campus Store</h2>
+      <p class="store__balance">${progression.xp} XP available</p>
+      <div class="store__grid">${rows}</div>
+      <p>Press Space or E to close.</p>
+    `;
+    storePanel.classList.add('visible');
+    storePanel.querySelectorAll('button[data-store-item]').forEach((button) => {
+      button.addEventListener('click', () => purchaseStoreItem(button.dataset.storeItem));
+    });
+  }
+
+  function openStore() {
+    if (!quest.complete) {
+      showToast('Complete the Math Explorer quest to unlock the store.');
+      return;
+    }
+    renderStore();
+  }
+
+  function purchaseStoreItem(itemId) {
+    const item = storeItems.find((candidate) => candidate.id === itemId);
+    if (!item || progression.purchases.includes(item.id)) return false;
+    if (progression.xp < item.cost) {
+      showToast(`You need ${item.cost} XP for ${item.name}.`);
+      return false;
+    }
+    progression.xp -= item.cost;
+    progression.purchases.push(item.id);
+    progression.equipped = item.id;
+    campusCheer = `${item.name} purchased!`;
+    campusCheerTimer = 6;
+    showToast(`Purchased ${item.name}.`);
+    renderStore();
+    render();
+    return true;
+  }
+
   function interact() {
+    if (storePanel.classList.contains('visible')) {
+      closeStore();
+      return;
+    }
     if (dialog.classList.contains('visible')) {
       closeDialog();
       return;
@@ -296,7 +384,11 @@
       openRace();
       return;
     }
-    showToast('Move closer to Mrs. Numbers, a rally part, or the arcade.');
+    if (distance(player, store) < 94) {
+      openStore();
+      return;
+    }
+    showToast('Move closer to Mrs. Numbers, a rally part, the arcade, or the store.');
   }
 
   function updateFacing(entity, dx, dy) {
@@ -412,6 +504,37 @@
     ctx.beginPath();
     ctx.arc(Math.round(item.x - camera.x), Math.round(item.y - 30 - camera.y), 9, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawStoreKiosk() {
+    drawProp('desk', store.x, store.y, 58, store.label);
+    ctx.save();
+    ctx.fillStyle = quest.complete ? '#ffd166' : 'rgba(174, 190, 211, 0.6)';
+    ctx.strokeStyle = '#101827';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(Math.round(store.x - camera.x), Math.round(store.y - 36 - camera.y), 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#101827';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('XP', Math.round(store.x - camera.x), Math.round(store.y - 32 - camera.y));
+    ctx.restore();
+  }
+
+  function drawEquippedReward() {
+    if (!progression.equipped) return;
+    const x = Math.round(player.x - camera.x);
+    const y = Math.round(player.y - camera.y);
+    ctx.save();
+    ctx.strokeStyle = progression.equipped === 'neon-backpack' ? '#54f7a7' : '#ffd166';
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    ctx.arc(x, y + 4, 40 + Math.sin(performance.now() / 180) * 3, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
@@ -548,6 +671,7 @@
       drawFallbackRect(arcade.x - 33, arcade.y - 33, 66, 66, '#06111dcc');
       ctx.restore();
     }
+    drawStoreKiosk();
 
     items.forEach((item) => {
       if (!quest.collected.includes(item.id)) drawQuestItem(item);
@@ -562,6 +686,7 @@
     });
     drawSprite(npc, npc.name);
     drawSprite(player, 'You');
+    drawEquippedReward();
   }
 
   function render() {
@@ -600,6 +725,7 @@
       coordinateSystem: 'origin top-left, x right, y down',
       player: { x: Math.round(player.x), y: Math.round(player.y), sprite: player.sprite },
       quest,
+      progression,
       objective: { hint: objectiveHint(), target: objectiveTarget().id || objectiveTarget().label || objectiveTarget().name },
       campusCheer,
       assets: {
@@ -632,6 +758,17 @@
     },
     interact,
     answerRace,
+    awardQuestXp,
+    purchaseStoreItem,
+    completeQuestForStore() {
+      quest.stage = 5;
+      quest.complete = true;
+      quest.raceUnlocked = true;
+      quest.lastScore = 100;
+      awardQuestXp();
+      update(0);
+      render();
+    },
     getState() {
       return JSON.parse(renderGameToText());
     },
