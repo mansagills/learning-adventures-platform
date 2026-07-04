@@ -64,6 +64,20 @@ const PROP_FILES: Record<string, string> = {
   'prop-lab-plant': 'lab-plant.png',
   'prop-lab-robot': 'lab-robot.png',
   'prop-specimen-shelf': 'specimen-shelf.png',
+  // ambient density (indoor)
+  'prop-poster-art': 'poster-art.png',
+  'prop-potted-plant-1': 'potted-plant-1.png',
+  'prop-potted-plant-2': 'potted-plant-2.png',
+  'prop-display-pedestal-1': 'display-pedestal-1.png',
+  'prop-display-pedestal-2': 'display-pedestal-2.png',
+  // ambient density (outdoor sidewalk details)
+  'prop-manhole-1': 'manhole-1.png',
+  'prop-manhole-2': 'manhole-2.png',
+  'prop-grate': 'grate.png',
+  'prop-hydrant': 'hydrant.png',
+  'prop-shrub-1': 'shrub-1.png',
+  'prop-shrub-2': 'shrub-2.png',
+  'prop-flower-pot': 'flower-pot.png',
 };
 
 interface Placement {
@@ -74,6 +88,8 @@ interface Placement {
   solid?: boolean;
   /** Render above same-depth neighbours (e.g. tray on table). */
   raise?: boolean;
+  /** Ground decal (manhole, grate): centered, drawn under everything. */
+  flat?: boolean;
 }
 
 /** Looping animated props (spritesheets from the packs' Animated folders). */
@@ -200,6 +216,51 @@ const PLACEMENTS: Placement[] = [
   { key: 'prop-flower-bush-2', col: 50.5, row: 34.6 },
   { key: 'prop-flower-bush-2', col: 45.5, row: 37.9 },
   { key: 'prop-flower-bush-1', col: 50.5, row: 37.9 },
+
+  // ── Ambient density: sidewalk details (flat decals on the paths) ──────────
+  { key: 'prop-manhole-1', col: 36, row: 35.5, flat: true },
+  { key: 'prop-manhole-2', col: 56, row: 36.4, flat: true },
+  { key: 'prop-manhole-1', col: 47.5, row: 26, flat: true },
+  { key: 'prop-manhole-2', col: 47.5, row: 46, flat: true },
+  { key: 'prop-grate', col: 22, row: 36.4, flat: true },
+  { key: 'prop-grate', col: 68, row: 35.5, flat: true },
+
+  // Hydrants + shrubs along the grass edges
+  { key: 'prop-hydrant', col: 35, row: 34.6, solid: true },
+  { key: 'prop-hydrant', col: 65, row: 38.1, solid: true },
+  { key: 'prop-shrub-1', col: 28, row: 34.4 },
+  { key: 'prop-shrub-2', col: 36, row: 39 },
+  { key: 'prop-shrub-1', col: 62, row: 34.4 },
+  { key: 'prop-shrub-2', col: 74, row: 38.9 },
+  { key: 'prop-shrub-1', col: 50.7, row: 24 },
+  { key: 'prop-shrub-2', col: 45.3, row: 28 },
+
+  // Flower pots flanking each building doorway (outside the door tiles)
+  { key: 'prop-flower-pot', col: 10.3, row: 34.9 },
+  { key: 'prop-flower-pot', col: 13.7, row: 34.9 },
+  { key: 'prop-flower-pot', col: 38.3, row: 15.9 },
+  { key: 'prop-flower-pot', col: 41.7, row: 15.9 },
+  { key: 'prop-flower-pot', col: 80.3, row: 34.9 },
+  { key: 'prop-flower-pot', col: 83.7, row: 34.9 },
+  { key: 'prop-flower-pot', col: 54.3, row: 52.9 },
+  { key: 'prop-flower-pot', col: 57.7, row: 52.9 },
+
+  // ── Ambient density: indoor plants, posters, showcase pedestals ───────────
+  // Math Hall
+  { key: 'prop-poster-art', col: 14.5, row: 26.9 },
+  { key: 'prop-potted-plant-1', col: 19.2, row: 27.5, solid: true },
+  { key: 'prop-potted-plant-2', col: 5.9, row: 32.8, solid: true },
+  // Discovery Lab
+  { key: 'prop-potted-plant-1', col: 35.8, row: 6.5, solid: true },
+  { key: 'prop-potted-plant-2', col: 44.2, row: 6.5, solid: true },
+  // Story Grove — student showcase + reading nook greenery
+  { key: 'prop-display-pedestal-1', col: 78, row: 31, solid: true },
+  { key: 'prop-display-pedestal-2', col: 88, row: 31.5, solid: true },
+  { key: 'prop-poster-art', col: 86, row: 26.9 },
+  { key: 'prop-potted-plant-2', col: 75.9, row: 32.8, solid: true },
+  // The Commons
+  { key: 'prop-potted-plant-1', col: 61.2, row: 61.5, solid: true },
+  { key: 'prop-potted-plant-2', col: 51.8, row: 61.5, solid: true },
 ];
 
 /** Queue every prop image + animated spritesheet. Call from preload(). */
@@ -228,9 +289,9 @@ export function placeCampusProps(
     const x = p.col * T;
     const y = p.row * T;
     const img = scene.add.image(x, y, p.key);
-    img.setOrigin(0.5, 1);
+    img.setOrigin(0.5, p.flat ? 0.5 : 1);
     img.setScale(SCALE);
-    img.setDepth(p.raise ? 6 : 5);
+    img.setDepth(p.flat ? 1 : p.raise ? 6 : 5);
 
     if (p.solid && player) {
       // Invisible blocker on the prop's base tile (same trick as stations)
