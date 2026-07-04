@@ -11,6 +11,8 @@ import {
 import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { QuestTracker } from '@/components/world/QuestTracker';
 import { ExplorationTracker } from '@/components/world/ExplorationTracker';
+import { DemoShop, DemoXpChip } from '@/components/world/DemoShop';
+import { demoEconomy } from '@/game/world/demoEconomy';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -32,6 +34,7 @@ export default function CampusSandboxPage() {
     type: 'game' | 'lesson';
   } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [showShop, setShowShop] = useState(false);
 
   useEffect(() => {
     const handleConversation = (data: NpcConversationState) => {
@@ -48,8 +51,10 @@ export default function CampusSandboxPage() {
     };
     const handleOpenShop = () => {
       (window as any).__campusTest.shopOpened = true;
-      setNotice('🛒 Shop would open here (requires login)');
-      setTimeout(() => setNotice(null), 3000);
+      setShowShop(true);
+    };
+    const handleQuestCompleted = (data: { xp: number }) => {
+      demoEconomy.addXP(data.xp, 'Racing License quest');
     };
     const handleOpenJobBoard = () => {
       (window as any).__campusTest.questBoardOpened = true;
@@ -80,6 +85,9 @@ export default function CampusSandboxPage() {
       // Simulate a finished game (e.g. quest score gate) without playing it
       completeAdventure: (adventureId: string, score?: number) =>
         EventBus.emit('adventure-completed', { adventureId, score }),
+      getEconomy: () => demoEconomy.snapshot(),
+      buyItem: (itemId: string) => demoEconomy.purchase(itemId),
+      openShop: () => setShowShop(true),
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -90,6 +98,7 @@ export default function CampusSandboxPage() {
     EventBus.on('minimap-position', handlePosition);
     EventBus.on('quest-updated', handleQuestUpdate);
     EventBus.on('exploration-updated', handleExplorationUpdate);
+    EventBus.on('quest-completed', handleQuestCompleted);
 
     return () => {
       EventBus.off('npc-conversation', handleConversation);
@@ -100,9 +109,15 @@ export default function CampusSandboxPage() {
       EventBus.off('minimap-position', handlePosition);
       EventBus.off('quest-updated', handleQuestUpdate);
       EventBus.off('exploration-updated', handleExplorationUpdate);
+      EventBus.off('quest-completed', handleQuestCompleted);
       delete (window as any).__campusTest;
     };
   }, []);
+
+  // Freeze player movement while a modal (game embed / shop) is open
+  useEffect(() => {
+    EventBus.emit('world-pause', Boolean(currentAdventure || showShop));
+  }, [currentAdventure, showShop]);
 
   if (process.env.NODE_ENV === 'production') {
     return null;
@@ -136,6 +151,10 @@ export default function CampusSandboxPage() {
 
       {/* Demo quest objective HUD (same as /world/campus) */}
       <QuestTracker />
+
+      {/* Demo economy: XP chip + campus shop (sandbox-local, no backend) */}
+      <DemoXpChip />
+      {showShop && <DemoShop onClose={() => setShowShop(false)} />}
 
       {/* Buildings-visited checklist (same as /world/campus) */}
       <ExplorationTracker />

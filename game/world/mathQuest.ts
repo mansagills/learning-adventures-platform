@@ -25,6 +25,7 @@ export type QuestStage = 'available' | 'gather' | 'return' | 'play' | 'complete'
 export const QUEST_NPC_ID = 'npc_professor_numbers';
 export const QUEST_GAME_ID = 'math-race-rally';
 export const QUEST_PASS_SCORE = 80; // 8/10 questions × 10 pts = 80%
+export const QUEST_XP_REWARD = 100;
 
 /** Power-cell spawn points — all on the guaranteed-walkable path bands. */
 export const QUEST_ITEM_POSITIONS: { x: number; y: number }[] = [
@@ -145,6 +146,8 @@ class MathQuest {
     if (this.lastScore >= QUEST_PASS_SCORE) {
       this.stage = 'complete';
       this.emit();
+      // Pages award per their economy (sandbox: demoEconomy; campus: API)
+      EventBus.emit('quest-completed', { questId: 'math-race-license', xp: QUEST_XP_REWARD });
       return true;
     }
     this.emit();

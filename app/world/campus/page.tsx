@@ -143,6 +143,25 @@ export default function CampusWorldPage() {
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
       setCurrentAdventure(data);
     };
+    // Quest completion bonus (on top of the per-game reward)
+    const handleQuestCompleted = async (data: { xp: number }) => {
+      setNotification(`🏁 Quest complete! +${data.xp} XP`);
+      setTimeout(() => setNotification(null), 3000);
+      try {
+        const res = await fetch('/api/world/award', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ xp: data.xp, coins: 0 }),
+        });
+        const result = await res.json();
+        if (result.level) {
+          setXp(result.level.totalXP);
+          setUserLevel(result.level.currentLevel);
+        }
+      } catch (err) {
+        console.error('Failed to save quest reward:', err);
+      }
+    };
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
     const handleConversation = (data: NpcConversationState) => setConversation(data);
@@ -157,6 +176,7 @@ export default function CampusWorldPage() {
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
+    EventBus.on('quest-completed', handleQuestCompleted);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('npc-conversation', handleConversation);
@@ -166,6 +186,7 @@ export default function CampusWorldPage() {
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
+      EventBus.off('quest-completed', handleQuestCompleted);
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('npc-conversation', handleConversation);
