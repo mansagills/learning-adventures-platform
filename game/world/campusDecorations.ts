@@ -70,6 +70,12 @@ const PROP_FILES: Record<string, string> = {
   'prop-potted-plant-2': 'potted-plant-2.png',
   'prop-display-pedestal-1': 'display-pedestal-1.png',
   'prop-display-pedestal-2': 'display-pedestal-2.png',
+  // basketball court (southwest yard)
+  'prop-basketball-court': 'basketball-court.png',
+  'prop-stands': 'stands.png',
+  'prop-stadium-light': 'stadium-light.png',
+  'prop-basketball-1': 'basketball-1.png',
+  'prop-basketball-2': 'basketball-2.png',
   // ambient density (outdoor sidewalk details)
   'prop-manhole-1': 'manhole-1.png',
   'prop-manhole-2': 'manhole-2.png',
@@ -177,7 +183,16 @@ const PLACEMENTS: Placement[] = [
   // (fountain + school flag are animated — see ANIMATED_PLACEMENTS)
   { key: 'prop-clock-tower', col: 23, row: 34.2, solid: true },
   { key: 'prop-drinking-fountain', col: 58, row: 34.6, solid: true },
-  { key: 'prop-basketball-net', col: 26, row: 43, solid: true },
+
+  // ── Basketball court (southwest yard, court art includes both hoops) ──────
+  // Court_7 is 13×16 tiles; flat decal centered at (24, 49) → rows 41-57.
+  { key: 'prop-basketball-court', col: 24, row: 49, flat: true },
+  { key: 'prop-stands', col: 14.5, row: 46.5, solid: true },
+  { key: 'prop-stands', col: 14.5, row: 51.5, solid: true },
+  { key: 'prop-stadium-light', col: 16.5, row: 42, solid: true },
+  { key: 'prop-stadium-light', col: 31.5, row: 42, solid: true },
+  { key: 'prop-basketball-1', col: 22, row: 47, flat: true },
+  { key: 'prop-basketball-2', col: 26.5, row: 51.5, flat: true },
 
   // Trees lining the horizontal path (base row 34.3 north / 39 south)
   { key: 'prop-tree-1', col: 26, row: 34.3, solid: true },
