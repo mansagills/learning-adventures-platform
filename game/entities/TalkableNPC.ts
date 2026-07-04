@@ -191,6 +191,10 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
       duration: (dist / speed) * 1000,
       ease: 'Linear',
       onComplete: () => {
+        // Tween is finished/removed from the manager — drop the reference so
+        // pauseWandering() never tries to pause a dead tween (Phaser throws
+        // "Cannot read properties of null (reading 'onPause')" if it does).
+        this.wanderTween = undefined;
         this.playAnim('idle');
         const pause = wp.pauseMs ?? 1800 + Math.random() * 2000;
         if (wp.emote) {
@@ -272,7 +276,13 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   }
 
   private pauseWandering(): void {
-    this.wanderTween?.pause();
+    // Defense in depth: only pause a tween Phaser still considers active.
+    // A finished/removed tween throws on .pause() (its internal event data
+    // is torn down), and the onComplete handler above should already clear
+    // the reference — this guard covers any other stale-reference path.
+    if (this.wanderTween?.isPlaying()) {
+      this.wanderTween.pause();
+    }
     this.wanderTimer?.remove();
     this.wanderTimer = undefined;
   }
