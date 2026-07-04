@@ -76,6 +76,42 @@ interface Placement {
   raise?: boolean;
 }
 
+/** Looping animated props (spritesheets from the packs' Animated folders). */
+interface AnimatedProp {
+  key: string;
+  file: string;
+  frameWidth: number;
+  frameHeight: number;
+  frameRate: number;
+}
+
+const ANIMATED_PROPS: AnimatedProp[] = [
+  { key: 'anim-fountain',       file: 'anim-fountain.png',       frameWidth: 144, frameHeight: 144, frameRate: 6 },
+  { key: 'anim-school-flag',    file: 'anim-school-flag.png',    frameWidth: 144, frameHeight: 432, frameRate: 8 },
+  { key: 'anim-butterfly-1',    file: 'anim-butterfly-1.png',    frameWidth: 48,  frameHeight: 48,  frameRate: 8 },
+  { key: 'anim-butterfly-2',    file: 'anim-butterfly-2.png',    frameWidth: 48,  frameHeight: 48,  frameRate: 8 },
+  { key: 'anim-control-screens',file: 'anim-control-screens.png',frameWidth: 192, frameHeight: 144, frameRate: 6 },
+  { key: 'anim-pendulum-clock', file: 'anim-pendulum-clock.png', frameWidth: 48,  frameHeight: 144, frameRate: 4 },
+  { key: 'anim-canteen-fridge', file: 'anim-canteen-fridge.png', frameWidth: 96,  frameHeight: 144, frameRate: 8 },
+];
+
+const ANIMATED_PLACEMENTS: Placement[] = [
+  // Plaza fountain + school flag (replace the static versions)
+  { key: 'anim-fountain', col: 54.5, row: 33.5, solid: true },
+  { key: 'anim-school-flag', col: 52, row: 34.3, solid: true },
+  // Butterflies fluttering by the flower beds and benches
+  { key: 'anim-butterfly-1', col: 45.6, row: 34.1, raise: true },
+  { key: 'anim-butterfly-2', col: 50.4, row: 37.4, raise: true },
+  { key: 'anim-butterfly-1', col: 33.4, row: 37.7, raise: true },
+  { key: 'anim-butterfly-2', col: 58.4, row: 34.0, raise: true },
+  // Discovery Lab: wall of live monitoring screens behind the robot
+  { key: 'anim-control-screens', col: 40, row: 6.2, solid: true },
+  // Story Grove: ticking grandfather clock between the station and shelves
+  { key: 'anim-pendulum-clock', col: 78.5, row: 27.4, solid: true },
+  // Commons: humming display fridge full of cake (replaces static fridge)
+  { key: 'anim-canteen-fridge', col: 60.2, row: 55.5, solid: true },
+];
+
 const PLACEMENTS: Placement[] = [
   // ── Math Hall (classroom): interior cols 5-19, rows 26-33 ─────────────────
   { key: 'prop-chalkboard', col: 12.5, row: 27.6, solid: true },
@@ -90,8 +126,8 @@ const PLACEMENTS: Placement[] = [
   { key: 'prop-globe', col: 18.5, row: 29.5, solid: true },
 
   // ── Discovery Lab (science): interior cols 35-44, rows 5-14 ───────────────
-  { key: 'prop-specimen-shelf', col: 38, row: 5.9 },
-  { key: 'prop-specimen-shelf', col: 42, row: 5.9 },
+  // (north wall center is taken by the animated control-screen wall)
+  { key: 'prop-specimen-shelf', col: 37, row: 5.9 },
   { key: 'prop-lab-robot', col: 40, row: 7.2, solid: true },
   { key: 'prop-lab-desk-1', col: 38.5, row: 9, solid: true },
   { key: 'prop-lab-desk-2', col: 41.5, row: 9, solid: true },
@@ -111,7 +147,7 @@ const PLACEMENTS: Placement[] = [
   // ── The Commons (cafeteria): interior cols 51-61, rows 53-62 ──────────────
   { key: 'prop-vending-1', col: 51.8, row: 56.5, solid: true },
   { key: 'prop-vending-2', col: 51.8, row: 58, solid: true },
-  { key: 'prop-snack-fridge', col: 60.2, row: 55.5, solid: true },
+  // (east wall fridge is the animated canteen fridge)
   { key: 'prop-cafe-table', col: 55, row: 57.5, solid: true },
   { key: 'prop-food-tray', col: 55, row: 57.2, raise: true },
   { key: 'prop-cafe-table', col: 58.5, row: 58.5, solid: true },
@@ -122,9 +158,8 @@ const PLACEMENTS: Placement[] = [
   { key: 'prop-stool', col: 59.5, row: 59 },
 
   // ── Outdoors: landmarks near the central crossing ──────────────────────────
+  // (fountain + school flag are animated — see ANIMATED_PLACEMENTS)
   { key: 'prop-clock-tower', col: 23, row: 34.2, solid: true },
-  { key: 'prop-school-flag', col: 52, row: 34.3, solid: true },
-  { key: 'prop-fountain', col: 54.5, row: 33.5, solid: true },
   { key: 'prop-drinking-fountain', col: 58, row: 34.6, solid: true },
   { key: 'prop-basketball-net', col: 26, row: 43, solid: true },
 
@@ -167,10 +202,16 @@ const PLACEMENTS: Placement[] = [
   { key: 'prop-flower-bush-1', col: 50.5, row: 37.9 },
 ];
 
-/** Queue every prop image. Call from the scene's preload(). */
+/** Queue every prop image + animated spritesheet. Call from preload(). */
 export function preloadCampusProps(scene: Phaser.Scene): void {
   Object.entries(PROP_FILES).forEach(([key, file]) => {
     scene.load.image(key, `/game-assets/modern/props/${file}`);
+  });
+  ANIMATED_PROPS.forEach((a) => {
+    scene.load.spritesheet(a.key, `/game-assets/modern/props/${a.file}`, {
+      frameWidth: a.frameWidth,
+      frameHeight: a.frameHeight,
+    });
   });
 }
 
@@ -193,6 +234,37 @@ export function placeCampusProps(
 
     if (p.solid && player) {
       // Invisible blocker on the prop's base tile (same trick as stations)
+      const body = scene.physics.add.staticImage(x, y - T / 2, 'wall-tile');
+      body.setVisible(false).setDisplaySize(48, 40).refreshBody();
+      scene.physics.add.collider(player, body);
+    }
+  });
+
+  // Animated props: register a looping animation per sheet, then place
+  ANIMATED_PROPS.forEach((a) => {
+    if (!scene.textures.exists(a.key) || scene.anims.exists(`${a.key}-loop`)) {
+      return;
+    }
+    scene.anims.create({
+      key: `${a.key}-loop`,
+      frames: scene.anims.generateFrameNumbers(a.key),
+      frameRate: a.frameRate,
+      repeat: -1,
+    });
+  });
+  ANIMATED_PLACEMENTS.forEach((p) => {
+    if (!scene.textures.exists(p.key)) return;
+    const x = p.col * T;
+    const y = p.row * T;
+    const sprite = scene.add.sprite(x, y, p.key);
+    sprite.setOrigin(0.5, 1);
+    sprite.setScale(SCALE);
+    sprite.setDepth(p.raise ? 7 : 5);
+    if (scene.anims.exists(`${p.key}-loop`)) {
+      sprite.anims.play(`${p.key}-loop`);
+    }
+
+    if (p.solid && player) {
       const body = scene.physics.add.staticImage(x, y - T / 2, 'wall-tile');
       body.setVisible(false).setDisplaySize(48, 40).refreshBody();
       scene.physics.add.collider(player, body);
