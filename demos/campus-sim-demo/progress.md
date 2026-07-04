@@ -8,6 +8,7 @@ Original prompt: Create a standalone demo folder in main so the campus demo can 
 - Added a zero-dependency local static server and smoke test.
 - Copied original Learning Adventures sprite sheets and tilemap PNGs into `assets/`.
 - Replaced rectangle placeholder rendering with original character sprites, campus tiles, and props.
+- Fixed standalone sprite anchoring so characters stand on the ground plane and face their walking direction.
 
 ## Notes
 

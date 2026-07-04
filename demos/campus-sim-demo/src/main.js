@@ -388,16 +388,16 @@
 
     ctx.save();
     ctx.fillStyle = 'rgba(0,0,0,0.28)';
-    ctx.fillRect(x - 18, y + 16, 36, 8);
+    ctx.fillRect(x - 18, y + 24, 36, 8);
 
     if (image && image.complete && image.naturalWidth > 0) {
-      const flip = entity.facing === 'right';
+      const flip = entity.facing === 'left';
       ctx.translate(x, y);
       if (flip) ctx.scale(-1, 1);
-      ctx.drawImage(image, col * 96, row * 96, 96, 96, -32, -54, 64, 64);
+      ctx.drawImage(image, col * 96, row * 96, 96, 96, -32, -32, 64, 64);
     } else {
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(x - 12, y - 30, 24, 42);
+      ctx.fillRect(x - 12, y - 24, 24, 42);
     }
     ctx.restore();
 
@@ -407,8 +407,8 @@
     ctx.lineWidth = 3;
     ctx.strokeStyle = 'rgba(5,8,16,0.86)';
     ctx.fillStyle = '#f8fbff';
-    ctx.strokeText(label, x, y - 58);
-    ctx.fillText(label, x, y - 58);
+    ctx.strokeText(label, x, y - 40);
+    ctx.fillText(label, x, y - 40);
     ctx.restore();
   }
 
