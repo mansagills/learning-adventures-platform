@@ -16,6 +16,7 @@ import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
+import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -76,6 +77,7 @@ export class GatherCampusScene extends OpenWorldScene {
       preloadRccSheets(this);
     } else if (CAMPUS_ART === 'modern') {
       preloadModernTiles(this);
+      preloadCampusProps(this);
     }
   }
 
@@ -91,6 +93,11 @@ export class GatherCampusScene extends OpenWorldScene {
     }
 
     super.create();
+
+    // Furniture + outdoor props (needs the player for solid-prop colliders)
+    if (CAMPUS_ART === 'modern') {
+      placeCampusProps(this, this.player);
+    }
 
     // Building signs over the open rooms
     getGatherRoomLabels().forEach((label) => {
