@@ -39,6 +39,9 @@ const checks = [
   ['deterministic time hook', js.includes('advanceTime')],
   ['original sprite sheets', js.includes('./assets/sprites/human-1.png')],
   ['original tilemaps', js.includes('./assets/tilemaps/grass-plain-1.png')],
+  ['objective guidance', js.includes('objectiveHint') && js.includes('drawObjectiveMarker')],
+  ['ambient student chatter', js.includes('studentLine') && js.includes('drawSpeechBubble')],
+  ['race result feedback', js.includes('Math Explorer Badge')],
 ];
 
 const failed = checks.filter(([, passed]) => !passed);

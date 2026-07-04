@@ -150,6 +150,12 @@ h1 {
   line-height: 1.5;
 }
 
+.hud__hint {
+  margin-bottom: 0;
+  color: #f8fbff;
+  font-weight: 800;
+}
+
 dl {
   display: grid;
   gap: 0.75rem;

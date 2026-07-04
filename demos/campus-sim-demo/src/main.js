@@ -73,12 +73,12 @@
     sprite: 'human-1',
   };
   const students = [
-    { name: 'Maya', x: 1260, y: 520, sprite: 'human-2', route: [[1260, 520], [1450, 560], [1420, 750]], facing: 'down' },
-    { name: 'Theo', x: 410, y: 850, sprite: 'robot-blue', route: [[410, 850], [610, 900], [660, 760]], facing: 'down' },
-    { name: 'Ari', x: 1040, y: 930, sprite: 'cat-orange', route: [[1040, 930], [1210, 880], [1180, 1030]], facing: 'down' },
-    { name: 'June', x: 530, y: 420, sprite: 'human-1', route: [[530, 420], [650, 500], [500, 620]], facing: 'down' },
-    { name: 'Sol', x: 1510, y: 920, sprite: 'wizard-purple', route: [[1510, 920], [1600, 720], [1390, 720]], facing: 'down' },
-    { name: 'Nia', x: 870, y: 1040, sprite: 'knight-silver', route: [[870, 1040], [760, 940], [930, 900]], facing: 'down' },
+    { name: 'Maya', x: 1260, y: 520, sprite: 'human-2', route: [[1260, 520], [1450, 560], [1420, 750]], facing: 'down', lines: ['Meet Mrs. Numbers first.', 'Rally parts are scattered.', 'Math Race is tough.'] },
+    { name: 'Theo', x: 410, y: 850, sprite: 'robot-blue', route: [[410, 850], [610, 900], [660, 760]], facing: 'down', lines: ['I saw a part near Math Hall.', 'Use E when you are close.', 'Campus routes are open.'] },
+    { name: 'Ari', x: 1040, y: 930, sprite: 'cat-orange', route: [[1040, 930], [1210, 880], [1180, 1030]], facing: 'down', lines: ['Race practice starts soon.', 'Score 80% for the badge.', 'You have got this.'] },
+    { name: 'June', x: 530, y: 420, sprite: 'human-1', route: [[530, 420], [650, 500], [500, 620]], facing: 'down', lines: ['Mrs. Numbers is in Math Hall.', 'Look for the yellow pings.', 'Bring all three parts back.'] },
+    { name: 'Sol', x: 1510, y: 920, sprite: 'wizard-purple', route: [[1510, 920], [1600, 720], [1390, 720]], facing: 'down', lines: ['The plaza feels busy today.', 'Study group after the rally.', 'Watch the objective marker.'] },
+    { name: 'Nia', x: 870, y: 1040, sprite: 'knight-silver', route: [[870, 1040], [760, 940], [930, 900]], facing: 'down', lines: ['Badge run in progress.', 'Collect, return, race.', 'Nice pace.'] },
   ];
 
   const quest = {
@@ -98,6 +98,8 @@
 
   let camera = { x: 0, y: 0 };
   let toastTimer = 0;
+  let campusCheer = '';
+  let campusCheerTimer = 0;
   let lastTime = performance.now();
 
   function distance(a, b) {
@@ -120,11 +122,30 @@
     return stages[quest.stage];
   }
 
+  function objectiveTarget() {
+    if (quest.stage === 0 || quest.stage === 2 || quest.complete) return npc;
+    if (quest.stage === 1) {
+      return items.find((item) => !quest.collected.includes(item.id)) || npc;
+    }
+    if (quest.stage === 3 || quest.stage === 4) return arcade;
+    return npc;
+  }
+
+  function objectiveHint() {
+    if (quest.stage === 0) return 'Head to the yellow marker over Mrs. Numbers, then press E.';
+    if (quest.stage === 1) return `Follow the marker to rally parts. ${quest.collected.length}/${items.length} collected.`;
+    if (quest.stage === 2) return 'Return to Mrs. Numbers to unlock the rally arcade.';
+    if (quest.stage === 3) return 'Walk to Math Race Rally and press E to start.';
+    if (quest.stage === 4) return 'Answer 8 of 10 questions correctly to finish the quest.';
+    return 'Badge earned. Talk to Mrs. Numbers for the celebration beat.';
+  }
+
   function updateHud() {
     hud.innerHTML = `
       <p class="hud__label">First Quest - Step ${quest.stage + 1} of ${stages.length}</p>
       <h2>${stages[quest.stage]}</h2>
       <p>${stageText()}</p>
+      <p class="hud__hint">${objectiveHint()}</p>
       <div class="steps">${stages
         .map((_, index) => `<span class="step ${index <= quest.stage ? 'active' : ''}"></span>`)
         .join('')}</div>
@@ -148,6 +169,8 @@
         'I need three rally parts before Math Race Rally can start. Find the Number Battery, Fraction Fuel Cell, and Turbo Token.',
       );
       showToast('Quest accepted: collect three rally parts.');
+      campusCheer = 'New quest! Help them find the parts.';
+      campusCheerTimer = 5;
       return;
     }
     if (quest.stage === 2) {
@@ -158,6 +181,8 @@
         'Excellent work. Math Race Rally is unlocked. Score 80% or better to earn the Math Explorer badge.',
       );
       showToast('Math Race Rally unlocked.');
+      campusCheer = 'Rally unlocked! Head to the arcade.';
+      campusCheerTimer = 5;
       return;
     }
     if (quest.complete) {
@@ -171,9 +196,13 @@
     if (quest.stage !== 1 || quest.collected.includes(item.id)) return;
     quest.collected.push(item.id);
     showToast(`Collected ${item.label}.`);
+    campusCheer = `${item.label} secured!`;
+    campusCheerTimer = 4;
     if (quest.collected.length === items.length) {
       quest.stage = 2;
       showToast('All rally parts found. Return to Mrs. Numbers.');
+      campusCheer = 'All parts collected. Back to Mrs. Numbers!';
+      campusCheerTimer = 5;
     }
   }
 
@@ -232,9 +261,15 @@
         quest.stage = 5;
         quest.complete = true;
         showToast(`Quest complete. Math Race score: ${score}%.`);
+        campusCheer = 'Badge earned! Great rally run!';
+        campusCheerTimer = 7;
+        openDialog('Math Explorer Badge', `Score ${score}%. Quest complete. The campus is cheering for your win.`);
       } else {
         quest.stage = 4;
         showToast(`Score ${score}%. Try Math Race Rally again.`);
+        campusCheer = 'Close one. Try the rally again.';
+        campusCheerTimer = 5;
+        openDialog('Math Race Rally', `Score ${score}%. You need 80% or better, so run the race again when you are ready.`);
       }
       return;
     }
@@ -297,6 +332,10 @@
     if (toastTimer > 0) {
       toastTimer -= dt;
       if (toastTimer <= 0) toast.classList.remove('visible');
+    }
+    if (campusCheerTimer > 0) {
+      campusCheerTimer -= dt;
+      if (campusCheerTimer <= 0) campusCheer = '';
     }
   }
 
@@ -377,6 +416,75 @@
     ctx.restore();
   }
 
+  function drawSpeechBubble(entity, text) {
+    const x = Math.round(entity.x - camera.x);
+    const y = Math.round(entity.y - camera.y - 70);
+    const width = Math.min(210, Math.max(96, text.length * 7 + 24));
+    const height = 30;
+
+    ctx.save();
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(5, 13, 24, 0.88)';
+    ctx.strokeStyle = 'rgba(84, 247, 167, 0.78)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x - width / 2, y - height, width, height, 7);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#f8fbff';
+    ctx.fillText(text, x, y - 11);
+    ctx.restore();
+  }
+
+  function studentLine(student, index) {
+    if (campusCheer && index % 2 === 0 && distance(player, student) < 520) return campusCheer;
+    if (distance(player, student) > 240) return '';
+    const slot = Math.floor((performance.now() / 3600 + index) % student.lines.length);
+    const windowOpen = Math.floor(performance.now() / 1800 + index) % 4 === 0;
+    return windowOpen ? student.lines[slot] : '';
+  }
+
+  function drawObjectiveMarker() {
+    const target = objectiveTarget();
+    const targetX = Math.round(target.x - camera.x);
+    const targetY = Math.round(target.y - camera.y);
+    const pulse = Math.sin(performance.now() / 190) * 4;
+    const onScreen = targetX > 28 && targetX < canvas.width - 28 && targetY > 42 && targetY < canvas.height - 28;
+
+    ctx.save();
+    ctx.strokeStyle = '#ffd166';
+    ctx.fillStyle = '#ffd166';
+    ctx.lineWidth = 3;
+
+    if (onScreen) {
+      ctx.beginPath();
+      ctx.arc(targetX, targetY + 4, 34 + pulse, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(targetX, targetY - 56 + pulse);
+      ctx.lineTo(targetX - 10, targetY - 38 + pulse);
+      ctx.lineTo(targetX + 10, targetY - 38 + pulse);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      const dx = target.x - player.x;
+      const dy = target.y - player.y;
+      const angle = Math.atan2(dy, dx);
+      const edgeX = Math.max(34, Math.min(canvas.width - 34, canvas.width / 2 + Math.cos(angle) * (canvas.width / 2 - 42)));
+      const edgeY = Math.max(44, Math.min(canvas.height - 44, canvas.height / 2 + Math.sin(angle) * (canvas.height / 2 - 52)));
+      ctx.translate(edgeX, edgeY);
+      ctx.rotate(angle + Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(0, -18);
+      ctx.lineTo(-12, 10);
+      ctx.lineTo(12, 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function drawSprite(entity, label) {
     const image = assets[entity.sprite];
     const x = Math.round(entity.x - camera.x);
@@ -445,7 +553,13 @@
       if (!quest.collected.includes(item.id)) drawQuestItem(item);
     });
 
-    students.forEach((student) => drawSprite(student, student.name));
+    drawObjectiveMarker();
+
+    students.forEach((student, index) => {
+      drawSprite(student, student.name);
+      const line = studentLine(student, index);
+      if (line) drawSpeechBubble(student, line);
+    });
     drawSprite(npc, npc.name);
     drawSprite(player, 'You');
   }
@@ -486,6 +600,8 @@
       coordinateSystem: 'origin top-left, x right, y down',
       player: { x: Math.round(player.x), y: Math.round(player.y), sprite: player.sprite },
       quest,
+      objective: { hint: objectiveHint(), target: objectiveTarget().id || objectiveTarget().label || objectiveTarget().name },
+      campusCheer,
       assets: {
         sprites: students.map((student) => student.sprite).concat([player.sprite, npc.sprite]),
         tilemapsLoaded: Object.keys(assetManifest).filter((key) => imageReady(key)),

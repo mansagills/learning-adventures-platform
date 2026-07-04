@@ -9,14 +9,16 @@ Original prompt: Create a standalone demo folder in main so the campus demo can 
 - Copied original Learning Adventures sprite sheets and tilemap PNGs into `assets/`.
 - Replaced rectangle placeholder rendering with original character sprites, campus tiles, and props.
 - Fixed standalone sprite anchoring so characters stand on the ground plane and face their walking direction.
+- Added first-two-minutes polish: objective markers, clearer HUD guidance, ambient student chatter, and stronger Math Race result feedback.
 
 ## Notes
 
 - The demo intentionally avoids app auth, Next.js routing, database calls, sockets, and external asset downloads.
 - Current visuals use the original repo sprite sheets and tile textures, rendered directly on canvas.
+- Stakeholder build is deployed through Vercel with `demos/campus-sim-demo` as the project root.
 
 ## TODO
 
 - Tune campus layout scale/positioning to more closely match the integrated Phaser campus.
-- Add richer simulated student chatter and quest celebration animations.
+- Tune simulated student chatter density and add more quest celebration animation polish.
 - Add a browser automation test that drives the full quest loop.
