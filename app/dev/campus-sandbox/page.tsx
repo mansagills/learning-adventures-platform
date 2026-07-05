@@ -18,6 +18,8 @@ import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
+import { RestartDemoButton } from '@/components/world/RestartDemoButton';
+import { resetDemo } from '@/game/world/demoReset';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -103,6 +105,7 @@ export default function CampusSandboxPage() {
       audio: campusAudio,
       hasSeenWelcome,
       resetWelcome: () => { resetWelcomeSeen(); setShowWelcome(true); },
+      resetDemo,
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -179,6 +182,9 @@ export default function CampusSandboxPage() {
 
       {/* Buildings-visited checklist (same as /world/campus) */}
       <ExplorationTracker />
+
+      {/* Sandbox-only: wipe XP/inventory/exploration/welcome and reload */}
+      <RestartDemoButton />
 
       {notice && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">

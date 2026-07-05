@@ -93,6 +93,20 @@ class ExplorationState {
   announce(): void {
     EventBus.emit('exploration-updated', this.snapshot());
   }
+
+  /** Wipe visited rooms (the "Restart Demo" control). */
+  reset(): void {
+    this.visited.clear();
+    this.loaded = true;
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // ignore
+      }
+    }
+    EventBus.emit('exploration-updated', this.snapshot());
+  }
 }
 
 /** Module singleton — backed by localStorage, shared across scenes/pages. */

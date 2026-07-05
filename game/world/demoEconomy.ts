@@ -102,6 +102,22 @@ class DemoEconomy {
   announce(): void {
     EventBus.emit('demo-economy-updated', this.snapshot());
   }
+
+  /** Wipe XP + inventory (the "Restart Demo" control). */
+  reset(): void {
+    this.xp = 0;
+    this.owned.clear();
+    this.loaded = true;
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.removeItem(XP_KEY);
+        window.localStorage.removeItem(INVENTORY_KEY);
+      } catch {
+        // ignore
+      }
+    }
+    EventBus.emit('demo-economy-updated', this.snapshot());
+  }
 }
 
 /** Module singleton — localStorage-backed, demo sandbox only. */
