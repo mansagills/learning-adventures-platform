@@ -11,12 +11,14 @@ Original prompt: Create a standalone demo folder in main so the campus demo can 
 - Fixed standalone sprite anchoring so characters stand on the ground plane and face their walking direction.
 - Added first-two-minutes polish: objective markers, clearer HUD guidance, ambient student chatter, and stronger Math Race result feedback.
 - Added post-quest progression loop: completing Math Race awards 100 XP, then players can spend XP at the Campus Store.
+- Integrated selected modern LimeZu exterior/interior sheets for the campus grounds, buildings, plaza, and study commons visuals.
 
 ## Notes
 
 - The demo intentionally avoids app auth, Next.js routing, database calls, sockets, and external asset downloads.
-- Current visuals use the original repo sprite sheets and tile textures, rendered directly on canvas.
+- Current visuals use original repo character sprites plus selected modern campus environment sheets, rendered directly on canvas.
 - Stakeholder build is deployed through Vercel with `demos/campus-sim-demo` as the project root.
+- Modern campus tiles are credited in `ASSET_CREDITS.md`; the demo includes selected sheets only, not full source asset packs.
 
 ## TODO
 

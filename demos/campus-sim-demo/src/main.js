@@ -34,6 +34,24 @@
     brickWall: './assets/tilemaps/brick-wall-1.png',
     arcade: './assets/tilemaps/arcade-cabinet.png',
     desk: './assets/tilemaps/desk-computer.png',
+    modernSchool: './assets/modern/school-32.png',
+    modernOffice: './assets/modern/office-32.png',
+    modernTerrain: './assets/modern/terrain-32.png',
+    modernCity: './assets/modern/city-terrain-32.png',
+    modernRoom: './assets/modern/room-builder-32.png',
+  };
+
+  const modernTiles = {
+    grass1: { key: 'modernTerrain', sx: 128, sy: 256 },
+    grass2: { key: 'modernTerrain', sx: 128, sy: 384 },
+    grass3: { key: 'modernTerrain', sx: 128, sy: 448 },
+    flowers1: { key: 'modernTerrain', sx: 960, sy: 64 },
+    flowers2: { key: 'modernTerrain', sx: 896, sy: 64 },
+    path: { key: 'modernCity', sx: 256, sy: 0 },
+    plaza: { key: 'modernCity', sx: 0, sy: 256 },
+    dirt: { key: 'modernTerrain', sx: 896, sy: 320 },
+    water: { key: 'modernTerrain', sx: 768, sy: 192 },
+    interiorFloor: { key: 'modernRoom', sx: 1024, sy: 640 },
   };
 
   Object.entries(assetManifest).forEach(([key, src]) => {
@@ -444,6 +462,27 @@
     ctx.drawImage(assets[key], Math.round(x - camera.x), Math.round(y - camera.y), w, h);
   }
 
+  function drawSheetRegion(key, sx, sy, sw, sh, x, y, w, h, fallback = '#20344b') {
+    if (!imageReady(key)) {
+      drawFallbackRect(x, y, w, h, fallback);
+      return;
+    }
+    ctx.drawImage(assets[key], sx, sy, sw, sh, Math.round(x - camera.x), Math.round(y - camera.y), w, h);
+  }
+
+  function drawSheetTile(tile, x, y) {
+    const sourceSize = tile.sourceSize || TILE_SIZE;
+    drawSheetRegion(tile.key, tile.sx, tile.sy, sourceSize, sourceSize, x, y, TILE_SIZE, TILE_SIZE);
+  }
+
+  function drawTiledSheetRect(tile, x, y, w, h) {
+    for (let tileX = x; tileX < x + w; tileX += TILE_SIZE) {
+      for (let tileY = y; tileY < y + h; tileY += TILE_SIZE) {
+        drawSheetTile(tile, tileX, tileY);
+      }
+    }
+  }
+
   function drawTiledRect(key, x, y, w, h) {
     for (let tileX = x; tileX < x + w; tileX += TILE_SIZE) {
       for (let tileY = y; tileY < y + h; tileY += TILE_SIZE) {
@@ -462,14 +501,14 @@
       for (let col = startCol; col <= endCol; col += 1) {
         const worldX = col * TILE_SIZE;
         const worldY = row * TILE_SIZE;
-        let key = 'grass1';
-        if ((col + row) % 11 === 0) key = 'flowers1';
-        else if ((col * row) % 13 === 0) key = 'flowers2';
-        else if ((col + row) % 5 === 0) key = 'grass2';
-        else if ((col + row) % 7 === 0) key = 'grass3';
-        if (col >= 7 && col <= 8) key = 'path';
-        if (row >= 8 && row <= 9) key = 'path';
-        drawImage(key, worldX, worldY);
+        let tile = modernTiles.grass1;
+        if ((col + row) % 11 === 0) tile = modernTiles.flowers1;
+        else if ((col * row) % 13 === 0) tile = modernTiles.flowers2;
+        else if ((col + row) % 5 === 0) tile = modernTiles.grass2;
+        else if ((col + row) % 7 === 0) tile = modernTiles.grass3;
+        if (col >= 7 && col <= 8) tile = modernTiles.path;
+        if (row >= 8 && row <= 9) tile = modernTiles.path;
+        drawSheetTile(tile, worldX, worldY);
       }
     }
   }
@@ -523,6 +562,15 @@
     ctx.textAlign = 'center';
     ctx.fillText('XP', Math.round(store.x - camera.x), Math.round(store.y - 32 - camera.y));
     ctx.restore();
+  }
+
+  function drawModernBuilding(key, sx, sy, sw, sh, x, y, w, h, label, labelX, labelY) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(4, 10, 18, 0.24)';
+    ctx.fillRect(Math.round(x - camera.x + 14), Math.round(y - camera.y + h - 24), w - 28, 24);
+    ctx.restore();
+    drawSheetRegion(key, sx, sy, sw, sh, x, y, w, h, '#172232');
+    drawLabel(label, labelX, labelY, 'center');
   }
 
   function drawEquippedReward() {
@@ -647,22 +695,16 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawWorldTiles();
 
-    drawTiledRect('mathWall', 360, 250, 920, 64);
-    drawTiledRect('brickWall', 360, 314, 64, 496);
-    drawTiledRect('brickWall', 1216, 314, 64, 496);
-    drawTiledRect('path', 424, 314, 792, 496);
+    drawTiledSheetRect(modernTiles.plaza, 424, 346, 792, 464);
+    drawTiledSheetRect(modernTiles.path, 390, 760, 890, 128);
+    drawTiledSheetRect(modernTiles.path, 450, 220, 128, 910);
+    drawTiledSheetRect(modernTiles.plaza, 1320, 560, 448, 384);
+    drawTiledSheetRect(modernTiles.interiorFloor, 260, 905, 650, 220);
+    drawTiledSheetRect(modernTiles.water, 120, 1040, 240, 160);
 
-    drawTiledRect('scienceWall', 1330, 530, 430, 64);
-    drawTiledRect('path', 1360, 594, 370, 326);
-
-    drawTiledRect('englishWall', 260, 890, 640, 64);
-    drawTiledRect('path', 290, 954, 580, 186);
-
-    drawTiledRect('water', 120, 1040, 240, 160);
-
-    drawLabel('MATH HALL', 420, 305);
-    drawLabel('NEXUS PLAZA', 1380, 590);
-    drawLabel('STUDY COMMONS', 320, 955);
+    drawModernBuilding('modernSchool', 0, 0, 640, 330, 555, 135, 500, 258, 'MATH HALL', 805, 382);
+    drawModernBuilding('modernOffice', 0, 0, 560, 440, 1315, 425, 370, 292, 'NEXUS PLAZA', 1500, 708);
+    drawModernBuilding('modernRoom', 0, 1024, 1024, 448, 310, 880, 470, 206, 'STUDY COMMONS', 545, 1074);
 
     drawProp('arcade', arcade.x, arcade.y, 66, arcade.label);
     if (!quest.raceUnlocked) {

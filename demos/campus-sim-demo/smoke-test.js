@@ -18,6 +18,11 @@ const requiredFiles = [
   'assets/tilemaps/math-wall-1.png',
   'assets/tilemaps/arcade-cabinet.png',
   'assets/tilemaps/desk-computer.png',
+  'assets/modern/school-32.png',
+  'assets/modern/office-32.png',
+  'assets/modern/terrain-32.png',
+  'assets/modern/city-terrain-32.png',
+  'assets/modern/room-builder-32.png',
 ];
 
 for (const file of requiredFiles) {
@@ -39,6 +44,7 @@ const checks = [
   ['deterministic time hook', js.includes('advanceTime')],
   ['original sprite sheets', js.includes('./assets/sprites/human-1.png')],
   ['original tilemaps', js.includes('./assets/tilemaps/grass-plain-1.png')],
+  ['modern campus sheets', js.includes('./assets/modern/school-32.png') && js.includes('drawModernBuilding')],
   ['objective guidance', js.includes('objectiveHint') && js.includes('drawObjectiveMarker')],
   ['ambient student chatter', js.includes('studentLine') && js.includes('drawSpeechBubble')],
   ['race result feedback', js.includes('Math Explorer Badge')],
