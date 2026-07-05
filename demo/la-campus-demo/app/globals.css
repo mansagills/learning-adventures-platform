@@ -1,0 +1,662 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ===== PLAYFUL GEOMETRIC DESIGN SYSTEM ===== */
+
+  /* Semantic colors */
+  --background: #fffdf5;
+  --foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+
+  /* Primary brand colors */
+  --brand-500: #8b5cf6;
+  --brand-600: #7c3aed;
+  --brand-100: #ecebff;
+
+  /* Accent colors */
+  --accent-500: #14b8a6;
+  --accent-600: #0d9488;
+
+  /* Playful Geometric accent palette */
+  --pg-violet: #8b5cf6;
+  --pg-pink: #f472b6;
+  --pg-yellow: #fbbf24;
+  --pg-mint: #34d399;
+  --pg-border: #1e293b;
+
+  /* Fun colors */
+  --sunshine-400: #fbbf24;
+  --sunshine-500: #f59e0b;
+  --coral-400: #fb7185;
+  --coral-500: #f43f5e;
+  --ocean-400: #60a5fa;
+  --ocean-500: #3b82f6;
+  --grass-400: #4ade80;
+  --grass-500: #22c55e;
+
+  /* Text colors */
+  --ink-900: #0f172a;
+  --ink-800: #1e293b;
+  --ink-700: #334155;
+  --ink-600: #475569;
+  --ink-400: #94a3b8;
+
+  /* Error */
+  --error-500: #ef4444;
+
+  /* ===== CAMPUS WORLD DESIGN SYSTEM ===== */
+
+  /* Global campus neutrals */
+  --campus-void: #050810;
+  --campus-ground-base: #0d1320;
+  --campus-ground-mid: #1a2540;
+  --campus-ground-light: #2a3a5c;
+  --campus-grid-line: #1e2d4a;
+  --campus-path-base: #162840;
+  --campus-outline: #ccddff;
+
+  /* Zone accent colors (neon) */
+  --zone-nexus-accent: #00ccff;
+  --zone-nexus-dim: #004466;
+  --zone-quantum-accent: #9b5cff;
+  --zone-quantum-dim: #3a1a6a;
+  --zone-science-accent: #00ffb3;
+  --zone-science-dim: #006644;
+  --zone-archive-accent: #ff4dcc;
+  --zone-archive-dim: #661a55;
+  --zone-commons-accent: #ffb300;
+  --zone-commons-dim: #664400;
+
+  /* Active HUD accent — updated dynamically via JS when zone changes */
+  --hud-accent: #00ccff;
+  --hud-accent-dim: #004466;
+
+  /* Pixel font */
+  --font-pixel: 'Press Start 2P', monospace;
+
+  /* Playful Geometric shadows */
+  --shadow-pop: 4px 4px 0px 0px #1e293b;
+  --shadow-pop-hover: 6px 6px 0px 0px #1e293b;
+  --shadow-pop-active: 2px 2px 0px 0px #1e293b;
+  --shadow-card: 8px 8px 0px 0px #e2e8f0;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-bold;
+  }
+
+  /* Focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Skip link for accessibility */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-brand-500 focus:text-white focus:rounded-md focus:no-underline;
+  }
+}
+
+@layer components {
+  /* ===== LEGACY BUTTON VARIANTS ===== */
+  .btn-primary {
+    @apply bg-brand-500 hover:bg-brand-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-250 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-brand-500 font-semibold py-3 px-6 rounded-lg border-2 border-brand-500 transition-colors duration-250 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+
+  .btn-accent {
+    @apply bg-accent-500 hover:bg-accent-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-250 focus:ring-2 focus:ring-accent-500 focus:ring-offset-2;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC BUTTONS ===== */
+
+  /* The Candy Button - Primary action */
+  .btn-candy {
+    @apply relative inline-flex items-center justify-center gap-2;
+    @apply bg-pg-violet text-white font-bold;
+    @apply py-3 px-6 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply shadow-pop;
+    @apply transition-all duration-200 ease-bounce;
+  }
+
+  .btn-candy:hover {
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: var(--shadow-pop-hover);
+  }
+
+  .btn-candy:active {
+    @apply translate-x-0.5 translate-y-0.5;
+    box-shadow: var(--shadow-pop-active);
+  }
+
+  .btn-candy:focus-visible {
+    @apply outline-none ring-2 ring-pg-violet ring-offset-2;
+  }
+
+  /* Outline Pop Button - Secondary action */
+  .btn-outline-pop {
+    @apply relative inline-flex items-center justify-center gap-2;
+    @apply bg-transparent text-foreground font-bold;
+    @apply py-3 px-6 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply transition-all duration-200 ease-bounce;
+  }
+
+  .btn-outline-pop:hover {
+    @apply bg-pg-yellow text-foreground;
+    @apply -translate-x-0.5 -translate-y-0.5;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .btn-outline-pop:active {
+    @apply translate-x-0.5 translate-y-0.5;
+    box-shadow: var(--shadow-pop-active);
+  }
+
+  .btn-outline-pop:focus-visible {
+    @apply outline-none ring-2 ring-pg-violet ring-offset-2;
+  }
+
+  /* Pink variant */
+  .btn-candy-pink {
+    @apply btn-candy bg-pg-pink;
+  }
+
+  /* Mint variant */
+  .btn-candy-mint {
+    @apply btn-candy bg-pg-mint;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC CARDS ===== */
+
+  /* Sticker Card - Main card style */
+  .card-sticker {
+    @apply relative bg-white;
+    @apply rounded-xl;
+    @apply border-2 border-pg-border;
+    @apply shadow-card-sticker;
+    @apply transition-all duration-300 ease-bounce;
+  }
+
+  .card-sticker:hover {
+    @apply -rotate-1 scale-[1.02];
+    box-shadow: 12px 12px 0px 0px #e2e8f0;
+  }
+
+  /* Featured card with pink shadow */
+  .card-sticker-featured {
+    @apply card-sticker;
+    @apply shadow-card-featured;
+  }
+
+  .card-sticker-featured:hover {
+    box-shadow: 12px 12px 0px 0px #f472b6;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC INPUTS ===== */
+
+  .input-playful {
+    @apply w-full bg-white;
+    @apply py-3 px-4;
+    @apply border-2 border-ink-300;
+    @apply rounded-lg;
+    @apply text-foreground;
+    @apply transition-all duration-200;
+  }
+
+  .input-playful:focus {
+    @apply border-pg-violet outline-none;
+    box-shadow: var(--shadow-pop);
+  }
+
+  .input-playful::placeholder {
+    @apply text-muted-foreground;
+  }
+
+  .label-playful {
+    @apply block text-xs font-bold uppercase tracking-wide text-foreground mb-2;
+  }
+
+  /* ===== CONTAINER SIZES ===== */
+  .container-sm {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-lg {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Animation utilities */
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-4 transition-all duration-500 ease-out;
+  }
+
+  .animate-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Trust badge styles */
+  .trust-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-brand-100 text-brand-600;
+  }
+
+  /* Testimonial card styles */
+  .testimonial-card {
+    @apply bg-white p-6 rounded-xl shadow-sm border border-gray-100 transition-shadow duration-250 hover:shadow-md;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC ICON CIRCLES ===== */
+
+  .icon-circle {
+    @apply inline-flex items-center justify-center;
+    @apply w-12 h-12 rounded-full;
+    @apply border-2 border-pg-border;
+  }
+
+  .icon-circle-violet {
+    @apply icon-circle bg-pg-violet text-white;
+  }
+
+  .icon-circle-pink {
+    @apply icon-circle bg-pg-pink text-white;
+  }
+
+  .icon-circle-yellow {
+    @apply icon-circle bg-pg-yellow text-foreground;
+  }
+
+  .icon-circle-mint {
+    @apply icon-circle bg-pg-mint text-white;
+  }
+
+  /* ===== DECORATIVE ELEMENTS ===== */
+
+  /* Squiggle underline */
+  .squiggle-underline {
+    @apply relative inline-block;
+  }
+
+  .squiggle-underline::after {
+    content: '';
+    @apply absolute left-0 -bottom-2 w-full h-2;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='8' viewBox='0 0 100 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4C10 4 10 1 20 1C30 1 30 7 40 7C50 7 50 1 60 1C70 1 70 7 80 7C90 7 90 4 100 4' stroke='%23FBBF24' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-size: 50px 8px;
+  }
+
+  /* ===== CAMPUS WORLD HUD COMPONENTS ===== */
+
+  /* HUD Panel — all world overlay boxes */
+  .hud-panel {
+    background: rgba(5, 8, 16, 0.85);
+    border: 1px solid var(--hud-accent);
+    border-radius: 4px;
+    color: #ccddff;
+    font-family: var(--font-pixel);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--hud-accent) 30%, transparent);
+    transition: border-color 500ms ease, box-shadow 500ms ease;
+    position: relative;
+  }
+
+  /* Scanline overlay for all HUD panels */
+  .hud-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+    border-radius: 4px;
+  }
+
+  /* Zone name banner — slides in from top on zone change */
+  .zone-banner {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    background: rgba(5, 8, 16, 0.92);
+    border: 1px solid var(--hud-accent);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 8px 20px;
+    color: var(--hud-accent);
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 20px color-mix(in srgb, var(--hud-accent) 40%, transparent);
+    white-space: nowrap;
+    transition: border-color 500ms ease, color 500ms ease, box-shadow 500ms ease;
+  }
+
+  .zone-banner.visible {
+    animation: zone-banner-slide 2.8s ease forwards;
+  }
+
+  /* Floating badge for cards */
+  .floating-badge {
+    @apply absolute -top-4 left-1/2 -translate-x-1/2;
+    @apply px-4 py-1 rounded-full;
+    @apply border-2 border-pg-border;
+    @apply font-bold text-sm;
+    @apply bg-pg-yellow text-foreground;
+    @apply shadow-pop;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text utilities */
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-500 to-accent-500 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-fun {
+    @apply bg-gradient-to-r from-brand-400 via-coral-400 to-sunshine-400 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-rainbow {
+    @apply bg-gradient-to-r from-brand-500 via-ocean-500 to-grass-500 bg-clip-text text-transparent;
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  }
+
+  /* Fun card styles */
+  .card-fun {
+    @apply bg-white rounded-3xl shadow-fun hover:shadow-fun-lg transition-all duration-300 hover:-translate-y-1;
+  }
+
+  .card-colorful {
+    @apply bg-gradient-to-br from-white to-brand-50 rounded-3xl shadow-colorful hover:shadow-fun-lg transition-all duration-300;
+  }
+
+  /* Badge styles */
+  .badge-star {
+    @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-sunshine-400 to-sunshine-500 text-white text-sm font-bold shadow-md;
+  }
+
+  .badge-trophy {
+    @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-sunshine-500 to-coral-500 text-white text-sm font-bold shadow-md;
+  }
+
+  .badge-sparkle {
+    @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-brand-400 to-brand-600 text-white text-sm font-bold shadow-md;
+  }
+
+  /* Fun backgrounds */
+  .bg-dots {
+    background-image: radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.1) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+
+  .bg-confetti {
+    background-image:
+      radial-gradient(
+        circle at 20% 80%,
+        rgba(251, 113, 133, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(139, 92, 246, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(20, 184, 166, 0.15) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 60% 90%,
+        rgba(251, 191, 36, 0.15) 0%,
+        transparent 50%
+      );
+  }
+
+  /* Decorative shapes */
+  .shape-blob {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+
+  .shape-blob-2 {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC BACKGROUNDS ===== */
+
+  /* Dot grid pattern (Playful Geometric signature) */
+  .bg-dot-grid {
+    background-image: radial-gradient(circle, #1e293b 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  .bg-dot-grid-light {
+    background-image: radial-gradient(
+      circle,
+      rgba(30, 41, 59, 0.15) 1.5px,
+      transparent 1.5px
+    );
+    background-size: 24px 24px;
+  }
+
+  /* Playful Geometric confetti shapes */
+  .pg-confetti {
+    @apply pointer-events-none;
+  }
+
+  .pg-confetti::before,
+  .pg-confetti::after {
+    content: '';
+    @apply absolute;
+  }
+
+  /* Blob mask for images */
+  .blob-mask {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+
+  /* Speech bubble radius */
+  .bubble-radius {
+    border-radius: 1.5rem 1.5rem 1.5rem 0;
+  }
+
+  /* Arch radius (top rounded, bottom flat) */
+  .arch-radius {
+    border-radius: 9999px 9999px 0 0;
+  }
+
+  /* Scrollbar utilities for preview components */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Touch-friendly interactions for mobile */
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  /* Smooth momentum scrolling for mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent layout shift during loading */
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .aspect-square {
+    aspect-ratio: 1 / 1;
+  }
+
+  /* ===== PLAYFUL GEOMETRIC ANIMATIONS ===== */
+
+  /* Marquee animation for partner logos */
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Wiggle animation for icons */
+  .animate-wiggle {
+    animation: wiggle 0.5s ease-in-out;
+  }
+
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(3deg);
+    }
+    75% {
+      transform: rotate(-3deg);
+    }
+  }
+
+  /* Pop-in animation */
+  .animate-pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop-in {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* Bounce-in animation (existing, enhanced) */
+  .animate-bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* ===== CAMPUS WORLD ANIMATIONS ===== */
+
+  /* Zone banner slide-in from top, hold, slide out */
+  @keyframes zone-banner-slide {
+    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    12% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    75% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+  }
+
+  /* Pixel canvas — ensure crisp rendering */
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
