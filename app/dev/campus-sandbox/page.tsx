@@ -16,6 +16,8 @@ import { AudioToggle } from '@/components/world/AudioToggle';
 import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
+import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
+import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -38,6 +40,13 @@ export default function CampusSandboxPage() {
   } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [showShop, setShowShop] = useState(false);
+  // Default false on the server render; the real value (localStorage) is
+  // only known client-side, set right after mount to avoid a hydration flash.
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    setShowWelcome(!hasSeenWelcome());
+  }, []);
 
   useEffect(() => {
     const handleConversation = (data: NpcConversationState) => {
@@ -92,6 +101,8 @@ export default function CampusSandboxPage() {
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       openShop: () => setShowShop(true),
       audio: campusAudio,
+      hasSeenWelcome,
+      resetWelcome: () => { resetWelcomeSeen(); setShowWelcome(true); },
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -118,10 +129,10 @@ export default function CampusSandboxPage() {
     };
   }, []);
 
-  // Freeze player movement while a modal (game embed / shop) is open
+  // Freeze player movement while a modal (game embed / shop / welcome) is open
   useEffect(() => {
-    EventBus.emit('world-pause', Boolean(currentAdventure || showShop));
-  }, [currentAdventure, showShop]);
+    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showWelcome));
+  }, [currentAdventure, showShop, showWelcome]);
 
   if (process.env.NODE_ENV === 'production') {
     return null;
@@ -180,6 +191,8 @@ export default function CampusSandboxPage() {
       <div className="absolute top-4 left-4 bg-red-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">
         DEV SANDBOX — Gather Campus (no auth)
       </div>
+
+      {showWelcome && <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />}
     </div>
   );
 }

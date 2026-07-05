@@ -19,6 +19,8 @@ import {
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
+import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
+import { hasSeenWelcome } from '@/game/world/welcomeState';
 
 /**
  * Shared neon HUD panel styling so every overlay chip matches the zone
@@ -68,6 +70,7 @@ export default function CampusWorldPage() {
   const [showShop, setShowShop] = useState(false);
   const [showJobBoard, setShowJobBoard] = useState(false);
   const [zoneBanner, setZoneBanner] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
@@ -198,11 +201,12 @@ export default function CampusWorldPage() {
 
   // Freeze player movement while a modal (game embed / shop / quests) is open
   useEffect(() => {
-    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showJobBoard));
-  }, [currentAdventure, showShop, showJobBoard]);
+    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showJobBoard || showWelcome));
+  }, [currentAdventure, showShop, showJobBoard, showWelcome]);
 
   const handleSceneReady = (_scene: string) => {
     setGameReady(true);
+    setShowWelcome(!hasSeenWelcome());
     if (characterDataRef.current?.avatarId) {
       EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
     }
@@ -316,6 +320,11 @@ export default function CampusWorldPage() {
 
       {/* NPC conversation panel */}
       {conversation && <ConversationPanel conversation={conversation} />}
+
+      {/* First-time welcome card — also the audio-unlock gesture */}
+      {gameReady && showWelcome && (
+        <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />
+      )}
 
       {/* Zone banner — shown when crossing into a new campus zone */}
       {zoneBanner && (
