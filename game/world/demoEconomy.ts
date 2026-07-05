@@ -7,6 +7,7 @@
 // /world/campus page does NOT use this — it awards through /api/world/award.
 
 import { EventBus } from '@/components/phaser/EventBus';
+import { playXpChime, playPurchase } from './campusAudio';
 
 export interface DemoShopItem {
   id: string;
@@ -80,6 +81,7 @@ class DemoEconomy {
     this.load();
     this.xp += amount;
     this.save();
+    playXpChime();
     EventBus.emit('demo-economy-updated', this.snapshot({ gained: { amount, reason } }));
   }
 
@@ -91,6 +93,7 @@ class DemoEconomy {
     this.xp -= item.cost;
     this.owned.add(itemId);
     this.save();
+    playPurchase();
     EventBus.emit('demo-economy-updated', this.snapshot({ purchased: item }));
     return true;
   }

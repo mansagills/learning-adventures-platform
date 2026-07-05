@@ -12,6 +12,8 @@ import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { QuestTracker } from '@/components/world/QuestTracker';
 import { ExplorationTracker } from '@/components/world/ExplorationTracker';
 import { DemoShop, DemoXpChip } from '@/components/world/DemoShop';
+import { AudioToggle } from '@/components/world/AudioToggle';
+import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 
@@ -89,6 +91,7 @@ export default function CampusSandboxPage() {
       getEconomy: () => demoEconomy.snapshot(),
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       openShop: () => setShowShop(true),
+      audio: campusAudio,
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -156,6 +159,9 @@ export default function CampusSandboxPage() {
       {/* Demo economy: XP chip + campus shop (sandbox-local, no backend) */}
       <DemoXpChip />
       {showShop && <DemoShop onClose={() => setShowShop(false)} />}
+
+      {/* Mute toggle for the synthesized SFX/ambience */}
+      <AudioToggle />
 
       {/* Zone minimap with player + quest-target dots (same as /world/campus) */}
       <Minimap />

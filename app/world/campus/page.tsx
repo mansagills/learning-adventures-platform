@@ -12,6 +12,7 @@ import Minimap from '@/components/world/Minimap';
 import { ActivityFeed } from '@/components/world/ActivityFeed';
 import { QuestTracker } from '@/components/world/QuestTracker';
 import { ExplorationTracker } from '@/components/world/ExplorationTracker';
+import { AudioToggle } from '@/components/world/AudioToggle';
 import { TouchControls } from '@/components/world/TouchControls';
 import {
   ConversationPanel,
@@ -435,6 +436,9 @@ export default function CampusWorldPage() {
 
           {/* Buildings-visited checklist — under the quest chip */}
           <ExplorationTracker />
+
+          {/* Mute toggle for the synthesized SFX/ambience */}
+          <AudioToggle />
         </div>
       )}
     </div>

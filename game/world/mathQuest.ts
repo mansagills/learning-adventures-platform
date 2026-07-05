@@ -17,6 +17,7 @@
 
 import { EventBus } from '@/components/phaser/EventBus';
 import { TILE_SIZE } from './TilemapGenerator';
+import { playQuestDing, playQuestFanfare } from './campusAudio';
 
 const T = TILE_SIZE;
 
@@ -127,6 +128,7 @@ class MathQuest {
   accept(): boolean {
     if (this.stage !== 'available') return false;
     this.stage = 'gather';
+    playQuestDing();
     this.emit();
     return true;
   }
@@ -145,6 +147,7 @@ class MathQuest {
   turnIn(): boolean {
     if (this.stage !== 'return') return false;
     this.stage = 'play';
+    playQuestDing();
     this.emit();
     return true;
   }
@@ -158,6 +161,7 @@ class MathQuest {
     this.lastScore = score ?? 0;
     if (this.lastScore >= QUEST_PASS_SCORE) {
       this.stage = 'complete';
+      playQuestFanfare();
       this.emit();
       // Pages award per their economy (sandbox: demoEconomy; campus: API)
       EventBus.emit('quest-completed', { questId: 'math-race-license', xp: QUEST_XP_REWARD });

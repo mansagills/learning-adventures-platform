@@ -17,6 +17,7 @@ import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
 import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations';
+import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -130,6 +131,10 @@ export class GatherCampusScene extends OpenWorldScene {
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
+
+    // Soft ambient pad — silent until the player's first click/keypress
+    // unlocks the AudioContext (browser autoplay policy), then fades in.
+    startAmbience();
   }
 
   /** Mark the room the player is standing inside (if any) as explored. */
@@ -401,6 +406,7 @@ export class GatherCampusScene extends OpenWorldScene {
       onComplete: () => cell.destroy(),
     });
     this.questItems = this.questItems.filter((c) => c !== cell);
+    playPickup();
     mathQuest.collectItem();
     this.questGiver?.setQuestDialogue(mathQuest.dialogue());
   }
@@ -524,6 +530,7 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('adventure-completed', this.handleQuestGameResult);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
+    stopAmbience();
     this.questItems.forEach((c) => c.destroy());
     this.questItems = [];
     this.questGiver = undefined;
