@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-05-18 - [Secure Randomness] Replace Math.random() with crypto.randomUUID()
+**Vulnerability:** Weak pseudo-random number generator (CWE-338) used for ID generation in FileUploader.tsx and ContentAgentOrchestrator.ts. `Math.random()` generates predictable values.
+**Learning:** Temporary IDs and workflow IDs were generated using `Math.random().toString(36)`. While often benign for frontend component keys, using predictable IDs in security contexts (like file uploads or workflow management) can lead to vulnerabilities like Insecure Direct Object Reference (IDOR).
+**Prevention:** Always use cryptographically secure random number generators like `crypto.randomUUID()` (available in both Web Crypto API and Node.js) for generating any form of identifier, token, or temporary key to enforce a defense-in-depth posture.
