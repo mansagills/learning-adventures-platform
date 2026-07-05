@@ -39,6 +39,10 @@
     modernTerrain: './assets/modern/terrain-32.png',
     modernCity: './assets/modern/city-terrain-32.png',
     modernRoom: './assets/modern/room-builder-32.png',
+    modernAdam: './assets/modern/characters/adam-16.png',
+    modernAlex: './assets/modern/characters/alex-16.png',
+    modernAmelia: './assets/modern/characters/amelia-16.png',
+    modernBob: './assets/modern/characters/bob-16.png',
   };
 
   const modernTiles = {
@@ -79,7 +83,7 @@
     name: 'Mrs. Numbers',
     x: 940,
     y: 400,
-    sprite: 'wizard-purple',
+    sprite: 'modernAmelia',
     facing: 'down',
   };
   const arcade = { id: 'math-race-rally', label: 'Math Race Rally', x: 720, y: 375 };
@@ -98,12 +102,12 @@
     sprite: 'human-1',
   };
   const students = [
-    { name: 'Maya', x: 1260, y: 520, sprite: 'human-2', route: [[1260, 520], [1450, 560], [1420, 750]], facing: 'down', lines: ['Meet Mrs. Numbers first.', 'Rally parts are scattered.', 'Math Race is tough.'] },
-    { name: 'Theo', x: 410, y: 850, sprite: 'robot-blue', route: [[410, 850], [610, 900], [660, 760]], facing: 'down', lines: ['I saw a part near Math Hall.', 'Use E when you are close.', 'Campus routes are open.'] },
-    { name: 'Ari', x: 1040, y: 930, sprite: 'cat-orange', route: [[1040, 930], [1210, 880], [1180, 1030]], facing: 'down', lines: ['Race practice starts soon.', 'Score 80% for the badge.', 'You have got this.'] },
-    { name: 'June', x: 530, y: 420, sprite: 'human-1', route: [[530, 420], [650, 500], [500, 620]], facing: 'down', lines: ['Mrs. Numbers is in Math Hall.', 'Look for the yellow pings.', 'Bring all three parts back.'] },
-    { name: 'Sol', x: 1510, y: 920, sprite: 'wizard-purple', route: [[1510, 920], [1600, 720], [1390, 720]], facing: 'down', lines: ['The plaza feels busy today.', 'Study group after the rally.', 'Watch the objective marker.'] },
-    { name: 'Nia', x: 870, y: 1040, sprite: 'knight-silver', route: [[870, 1040], [760, 940], [930, 900]], facing: 'down', lines: ['Badge run in progress.', 'Collect, return, race.', 'Nice pace.'] },
+    { name: 'Maya', x: 1260, y: 520, sprite: 'modernAlex', route: [[1260, 520], [1450, 560], [1420, 750]], facing: 'down', lines: ['Meet Mrs. Numbers first.', 'Rally parts are scattered.', 'Math Race is tough.'] },
+    { name: 'Theo', x: 410, y: 850, sprite: 'modernBob', route: [[410, 850], [610, 900], [660, 760]], facing: 'down', lines: ['I saw a part near Math Hall.', 'Use E when you are close.', 'Campus routes are open.'] },
+    { name: 'Ari', x: 1040, y: 930, sprite: 'modernAdam', route: [[1040, 930], [1210, 880], [1180, 1030]], facing: 'down', lines: ['Race practice starts soon.', 'Score 80% for the badge.', 'You have got this.'] },
+    { name: 'June', x: 530, y: 420, sprite: 'modernAmelia', route: [[530, 420], [650, 500], [500, 620]], facing: 'down', lines: ['Mrs. Numbers is in Math Hall.', 'Look for the yellow pings.', 'Bring all three parts back.'] },
+    { name: 'Sol', x: 1510, y: 920, sprite: 'modernAlex', route: [[1510, 920], [1600, 720], [1390, 720]], facing: 'down', lines: ['The plaza feels busy today.', 'Study group after the rally.', 'Watch the objective marker.'] },
+    { name: 'Nia', x: 870, y: 1040, sprite: 'modernBob', route: [[870, 1040], [760, 940], [930, 900]], facing: 'down', lines: ['Badge run in progress.', 'Collect, return, race.', 'Nice pace.'] },
   ];
 
   const quest = {
@@ -656,8 +660,64 @@
     ctx.restore();
   }
 
+  function drawModernCharacterSprite(entity, label, image) {
+    const x = Math.round(entity.x - camera.x);
+    const y = Math.round(entity.y - camera.y);
+    const frame = Math.floor(performance.now() / 180) % 4;
+    const moving = entity === player ? player.moving : true;
+    const facing = entity.facing || 'down';
+    let sourceX = 3 * 16;
+    let sourceY = 0;
+    let flip = false;
+
+    if (moving) {
+      sourceY = 32;
+      sourceX = (18 + frame) * 16;
+      if (facing === 'up') sourceX = (6 + frame) * 16;
+      if (facing === 'left' || facing === 'right') {
+        sourceX = (12 + frame) * 16;
+        flip = facing === 'left';
+      }
+    } else {
+      if (facing === 'up') sourceX = 1 * 16;
+      if (facing === 'left' || facing === 'right') {
+        sourceX = 2 * 16;
+        flip = facing === 'left';
+      }
+    }
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.fillRect(x - 16, y + 22, 32, 7);
+
+    if (image && image.complete && image.naturalWidth > 0) {
+      ctx.translate(x, y);
+      if (flip) ctx.scale(-1, 1);
+      ctx.drawImage(image, sourceX, sourceY, 16, 32, -20, -40, 40, 64);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - 12, y - 24, 24, 42);
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(5,8,16,0.86)';
+    ctx.fillStyle = '#f8fbff';
+    ctx.strokeText(label, x, y - 46);
+    ctx.fillText(label, x, y - 46);
+    ctx.restore();
+  }
+
   function drawSprite(entity, label) {
     const image = assets[entity.sprite];
+    if (entity.sprite?.startsWith('modern')) {
+      drawModernCharacterSprite(entity, label, image);
+      return;
+    }
+
     const x = Math.round(entity.x - camera.x);
     const y = Math.round(entity.y - camera.y);
     const frame = Math.floor(performance.now() / 160) % 4;

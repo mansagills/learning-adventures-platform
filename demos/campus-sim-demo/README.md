@@ -22,12 +22,14 @@ local server is recommended for stakeholder testing.
 
 ## Assets
 
-The `assets/` folder contains copied Learning Adventures character sprites plus
-selected modern campus tiles from user-provided LimeZu asset packs. Keeping
+The `assets/` folder contains copied Learning Adventures player sprites plus
+selected modern campus tiles and NPC/student character sheets from
+user-provided LimeZu asset packs. Keeping
 copies here makes this demo portable and no-auth without depending on the app's
 Next.js public asset path.
 
-See `ASSET_CREDITS.md` for attribution.
+See `ASSET_CREDITS.md` for attribution and non-commercial proof-of-concept
+usage notes.
 
 ## Loop
 

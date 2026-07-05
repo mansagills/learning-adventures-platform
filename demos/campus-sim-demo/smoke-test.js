@@ -23,6 +23,10 @@ const requiredFiles = [
   'assets/modern/terrain-32.png',
   'assets/modern/city-terrain-32.png',
   'assets/modern/room-builder-32.png',
+  'assets/modern/characters/adam-16.png',
+  'assets/modern/characters/alex-16.png',
+  'assets/modern/characters/amelia-16.png',
+  'assets/modern/characters/bob-16.png',
 ];
 
 for (const file of requiredFiles) {
@@ -45,6 +49,7 @@ const checks = [
   ['original sprite sheets', js.includes('./assets/sprites/human-1.png')],
   ['original tilemaps', js.includes('./assets/tilemaps/grass-plain-1.png')],
   ['modern campus sheets', js.includes('./assets/modern/school-32.png') && js.includes('drawModernBuilding')],
+  ['modern free-pack characters', js.includes('./assets/modern/characters/amelia-16.png') && js.includes('drawModernCharacterSprite')],
   ['objective guidance', js.includes('objectiveHint') && js.includes('drawObjectiveMarker')],
   ['ambient student chatter', js.includes('studentLine') && js.includes('drawSpeechBubble')],
   ['race result feedback', js.includes('Math Explorer Badge')],
