@@ -6,3 +6,8 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2024-07-08 - [Zip Bomb DoS]
+**Vulnerability:** Memory exhaustion Denial-of-Service (Zip Bomb) possible when extracting `metadata.json` from ZIP files in `app/api/internal/extract-metadata/route.ts` because the uncompressed size wasn't checked before calling `.getData()`.
+**Learning:** `adm-zip`'s `.getData()` reads the entire uncompressed file contents into a memory buffer. If an attacker provides a highly compressed file that expands to gigabytes, the Node.js process will crash with an out-of-memory error.
+**Prevention:** Always check `entry.header.size` against a reasonable limit (e.g., 1MB) before buffering uncompressed ZIP entry contents.
