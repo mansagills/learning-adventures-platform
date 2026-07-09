@@ -84,14 +84,27 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
         return;
       }
 
+      // Signed in successfully — now load the profile to route by role.
+      // If that fails, the session is valid but the account couldn't load
+      // (e.g. DB error). Tell the user instead of silently bouncing home.
       try {
         const res = await fetch('/api/auth/profile');
+        if (!res.ok) {
+          setError(
+            "You're signed in, but we couldn't load your account right now. Please try again in a moment."
+          );
+          setIsLoading(false);
+          return;
+        }
         const profile = await res.json();
         onClose();
         router.push(profile.role === 'STUDENT' ? '/world' : '/');
       } catch {
-        onClose();
-        router.push('/');
+        setError(
+          "You're signed in, but we couldn't reach the server. Please check your connection and try again."
+        );
+        setIsLoading(false);
+        return;
       }
     }
 

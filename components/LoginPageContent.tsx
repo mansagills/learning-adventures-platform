@@ -105,13 +105,26 @@ export default function LoginPageContent({
         return;
       }
 
-      // Fetch role from our DB to determine redirect
+      // Fetch role from our DB to determine redirect. If the profile lookup
+      // fails, the session is valid but the account couldn't load (e.g. a DB
+      // error) — surface that instead of silently sending the user home.
       try {
         const res = await fetch('/api/auth/profile');
+        if (!res.ok) {
+          setError(
+            "You're signed in, but we couldn't load your account right now. Please try again in a moment."
+          );
+          setIsLoading(false);
+          return;
+        }
         const profile = await res.json();
         router.push(getPostAuthUrl(profile.role ?? 'STUDENT'));
       } catch {
-        router.push('/');
+        setError(
+          "You're signed in, but we couldn't reach the server. Please check your connection and try again."
+        );
+        setIsLoading(false);
+        return;
       }
     }
 

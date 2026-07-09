@@ -77,6 +77,12 @@ export default function CampusWorldPage() {
         router.push('/');
         return;
       }
+      if (status === 'error') {
+        // Signed in, but the account/profile couldn't load (server/DB issue).
+        setError("We couldn't load your account. Please refresh and try again in a moment.");
+        setIsCheckingCharacter(false);
+        return;
+      }
       if (status !== 'authenticated') return;
 
       try {
