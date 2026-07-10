@@ -7,7 +7,6 @@ Use these prompts in order. Keep Fable 5 model selected. Each prompt is designed
 ## DAY 1: BACKEND FOUNDATION
 
 ### Prompt 1: Colyseus Server Bootstrap
-
 ```
 You are building a multiplayer Gather.town-inspired campus using Colyseus + Node.js.
 
@@ -27,7 +26,6 @@ Return TypeScript code only, no explanation.
 ```
 
 ### Prompt 2: Campus Room State Schema
-
 ```
 You are building a Colyseus room for a shared campus game.
 
@@ -49,7 +47,6 @@ Return TypeScript code only, no explanation. Include import statements.
 ```
 
 ### Prompt 3: Prisma CampusSession Schema
-
 ```
 You are extending the Prisma schema to track campus sessions.
 
@@ -74,7 +71,6 @@ Output: Return ONLY the CampusSession model block in Prisma syntax. No explanati
 ## DAY 2: FRONTEND SCAFFOLD
 
 ### Prompt 4: Phaser Campus Scene
-
 ```
 You are building a Phaser 3 game scene for the campus.
 
@@ -97,7 +93,6 @@ Return TypeScript code only, no explanation. Include all imports.
 ```
 
 ### Prompt 5: Colyseus Client Hook
-
 ```
 You are building a React hook to connect to the Colyseus campus room.
 
@@ -119,7 +114,6 @@ Return TypeScript code only, no explanation.
 ```
 
 ### Prompt 6: Asset Registry (Stub)
-
 ```
 You are creating an asset manifest for the campus game.
 
@@ -142,7 +136,6 @@ Return TypeScript code only with comments, no explanation.
 ## DAY 3: MULTIPLAYER SYNC
 
 ### Prompt 7: Server Movement Validation
-
 ```
 You are extending the CampusRoom to validate player movement.
 
@@ -162,7 +155,6 @@ Return TypeScript code only, no explanation.
 ```
 
 ### Prompt 8: Client Avatar Interpolation
-
 ```
 You are updating the Phaser scene to smoothly animate remote avatar movements.
 
@@ -182,7 +174,6 @@ Return TypeScript code only, no explanation.
 ```
 
 ### Prompt 9: Local Multiplayer Test Script
-
 ```
 Create a simple markdown document (test-multiplayer.md) with bash commands to:
 1. Start the Colyseus server
@@ -202,7 +193,6 @@ Return markdown only, no explanation.
 ## DAY 4: PROXIMITY & ASSETS
 
 ### Prompt 10: Proximity Engine
-
 ```
 You are creating a proximity detection service for the campus.
 
@@ -223,7 +213,6 @@ Return TypeScript code only, no explanation.
 ```
 
 ### Prompt 11: Proximity Indicator Component
-
 ```
 You are creating a React component to show nearby players.
 
@@ -244,7 +233,6 @@ Return TypeScript/JSX code only, no explanation.
 ```
 
 ### Prompt 12: Asset Sourcing Guide
-
 ```
 You are creating a reference guide for sourcing free 32x32 pixel art assets for the campus.
 
@@ -263,7 +251,6 @@ Return markdown only, no explanation.
 ```
 
 ### Prompt 13: Stub Campus Tilemap JSON
-
 ```
 You are creating a minimal Tiled map export for testing.
 
@@ -286,7 +273,6 @@ Return raw JSON only, no explanation.
 ## DAY 5: INTEGRATION & HANDOFF
 
 ### Prompt 14: Handoff Document
-
 ```
 You are creating a handoff document for a Gather.town-inspired campus built with Fable 5 over 5 days.
 
@@ -324,7 +310,6 @@ Return markdown only, no explanation.
 ## If You Hit Rate Limits
 
 If Fable 5 rate limits you partway through a prompt:
-
 1. **Wait 5–10 minutes** before retrying
 2. **Simplify the prompt** (remove optional constraints, lower line limits)
 3. **Split into 2 prompts** instead of 1 (e.g., "just the Player class" then "just the Map handler")
@@ -341,6 +326,6 @@ If Fable 5 rate limits you partway through a prompt:
 - **Prompt 14** (Day 5): 5 minutes
 
 **Total Fable 5 time**: ~2 hours of actual prompting  
-**Total coding/testing time**: ~10–15 hours across 5 days
+**Total coding/testing time**: ~10–15 hours across 5 days  
 
 **You have plenty of time and token budget.**

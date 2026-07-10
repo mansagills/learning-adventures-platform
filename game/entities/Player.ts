@@ -19,11 +19,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private currentDirection: 'up' | 'down' | 'left' | 'right' = 'down';
   private touchVector = { x: 0, y: 0 };
   private isPaused = false;
+  /** Optional worn accessory (e.g. a shop-bought helmet) riding above the head. */
+  private wearable?: Phaser.GameObjects.Text;
+  private wearableOffsetY = 28;
   private handleTeleport!: (data: { x: number; y: number; scene?: string }) => void;
   private handleSpeedChange!: (data: { speed: number }) => void;
   private handleTouchMove!: (data: { x: number; y: number }) => void;
   private handleWorldPause!: (paused: boolean) => void;
   private handleForceSave!: () => void;
+  private handleSetWearable!: (data: { emoji: string | null; offsetY?: number }) => void;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
@@ -137,14 +141,41 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       });
     };
 
+    // Worn accessory: null clears it, otherwise show/replace the emoji above
+    // the head. Positioning tracks the player every frame in update().
+    this.handleSetWearable = (data: { emoji: string | null; offsetY?: number }) => {
+      if (!data.emoji) {
+        this.wearable?.setVisible(false);
+        return;
+      }
+      this.wearableOffsetY = data.offsetY ?? 28;
+      if (!this.wearable) {
+        this.wearable = this.scene.add.text(this.x, this.y - this.wearableOffsetY, data.emoji, {
+          fontSize: '20px',
+        });
+        this.wearable.setOrigin(0.5, 1);
+        this.wearable.setDepth(this.depth + 1);
+      } else {
+        this.wearable.setText(data.emoji);
+        this.wearable.setPosition(this.x, this.y - this.wearableOffsetY);
+      }
+      this.wearable.setVisible(true);
+    };
+
     EventBus.on('teleport-player', this.handleTeleport);
     EventBus.on('player-speed-change', this.handleSpeedChange);
     EventBus.on('touch-move', this.handleTouchMove);
     EventBus.on('world-pause', this.handleWorldPause);
     EventBus.on('force-save-position', this.handleForceSave);
+    EventBus.on('set-wearable', this.handleSetWearable);
   }
 
   public update(time: number, delta: number): void {
+    // Keep the worn accessory glued to the head — runs even while paused so
+    // it stays aligned after a teleport or during a modal.
+    if (this.wearable && this.wearable.visible) {
+      this.wearable.setPosition(this.x, this.y - this.wearableOffsetY);
+    }
     if (this.isPaused) return;
     this.handleMovement();
     this.syncToBackend(time);
@@ -256,7 +287,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     EventBus.off('touch-move', this.handleTouchMove);
     EventBus.off('world-pause', this.handleWorldPause);
     EventBus.off('force-save-position', this.handleForceSave);
+    EventBus.off('set-wearable', this.handleSetWearable);
     EventBus.emit('touch-move', { x: 0, y: 0 });
+    this.wearable?.destroy();
 
     super.destroy(fromScene);
   }

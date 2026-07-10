@@ -1,6 +1,15 @@
 import * as Phaser from 'phaser';
 import { EventBus } from '@/components/phaser/EventBus';
 
+export interface NpcWaypoint {
+  x: number;
+  y: number;
+  /** How long to linger at this waypoint (ms). Default: 1.8-3.8s random. */
+  pauseMs?: number;
+  /** Emote shown above the name tag while lingering (e.g. '🎮', '💭'). */
+  emote?: string;
+}
+
 export interface TalkableNpcConfig {
   id: string;
   name: string;
@@ -10,8 +19,15 @@ export interface TalkableNpcConfig {
   y: number;
   /** Lines spoken in order when the player walks up */
   lines: string[];
+  /**
+   * Optional rotating dialogue: each encounter uses the next set, so talking
+   * to the NPC twice gives a different conversation. Overrides `lines`.
+   */
+  lineSets?: string[][];
   /** Optional patrol waypoints (pixel coords). NPC wanders when not talking. */
-  wander?: { x: number; y: number }[];
+  wander?: NpcWaypoint[];
+  /** Walk speed in px/s (default 90). Small variations make a crowd feel alive. */
+  speed?: number;
   /** Optional EventBus event emitted when the conversation finishes */
   onComplete?: { event: string; payload?: Record<string, unknown> };
 }
@@ -60,10 +76,17 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   /** After a conversation ends, the player must leave END_RADIUS before a new one can start. */
   private needsExit = false;
   private lineIndex = 0;
+  /** Lines for the current conversation (rotates through def.lineSets). */
+  private activeLines: string[];
+  private encounterCount = 0;
+  /** Quest override: fixed dialogue replacing lineSets rotation while set. */
+  private questLines: string[] | null = null;
 
   private wanderTween?: Phaser.Tweens.Tween;
   private wanderIndex = 0;
   private wanderTimer?: Phaser.Time.TimerEvent;
+  private emoteTag?: Phaser.GameObjects.Text;
+  private emoteTimer?: Phaser.Time.TimerEvent;
 
   private typeTimer?: Phaser.Time.TimerEvent;
   private fullLineText = '';
@@ -73,6 +96,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.def = def;
     this.npcId = def.id;
     this.npcName = def.name;
+    this.activeLines = def.lineSets?.[0] ?? def.lines;
 
     // Character sprite (96×96 frames displayed at 64×64, same as Player)
     this.sprite = scene.add.sprite(0, 0, `player-${def.charKey}`);
@@ -159,22 +183,106 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
       this.sprite.setFlipX(false);
     }
 
-    // ~90 px/s stroll
+    const speed = this.def.speed ?? 90; // px/s stroll
     this.wanderTween = this.scene.tweens.add({
       targets: this,
       x: wp.x,
       y: wp.y,
-      duration: dist * 11,
+      duration: (dist / speed) * 1000,
       ease: 'Linear',
       onComplete: () => {
+        // Tween is finished/removed from the manager — drop the reference so
+        // pauseWandering() never tries to pause a dead tween (Phaser throws
+        // "Cannot read properties of null (reading 'onPause')" if it does).
+        this.wanderTween = undefined;
         this.playAnim('idle');
-        this.scheduleNextWander(1800 + Math.random() * 2000);
+        const pause = wp.pauseMs ?? 1800 + Math.random() * 2000;
+        if (wp.emote) {
+          this.showEmote(wp.emote, pause);
+        }
+        this.scheduleNextWander(pause);
       },
     });
   }
 
+  /** Show a floating emote above the name tag while the NPC lingers. */
+  private showEmote(emote: string, durationMs: number): void {
+    this.hideEmote();
+    if (!this.emoteTag) {
+      this.emoteTag = this.scene.add.text(0, -64, '', { fontSize: '18px' });
+      this.emoteTag.setOrigin(0.5);
+      this.add(this.emoteTag);
+    }
+    this.emoteTag.setText(emote);
+    this.emoteTag.setVisible(true);
+    // Gentle bob so it reads as "doing something", not a stuck sprite
+    this.scene.tweens.add({
+      targets: this.emoteTag,
+      y: -70,
+      duration: 600,
+      yoyo: true,
+      repeat: Math.max(Math.floor(durationMs / 1200) - 1, 0),
+      ease: 'Sine.easeInOut',
+    });
+    this.emoteTimer = this.scene.time.delayedCall(durationMs, () => this.hideEmote());
+  }
+
+  private hideEmote(): void {
+    this.emoteTimer?.remove();
+    this.emoteTimer = undefined;
+    if (this.emoteTag) {
+      this.scene.tweens.killTweensOf(this.emoteTag);
+      this.emoteTag.setVisible(false);
+      this.emoteTag.setY(-64);
+    }
+    this.chatterTag?.setVisible(false);
+  }
+
+  // ─── Ambient life (scene-driven, no conversation state) ─────────────────────
+
+  private chatterTag?: Phaser.GameObjects.Text;
+
+  /**
+   * Show a short overheard line above the NPC (ambient chatter — the campus
+   * talking to itself, not a conversation). Ignored while actually talking.
+   */
+  public chatter(text: string, durationMs = 3500): void {
+    if (this.isTalking || !this.scene) return;
+    if (!this.chatterTag) {
+      this.chatterTag = this.scene.add.text(0, -60, '', {
+        fontSize: '11px',
+        fontFamily: 'monospace',
+        color: '#1f2937',
+        backgroundColor: '#ffffffe6',
+        padding: { x: 6, y: 3 },
+        align: 'center',
+        wordWrap: { width: 150 },
+      });
+      this.chatterTag.setOrigin(0.5, 1);
+      this.add(this.chatterTag);
+    }
+    this.chatterTag.setText(text);
+    this.chatterTag.setVisible(true);
+    this.scene.time.delayedCall(durationMs, () => {
+      this.chatterTag?.setVisible(false);
+    });
+  }
+
+  /** Quest celebration: bounce a 🎉 above the NPC. */
+  public celebrate(): void {
+    if (!this.isTalking) {
+      this.showEmote('🎉', 4000);
+    }
+  }
+
   private pauseWandering(): void {
-    this.wanderTween?.pause();
+    // Defense in depth: only pause a tween Phaser still considers active.
+    // A finished/removed tween throws on .pause() (its internal event data
+    // is torn down), and the onComplete handler above should already clear
+    // the reference — this guard covers any other stale-reference path.
+    if (this.wanderTween?.isPlaying()) {
+      this.wanderTween.pause();
+    }
     this.wanderTimer?.remove();
     this.wanderTimer = undefined;
   }
@@ -218,10 +326,28 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     return this.isTalking;
   }
 
+  /**
+   * Quest override: replace the NPC's dialogue with quest-stage lines.
+   * While set, lineSets rotation AND the config onComplete event are
+   * suppressed (quest flow owns this NPC). Pass null to restore normal
+   * behaviour.
+   */
+  public setQuestDialogue(lines: string[] | null): void {
+    this.questLines = lines;
+  }
+
   private startConversation(playerX: number): void {
     this.isTalking = true;
     this.lineIndex = 0;
+    if (this.questLines) {
+      this.activeLines = this.questLines;
+    } else if (this.def.lineSets && this.def.lineSets.length > 0) {
+      // Rotate through dialogue sets so repeat visits hear something new
+      this.activeLines = this.def.lineSets[this.encounterCount % this.def.lineSets.length];
+    }
+    this.encounterCount++;
     this.pauseWandering();
+    this.hideEmote();
 
     // Face the player
     this.playAnim('idle');
@@ -240,7 +366,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
       return;
     }
 
-    if (this.lineIndex < this.def.lines.length - 1) {
+    if (this.lineIndex < this.activeLines.length - 1) {
       this.lineIndex++;
       this.showLine();
     } else {
@@ -249,7 +375,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   }
 
   private showLine(): void {
-    const text = this.def.lines[this.lineIndex];
+    const text = this.activeLines[this.lineIndex];
     this.fullLineText = text;
     this.bubble.setVisible(true);
     this.startTyping(text);
@@ -259,8 +385,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
       npcName: this.npcName,
       text,
       lineIndex: this.lineIndex,
-      total: this.def.lines.length,
-      hasMore: this.lineIndex < this.def.lines.length - 1,
+      total: this.activeLines.length,
+      hasMore: this.lineIndex < this.activeLines.length - 1,
     });
   }
 
@@ -274,7 +400,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
 
     EventBus.emit('npc-conversation-end', { npcId: this.npcId, completed });
 
-    if (completed && this.def.onComplete) {
+    // Quest override suppresses the config onComplete (quest flow owns this NPC)
+    if (completed && this.def.onComplete && !this.questLines) {
       EventBus.emit(this.def.onComplete.event, this.def.onComplete.payload ?? {});
     }
   }
@@ -334,6 +461,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
 
   public destroy(fromScene?: boolean): void {
     this.stopTyping();
+    this.emoteTimer?.remove();
     this.wanderTimer?.remove();
     if (this.wanderTween) {
       this.wanderTween.stop();

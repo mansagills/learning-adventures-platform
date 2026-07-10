@@ -216,7 +216,7 @@ export const CAMPUS_NPCS: CampusNpcDefinition[] = [
     texture: 'door-gold-small',
     dialog: [
       'Welcome to campus. Professor Ivy is your quest guide for today.',
-      'After you meet Ivy, head west to Math Hall and check in with Mrs. Numbers.',
+      'After you meet Ivy, head west to Math Hall and check in with Professor Numbers.',
     ],
   },
   {
@@ -227,20 +227,20 @@ export const CAMPUS_NPCS: CampusNpcDefinition[] = [
     tileRow: 36,
     texture: 'door-amber-small',
     dialog: [
-      'Welcome, explorer. Learning Adventures begins with one clear quest: visit Mrs. Numbers at Math Hall.',
-      'Mrs. Numbers needs rally parts before she can start Math Race Rally.',
+      'Welcome, explorer. Learning Adventures begins with one clear quest: visit Professor Numbers at Math Hall.',
+      'Professor Numbers will start Math Race Rally when you are ready. Finish it to earn 100 XP and the Math Explorer badge.',
     ],
   },
   {
     id: 'npc_professor_numbers',
-    name: 'Mrs. Numbers',
+    name: 'Professor Numbers',
     zoneId: 'zone_math_hall',
     tileCol: 18,
     tileRow: 34,
     texture: 'door-teal-small',
     dialog: [
-      'I need three rally parts before Math Race Rally can start: a Number Battery, a Fraction Fuel Cell, and a Turbo Token.',
-      'Bring them back here, then score at least 80% in Math Race Rally to earn the Math Explorer badge.',
+      'Professor Ivy sent you to the right place. Your first Math Lab quest is Math Race Rally.',
+      'Enter Math Hall and start Math Race Rally. Complete it to earn 100 XP and the Math Explorer badge.',
     ],
     onFinalDialogLine: 'openQuestBoard',
   },

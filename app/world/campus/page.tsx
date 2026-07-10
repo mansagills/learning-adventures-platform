@@ -1,33 +1,26 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { EventBus } from '@/components/phaser/EventBus';
 import { AdventureEmbed } from '@/components/world/AdventureEmbed';
-import { CampusQuestHud } from '@/components/world/CampusQuestHud';
 import { ShopModal } from '@/components/world/ShopModal';
 import { JobBoard } from '@/components/world/JobBoard';
 import Minimap from '@/components/world/Minimap';
+import { ActivityFeed } from '@/components/world/ActivityFeed';
+import { QuestTracker } from '@/components/world/QuestTracker';
+import { ExplorationTracker } from '@/components/world/ExplorationTracker';
+import { AudioToggle } from '@/components/world/AudioToggle';
 import { TouchControls } from '@/components/world/TouchControls';
 import {
   ConversationPanel,
   type NpcConversationState,
 } from '@/components/world/ConversationPanel';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
-import {
-  MATH_RACE_RALLY_ID,
-  advanceCampusGuidedQuest,
-  getCampusGuidedQuestStageView,
-  isPassingMathRaceScore,
-  type CampusGuidedQuestEvent,
-  type CampusGuidedQuestStageId,
-} from '@/game/world/campusGuidedQuest';
-import {
-  CAMPUS_DEMO_PACKAGE,
-  isCampusDemoMode,
-} from '@/game/world/campusDemoPackage';
+import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
+import { hasSeenWelcome } from '@/game/world/welcomeState';
 
 /**
  * Shared neon HUD panel styling so every overlay chip matches the zone
@@ -50,25 +43,6 @@ const PhaserGame = dynamic(
 const XP_PER_GAME = 50;
 const COINS_PER_GAME = 5;
 
-function CampusLoading({ message }: { message: string }) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
-      <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B5CF6]" />
-        <p className="mt-4 text-lg text-[#8B5CF6] font-semibold">{message}</p>
-      </div>
-    </div>
-  );
-}
-
-export default function CampusWorldPage() {
-  return (
-    <Suspense fallback={<CampusLoading message="Loading campus..." />}>
-      <CampusWorldContent />
-    </Suspense>
-  );
-}
-
 /**
  * /world/campus — Gather-style campus world.
  *
@@ -76,11 +50,9 @@ export default function CampusWorldPage() {
  * to NPCs to talk (proximity conversations) and walk up to stations to play
  * learning games. Reuses the same auth, character, and reward APIs.
  */
-function CampusWorldContent() {
+export default function CampusWorldPage() {
   const { user: session, status } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isDemoMode = isCampusDemoMode(searchParams);
   const [gameReady, setGameReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [characterData, setCharacterData] = useState<any>(null);
@@ -98,45 +70,16 @@ function CampusWorldContent() {
   const [showShop, setShowShop] = useState(false);
   const [showJobBoard, setShowJobBoard] = useState(false);
   const [zoneBanner, setZoneBanner] = useState<string | null>(null);
-  const [questStage, setQuestStage] =
-    useState<CampusGuidedQuestStageId>('get-quest-from-mrs-numbers');
-  const [collectedItemIds, setCollectedItemIds] = useState<string[]>([]);
-  const [lastMathRaceScore, setLastMathRaceScore] = useState<number | undefined>();
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const sessionRef = useRef(session);
   const characterDataRef = useRef(characterData);
   useEffect(() => { sessionRef.current = session; }, [session]);
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
 
-  const advanceQuest = (event: CampusGuidedQuestEvent) => {
-    setQuestStage((current) => {
-      const next = advanceCampusGuidedQuest(current, event);
-      if (next === 'start-math-race-rally') {
-        EventBus.emit('campus-quest-math-race-unlocked');
-        showNotification('Math Race Rally unlocked. Score 80% or better to finish.');
-      }
-      return next;
-    });
-  };
-
   // Check authentication and character
   useEffect(() => {
     const checkCharacter = async () => {
-      if (isDemoMode) {
-        setCharacterData({
-          name: CAMPUS_DEMO_PACKAGE.demoPlayer.name,
-          avatarId: CAMPUS_DEMO_PACKAGE.demoPlayer.avatarId,
-          lastScene: 'GatherCampusScene',
-          position: null,
-        });
-        setXp(CAMPUS_DEMO_PACKAGE.demoPlayer.xp);
-        setCoins(CAMPUS_DEMO_PACKAGE.demoPlayer.coins);
-        setUserLevel(CAMPUS_DEMO_PACKAGE.demoPlayer.level);
-        setBootstrap(null);
-        setIsCheckingCharacter(false);
-        return;
-      }
-
       if (status === 'unauthenticated') {
         router.push('/');
         return;
@@ -182,12 +125,11 @@ function CampusWorldContent() {
     };
 
     checkCharacter();
-  }, [status, router, isDemoMode]);
+  }, [status, router]);
 
   // EventBus listeners
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
-      if (isDemoMode) return;
       if (!sessionRef.current || !characterDataRef.current) return;
       // Only persist overworld positions (not building interiors)
       if (data.scene !== 'GatherCampusScene') return;
@@ -204,61 +146,67 @@ function CampusWorldContent() {
 
     const handleOpenAdventure = (data: { adventureId: string; type: 'game' | 'lesson' }) => {
       setCurrentAdventure(data);
-      advanceQuest({ type: 'opened-adventure', adventureId: data.adventureId });
+    };
+    // Quest completion bonus (on top of the per-game reward)
+    const handleQuestCompleted = async (data: { xp: number }) => {
+      setNotification(`🏁 Quest complete! +${data.xp} XP`);
+      setTimeout(() => setNotification(null), 3000);
+      try {
+        const res = await fetch('/api/world/award', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ xp: data.xp, coins: 0 }),
+        });
+        const result = await res.json();
+        if (result.level) {
+          setXp(result.level.totalXP);
+          setUserLevel(result.level.currentLevel);
+        }
+      } catch (err) {
+        console.error('Failed to save quest reward:', err);
+      }
     };
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
-    const handleConversation = (data: NpcConversationState) => {
-      setConversation(data);
-      advanceQuest({ type: 'talked-to-npc', npcId: data.npcId });
-    };
+    const handleConversation = (data: NpcConversationState) => setConversation(data);
     const handleConversationEnd = () => setConversation(null);
 
-    const handleZoneChanged = (data: { zone: { displayName: string; key: string; neonAccent: string; neonDim: string } }) => {
+    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
       document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
       document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
       setZoneBanner(data.zone.displayName);
       setTimeout(() => setZoneBanner(null), 2800);
-      advanceQuest({ type: 'entered-zone', zoneKey: data.zone.key });
-    };
-    const handleQuestItemCollected = (data: { itemId: string; collectedItemIds: string[] }) => {
-      setCollectedItemIds(data.collectedItemIds);
-      advanceQuest({ type: 'collected-quest-item', ...data });
-    };
-    const handleQuestNotice = (data: { message: string }) => {
-      showNotification(data.message);
     };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
+    EventBus.on('quest-completed', handleQuestCompleted);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('npc-conversation', handleConversation);
     EventBus.on('npc-conversation-end', handleConversationEnd);
     EventBus.on('zone-changed', handleZoneChanged);
-    EventBus.on('campus-quest-item-collected', handleQuestItemCollected);
-    EventBus.on('campus-quest-notice', handleQuestNotice);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
       EventBus.off('open-adventure', handleOpenAdventure);
+      EventBus.off('quest-completed', handleQuestCompleted);
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('npc-conversation', handleConversation);
       EventBus.off('npc-conversation-end', handleConversationEnd);
       EventBus.off('zone-changed', handleZoneChanged);
-      EventBus.off('campus-quest-item-collected', handleQuestItemCollected);
-      EventBus.off('campus-quest-notice', handleQuestNotice);
     };
-  }, [isDemoMode]);
+  }, []);
 
   // Freeze player movement while a modal (game embed / shop / quests) is open
   useEffect(() => {
-    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showJobBoard));
-  }, [currentAdventure, showShop, showJobBoard]);
+    EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showJobBoard || showWelcome));
+  }, [currentAdventure, showShop, showJobBoard, showWelcome]);
 
   const handleSceneReady = (_scene: string) => {
     setGameReady(true);
+    setShowWelcome(!hasSeenWelcome());
     if (characterDataRef.current?.avatarId) {
       EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
     }
@@ -270,23 +218,11 @@ function CampusWorldContent() {
   };
 
   const handleAdventureComplete = async (adventureId: string, score?: number) => {
-    if (adventureId === MATH_RACE_RALLY_ID) {
-      setLastMathRaceScore(score);
-      if (!isPassingMathRaceScore(score)) {
-        showNotification(`Score ${score ?? 0}%. Try again for 80% or better.`);
-        advanceQuest({ type: 'completed-adventure', adventureId, score });
-        return;
-      }
-    }
-
     setXp((prev) => prev + XP_PER_GAME);
     setCoins((prev) => prev + COINS_PER_GAME);
     setCurrentAdventure(null);
     EventBus.emit('adventure-completed', { adventureId, score });
-    advanceQuest({ type: 'completed-adventure', adventureId, score });
     showNotification(`+${XP_PER_GAME} XP  +${COINS_PER_GAME} 🪙`);
-
-    if (isDemoMode) return;
 
     try {
       const res = await fetch('/api/world/award', {
@@ -310,7 +246,14 @@ function CampusWorldContent() {
 
   if (status === 'loading' || isCheckingCharacter) {
     return (
-      <CampusLoading message={isCheckingCharacter ? 'Loading character...' : 'Loading...'} />
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B5CF6]" />
+          <p className="mt-4 text-lg text-[#8B5CF6] font-semibold">
+            {isCheckingCharacter ? 'Loading character...' : 'Loading...'}
+          </p>
+        </div>
+      </div>
     );
   }
 
@@ -348,16 +291,7 @@ function CampusWorldContent() {
           adventureId={currentAdventure.adventureId}
           type={currentAdventure.type}
           onClose={() => setCurrentAdventure(null)}
-          manualCompleteScore={
-            currentAdventure.adventureId === MATH_RACE_RALLY_ID ? 100 : undefined
-          }
-          isCompletionAccepted={(score) =>
-            currentAdventure.adventureId !== MATH_RACE_RALLY_ID ||
-            isPassingMathRaceScore(score)
-          }
-          onComplete={(score) =>
-            handleAdventureComplete(currentAdventure.adventureId, score)
-          }
+          onComplete={(score) => handleAdventureComplete(currentAdventure.adventureId, score)}
         />
       )}
 
@@ -377,7 +311,6 @@ function CampusWorldContent() {
           onClose={() => setShowJobBoard(false)}
           onStartJob={(job: any) => {
             if (job.gamePath) {
-              advanceQuest({ type: 'opened-adventure', adventureId: job.jobId });
               setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
             }
           }}
@@ -387,6 +320,11 @@ function CampusWorldContent() {
 
       {/* NPC conversation panel */}
       {conversation && <ConversationPanel conversation={conversation} />}
+
+      {/* First-time welcome card — also the audio-unlock gesture */}
+      {gameReady && showWelcome && (
+        <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />
+      )}
 
       {/* Zone banner — shown when crossing into a new campus zone */}
       {zoneBanner && (
@@ -422,14 +360,6 @@ function CampusWorldContent() {
             className="absolute top-4 left-4 px-4 py-2 pointer-events-auto min-w-[10rem]"
             style={hudPanel}
           >
-            {isDemoMode && (
-              <p
-                className="text-[10px] font-bold uppercase tracking-wide mb-1"
-                style={{ color: 'var(--hud-accent, #00ccff)' }}
-              >
-                Stakeholder Demo
-              </p>
-            )}
             <p className="text-white font-semibold leading-tight">
               {characterData?.name || session?.name || 'Player'}
             </p>
@@ -473,13 +403,13 @@ function CampusWorldContent() {
           {/* Top-right: Buttons */}
           <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
             <button
-              onClick={() => router.push(isDemoMode ? '/' : '/world')}
+              onClick={() => router.push('/world')}
               className="text-white px-3 py-2 transition-colors text-sm font-semibold hover:text-[var(--hud-accent,#00ccff)]"
               style={hudPanel}
-              title={isDemoMode ? 'Exit stakeholder demo' : 'Switch to the classic open world'}
-              aria-label={isDemoMode ? 'Exit stakeholder demo' : 'Switch to the classic open world'}
+              title="Switch to the classic open world"
+              aria-label="Switch to the classic open world"
             >
-              {isDemoMode ? 'Exit Demo' : 'Classic World'}
+              🗺️ Classic World
             </button>
             <button
               onClick={() => router.push('/')}
@@ -506,14 +436,18 @@ function CampusWorldContent() {
 
           {/* Bottom-left: Minimap with zone overview */}
           <Minimap />
-          <CampusQuestHud
-            stage={getCampusGuidedQuestStageView(
-              questStage,
-              collectedItemIds,
-              lastMathRaceScore,
-            )}
-            className="left-4 bottom-28"
-          />
+
+          {/* Ambient campus activity ticker — right of the minimap */}
+          <ActivityFeed />
+
+          {/* Demo quest objective — under the character panel */}
+          <QuestTracker />
+
+          {/* Buildings-visited checklist — under the quest chip */}
+          <ExplorationTracker />
+
+          {/* Mute toggle for the synthesized SFX/ambience */}
+          <AudioToggle />
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient, hasSupabaseBrowserEnv } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
@@ -24,19 +24,25 @@ interface UseAuthReturn {
  * Returns the same shape: { user, status }
  * Components can switch from useSession() to useAuth() with no other changes.
  */
+// No Supabase env (e.g. fresh clone / worktree without .env.local): report
+// signed-out instead of crashing the whole client tree. Mirrors the guard in
+// lib/supabase/middleware.ts.
+const hasSupabaseEnv = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+  const supabase = hasSupabaseEnv ? createClient() : null;
 
   useEffect(() => {
-    if (!hasSupabaseBrowserEnv()) {
+    if (!supabase) {
       setUser(null);
       setStatus('unauthenticated');
       return;
     }
-
-    const supabase = createClient();
-
     // Fetch current session + profile on mount
     const loadUser = async (supabaseUser: User | null) => {
       if (!supabaseUser) {

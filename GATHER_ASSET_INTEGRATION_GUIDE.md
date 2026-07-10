@@ -6,15 +6,62 @@
 
 ---
 
+## ⚡ Futuristic Restyle — Sci-Fi Packs (for later)
+
+**Current state (July 2026)**: the campus art is selected by `CAMPUS_ART` in
+`GatherCampusScene.ts` — three options, all revertible by changing that one
+constant:
+
+| Value | Look | Source |
+|-------|------|--------|
+| `'modern'` (current) | Bright contemporary campus: grass, sidewalks, colored school walls | Modern Interiors/Exteriors (LimeZu) — `public/game-assets/modern/`, `game/world/modernTiles.ts` |
+| `'rcc'` | Cyberpunk: starry asphalt, teal walkways, trim-lit walls | RCC apartment pack — `public/game-assets/rcc/`, `game/world/rccTiles.ts` |
+| `'procedural'` | Neon/alloy sci-fi generated at runtime | `game/world/futuristicTiles.ts` (always loaded as fallback) |
+
+⚠️ Licenses: the RCC pack shipped without a license file; LimeZu's Modern packs
+permit game use but NOT redistribution of raw asset files. Keep the repo
+private or clear both licenses before public release.
+
+### Recommended free sci-fi packs to download (manual browser download)
+
+| Pack | Where | License | Why |
+|------|-------|---------|-----|
+| **Kenney — Sci-Fi RTS** | https://kenney.nl/assets/sci-fi-rts | CC0 | Top-down terrain + structures, 64px, huge and cohesive |
+| **Kenney — Roguelike/RPG pack** | https://kenney.nl/assets/roguelike-rpg-pack | CC0 | Fills interior/prop gaps that pure sci-fi packs miss |
+| **itch.io sci-fi tilesets (browse)** | https://itch.io/game-assets/free/tag-science-fiction/tag-tileset | varies | Cyberpunk city / neon lab styles; check each pack's license |
+| **itch.io 32×32 sci-fi (browse)** | https://itch.io/game-assets/tag-32x32/tag-science-fiction | varies | Matches our 32px grid without rescaling |
+
+**Note**: Kenney and itch.io downloads are JS/browser-driven — they can't be
+fetched by a script. Download the zips manually, then drop them in the repo
+(e.g. `public/game-assets/scifi-pack/`) and ask Claude to integrate.
+
+### How integration works (already wired for this)
+
+`futuristicTiles.ts` swaps textures **behind the existing tile keys**, so a
+downloaded pack replaces it with zero changes to the map generator:
+
+1. Cut the pack's sheet into per-tile PNGs (or use `load.spritesheet` + frames).
+2. Save as `public/game-assets/tilemaps/scifi-*.png`.
+3. In `GatherCampusScene.preload()`, `load.image()` each file under the same
+   keys the campus uses (`ground-grass-1..3`, `ground-flowers-1..2`,
+   `ground-path`, `ground-dirt`, `ground-water`, `wall-math-1`,
+   `wall-science-1`, `wall-english-1`, `wall-brick-1`).
+4. Delete the `applyFuturisticTiles(this)` call in `GatherCampusScene.create()`
+   (or keep it as a fallback when a PNG fails to load).
+
+Keep the per-subject wall accent idea (math=gold, science=teal,
+english=magenta) — tint the pack's wall tiles with `setTint()` if the pack
+only ships one wall color.
+
+---
+
 ## Step 1: Download Tilesets
 
 ### Primary Tileset (Campus Environment)
-
 **Collection**: Gather.town-compatible 32×32 tilesets  
 **Link**: https://itch.io/c/1904339/gathertown-compatible-32x32-tilesets
 
 **Pick ONE** (or download 2–3 to mix):
-
 - **"PineQuest tilesets"** (if available) — clean, cohesive fantasy/modern mix
 - **"LPC Tileset Pack"** (Liberated Pixel Cup) — modular, lots of variety
 - **Any with "outdoor", "building", "floor" tags** — essential for campus
@@ -22,12 +69,10 @@
 **Download**: Look for PNG files (usually `tileset.png` or `tilemap.png`). If it's a ZIP, extract all PNGs.
 
 ### Character Sprites
-
 **Collection**: Gather.town-compatible character sprites  
 **Link**: https://itch.io/c/1904363/gathertown-compatible-environment-and-item-sprites
 
 **Pick ONE**:
-
 - **"Player avatars"** or **"Character sprites"** — usually 32×32 or 16×32 standing sprites
 - Look for multi-frame walk cycles if available (4–8 frames per direction)
 - If multiple skins available, grab 3–5 variants
@@ -35,7 +80,6 @@
 **Download**: PNG file, often named `player.png` or `characters.png`
 
 ### Secondary Tilesets (Optional, for Building Interiors)
-
 **Collection**: OpenGameArt LPC tilesets  
 **Link**: https://opengameart.org/content/gathertown
 
@@ -58,7 +102,6 @@ public/
 ```
 
 ### Folder Setup
-
 ```bash
 mkdir -p public/assets/{tilesets,sprites}
 # Copy your downloaded PNG files into the folders above
@@ -89,7 +132,6 @@ Create **`public/assets/tilesets/tileset_metadata.json`** (describes your tilese
 ```
 
 **How to calculate columns**:
-
 - Open the PNG in an image viewer
 - Check width in pixels (e.g., 512px)
 - Divide by tile width: 512 / 32 = 16 columns
@@ -101,7 +143,6 @@ Create **`public/assets/tilesets/tileset_metadata.json`** (describes your tilese
 The stub `campus.json` from earlier needs to reference your actual tileset.
 
 **Edit `public/maps/campus.json`**:
-
 ```json
 {
   "compressionlevel": -1,
@@ -157,13 +198,11 @@ layer.setCollision([...])  // Set collision tiles as needed
 ## Step 6: Handle Art Style Mismatch (If Needed)
 
 If you download multiple tilesets from different creators, they might have slightly different:
-
 - **Colors** (bright vs. muted)
 - **Outline thickness** (thick vs. thin)
 - **Proportions** (some tiles might feel taller/wider)
 
 **Quick fixes**:
-
 1. **Use only ONE tileset** for the main campus (cleanest, safest)
 2. **Desaturate or color-shift** one tileset in an image editor to match the other (15 min in Aseprite/GIMP)
 3. **Accept the variety** — honestly, a mix of styles reads as "this campus has different architectural eras" and can actually feel charming
@@ -184,14 +223,12 @@ npm run dev
 ```
 
 **If tileset doesn't show:**
-
 1. Check browser console (F12) for 404 errors on asset files
 2. Verify file paths in CampusScene match your folder structure
 3. Check tileset metadata JSON `columns` calculation is correct
 4. Try a smaller tileset first to rule out size issues
 
 **If tiles look misaligned:**
-
 1. Verify `tileWidth` and `tileHeight` are exactly 32 in metadata
 2. Check PNG doesn't have padding/margin between tiles
 3. Some itch.io packs have 1–2px margins — if so, add to metadata:
@@ -205,13 +242,11 @@ npm run dev
 ## Step 8: Add NPC Student Sprites (Optional, for Simulated Students Feature)
 
 For the "Simulated Students" feature (from GATHER_SIMULATED_STUDENTS_PLAN.md):
-
 - Reuse the same `player_avatars.png` spritesheet
 - Pick 8–10 different frame indices to represent different "student" appearances
 - Or, download a second character pack and create `npc_students.png`
 
 In **`lib/npcStudents.json`**:
-
 ```json
 {
   "npcs": [
@@ -219,7 +254,7 @@ In **`lib/npcStudents.json`**:
       "id": "npc_1",
       "name": "Jordan",
       "spriteVariant": 2,
-      "spriteFrame": 5, // Frame index from spritesheet
+      "spriteFrame": 5,  // Frame index from spritesheet
       "subject": "Math"
       // ... rest of data
     }
@@ -228,9 +263,8 @@ In **`lib/npcStudents.json`**:
 ```
 
 Then in `npcController.ts`, when creating sprites:
-
 ```typescript
-const sprite = scene.add.sprite(x, y, 'npc_students', spriteFrame);
+const sprite = scene.add.sprite(x, y, 'npc_students', spriteFrame)
 ```
 
 ---
@@ -293,7 +327,6 @@ Download all three, test locally, keep what feels cohesive, discard the rest.
 ## Next Steps (After Assets Work)
 
 Once tileset + sprites are loading:
-
 1. Run the rest of the Fable 5 prompts (interactive zones, modals, progress tracker, etc.)
 2. Optionally add NPC Simulated Students (Prompts A–E from GATHER_SIMULATED_STUDENTS_PLAN.md)
 3. Polish: animations, more buildings, more dialogue

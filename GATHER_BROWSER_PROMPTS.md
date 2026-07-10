@@ -11,7 +11,6 @@ Use these in order. Keep Fable 5 selected.
 ## DAY 1: CORE GAME
 
 ### Prompt 1: Phaser Campus Scene
-
 ```
 You are building a single-player campus exploration game in Phaser 3.
 
@@ -32,8 +31,7 @@ Output: scenes/CampusScene.ts
 Return TypeScript code only, no explanation. Include all imports (Phaser).
 ```
 
-**What It Does**:
-
+**What It Does**: 
 - Player avatar moves with WASD/arrows
 - Camera follows
 - Can't walk through walls
@@ -44,7 +42,6 @@ Return TypeScript code only, no explanation. Include all imports (Phaser).
 ## DAY 2: INTERACTION & PROGRESS
 
 ### Prompt 2: Interactive Zones System
-
 ```
 You are adding interactable objects to the Phaser campus scene.
 
@@ -66,13 +63,11 @@ Return TypeScript code only, no explanation.
 ```
 
 **What It Does**:
-
 - Defines campusObjects array (buildings, whiteboards, etc.)
 - Detects player proximity
 - Triggers interaction events
 
 ### Prompt 3: Interaction Modal Component
-
 ```
 You are creating a React component to display interaction content.
 
@@ -97,13 +92,11 @@ Return TypeScript/JSX code only, no explanation.
 ```
 
 **What It Does**:
-
 - Shows when player clicks on an object
 - Displays object name + description
 - Player clicks "Close" to dismiss
 
 ### Prompt 4: Progress Tracker Hook
-
 ```
 You are creating a progress tracker for the campus demo.
 
@@ -126,13 +119,11 @@ Return TypeScript code only, no explanation.
 ```
 
 **What It Does**:
-
 - Tracks which rooms/buildings student visited
 - Persists in browser localStorage
 - Calculates overall progress %
 
 ### Prompt 5: Progress Overlay UI Component
-
 ```
 You are creating a progress display for the campus demo.
 
@@ -155,13 +146,11 @@ Return TypeScript/JSX code only, no explanation.
 ```
 
 **What It Does**:
-
 - Shows in corner during gameplay
 - Displays visited buildings with checkmarks
 - Shows overall progress %
 
 ### Prompt 6: Wire Everything in Scene
-
 ```
 You are updating CampusScene to integrate interactiveZones + modals.
 
@@ -181,7 +170,6 @@ Return TypeScript code only, no explanation.
 ```
 
 **What It Does**:
-
 - Hooks up interactiveZones to the scene
 - Shows interaction prompt
 - Opens modal on E key
@@ -192,7 +180,6 @@ Return TypeScript code only, no explanation.
 ## DAY 3 (OPTIONAL): POLISH & INTEGRATION
 
 ### Prompt 7: Next.js Page Wrapper
-
 ```
 You are wrapping the Phaser campus game in a Next.js page.
 
@@ -214,13 +201,11 @@ Return TypeScript/JSX code only, no explanation.
 ```
 
 **What It Does**:
-
 - Mounts Phaser game in Next.js
 - Requires authentication
 - Shows title + navigation
 
 ### Prompt 8: Campus Buildings Data
-
 ```
 You are creating flavor text data for campus buildings.
 
@@ -258,7 +243,6 @@ Return JSON only, no explanation.
 ```
 
 **What It Does**:
-
 - Defines 5 campus buildings + their locations
 - Defines 10 interactive objects (desks, whiteboards, books, etc.)
 - Provides flavor text for display
@@ -268,14 +252,12 @@ Return JSON only, no explanation.
 ## Usage Order
 
 **Day 1** (right now):
-
 1. Create branch & folders
 2. Run **Prompt 1** → CampusScene.ts
 3. Create stub campus.json (from original sprint plan)
 4. Test: move avatar around
 
 **Day 2**:
-
 1. Run **Prompt 2** → lib/interactiveZones.ts
 2. Run **Prompt 3** → components/spatial/InteractionModal.tsx
 3. Run **Prompt 4** → lib/useProgressTracker.ts
@@ -284,7 +266,6 @@ Return JSON only, no explanation.
 6. Test: click objects, see modal, progress updates
 
 **Day 3** (optional, polish):
-
 1. Run **Prompt 7** → app/campus/page.tsx
 2. Run **Prompt 8** → lib/campusData.json
 3. Download real tilesets, swap in assets
@@ -297,7 +278,6 @@ Return JSON only, no explanation.
 After each prompt:
 
 **Post-Prompt 1**:
-
 - [ ] npm run dev
 - [ ] Scene loads (console no errors)
 - [ ] Move with WASD (avatar moves)
@@ -305,7 +285,6 @@ After each prompt:
 - [ ] Camera follows
 
 **Post-Prompt 6** (after all integration):
-
 - [ ] Click near an object (interaction prompt shows)
 - [ ] Press E (modal opens)
 - [ ] Modal displays object name + description
@@ -313,7 +292,6 @@ After each prompt:
 - [ ] localStorage has visited rooms
 
 **Post-Prompt 7** (full integration):
-
 - [ ] Sign in to Learning Adventures
 - [ ] Click "Campus" link
 - [ ] Game loads (should show campus)
@@ -325,7 +303,6 @@ After each prompt:
 ## If You Hit Rate Limits
 
 Fable 5 is tight. If you get rate-limited:
-
 1. **Wait 5–10 minutes**, retry
 2. **Simplify**: Remove optional requirements (e.g., "keep it under 50 lines" instead of 80)
 3. **Split it**: Break Prompt 6 into 2 smaller prompts if too complex
@@ -354,14 +331,12 @@ You have a lot of token room (~30k available, only using ~12k), so you shouldn't
 ## Deliverables
 
 **By July 3, EOD**:
-
 - Playable browser demo at `localhost:3000/campus`
 - Player can walk around, interact with objects
 - Progress tracked (localStorage)
 - Ready to show to team
 
 **By July 4** (optional):
-
 - Real pixel-art tilesets
 - Integrated with NextAuth
 - Full Next.js route `/campus`

@@ -62,6 +62,7 @@ export default function Minimap() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const bgRef = useRef<ImageData | null>(null);
   const activeZoneKeyRef = useRef<string>('main-hub');
+  const questTargetRef = useRef<{ x: number; y: number } | null>(null);
   const [zoneName, setZoneName] = useState('Main Hub');
 
   useEffect(() => {
@@ -74,10 +75,24 @@ export default function Minimap() {
     drawZones(ctx, ZONES, activeZoneKeyRef.current);
     bgRef.current = ctx.getImageData(0, 0, MAP_W, MAP_H);
 
-    // minimap-position: restore bg, draw player dot with neon halo
+    // minimap-position: restore bg, draw quest-target + player dots
     const handlePosition = (data: { x?: number; y?: number; playerX?: number; playerY?: number }) => {
       if (!bgRef.current) return;
       ctx.putImageData(bgRef.current, 0, 0);
+
+      // Gold quest-target marker (under the player dot so both stay visible)
+      const target = questTargetRef.current;
+      if (target) {
+        const tx = (target.x / WORLD_W) * MAP_W;
+        const ty = (target.y / WORLD_H) * MAP_H;
+        ctx.beginPath();
+        ctx.arc(tx, ty, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,215,0,0.35)';
+        ctx.fill();
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(tx - 1.5, ty - 1.5, 3, 3);
+      }
+
       const playerX = data.playerX ?? data.x ?? 0;
       const playerY = data.playerY ?? data.y ?? 0;
       const dotX = (playerX / WORLD_W) * MAP_W;
@@ -92,6 +107,11 @@ export default function Minimap() {
       ctx.fillRect(dotX - 1.5, dotY - 1.5, 3, 3);
     };
 
+    // quest-guidance: remember the current quest target (drawn on next tick)
+    const handleQuestGuidance = (target: { x: number; y: number } | null) => {
+      questTargetRef.current = target;
+    };
+
     // zone-changed: redraw background with active zone highlighted, save new bg
     const handleZoneChanged = (data: { zone: ZoneInfo }) => {
       activeZoneKeyRef.current = data.zone.key;
@@ -104,10 +124,12 @@ export default function Minimap() {
 
     EventBus.on('minimap-position', handlePosition);
     EventBus.on('zone-changed', handleZoneChanged);
+    EventBus.on('quest-guidance', handleQuestGuidance);
 
     return () => {
       EventBus.off('minimap-position', handlePosition);
       EventBus.off('zone-changed', handleZoneChanged);
+      EventBus.off('quest-guidance', handleQuestGuidance);
     };
   }, []);
 
