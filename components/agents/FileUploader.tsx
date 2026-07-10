@@ -78,7 +78,7 @@ export default function FileUploader({
   };
 
   const uploadFile = async (file: File) => {
-    const tempId = Math.random().toString(36);
+    const tempId = crypto.randomUUID();
 
     // Create preview URL for images
     let previewUrl: string | undefined;
