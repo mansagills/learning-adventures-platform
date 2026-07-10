@@ -109,7 +109,18 @@
       "Bash(pnpm install:*)",
       "Bash(sudo npm:*)",
       "Bash(git fetch:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "WebSearch",
+      "WebFetch(domain:how.spatial.chat)",
+      "WebFetch(domain:www.xavier.edu)",
+      "WebFetch(domain:flat.social)",
+      "WebFetch(domain:maqtoob.com)",
+      "WebFetch(domain:businessmodelcanvastemplate.com)",
+      "WebFetch(domain:learn.colyseus.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:cosmos.video)",
+      "WebFetch(domain:www.g2.com)",
+      "WebFetch(domain:www.sowork.com)"
     ],
     "deny": [],
     "ask": []
