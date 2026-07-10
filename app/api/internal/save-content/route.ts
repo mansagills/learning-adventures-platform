@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
-import { join, resolve, sep, basename, normalize } from 'path';
+import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
 import { validateIdentifier } from '@/lib/security';
@@ -85,23 +85,18 @@ export async function POST(request: NextRequest) {
 
     // Handle uploaded zip files
     if (uploadSource === 'uploaded' && uploadedZipPath) {
-      // SECURITY: Prevent path traversal in uploadedZipPath
-      // Ensure path doesn't contain '..', and is within allowed directory
-      const normalizedZipPath = normalize(uploadedZipPath).replace(
-        /^(\.\.(\/|\\|$))+/,
-        ''
+      const tempDir = resolve(publicDir, 'uploads', 'temp');
+      const zipFullPath = resolve(
+        publicDir,
+        uploadedZipPath.replace(/^[\\/]+/, '')
       );
 
-      // Remove leading slash for checking start
-      const pathToCheck = normalizedZipPath.replace(/^[\/\\]/, '');
-
-      // Strict check: must be in uploads/temp/ and no traversal attempts
-      if (uploadedZipPath.includes('..') || !pathToCheck.startsWith('uploads/temp/')) {
-         console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
-         return NextResponse.json(
-           { error: 'Invalid path. Path traversal detected.' },
-           { status: 400 }
-         );
+      if (!zipFullPath.startsWith(tempDir + sep)) {
+        console.error(`Security Block: Invalid zip path: ${uploadedZipPath}`);
+        return NextResponse.json(
+          { error: 'Invalid path. Path traversal detected.' },
+          { status: 400 }
+        );
       }
 
       // Create directory for the game/lesson
@@ -122,20 +117,6 @@ export async function POST(request: NextRequest) {
       }
 
       await mkdir(gameDir, { recursive: true });
-
-      // Prevent path traversal in uploadedZipPath
-      const zipFullPath = resolve(
-        publicDir,
-        uploadedZipPath.replace(/^\//, '')
-      );
-      if (!zipFullPath.startsWith(publicDir + sep) && zipFullPath !== publicDir) {
-        return NextResponse.json(
-          {
-            error: 'Invalid uploadedZipPath. Must be within public directory.',
-          },
-          { status: 400 }
-        );
-      }
 
       if (!existsSync(zipFullPath)) {
         return NextResponse.json(
