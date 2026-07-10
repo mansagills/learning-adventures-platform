@@ -113,14 +113,6 @@ export async function POST(request: NextRequest) {
 
     // Extract metadata if found
     if (metadataEntry) {
-      // Prevent Zip Bomb Memory Exhaustion DoS by limiting uncompressed file size (1MB)
-      if (metadataEntry.header.size > 1048576) {
-        return NextResponse.json(
-          { error: 'Metadata file exceeds size limit (1MB).' },
-          { status: 400 }
-        );
-      }
-
       const metadataContent = metadataEntry.getData().toString('utf8');
       extractedMetadata = JSON.parse(metadataContent);
     }
