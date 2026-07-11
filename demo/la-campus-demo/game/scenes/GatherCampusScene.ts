@@ -18,6 +18,8 @@ import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
 import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations';
 import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
+import { demoEconomy } from '../world/demoEconomy';
+import { wearableForOwned } from '../world/wearables';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -128,6 +130,7 @@ export class GatherCampusScene extends OpenWorldScene {
     this.events.once('destroy', this.cleanupGather, this);
 
     this.setupQuest();
+    this.setupWearables();
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
@@ -135,6 +138,20 @@ export class GatherCampusScene extends OpenWorldScene {
     // Soft ambient pad — silent until the player's first click/keypress
     // unlocks the AudioContext (browser autoplay policy), then fades in.
     startAmbience();
+  }
+
+  // ─── Wearables: show the best shop-bought accessory on the player ──────────
+
+  private updateWearable = () => {
+    const w = wearableForOwned(demoEconomy.snapshot().owned);
+    EventBus.emit('set-wearable', w ? { emoji: w.emoji, offsetY: w.offsetY } : { emoji: null });
+  };
+
+  private setupWearables(): void {
+    // Player already exists (super.create()), so this initial emit lands.
+    this.updateWearable();
+    // Re-evaluate whenever the demo economy changes (purchase, reset).
+    EventBus.on('demo-economy-updated', this.updateWearable);
   }
 
   /** Mark the room the player is standing inside (if any) as explored. */
@@ -528,6 +545,7 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('world-pause', this.handleWorldPause);
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
+    EventBus.off('demo-economy-updated', this.updateWearable);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
     stopAmbience();

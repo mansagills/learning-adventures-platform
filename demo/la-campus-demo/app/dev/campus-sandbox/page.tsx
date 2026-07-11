@@ -16,6 +16,7 @@ import { AudioToggle } from '@/components/world/AudioToggle';
 import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
+import { wearableForOwned } from '@/game/world/wearables';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
@@ -101,6 +102,7 @@ export default function CampusSandboxPage() {
         EventBus.emit('adventure-completed', { adventureId, score }),
       getEconomy: () => demoEconomy.snapshot(),
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
+      wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
       openShop: () => setShowShop(true),
       audio: campusAudio,
       hasSeenWelcome,
