@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { EventBus } from '@/components/phaser/EventBus';
+import { getIdentity } from '@/game/world/playerIdentity';
 
 /**
  * ActivityFeed — ambient "other students are playing" ticker for the campus.
@@ -93,9 +94,11 @@ export function ActivityFeed() {
     // Quest completion: the player's own achievement headlines the feed
     const handleQuestCompleted = () => {
       const id = ++idRef.current;
+      // Demo identity name when chosen ("Mansa earned..."), else "YOU"
+      const playerName = getIdentity().name || 'YOU';
       setEntries((prev) => [
         ...prev.slice(-(MAX_VISIBLE - 1)),
-        { id, icon: '🏁', text: 'YOU earned the Racing License!' },
+        { id, icon: '🏁', text: `${playerName} earned the Racing License!` },
       ]);
       setTimeout(() => {
         setEntries((prev) => prev.filter((e) => e.id !== id));

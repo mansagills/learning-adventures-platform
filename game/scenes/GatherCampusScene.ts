@@ -20,6 +20,8 @@ import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations
 import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
+import { getIdentity, type PlayerIdentity } from '../world/playerIdentity';
+import { getWorldBootstrap } from '../worldBootstrap';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -74,6 +76,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private shopDoor?: { x: number; y: number };
   private simStudents: TalkableNPC[] = [];
   private chatterTimer?: Phaser.Time.TimerEvent;
+  /** Demo identity (name tag/avatar picker) — sandbox only, never authed. */
+  private demoIdentityActive = false;
 
   constructor() {
     super('GatherCampusScene');
@@ -101,6 +105,18 @@ export class GatherCampusScene extends OpenWorldScene {
       applyRccTiles(this);
     } else if (CAMPUS_ART === 'modern') {
       applyModernTiles(this);
+    }
+
+    // Demo identity applies only to the sandbox. The authed /world/campus
+    // page provides a world bootstrap (the account's real character), and
+    // its avatar/name must never be overridden by sandbox-local identity —
+    // localStorage is shared per origin, so both pages see the same store.
+    this.demoIdentityActive = !getWorldBootstrap();
+
+    // Seed the avatar BEFORE super.create() spawns the player, so a chosen
+    // demo identity (welcome overlay) survives page reloads.
+    if (this.demoIdentityActive) {
+      this.game.registry.set('avatarId', getIdentity().avatarId);
     }
 
     super.create();
@@ -131,6 +147,7 @@ export class GatherCampusScene extends OpenWorldScene {
 
     this.setupQuest();
     this.setupWearables();
+    this.setupIdentity();
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
@@ -152,6 +169,26 @@ export class GatherCampusScene extends OpenWorldScene {
     this.updateWearable();
     // Re-evaluate whenever the demo economy changes (purchase, reset).
     EventBus.on('demo-economy-updated', this.updateWearable);
+  }
+
+  // ─── Identity: demo name tag + avatar chosen on the welcome overlay ────────
+
+  private applyIdentity = (identity: PlayerIdentity) => {
+    EventBus.emit('set-player-name', { name: identity.name || null });
+    // Avatar texture swaps flow through the existing 'set-avatar' handler
+    // (OpenWorldScene), emitted by the overlay itself on selection.
+  };
+
+  private handleIdentityUpdated = (identity: PlayerIdentity) => {
+    this.applyIdentity(identity);
+  };
+
+  private setupIdentity(): void {
+    if (!this.demoIdentityActive) return;
+    // Player already exists (super.create()), so this initial emit lands.
+    this.applyIdentity(getIdentity());
+    // Live updates while the scene runs (welcome overlay save, demo reset).
+    EventBus.on('identity-updated', this.handleIdentityUpdated);
   }
 
   /** Mark the room the player is standing inside (if any) as explored. */
@@ -546,6 +583,7 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
     EventBus.off('demo-economy-updated', this.updateWearable);
+    EventBus.off('identity-updated', this.handleIdentityUpdated);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
     stopAmbience();

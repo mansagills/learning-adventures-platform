@@ -17,11 +17,13 @@
 import { demoEconomy } from './demoEconomy';
 import { exploration } from './explorationState';
 import { resetWelcomeSeen } from './welcomeState';
+import { resetIdentity } from './playerIdentity';
 
 export function resetDemo(): void {
   demoEconomy.reset();
   exploration.reset();
   resetWelcomeSeen();
+  resetIdentity();
   if (typeof window !== 'undefined') {
     window.location.reload();
   }

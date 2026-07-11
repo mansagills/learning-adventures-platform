@@ -17,6 +17,7 @@ import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 import { wearableForOwned } from '@/game/world/wearables';
+import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
@@ -103,6 +104,12 @@ export default function CampusSandboxPage() {
       getEconomy: () => demoEconomy.snapshot(),
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
+      identity: getIdentity,
+      setIdentity: (name: string, avatarId: string) => {
+        const saved = saveIdentity({ name, avatarId });
+        EventBus.emit('set-avatar', { avatarId: saved.avatarId });
+        return saved;
+      },
       openShop: () => setShowShop(true),
       audio: campusAudio,
       hasSeenWelcome,
@@ -200,7 +207,7 @@ export default function CampusSandboxPage() {
         DEV SANDBOX — Gather Campus (no auth)
       </div>
 
-      {showWelcome && <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />}
+      {showWelcome && <WelcomeOverlay identityPicker onDismiss={() => setShowWelcome(false)} />}
     </div>
   );
 }
