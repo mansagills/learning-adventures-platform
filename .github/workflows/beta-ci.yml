@@ -22,15 +22,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -39,10 +34,10 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Run linter
-        run: pnpm run lint
+        run: npm run lint
 
       - name: Run unit tests
-        run: pnpm test -- --reporter=verbose
+        run: npm test -- --reporter=verbose
 
   build:
     name: Build Check
@@ -64,18 +59,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
       - name: Generate Prisma client
         run: npx prisma generate
 
       - name: Build Next.js app
-        run: pnpm run build
+        run: npm run build
