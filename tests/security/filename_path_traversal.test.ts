@@ -56,6 +56,7 @@ const mockGetEntries = vi.fn().mockReturnValue([
     entryName: 'index.html',
     isDirectory: false,
     getData: mockGetData,
+    header: { size: 100 },
   },
 ]);
 
