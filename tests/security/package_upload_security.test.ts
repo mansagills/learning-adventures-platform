@@ -44,13 +44,11 @@ vi.mock('adm-zip', () => {
                   gameFile: 'index.html',
                 })
               ),
-            header: { size: 100 },
           };
         }
         if (name === 'index.html') {
           return {
             getData: () => Buffer.from('<h1>You have been hacked</h1>'),
-            header: { size: 100 },
           };
         }
         return null;

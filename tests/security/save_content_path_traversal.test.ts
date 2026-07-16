@@ -58,7 +58,6 @@ const safeEntry = {
   entryName: 'index.html',
   isDirectory: false,
   getData: mockGetData,
-  header: { size: 100 },
 };
 
 const mockGetEntries = vi.fn().mockReturnValue([safeEntry]);
