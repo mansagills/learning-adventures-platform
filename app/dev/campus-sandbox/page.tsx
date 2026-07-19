@@ -21,6 +21,7 @@ import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
+import { TouchControls } from '@/components/world/TouchControls';
 import { resetDemo } from '@/game/world/demoReset';
 
 const PhaserGame = dynamic(
@@ -156,6 +157,14 @@ export default function CampusSandboxPage() {
       <div className="absolute inset-0">
         <PhaserGame variant="gather" />
       </div>
+
+      {/* On-screen joystick — mobile only (md:hidden inside the component).
+          Same modal-disable logic as the world-pause effect above. */}
+      <TouchControls
+        side="right"
+        bottomOffset={96}
+        disabled={Boolean(currentAdventure || showShop || showWelcome)}
+      />
 
       {currentAdventure && (
         <AdventureEmbed
