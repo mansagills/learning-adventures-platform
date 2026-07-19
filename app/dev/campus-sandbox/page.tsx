@@ -105,6 +105,7 @@ export default function CampusSandboxPage() {
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
       identity: getIdentity,
+      playIntro: () => EventBus.emit('play-intro-cinematic'),
       setIdentity: (name: string, avatarId: string) => {
         const saved = saveIdentity({ name, avatarId });
         EventBus.emit('set-avatar', { avatarId: saved.avatarId });

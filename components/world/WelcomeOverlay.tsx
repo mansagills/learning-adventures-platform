@@ -47,6 +47,8 @@ export function WelcomeOverlay({ onDismiss, identityPicker }: WelcomeOverlayProp
     markWelcomeSeen();
     unlockAudio();
     startAmbience();
+    // Cue the scene's cinematic intro flyover (GatherCampusScene)
+    EventBus.emit('welcome-dismissed');
     onDismiss();
   };
 
