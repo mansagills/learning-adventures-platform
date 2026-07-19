@@ -20,6 +20,9 @@ import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations
 import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
+import { getIdentity, type PlayerIdentity } from '../world/playerIdentity';
+import { getWorldBootstrap } from '../worldBootstrap';
+import { hasSeenWelcome } from '../world/welcomeState';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -74,6 +77,10 @@ export class GatherCampusScene extends OpenWorldScene {
   private shopDoor?: { x: number; y: number };
   private simStudents: TalkableNPC[] = [];
   private chatterTimer?: Phaser.Time.TimerEvent;
+  /** Demo identity (name tag/avatar picker) — sandbox only, never authed. */
+  private demoIdentityActive = false;
+  /** Cinematic intro flyover in progress (blocks double-starts). */
+  private introRunning = false;
 
   constructor() {
     super('GatherCampusScene');
@@ -101,6 +108,18 @@ export class GatherCampusScene extends OpenWorldScene {
       applyRccTiles(this);
     } else if (CAMPUS_ART === 'modern') {
       applyModernTiles(this);
+    }
+
+    // Demo identity applies only to the sandbox. The authed /world/campus
+    // page provides a world bootstrap (the account's real character), and
+    // its avatar/name must never be overridden by sandbox-local identity —
+    // localStorage is shared per origin, so both pages see the same store.
+    this.demoIdentityActive = !getWorldBootstrap();
+
+    // Seed the avatar BEFORE super.create() spawns the player, so a chosen
+    // demo identity (welcome overlay) survives page reloads.
+    if (this.demoIdentityActive) {
+      this.game.registry.set('avatarId', getIdentity().avatarId);
     }
 
     super.create();
@@ -131,6 +150,8 @@ export class GatherCampusScene extends OpenWorldScene {
 
     this.setupQuest();
     this.setupWearables();
+    this.setupIdentity();
+    this.setupIntroCinematic();
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
@@ -152,6 +173,89 @@ export class GatherCampusScene extends OpenWorldScene {
     this.updateWearable();
     // Re-evaluate whenever the demo economy changes (purchase, reset).
     EventBus.on('demo-economy-updated', this.updateWearable);
+  }
+
+  // ─── Identity: demo name tag + avatar chosen on the welcome overlay ────────
+
+  private applyIdentity = (identity: PlayerIdentity) => {
+    EventBus.emit('set-player-name', { name: identity.name || null });
+    // Avatar texture swaps flow through the existing 'set-avatar' handler
+    // (OpenWorldScene), emitted by the overlay itself on selection.
+  };
+
+  private handleIdentityUpdated = (identity: PlayerIdentity) => {
+    this.applyIdentity(identity);
+  };
+
+  private setupIdentity(): void {
+    if (!this.demoIdentityActive) return;
+    // Player already exists (super.create()), so this initial emit lands.
+    this.applyIdentity(getIdentity());
+    // Live updates while the scene runs (welcome overlay save, demo reset).
+    EventBus.on('identity-updated', this.handleIdentityUpdated);
+  }
+
+  // ─── Cinematic intro: zoomed-out campus reveal gliding down to the player ──
+
+  private startIntroCinematic = () => {
+    if (this.introRunning || !this.player) return;
+    // Accessibility: honor OS-level reduced-motion preference
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+    this.introRunning = true;
+
+    // The flyover shows the whole map, so every chunk must exist and the
+    // per-frame streaming must not reclaim them mid-pan.
+    this.chunkStreamingPaused = true;
+    this.loadAllChunks();
+
+    const cam = this.cameras.main;
+    const worldW = this.physics.world.bounds.width;
+    const worldH = this.physics.world.bounds.height;
+    cam.stopFollow();
+    // Cover-fit: the smallest zoom that still fills the viewport with map
+    // (contain-fit would letterbox the void outside the world bounds).
+    cam.setZoom(Math.max(cam.width / worldW, cam.height / worldH));
+    cam.centerOn(worldW / 2, worldH / 2);
+
+    cam.zoomTo(1, 2500, Phaser.Math.Easing.Sine.InOut);
+    cam.pan(
+      this.player.x,
+      this.player.y,
+      2500,
+      Phaser.Math.Easing.Sine.InOut,
+      false,
+      (_c: Phaser.Cameras.Scene2D.Camera, progress: number) => {
+        if (progress === 1) this.finishIntroCinematic();
+      },
+    );
+  };
+
+  private finishIntroCinematic(): void {
+    if (!this.introRunning) return;
+    this.introRunning = false;
+    if (this.player) {
+      // Same follow params as OpenWorldScene.create(); the 0.1 lerp absorbs
+      // any drift if the player walked during the pan.
+      this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    }
+    this.chunkStreamingPaused = false;
+    this.trimChunksToCamera();
+  }
+
+  private setupIntroCinematic(): void {
+    // First visit: the welcome overlay covers the canvas, so the flyover
+    // waits for its "Start Exploring" click. Return visits (and demo
+    // replays via the test hook) start shortly after the scene boots.
+    EventBus.on('welcome-dismissed', this.startIntroCinematic);
+    EventBus.on('play-intro-cinematic', this.startIntroCinematic);
+    if (hasSeenWelcome()) {
+      this.time.delayedCall(400, this.startIntroCinematic);
+    }
   }
 
   /** Mark the room the player is standing inside (if any) as explored. */
@@ -546,6 +650,9 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
     EventBus.off('demo-economy-updated', this.updateWearable);
+    EventBus.off('identity-updated', this.handleIdentityUpdated);
+    EventBus.off('welcome-dismissed', this.startIntroCinematic);
+    EventBus.off('play-intro-cinematic', this.startIntroCinematic);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
     stopAmbience();

@@ -17,9 +17,11 @@ import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 import { wearableForOwned } from '@/game/world/wearables';
+import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
+import { TouchControls } from '@/components/world/TouchControls';
 import { resetDemo } from '@/game/world/demoReset';
 
 const PhaserGame = dynamic(
@@ -103,6 +105,13 @@ export default function CampusSandboxPage() {
       getEconomy: () => demoEconomy.snapshot(),
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
+      identity: getIdentity,
+      playIntro: () => EventBus.emit('play-intro-cinematic'),
+      setIdentity: (name: string, avatarId: string) => {
+        const saved = saveIdentity({ name, avatarId });
+        EventBus.emit('set-avatar', { avatarId: saved.avatarId });
+        return saved;
+      },
       openShop: () => setShowShop(true),
       audio: campusAudio,
       hasSeenWelcome,
@@ -144,6 +153,14 @@ export default function CampusSandboxPage() {
       <div className="absolute inset-0">
         <PhaserGame variant="gather" />
       </div>
+
+      {/* On-screen joystick — mobile only (md:hidden inside the component).
+          Same modal-disable logic as the world-pause effect above. */}
+      <TouchControls
+        side="right"
+        bottomOffset={96}
+        disabled={Boolean(currentAdventure || showShop || showWelcome)}
+      />
 
       {currentAdventure && (
         <AdventureEmbed
@@ -196,7 +213,7 @@ export default function CampusSandboxPage() {
         Learning Adventures — Campus Demo Preview
       </div>
 
-      {showWelcome && <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />}
+      {showWelcome && <WelcomeOverlay identityPicker onDismiss={() => setShowWelcome(false)} />}
     </div>
   );
 }
