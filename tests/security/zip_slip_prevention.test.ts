@@ -1,3 +1,7 @@
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { extractZipSafely } from '@/lib/safe-zip';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -30,9 +34,11 @@ vi.mock('fs/promises', () => {
   };
 });
 
+const existsSyncMock = vi.hoisted(() => vi.fn().mockReturnValue(true));
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: existsSyncMock,
   default: {
+    existsSync: existsSyncMock,
     mkdir: vi.fn(),
     writeFile: vi.fn(),
   }
@@ -84,7 +90,7 @@ describe('Security: Zip Slip Prevention', () => {
     vi.clearAllMocks();
     (fs.mkdir as any).mockResolvedValue(undefined);
     (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    existsSyncMock.mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {

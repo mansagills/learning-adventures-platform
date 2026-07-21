@@ -14,6 +14,9 @@ importers:
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1
+      '@panva/hkdf':
+        specifier: ^1.2.1
+        version: 1.2.1
       '@prisma/client':
         specifier: ^6.19.0
         version: 6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3)
@@ -26,6 +29,9 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
+      '@types/next-auth':
+        specifier: ^3.15.0
+        version: 3.15.0(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/nodemailer':
         specifier: ^7.0.4
         version: 7.0.9
@@ -41,12 +47,18 @@ importers:
       clsx:
         specifier: ^2.0.0
         version: 2.1.1
+      cookie:
+        specifier: ^0.5.0
+        version: 0.5.0
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
       jose:
-        specifier: ^6.2.2
-        version: 6.2.2
+        specifier: ^4.15.9
+        version: 4.15.9
+      lru-cache:
+        specifier: ^6.0.0
+        version: 6.0.0
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@18.3.1)
@@ -56,18 +68,42 @@ importers:
       next:
         specifier: 14.2.35
         version: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-auth:
+        specifier: ^4.24.7
+        version: 4.24.15(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
       nodemailer:
         specifier: ^6.10.1
         version: 6.10.1
+      oauth:
+        specifier: ^0.9.15
+        version: 0.9.15
+      object-hash:
+        specifier: ^2.2.0
+        version: 2.2.0
+      oidc-token-hash:
+        specifier: ^5.2.0
+        version: 5.2.0
+      openid-client:
+        specifier: ^5.7.1
+        version: 5.7.1
       pdf-parse:
         specifier: ^1.1.1
         version: 1.1.4
       phaser:
         specifier: ^3.80.1
         version: 3.90.0
+      preact:
+        specifier: ^10.29.7
+        version: 10.29.7(preact-render-to-string@5.2.6)
+      preact-render-to-string:
+        specifier: ^5.2.6
+        version: 5.2.6(preact@10.29.7)
+      pretty-format:
+        specifier: ^3.8.0
+        version: 3.8.0
       prisma:
         specifier: ^6.19.0
         version: 6.19.2(typescript@5.9.3)
@@ -83,6 +119,12 @@ importers:
       tailwind-merge:
         specifier: ^2.0.0
         version: 2.6.1
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
+      yallist:
+        specifier: ^4.0.0
+        version: 4.0.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.1.4
@@ -96,9 +138,6 @@ importers:
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
-      '@types/next-auth':
-        specifier: 3.15.0
-        version: 3.15.0(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/node':
         specifier: ^20.8.10
         version: 20.19.30
@@ -126,9 +165,6 @@ importers:
       jsdom:
         specifier: ^23.2.0
         version: 23.2.0
-      next-auth:
-        specifier: 4.24.7
-        version: 4.24.7(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       postcss:
         specifier: ^8.4.31
         version: 8.5.6
@@ -1295,6 +1331,10 @@ packages:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
 
+  cookie@0.7.2:
+    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
+    engines: {node: '>= 0.6'}
+
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
@@ -2070,9 +2110,6 @@ packages:
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
 
-  jose@6.2.2:
-    resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
-
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -2335,14 +2372,17 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  next-auth@4.24.7:
-    resolution: {integrity: sha512-iChjE8ov/1K/z98gdKbn2Jw+2vLgJtVV39X+rCP5SGnVQuco7QOr19FRNGMIrD8d3LYhHWV9j9sKLzq1aDWWQQ==}
+  next-auth@4.24.15:
+    resolution: {integrity: sha512-NnjYtjrSOAx/TIVFGTX4IfI/9yHnNpi4B7FuLUwuV20v2Zxgr2OGP/YN0ynJuI7y8QOnTBPitfOdEXZrVvhIuA==}
     peerDependencies:
-      next: ^12.2.5 || ^13 || ^14
-      nodemailer: ^6.6.5
-      react: ^17.0.2 || ^18
-      react-dom: ^17.0.2 || ^18
+      '@auth/core': 0.34.3
+      next: ^12.2.5 || ^13 || ^14 || ^15 || ^16
+      nodemailer: ^7.0.7
+      react: ^17.0.2 || ^18 || ^19
+      react-dom: ^17.0.2 || ^18 || ^19
     peerDependenciesMeta:
+      '@auth/core':
+        optional: true
       nodemailer:
         optional: true
 
@@ -3152,6 +3192,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  uuid@11.1.1:
+    resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
+    hasBin: true
+
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
@@ -3850,8 +3894,9 @@ snapshots:
 
   '@types/next-auth@3.15.0(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      next-auth: 4.24.7(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next-auth: 4.24.15(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
+      - '@auth/core'
       - next
       - nodemailer
       - react
@@ -4342,6 +4387,8 @@ snapshots:
   consola@3.4.2: {}
 
   cookie@0.5.0: {}
+
+  cookie@0.7.2: {}
 
   cookie@1.1.1: {}
 
@@ -5325,8 +5372,6 @@ snapshots:
 
   jose@4.15.9: {}
 
-  jose@6.2.2: {}
-
   js-tokens@4.0.0: {}
 
   js-tokens@9.0.1: {}
@@ -5735,11 +5780,11 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next-auth@4.24.7(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next-auth@4.24.15(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.10.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.6
       '@panva/hkdf': 1.2.1
-      cookie: 0.5.0
+      cookie: 0.7.2
       jose: 4.15.9
       next: 14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       oauth: 0.9.15
@@ -5748,7 +5793,7 @@ snapshots:
       preact-render-to-string: 5.2.6(preact@10.29.7)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 8.3.2
+      uuid: 11.1.1
     optionalDependencies:
       nodemailer: 6.10.1
 
@@ -6694,6 +6739,8 @@ snapshots:
       requires-port: 1.0.0
 
   util-deprecate@1.0.2: {}
+
+  uuid@11.1.1: {}
 
   uuid@8.3.2: {}
 
