@@ -114,7 +114,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '../../etc/passwd',
-          getData: () => Buffer.from('malicious content')
+          header: { size: 100 },
+            getData: () => Buffer.from('malicious content')
         }
       ]
     };
@@ -133,7 +134,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '/etc/passwd',
-          getData: () => Buffer.from('malicious content')
+          header: { size: 100 },
+            getData: () => Buffer.from('malicious content')
         }
       ]
     };
@@ -154,7 +156,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
-          getData: () => Buffer.from('content')
+          header: { size: 100 },
+            getData: () => Buffer.from('content')
         }
       ]
     };
