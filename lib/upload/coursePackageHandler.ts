@@ -58,6 +58,11 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Security: prevent Zip bomb memory exhaustion (max 1MB for metadata)
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json exceeds maximum size of 1MB');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +111,12 @@ export async function processCoursePackage(
       continue;
     }
 
+    // Security: prevent Zip bomb memory exhaustion (max 50MB for lesson file)
+    if (lessonEntry.header.size > 50 * 1024 * 1024) {
+      console.warn(`Lesson file ${lessonMeta.file} exceeds maximum size of 50MB`);
+      continue;
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,10 +136,15 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
-      const thumbnailFileName = path.basename(manifest.thumbnail);
-      const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
-      await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
-      thumbnailPath = `/staging/lessons/courses/${slug}/${thumbnailFileName}`;
+      // Security: prevent Zip bomb memory exhaustion (max 50MB for thumbnail)
+      if (thumbnailEntry.header.size > 50 * 1024 * 1024) {
+        console.warn(`Thumbnail ${manifest.thumbnail} exceeds maximum size of 50MB`);
+      } else {
+        const thumbnailFileName = path.basename(manifest.thumbnail);
+        const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
+        await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
+        thumbnailPath = `/staging/lessons/courses/${slug}/${thumbnailFileName}`;
+      }
     }
   }
 
@@ -324,6 +340,9 @@ export function isCoursePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) return false;
 
+  // Security: prevent Zip bomb memory exhaustion (max 1MB for metadata)
+  if (manifest.header.size > 1024 * 1024) return false;
+
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
@@ -345,6 +364,12 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  // Security: prevent Zip bomb memory exhaustion (max 1MB for metadata)
+  if (manifest.header.size > 1024 * 1024) {
+    errors.push('metadata.json exceeds maximum size of 1MB');
     return { valid: false, errors };
   }
 
