@@ -1,0 +1,1635 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  supabaseId  String?  @unique
+  name        String?
+  email       String   @unique
+  image       String?
+  role        UserRole @default(STUDENT)
+  gradeLevel    String?   // For students
+  subjects      String[]  // Array of subjects they're interested in
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Onboarding state
+  hasCompletedOnboarding Boolean @default(false) // Set true after Jaylen guide completes
+
+  // Parent account verification (COPPA compliance)
+  isVerifiedAdult Boolean @default(false)  // Parent gate verification
+  childProfiles   ChildProfile[]           // Parent's children
+
+  progress    UserProgress[]
+  achievements UserAchievement[]
+  enrollments ClassroomEnrollment[]
+  // Relations for teachers
+  classrooms  Classroom[] @relation("TeacherClassrooms")
+  // Course system relations
+  courseEnrollments CourseEnrollment[]
+  dailyXP          DailyXP[]
+  level            UserLevel?
+  subscription     Subscription?
+  // AI Agent Studio relations
+  agentConversations AgentConversation[]
+  // Goal system relations
+  learningGoals LearningGoal[]
+  // Calendar system relations
+  calendarEvents CalendarEvent[]
+  // Social & gamification relations (Phase 3E)
+  friendships Friendship[] @relation("UserFriendships")
+  friendOf Friendship[] @relation("FriendOfUsers")
+  createdChallenges Challenge[] @relation("CreatedChallenges")
+  receivedChallenges Challenge[] @relation("ReceivedChallenges")
+  ownedStudyGroups StudyGroup[] @relation("OwnedStudyGroups")
+  studyGroupMemberships StudyGroupMember[]
+  // Admin content upload relations
+  uploadedContent UploadedContent[] @relation("UploadedContent")
+  // Custom course request relations
+  courseRequests CourseRequest[] @relation("CourseRequests")
+  assignedCourseRequests CourseRequest[] @relation("AssignedCourseRequests")
+  // 2D World character relation
+  character Character?
+  // Job system relations
+  jobCompletions JobCompletion[]
+}
+
+// User management and progress tracking
+enum UserRole {
+  ADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+model UserProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  adventureId    String   // ID from catalogData
+  adventureType  String   // 'game' or 'lesson'
+  category       String   // 'math', 'science', etc.
+  status         ProgressStatus @default(NOT_STARTED)
+  score          Int?
+  timeSpent      Int      @default(0) // in minutes
+  completedAt    DateTime?
+  lastAccessed   DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adventureId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  MASTERED
+}
+
+model UserAchievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // 'completion', 'streak', 'score', 'time'
+  title       String
+  description String
+  category    String?  // Subject category
+  earnedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Learning Goals for students
+model LearningGoal {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // Goal Details
+  title       String
+  description String?  @db.Text
+  type        GoalType @default(DAILY)
+  category    String?  // Subject category (optional: 'math', 'science', etc.)
+
+  // Target & Progress
+  targetType  GoalTargetType // What they're trying to achieve
+  targetValue Int      // Target number (e.g., 3 adventures, 200 XP)
+  currentValue Int     @default(0)
+  unit        String   // 'adventures', 'XP', 'minutes', 'skills'
+
+  // Status & Timing
+  status      GoalStatus @default(ACTIVE)
+  startDate   DateTime @default(now())
+  deadline    DateTime?
+
+  // Completion
+  completedAt DateTime?
+  streakCount Int      @default(0) // For recurring goals
+
+  // Metadata
+  icon        String?  // Emoji or icon identifier
+  color       String?  // Color code for UI
+  priority    Int      @default(0) // 0 = normal, 1 = high, 2 = urgent
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, type])
+}
+
+enum GoalType {
+  DAILY       // Resets daily
+  WEEKLY      // Resets weekly
+  MONTHLY     // Resets monthly
+  CUSTOM      // One-time goal with custom deadline
+}
+
+enum GoalTargetType {
+  ADVENTURES_COMPLETE    // Complete X adventures
+  XP_EARN               // Earn X XP
+  TIME_SPEND            // Spend X minutes learning
+  SKILLS_MASTER         // Master X skills
+  STREAK_MAINTAIN       // Maintain X day streak
+  SUBJECT_COMPLETE      // Complete X adventures in specific subject
+  SCORE_ACHIEVE         // Achieve average score of X%
+}
+
+enum GoalStatus {
+  ACTIVE      // Currently working on
+  COMPLETED   // Successfully completed
+  EXPIRED     // Deadline passed without completion
+  PAUSED      // Temporarily paused
+  ARCHIVED    // Archived/no longer active
+}
+
+// Calendar Events for scheduling
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  userId      String
+
+  // Event Details
+  title       String
+  description String?  @db.Text
+  eventType   EventType
+  category    String?  // Subject category (optional)
+
+  // Timing
+  startTime   DateTime
+  endTime     DateTime
+  allDay      Boolean  @default(false)
+  timeZone    String?  // User's timezone
+
+  // Related Items
+  adventureId String?  // Link to specific adventure/lesson
+  goalId      String?  // Link to learning goal
+  classroomId String?  // For classroom assignments
+
+  // Recurrence
+  isRecurring Boolean  @default(false)
+  recurrenceRule String? // RRULE format (e.g., "FREQ=WEEKLY;BYDAY=MO,WE,FR")
+  recurrenceEnd  DateTime?
+
+  // Reminders
+  reminderMinutes Int[]  // Array of minutes before event to remind
+
+  // Status
+  status      EventStatus @default(SCHEDULED)
+  completedAt DateTime?
+
+  // Metadata
+  color       String?  // Custom color for event
+  icon        String?  // Emoji or icon
+  priority    Int      @default(0) // 0 = normal, 1 = high, 2 = urgent
+  location    String?  // Virtual or physical location
+  url         String?  // Link to resource/meeting
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startTime])
+  @@index([userId, eventType])
+  @@index([startTime, endTime])
+}
+
+enum EventType {
+  LEARNING_SESSION    // Scheduled learning time
+  ASSIGNMENT          // Assignment due date
+  GOAL_DEADLINE       // Goal deadline
+  ACHIEVEMENT         // Achievement earned date
+  LIVE_CLASS          // Live virtual class
+  ASSESSMENT          // Quiz or test
+  REMINDER            // General reminder
+  CUSTOM              // Custom event
+}
+
+enum EventStatus {
+  SCHEDULED   // Future event
+  IN_PROGRESS // Currently happening
+  COMPLETED   // Finished
+  CANCELLED   // Cancelled
+  MISSED      // Passed without completion
+}
+
+// Classroom management for teachers
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  gradeLevel  String
+  subjects    String[] // Array of subjects
+  teacherId   String
+  inviteCode  String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher     User @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  enrollments ClassroomEnrollment[]
+}
+
+model ClassroomEnrollment {
+  id          String   @id @default(cuid())
+  userId      String
+  classroomId String
+  enrolledAt  DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classroomId])
+}
+
+// ============================================================================
+// SUBSCRIPTION & PREMIUM ACCESS
+// ============================================================================
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Subscription Tier
+  tier            SubscriptionTier @default(FREE)
+  status          SubscriptionStatus @default(ACTIVE)
+
+  // Stripe Integration (for future payment processing)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+
+  // Timing
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+// ============================================================================
+// COURSE SYSTEM MODELS
+// ============================================================================
+
+// Course Definition
+model Course {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  slug            String   @unique
+  subject         String   // 'math', 'science', etc.
+  gradeLevel      String[] // ['3-5', '6-8']
+  difficulty      Difficulty @default(BEGINNER)
+  isPremium       Boolean  @default(false)
+  isPublished     Boolean  @default(false)
+
+  // Metadata
+  thumbnailUrl    String?
+  estimatedMinutes Int
+  totalXP         Int      @default(0)
+
+  // Prerequisites
+  prerequisiteCourseIds String[] // Array of course IDs
+
+  // Content
+  lessons         CourseLesson[]
+  enrollments     CourseEnrollment[]
+  uploadedContent UploadedContent[] @relation("CourseContent")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([subject, isPremium, isPublished])
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// Individual Lesson within a Course
+model CourseLesson {
+  id              String   @id @default(cuid())
+  courseId        String
+  order           Int      // 1, 2, 3... (determines sequence)
+
+  // Lesson Content
+  title           String
+  description     String?  @db.Text
+  type            LessonType
+  contentPath     String   // HTML file path or React component ID
+
+  // Chapter Grouping (Simple Approach)
+  chapterNumber   Int?     // 1, 2, 3, 4, 5
+  chapterTitle    String?  // "Chapter 1: Early Life"
+  isFreePreview   Boolean  @default(false)  // First 2-3 lessons free for premium courses
+
+  // Quiz Data
+  quizData        Json?    // Quiz questions/answers structure
+  hintsData       Json?    // Hints for wrong answers (deprecated - now part of quizData)
+
+  // Progression
+  duration        Int      // Estimated minutes
+  xpReward        Int      @default(50)
+  requiredScore   Int?     // Minimum score to pass (if applicable)
+
+  // Relations
+  course          Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress        CourseLessonProgress[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([courseId, order])
+  @@index([courseId, order])
+}
+
+enum LessonType {
+  VIDEO          // Video lesson
+  INTERACTIVE    // Interactive HTML lesson
+  GAME           // Practice game
+  QUIZ           // Assessment/quiz
+  READING        // Text-based content
+  PROJECT        // Final project
+}
+
+// User's Course Enrollment
+model CourseEnrollment {
+  id              String   @id @default(cuid())
+  userId          String
+  courseId        String
+
+  // Progress
+  status          CourseStatus @default(IN_PROGRESS)
+  completedLessons Int      @default(0)
+  totalLessons     Int
+  progressPercent  Int      @default(0)
+
+  // XP & Scoring
+  totalXPEarned   Int      @default(0)
+  averageScore    Float?
+
+  // Timestamps
+  enrolledAt      DateTime @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastAccessedAt  DateTime @default(now())
+
+  // Certificate
+  certificateEarned Boolean @default(false)
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress  CourseLessonProgress[]
+  certificate     CourseCertificate?
+
+  @@unique([userId, courseId])
+  @@index([userId, status])
+}
+
+enum CourseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// Progress for Individual Lessons
+model CourseLessonProgress {
+  id              String   @id @default(cuid())
+  userId          String
+  enrollmentId    String
+  lessonId        String
+
+  // Progress
+  status          LessonProgressStatus @default(NOT_STARTED)
+  score           Int?     // 0-100
+  timeSpent       Int      @default(0) // minutes
+  attempts        Int      @default(0)
+  xpEarned        Int      @default(0)
+
+  // Timestamps
+  startedAt       DateTime?
+  completedAt     DateTime?
+  lastAccessedAt  DateTime @default(now())
+
+  // Relations
+  enrollment      CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson          CourseLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([userId, status])
+}
+
+enum LessonProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  LOCKED        // Not yet unlocked (previous lesson incomplete)
+}
+
+// Daily XP Tracking
+model DailyXP {
+  id              String   @id @default(cuid())
+  userId          String
+  date            DateTime @db.Date
+
+  // XP Breakdown
+  xpFromLessons   Int      @default(0)
+  xpFromGames     Int      @default(0)
+  xpFromStreak    Int      @default(0)
+  totalXP         Int      @default(0)
+
+  // Activity
+  lessonsCompleted Int     @default(0)
+  gamesCompleted   Int     @default(0)
+
+  // Job / World economy tracking
+  currencyEarned   Int     @default(0)
+  jobsCompleted    Int     @default(0)
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+// User Level & XP System
+model UserLevel {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // XP & Level
+  currentLevel    Int      @default(1)
+  totalXP         Int      @default(0)
+  xpToNextLevel   Int      @default(100)
+
+  // Streaks
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastActivityDate DateTime?
+
+  // Economy (2D World coins)
+  currency        Int      @default(0)
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, currentLevel])
+}
+
+// Course Completion Certificates
+model CourseCertificate {
+  id                String   @id @default(cuid())
+  enrollmentId      String   @unique
+
+  // Certificate Details
+  certificateNumber String   @unique // e.g., "CERT-2025-001234"
+  studentName       String
+  courseTitle       String
+  completionDate    DateTime
+
+  // Performance Metrics
+  totalXPEarned     Int
+  averageScore      Float?
+  totalLessons      Int
+  timeSpent         Int      // Total minutes spent
+
+  // Certificate Metadata
+  issuedAt          DateTime @default(now())
+  verificationCode  String   @unique // For verification purposes
+
+  // Relations
+  enrollment        CourseEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime @default(now())
+
+  @@index([certificateNumber])
+  @@index([verificationCode])
+}
+
+// ============================================================================
+// GAME APPROVAL WORKFLOW MODELS
+// ============================================================================
+
+// Test Games pending approval
+model TestGame {
+  id              String   @id @default(cuid())
+
+  // Game Information
+  gameId          String   @unique // filename without .html (e.g., "number-monster-feeding")
+  title           String
+  description     String   @db.Text
+  category        String   // 'math', 'science', etc.
+  type            String   // 'game' or 'lesson'
+  gradeLevel      String[] // ['K', '1', '2', '3']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  skills          String[] // Array of skills
+  estimatedTime   String   // '10-15 mins'
+
+  // File Paths
+  filePath        String   // '/games/number-monster-feeding.html'
+  isHtmlGame      Boolean  @default(true)
+  isReactComponent Boolean @default(false)
+
+  // Approval Status
+  status          TestGameStatus @default(NOT_TESTED)
+
+  // Metadata
+  createdBy       String?  // User ID who added this
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Catalog Integration
+  catalogued      Boolean  @default(false)
+  cataloguedAt    DateTime?
+  cataloguedBy    String?  // User ID who promoted to catalog
+
+  // Relations
+  approvals       GameApproval[]
+  feedback        GameFeedback[]
+
+  @@index([status, category])
+  @@index([catalogued])
+}
+
+enum TestGameStatus {
+  NOT_TESTED      // Just uploaded, not tested yet
+  IN_TESTING      // Currently being tested by team
+  APPROVED        // Approved and ready for catalog
+  REJECTED        // Rejected, needs fixes
+  NEEDS_REVISION  // Approved with requested changes
+}
+
+// Approval/Rejection decisions
+model GameApproval {
+  id              String   @id @default(cuid())
+  testGameId      String
+
+  // Approver
+  userId          String   // Admin who made the decision
+  userName        String   // Cached for display
+
+  // Decision
+  decision        ApprovalDecision
+  notes           String?  @db.Text
+
+  // Checklist (optional structured feedback)
+  educationalQuality    Boolean?
+  technicalQuality      Boolean?
+  accessibilityCompliant Boolean?
+  ageAppropriate        Boolean?
+  engagementLevel       Int?     // 1-5 rating
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testGame        TestGame @relation(fields: [testGameId], references: [id], onDelete: Cascade)
+
+  @@index([testGameId])
+  @@index([userId])
+}
+
+enum ApprovalDecision {
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+}
+
+// Detailed feedback/notes on games
+model GameFeedback {
+  id              String   @id @default(cuid())
+  testGameId      String
+
+  // Feedback Provider
+  userId          String
+  userName        String
+
+  // Feedback Content
+  feedbackType    FeedbackType
+  message         String   @db.Text
+
+  // Optional: Specific issues/bugs
+  issueSeverity   IssueSeverity?
+  screenshotUrl   String?
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testGame        TestGame @relation(fields: [testGameId], references: [id], onDelete: Cascade)
+
+  @@index([testGameId])
+  @@index([userId])
+}
+
+enum FeedbackType {
+  BUG
+  SUGGESTION
+  PRAISE
+  ACCESSIBILITY_ISSUE
+  CONTENT_ERROR
+  GENERAL
+}
+
+enum IssueSeverity {
+  CRITICAL    // Blocks approval
+  MAJOR       // Significant issue
+  MINOR       // Nice to fix
+  TRIVIAL     // Optional
+}
+
+// ============================================================================
+// AI AGENT STUDIO MODELS (Plan 6)
+// ============================================================================
+
+// Agent conversations for content creation
+model AgentConversation {
+  id              String   @id @default(cuid())
+  userId          String
+  agentType       String?  // Made optional for universal agent
+  skillsUsed      String[] // Array of skill IDs used in conversation
+  title           String?
+  status          ConversationStatus @default(ACTIVE)
+
+  // Relations
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        ConversationMessage[]
+  generatedContent GeneratedContent[]
+  uploadedFiles   UploadedFile[]
+  skillExecutions SkillExecution[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, agentType])
+  @@index([status])
+}
+
+enum ConversationStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+// Individual messages within conversations
+model ConversationMessage {
+  id              String   @id @default(cuid())
+  conversationId  String
+  role            MessageRole
+  content         String   @db.Text
+  metadata        Json?    // Attachments, tool calls, etc.
+
+  // Relations
+  conversation    AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+// Skill execution tracking for Universal Agent
+model SkillExecution {
+  id              String   @id @default(cuid())
+  skillId         String
+  conversationId  String
+  userRequest     String   @db.Text
+  confidence      Float
+  success         Boolean
+  executionTime   Int      // milliseconds
+  output          Json?
+  errorMessage    String?  @db.Text
+
+  // Relations
+  conversation    AgentConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+
+  @@index([skillId])
+  @@index([conversationId, createdAt])
+  @@index([success])
+}
+
+// Multi-agent workflow executions
+model WorkflowExecution {
+  id              String   @id @default(cuid())
+  userId          String
+  workflowType    String   // 'html-game-creation', 'react-game-creation', etc.
+  status          WorkflowStatus @default(PENDING)
+  currentStep     Int      @default(0)
+  totalSteps      Int
+  inputData       Json?
+  outputData      Json?
+  errorMessage    String?  @db.Text
+
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([userId, status])
+  @@index([workflowType])
+}
+
+enum WorkflowStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Content generated by agents
+model GeneratedContent {
+  id              String   @id @default(cuid())
+  conversationId  String?
+  workflowId      String?
+  contentType     String   // 'game', 'lesson', 'catalog_entry', 'qa_report'
+  filePath        String?  // S3 path
+  fileUrl         String?  // Presigned URL (expires)
+  metadata        Json?    // Game metadata, validation results, etc.
+
+  // Relations
+  conversation    AgentConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime? // For temporary files
+
+  @@index([conversationId])
+  @@index([contentType])
+}
+
+// Usage metrics for AI agents
+model AgentMetrics {
+  id              String   @id @default(cuid())
+  userId          String?
+  agentType       String   // 'game-idea-generator', 'content-builder', etc.
+  actionType      String?  // 'chat', 'workflow', 'generate'
+  tokensUsed      Int?
+  durationMs      Int?
+  success         Boolean
+
+  createdAt       DateTime @default(now())
+
+  @@index([userId, agentType])
+  @@index([createdAt])
+}
+
+// Uploaded files for agent reference
+model UploadedFile {
+  id              String   @id @default(cuid())
+  userId          String
+  conversationId  String?
+
+  // File information
+  originalName    String
+  fileName        String   // Sanitized filename
+  fileType        String   // 'md', 'pdf', 'docx'
+  mimeType        String
+  fileSize        Int      // in bytes
+  filePath        String   // Local or S3 path
+
+  // Extracted content
+  extractedText   String?  @db.Text
+
+  // Metadata
+  uploadStatus    UploadStatus @default(PROCESSING)
+  errorMessage    String?
+
+  // Relations
+  conversation    AgentConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime? // Optional expiration
+
+  @@index([userId])
+  @@index([conversationId])
+}
+
+enum UploadStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// GEMINI 3D CONTENT STUDIO MODELS
+// ============================================================================
+
+// Gemini-generated content tracking
+model GeminiContent {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Content Information
+  title           String
+  prompt          String   @db.Text
+  generatedCode   String   @db.Text
+  gameType        GameType @default(HTML_2D)
+  category        String   // 'math', 'science', 'english', 'history', 'interdisciplinary'
+  gradeLevel      String[] // ['K', '1', '2', '3', '4', '5', '6', '7', '8']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  skills          String[] // Learning objectives/skills
+
+  // Workflow Status
+  status          GeminiContentStatus @default(DRAFT)
+
+  // Iteration History
+  iterations      Int      @default(1)
+  iterationNotes  String[] // Array of feedback/changes for each iteration
+
+  // Quality Metrics
+  accessibilityScore Int?   // 0-100
+  performanceScore   Int?   // 0-100
+  educationalScore   Int?   // 0-100
+
+  // File Management
+  filePath        String?  // Where the file is saved (e.g., '/games/gemini-math-race.html')
+  previewUrl      String?  // Temporary preview URL
+
+  // Publishing
+  publishedAt     DateTime?
+  catalogEntryId  String?  // Reference to catalogData entry if published
+  testGameId      String?  // Reference to TestGame if moved to testing
+
+  // Metadata
+  metadata        Json?    // Additional metadata (tokens used, model version, etc.)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  iterations_history GeminiIteration[]
+
+  @@index([userId, status])
+  @@index([status, category])
+  @@index([createdAt])
+}
+
+enum GameType {
+  HTML_2D         // Standard 2D HTML game
+  HTML_3D         // 3D game with Three.js
+  INTERACTIVE     // Interactive lesson/tutorial
+  QUIZ            // Quiz/assessment
+  SIMULATION      // Science simulation
+  PUZZLE          // Logic puzzle
+}
+
+enum GeminiContentStatus {
+  DRAFT           // Initial generation, not finalized
+  ITERATING       // Being refined through conversation
+  TESTING         // Ready for testing
+  APPROVED        // Approved for publishing
+  PUBLISHED       // Published to catalog
+  ARCHIVED        // Archived/deprecated
+}
+
+// Track each iteration/refinement of Gemini content
+model GeminiIteration {
+  id              String   @id @default(cuid())
+  geminiContentId String
+
+  // Iteration Details
+  iterationNumber Int      // 1, 2, 3...
+  userFeedback    String   @db.Text // What the user asked to change
+  previousCode    String   @db.Text // Code before this iteration
+  newCode         String   @db.Text // Code after this iteration
+
+  // Changes Summary
+  changesSummary  String?  @db.Text // AI-generated summary of what changed
+
+  // Metrics
+  tokensUsed      Int?
+  generationTime  Int?     // Milliseconds
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  geminiContent   GeminiContent @relation(fields: [geminiContentId], references: [id], onDelete: Cascade)
+
+  @@index([geminiContentId, iterationNumber])
+}
+
+// Gemini API usage tracking for cost monitoring
+model GeminiUsage {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Usage Details
+  operation       String   // 'generate', 'iterate', 'preview'
+  model           String   // 'gemini-3-pro', etc.
+  tokensInput     Int
+  tokensOutput    Int
+  tokensCached    Int?     // If using caching
+
+  // Cost Calculation
+  estimatedCost   Float    // In USD
+
+  // Context
+  geminiContentId String?  // If related to specific content
+  success         Boolean  @default(true)
+  errorMessage    String?  @db.Text
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// GAMIFICATION & SOCIAL FEATURES (Phase 3E)
+// ============================================================================
+
+// Friend connections for social features
+model Friendship {
+  id          String   @id @default(cuid())
+  userId      String   // User who initiated the friendship
+  friendId    String   // Friend user ID
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  acceptedAt  DateTime?
+
+  user        User @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend      User @relation("FriendOfUsers", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId, status])
+  @@index([friendId, status])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+// Challenge competitions between users
+model Challenge {
+  id              String   @id @default(cuid())
+  creatorId       String
+  challengedId    String
+
+  // Challenge Details
+  type            ChallengeType
+  category        String?  // Subject category
+  adventureId     String?  // Specific adventure challenge
+  goalValue       Int      // Target to achieve
+  unit            String   // 'adventures', 'xp', 'score'
+
+  // Status & Results
+  status          ChallengeStatus @default(ACTIVE)
+  creatorProgress Int      @default(0)
+  challengedProgress Int   @default(0)
+  winnerId        String?
+
+  // Timing
+  startDate       DateTime @default(now())
+  endDate         DateTime
+  completedAt     DateTime?
+
+  createdAt       DateTime @default(now())
+
+  creator         User @relation("CreatedChallenges", fields: [creatorId], references: [id], onDelete: Cascade)
+  challenged      User @relation("ReceivedChallenges", fields: [challengedId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, status])
+  @@index([challengedId, status])
+  @@index([status, endDate])
+}
+
+enum ChallengeType {
+  ADVENTURE_RACE    // Complete X adventures first
+  XP_BATTLE         // Earn most XP in time period
+  SCORE_SHOWDOWN    // Get highest average score
+  STREAK_CHALLENGE  // Maintain longest streak
+}
+
+enum ChallengeStatus {
+  PENDING    // Waiting for acceptance
+  ACTIVE     // In progress
+  COMPLETED  // Finished
+  DECLINED   // Rejected by challenged user
+  EXPIRED    // Time ran out
+}
+
+// Study groups for collaborative learning
+model StudyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  category    String?  // Subject focus
+  ownerId     String
+
+  // Settings
+  isPublic    Boolean  @default(false)
+  maxMembers  Int      @default(10)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner       User @relation("OwnedStudyGroups", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     StudyGroupMember[]
+
+  @@index([ownerId])
+  @@index([category, isPublic])
+}
+
+model StudyGroupMember {
+  id           String   @id @default(cuid())
+  groupId      String
+  userId       String
+  role         GroupRole @default(MEMBER)
+  joinedAt     DateTime @default(now())
+
+  group        StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+  @@index([groupId, role])
+}
+
+enum GroupRole {
+  OWNER
+  MODERATOR
+  MEMBER
+}
+
+// ============================================================================
+// CHILD ACCOUNT PROVISIONING (COPPA-Compliant)
+// ============================================================================
+
+// Child profiles for parent-managed accounts
+model ChildProfile {
+  id              String   @id @default(cuid())
+  parentId        String
+  parent          User     @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  // Child Identity (COPPA-compliant - no email, no PII)
+  displayName     String   // Parent's nickname for child (e.g., "Alex")
+  username        String   @unique // Auto-generated anonymous username (e.g., "BraveEagle42")
+  authCode        String   // Hashed PIN (bcrypt)
+
+  // Profile Information
+  gradeLevel      String   // "K", "1", "2", ... "12"
+  avatarId        String   // "tiger", "dragon", "rocket", etc.
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+
+  // Relations
+  sessions        ChildSession[]
+
+  @@index([parentId])
+  @@index([username])
+}
+
+// Child session management (separate from NextAuth)
+model ChildSession {
+  id              String   @id @default(cuid())
+  childId         String
+  child           ChildProfile @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  sessionToken    String   @unique
+  expires         DateTime
+  createdAt       DateTime @default(now())
+
+  @@index([childId])
+  @@index([sessionToken])
+}
+
+// ============================================================================
+// ADMIN CONTENT UPLOAD SYSTEM
+// ============================================================================
+
+// Uploaded content by admin team (games, lessons, videos, courses)
+model UploadedContent {
+  id              String   @id @default(cuid())
+
+  // Content Info
+  contentId       String   @unique
+  title           String
+  description     String   @db.Text
+  type            ContentType
+  subject         String
+
+  // Metadata
+  gradeLevel      String[]
+  difficulty      Difficulty
+  skills          String[]
+  estimatedTime   String
+  featured        Boolean  @default(false)
+
+  // File Storage
+  storageType     StorageType
+  filePath        String
+  fileSize        Int
+  mimeType        String
+
+  // Premium/Publishing
+  subscriptionTier SubscriptionTier @default(FREE)
+  isPremium       Boolean  @default(false)
+  publishStatus   PublishStatus @default(PUBLISHED)
+  publishedAt     DateTime?
+  publishedBy     String?
+
+  // Relations
+  uploadedBy      String
+  uploader        User     @relation("UploadedContent", fields: [uploadedBy], references: [id])
+  courseId        String?
+  course          Course?  @relation("CourseContent", fields: [courseId], references: [id])
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([publishStatus, type, subject])
+  @@index([contentId])
+}
+
+enum ContentType {
+  GAME
+  LESSON
+  VIDEO
+  QUIZ
+  PROJECT
+}
+
+enum StorageType {
+  LOCAL
+  BLOB
+  EXTERNAL
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ============================================================================
+// CUSTOM COURSE REQUEST SYSTEM (Parent/Teacher Intake Form)
+// ============================================================================
+
+// Course Request submitted by parents/teachers for custom AI-generated courses
+model CourseRequest {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Section 1: Requestor Information
+  fullName        String
+  role            RequestorRole
+  email           String
+  phone           String?
+  organization    String?
+  preferredContact ContactMethod @default(EMAIL)
+
+  // Section 2: Student Profile
+  studentName     String   // Name or alias
+  studentAge      Int
+  gradeLevel      String   // 'K', '1', '2', ..., '12'
+  numberOfStudents StudentCount @default(SINGLE)
+  learningAccommodations String[] // Array: 'IEP', '504', 'ADHD', 'Dyslexia', 'Other'
+  accommodationNotes String? @db.Text
+
+  // Section 3: Subject & Focus Area
+  primarySubject  String   // 'math', 'reading', 'writing', 'science', 'history', 'stem', 'other'
+  specificTopics  String[] // Array of topic strings
+  customTopics    String?  @db.Text
+  learningGoal    LearningGoalType
+
+  // Section 4: Learning Challenges
+  challenges      String[] // Array: 'loses_interest', 'difficulty_focusing', etc.
+  observationalNotes String? @db.Text
+
+  // Section 5: Learning Style & Interests
+  learningStyles  String[] // 'visual', 'hands_on', 'story_based', 'game_based', 'audio'
+  studentInterests String[] // 'science', 'space', 'nature', etc.
+  favoriteCharacters String? @db.Text
+
+  // Section 6: Course Format Preferences
+  courseLength    CourseLengthPreference
+  preferredComponents String[] // 'games', 'quizzes', 'projects', 'stories', 'printables'
+  sessionTime     SessionDuration
+
+  // Section 7: Assessment & Success
+  successIndicators String[] // 'improved_grades', 'confidence', etc.
+  reportingPreferences String[] // 'progress_reports', 'skill_mastery', 'dashboard'
+
+  // Section 8: Delivery & Logistics
+  preferredStartDate DateTime?
+  urgencyLevel    UrgencyLevel @default(STANDARD)
+  devicePreference String[] // 'web', 'tablet', 'mobile'
+  includeOfflinePackets Boolean @default(false)
+
+  // Section 9: Budget & Reusability
+  budgetTier      BudgetTier @default(STANDARD)
+  allowReuse      Boolean?  // null = 'not sure'
+
+  // Section 10: Final Notes & Consent
+  additionalNotes String?   @db.Text
+  consentGiven    Boolean   @default(false)
+
+  // Status & Workflow
+  status          RequestStatus @default(DRAFT)
+  isDraft         Boolean   @default(true)
+
+  // AI Agent Processing
+  aiProcessingStatus AIProcessingStatus @default(NOT_STARTED)
+  generatedCourseId String?  // Link to generated Course
+  aiMetadata      Json?     // Store AI agent outputs
+
+  // Admin Management
+  assignedToId    String?   // Admin user ID
+  adminNotes      String?   @db.Text
+  reviewedAt      DateTime?
+  rejectionReason String?   @db.Text
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  submittedAt     DateTime?
+  completedAt     DateTime?
+
+  // Relations
+  user            User      @relation("CourseRequests", fields: [userId], references: [id], onDelete: Cascade)
+  assignedAdmin   User?     @relation("AssignedCourseRequests", fields: [assignedToId], references: [id])
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@index([assignedToId])
+}
+
+// Enums for CourseRequest
+enum RequestorRole {
+  PARENT
+  TEACHER
+  TUTOR
+  ADMIN
+  OTHER
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  EITHER
+}
+
+enum StudentCount {
+  SINGLE
+  SMALL_GROUP  // 2-5 students
+  CLASS        // 6+ students
+}
+
+enum LearningGoalType {
+  CATCH_UP
+  REINFORCE
+  GET_AHEAD
+  BUILD_CONFIDENCE
+}
+
+enum CourseLengthPreference {
+  ONE_TO_TWO_WEEKS
+  THREE_TO_FOUR_WEEKS
+  SIX_TO_EIGHT_WEEKS
+  FLEXIBLE
+}
+
+enum SessionDuration {
+  FIFTEEN_MIN
+  THIRTY_MIN
+  FORTY_FIVE_MIN
+  FLEXIBLE
+}
+
+enum UrgencyLevel {
+  ASAP          // Within 1 week
+  STANDARD      // 2-4 weeks
+  FLEXIBLE      // No rush
+}
+
+enum BudgetTier {
+  STARTER       // $0-50
+  STANDARD      // $51-150
+  FULLY_CUSTOM  // $151+
+}
+
+enum RequestStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  IN_PROGRESS
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum AIProcessingStatus {
+  NOT_STARTED
+  CURRICULUM_GENERATION
+  GAME_CREATION
+  NARRATIVE_DESIGN
+  ASSESSMENT_BUILDING
+  COMPLETED
+  FAILED
+}
+
+// ============================================================================
+// TEST COURSE MODEL (STAGING/REVIEW WORKFLOW)
+// ============================================================================
+
+// Test Courses pending approval (mirrors TestGame for courses)
+model TestCourse {
+  id              String   @id @default(cuid())
+
+  // Course Information
+  slug            String   @unique
+  title           String
+  description     String   @db.Text
+  subject         String   // 'math', 'science', etc.
+  gradeLevel      String[] // ['3-5', '6-8']
+  difficulty      String   // 'easy', 'medium', 'hard'
+  isPremium       Boolean  @default(false)
+  estimatedMinutes Int
+  totalXP         Int      @default(0)
+
+  // Staging File Paths
+  stagingPath     String   // Base path for staged files (e.g., '/staging/lessons/courses/my-course/')
+  thumbnailPath   String?
+
+  // Lesson Metadata (stored as JSON for staging)
+  lessonsData     Json     // Array of lesson metadata from manifest
+
+  // Approval Status
+  status          TestGameStatus @default(NOT_TESTED)
+
+  // Metadata
+  createdBy       String?  // User ID who uploaded
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Production Integration
+  promotedToCourseId String?  // Reference to Course if promoted
+  promotedAt         DateTime?
+  promotedBy         String?  // User ID who promoted
+
+  // Relations
+  approvals       CourseApproval[]
+  feedback        CourseFeedback[]
+
+  @@index([status, subject])
+  @@index([promotedToCourseId])
+}
+
+// Approval/Rejection decisions for courses
+model CourseApproval {
+  id              String   @id @default(cuid())
+  testCourseId    String
+
+  // Approver
+  userId          String   // Admin who made the decision
+  userName        String   // Cached for display
+
+  // Decision
+  decision        ApprovalDecision
+  notes           String?  @db.Text
+
+  // Checklist (optional structured feedback)
+  curriculumQuality     Boolean?
+  contentAccuracy       Boolean?
+  technicalQuality      Boolean?
+  accessibilityCompliant Boolean?
+  ageAppropriate        Boolean?
+  engagementLevel       Int?     // 1-5 rating
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testCourse      TestCourse @relation(fields: [testCourseId], references: [id], onDelete: Cascade)
+
+  @@index([testCourseId])
+  @@index([userId])
+}
+
+// Detailed feedback/notes on courses
+model CourseFeedback {
+  id              String   @id @default(cuid())
+  testCourseId    String
+
+  // Feedback Provider
+  userId          String
+  userName        String
+
+  // Feedback Content
+  feedbackType    FeedbackType
+  message         String   @db.Text
+  lessonIndex     Int?     // Which lesson the feedback refers to (if applicable)
+
+  // Optional: Specific issues/bugs
+  issueSeverity   IssueSeverity?
+  screenshotUrl   String?
+
+  // Timestamp
+  createdAt       DateTime @default(now())
+
+  // Relations
+  testCourse      TestCourse @relation(fields: [testCourseId], references: [id], onDelete: Cascade)
+
+  @@index([testCourseId])
+  @@index([userId])
+}
+
+// ============================================
+// 2D WORLD GAME MODELS (Phase 2)
+// ============================================
+
+// Character - Player avatar and world state for 2D game
+model Character {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  
+  // Appearance
+  avatarId    String   // 'robot-blue', 'human-1', 'cat-orange', etc.
+  name        String   // Character display name
+  
+  // World State
+  position    Json     // { x, y, scene }
+  lastScene   String   @default("WorldScene")
+  
+  // Equipment (cosmetics)
+  equipment   Json?    // { hat, shirt, accessory, pet }
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inventory   Inventory?
+  
+  @@index([userId])
+}
+
+// Inventory - Item storage for 2D game
+model Inventory {
+  id          String   @id @default(cuid())
+  characterId String   @unique
+
+  items       Json     // Array of InventoryItem: { id, type, name, quantity, metadata }
+  capacity    Int      @default(20)
+
+  updatedAt   DateTime @updatedAt
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+}
+
+enum ItemType {
+  CONSUMABLE   // XP potions, food (one-time use)
+  EQUIPMENT    // Wearable cosmetics (hat, shirt, accessory)
+  PET          // Pet companions
+}
+
+// ShopItem - Item catalog for the 2D world shop
+model ShopItem {
+  id               String   @id @default(cuid())
+  itemId           String   @unique  // e.g. 'xp-potion', 'wizard-hat'
+  name             String
+  description      String   @db.Text
+  type             ItemType
+  price            Int      // Cost in coins
+  levelRequirement Int      @default(1)
+  iconEmoji        String   // e.g. '🧪', '🧙', '🤖'
+  effects          Json?    // e.g. { "xpBoost": 50 } for consumables
+  isAvailable      Boolean  @default(true)
+
+  createdAt        DateTime @default(now())
+
+  @@index([type, isAvailable])
+}
+
+// ============================================================================
+// JOB SYSTEM MODELS
+// ============================================================================
+
+enum JobType {
+  MINI_GAME   // Launches a Phaser/HTML mini-game
+  QUIZ        // Answer N math questions
+  CHALLENGE   // Timed or logic challenge
+}
+
+// Job - Catalog of available daily jobs
+model Job {
+  id               String   @id @default(cuid())
+  jobId            String   @unique  // e.g. 'cafeteria-cashier'
+  title            String
+  description      String   @db.Text
+  type             JobType
+  iconEmoji        String
+  currencyReward   Int      // Coins awarded on completion
+  xpReward         Int      // XP awarded on completion
+  cooldownHours    Int      // Hours before user can do it again
+  isActive         Boolean  @default(true)
+  minLevel         Int      @default(1)
+
+  // For MINI_GAME jobs — the HTML game path to launch
+  gamePath         String?  // e.g. '/games/cafeteria-cashier.html'
+
+  createdAt        DateTime @default(now())
+
+  completions      JobCompletion[]
+
+  @@index([isActive, minLevel])
+}
+
+// JobCompletion - Records each time a user completes a job
+model JobCompletion {
+  id              String   @id @default(cuid())
+  userId          String
+  jobId           String   // FK to Job.jobId (string id, not cuid)
+  completedAt     DateTime @default(now())
+  currencyEarned  Int
+  xpEarned        Int
+  score           Int?     // Optional score from mini-game
+
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             Job  @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+
+  @@index([userId, jobId])
+  @@index([userId, completedAt])
+}

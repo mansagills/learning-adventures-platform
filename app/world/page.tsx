@@ -9,11 +9,13 @@ import { AdventureEmbed } from '@/components/world/AdventureEmbed';
 import { ShopModal } from '@/components/world/ShopModal';
 import { InventoryPanel } from '@/components/world/InventoryPanel';
 import { JobBoard } from '@/components/world/JobBoard';
+import { WorldDialog, type NpcDialogState } from '@/components/world/WorldDialog';
 import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
 import { QuestLog } from '@/components/world/QuestLog';
 import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
+import type { WorldBootstrap } from '@/game/worldBootstrap';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -55,6 +57,19 @@ export default function WorldPage() {
     coinReward: number;
     status: 'available' | 'active';
   } | null>(null);
+  const [npcDialog, setNpcDialog] = useState<NpcDialogState | null>(null);
+  const [zoneBanner, setZoneBanner] = useState<string | null>(null);
+  const savedScene = characterData?.lastScene ?? characterData?.position?.scene ?? 'OpenWorldScene';
+  const savedPosition = savedScene === 'WorldScene' || !characterData?.position
+    ? { x: 3072, y: 2304, scene: 'OpenWorldScene' }
+    : characterData.position;
+  const worldBootstrap: WorldBootstrap | null = characterData
+    ? {
+        avatarId: characterData.avatarId ?? 'human-1',
+        lastScene: savedScene === 'WorldScene' ? 'OpenWorldScene' : savedScene,
+        position: savedPosition,
+      }
+    : null;
 
   // Use refs so EventBus callbacks always have latest values without re-registering
   const sessionRef = useRef(session);
@@ -153,6 +168,7 @@ export default function WorldPage() {
   useEffect(() => {
     const handleSavePosition = async (data: { x: number; y: number; scene: string }) => {
       if (!sessionRef.current || !characterDataRef.current) return;
+      if (data.scene !== 'OpenWorldScene') return;
       try {
         await fetch('/api/character/update', {
           method: 'POST',
@@ -192,13 +208,23 @@ export default function WorldPage() {
         console.error('Failed to save collectible reward:', err);
       }
     };
+    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
+
+    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
+      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
+      setZoneBanner(data.zone.displayName);
+      setTimeout(() => setZoneBanner(null), 2800);
+    };
 
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('quest-offer', handleQuestOffer);
+    EventBus.on('npc-dialog', handleNpcDialog);
     EventBus.on('collectible-collected', handleCollectibleCollected);
+    EventBus.on('zone-changed', handleZoneChanged);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
@@ -206,7 +232,9 @@ export default function WorldPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('quest-offer', handleQuestOffer);
+      EventBus.off('npc-dialog', handleNpcDialog);
       EventBus.off('collectible-collected', handleCollectibleCollected);
+      EventBus.off('zone-changed', handleZoneChanged);
     };
   }, []);
 
@@ -309,6 +337,12 @@ export default function WorldPage() {
             setCoins(data.level.currency);
             setUserLevel(data.level.currentLevel);
           }
+          if (data.newAchievements?.length) {
+            const badgeTitle = data.newAchievements[0]?.title;
+            if (badgeTitle) {
+              showNotification(`Badge unlocked: ${badgeTitle}`);
+            }
+          }
         } else {
           showNotification(data.error ?? 'Job reward failed');
         }
@@ -326,11 +360,11 @@ export default function WorldPage() {
   // Loading screen
   if (status === 'loading' || isCheckingCharacter) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
+      <div className="min-h-screen flex items-center justify-center bg-[#050810]">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B5CF6]" />
-          <p className="mt-4 text-lg text-[#8B5CF6] font-semibold">
-            {isCheckingCharacter ? 'Loading character...' : 'Loading...'}
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#00CCFF]" />
+          <p className="mt-4 text-sm text-[#00CCFF]" style={{ fontFamily: 'var(--font-pixel, monospace)' }}>
+            {isCheckingCharacter ? 'LOADING...' : 'CONNECTING...'}
           </p>
         </div>
       </div>
@@ -339,15 +373,15 @@ export default function WorldPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFDF5]">
+      <div className="min-h-screen flex items-center justify-center bg-[#050810]">
         <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Unable to Load Game World</h1>
-          <p className="text-gray-700 mb-6">{error}</p>
+          <h1 className="text-2xl font-bold text-[#FF4DCC] mb-4">CONNECTION FAILED</h1>
+          <p className="text-[#CCDDFF] mb-6">{error}</p>
           <a
             href="/catalog"
-            className="inline-block px-6 py-3 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7C3AED] transition-colors"
+            className="inline-block px-6 py-3 bg-transparent text-[#00CCFF] rounded border border-[#00CCFF] hover:bg-[#00CCFF]/10 transition-colors"
           >
-            Browse Catalog Instead
+            Browse Catalog
           </a>
         </div>
       </div>
@@ -355,10 +389,10 @@ export default function WorldPage() {
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
+    <div className="relative w-full h-screen overflow-hidden bg-[#050810]">
       {/* Game canvas */}
       <div className="absolute inset-0">
-        <PhaserGame onSceneReady={handleSceneReady} />
+        <PhaserGame bootstrap={worldBootstrap} onSceneReady={handleSceneReady} />
       </div>
 
       {/* Adventure Embed Modal */}
@@ -368,6 +402,7 @@ export default function WorldPage() {
           type={currentAdventure.type}
           onClose={() => { setCurrentAdventure(null); setActiveJob(null); }}
           onComplete={() => handleJobAdventureComplete(currentAdventure.adventureId)}
+          rewardXP={activeJob?.xpReward ?? XP_PER_GAME}
         />
       )}
 
@@ -406,12 +441,20 @@ export default function WorldPage() {
         />
       )}
 
-      {/* Job Board */}
+      {/* Quest Board */}
       {showJobBoard && (
         <JobBoard
           onClose={() => setShowJobBoard(false)}
           onStartJob={handleStartJob}
           onJobComplete={handleJobComplete}
+        />
+      )}
+
+      {/* NPC Dialog */}
+      {npcDialog && (
+        <WorldDialog
+          dialog={npcDialog}
+          onClose={() => setNpcDialog(null)}
         />
       )}
 
@@ -427,11 +470,28 @@ export default function WorldPage() {
         </div>
       )}
 
+      {/* Zone Banner */}
+      {zoneBanner && (
+        <div className="zone-banner visible z-50 pointer-events-none">
+          {zoneBanner}
+        </div>
+      )}
+
       {/* Notification Toast */}
       {notification && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-          <div className="bg-yellow-400 text-yellow-900 font-extrabold text-xl px-8 py-3 rounded-2xl shadow-2xl animate-bounce">
-            ⭐ {notification}
+          <div
+            className="px-8 py-3 rounded animate-bounce"
+            style={{
+              background: 'rgba(5,8,16,0.92)',
+              border: '1px solid var(--hud-accent)',
+              color: 'var(--hud-accent)',
+              fontFamily: 'var(--font-pixel, monospace)',
+              fontSize: '10px',
+              boxShadow: '0 0 16px color-mix(in srgb, var(--hud-accent) 50%, transparent)',
+            }}
+          >
+            + {notification}
           </div>
         </div>
       )}
@@ -440,40 +500,51 @@ export default function WorldPage() {
       {gameReady && (
         <div className="absolute inset-0 pointer-events-none">
           {/* Top-left: Character info */}
-          <div className="absolute top-4 left-4 bg-black/70 rounded-lg px-4 py-2 pointer-events-auto">
-            <p className="text-white font-semibold">
-              {characterData?.name || session?.name || 'Player'}
+          <div className="hud-panel absolute top-4 left-4 px-4 py-2 pointer-events-auto">
+            <p className="text-[#ccddff]" style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '8px', lineHeight: '1.6' }}>
+              {characterData?.name || session?.name || 'PLAYER'}
             </p>
-            <p className="text-xs text-gray-300">Level {userLevel}</p>
+            <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '7px', color: 'var(--hud-accent)', lineHeight: '1.6' }}>
+              LVL {userLevel}
+            </p>
           </div>
 
           {/* Top-center: XP + Coins */}
           <div id="xp-display" className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-3 pointer-events-none">
-            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
-              <span className="text-yellow-400 text-lg">⭐</span>
-              <span className="text-white font-bold">{xp} XP</span>
+            <div className="hud-panel px-4 py-2 flex items-center gap-2">
+              <span style={{ color: '#ffb300', fontSize: '14px' }}>★</span>
+              <span style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '8px', color: '#ffb300' }}>{xp} XP</span>
             </div>
-            <div className="bg-black/70 rounded-lg px-4 py-2 flex items-center gap-2">
-              <span className="text-yellow-300 text-lg">🪙</span>
-              <span className="text-white font-bold">{coins}</span>
+            <div className="hud-panel px-4 py-2 flex items-center gap-2">
+              <span style={{ color: '#ffb300', fontSize: '14px' }}>◈</span>
+              <span style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '8px', color: '#ffb300' }}>{coins}</span>
             </div>
           </div>
 
           {/* Top-right: Buttons */}
           <div className="absolute top-4 right-4 flex gap-2 pointer-events-auto">
             <button
+              onClick={() => router.push('/world/campus')}
+              className="bg-black/70 hover:bg-[#4ade80]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Try the Gather-style campus"
+            >
+              🏫 Campus
+            </button>
+            <button
               onClick={() => setShowInventory(true)}
-              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              className="hud-panel px-3 py-2 transition-all hover:brightness-125 cursor-pointer"
+              style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '7px' }}
               title="Open Inventory"
             >
-              🎒 Bag
+              BAG
             </button>
             <button
               onClick={() => setShowShop(true)}
-              className="bg-black/70 hover:bg-[#14B8A6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              className="hud-panel px-3 py-2 transition-all hover:brightness-125 cursor-pointer"
+              style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '7px' }}
               title="Open Shop"
             >
-              🛒 Shop
+              SHOP
             </button>
             <button
               onClick={() => setShowQuestLog(true)}
@@ -484,16 +555,18 @@ export default function WorldPage() {
             </button>
             <button
               onClick={() => setShowJobBoard(true)}
-              className="bg-black/70 hover:bg-[#F59E0B]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
-              title="Open Job Board"
+              className="hud-panel px-3 py-2 transition-all hover:brightness-125 cursor-pointer"
+              style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '7px' }}
+              title="Open Quest Board"
             >
-              💼 Jobs
+              QUESTS
             </button>
             <button
               onClick={() => router.push('/')}
-              className="bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg transition-colors"
+              className="hud-panel px-4 py-2 transition-all hover:brightness-125 cursor-pointer"
+              style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '7px' }}
             >
-              Exit World
+              EXIT
             </button>
           </div>
 
@@ -502,14 +575,22 @@ export default function WorldPage() {
             <button
               id="spark-button"
               onClick={() => setShowSpark((prev) => !prev)}
-              className="pointer-events-auto bg-yellow-400 hover:bg-yellow-300 text-[#1F1F2E] px-4 py-2 rounded-xl font-bold text-sm shadow-lg transition-colors flex items-center gap-2"
+              className="pointer-events-auto px-4 py-2 rounded transition-all hover:brightness-125 cursor-pointer"
+              style={{
+                background: 'rgba(5,8,16,0.92)',
+                border: '1px solid #ffb300',
+                color: '#ffb300',
+                fontFamily: 'var(--font-pixel, monospace)',
+                fontSize: '8px',
+                boxShadow: '0 0 12px rgba(255,179,0,0.3)',
+              }}
               title="Chat with SPARK"
             >
               ⚡ SPARK
             </button>
-            <div id="controls-hint" className="bg-black/70 rounded-lg px-4 py-2 pointer-events-none">
-              <p className="text-white text-sm">
-                <span className="font-semibold">Controls:</span> WASD or Arrow Keys to move
+            <div id="controls-hint" className="hud-panel px-4 py-2 pointer-events-none">
+              <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ccddff', lineHeight: '1.8' }}>
+                WASD / ARROWS TO MOVE
               </p>
             </div>
           </div>

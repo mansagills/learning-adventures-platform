@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cafeteria Cashier | Learning Adventures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream:        #FFFDF5;
+      --violet:       #8B5CF6;
+      --violet-dark:  #6D28D9;
+      --violet-light: #EDE9FE;
+      --teal:         #14B8A6;
+      --teal-dark:    #0D9488;
+      --teal-light:   #CCFBF1;
+      --amber:        #F59E0B;
+      --amber-dark:   #D97706;
+      --amber-light:  #FEF3C7;
+      --red:          #EF4444;
+      --red-light:    #FEE2E2;
+      --green:        #10B981;
+      --green-light:  #D1FAE5;
+      --gray-100:     #F3F4F6;
+      --gray-200:     #E5E7EB;
+      --gray-600:     #4B5563;
+      --gray-800:     #1F2937;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Outfit', Arial, sans-serif;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* ── Top Bar ── */
+    #top-bar {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    #game-title {
+      font-size: clamp(1rem, 4vw, 1.35rem);
+      font-weight: 900;
+      color: var(--violet-dark);
+      white-space: nowrap;
+      letter-spacing: -0.3px;
+    }
+
+    #score-badge {
+      background: var(--amber);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      border-radius: 999px;
+      padding: 4px 14px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.35);
+    }
+
+    #score-badge.pop {
+      animation: scorePop 0.35s ease forwards;
+    }
+
+    @keyframes scorePop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+
+    /* Progress dots */
+    #progress-dots {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      border: 2px solid var(--gray-200);
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+
+    .dot.done {
+      background: var(--teal);
+      border-color: var(--teal-dark);
+    }
+
+    .dot.active {
+      background: var(--violet);
+      border-color: var(--violet-dark);
+      transform: scale(1.25);
+    }
+
+    /* ── Main Game Area ── */
+    #game-area {
+      width: 100%;
+      max-width: 640px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 20px;
+      gap: 0;
+    }
+
+    /* ── Cafeteria Scene ── */
+    #scene {
+      width: 100%;
+      background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 55%, #fef3c7 55%, #fef3c7 100%);
+      border-radius: 24px;
+      border: 3px solid #bae6fd;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      height: 200px;
+      overflow: visible;
+      margin-bottom: 16px;
+    }
+
+    /* Counter top */
+    #counter {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      background: linear-gradient(180deg, #a16207 0%, #92400e 100%);
+      border-radius: 0 0 21px 21px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+    }
+
+    /* Customer */
+    #customer-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 46px;
+    }
+
+    #customer-wrap.enter {
+      animation: customerEnter 0.55s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+
+    #customer-wrap.exit {
+      animation: customerExit 0.4s ease-in forwards;
+    }
+
+    #customer-wrap.shake {
+      animation: shake 0.45s ease forwards;
+    }
+
+    @keyframes customerEnter {
+      from { transform: translateX(-160px) scale(0.7); opacity: 0; }
+      to   { transform: translateX(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes customerExit {
+      from { transform: translateX(0) scale(1); opacity: 1; }
+      to   { transform: translateX(180px) scale(0.7); opacity: 0; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      18%  { transform: translateX(-10px); }
+      36%  { transform: translateX(10px); }
+      54%  { transform: translateX(-8px); }
+      72%  { transform: translateX(8px); }
+      90%  { transform: translateX(-4px); }
+    }
+
+    #customer-emoji {
+      font-size: clamp(3rem, 10vw, 4.2rem);
+      line-height: 1;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+    }
+
+    /* Speech bubble */
+    #speech-bubble {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      transform: translateY(-100%);
+      background: #fff;
+      border: 2.5px solid var(--violet);
+      border-radius: 18px;
+      padding: 10px 14px;
+      min-width: 165px;
+      max-width: 230px;
+      box-shadow: 0 4px 16px rgba(139,92,246,0.18);
+      font-size: clamp(0.7rem, 3vw, 0.88rem);
+      color: var(--gray-800);
+      line-height: 1.45;
+      text-align: left;
+    }
+
+    #speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 22px;
+      border-width: 12px 8px 0 8px;
+      border-style: solid;
+      border-color: #fff transparent transparent transparent;
+      filter: drop-shadow(0 2px 0 var(--violet));
+    }
+
+    #speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 20px;
+      border-width: 14px 10px 0 10px;
+      border-style: solid;
+      border-color: var(--violet) transparent transparent transparent;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .order-divider {
+      border: none;
+      border-top: 1.5px dashed var(--gray-200);
+      margin: 5px 0;
+    }
+
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 0.95em;
+      color: var(--violet-dark);
+    }
+
+    /* ── Payment Box ── */
+    #payment-box {
+      width: 100%;
+      background: var(--amber-light);
+      border: 2.5px solid var(--amber);
+      border-radius: 18px;
+      padding: 14px 20px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    #payment-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--amber-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    #payment-amount {
+      font-size: clamp(1.5rem, 6vw, 2.1rem);
+      font-weight: 900;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ── Question ── */
+    #question-label {
+      font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+      font-weight: 700;
+      color: var(--gray-600);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* ── Answer Buttons ── */
+    #answers {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .answer-btn {
+      flex: 1;
+      min-width: 120px;
+      max-width: 180px;
+      padding: 18px 10px;
+      background: #fff;
+      border: 3px solid var(--gray-200);
+      border-radius: 20px;
+      font-family: 'Outfit', Arial, sans-serif;
+      font-size: clamp(1.2rem, 5vw, 1.65rem);
+      font-weight: 900;
+      color: var(--gray-800);
+      cursor: pointer;
+      box-shadow: 0 4px 0 var(--gray-200), 0 6px 20px rgba(0,0,0,0.07);
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+                  background 0.15s, border-color 0.15s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 0 var(--gray-200), 0 10px 24px rgba(0,0,0,0.1);
+    }
+
+    .answer-btn:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: 0 2px 0 var(--gray-200), 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .answer-btn.correct {
+      background: var(--green-light);
+      border-color: var(--green);
+      color: var(--green);
+      box-shadow: 0 4px 0 #059669, 0 6px 20px rgba(16,185,129,0.2);
+    }
+
+    .answer-btn.wrong {
+      background: var(--red-light);
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+    }
+
+    /* ── Feedback Toast ── */
+    #feedback-toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: var(--green);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 10px 22px;
+      border-radius: 999px;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 99;
+      white-space: nowrap;
+    }
+
+    #feedback-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #feedback-toast.error {
+      background: var(--red);
+      box-shadow: 0 4px 20px rgba(239,68,68,0.35);
+    }
+
+    /* ── Coin Animation ── */
+    .coin-burst {
+      position: fixed;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 200;
+      animation: coinFloat 1.1s ease-out forwards;
+    }
+
+    @keyframes coinFloat {
+      0%   { transform: translateY(0) scale(1); opacity: 1; }
+      80%  { transform: translateY(-90px) scale(1.2); opacity: 0.8; }
+      100% { transform: translateY(-120px) scale(0.8); opacity: 0; }
+    }
+
+    /* ── Game Over Screen ── */
+    #game-over {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 640px;
+      padding: 30px 24px 40px;
+      text-align: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    #game-over.visible {
+      display: flex;
+    }
+
+    #go-emoji {
+      font-size: 5rem;
+    }
+
+    #go-title {
+      font-size: clamp(1.8rem, 7vw, 2.6rem);
+      font-weight: 900;
+      color: var(--violet-dark);
+      line-height: 1.1;
+    }
+
+    #go-subtitle {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    #go-stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .stat-pill {
+      background: #fff;
+      border: 2.5px solid var(--gray-200);
+      border-radius: 16px;
+      padding: 14px 22px;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--gray-800);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+    }
+
+    .stat-pill .pill-value {
+      display: block;
+      font-size: 1.9rem;
+      color: var(--violet);
+    }
+
+    #play-again-btn {
+      background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 16px 40px;
+      font-family: 'Outfit', Arial, sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--violet-dark), 0 8px 24px rgba(139,92,246,0.35);
+      transition: transform 0.12s, box-shadow 0.12s;
+      touch-action: manipulation;
+    }
+
+    #play-again-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 var(--violet-dark), 0 12px 28px rgba(139,92,246,0.4);
+    }
+
+    #play-again-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 var(--violet-dark), 0 5px 16px rgba(139,92,246,0.3);
+    }
+
+    /* ── Start Screen ── */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 640px;
+      padding: 30px 24px 40px;
+      text-align: center;
+    }
+
+    #start-screen.hidden {
+      display: none;
+    }
+
+    #start-emoji {
+      font-size: 5rem;
+    }
+
+    #start-title {
+      font-size: clamp(1.8rem, 7vw, 2.6rem);
+      font-weight: 900;
+      color: var(--violet-dark);
+      line-height: 1.1;
+    }
+
+    #start-desc {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      max-width: 400px;
+      line-height: 1.6;
+    }
+
+    .menu-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      background: var(--violet-light);
+      border-radius: 18px;
+      padding: 14px 18px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .menu-chip {
+      background: #fff;
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--violet-dark);
+      border: 2px solid var(--violet-light);
+    }
+
+    #start-btn {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 16px 44px;
+      font-family: 'Outfit', Arial, sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--teal-dark), 0 8px 24px rgba(20,184,166,0.35);
+      transition: transform 0.12s, box-shadow 0.12s;
+      touch-action: manipulation;
+    }
+
+    #start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 var(--teal-dark), 0 12px 28px rgba(20,184,166,0.4);
+    }
+
+    #start-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 var(--teal-dark);
+    }
+
+    /* ── Responsive tweaks ── */
+    @media (max-width: 400px) {
+      .answer-btn {
+        min-width: 100px;
+        padding: 15px 6px;
+        font-size: 1.2rem;
+      }
+      #speech-bubble {
+        right: -50px;
+        min-width: 140px;
+        max-width: 185px;
+      }
+    }
+
+    @media (min-height: 700px) {
+      #scene { height: 220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOP BAR (hidden on start / game-over) ══ -->
+  <div id="top-bar" style="display:none;">
+    <div id="game-title">Cafeteria Cashier 🍕</div>
+    <div id="progress-dots">
+      <div class="dot" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+      <div class="dot" id="dot-4"></div>
+      <div class="dot" id="dot-5"></div>
+    </div>
+    <div id="score-badge">&#11088; 0</div>
+  </div>
+
+  <!-- ══ START SCREEN ══ -->
+  <div id="start-screen">
+    <div id="start-emoji">🍕</div>
+    <div id="start-title">Cafeteria Cashier</div>
+    <div id="start-desc">
+      Customers are hungry! Take their orders, figure out the correct change,
+      and keep the lunch line moving!
+    </div>
+    <div class="menu-preview">
+      <!-- Menu chips built by JS to avoid static duplication -->
+    </div>
+    <button id="start-btn" onclick="startGame()">Start Working! 🎉</button>
+  </div>
+
+  <!-- ══ MAIN GAME AREA ══ -->
+  <div id="game-area" style="display:none;">
+
+    <!-- Cafeteria Scene -->
+    <div id="scene">
+      <div id="customer-wrap">
+        <div id="speech-bubble">
+          <!-- order rows injected by JS using DOM methods -->
+        </div>
+        <div id="customer-emoji">👩‍🎓</div>
+      </div>
+      <div id="counter">🪙 🥤 🍱 🥤 🪙</div>
+    </div>
+
+    <!-- Payment Box -->
+    <div id="payment-box">
+      <div id="payment-label">They paid with</div>
+      <div id="payment-amount">
+        <span id="bill-emoji">💵</span>
+        <span id="bill-amount">$5.00</span>
+      </div>
+    </div>
+
+    <!-- Question label -->
+    <div id="question-label">How much change should you give back?</div>
+
+    <!-- Answer Buttons -->
+    <div id="answers">
+      <button class="answer-btn" id="btn-0" onclick="handleAnswer(0)">$0.00</button>
+      <button class="answer-btn" id="btn-1" onclick="handleAnswer(1)">$0.00</button>
+      <button class="answer-btn" id="btn-2" onclick="handleAnswer(2)">$0.00</button>
+    </div>
+  </div>
+
+  <!-- ══ GAME OVER ══ -->
+  <div id="game-over">
+    <div id="go-emoji">🎉</div>
+    <div id="go-title">Shift Complete!</div>
+    <div id="go-subtitle">Great job running the cafeteria!</div>
+    <div id="go-stats">
+      <div class="stat-pill">
+        Score
+        <span class="pill-value" id="go-score">0</span>
+      </div>
+      <div class="stat-pill">
+        Customers
+        <span class="pill-value" id="go-customers">0</span>
+      </div>
+      <div class="stat-pill">
+        Accuracy
+        <span class="pill-value" id="go-accuracy">0%</span>
+      </div>
+    </div>
+    <button id="play-again-btn" onclick="startGame()">Play Again! 🔄</button>
+  </div>
+
+  <!-- Feedback toast -->
+  <div id="feedback-toast"></div>
+
+  <script>
+    /* ══════════════════════════════════════════
+       GAME DATA
+    ══════════════════════════════════════════ */
+    var MENU = [
+      { name: 'Pizza Slice', emoji: '🍕', price: 1.25 },
+      { name: 'Juice Box',   emoji: '🧃', price: 0.75 },
+      { name: 'Apple',       emoji: '🍎', price: 0.50 },
+      { name: 'Sandwich',    emoji: '🥪', price: 2.50 },
+      { name: 'Cookie',      emoji: '🍪', price: 0.60 },
+      { name: 'Milk',        emoji: '🥛', price: 0.80 },
+    ];
+
+    var CUSTOMERS  = ['👩‍🎓', '🧑‍🎓', '👧', '🧒', '👦'];
+    var BILLS      = [5, 5, 10, 10, 20];   // bill per customer index
+    var TOTAL_CUSTOMERS = 5;
+
+    /* ══════════════════════════════════════════
+       STATE
+    ══════════════════════════════════════════ */
+    var score          = 0;
+    var customersServed = 0;
+    var currentCustomer = 0;
+    var correctAnswerIndex = 0;
+    var answering      = false;
+    var totalAttempts  = 0;
+    var correctFirstTry = 0;
+    var choices        = [];
+
+    /* ══════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════ */
+    function fmt(n) {
+      // Format number to "$X.XX"
+      var dollars = Math.floor(n);
+      var cents   = Math.round((n - dollars) * 100);
+      var cStr    = cents < 10 ? '0' + cents : '' + cents;
+      return '$' + dollars + '.' + cStr;
+    }
+
+    function roundCents(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    function shuffleArray(arr) {
+      for (var i = arr.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+      }
+      return arr;
+    }
+
+    /* ══════════════════════════════════════════
+       POPULATE MENU PREVIEW ON START SCREEN
+    ══════════════════════════════════════════ */
+    (function buildMenuPreview() {
+      var container = document.querySelector('.menu-preview');
+      MENU.forEach(function(item) {
+        var chip = document.createElement('div');
+        chip.className = 'menu-chip';
+        chip.textContent = item.emoji + ' ' + item.name + ' ' + fmt(item.price);
+        container.appendChild(chip);
+      });
+    })();
+
+    /* ══════════════════════════════════════════
+       BUILD ORDER
+    ══════════════════════════════════════════ */
+    function buildOrder(customerIndex) {
+      // First 2 customers: 1 item; last 3: 2 items
+      var numItems = customerIndex < 2 ? 1 : 2;
+      var pool     = shuffleArray(MENU.slice());
+      var items    = pool.slice(0, numItems);
+      var totalCost = roundCents(
+        items.reduce(function(s, i) { return s + i.price; }, 0)
+      );
+      var bill    = BILLS[customerIndex];
+      var change  = roundCents(bill - totalCost);
+      return { items: items, totalCost: totalCost, bill: bill, change: change };
+    }
+
+    /* ══════════════════════════════════════════
+       BUILD WRONG ANSWERS
+    ══════════════════════════════════════════ */
+    function buildWrongAnswer(correct, bill) {
+      var offsets = shuffleArray([0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 2.00]);
+      var signs   = [-1, 1];
+      for (var oi = 0; oi < offsets.length; oi++) {
+        for (var si = 0; si < signs.length; si++) {
+          var w = roundCents(correct + signs[si] * offsets[oi]);
+          if (w !== correct && w >= 0 && w < bill) {
+            return w;
+          }
+        }
+      }
+      return correct === 0 ? 0.25 : 0;
+    }
+
+    function buildChoices(correct, bill) {
+      var wrongs   = [];
+      var attempts = 0;
+      while (wrongs.length < 2 && attempts < 40) {
+        attempts++;
+        var w = buildWrongAnswer(correct, bill);
+        var dup = false;
+        for (var i = 0; i < wrongs.length; i++) {
+          if (wrongs[i] === w) { dup = true; break; }
+        }
+        if (!dup && w !== correct) {
+          wrongs.push(w);
+        }
+      }
+      var result = [correct].concat(wrongs);
+      shuffleArray(result);
+      return result;
+    }
+
+    /* ══════════════════════════════════════════
+       UPDATE PROGRESS DOTS
+    ══════════════════════════════════════════ */
+    function updateDots(activeIndex) {
+      for (var i = 0; i < TOTAL_CUSTOMERS; i++) {
+        var dot = document.getElementById('dot-' + (i + 1));
+        dot.className = 'dot';
+        if (i < activeIndex)       dot.className += ' done';
+        else if (i === activeIndex) dot.className += ' active';
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       BUILD SPEECH BUBBLE (DOM-only, no innerHTML)
+    ══════════════════════════════════════════ */
+    function buildSpeechBubble(order) {
+      var bubble = document.getElementById('speech-bubble');
+
+      // Clear existing children safely
+      while (bubble.firstChild) {
+        bubble.removeChild(bubble.firstChild);
+      }
+
+      order.items.forEach(function(item) {
+        var row   = document.createElement('div');
+        row.className = 'order-item';
+
+        var left  = document.createElement('span');
+        left.textContent = item.emoji + ' ' + item.name;
+
+        var right = document.createElement('span');
+        right.textContent = fmt(item.price);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        bubble.appendChild(row);
+      });
+
+      if (order.items.length > 1) {
+        var hr = document.createElement('div');
+        hr.className = 'order-divider';
+        bubble.appendChild(hr);
+
+        var totalRow   = document.createElement('div');
+        totalRow.className = 'order-total';
+
+        var totalLabel = document.createElement('span');
+        totalLabel.textContent = 'Total:';
+
+        var totalAmt   = document.createElement('span');
+        totalAmt.textContent = fmt(order.totalCost);
+
+        totalRow.appendChild(totalLabel);
+        totalRow.appendChild(totalAmt);
+        bubble.appendChild(totalRow);
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       RENDER A CUSTOMER
+    ══════════════════════════════════════════ */
+    function renderCustomer(customerIndex) {
+      answering = false;
+      var order = buildOrder(customerIndex);
+
+      buildSpeechBubble(order);
+
+      // Customer emoji
+      document.getElementById('customer-emoji').textContent =
+        CUSTOMERS[customerIndex % CUSTOMERS.length];
+
+      // Payment box
+      document.getElementById('bill-amount').textContent = fmt(order.bill);
+
+      // Answer choices
+      choices = buildChoices(order.change, order.bill);
+      correctAnswerIndex = -1;
+      for (var ci = 0; ci < choices.length; ci++) {
+        if (choices[ci] === order.change) {
+          correctAnswerIndex = ci;
+          break;
+        }
+      }
+
+      var btns = document.querySelectorAll('.answer-btn');
+      btns.forEach(function(btn, i) {
+        btn.textContent = fmt(choices[i]);
+        btn.className   = 'answer-btn';
+        btn.disabled    = false;
+      });
+
+      // Progress dots + score badge
+      updateDots(customerIndex);
+      document.getElementById('score-badge').textContent = '\u2B50 ' + score;
+
+      // Animate customer entrance
+      var wrap = document.getElementById('customer-wrap');
+      wrap.className = '';
+      void wrap.offsetWidth; // force reflow
+      wrap.className = 'enter';
+
+      setTimeout(function() {
+        wrap.className = '';
+        answering = true;
+      }, 600);
+    }
+
+    /* ══════════════════════════════════════════
+       FEEDBACK TOAST
+    ══════════════════════════════════════════ */
+    var toastTimer = null;
+    function showToast(msg, isError) {
+      var t = document.getElementById('feedback-toast');
+      t.textContent = msg;
+      t.className   = isError ? 'show error' : 'show';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() { t.className = ''; }, 1600);
+    }
+
+    /* ══════════════════════════════════════════
+       COIN BURST
+    ══════════════════════════════════════════ */
+    function spawnCoins() {
+      var icons = ['🪙', '⭐', '🪙'];
+      icons.forEach(function(icon, i) {
+        var el = document.createElement('div');
+        el.className   = 'coin-burst';
+        el.textContent = icon;
+        el.style.left  = (30 + i * 18) + '%';
+        el.style.top   = '55%';
+        el.style.animationDelay = (i * 0.12) + 's';
+        document.body.appendChild(el);
+        setTimeout(function() {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, 1400);
+      });
+    }
+
+    /* ══════════════════════════════════════════
+       HANDLE ANSWER
+    ══════════════════════════════════════════ */
+    function handleAnswer(btnIndex) {
+      if (!answering) return;
+
+      var btns = document.querySelectorAll('.answer-btn');
+      totalAttempts++;
+
+      if (btnIndex === correctAnswerIndex) {
+        // --- CORRECT ---
+        answering = false;
+        btns[btnIndex].className += ' correct';
+        btns.forEach(function(b) { b.disabled = true; });
+
+        score++;
+        correctFirstTry++;
+
+        var badge = document.getElementById('score-badge');
+        badge.textContent = '\u2B50 ' + score;
+        badge.className   = '';
+        void badge.offsetWidth;
+        badge.className   = 'pop';
+
+        showToast('Correct! +1', false);
+        spawnCoins();
+
+        // Animate customer exit after short pause
+        setTimeout(function() {
+          var wrap = document.getElementById('customer-wrap');
+          wrap.className = 'exit';
+
+          customersServed++;
+          currentCustomer++;
+
+          setTimeout(function() {
+            if (currentCustomer >= TOTAL_CUSTOMERS) {
+              showGameOver();
+            } else {
+              renderCustomer(currentCustomer);
+            }
+          }, 430);
+        }, 900);
+
+      } else {
+        // --- WRONG ---
+        btns[btnIndex].className += ' wrong';
+        btns[btnIndex].disabled  = true;
+
+        showToast('Try again!', true);
+
+        var wrap = document.getElementById('customer-wrap');
+        wrap.className = '';
+        void wrap.offsetWidth;
+        wrap.className = 'shake';
+        setTimeout(function() { wrap.className = ''; }, 500);
+
+        // Check if any buttons remain enabled
+        setTimeout(function() {
+          var remaining = [];
+          btns.forEach(function(b) {
+            if (!b.disabled) remaining.push(b);
+          });
+          if (remaining.length === 0) {
+            // All options exhausted — advance anyway
+            answering = false;
+            setTimeout(function() {
+              customersServed++;
+              currentCustomer++;
+              if (currentCustomer >= TOTAL_CUSTOMERS) showGameOver();
+              else renderCustomer(currentCustomer);
+            }, 700);
+          }
+          // Otherwise: answering is still true — player clicks remaining btn
+        }, 350);
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       GAME OVER
+    ══════════════════════════════════════════ */
+    function showGameOver() {
+      document.getElementById('game-area').style.display  = 'none';
+      document.getElementById('top-bar').style.display    = 'none';
+
+      var accuracy = totalAttempts > 0
+        ? Math.round((correctFirstTry / totalAttempts) * 100)
+        : 0;
+
+      document.getElementById('go-score').textContent     = '' + score;
+      document.getElementById('go-customers').textContent = '' + customersServed;
+      document.getElementById('go-accuracy').textContent  = accuracy + '%';
+
+      var emoji    = '🎉';
+      var subtitle = 'Great job running the cafeteria!';
+      if (score === TOTAL_CUSTOMERS) {
+        emoji    = '🏆';
+        subtitle = "Perfect shift! You're a math superstar!";
+      } else if (score >= 3) {
+        emoji    = '😊';
+        subtitle = 'Nice work! The customers are happy!';
+      } else if (score >= 1) {
+        emoji    = '💪';
+        subtitle = 'Good try! Practice makes perfect!';
+      } else {
+        emoji    = '📚';
+        subtitle = 'Keep practicing your money math!';
+      }
+
+      document.getElementById('go-emoji').textContent    = emoji;
+      document.getElementById('go-subtitle').textContent = subtitle;
+
+      var go = document.getElementById('game-over');
+      go.className = 'visible';
+
+      // Emit postMessage to parent window and frames
+      try {
+        if (window.opener) {
+          window.opener.postMessage({
+            type: 'job-complete',
+            jobId: 'cafeteria-cashier',
+            score: score,
+            customersServed: customersServed
+          }, '*');
+          window.opener.postMessage({
+            type: 'game-complete',
+            adventureId: 'cafeteria-cashier',
+            score: score
+          }, '*');
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'game-complete',
+            adventureId: 'cafeteria-cashier',
+            score: score,
+            customersServed: customersServed
+          }, '*');
+        }
+      } catch (err) {
+        // Cross-origin postMessage errors are safe to ignore
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       START / RESTART
+    ══════════════════════════════════════════ */
+    function startGame() {
+      score             = 0;
+      customersServed   = 0;
+      currentCustomer   = 0;
+      correctAnswerIndex = 0;
+      answering         = false;
+      totalAttempts     = 0;
+      correctFirstTry   = 0;
+      choices           = [];
+
+      document.getElementById('start-screen').className = 'hidden';
+      document.getElementById('game-over').className    = '';
+
+      document.getElementById('top-bar').style.display   = 'flex';
+      document.getElementById('game-area').style.display = 'flex';
+
+      renderCustomer(0);
+    }
+  </script>
+</body>
+</html>
