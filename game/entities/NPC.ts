@@ -25,6 +25,7 @@ export class NPC extends InteractableObject {
   private dialog: DialogLine[];
   private currentDialogIndex: number = 0;
   private questConfig?: QuestGiverConfig;
+  private readonly onFinalDialogLine?: () => void;
   // Injected by OpenWorldScene after each quest-status-update
   questStatus: 'available' | 'active' | 'completed' | 'locked' | 'none' = 'none';
 
@@ -35,13 +36,19 @@ export class NPC extends InteractableObject {
     texture: string,
     npcName: string,
     dialog: DialogLine[],
-    questConfig?: QuestGiverConfig,
+    questConfigOrFinalDialogLine?: QuestGiverConfig | (() => void),
+    onFinalDialogLine?: () => void
   ) {
     super(scene, x, y, texture);
 
     this.npcName = npcName;
     this.dialog = dialog;
-    this.questConfig = questConfig;
+    if (typeof questConfigOrFinalDialogLine === 'function') {
+      this.onFinalDialogLine = questConfigOrFinalDialogLine;
+    } else {
+      this.questConfig = questConfigOrFinalDialogLine;
+      this.onFinalDialogLine = onFinalDialogLine;
+    }
 
     this.setPromptText(`Press SPACE to talk to ${npcName}`);
     this.setOnInteract(() => this.onInteract());
@@ -69,12 +76,23 @@ export class NPC extends InteractableObject {
   private showDialog(): void {
     if (this.dialog.length === 0) return;
     const dialogLine = this.dialog[this.currentDialogIndex];
-    EventBus.emit('npc-dialog', {
+    const eventData = {
       npcName: this.npcName,
       text: dialogLine.text,
       speaker: dialogLine.speaker ?? this.npcName,
       hasMore: this.currentDialogIndex < this.dialog.length - 1,
-    });
+    };
+
+    EventBus.emit('npc-dialog', eventData);
+
+    if (
+      this.currentDialogIndex === this.dialog.length - 1 &&
+      this.onFinalDialogLine
+    ) {
+      this.onFinalDialogLine();
+    }
+
+    // Cycle through dialog
     this.currentDialogIndex = (this.currentDialogIndex + 1) % this.dialog.length;
   }
 

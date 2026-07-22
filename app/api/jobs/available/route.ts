@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { FIRST_MATH_LAB_QUEST } from '@/lib/world/mathLabQuest';
 
 export async function GET() {
   try {
@@ -38,7 +39,13 @@ export async function GET() {
     startOfToday.setHours(0, 0, 0, 0);
     const completedToday = recentCompletions.filter((c) => c.completedAt >= startOfToday).length;
 
-    const jobsWithStatus = jobs.map((job) => {
+    const sortedJobs = [...jobs].sort((a, b) => {
+      if (a.jobId === FIRST_MATH_LAB_QUEST.jobId) return -1;
+      if (b.jobId === FIRST_MATH_LAB_QUEST.jobId) return 1;
+      return 0;
+    });
+
+    const jobsWithStatus = sortedJobs.map((job) => {
       const lastCompletion = recentCompletions.find((c) => c.jobId === job.jobId);
       let cooldownEndsAt: string | null = null;
       let onCooldown = false;

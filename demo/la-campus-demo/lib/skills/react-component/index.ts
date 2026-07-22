@@ -1,0 +1,1 @@
+export { ReactComponentSkill } from './ReactComponentSkill';

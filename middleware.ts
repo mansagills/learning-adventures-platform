@@ -3,6 +3,10 @@ import type { NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
+import {
+  isCampusDemoBypassPath,
+  isNoAuthCampusDemoPath,
+} from '@/lib/campusDemoAccess';
 
 // Routes that require a logged-in user
 const PROTECTED_ROUTES = [
@@ -23,11 +27,17 @@ const PROTECTED_ROUTES = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (isNoAuthCampusDemoPath(pathname, request.nextUrl.searchParams)) {
+    return NextResponse.next();
+  }
+
   // Refresh Supabase session cookie + get current user
   const { supabaseResponse, user } = await updateSession(request);
 
   // ── Protected routes ──────────────────────────────────────────────────────
-  const isProtected = PROTECTED_ROUTES.some((r) => pathname.startsWith(r));
+  const isProtected =
+    PROTECTED_ROUTES.some((r) => pathname.startsWith(r)) &&
+    !isCampusDemoBypassPath(pathname, request.nextUrl.searchParams);
   if (isProtected && !user) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', pathname);

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getApiUser } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { FIRST_MATH_LAB_QUEST, MATH_EXPLORER_BADGE } from '@/lib/world/mathLabQuest';
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,6 +113,30 @@ export async function POST(request: NextRequest) {
       select: { currentLevel: true, totalXP: true, currency: true, xpToNextLevel: true },
     });
 
+    const newAchievements = [];
+    if (job.jobId === FIRST_MATH_LAB_QUEST.jobId) {
+      try {
+        const existingBadge = await prisma.userAchievement.findFirst({
+          where: { userId: user.id, title: MATH_EXPLORER_BADGE.title },
+        });
+
+        if (!existingBadge) {
+          const achievement = await prisma.userAchievement.create({
+            data: {
+              userId: user.id,
+              type: MATH_EXPLORER_BADGE.type,
+              title: MATH_EXPLORER_BADGE.title,
+              description: MATH_EXPLORER_BADGE.description,
+              category: MATH_EXPLORER_BADGE.category,
+            },
+          });
+          newAchievements.push(achievement);
+        }
+      } catch (achievementError) {
+        console.error('Failed to award Math Explorer badge:', achievementError);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       jobId,
@@ -121,6 +146,7 @@ export async function POST(request: NextRequest) {
       dailyLimit: DAILY_JOB_LIMIT,
       leveledUp,
       level: finalLevel,
+      newAchievements,
     });
   } catch (error) {
     console.error('Error completing job:', error);
