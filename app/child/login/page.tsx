@@ -233,7 +233,7 @@ export default function ChildLoginPage() {
         {/* Parent Link */}
         <div className="text-center mt-6">
           <Link
-            href="/auth/signin"
+            href="/login"
             className="text-white/80 hover:text-white text-sm underline"
           >
             Parent or Teacher? Sign in here

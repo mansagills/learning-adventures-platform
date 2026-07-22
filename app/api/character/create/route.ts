@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         name: name.trim(),
         avatarId,
-        position: { x: 640, y: 360, scene: 'WorldScene' },
-        lastScene: 'WorldScene',
+        position: { x: 3072, y: 2304, scene: 'OpenWorldScene' },
+        lastScene: 'OpenWorldScene',
         equipment: undefined,
       },
     });

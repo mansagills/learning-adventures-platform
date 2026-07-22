@@ -27,7 +27,7 @@ interface BuildingZone {
  *   Rows 8–13: Lower campus — vertical path (cols 9–10), Science (placeholder),
  *              English (placeholder)
  *   Shop   : cols 1–3,  rows 2–4
- *   Job Board: cols 16–18, rows 2–4
+ *   Quest Board: cols 16–18, rows 2–4
  *
  * Buildings are rendered as a flat tile layer — no scene transitions.
  * Interior stations and NPCs live in WorldScene and only respond to the player
@@ -328,14 +328,14 @@ export class WorldScene extends Phaser.Scene {
   private createMathTeacher(interiors: InteractableObject[]): void {
     const x = 10 * 64 + 32;
     const y =  4 * 64 + 8;
-    const teacher = new NPC(this, x, y, 'npc-teacher', 'Ms. Numbers', [
-      { text: 'Welcome to the Math Building!' },
-      { text: 'Try the arcade stations to practice your math skills.' },
-      { text: 'Each game teaches something different. Have fun!' },
+    const teacher = new NPC(this, x, y, 'npc-teacher', 'Professor Numbers', [
+      { text: 'Professor Ivy sent you to the right place.' },
+      { text: 'Start Math Race Rally from the Quest Board to earn 100 XP.' },
+      { text: 'Complete it to unlock the Math Explorer badge.' },
     ]);
     teacher.setDepth(4);
 
-    this.add.text(x, y - 40, 'Ms. Numbers', {
+    this.add.text(x, y - 40, 'Professor Numbers', {
       fontSize: '10px', color: '#FFFFFF', backgroundColor: '#FF8C00CC',
       padding: { x: 4, y: 2 }, align: 'center',
     }).setOrigin(0.5).setDepth(5);
@@ -386,12 +386,12 @@ export class WorldScene extends Phaser.Scene {
       .lineStyle(3, 0xF59E0B, 1)
       .strokeRect(tX * TS, tY * TS, 3 * TS, 3 * TS)
       .setDepth(3);
-    this.add.text((tX + 1.5) * TS, (tY + 1) * TS, 'JOB\nBOARD', {
+    this.add.text((tX + 1.5) * TS, (tY + 1) * TS, 'QUEST\nBOARD', {
       fontSize: '13px', color: '#FFFFFF', backgroundColor: '#00000099', padding: { x: 4, y: 4 },
     }).setOrigin(0.5).setDepth(4);
 
     const door = new InteractableObject(this, (tX + 1.5) * TS, (tY + 3) * TS, 'door-amber-small');
-    door.setPromptText('Press SPACE: Open Job Board');
+    door.setPromptText('Press SPACE: Open Quest Board');
     door.setOnInteract(() => EventBus.emit('open-job-board', {}));
     door.setDepth(3);
     this.interactables.push(door);
@@ -463,7 +463,7 @@ export class WorldScene extends Phaser.Scene {
     positions.forEach(pos => {
       const desk = new InteractableObject(this, pos.x, pos.y, 'desk-computer');
       desk.setDepth(3);
-      desk.setPromptText('Science Lab — Coming Soon!');
+      desk.setPromptText('Discovery Lab - Coming Soon!');
       desk.setOnInteract(() => {});
       this.addPhysicsBody(pos.x, pos.y, 48, 48);
       interiors.push(desk);
