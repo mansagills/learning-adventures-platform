@@ -258,29 +258,6 @@ export class OpenWorldScene extends Phaser.Scene {
 
   // ─── Interactables ───────────────────────────────────────────────────────────
 
-  private createQuestGiverNPC(
-    qg: typeof QUEST_GIVERS[number],
-    texture: string,
-    x: number,
-    y: number,
-  ): void {
-    const npc = new NPC(
-      this, x, y, texture,
-      qg.npcName,
-      [{ text: qg.greetingDialog, speaker: qg.npcName }],
-      {
-        questId: qg.questId,
-        questTitle: qg.questTitle,
-        questDescription: qg.questDescription,
-        xpReward: qg.xpReward,
-        coinReward: qg.coinReward,
-      },
-    );
-    this.interactables.push(npc);
-    this.questGiverNPCs.set(qg.buildingId, npc);
-    this.createQuestMarker(qg.buildingId, x, y);
-  }
-
   private createInteractables(): void {
     getBuildingDoorPositions().forEach((config) =>
       this.createBuildingInteractable(config),
@@ -292,85 +269,6 @@ export class OpenWorldScene extends Phaser.Scene {
     this.interactables.push(...this.collectibles.getObjects());
   }
 
-  protected createCampusSignage(): void {
-    [
-      { text: 'MAIN HUB', x: 48 * TILE_SIZE, y: 33 * TILE_SIZE },
-      { text: 'MATH HALL', x: 16 * TILE_SIZE, y: 33 * TILE_SIZE },
-      { text: 'DISCOVERY LAB', x: 48 * TILE_SIZE, y: 11 * TILE_SIZE },
-      { text: 'STORY GROVE', x: 80 * TILE_SIZE, y: 33 * TILE_SIZE },
-      { text: 'COMMONS', x: 54 * TILE_SIZE, y: 59 * TILE_SIZE },
-    ].forEach((sign) => this.addNameLabel(sign.text, sign.x, sign.y));
-  }
-
-  // ─── Quest Markers ───────────────────────────────────────────────────────────
-
-  private createQuestMarker(buildingId: string, x: number, y: number): void {
-    // Start hidden — shown/updated when quest-status-update arrives
-    const marker = this.add.text(x, y - 48, '!', {
-      fontSize: '28px',
-      fontStyle: 'bold',
-      color: '#F59E0B',
-      stroke: '#000000',
-      strokeThickness: 4,
-    });
-    marker.setOrigin(0.5);
-    marker.setDepth(20);
-    marker.setVisible(false);
-
-    const tween = this.tweens.add({
-      targets: marker,
-      y: y - 56,
-      duration: 700,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-      paused: true,
-    });
-
-    this.questMarkers.set(buildingId, { marker, tween });
-  }
-
-  private updateQuestMarkers(
-    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
-  ): void {
-    // Build lookup for O(1) access and track which buildings were included
-    const incoming = new Map(markerData.map((d) => [d.buildingId, d.status]));
-
-    // Hide markers for buildings not present in markerData
-    this.questMarkers.forEach(({ marker, tween }, buildingId) => {
-      if (!incoming.has(buildingId)) {
-        marker.setVisible(false);
-        tween?.pause();
-      }
-    });
-
-    for (const { buildingId, status } of markerData) {
-      const entry = this.questMarkers.get(buildingId);
-      const npc = this.questGiverNPCs.get(buildingId);
-
-      // Keep NPC quest status in sync so interaction shows the right dialog
-      if (npc) npc.questStatus = status === 'in_progress' ? 'active' : status === 'none' ? 'none' : status;
-
-      if (!entry) continue;
-      const { marker, tween } = entry;
-
-      if (status === 'available' || status === 'in_progress') {
-        marker.setText('!');
-        marker.setColor(status === 'in_progress' ? '#A78BFA' : '#F59E0B');
-        marker.setVisible(true);
-        if (tween && tween.isPaused()) tween.resume();
-      } else if (status === 'completed') {
-        marker.setText('✓');
-        marker.setColor('#4ADE80');
-        marker.setVisible(true);
-        tween?.pause();
-      } else {
-        marker.setVisible(false);
-        tween?.pause();
-      }
-    }
-  }
-
   /**
    * Creates the interaction for one building from the shared campus layout.
    * Subclasses override to change building behaviour (e.g. open walk-in rooms
@@ -379,9 +277,6 @@ export class OpenWorldScene extends Phaser.Scene {
   protected createBuildingInteractable(config: BuildingDoorConfig): void {
     const px = config.doorTileCol * TILE_SIZE;
     const py = config.doorTileRow * TILE_SIZE;
-    const questGiver = QUEST_GIVERS.find(
-      (qg) => qg.campusBuildingId === config.id || qg.building === config.building,
-    );
 
     if (config.targetScene) {
       const door = new Door(
@@ -393,27 +288,16 @@ export class OpenWorldScene extends Phaser.Scene {
       );
       door.setPromptText(`Press SPACE: Enter ${config.building}`);
       this.interactables.push(door);
-      if (questGiver) {
-        this.createQuestGiverNPC(questGiver, 'door-gold-small', px, py + TILE_SIZE);
-      }
     } else if (config.id === 'building_quest_board') {
       const questBoard = new InteractableObject(this, px, py, 'door-amber-small');
       questBoard.setPromptText('Press SPACE: Open Quest Board');
       questBoard.setOnInteract(() => EventBus.emit('open-job-board', {}));
       this.interactables.push(questBoard);
-      if (questGiver) {
-        this.createQuestGiverNPC(questGiver, 'door-gold-small', px + TILE_SIZE, py);
-      }
     } else if (config.id === 'building_campus_shop') {
       const shop = new InteractableObject(this, px, py, 'door-teal-small');
       shop.setPromptText('Press SPACE: Open Campus Shop');
       shop.setOnInteract(() => EventBus.emit('open-shop', {}));
       this.interactables.push(shop);
-      if (questGiver) {
-        this.createQuestGiverNPC(questGiver, 'door-teal-small', px + TILE_SIZE, py);
-      }
-    } else if (questGiver) {
-      this.createQuestGiverNPC(questGiver, 'door-teal-small', px, py);
     } else {
       const npc = new NPC(
         this, px, py,
@@ -438,7 +322,6 @@ export class OpenWorldScene extends Phaser.Scene {
         config.texture,
         config.name,
         config.dialog.map((text) => ({ text, speaker: config.name })),
-        undefined,
         config.onFinalDialogLine === 'openQuestBoard'
           ? () => EventBus.emit('open-job-board', {})
           : undefined,

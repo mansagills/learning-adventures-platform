@@ -38,16 +38,6 @@ export function useAuth(): UseAuthReturn {
   const supabase = hasSupabaseEnv ? createClient() : null;
 
   useEffect(() => {
-    const fallbackUser = (supabaseUser: User): AuthUser => ({
-      id: supabaseUser.id,
-      email: supabaseUser.email ?? '',
-      name: supabaseUser.user_metadata?.full_name ?? supabaseUser.email ?? null,
-      image: supabaseUser.user_metadata?.avatar_url ?? null,
-      role: supabaseUser.user_metadata?.role ?? 'STUDENT',
-      gradeLevel: supabaseUser.user_metadata?.gradeLevel ?? null,
-      subjects: [],
-    });
-
     if (!supabase) {
       setUser(null);
       setStatus('unauthenticated');
