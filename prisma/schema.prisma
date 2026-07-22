@@ -66,6 +66,8 @@ model User {
   character Character?
   // Job system relations
   jobCompletions JobCompletion[]
+  // Quest system relations
+  questCompletions QuestCompletion[]
 }
 
 // User management and progress tracking
@@ -1632,4 +1634,42 @@ model JobCompletion {
 
   @@index([userId, jobId])
   @@index([userId, completedAt])
+}
+
+// ============================================
+// QUEST SYSTEM (Phase 2A)
+// ============================================
+
+model Quest {
+  id            String   @id @default(cuid())
+  questId       String   @unique
+  title         String
+  description   String
+  subject       String   // MATH, SCIENCE, BUSINESS, ENGLISH
+  buildingId    String   // which building grants this quest
+  xpReward      Int
+  coinReward    Int
+  objectives    Json     // array of { id, label, gameId? }
+  prerequisites String[] // questIds that must be complete first
+  order         Int      @default(0) // display order within chain
+  createdAt     DateTime @default(now())
+
+  completions QuestCompletion[]
+
+  @@index([subject])
+  @@index([buildingId])
+}
+
+model QuestCompletion {
+  id          String   @id @default(cuid())
+  userId      String
+  questId     String
+  completedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [questId], onDelete: Cascade)
+
+  @@unique([userId, questId])
+  @@index([userId])
+  @@index([questId])
 }

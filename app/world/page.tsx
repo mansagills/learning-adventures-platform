@@ -45,6 +45,16 @@ export default function WorldPage() {
   const [activeJob, setActiveJob] = useState<any>(null);
   const [showJaylen, setShowJaylen] = useState(false);
   const [showSpark, setShowSpark] = useState(false);
+  const [showQuestLog, setShowQuestLog] = useState(false);
+  const [questOffer, setQuestOffer] = useState<{
+    npcName: string;
+    questId: string;
+    questTitle: string;
+    questDescription: string;
+    xpReward: number;
+    coinReward: number;
+    status: 'available' | 'active';
+  } | null>(null);
   const [npcDialog, setNpcDialog] = useState<NpcDialogState | null>(null);
   const [zoneBanner, setZoneBanner] = useState<string | null>(null);
   const savedScene = characterData?.lastScene ?? characterData?.position?.scene ?? 'OpenWorldScene';
@@ -64,6 +74,47 @@ export default function WorldPage() {
   const characterDataRef = useRef(characterData);
   useEffect(() => { sessionRef.current = session; }, [session]);
   useEffect(() => { characterDataRef.current = characterData; }, [characterData]);
+
+  // Quest marker data — computed from the active quest list and emitted to Phaser
+  const questMarkerDataRef = useRef<{ buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]>([]);
+  const questMarkerAbortRef = useRef<AbortController | null>(null);
+
+  const fetchAndEmitQuestMarkers = () => {
+    // Cancel any in-flight fetch before starting a new one
+    questMarkerAbortRef.current?.abort();
+    const controller = new AbortController();
+    questMarkerAbortRef.current = controller;
+
+    fetch('/api/quests/active', { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !Array.isArray(data.quests)) return;
+
+        const buildingMap = new Map<string, { available: number; inProgress: number; completed: number }>();
+        for (const q of data.quests) {
+          const entry = buildingMap.get(q.buildingId) ?? { available: 0, inProgress: 0, completed: 0 };
+          if (q.status === 'completed') entry.completed++;
+          else if (q.status === 'active') entry.inProgress++;
+          else if (q.status === 'available') entry.available++;
+          buildingMap.set(q.buildingId, entry);
+        }
+
+        const markerData = Array.from(buildingMap.entries()).map(([buildingId, counts]) => ({
+          buildingId,
+          status: (counts.inProgress > 0 ? 'in_progress'
+            : counts.available > 0 ? 'available'
+            : counts.completed > 0 ? 'completed'
+            : 'none') as 'available' | 'in_progress' | 'completed' | 'none',
+        }));
+
+        questMarkerDataRef.current = markerData;
+        EventBus.emit('quest-status-update', markerData);
+      })
+      .catch((err) => {
+        // AbortError is expected when a newer fetch cancels this one
+        if (err?.name !== 'AbortError') console.error('Quest marker fetch failed:', err);
+      });
+  };
 
   // Check authentication and character — runs once on auth status change
   useEffect(() => {
@@ -96,6 +147,8 @@ export default function WorldPage() {
               setShowJaylen(true);
             }
             setIsCheckingCharacter(false);
+            // Pre-fetch quest markers so they're ready when Phaser scene fires
+            fetchAndEmitQuestMarkers();
           }
         } catch (err) {
           console.error('Error fetching character:', err);
@@ -106,6 +159,7 @@ export default function WorldPage() {
     };
 
     checkCharacter();
+    return () => { questMarkerAbortRef.current?.abort(); };
   }, [status, router]);
 
   // Setup EventBus listeners once — use refs for latest values
@@ -130,6 +184,36 @@ export default function WorldPage() {
 
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
+    const handleQuestOffer = (data: typeof questOffer) => setQuestOffer(data);
+    const handleCollectibleCollected = async (data: { id: string; xp: number; coins: number }) => {
+      setXp((prev) => prev + data.xp);
+      setCoins((prev) => prev + data.coins);
+      showNotification(`+${data.xp} XP  +${data.coins} coins`);
+
+      try {
+        const res = await fetch('/api/world/award', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ xp: data.xp, coins: data.coins }),
+        });
+        const reward = await res.json();
+        if (res.ok && reward.level) {
+          setXp(reward.level.totalXP);
+          setCoins(reward.level.currency);
+          setUserLevel(reward.level.currentLevel);
+        }
+      } catch (err) {
+        console.error('Failed to save collectible reward:', err);
+      }
+    };
+    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
+
+    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
+      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
+      setZoneBanner(data.zone.displayName);
+      setTimeout(() => setZoneBanner(null), 2800);
+    };
     const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
     // Placeholder for Phase D collectible handling
     const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
@@ -145,6 +229,7 @@ export default function WorldPage() {
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
+    EventBus.on('quest-offer', handleQuestOffer);
     EventBus.on('npc-dialog', handleNpcDialog);
     EventBus.on('collectible-collected', handleCollectibleCollected);
     EventBus.on('zone-changed', handleZoneChanged);
@@ -154,6 +239,7 @@ export default function WorldPage() {
       EventBus.off('open-adventure', handleOpenAdventure);
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
+      EventBus.off('quest-offer', handleQuestOffer);
       EventBus.off('npc-dialog', handleNpcDialog);
       EventBus.off('collectible-collected', handleCollectibleCollected);
       EventBus.off('zone-changed', handleZoneChanged);
@@ -165,6 +251,12 @@ export default function WorldPage() {
     // Pass avatarId to Phaser registry so Player uses the correct sprite sheet
     if (characterDataRef.current?.avatarId) {
       EventBus.emit('set-avatar', { avatarId: characterDataRef.current.avatarId });
+    }
+    // Emit cached quest markers or fetch fresh ones
+    if (questMarkerDataRef.current.length > 0) {
+      EventBus.emit('quest-status-update', questMarkerDataRef.current);
+    } else {
+      fetchAndEmitQuestMarkers();
     }
   };
 
@@ -199,6 +291,9 @@ export default function WorldPage() {
     } catch (err) {
       console.error('Failed to save adventure reward:', err);
     }
+
+    // Refresh quest markers — completing a game may unlock new quests
+    fetchAndEmitQuestMarkers();
   };
 
   const handleShopPurchase = (_item: any, newBalance: number) => {
@@ -337,6 +432,23 @@ export default function WorldPage() {
         />
       )}
 
+      {/* Quest Log */}
+      {showQuestLog && (
+        <QuestLog onClose={() => setShowQuestLog(false)} />
+      )}
+
+      {/* Quest Offer Dialog — shown when player talks to a quest-giver NPC */}
+      {questOffer && (
+        <QuestOfferDialog
+          offer={questOffer}
+          onAccept={() => {
+            setQuestOffer(null);
+            setShowQuestLog(true);
+          }}
+          onClose={() => setQuestOffer(null)}
+        />
+      )}
+
       {/* Quest Board */}
       {showJobBoard && (
         <JobBoard
@@ -359,9 +471,9 @@ export default function WorldPage() {
         <JaylenGuide onComplete={() => setShowJaylen(false)} />
       )}
 
-      {/* SPARK chat panel — slides in from right */}
+      {/* SPARK chat panel — fixed floating panel, bottom-right */}
       {showSpark && (
-        <div className="absolute right-0 top-0 bottom-0 w-80 z-40 shadow-2xl flex flex-col">
+        <div className="fixed bottom-16 right-4 w-80 max-w-[85vw] h-[420px] z-50 shadow-2xl flex flex-col rounded-2xl overflow-hidden pointer-events-auto">
           <SparkChat onClose={() => setShowSpark(false)} />
         </div>
       )}
@@ -441,6 +553,13 @@ export default function WorldPage() {
               title="Open Shop"
             >
               SHOP
+            </button>
+            <button
+              onClick={() => setShowQuestLog(true)}
+              className="bg-black/70 hover:bg-[#8B5CF6]/80 text-white px-3 py-2 rounded-lg transition-colors text-sm font-semibold"
+              title="Open Quest Log"
+            >
+              📋 Quests
             </button>
             <button
               onClick={() => setShowJobBoard(true)}

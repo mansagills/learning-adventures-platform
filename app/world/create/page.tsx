@@ -17,7 +17,7 @@ export default function CreateCharacterPage() {
   useEffect(() => {
     const checkExistingCharacter = async () => {
       if (status === 'unauthenticated') {
-        router.push('/');
+        router.push('/login?callbackUrl=%2Fworld%2Fcreate');
         return;
       }
 
