@@ -11,7 +11,8 @@ import {
   GATHER_ROOMS,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
-import { exploration } from '../world/explorationState';
+import { exploration, EXPLORATION_ROOMS } from '../world/explorationState';
+import { chapter0, CHAPTER0_NPC_ID, professorGateDialogue } from '../world/chapter0';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
@@ -66,6 +67,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private isPaused = false;
   private extraInteractKey?: Phaser.Input.Keyboard.Key;
   private questGiver?: TalkableNPC;
+  /** Chapter 0 giver — Jaylen, the campus guide (docs/lore/chapters/chapter-0.md). */
+  private jaylen?: TalkableNPC;
   private questItems: Phaser.GameObjects.Image[] = [];
   /** Throttle for the exploration room check (no need to test every frame). */
   private nextExplorationCheck = 0;
@@ -181,6 +184,8 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.emit('set-player-name', { name: identity.name || null });
     // Avatar texture swaps flow through the existing 'set-avatar' handler
     // (OpenWorldScene), emitted by the overlay itself on selection.
+    // Jaylen greets the player by their chosen name — rebuild his dialogue.
+    this.jaylen?.setQuestDialogue(chapter0.dialogue());
   };
 
   private handleIdentityUpdated = (identity: PlayerIdentity) => {
@@ -269,9 +274,50 @@ export class GatherCampusScene extends OpenWorldScene {
       // Strictly inside the walls (walking past outside doesn't count)
       if (col > room.c0 && col < room.c1 && row > room.r0 && row < room.r1) {
         exploration.markVisited(room.id);
+        // Chapter 0 Spark ignition — fires on entering ANY building while the
+        // chapter is in its explore stage. Uses the scene check (not the
+        // exploration event) because exploration persists across reloads and
+        // never re-fires for already-visited rooms.
+        const label = EXPLORATION_ROOMS.find((r) => r.id === room.id)?.label ?? room.id;
+        if (chapter0.enterBuilding(label)) {
+          this.playSparkIgnition();
+          this.jaylen?.setQuestDialogue(chapter0.dialogue());
+        }
         return;
       }
     }
+  }
+
+  /** One-shot Spark ignition VFX — a warm light waking up at the player
+   *  (Chapter 0, Scene 4: "barely visible... easy to miss" made demo-visible). */
+  private playSparkIgnition(): void {
+    if (!this.player) return;
+    const { x, y } = this.player;
+    for (let i = 0; i < 3; i++) {
+      const ring = this.add.circle(x, y - 8, 6, 0xffa726, 0.85);
+      ring.setDepth(this.player.depth + 2);
+      ring.setBlendMode(Phaser.BlendModes.ADD);
+      this.tweens.add({
+        targets: ring,
+        radius: 46 + i * 14,
+        alpha: 0,
+        delay: i * 220,
+        duration: 750,
+        ease: 'Cubic.easeOut',
+        onComplete: () => ring.destroy(),
+      });
+    }
+    const core = this.add.circle(x, y - 8, 4, 0xfff3c4, 1);
+    core.setDepth(this.player.depth + 2);
+    core.setBlendMode(Phaser.BlendModes.ADD);
+    this.tweens.add({
+      targets: core,
+      radius: 14,
+      alpha: 0,
+      duration: 1100,
+      ease: 'Sine.easeOut',
+      onComplete: () => core.destroy(),
+    });
   }
 
   // ─── Demo quest: Professor Numbers → power cells → Math Race Rally 80+ ──────
@@ -291,8 +337,18 @@ export class GatherCampusScene extends OpenWorldScene {
       g.destroy();
     }
 
-    this.questGiver.setQuestDialogue(mathQuest.dialogue());
-    EventBus.emit('quest-updated', mathQuest.snapshot());
+    // Chapter 0 sits in front of the Racing License quest: Jaylen runs the
+    // onboarding story, and Professor Numbers politely redirects to him until
+    // the player's Spark is awake. One progression arc, two quests.
+    this.jaylen = this.npcs.find((n) => n.npcId === CHAPTER0_NPC_ID);
+    this.jaylen?.setQuestDialogue(chapter0.dialogue());
+    if (chapter0.isComplete) {
+      this.questGiver.setQuestDialogue(mathQuest.dialogue());
+      EventBus.emit('quest-updated', mathQuest.snapshot());
+    } else {
+      this.questGiver.setQuestDialogue(professorGateDialogue());
+      EventBus.emit('quest-updated', chapter0.snapshot());
+    }
 
     EventBus.on('npc-conversation-end', this.handleQuestConversation);
     EventBus.on('adventure-completed', this.handleQuestGameResult);
@@ -336,6 +392,17 @@ export class GatherCampusScene extends OpenWorldScene {
 
   /** Where should the player go right now? null = no guidance (all done). */
   private questTarget(): { x: number; y: number } | null {
+    // Chapter 0 first: point at Jaylen for the intro; once exploring, the
+    // whole point is "follow what pulls at you" — no arrow (free choice).
+    if (!chapter0.isComplete) {
+      switch (chapter0.currentStage) {
+        case 'meet':
+          return this.jaylen ? { x: this.jaylen.x, y: this.jaylen.y } : null;
+        case 'ignite':
+        case 'play':
+          return null;
+      }
+    }
     switch (mathQuest.currentStage) {
       case 'available':
       case 'return':
@@ -459,7 +526,22 @@ export class GatherCampusScene extends OpenWorldScene {
   }
 
   private handleQuestConversation = (data: { npcId: string; completed: boolean }) => {
-    if (data.npcId !== QUEST_NPC_ID || !data.completed || !this.questGiver) return;
+    if (!data.completed) return;
+
+    // Chapter 0: finishing Jaylen's intro conversation starts the exploration
+    if (data.npcId === CHAPTER0_NPC_ID && this.jaylen) {
+      chapter0.beginExploring();
+      this.jaylen.setQuestDialogue(chapter0.dialogue());
+      return;
+    }
+
+    if (data.npcId !== QUEST_NPC_ID || !this.questGiver) return;
+
+    // Professor Numbers redirects to Jaylen until Chapter 0 is done
+    if (!chapter0.isComplete) {
+      this.questGiver.setQuestDialogue(professorGateDialogue());
+      return;
+    }
 
     switch (mathQuest.currentStage) {
       case 'available':
@@ -480,6 +562,21 @@ export class GatherCampusScene extends OpenWorldScene {
   };
 
   private handleQuestGameResult = (data: { adventureId: string; score?: number }) => {
+    // Chapter 0: ANY game clear completes it (low-stakes by design). On
+    // completion, Professor Numbers' quest unlocks — the tracker celebrates,
+    // then hands the objective over to the Racing License arc.
+    if (chapter0.currentStage === 'play') {
+      if (chapter0.completePlay()) {
+        this.jaylen?.setQuestDialogue(chapter0.dialogue());
+        this.jaylen?.celebrate();
+        this.questGiver?.setQuestDialogue(mathQuest.dialogue());
+        this.time.delayedCall(400, () => {
+          EventBus.emit('quest-updated', mathQuest.snapshot());
+        });
+      }
+      return;
+    }
+
     if (data.adventureId !== QUEST_GAME_ID) return;
     const completed = mathQuest.reportScore(data.score);
     this.questGiver?.setQuestDialogue(mathQuest.dialogue());

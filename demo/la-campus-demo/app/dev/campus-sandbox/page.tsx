@@ -18,6 +18,7 @@ import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
 import { wearableForOwned } from '@/game/world/wearables';
 import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
+import { chapter0 } from '@/game/world/chapter0';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
@@ -70,8 +71,11 @@ export default function CampusSandboxPage() {
       (window as any).__campusTest.shopOpened = true;
       setShowShop(true);
     };
-    const handleQuestCompleted = (data: { xp: number }) => {
-      demoEconomy.addXP(data.xp, 'Racing License quest');
+    const handleQuestCompleted = (data: { xp: number; questId?: string }) => {
+      demoEconomy.addXP(
+        data.xp,
+        data.questId === 'chapter-0-first-spark' ? 'First Spark' : 'Racing License quest'
+      );
     };
     const handleOpenJobBoard = () => {
       (window as any).__campusTest.questBoardOpened = true;
@@ -106,6 +110,7 @@ export default function CampusSandboxPage() {
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
       wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
       identity: getIdentity,
+      chapter0: () => chapter0.snapshot(),
       playIntro: () => EventBus.emit('play-intro-cinematic'),
       setIdentity: (name: string, avatarId: string) => {
         const saved = saveIdentity({ name, avatarId });
