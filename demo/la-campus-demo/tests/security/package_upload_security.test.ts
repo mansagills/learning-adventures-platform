@@ -35,6 +35,7 @@ vi.mock('adm-zip', () => {
       getEntry(name: string) {
         if (name === 'metadata.json') {
           return {
+            header: { size: 100 },
             getData: () =>
               Buffer.from(
                 JSON.stringify({
@@ -48,6 +49,7 @@ vi.mock('adm-zip', () => {
         }
         if (name === 'index.html') {
           return {
+            header: { size: 100 },
             getData: () => Buffer.from('<h1>You have been hacked</h1>'),
           };
         }
