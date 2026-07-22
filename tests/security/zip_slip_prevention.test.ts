@@ -8,10 +8,11 @@ vi.mock('next-auth', () => ({
   getServerSession: vi.fn(),
 }));
 
-const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
+const { writeFileMock, mkdirMock, mockGetServerSession, existsSyncMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
   mkdirMock: vi.fn(),
   mockGetServerSession: vi.fn(),
+  existsSyncMock: vi.fn().mockReturnValue(true),
 }));
 
 // Mock fs/promises and fs
@@ -31,12 +32,18 @@ vi.mock('fs/promises', () => {
 });
 
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: existsSyncMock,
   default: {
+    existsSync: existsSyncMock,
     mkdir: vi.fn(),
     writeFile: vi.fn(),
   }
 }));
+
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import { extractZipSafely } from '@/lib/safe-zip';
+import path from 'path';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
@@ -60,20 +67,23 @@ const safeEntry = {
   entryName: 'safe.html',
   isDirectory: false,
   getData: mockGetData,
+  header: { size: 100 },
 };
 
 const maliciousEntry = {
   entryName: '../../etc/passwd',
   isDirectory: false,
   getData: mockGetData,
+  header: { size: 100 },
 };
 
 const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
-    existsSync: vi.fn(),
+    default: vi.fn().mockImplementation(() => ({
+      getEntries: mockGetEntries
+    })),
   };
 });
 
@@ -84,7 +94,7 @@ describe('Security: Zip Slip Prevention', () => {
     vi.clearAllMocks();
     (fs.mkdir as any).mockResolvedValue(undefined);
     (fs.writeFile as any).mockResolvedValue(undefined);
-    (existsSync as any).mockReturnValue(true); // default to exists
+    existsSyncMock.mockReturnValue(true); // default to exists
   });
 
   it('should prevent Zip Slip by validating paths', async () => {
@@ -114,7 +124,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '../../etc/passwd',
-          getData: () => Buffer.from('malicious content')
+          getData: () => Buffer.from('malicious content'),
+          header: { size: 100 }
         }
       ]
     };
@@ -133,7 +144,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '/etc/passwd',
-          getData: () => Buffer.from('malicious content')
+          getData: () => Buffer.from('malicious content'),
+          header: { size: 100 }
         }
       ]
     };
@@ -154,7 +166,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
-          getData: () => Buffer.from('content')
+          getData: () => Buffer.from('content'),
+          header: { size: 100 }
         }
       ]
     };
