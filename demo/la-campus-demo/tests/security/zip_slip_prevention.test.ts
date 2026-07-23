@@ -38,10 +38,10 @@ vi.mock('fs/promises', () => {
 vi.mock('fs', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...actual,
+
     existsSync: vi.fn().mockReturnValue(true),
     default: {
-      ...actual.default,
+
       existsSync: vi.fn().mockReturnValue(true),
     }
   };
@@ -83,7 +83,7 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
+
     existsSync: vi.fn(),
   };
 });

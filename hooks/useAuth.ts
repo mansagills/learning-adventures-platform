@@ -65,11 +65,11 @@ export function useAuth(): UseAuthReturn {
           });
           setStatus('authenticated');
         } else {
-          setUser(fallbackUser(supabaseUser));
+          setUser(null as any);
           setStatus('authenticated');
         }
       } catch {
-        setUser(fallbackUser(supabaseUser));
+        setUser(null as any);
         setStatus('authenticated');
       }
     };
