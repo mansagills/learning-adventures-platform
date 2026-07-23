@@ -134,6 +134,7 @@
   <div id="hud" class="hidden">
     <span class="hud-pill">Score <b id="hud-score">0</b></span>
     <span class="hud-pill">Cores <b id="hud-cores">0/0</b></span>
+    <span class="hud-pill" id="hud-bonus-pill">❄️ <b id="hud-bonus">0</b></span>
     <span class="hud-pill" id="shields">♥♥♥</span>
     <div id="thaw-wrap"><div id="thaw-bar"></div></div>
   </div>
@@ -203,6 +204,7 @@
     HARD:   { ops: ['+', '-', '×'],      min: 2, max: 12, twoStep: true,  scroll: 250, shields: 3, cores: 10 },
   };
   var DIFF_SEED = { EASY: 1001, MEDIUM: 2002, HARD: 3003 };
+  var BONUS_PER = 5;   // fixed points per ice-debris shot (deterministic, not posted)
 
   var reduceMotion = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -321,7 +323,8 @@
       cfg: run.cfg,
       questions: run.questions,
       gateIndex: 0,           // which question/gate is active
-      score: 0,               // 0..100 accuracy
+      score: 0,               // 0..100 accuracy (posted to platform)
+      bonus: 0,               // in-game ice-debris points (NOT posted; deterministic +5/hit)
       firstTryCorrect: 0,
       coresRecovered: 0,
       totalCores: run.cfg.cores,
@@ -435,6 +438,7 @@
       if (S.shields === S.maxShields) badges.appendChild(mkBadge('🛡️ Flawless'));
       if (S.timeElapsed < S.totalCores * 4) badges.appendChild(mkBadge('⚡ Quick clear'));
       badges.appendChild(mkBadge('🧩 ' + S.firstTryCorrect + '/' + S.totalCores + ' first-try'));
+      if (S.bonus > 0) badges.appendChild(mkBadge('❄️ ' + S.bonus + ' frost'));
       postComplete(S.score);
     } else {
       S.screen = 'retry';
@@ -514,9 +518,22 @@
       S.gateX = lead + 120;
     }
 
-    // debris move + ship collision
+    // debris move + collisions (bullets shatter ice for bonus points; ship
+    // contact still costs a shield — shooting the ice is the safe play).
     for (var d = 0; d < S.debris.length; d++) {
       var db = S.debris[d]; db.x += db.vx * dt; db.spin += dt;
+      // bullet hit → shatter for a small deterministic bonus (+5 each)
+      for (var bd = 0; bd < S.bullets.length; bd++) {
+        var bb = S.bullets[bd];
+        if (!db.dead && Math.abs(bb.x - db.x) < db.r && Math.abs(bb.y - db.y) < db.r) {
+          bb.x = W + 999; db.dead = true;
+          S.bonus += BONUS_PER;
+          burst(db.x, db.y, '#22d3ee', 16); burst(db.x, db.y, '#e0f7ff', 10);
+          updateHud();
+          break;
+        }
+      }
+      // ship contact → shield loss
       if (!db.dead && Math.abs(db.x - ship.x) < db.r + 14 && Math.abs(db.y - ship.y) < db.r + 12) {
         db.dead = true; S.shields = Math.max(0, S.shields - 1); S.shake = reduceMotion ? 0 : 0.3;
         burst(db.x, db.y, '#ff6b8a', 14); showFlash('✕ Frozen debris! −1 shield', '#ff6b8a'); updateHud();
@@ -590,10 +607,10 @@
         ctx.fillText(eqText, gx, ty);
       }
 
-      // debris
+      // ice debris (cold cyan so it reads as shootable frost, not just rock)
       for (var d = 0; d < S.debris.length; d++) {
         var db = S.debris[d];
-        drawRock(db.x, db.y, db.r, db.spin, lerpColor('#556070', '#7a6a55', thaw), null);
+        drawRock(db.x, db.y, db.r, db.spin, lerpColor('#5f7f96', '#7fb4c8', thaw), null);
       }
 
       // asteroids w/ answers
@@ -697,6 +714,7 @@
     if (!S) return;
     document.getElementById('hud-score').textContent = Math.round(S.firstTryCorrect / S.totalCores * 100);
     document.getElementById('hud-cores').textContent = S.coresRecovered + '/' + S.totalCores;
+    document.getElementById('hud-bonus').textContent = S.bonus;
     var hearts = '';
     for (var i = 0; i < S.maxShields; i++) hearts += (i < S.shields ? '♥' : '·');
     document.getElementById('shields').textContent = hearts;
@@ -786,10 +804,15 @@
         screen: S.screen, diff: S.diff, score: S.score,
         hudScore: Math.round(S.firstTryCorrect / S.totalCores * 100),
         cores: S.coresRecovered, totalCores: S.totalCores,
-        shields: S.shields, maxShields: S.maxShields, thaw: S.thaw,
-        gateActive: S.gateActive, gateIndex: S.gateIndex,
+        shields: S.shields, maxShields: S.maxShields, thaw: S.thaw, bonus: S.bonus,
+        gateActive: S.gateActive, gateIndex: S.gateIndex, debris: S.debris.length,
         equation: q ? { text: q.text, answer: q.answer, options: q.options } : null,
       };
+    },
+    // spawn an ice-debris rock in the ship's lane (test: verify shooting bonus)
+    spawnIce: function () {
+      if (!S || S.screen !== 'playing') return;
+      S.debris.push({ x: W * 0.42, y: S.ship.y, r: 14, vx: -10, spin: 0, dead: false });
     },
     // resolve current gate by the value the player "hit"
     pick: function (value) { resolveGate(value); },
