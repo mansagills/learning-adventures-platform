@@ -38,7 +38,6 @@ export class NPC extends InteractableObject {
     dialog: DialogLine[],
     questConfigOrFinalDialogLine?: QuestGiverConfig | (() => void),
     onFinalDialogLine?: () => void
-    private readonly onFinalDialogLine?: () => void
   ) {
     super(scene, x, y, texture);
 
