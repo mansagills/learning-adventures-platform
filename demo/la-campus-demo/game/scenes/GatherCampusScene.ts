@@ -13,6 +13,8 @@ import {
 } from '../world/gatherPresentation';
 import { exploration, EXPLORATION_ROOMS } from '../world/explorationState';
 import { chapter0, CHAPTER0_NPC_ID, professorGateDialogue } from '../world/chapter0';
+import { chapter1, CHAPTER1_GAME_ID, NULL_RUN_CABINET } from '../world/chapter1';
+import { storyItems } from '../world/storyItems';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
@@ -184,8 +186,11 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.emit('set-player-name', { name: identity.name || null });
     // Avatar texture swaps flow through the existing 'set-avatar' handler
     // (OpenWorldScene), emitted by the overlay itself on selection.
-    // Jaylen greets the player by their chosen name — rebuild his dialogue.
-    this.jaylen?.setQuestDialogue(chapter0.dialogue());
+    // Jaylen greets the player by their chosen name — rebuild the dialogue
+    // for whichever story chapter he's currently running.
+    this.jaylen?.setQuestDialogue(
+      chapter0.isComplete ? chapter1.dialogue() : chapter0.dialogue()
+    );
   };
 
   private handleIdentityUpdated = (identity: PlayerIdentity) => {
@@ -337,18 +342,21 @@ export class GatherCampusScene extends OpenWorldScene {
       g.destroy();
     }
 
-    // Chapter 0 sits in front of the Racing License quest: Jaylen runs the
-    // onboarding story, and Professor Numbers politely redirects to him until
-    // the player's Spark is awake. One progression arc, two quests.
+    // Jaylen runs the STORY arc: Chapter 0 (onboarding) then Chapter 1 (Null).
+    // Professor Numbers gates the Racing License side-quest behind Chapter 0.
     this.jaylen = this.npcs.find((n) => n.npcId === CHAPTER0_NPC_ID);
-    this.jaylen?.setQuestDialogue(chapter0.dialogue());
     if (chapter0.isComplete) {
+      // Ch0 done → Jaylen offers Chapter 1; the tracked quest is the story.
+      chapter1.unlock(); // locked → offer (no-op if already further along)
+      this.jaylen?.setQuestDialogue(chapter1.dialogue());
       this.questGiver.setQuestDialogue(mathQuest.dialogue());
-      EventBus.emit('quest-updated', mathQuest.snapshot());
+      EventBus.emit('quest-updated', chapter1.snapshot());
     } else {
+      this.jaylen?.setQuestDialogue(chapter0.dialogue());
       this.questGiver.setQuestDialogue(professorGateDialogue());
       EventBus.emit('quest-updated', chapter0.snapshot());
     }
+    storyItems.announce();
 
     EventBus.on('npc-conversation-end', this.handleQuestConversation);
     EventBus.on('adventure-completed', this.handleQuestGameResult);
@@ -401,6 +409,17 @@ export class GatherCampusScene extends OpenWorldScene {
         case 'ignite':
         case 'play':
           return null;
+      }
+    }
+    // Chapter 1 (the story headline) takes the arrow until it's done: Jaylen
+    // for the briefing, the Null Run cabinet in Math Hall for the run.
+    if (chapter0.isComplete && !chapter1.isComplete) {
+      switch (chapter1.currentStage) {
+        case 'locked':
+        case 'offer':
+          return this.jaylen ? { x: this.jaylen.x, y: this.jaylen.y } : null;
+        case 'play':
+          return { x: NULL_RUN_CABINET.x, y: NULL_RUN_CABINET.y };
       }
     }
     switch (mathQuest.currentStage) {
@@ -528,10 +547,25 @@ export class GatherCampusScene extends OpenWorldScene {
   private handleQuestConversation = (data: { npcId: string; completed: boolean }) => {
     if (!data.completed) return;
 
-    // Chapter 0: finishing Jaylen's intro conversation starts the exploration
+    // Jaylen drives the story arc.
     if (data.npcId === CHAPTER0_NPC_ID && this.jaylen) {
-      chapter0.beginExploring();
-      this.jaylen.setQuestDialogue(chapter0.dialogue());
+      if (!chapter0.isComplete) {
+        // Chapter 0: finishing his intro conversation starts the exploration
+        chapter0.beginExploring();
+        this.jaylen.setQuestDialogue(chapter0.dialogue());
+        return;
+      }
+      // Chapter 1: offer briefing → accept → (re)open Null Run
+      switch (chapter1.currentStage) {
+        case 'offer':
+          chapter1.accept(); // briefing shown; now go run the Null field
+          break;
+        case 'play':
+          // talking again re-opens Null Run for another attempt
+          EventBus.emit('open-adventure', { adventureId: CHAPTER1_GAME_ID, type: 'game' });
+          break;
+      }
+      this.jaylen.setQuestDialogue(chapter1.dialogue());
       return;
     }
 
@@ -567,12 +601,26 @@ export class GatherCampusScene extends OpenWorldScene {
     // then hands the objective over to the Racing License arc.
     if (chapter0.currentStage === 'play') {
       if (chapter0.completePlay()) {
-        this.jaylen?.setQuestDialogue(chapter0.dialogue());
+        // Ch0 debrief plays; Chapter 1 unlocks and becomes the tracked story
+        // quest (Jaylen offers it). Racing License stays a side quest.
+        chapter1.unlock();
+        this.jaylen?.setQuestDialogue(chapter1.dialogue());
         this.jaylen?.celebrate();
         this.questGiver?.setQuestDialogue(mathQuest.dialogue());
-        this.time.delayedCall(400, () => {
-          EventBus.emit('quest-updated', mathQuest.snapshot());
+        this.time.delayedCall(600, () => {
+          EventBus.emit('quest-updated', chapter1.snapshot());
         });
+      }
+      return;
+    }
+
+    // Chapter 1: a Null Run clear with score >= 80 finishes the quest and
+    // grants the Null Fragment (first clear only, via storyItems).
+    if (chapter1.currentStage === 'play' && data.adventureId === CHAPTER1_GAME_ID) {
+      if (chapter1.reportScore(data.score)) {
+        this.jaylen?.setQuestDialogue(chapter1.dialogue());
+        this.jaylen?.celebrate();
+        this.simStudents.forEach((s) => s.celebrate());
       }
       return;
     }

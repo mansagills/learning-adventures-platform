@@ -99,6 +99,8 @@ export function ActivityFeed() {
       const entry =
         data?.questId === 'chapter-0-first-spark'
           ? { icon: '✨', text: `${playerName}'s Spark just woke up!` }
+          : data?.questId === 'chapter-1-null-run'
+          ? { icon: '🧊', text: `${playerName} recovered a Null Fragment!` }
           : { icon: '🏁', text: `${playerName} earned the Racing License!` };
       setEntries((prev) => [
         ...prev.slice(-(MAX_VISIBLE - 1)),
