@@ -19,9 +19,12 @@ import { demoEconomy } from '@/game/world/demoEconomy';
 import { wearableForOwned } from '@/game/world/wearables';
 import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
 import { chapter0 } from '@/game/world/chapter0';
+import { chapter1 } from '@/game/world/chapter1';
+import { storyItems } from '@/game/world/storyItems';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
+import { StoryItemsChip } from '@/components/world/StoryItemsChip';
 import { TouchControls } from '@/components/world/TouchControls';
 import { resetDemo } from '@/game/world/demoReset';
 
@@ -72,10 +75,11 @@ export default function CampusSandboxPage() {
       setShowShop(true);
     };
     const handleQuestCompleted = (data: { xp: number; questId?: string }) => {
-      demoEconomy.addXP(
-        data.xp,
-        data.questId === 'chapter-0-first-spark' ? 'First Spark' : 'Racing License quest'
-      );
+      const reason =
+        data.questId === 'chapter-0-first-spark' ? 'First Spark'
+        : data.questId === 'chapter-1-null-run' ? 'Null Fragment recovered'
+        : 'Racing License quest';
+      demoEconomy.addXP(data.xp, reason);
     };
     const handleOpenJobBoard = () => {
       (window as any).__campusTest.questBoardOpened = true;
@@ -111,6 +115,8 @@ export default function CampusSandboxPage() {
       wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
       identity: getIdentity,
       chapter0: () => chapter0.snapshot(),
+      chapter1: () => chapter1.snapshot(),
+      storyItems: () => storyItems.list(),
       playIntro: () => EventBus.emit('play-intro-cinematic'),
       setIdentity: (name: string, avatarId: string) => {
         const saved = saveIdentity({ name, avatarId });
@@ -193,6 +199,8 @@ export default function CampusSandboxPage() {
 
       {/* Demo quest objective HUD (same as /world/campus) */}
       <QuestTracker />
+
+      <StoryItemsChip />
 
       {/* Demo economy: XP chip + campus shop (sandbox-local, no backend) */}
       <DemoXpChip />

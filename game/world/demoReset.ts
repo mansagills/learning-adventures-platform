@@ -18,12 +18,16 @@ import { demoEconomy } from './demoEconomy';
 import { exploration } from './explorationState';
 import { resetWelcomeSeen } from './welcomeState';
 import { resetIdentity } from './playerIdentity';
+import { storyItems } from './storyItems';
 
 export function resetDemo(): void {
   demoEconomy.reset();
   exploration.reset();
   resetWelcomeSeen();
   resetIdentity();
+  // Chapter/quest state is in-memory (mathQuest, chapter0, chapter1) and
+  // clears on the reload below; story items persist, so wipe them explicitly.
+  storyItems.reset();
   if (typeof window !== 'undefined') {
     window.location.reload();
   }
