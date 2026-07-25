@@ -36,8 +36,8 @@ vi.mock('adm-zip', () => {
 });
 
 // Mock Auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 vi.mock('@/lib/auth', () => ({
@@ -46,14 +46,14 @@ vi.mock('@/lib/auth', () => ({
 
 // Import the route AFTER mocks
 import { POST } from '@/app/api/internal/save-content/route';
-import { getServerSession } from 'next-auth/next';
+import { getApiUser } from '@/lib/api-auth';
 
 describe('Security: Zip Slip & Path Traversal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
-      user: {
-        role: 'ADMIN',
+    (getApiUser as any).mockResolvedValue({
+      apiUser: {
+        role: 'ADMIN', id: 'admin',
       },
     });
   });

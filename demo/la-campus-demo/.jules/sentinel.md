@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2024-05-27 - [Zip Bomb Prevention via Entry Size Verification]
+**Vulnerability:** Zip Bomb (Decompression Bomb) DoS attack. The `getData()` method on AdmZip entries reads the entire uncompressed file content into a memory Buffer.
+**Learning:** Checking for Zip slip (path traversal) isn't sufficient. If an attacker uploaded a maliciously crafted small Zip file containing highly compressed entries that expand to gigabytes of data, invoking `entry.getData()` would crash the Node.js server via OOM (Out of Memory).
+**Prevention:** Always verify `entry.header.size` against a reasonable bound (e.g. 100MB, 1MB for metadata) BEFORE calling `entry.getData()`.
