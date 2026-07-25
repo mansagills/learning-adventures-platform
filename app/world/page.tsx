@@ -206,17 +206,10 @@ export default function WorldPage() {
         console.error('Failed to save collectible reward:', err);
       }
     };
-    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
+    ;
 
-    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
-      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
-      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
-      setZoneBanner(data.zone.displayName);
-      setTimeout(() => setZoneBanner(null), 2800);
-    };
-    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
     // Placeholder for Phase D collectible handling
-    const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
+
 
     const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
       document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
