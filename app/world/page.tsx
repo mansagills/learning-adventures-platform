@@ -11,6 +11,8 @@ import { InventoryPanel } from '@/components/world/InventoryPanel';
 import { JobBoard } from '@/components/world/JobBoard';
 import { WorldDialog, type NpcDialogState } from '@/components/world/WorldDialog';
 import Minimap from '@/components/world/Minimap';
+import { QuestLog } from '@/components/world/QuestLog';
+import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
@@ -185,6 +187,7 @@ export default function WorldPage() {
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
     const handleQuestOffer = (data: typeof questOffer) => setQuestOffer(data);
+    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
     const handleCollectibleCollected = async (data: { id: string; xp: number; coins: number }) => {
       setXp((prev) => prev + data.xp);
       setCoins((prev) => prev + data.coins);

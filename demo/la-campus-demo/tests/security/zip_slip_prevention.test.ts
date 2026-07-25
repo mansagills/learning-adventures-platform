@@ -1,11 +1,15 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { existsSync } from 'fs';
+import { extractZipSafely } from '@/lib/safe-zip';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getApiUser } from '@/lib/api-auth';
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: vi.fn(),
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 const { writeFileMock, mkdirMock, mockGetServerSession } = vi.hoisted(() => ({
@@ -30,19 +34,24 @@ vi.mock('fs/promises', () => {
   };
 });
 
-vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
-  default: {
-    mkdir: vi.fn(),
-    writeFile: vi.fn(),
-  }
-}));
+vi.mock('fs', async () => {
+  const actual = await vi.importActual('fs');
+  return {
+
+    existsSync: vi.fn().mockReturnValue(true),
+    default: {
+
+      mkdir: vi.fn(),
+      writeFile: vi.fn(),
+    }
+  };
+});
 
 // Mock next-auth
-vi.mock('next-auth', () => ({
-  getServerSession: mockGetServerSession,
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: mockGetServerSession,
   default: {
-    getServerSession: mockGetServerSession,
+    getApiUser: mockGetServerSession,
   },
 }));
 
@@ -72,7 +81,7 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
+
     existsSync: vi.fn(),
   };
 });
@@ -89,7 +98,7 @@ describe('Security: Zip Slip Prevention', () => {
 
   it('should prevent Zip Slip by validating paths', async () => {
     // Mock admin session
-    (getServerSession as any).mockResolvedValue({
+    (getApiUser as any).mockResolvedValue({
       user: { role: 'ADMIN', id: 'admin' },
     });
 
@@ -154,7 +163,8 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
-          getData: () => Buffer.from('content')
+          getData: () => Buffer.from('content'),
+          header: { size: 100 }
         }
       ]
     };
