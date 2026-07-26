@@ -19,7 +19,7 @@ import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
-import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations';
+import { preloadCampusProps, placeCampusProps, getLampPositions } from '../world/campusDecorations';
 import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
@@ -86,6 +86,13 @@ export class GatherCampusScene extends OpenWorldScene {
   private demoIdentityActive = false;
   /** Cinematic intro flyover in progress (blocks double-starts). */
   private introRunning = false;
+  // ── Ambient life (Tier 3) ──────────────────────────────────────────────────
+  private hoopsTimer?: Phaser.Time.TimerEvent;
+  /** Per-student greeting cooldown, keyed by npcId. */
+  private lastWaveAt = new Map<string, number>();
+  private nextGreetingAllowed = 0;
+  private nightOverlay?: Phaser.GameObjects.Rectangle;
+  private lampGlows: Phaser.GameObjects.Arc[] = [];
 
   constructor() {
     super('GatherCampusScene');
@@ -157,6 +164,8 @@ export class GatherCampusScene extends OpenWorldScene {
     this.setupWearables();
     this.setupIdentity();
     this.setupIntroCinematic();
+    this.setupCourtHoops();
+    this.setupDayNight();
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
@@ -267,6 +276,171 @@ export class GatherCampusScene extends OpenWorldScene {
       this.time.delayedCall(400, this.startIntroCinematic);
     }
   }
+
+  // ─── Ambient life: hoops, greetings, day/night (Tier 3 polish) ────────────
+
+  /** Court students + the north hoop they shoot at (court decal is 13×16
+   *  centered at tile (24,49); the north rim sits ~row 46). */
+  private static readonly COURT_STUDENT_IDS = ['sim_kai', 'sim_nia'];
+  private static readonly HOOP = { x: 24 * TILE_SIZE, y: 46 * TILE_SIZE };
+
+  /** Demo/test controls: jump the sky to a phase, or trigger a shot now. */
+  private handleSetDayPhase = (data: { phase: number | null }) => {
+    this.forcedPhase =
+      data.phase === null || data.phase === undefined
+        ? null
+        : Phaser.Math.Clamp(data.phase, 0, 1);
+  };
+
+  private handleShootHoops = () => this.shootHoops();
+
+  private setupCourtHoops(): void {
+    EventBus.on('set-day-phase', this.handleSetDayPhase);
+    EventBus.on('shoot-hoops', this.handleShootHoops);
+    // A shot every ~7-10s: the court reads as an ongoing game, not a diorama.
+    this.hoopsTimer = this.time.addEvent({
+      delay: 7000,
+      loop: true,
+      callback: () => {
+        // Skip while paused (modal open) or off-camera — no wasted tweens.
+        if (this.isPaused) return;
+        this.shootHoops();
+      },
+    });
+  }
+
+  private shootHoops(): void {
+    const shooters = this.simStudents.filter((s) =>
+      GatherCampusScene.COURT_STUDENT_IDS.includes(s.npcId),
+    );
+    if (shooters.length === 0) return;
+    const shooter = Phaser.Utils.Array.GetRandom(shooters);
+    shooter.activityEmote('🏀', 1600);
+
+    const startX = shooter.x;
+    const startY = shooter.y - 18;
+    const target = GatherCampusScene.HOOP;
+
+    const hasBallArt = this.textures.exists('prop-basketball-1');
+    const ball: Phaser.GameObjects.Image | Phaser.GameObjects.Arc = hasBallArt
+      ? this.add.image(startX, startY, 'prop-basketball-1')
+      : this.add.circle(startX, startY, 9, 0xf97316);
+    if (hasBallArt) (ball as Phaser.GameObjects.Image).setDisplaySize(24, 24);
+    ball.setDepth(20);
+
+    // Parabolic arc: linear travel + a sine hop, so it reads as a real shot.
+    const prog = { t: 0 };
+    this.tweens.add({
+      targets: prog,
+      t: 1,
+      duration: 950,
+      ease: 'Sine.easeOut',
+      onUpdate: () => {
+        ball.x = Phaser.Math.Linear(startX, target.x, prog.t);
+        ball.y =
+          Phaser.Math.Linear(startY, target.y, prog.t) -
+          Math.sin(prog.t * Math.PI) * 86;
+      },
+      onComplete: () => {
+        ball.destroy();
+        const swish = this.add.text(target.x, target.y, '✨', { fontSize: '20px' });
+        swish.setOrigin(0.5).setDepth(21);
+        this.tweens.add({
+          targets: swish,
+          alpha: 0,
+          y: target.y - 34,
+          duration: 650,
+          onComplete: () => swish.destroy(),
+        });
+      },
+    });
+  }
+
+  /**
+   * A quick 👋 when the player walks *past* a sim student — near enough to
+   * notice, but outside conversation range (END_RADIUS 130) so it never
+   * competes with the walk-up chat. Throttled per student and globally.
+   */
+  private updateGreetings(time: number): void {
+    if (!this.player || time < this.nextGreetingAllowed) return;
+    for (const s of this.simStudents) {
+      const d = Phaser.Math.Distance.Between(s.x, s.y, this.player.x, this.player.y);
+      if (d < 165 || d > 310) continue;
+      const last = this.lastWaveAt.get(s.npcId) ?? -Infinity;
+      if (time - last < 25000) continue;
+      this.lastWaveAt.set(s.npcId, time);
+      this.nextGreetingAllowed = time + 4000; // never a chorus of waves
+      s.wave();
+      return;
+    }
+  }
+
+  /**
+   * Slow ambient day→dusk→night tint with the campus lamps glowing after
+   * dark. Deliberately gentle: night peaks at 34% so a presenter mid-pitch
+   * never loses the world to darkness, and the cycle starts at midday.
+   */
+  private static readonly DAY_CYCLE_MS = 240000; // 4 min round trip
+  private static readonly NIGHT_PEAK_ALPHA = 0.34;
+
+  private setupDayNight(): void {
+    const cam = this.cameras.main;
+    // NOTE: fill alpha must be 1 — Phaser multiplies a Shape's fillAlpha by
+    // its object alpha, so building it at 0 would make setAlpha() a no-op.
+    // Sized once, far larger than any viewport: a scrollFactor-0 quad shrinks
+    // on screen as the camera zooms out (the intro flyover), so an
+    // exactly-viewport-sized rect would leave the edges untinted.
+    this.nightOverlay = this.add.rectangle(-6000, -6000, 20000, 20000, 0x0a1330, 1);
+    this.nightOverlay.setAlpha(0);
+    this.nightOverlay.setOrigin(0, 0);
+    this.nightOverlay.setScrollFactor(0);
+    this.nightOverlay.setDepth(900); // above the world, below the React HUD
+    void cam;
+
+    this.lampGlows = getLampPositions().map((p) => {
+      const glow = this.add.circle(p.x, p.y - 26, 46, 0xffd27a, 1);
+      glow.setAlpha(0); // see fillAlpha note above
+      glow.setDepth(8);
+      glow.setBlendMode(Phaser.BlendModes.ADD);
+      return glow;
+    });
+  }
+
+  /** Test/demo override for the cycle phase (0..1); null = follow the clock. */
+  private forcedPhase: number | null = null;
+
+  /** 0 = full day, 1 = deepest night. */
+  private nightFactor(time: number): number {
+    const phase =
+      this.forcedPhase ??
+      (time % GatherCampusScene.DAY_CYCLE_MS) / GatherCampusScene.DAY_CYCLE_MS;
+    // Cosine so dawn/dusk ease in and out instead of stepping.
+    return (1 - Math.cos(phase * Math.PI * 2)) / 2;
+  }
+
+  private updateDayNight(time: number): void {
+    if (!this.nightOverlay) return;
+    const n = this.nightFactor(time);
+    this.nightOverlay.setAlpha(n * GatherCampusScene.NIGHT_PEAK_ALPHA);
+    // Lamps kick in through dusk, full bright at night.
+    const lampAlpha = Phaser.Math.Clamp((n - 0.25) / 0.5, 0, 1) * 0.5;
+    for (const g of this.lampGlows) g.setAlpha(lampAlpha);
+
+    // Publish the sky state when it meaningfully changes (HUD/test visibility).
+    if (Math.abs(n - this.lastPublishedNight) > 0.02) {
+      this.lastPublishedNight = n;
+      EventBus.emit('day-night-updated', {
+        night: n,
+        overlayAlpha: this.nightOverlay.alpha,
+        overlayVisible: this.nightOverlay.visible,
+        overlayDepth: this.nightOverlay.depth,
+        lampAlpha,
+        lamps: this.lampGlows.length,
+      });
+    }
+  }
+
+  private lastPublishedNight = -1;
 
   /** Mark the room the player is standing inside (if any) as explored. */
   private checkExploration(time: number): void {
@@ -752,6 +926,8 @@ export class GatherCampusScene extends OpenWorldScene {
 
     this.checkExploration(time);
     this.updateQuestGuidance(time);
+    this.updateGreetings(time);
+    this.updateDayNight(time);
 
     // Proximity conversations — only one NPC may talk at a time
     let talkingNpc: TalkableNPC | null = null;
@@ -800,6 +976,15 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('play-intro-cinematic', this.startIntroCinematic);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
+    EventBus.off('set-day-phase', this.handleSetDayPhase);
+    EventBus.off('shoot-hoops', this.handleShootHoops);
+    this.hoopsTimer?.remove();
+    this.hoopsTimer = undefined;
+    this.lampGlows.forEach((g) => g.destroy());
+    this.lampGlows = [];
+    this.nightOverlay?.destroy();
+    this.nightOverlay = undefined;
+    this.lastWaveAt.clear();
     stopAmbience();
     this.questItems.forEach((c) => c.destroy());
     this.questItems = [];
