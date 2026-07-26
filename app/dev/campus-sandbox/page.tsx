@@ -86,6 +86,9 @@ export default function CampusSandboxPage() {
       setNotice('📋 Quest Board would open here (requires login)');
       setTimeout(() => setNotice(null), 3000);
     };
+    const handleDayNight = (data: unknown) => {
+      (window as any).__campusTest.dayNight = data;
+    };
     const handlePosition = (data: { x: number; y: number }) => {
       (window as any).__campusTest.position = data;
     };
@@ -118,6 +121,8 @@ export default function CampusSandboxPage() {
       chapter1: () => chapter1.snapshot(),
       storyItems: () => storyItems.list(),
       playIntro: () => EventBus.emit('play-intro-cinematic'),
+      setDayPhase: (phase: number | null) => EventBus.emit('set-day-phase', { phase }),
+      shootHoops: () => EventBus.emit('shoot-hoops'),
       setIdentity: (name: string, avatarId: string) => {
         const saved = saveIdentity({ name, avatarId });
         EventBus.emit('set-avatar', { avatarId: saved.avatarId });
@@ -136,6 +141,7 @@ export default function CampusSandboxPage() {
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
+    EventBus.on('day-night-updated', handleDayNight);
     EventBus.on('quest-updated', handleQuestUpdate);
     EventBus.on('exploration-updated', handleExplorationUpdate);
     EventBus.on('quest-completed', handleQuestCompleted);
@@ -147,6 +153,7 @@ export default function CampusSandboxPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
+      EventBus.off('day-night-updated', handleDayNight);
       EventBus.off('quest-updated', handleQuestUpdate);
       EventBus.off('exploration-updated', handleExplorationUpdate);
       EventBus.off('quest-completed', handleQuestCompleted);

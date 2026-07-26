@@ -275,6 +275,23 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     }
   }
 
+  /**
+   * Ambient acknowledgement — a quick 👋 when the player walks past (outside
+   * conversation range). Scene-throttled per NPC so it never spams.
+   */
+  public wave(): void {
+    if (!this.isTalking) {
+      this.showEmote('👋', 2200);
+    }
+  }
+
+  /** Ambient activity emote (e.g. 🏀 while playing on the court). */
+  public activityEmote(emote: string, durationMs = 2500): void {
+    if (!this.isTalking) {
+      this.showEmote(emote, durationMs);
+    }
+  }
+
   private pauseWandering(): void {
     // Defense in depth: only pause a tween Phaser still considers active.
     // A finished/removed tween throws on .pause() (its internal event data

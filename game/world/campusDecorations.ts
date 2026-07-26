@@ -279,6 +279,17 @@ const PLACEMENTS: Placement[] = [
 ];
 
 /** Queue every prop image + animated spritesheet. Call from preload(). */
+/**
+ * World positions of every light fixture (street lamps + stadium lights),
+ * derived from the same PLACEMENTS list that draws them — so the day/night
+ * cycle's glow sprites can never drift out of sync with the art.
+ */
+export function getLampPositions(): { x: number; y: number }[] {
+  return PLACEMENTS
+    .filter((p) => p.key === 'prop-street-lamp' || p.key === 'prop-stadium-light')
+    .map((p) => ({ x: p.col * T, y: p.row * T }));
+}
+
 export function preloadCampusProps(scene: Phaser.Scene): void {
   Object.entries(PROP_FILES).forEach(([key, file]) => {
     scene.load.image(key, `/game-assets/modern/props/${file}`);
