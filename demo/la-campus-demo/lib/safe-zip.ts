@@ -17,6 +17,8 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     await fs.mkdir(targetDirResolved, { recursive: true });
   }
 
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit to prevent Zip Bomb
+
   for (const entry of entries) {
     // Skip if entry is a directory - we'll create directories as needed for files
     // or if it's an explicit directory entry, we validate and create it
@@ -51,6 +53,11 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     const parentDir = path.dirname(destPath);
     if (!existsSync(parentDir)) {
       await fs.mkdir(parentDir, { recursive: true });
+    }
+
+    // Security check: prevent Zip Bomb by limiting file size
+    if (entry.header.size > MAX_FILE_SIZE) {
+      throw new Error(`Security Error: File exceeds maximum allowed size (50MB): ${entryName}`);
     }
 
     // Write file content
