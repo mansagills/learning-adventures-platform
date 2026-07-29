@@ -53,6 +53,12 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
       await fs.mkdir(parentDir, { recursive: true });
     }
 
+    // Security check: prevent Zip Bomb DoS
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+    if (entry.header.size > MAX_FILE_SIZE) {
+      throw new Error(`Security Error: File in zip exceeds size limit: ${entryName}`);
+    }
+
     // Write file content
     await fs.writeFile(destPath, entry.getData());
   }
