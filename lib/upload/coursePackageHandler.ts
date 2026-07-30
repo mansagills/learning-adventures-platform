@@ -57,6 +57,9 @@ export async function processCoursePackage(
   if (!manifestEntry) {
     throw new Error('metadata.json not found in .zip package');
   }
+  if (manifestEntry.header.size > 1048576) {
+    throw new Error('metadata.json exceeds size limit');
+  }
 
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
@@ -106,6 +109,7 @@ export async function processCoursePackage(
       continue;
     }
 
+    if (lessonEntry.header.size > 104857600) throw new Error(`Lesson file exceeds size limit`);
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +129,7 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      if (thumbnailEntry.header.size > 5242880) throw new Error(`Thumbnail file exceeds size limit`);
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
@@ -322,7 +327,7 @@ function sanitizeSlug(slug: string): string {
  */
 export function isCoursePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
-  if (!manifest) return false;
+  if (!manifest || manifest.header.size > 1048576) return false;
 
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
@@ -345,6 +350,10 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+  if (manifest.header.size > 1048576) {
+    errors.push('metadata.json exceeds size limit');
     return { valid: false, errors };
   }
 

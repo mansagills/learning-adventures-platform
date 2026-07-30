@@ -54,6 +54,7 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     }
 
     // Write file content
+    if (entry.header.size > 104857600) { throw new Error(`Security Error: Zip entry ${entryName} exceeds size limit of 100MB`); }
     await fs.writeFile(destPath, entry.getData());
   }
 }
