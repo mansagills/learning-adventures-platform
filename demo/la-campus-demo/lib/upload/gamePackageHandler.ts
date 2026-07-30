@@ -46,6 +46,11 @@ export async function processGamePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Security check: prevent Zip Bomb by checking metadata file size (1MB limit)
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json file exceeds maximum size of 1MB');
+  }
+
   const manifest: GameManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -86,6 +91,12 @@ export async function processGamePackage(
 
   // Ensure staging directory exists
   await fs.mkdir(stagingDir, { recursive: true });
+
+  // Security check: prevent Zip Bomb by checking game file size (50MB limit)
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+  if (gameEntry.header.size > MAX_FILE_SIZE) {
+    throw new Error(`Game file exceeds maximum size of 50MB: ${manifest.gameFile}`);
+  }
 
   // Extract and save the game file to staging
   const gameData = gameEntry.getData();

@@ -58,6 +58,11 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Security check: prevent Zip Bomb by checking metadata file size (1MB limit)
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json file exceeds maximum size of 1MB');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +111,12 @@ export async function processCoursePackage(
       continue;
     }
 
+    // Security check: prevent Zip Bomb by checking lesson file size (50MB limit)
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+    if (lessonEntry.header.size > MAX_FILE_SIZE) {
+      throw new Error(`Lesson file exceeds maximum size of 50MB: ${lessonMeta.file}`);
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +136,10 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      // Security check: prevent Zip Bomb by checking thumbnail file size (5MB limit)
+      if (thumbnailEntry.header.size > 5 * 1024 * 1024) {
+        throw new Error(`Thumbnail file exceeds maximum size of 5MB: ${manifest.thumbnail}`);
+      }
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
