@@ -46,6 +46,11 @@ export async function processGamePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Prevent Zip bomb DoS
+  if (manifestEntry.header.size > 1048576) {
+    throw new Error('metadata.json is too large (exceeds 1MB limit)');
+  }
+
   const manifest: GameManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -59,6 +64,11 @@ export async function processGamePackage(
   const gameEntry = zip.getEntry(manifest.gameFile);
   if (!gameEntry) {
     throw new Error(`Game file not found: ${manifest.gameFile}`);
+  }
+
+  // Prevent Zip bomb DoS
+  if (gameEntry.header.size > 50 * 1024 * 1024) {
+    throw new Error(`Game file ${manifest.gameFile} is too large (exceeds 50MB limit)`);
   }
 
   // Generate unique game ID if not provided
@@ -169,6 +179,11 @@ export function isGamePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) return false;
 
+  // Prevent Zip bomb DoS
+  if (manifest.header.size > 1048576) {
+    return false;
+  }
+
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
     // If it has 'gameFile' field, it's a game package
@@ -192,6 +207,12 @@ export function validateGamePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  // Prevent Zip bomb DoS
+  if (manifest.header.size > 1048576) {
+    errors.push('metadata.json is too large (exceeds 1MB limit)');
     return { valid: false, errors };
   }
 
