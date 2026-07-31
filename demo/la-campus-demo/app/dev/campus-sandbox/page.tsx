@@ -15,18 +15,18 @@ import { DemoShop, DemoXpChip } from '@/components/world/DemoShop';
 import { AudioToggle } from '@/components/world/AudioToggle';
 import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
-import { demoEconomy } from '@/game/world/demoEconomy';
-import { wearableForOwned } from '@/game/world/wearables';
-import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
-import { chapter0 } from '@/game/world/chapter0';
-import { chapter1 } from '@/game/world/chapter1';
-import { storyItems } from '@/game/world/storyItems';
-import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
-import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
-import { RestartDemoButton } from '@/components/world/RestartDemoButton';
-import { StoryItemsChip } from '@/components/world/StoryItemsChip';
-import { TouchControls } from '@/components/world/TouchControls';
-import { resetDemo } from '@/game/world/demoReset';
+import { demoEconomy } from '../../../game/world/demoEconomy';
+import { wearableForOwned } from '../../../game/world/wearables';
+import { getIdentity, saveIdentity } from '../../../game/world/playerIdentity';
+import { chapter0 } from '../../../game/world/chapter0';
+import { chapter1 } from '../../../game/world/chapter1';
+import { storyItems } from '../../../game/world/storyItems';
+import { WelcomeOverlay } from '../../../components/world/WelcomeOverlay';
+import { hasSeenWelcome, resetWelcomeSeen } from '../../../game/world/welcomeState';
+import { RestartDemoButton } from '../../../components/world/RestartDemoButton';
+import { StoryItemsChip } from '../../../components/world/StoryItemsChip';
+import { TouchControls } from '../../../components/world/TouchControls';
+import { resetDemo } from '../../../game/world/demoReset';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),

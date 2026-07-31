@@ -8,7 +8,7 @@ import {
   getIdentity,
   saveIdentity,
   sanitizeName,
-} from '@/game/world/playerIdentity';
+} from '../../game/world/playerIdentity';
 import { EventBus } from '@/components/phaser/EventBus';
 
 interface WelcomeOverlayProps {
