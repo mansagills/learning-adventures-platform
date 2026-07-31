@@ -58,6 +58,11 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Prevent Zip bomb DoS
+  if (manifestEntry.header.size > 1048576) {
+    throw new Error('metadata.json is too large (exceeds 1MB limit)');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +111,11 @@ export async function processCoursePackage(
       continue;
     }
 
+    // Prevent Zip bomb DoS
+    if (lessonEntry.header.size > 50 * 1024 * 1024) {
+      throw new Error(`Lesson file ${lessonMeta.file} is too large (exceeds 50MB limit)`);
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +135,10 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      // Prevent Zip bomb DoS
+      if (thumbnailEntry.header.size > 50 * 1024 * 1024) {
+        throw new Error(`Thumbnail file ${manifest.thumbnail} is too large (exceeds 50MB limit)`);
+      }
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
@@ -324,6 +338,11 @@ export function isCoursePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) return false;
 
+  // Prevent Zip bomb DoS
+  if (manifest.header.size > 1048576) {
+    return false;
+  }
+
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
@@ -345,6 +364,12 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  // Prevent Zip bomb DoS
+  if (manifest.header.size > 1048576) {
+    errors.push('metadata.json is too large (exceeds 1MB limit)');
     return { valid: false, errors };
   }
 

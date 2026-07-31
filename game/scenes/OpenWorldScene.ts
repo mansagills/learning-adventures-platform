@@ -226,7 +226,6 @@ export class OpenWorldScene extends Phaser.Scene {
 
     // Place Campus V1 buildings, NPCs, shop, and quest board
     this.createInteractables();
-    this.createCampusSignage();
 
     // Setup interaction key (SPACE)
     if (this.input.keyboard) {
@@ -518,14 +517,9 @@ export class OpenWorldScene extends Phaser.Scene {
     }
   };
 
-  private handleQuestStatusUpdate = (
-    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
-  ) => this.updateQuestMarkers(markerData);
-
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);
-    EventBus.on('quest-status-update', this.handleQuestStatusUpdate);
   }
 
   // ─── shutdown ────────────────────────────────────────────────────────────────
@@ -536,7 +530,6 @@ export class OpenWorldScene extends Phaser.Scene {
     this.cleanedUp = true;
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
-    EventBus.off('quest-status-update', this.handleQuestStatusUpdate);
 
     // Destroy quest markers
     this.questMarkers.forEach(({ marker, tween }) => {

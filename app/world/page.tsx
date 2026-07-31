@@ -14,6 +14,8 @@ import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
+import { QuestLog } from '@/components/world/QuestLog';
+import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
 
 // Dynamically import Phaser component to avoid SSR issues
 const PhaserGame = dynamic(
@@ -214,17 +216,6 @@ export default function WorldPage() {
       setZoneBanner(data.zone.displayName);
       setTimeout(() => setZoneBanner(null), 2800);
     };
-    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
-    // Placeholder for Phase D collectible handling
-    const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
-
-    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
-      document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
-      document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
-      setZoneBanner(data.zone.displayName);
-      setTimeout(() => setZoneBanner(null), 2800);
-    };
-
     EventBus.on('save-player-position', handleSavePosition);
     EventBus.on('open-adventure', handleOpenAdventure);
     EventBus.on('open-shop', handleOpenShop);
