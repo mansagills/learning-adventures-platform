@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-23 - Prevent Zip Bomb Memory Exhaustion
+**Vulnerability:** Zip Bomb (Memory Exhaustion) Denial of Service via `adm-zip`'s `getData()` method. Extracting zip entries into memory without prior size validation allows attackers to upload highly compressed malicious zip files that expand massively, exhausting Node.js heap memory and crashing the server.
+**Learning:** Checking uncompressed file size (e.g. `entry.header.size`) before calling `entry.getData()` is critical when handling user-uploaded zip files, even for metadata files.
+**Prevention:** Always enforce strict, reasonable file size limits on individual uncompressed zip entries before extraction or buffering them into memory.
