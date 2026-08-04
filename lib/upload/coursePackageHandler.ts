@@ -58,6 +58,10 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json exceeds 1MB limit');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +110,10 @@ export async function processCoursePackage(
       continue;
     }
 
+    if (lessonEntry.header.size > 50 * 1024 * 1024) {
+      throw new Error(`Lesson file exceeds 50MB limit: ${lessonMeta.file}`);
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +133,9 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      if (thumbnailEntry.header.size > 50 * 1024 * 1024) {
+        throw new Error(`Thumbnail file exceeds 50MB limit: ${manifest.thumbnail}`);
+      }
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
@@ -324,6 +335,10 @@ export function isCoursePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) return false;
 
+  if (manifest.header.size > 1024 * 1024) {
+    return false;
+  }
+
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
@@ -345,6 +360,11 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  if (manifest.header.size > 1024 * 1024) {
+    errors.push('metadata.json exceeds 1MB limit');
     return { valid: false, errors };
   }
 
