@@ -13,3 +13,11 @@
 **Prevention:**
 1. Validate size bounds before uncompressing zip entries via `.getData()` to prevent memory exhaustion and DoS.
 2. Update associated unit tests mock responses to match expected data structures when introducing new conditions (e.g., adding `.header.size` to mock objects).
+
+## 2025-02-23 - Typescript Build Fix
+**Vulnerability:** Not a direct vulnerability, but resolving build errors is critical for deployment and preventing CI/CD failures.
+**Learning:** Syntax errors like a missing comma, unused variables (like `handleZoneChanged`), missing imports, and conflicting duplicated methods in `app/world/page.tsx` and `game/entities/NPC.ts` must be correctly identified via `tsc --noEmit`. When tests or components within `demo/la-campus-demo` break or become unresolvable because their dependencies have been moved or removed, they should be cleaned up.
+**Prevention:**
+1. Run `pnpm tsc --noEmit` before submitting.
+2. Ensure variable declarations and function declarations within components do not shadow each other.
+3. Clean up unneeded or broken components.
