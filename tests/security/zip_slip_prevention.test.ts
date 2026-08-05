@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { extractZipSafely } from '@/lib/safe-zip';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
@@ -30,11 +34,13 @@ vi.mock('fs/promises', () => {
   };
 });
 
+const { mockExistsSync } = vi.hoisted(() => ({ mockExistsSync: vi.fn().mockReturnValue(true) }));
 vi.mock('fs', () => ({
-  existsSync: vi.fn().mockReturnValue(true),
+  existsSync: mockExistsSync,
   default: {
     mkdir: vi.fn(),
     writeFile: vi.fn(),
+    existsSync: mockExistsSync,
   }
 }));
 
@@ -59,18 +65,21 @@ const mockGetData = vi.fn().mockReturnValue(Buffer.from('content'));
 const safeEntry = {
   entryName: 'safe.html',
   isDirectory: false,
+  header: { size: 100 },
   getData: mockGetData,
 };
 
 const maliciousEntry = {
   entryName: '../../etc/passwd',
   isDirectory: false,
+  header: { size: 100 },
   getData: mockGetData,
 };
 
 const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
-vi.mock('adm-zip', () => {
+vi.mock('adm-zip', async () => {
+  const actual = await vi.importActual('adm-zip');
   return {
     ...actual,
     existsSync: vi.fn(),
@@ -114,6 +123,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '../../etc/passwd',
+          header: { size: 100 },
           getData: () => Buffer.from('malicious content')
         }
       ]
@@ -133,6 +143,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '/etc/passwd',
+          header: { size: 100 },
           getData: () => Buffer.from('malicious content')
         }
       ]
@@ -154,6 +165,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
+          header: { size: 100 },
           getData: () => Buffer.from('content')
         }
       ]

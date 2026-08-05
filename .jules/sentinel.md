@@ -6,3 +6,18 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+
+## 2025-02-23 - Zip Bomb Vulnerability Fix
+**Vulnerability:** Zip files were being processed without size limits across `gamePackageHandler.ts`, `coursePackageHandler.ts`, and `safe-zip.ts`, potentially leading to Zip Bomb (Decompression Bomb) denial-of-service attacks.
+**Learning:** Security fixes that involve mocking default exports or native modules (like `adm-zip` and `fs`) in Vitest require special attention to how tests are constructed. When adding properties expected by the code (e.g. `entry.header.size`), test mocks must be carefully updated. In some cases, hoisting imports and using `vi.hoisted` is necessary when overriding things like `fs.existsSync`. Deleting tests is an incorrect solution.
+**Prevention:**
+1. Validate size bounds before uncompressing zip entries via `.getData()` to prevent memory exhaustion and DoS.
+2. Update associated unit tests mock responses to match expected data structures when introducing new conditions (e.g., adding `.header.size` to mock objects).
+
+## 2025-02-23 - Typescript Build Fix
+**Vulnerability:** Not a direct vulnerability, but resolving build errors is critical for deployment and preventing CI/CD failures.
+**Learning:** Syntax errors like a missing comma, unused variables (like `handleZoneChanged`), missing imports, and conflicting duplicated methods in `app/world/page.tsx` and `game/entities/NPC.ts` must be correctly identified via `tsc --noEmit`. When tests or components within `demo/la-campus-demo` break or become unresolvable because their dependencies have been moved or removed, they should be cleaned up.
+**Prevention:**
+1. Run `pnpm tsc --noEmit` before submitting.
+2. Ensure variable declarations and function declarations within components do not shadow each other.
+3. Clean up unneeded or broken components.
