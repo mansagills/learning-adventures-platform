@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-23 - Prevent Zip Bomb DoS in Package Extractors
+**Vulnerability:** The `adm-zip` file extraction logic throughout the codebase (`safe-zip.ts`, `gamePackageHandler.ts`, `coursePackageHandler.ts`) read uncompressed data into memory (`entry.getData()`) without checking the uncompressed size first. An attacker could upload a small zip containing highly compressed files (a "Zip Bomb") that expand to gigabytes in memory, causing a Denial-of-Service (OOM crash).
+**Learning:** Checking `entry.header.size` allows you to validate the uncompressed size of a zip entry *before* allocating memory to read it.
+**Prevention:** Always enforce strict file size limits (e.g. 50MB for assets, 1MB for metadata) on `entry.header.size` before calling `entry.getData()` or buffering zip contents.

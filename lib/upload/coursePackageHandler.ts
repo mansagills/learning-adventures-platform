@@ -58,6 +58,10 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  if (manifestEntry.header.size > 1048576) { // 1MB limit for metadata
+    throw new Error('Security Error: metadata.json exceeds 1MB size limit');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +110,10 @@ export async function processCoursePackage(
       continue;
     }
 
+    if (lessonEntry.header.size > 50 * 1024 * 1024) { // 50MB limit per lesson
+      throw new Error(`Security Error: Lesson file exceeds 50MB limit: ${lessonMeta.file}`);
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +133,9 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      if (thumbnailEntry.header.size > 10 * 1024 * 1024) { // 10MB limit for thumbnail
+        throw new Error(`Security Error: Thumbnail file exceeds 10MB limit: ${manifest.thumbnail}`);
+      }
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
@@ -325,6 +336,7 @@ export function isCoursePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
+    if (manifest.header.size > 1048576) return false; // 1MB limit for metadata
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
   } catch {
@@ -345,6 +357,11 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  if (manifest.header.size > 1048576) {
+    errors.push('metadata.json exceeds 1MB size limit');
     return { valid: false, errors };
   }
 
@@ -377,6 +394,8 @@ export function validateCoursePackage(zip: AdmZip): {
         const lessonFile = zip.getEntry(lesson.file);
         if (!lessonFile) {
           errors.push(`Lesson file not found in ZIP: ${lesson.file}`);
+        } else if (lessonFile.header.size > 50 * 1024 * 1024) {
+          errors.push(`Lesson file exceeds 50MB size limit: ${lesson.file}`);
         }
       }
     }
