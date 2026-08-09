@@ -58,6 +58,11 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Prevent Zip bomb DoS for metadata
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('Security Error: metadata.json exceeds 1MB size limit');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +111,13 @@ export async function processCoursePackage(
       continue;
     }
 
+    // Prevent Zip bomb DoS for lesson files
+    if (lessonEntry.header.size > 50 * 1024 * 1024) {
+      throw new Error(
+        `Security Error: Lesson file ${lessonMeta.file} exceeds 50MB size limit`
+      );
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -126,6 +138,11 @@ export async function processCoursePackage(
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
       const thumbnailFileName = path.basename(manifest.thumbnail);
+      if (thumbnailEntry.header.size > 50 * 1024 * 1024) {
+        throw new Error(
+          `Security Error: Thumbnail file ${manifest.thumbnail} exceeds 50MB size limit`
+        );
+      }
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
       thumbnailPath = `/staging/lessons/courses/${slug}/${thumbnailFileName}`;
@@ -324,6 +341,9 @@ export function isCoursePackage(zip: AdmZip): boolean {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) return false;
 
+  // Prevent Zip bomb DoS
+  if (manifest.header.size > 1024 * 1024) return false;
+
   try {
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
@@ -345,6 +365,11 @@ export function validateCoursePackage(zip: AdmZip): {
   const manifest = zip.getEntry('metadata.json');
   if (!manifest) {
     errors.push('Missing metadata.json file');
+    return { valid: false, errors };
+  }
+
+  if (manifest.header.size > 1024 * 1024) {
+    errors.push('Security Error: metadata.json exceeds 1MB size limit');
     return { valid: false, errors };
   }
 
