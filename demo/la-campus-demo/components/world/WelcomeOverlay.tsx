@@ -97,7 +97,7 @@ export function WelcomeOverlay({ onDismiss, identityPicker }: WelcomeOverlayProp
                 Pick your character
               </p>
               <div className="grid grid-cols-6 gap-1.5" role="radiogroup" aria-label="Choose your character">
-                {AVATAR_CHOICES.map((choice) => (
+                {AVATAR_CHOICES.map((choice: { id: string; label: string }) => (
                   <button
                     key={choice.id}
                     type="button"
