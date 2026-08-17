@@ -17,7 +17,19 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     await fs.mkdir(targetDirResolved, { recursive: true });
   }
 
+  // Security checks against Zip Bombs
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file
+  const MAX_TOTAL_SIZE = 250 * 1024 * 1024; // 250MB total extracted size
+  const MAX_FILE_COUNT = 1000; // 1000 files total
+  let totalSize = 0;
+  let fileCount = 0;
+
   for (const entry of entries) {
+    fileCount++;
+    if (fileCount > MAX_FILE_COUNT) {
+      throw new Error('Security Error: Too many files in zip archive (Zip Bomb protection)');
+    }
+
     // Skip if entry is a directory - we'll create directories as needed for files
     // or if it's an explicit directory entry, we validate and create it
     if (entry.isDirectory) {
@@ -53,7 +65,24 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
       await fs.mkdir(parentDir, { recursive: true });
     }
 
+    // Rely on header size for an initial check
+    if (entry.header.size > MAX_FILE_SIZE) {
+        throw new Error(`Security Error: File exceeds maximum allowed size: ${entryName}`);
+    }
+
     // Write file content
-    await fs.writeFile(destPath, entry.getData());
+    const data = entry.getData();
+
+    // Verify actual decompressed size to prevent header spoofing
+    if (data.length > MAX_FILE_SIZE) {
+        throw new Error(`Security Error: Decompressed file exceeds maximum allowed size: ${entryName}`);
+    }
+
+    totalSize += data.length;
+    if (totalSize > MAX_TOTAL_SIZE) {
+        throw new Error('Security Error: Total extracted size exceeds limit (Zip Bomb protection)');
+    }
+
+    await fs.writeFile(destPath, data);
   }
 }
