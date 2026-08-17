@@ -1,3 +1,7 @@
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { extractZipSafely } from '@/lib/safe-zip';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
@@ -72,7 +76,7 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
+
     existsSync: vi.fn(),
   };
 });

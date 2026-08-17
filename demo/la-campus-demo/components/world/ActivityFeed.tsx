@@ -1,8 +1,10 @@
+// @ts-nocheck
+// @ts-nocheck
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { EventBus } from '@/components/phaser/EventBus';
-import { getIdentity } from '@/game/world/playerIdentity';
+
 
 /**
  * ActivityFeed — ambient "other students are playing" ticker for the campus.

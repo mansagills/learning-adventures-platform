@@ -1,5 +1,6 @@
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '../../app/api/auth/signup/route';
+
 import { NextRequest } from 'next/server';
 import { prisma } from '../../lib/prisma';
 import bcrypt from 'bcryptjs';
