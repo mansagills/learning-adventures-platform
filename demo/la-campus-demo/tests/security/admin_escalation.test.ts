@@ -1,6 +1,7 @@
 
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '../../app/api/auth/signup/route';
+
 import { prisma } from '../../lib/prisma';
 import { NextRequest } from 'next/server';
 

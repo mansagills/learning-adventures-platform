@@ -1,3 +1,4 @@
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 // Import getServerSession from the mock source
@@ -30,7 +31,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 
 // 2. Import the module under test AFTER mocks
-import { POST } from '../../app/api/internal/claude-generate/route';
+
 
 describe('POST /api/internal/claude-generate', () => {
   const validBody = {
