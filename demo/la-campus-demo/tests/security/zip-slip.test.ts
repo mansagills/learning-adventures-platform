@@ -36,6 +36,17 @@ vi.mock('adm-zip', () => {
 });
 
 // Mock Auth
+vi.mock('../../lib/supabase/server', () => ({
+  createServiceClient: vi.fn(),
+}));
+
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn().mockResolvedValue({
+    apiUser: { role: 'ADMIN', id: 'admin-123' },
+    error: null,
+  }),
+}));
+
 vi.mock('next-auth/next', () => ({
   getServerSession: vi.fn(),
 }));

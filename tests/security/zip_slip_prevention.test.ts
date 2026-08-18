@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { extractZipSafely } from '@/lib/safe-zip';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
@@ -72,8 +76,7 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry, maliciousEntry]);
 
 vi.mock('adm-zip', () => {
   return {
-    ...actual,
-    existsSync: vi.fn(),
+    default: vi.fn(),
   };
 });
 
@@ -114,6 +117,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '../../etc/passwd',
+          header: { size: 500 },
           getData: () => Buffer.from('malicious content')
         }
       ]
@@ -133,6 +137,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: '/etc/passwd',
+          header: { size: 500 },
           getData: () => Buffer.from('malicious content')
         }
       ]
@@ -154,6 +159,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
+          header: { size: 500 },
           getData: () => Buffer.from('content')
         }
       ]

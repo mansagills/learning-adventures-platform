@@ -58,6 +58,10 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  if (manifestEntry.header.size > 1048576) {
+    throw new Error('Security Error: metadata.json exceeds 1MB limit');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +110,10 @@ export async function processCoursePackage(
       continue;
     }
 
+    if (lessonEntry.header.size > 50 * 1024 * 1024) {
+      throw new Error(`Security Error: Lesson file exceeds 50MB limit: ${lessonMeta.file}`);
+    }
+
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -125,6 +133,9 @@ export async function processCoursePackage(
   if (manifest.thumbnail) {
     const thumbnailEntry = zip.getEntry(manifest.thumbnail);
     if (thumbnailEntry) {
+      if (thumbnailEntry.header.size > 50 * 1024 * 1024) {
+        throw new Error('Security Error: Thumbnail file exceeds 50MB limit');
+      }
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
@@ -325,6 +336,7 @@ export function isCoursePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
+    if (manifest.header.size > 1048576) return false;
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
   } catch {
@@ -350,6 +362,10 @@ export function validateCoursePackage(zip: AdmZip): {
 
   let manifestData: CourseManifest;
   try {
+    if (manifest.header.size > 1048576) {
+      errors.push('Security Error: metadata.json exceeds 1MB limit');
+      return { valid: false, errors };
+    }
     manifestData = JSON.parse(manifest.getData().toString('utf8'));
   } catch {
     errors.push('Invalid JSON in metadata.json');
