@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2023-10-25 - [Zip Bomb DoS Prevention]
+**Vulnerability:** Zip files extracted using `adm-zip` were loaded into memory via `getData()` before checking their size. This could lead to a Denial-of-Service (DoS) condition if a malicious user uploaded a highly compressed "Zip Bomb", causing Out-Of-Memory (OOM) crashes.
+**Learning:** `adm-zip` decompresses the entire entry into memory when `getData()` is called. Size checks must be performed using `entry.header.size` *before* decompression. Test mocks for `adm-zip` must include `header: { size: ... }` to avoid breaking tests when this security check is added.
+**Prevention:** Always check `entry.header.size` against a reasonable maximum (e.g., 50MB for general files, 1MB for manifests) before calling `entry.getData()` or extracting file contents.

@@ -46,6 +46,11 @@ export async function processGamePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Prevent zip bomb for manifest
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json is too large');
+  }
+
   const manifest: GameManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -88,6 +93,11 @@ export async function processGamePackage(
   await fs.mkdir(stagingDir, { recursive: true });
 
   // Extract and save the game file to staging
+  // Prevent Zip bomb for game file
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+  if (gameEntry.header.size > MAX_FILE_SIZE) {
+    throw new Error(`Game file exceeds 50MB limit: ${manifest.gameFile}`);
+  }
   const gameData = gameEntry.getData();
   await fs.writeFile(stagingFilePath, gameData);
 
@@ -170,6 +180,7 @@ export function isGamePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
+    if (manifest.header.size > 1024 * 1024) return false;
     const data = JSON.parse(manifest.getData().toString('utf8'));
     // If it has 'gameFile' field, it's a game package
     // If it has 'lessons' array, it's a course package
@@ -197,6 +208,10 @@ export function validateGamePackage(zip: AdmZip): {
 
   let manifestData: GameManifest;
   try {
+    if (manifest.header.size > 1024 * 1024) {
+      errors.push('metadata.json is too large');
+      return { valid: false, errors };
+    }
     manifestData = JSON.parse(manifest.getData().toString('utf8'));
   } catch {
     errors.push('Invalid JSON in metadata.json');
