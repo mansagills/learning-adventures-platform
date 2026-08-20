@@ -14,3 +14,7 @@
 **Vulnerability:** A duplicate constructor parameter `onFinalDialogLine?: () => void` in `game/entities/NPC.ts` caused a syntax error (`,` expected) preventing the codebase from compiling, resulting in GitHub CI failures during the `tsc` check.
 **Learning:** Duplicate, poorly formatted parameters in TypeScript classes can easily go unnoticed locally if `tsc --noEmit` isn't run regularly, but will consistently fail CI pipelines.
 **Prevention:** Always run `npx tsc --noEmit` or rely on strict ESLint checking before submitting PRs to catch basic syntax and type errors early.
+## 2025-02-23 - [TypeScript Scope Issue on Excluded Test Folders]
+**Vulnerability:** A local `demo/la-campus-demo` directory contained intentional uncompilable files for tutorial/sandbox purposes, which `tsc` attempted to compile, breaking CI.
+**Learning:** `tsconfig.json`'s `exclude` property is crucial to prevent `npx tsc --noEmit` from surfacing intentional or sandbox errors in test/demo folders, breaking the main CI workflow.
+**Prevention:** Make sure `demo/*` or equivalent sandbox directories are excluded in the root `tsconfig.json`.
