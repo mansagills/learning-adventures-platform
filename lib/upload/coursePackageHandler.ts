@@ -58,6 +58,11 @@ export async function processCoursePackage(
     throw new Error('metadata.json not found in .zip package');
   }
 
+  // Prevent zip bomb for manifest
+  if (manifestEntry.header.size > 1024 * 1024) {
+    throw new Error('metadata.json is too large');
+  }
+
   const manifest: CourseManifest = JSON.parse(
     manifestEntry.getData().toString('utf8')
   );
@@ -106,6 +111,11 @@ export async function processCoursePackage(
       continue;
     }
 
+    // Prevent Zip bomb for lesson file
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+    if (lessonEntry.header.size > MAX_FILE_SIZE) {
+      throw new Error(`Lesson file exceeds 50MB limit: ${lessonMeta.file}`);
+    }
     const lessonData = lessonEntry.getData();
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
@@ -127,6 +137,13 @@ export async function processCoursePackage(
     if (thumbnailEntry) {
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
+      // Prevent Zip bomb for thumbnail
+      const MAX_THUMBNAIL_SIZE = 10 * 1024 * 1024; // 10MB
+      if (thumbnailEntry.header.size > MAX_THUMBNAIL_SIZE) {
+        throw new Error(
+          `Thumbnail file exceeds 10MB limit: ${manifest.thumbnail}`
+        );
+      }
       await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
       thumbnailPath = `/staging/lessons/courses/${slug}/${thumbnailFileName}`;
     }
@@ -325,6 +342,7 @@ export function isCoursePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
+    if (manifest.header.size > 1024 * 1024) return false;
     const data = JSON.parse(manifest.getData().toString('utf8'));
     return Array.isArray(data.lessons) && data.lessons.length > 0;
   } catch {
@@ -350,6 +368,10 @@ export function validateCoursePackage(zip: AdmZip): {
 
   let manifestData: CourseManifest;
   try {
+    if (manifest.header.size > 1024 * 1024) {
+      errors.push('metadata.json is too large');
+      return { valid: false, errors };
+    }
     manifestData = JSON.parse(manifest.getData().toString('utf8'));
   } catch {
     errors.push('Invalid JSON in metadata.json');
