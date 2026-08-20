@@ -10,3 +10,7 @@
 **Vulnerability:** Zip files extracted using `adm-zip` were loaded into memory via `getData()` before checking their size. This could lead to a Denial-of-Service (DoS) condition if a malicious user uploaded a highly compressed "Zip Bomb", causing Out-Of-Memory (OOM) crashes.
 **Learning:** `adm-zip` decompresses the entire entry into memory when `getData()` is called. Size checks must be performed using `entry.header.size` *before* decompression. Test mocks for `adm-zip` must include `header: { size: ... }` to avoid breaking tests when this security check is added.
 **Prevention:** Always check `entry.header.size` against a reasonable maximum (e.g., 50MB for general files, 1MB for manifests) before calling `entry.getData()` or extracting file contents.
+## 2025-02-23 - [TypeScript Syntax Error in NPC class]
+**Vulnerability:** A duplicate constructor parameter `onFinalDialogLine?: () => void` in `game/entities/NPC.ts` caused a syntax error (`,` expected) preventing the codebase from compiling, resulting in GitHub CI failures during the `tsc` check.
+**Learning:** Duplicate, poorly formatted parameters in TypeScript classes can easily go unnoticed locally if `tsc --noEmit` isn't run regularly, but will consistently fail CI pipelines.
+**Prevention:** Always run `npx tsc --noEmit` or rely on strict ESLint checking before submitting PRs to catch basic syntax and type errors early.

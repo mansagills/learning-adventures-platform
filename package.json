@@ -22,7 +22,6 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.1",
     "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "^6.19.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.102.1",
     "@types/bcryptjs": "^2.4.6",
@@ -47,6 +46,7 @@
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
+    "@prisma/client": "^6.19.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.2",
     "@types/adm-zip": "^0.5.7",
