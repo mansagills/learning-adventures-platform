@@ -267,8 +267,7 @@ export class ContentAgentOrchestrator {
    * Utility: Generate workflow ID
    */
   private generateWorkflowId(): string {
-    // SECURITY: Use crypto.randomUUID() instead of Math.random() for secure ID generation
-    return `workflow-${Date.now()}-${crypto.randomUUID()}`;
+    return `workflow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
