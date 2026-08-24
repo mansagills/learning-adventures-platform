@@ -13,6 +13,8 @@ import { WorldDialog, type NpcDialogState } from '@/components/world/WorldDialog
 import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
+import { QuestLog } from "@/components/world/QuestLog";
+import { QuestOfferDialog } from "@/components/world/QuestOfferDialog";
 import type { WorldBootstrap } from '@/game/worldBootstrap';
 
 // Dynamically import Phaser component to avoid SSR issues
@@ -185,7 +187,7 @@ export default function WorldPage() {
     const handleOpenShop = () => setShowShop(true);
     const handleOpenJobBoard = () => setShowJobBoard(true);
     const handleQuestOffer = (data: typeof questOffer) => setQuestOffer(data);
-    const handleCollectibleCollected = async (data: { id: string; xp: number; coins: number }) => {
+    const handleCollectibleCollected1 = async (data: { id: string; xp: number; coins: number }) => {
       setXp((prev) => prev + data.xp);
       setCoins((prev) => prev + data.coins);
       showNotification(`+${data.xp} XP  +${data.coins} coins`);
@@ -206,19 +208,19 @@ export default function WorldPage() {
         console.error('Failed to save collectible reward:', err);
       }
     };
-    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
+    const handleNpcDialog1 = (data: NpcDialogState) => setNpcDialog(data);
 
-    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+    const handleZoneChanged1 = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
       document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
       document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
       setZoneBanner(data.zone.displayName);
       setTimeout(() => setZoneBanner(null), 2800);
     };
-    const handleNpcDialog = (data: NpcDialogState) => setNpcDialog(data);
+    const handleNpcDialog1 = (data: NpcDialogState) => setNpcDialog(data);
     // Placeholder for Phase D collectible handling
     const handleCollectibleCollected = (_data: any) => { /* Phase D: implement collectible rewards */ };
 
-    const handleZoneChanged = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
+    const handleZoneChanged1 = (data: { zone: { displayName: string; neonAccent: string; neonDim: string } }) => {
       document.documentElement.style.setProperty('--hud-accent', data.zone.neonAccent);
       document.documentElement.style.setProperty('--hud-accent-dim', data.zone.neonDim);
       setZoneBanner(data.zone.displayName);
@@ -230,9 +232,9 @@ export default function WorldPage() {
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('quest-offer', handleQuestOffer);
-    EventBus.on('npc-dialog', handleNpcDialog);
-    EventBus.on('collectible-collected', handleCollectibleCollected);
-    EventBus.on('zone-changed', handleZoneChanged);
+    EventBus.on('npc-dialog', handleNpcDialog1);
+    EventBus.on('collectible-collected', handleCollectibleCollected1);
+    EventBus.on('zone-changed', handleZoneChanged1);
 
     return () => {
       EventBus.off('save-player-position', handleSavePosition);
@@ -240,9 +242,9 @@ export default function WorldPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('quest-offer', handleQuestOffer);
-      EventBus.off('npc-dialog', handleNpcDialog);
-      EventBus.off('collectible-collected', handleCollectibleCollected);
-      EventBus.off('zone-changed', handleZoneChanged);
+      EventBus.off('npc-dialog', handleNpcDialog1);
+      EventBus.off('collectible-collected', handleCollectibleCollected1);
+      EventBus.off('zone-changed', handleZoneChanged1);
     };
   }, []);
 
