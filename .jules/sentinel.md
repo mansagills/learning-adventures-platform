@@ -6,7 +6,3 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
-## 2025-02-23 - Predictable PRNG for File/Workflow IDs
-**Vulnerability:** Weak Random Number Generation (`Math.random()`) was being used for generating IDs (`tempId` in `FileUploader.tsx`, `generateWorkflowId` in `ContentAgentOrchestrator.ts`). This is predictable and not cryptographically secure.
-**Learning:** `Math.random()` shouldn't be used for generating any kind of IDs or secure tokens as they can be guessed.
-**Prevention:** Use `crypto.randomUUID()` or `crypto.getRandomValues()` instead to generate cryptographically secure identifiers and tokens.
