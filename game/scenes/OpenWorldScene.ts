@@ -357,6 +357,66 @@ export class OpenWorldScene extends Phaser.Scene {
     text.setDepth(11);
   }
 
+  /** Places a hidden quest marker above each quest-giver building; revealed by handleQuestStatusUpdate. */
+  protected createCampusSignage(): void {
+    QUEST_GIVERS.forEach((giver) => {
+      const x = giver.doorTileCol * TILE_SIZE;
+      const y = giver.doorTileRow * TILE_SIZE - 72;
+      const marker = this.add.text(x, y, '!', {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '14px',
+        color: '#ffd700',
+        backgroundColor: '#050810DD',
+        padding: { x: 6, y: 4 },
+        align: 'center',
+      });
+      marker.setOrigin(0.5);
+      marker.setDepth(9);
+      marker.setVisible(false);
+      this.questMarkers.set(giver.buildingId, { marker });
+    });
+  }
+
+  /** Updates each building's quest marker (icon, color, bob tween) from the latest quest statuses. */
+  protected updateQuestMarkers(
+    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
+  ): void {
+    markerData.forEach(({ buildingId, status }) => {
+      const entry = this.questMarkers.get(buildingId);
+      if (!entry) return;
+      const { marker } = entry;
+      entry.tween?.stop();
+
+      if (status === 'none') {
+        marker.setVisible(false);
+        return;
+      }
+
+      const style: Record<string, { text: string; color: string }> = {
+        available: { text: '!', color: '#ffd700' },
+        in_progress: { text: '?', color: '#00ccff' },
+        completed: { text: '\u2713', color: '#33ff77' },
+      };
+      const { text, color } = style[status];
+      marker.setText(text);
+      marker.setColor(color);
+      marker.setVisible(true);
+
+      if (status === 'available') {
+        entry.tween = this.tweens.add({
+          targets: marker,
+          y: marker.y - 8,
+          duration: 600,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        });
+      } else {
+        entry.tween = undefined;
+      }
+    });
+  }
+
   // --- update ──────────────────────────────────────────────────────────────────
   update(time: number, delta: number): void {
     if (this.player) {
