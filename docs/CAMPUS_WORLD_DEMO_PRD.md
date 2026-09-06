@@ -28,6 +28,8 @@ Everything below assumes the recommended path (finish A, keep B in sync) unless 
 
 ## 2. P0 — Fix the build (do this before anything else)
 
+**Status: fix open in mansagills/learning-adventures-platform#182** (not yet merged as of this writing). That PR also fixes two additional compile errors found while verifying the fix end-to-end (`game/scenes/OpenWorldScene.ts` was missing `createCampusSignage()`/`updateQuestMarkers()`, and `hooks/useAuth.ts` was missing a `fallbackUser()` helper), plus excludes the standalone `demo/la-campus-demo/` snapshot from the root typecheck/test run since it was never meant to be swept in by the root project's tooling. Once #182 merges, re-verify `npx tsc --noEmit` is clean on `main` before starting Phase 1 work below.
+
 The production world does not currently build. This blocks every other item in this PRD from being demoed or even manually tested, so it comes before phase work, not as part of it.
 
 | # | File:Line | Defect | Fix |
