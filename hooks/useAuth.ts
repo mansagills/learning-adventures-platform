@@ -32,6 +32,18 @@ const hasSupabaseEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+function fallbackUser(supabaseUser: User): AuthUser {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email ?? '',
+    name: supabaseUser.user_metadata?.full_name ?? null,
+    image: supabaseUser.user_metadata?.avatar_url ?? null,
+    role: 'STUDENT',
+    gradeLevel: null,
+    subjects: [],
+  };
+}
+
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
