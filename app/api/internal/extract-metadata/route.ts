@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const zipEntries = zip.getEntries();
 
     // Look for metadata.json in the root or common locations
-    let metadataEntry = zipEntries.find(
+    const metadataEntry = zipEntries.find(
       (entry) =>
         entry.entryName === 'metadata.json' ||
         entry.entryName === 'game-metadata.json' ||
