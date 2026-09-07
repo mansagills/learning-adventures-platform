@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/oversight/students - Get students for teacher/parent
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const { apiUser, error: authError } = await getApiUser();
 

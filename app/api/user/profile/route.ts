@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { apiUser, error: authError } = await getApiUser();
 

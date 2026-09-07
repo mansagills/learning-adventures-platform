@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/admin/test-games - List all test games
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const { apiUser, error: authError } = await getApiUser();
 

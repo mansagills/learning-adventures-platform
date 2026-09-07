@@ -3,7 +3,7 @@ import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     // 1. Authenticate user
     const { apiUser, error: authError } = await getApiUser();

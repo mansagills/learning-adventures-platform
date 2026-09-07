@@ -70,7 +70,7 @@ const agents = [
   },
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const { apiUser, error: authError } = await getApiUser();
