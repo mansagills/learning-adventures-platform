@@ -287,12 +287,12 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
 
             <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
               <p className="text-blue-800 font-semibold">
-                💡 To complete this lesson, click the "Complete Lesson" button
+                💡 To complete this lesson, click the &quot;Complete Lesson&quot; button
                 below.
               </p>
               {lesson.requiredScore && (
                 <p className="text-blue-700 text-sm mt-2">
-                  You'll be prompted to enter a score. Make sure to score at
+                  You&apos;ll be prompted to enter a score. Make sure to score at
                   least {lesson.requiredScore}% to unlock the next lesson!
                 </p>
               )}

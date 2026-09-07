@@ -134,7 +134,7 @@ export default function Faq() {
           </h2>
 
           <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
-            Questions about the world? We've got answers. Can't find what you're
+            Questions about the world? We&apos;ve got answers. Can&apos;t find what you&apos;re
             looking for? Reach out to our team.
           </p>
         </div>

@@ -105,7 +105,7 @@ export default function Step9BudgetReusability() {
             <div className="flex-shrink-0 text-2xl">💰</div>
             <div>
               <h4 className="font-semibold text-ink-900 mb-1">
-                What's Included in Each Tier?
+                What&apos;s Included in Each Tier?
               </h4>
               <div className="space-y-3 mt-2">
                 <div>
@@ -160,7 +160,7 @@ export default function Step9BudgetReusability() {
                   benefits more students
                 </li>
                 <li>
-                  • <strong>Build the library</strong> - Grow our platform's
+                  • <strong>Build the library</strong> - Grow our platform&apos;s
                   resources
                 </li>
                 <li>
@@ -206,8 +206,8 @@ export default function Step9BudgetReusability() {
                   No Pressure to Decide Now
                 </h4>
                 <p className="text-sm text-gray-700">
-                  You can make this decision later! We'll reach out after
-                  reviewing your request to discuss options and pricing. You'll
+                  You can make this decision later! We&apos;ll reach out after
+                  reviewing your request to discuss options and pricing. You&apos;ll
                   have full transparency before any course development begins.
                 </p>
               </div>

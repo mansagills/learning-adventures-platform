@@ -243,7 +243,7 @@ function ParentDashboard() {
             <div className="text-center py-16">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-200 border-t-brand-600"></div>
               <p className="mt-4 text-ink-500">
-                Loading children's progress...
+                Loading children&apos;s progress...
               </p>
             </div>
           )}
@@ -338,7 +338,7 @@ function ParentDashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-green-900 mb-2">
-                  Tips for Supporting Your Child's Learning
+                  Tips for Supporting Your Child&apos;s Learning
                 </h3>
                 <ul className="space-y-2 text-green-700 text-sm">
                   <li className="flex items-start space-x-2">

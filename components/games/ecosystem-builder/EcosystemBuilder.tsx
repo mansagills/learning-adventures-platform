@@ -319,7 +319,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
               onClick={() => setShowTutorial(false)}
               variant="primary"
             >
-              Let's Build!
+              Let&apos;s Build!
             </GameButton>
           </div>
         </GameModal>
@@ -334,7 +334,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
         >
           <div className="text-center space-y-4">
             <p className="text-lg text-gray-700">
-              Congratulations! You've created a thriving ecosystem!
+              Congratulations! You&apos;ve created a thriving ecosystem!
             </p>
             <div className="text-4xl mb-4">🌍✨</div>
             <div className="space-y-2 text-left bg-green-50 p-4 rounded">
@@ -475,7 +475,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
             <div className="text-center py-12 text-gray-500">
               <div className="text-6xl mb-4">🌍</div>
               <p className="text-lg">Your ecosystem is empty!</p>
-              <p className="text-sm">Click "Add Organism" to get started.</p>
+              <p className="text-sm">Click &quot;Add Organism&quot; to get started.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

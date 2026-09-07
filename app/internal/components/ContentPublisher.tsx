@@ -92,7 +92,7 @@ export default function ContentPublisher({
           Publish Content
         </h2>
         <p className="text-gray-600">
-          Ready to publish "{content.metadata.title}" to the Learning Adventures
+          Ready to publish &quot;{content.metadata.title}&quot; to the Learning Adventures
           catalog?
         </p>
       </div>

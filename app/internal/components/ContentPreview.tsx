@@ -310,7 +310,7 @@ export default function ContentPreview({
             🎨 Edit & Improve Content
           </h3>
           <p className="text-gray-600 text-sm mb-4">
-            Describe what changes you'd like to make to improve the{' '}
+            Describe what changes you&apos;d like to make to improve the{' '}
             {formData.type}. Be specific about design, functionality, or
             educational elements.
           </p>
@@ -404,7 +404,7 @@ export default function ContentPreview({
           </h3>
           <p className="text-gray-600 text-sm mb-4">
             Describe any problems, bugs, or issues you found with the{' '}
-            {formData.type}. Be specific about what's not working correctly.
+            {formData.type}. Be specific about what&apos;s not working correctly.
           </p>
 
           <div className="space-y-4">
@@ -589,7 +589,7 @@ export default function ContentPreview({
                   zip file will be extracted and made available to users.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Click "Publish to Catalog →" above to continue.
+                  Click &quot;Publish to Catalog →&quot; above to continue.
                 </p>
               </div>
             </div>

@@ -222,7 +222,7 @@ export function QuestLog({ onClose }: QuestLogProps) {
           ) : fetchError ? (
             <div className="text-center py-12 text-white/40">
               <p className="text-4xl mb-3">⚠️</p>
-              <p className="text-sm">Couldn't load quests. Try closing and reopening.</p>
+              <p className="text-sm">Couldn&apos;t load quests. Try closing and reopening.</p>
             </div>
           ) : tabQuests.length === 0 ? (
             <div className="text-center py-12 text-white/40">

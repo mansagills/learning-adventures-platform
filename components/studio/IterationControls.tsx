@@ -201,8 +201,8 @@ export default function IterationControls({
       <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800">
           💡 <strong>Tip:</strong> Be specific in your feedback. Instead of
-          "make it better", try "add sound effects when answers are correct" or
-          "increase button size to 50px".
+          &quot;make it better&quot;, try &quot;add sound effects when answers are correct&quot; or
+          &quot;increase button size to 50px&quot;.
         </p>
       </div>
     </div>

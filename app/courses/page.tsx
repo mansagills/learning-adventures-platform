@@ -199,7 +199,7 @@ export default function CourseCatalogPage() {
                     </h3>
                   </div>
                   <p className="text-white text-sm md:text-base mb-3">
-                    You're currently enrolled in{' '}
+                    You&apos;re currently enrolled in{' '}
                     <span className="font-bold">
                       {enrollmentCount} of 2 free courses
                     </span>
@@ -350,7 +350,7 @@ export default function CourseCatalogPage() {
               )}
               {searchQuery && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                  "{searchQuery}"
+                  &quot;{searchQuery}&quot;
                 </span>
               )}
               <button
