@@ -268,7 +268,7 @@ export class WorkflowExecutor {
    */
   private async executeContentBuilder(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement ContentBuilderAgent
     // For now, return mock response
@@ -287,7 +287,7 @@ export class WorkflowExecutor {
    */
   private async executeQualityAssurance(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement QualityAssuranceAgent
     // For now, return mock response
@@ -306,7 +306,7 @@ export class WorkflowExecutor {
    */
   private async executeCatalogManager(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement CatalogManagerAgent
     // For now, return mock response

@@ -77,7 +77,7 @@ export class GameBuilderSkill extends BaseSkill {
    */
   public async canHandle(
     userRequest: string,
-    context?: Partial<SkillContext>
+    _context?: Partial<SkillContext>
   ): Promise<number> {
     const metadata = this.getMetadata();
     let confidence = this.calculateKeywordConfidence(
@@ -282,7 +282,7 @@ export class GameBuilderSkill extends BaseSkill {
   /**
    * Build prompt for game generation
    */
-  private buildPrompt(concept: GameConcept, context: SkillContext): string {
+  private buildPrompt(concept: GameConcept, _context: SkillContext): string {
     return `Create an educational HTML game with the following specifications:
 
 **Title**: ${concept.title}

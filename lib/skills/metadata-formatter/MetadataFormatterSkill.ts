@@ -40,7 +40,7 @@ export class MetadataFormatterSkill extends BaseSkill {
 
   public async canHandle(
     userRequest: string,
-    context?: Partial<SkillContext>
+    _context?: Partial<SkillContext>
   ): Promise<number> {
     const metadata = this.getMetadata();
     let confidence = this.calculateKeywordConfidence(

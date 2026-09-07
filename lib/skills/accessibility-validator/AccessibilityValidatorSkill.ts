@@ -34,7 +34,7 @@ export class AccessibilityValidatorSkill extends BaseSkill {
 
   public async canHandle(
     userRequest: string,
-    context?: Partial<SkillContext>
+    _context?: Partial<SkillContext>
   ): Promise<number> {
     const metadata = this.getMetadata();
     let confidence = this.calculateKeywordConfidence(
@@ -75,7 +75,7 @@ export class AccessibilityValidatorSkill extends BaseSkill {
     return report.score >= 0 && report.score <= 100;
   }
 
-  private validateAccessibility(context: SkillContext): QAReport {
+  private validateAccessibility(_context: SkillContext): QAReport {
     const checks = [
       {
         name: 'Semantic HTML',
