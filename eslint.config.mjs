@@ -22,7 +22,7 @@ const eslintConfig = [
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       'prefer-const': 'error',
       'no-var': 'error',
