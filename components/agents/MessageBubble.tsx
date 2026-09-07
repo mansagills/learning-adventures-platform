@@ -69,29 +69,29 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
               <ReactMarkdown
                 components={{
                   // Style headings
-                  h1: ({ node, ...props }) => (
+                  h1: ({ node: _node, ...props }) => (
                     <h1 className="text-xl font-bold mb-2" {...props} />
                   ),
-                  h2: ({ node, ...props }) => (
+                  h2: ({ node: _node, ...props }) => (
                     <h2 className="text-lg font-semibold mb-2" {...props} />
                   ),
-                  h3: ({ node, ...props }) => (
+                  h3: ({ node: _node, ...props }) => (
                     <h3 className="text-base font-semibold mb-1" {...props} />
                   ),
                   // Style lists
-                  ul: ({ node, ...props }) => (
+                  ul: ({ node: _node, ...props }) => (
                     <ul className="list-disc ml-4 mb-2" {...props} />
                   ),
-                  ol: ({ node, ...props }) => (
+                  ol: ({ node: _node, ...props }) => (
                     <ol className="list-decimal ml-4 mb-2" {...props} />
                   ),
-                  li: ({ node, ...props }) => (
+                  li: ({ node: _node, ...props }) => (
                     <li className="mb-1" {...props} />
                   ),
                   // Style paragraphs
-                  p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                  p: ({ node: _node, ...props }) => <p className="mb-2" {...props} />,
                   // Style code
-                  code: ({ node, inline, ...props }: any) =>
+                  code: ({ node: _node, inline, ...props }: any) =>
                     inline ? (
                       <code
                         className="bg-neutral-200 px-1 rounded text-sm"
@@ -104,25 +104,25 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
                       />
                     ),
                   // Style links
-                  a: ({ node, ...props }) => (
+                  a: ({ node: _node, ...props }) => (
                     <a
                       className="text-brand-600 underline hover:text-brand-700"
                       {...props}
                     />
                   ),
                   // Style blockquotes
-                  blockquote: ({ node, ...props }) => (
+                  blockquote: ({ node: _node, ...props }) => (
                     <blockquote
                       className="border-l-4 border-neutral-300 pl-3 italic"
                       {...props}
                     />
                   ),
                   // Style strong/bold
-                  strong: ({ node, ...props }) => (
+                  strong: ({ node: _node, ...props }) => (
                     <strong className="font-bold" {...props} />
                   ),
                   // Style emphasis/italic
-                  em: ({ node, ...props }) => (
+                  em: ({ node: _node, ...props }) => (
                     <em className="italic" {...props} />
                   ),
                 }}
