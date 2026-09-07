@@ -9,7 +9,6 @@ import { getApiUser } from '@/lib/api-auth';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import AgentDiscovery from '@/components/agents/AgentDiscovery';
-import ProtectedRoute from '@/components/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'AI Agent Studio | Learning Adventures',

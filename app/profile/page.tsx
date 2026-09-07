@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
 import Container from '@/components/Container';
 import ProfileSettings from '@/components/ProfileSettings';
 import ProtectedRoute from '@/components/ProtectedRoute';

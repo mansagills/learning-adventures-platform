@@ -147,7 +147,7 @@ Generate 3-5 diverse concepts per request, exploring different gameplay styles.`
   /**
    * Parse Claude response into game concepts
    */
-  private parseGameConcepts(response: string): GameConcept[] {
+  private parseGameConcepts(_response: string): GameConcept[] {
     // TODO: Implement actual parsing logic
     // For now, return mock concepts
     return [

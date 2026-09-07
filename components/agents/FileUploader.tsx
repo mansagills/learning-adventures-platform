@@ -34,7 +34,7 @@ export default function FileUploader({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const allowedTypes = [
+  const _allowedTypes = [
     'text/markdown',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

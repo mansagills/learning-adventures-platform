@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Icon from '@/components/Icon';
@@ -56,7 +55,6 @@ function getAvatarEmoji(avatarId: string): string {
 }
 
 function ManageChildrenPage() {
-  const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);

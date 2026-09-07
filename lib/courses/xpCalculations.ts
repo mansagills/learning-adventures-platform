@@ -261,7 +261,7 @@ export async function getUserLevelInfo(userId: string): Promise<LevelInfo> {
 export async function awardXP(
   userId: string,
   xpAmount: number,
-  source: 'lesson' | 'game' | 'quiz' | 'project' = 'lesson'
+  _source: 'lesson' | 'game' | 'quiz' | 'project' = 'lesson'
 ): Promise<{
   xpAwarded: number;
   newTotalXP: number;

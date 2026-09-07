@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
 
 interface ExtractedMetadata {

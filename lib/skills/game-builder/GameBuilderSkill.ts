@@ -11,7 +11,6 @@ import {
   SkillContext,
   SkillResult,
   GameConcept,
-  GameFile,
 } from '../types';
 
 interface GameBuilderResponse {
@@ -275,7 +274,7 @@ export class GameBuilderSkill extends BaseSkill {
   /**
    * Extract learning objectives
    */
-  private extractLearningObjectives(userRequest: string): string[] {
+  private extractLearningObjectives(_userRequest: string): string[] {
     return ['Master core concepts', 'Practice skills through gameplay'];
   }
 

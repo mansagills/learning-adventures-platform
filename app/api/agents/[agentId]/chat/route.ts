@@ -26,7 +26,7 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const { message, conversationId, history, fileIds } = await request.json();
+    const { message, conversationId, history: _history, fileIds } = await request.json();
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(

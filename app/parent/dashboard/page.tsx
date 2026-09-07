@@ -104,7 +104,7 @@ function ParentDashboard() {
 
   // Calculate family stats
   const totalChildren = children.length;
-  const avgCompletion =
+  const _avgCompletion =
     totalChildren > 0
       ? Math.round(
           children.reduce((sum, c) => sum + c.stats.completionRate, 0) /

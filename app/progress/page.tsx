@@ -1,7 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Container from '@/components/Container';
 import Icon from '@/components/Icon';

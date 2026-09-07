@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { prisma } from '@/lib/prisma';
 import {
   isCampusDemoBypassPath,

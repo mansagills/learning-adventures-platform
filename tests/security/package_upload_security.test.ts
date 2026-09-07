@@ -31,7 +31,7 @@ vi.mock('@/lib/upload/metadataExtractor', () => ({
 vi.mock('adm-zip', () => {
   return {
     default: class MockAdmZip {
-      constructor(buffer: any) {}
+      constructor(_buffer: any) {}
       getEntry(name: string) {
         if (name === 'metadata.json') {
           return {

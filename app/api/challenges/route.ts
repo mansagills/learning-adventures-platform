@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { addDays, addWeeks } from 'date-fns';
+import { addDays } from 'date-fns';
 
 // GET /api/challenges - Get user's challenges
 export async function GET(request: NextRequest) {

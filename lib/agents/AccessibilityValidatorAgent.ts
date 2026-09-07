@@ -38,11 +38,6 @@ interface GameFile {
   format?: string;
 }
 
-interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-}
-
 interface AccessibilityValidatorResponse {
   report: AccessibilityReport;
   issues?: AccessibilityIssue[];
