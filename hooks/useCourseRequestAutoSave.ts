@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { FormData } from '@/components/course-request/FormContext';
 
 interface AutoSaveState {
@@ -30,7 +30,7 @@ export function useCourseRequestAutoSave(
   const isFirstRenderRef = useRef(true);
 
   // Manual save function
-  const saveDraft = async (): Promise<{
+  const saveDraft = useCallback(async (): Promise<{
     success: boolean;
     draftId?: string;
     error?: string;
@@ -78,7 +78,7 @@ export function useCourseRequestAutoSave(
 
       return { success: false, error: errorMessage };
     }
-  };
+  }, [draftId, formData]);
 
   // Auto-save effect
   useEffect(() => {
@@ -117,7 +117,7 @@ export function useCourseRequestAutoSave(
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [formData, enabled, debounceMs, draftId]);
+  }, [formData, enabled, debounceMs, draftId, saveDraft]);
 
   return {
     ...state,

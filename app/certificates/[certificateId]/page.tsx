@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CertificateView from '@/components/certificates/CertificateView';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -24,11 +24,7 @@ export default function CertificatePage({ params }: CertificatePageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCertificate();
-  }, [certificateId]);
-
-  const fetchCertificate = async () => {
+  const fetchCertificate = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/certificates/${certificateId}`);
@@ -45,7 +41,11 @@ export default function CertificatePage({ params }: CertificatePageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [certificateId]);
+
+  useEffect(() => {
+    fetchCertificate();
+  }, [fetchCertificate]);
 
   const handlePrint = () => {
     window.print();

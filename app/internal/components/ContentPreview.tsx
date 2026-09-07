@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ContentFormData, GeneratedContent } from '../types';
 import { generateContent } from '../services/claudeApi';
 
@@ -28,36 +28,7 @@ export default function ContentPreview({
   const [fixPrompt, setFixPrompt] = useState('');
   const [isApplyingFix, setIsApplyingFix] = useState(false);
 
-  useEffect(() => {
-    if (!generatedContent) {
-      // For uploaded content, create metadata immediately without AI generation
-      if (formData.uploadSource === 'uploaded' && formData.uploadedZipPath) {
-        const metadata = {
-          id: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          title: formData.title,
-          description: formData.gameIdea || 'Uploaded game',
-          type: formData.type,
-          category: formData.subject,
-          gradeLevel: formData.gradeLevel,
-          difficulty: formData.difficulty,
-          skills: formData.skills,
-          estimatedTime: formData.estimatedTime,
-          featured: false,
-          htmlPath: `/${formData.type}s/${formData.subscriptionTier}/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`,
-          subscriptionTier: formData.subscriptionTier,
-          uploadedContent: true,
-          platform: formData.uploadPlatform,
-          sourceCodeUrl: formData.sourceCodeUrl,
-        };
-        onContentGenerated({ htmlContent: '', metadata });
-      } else {
-        // For AI-generated content, trigger generation
-        handleGenerate();
-      }
-    }
-  }, []);
-
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     setError('');
     try {
@@ -93,7 +64,43 @@ export default function ContentPreview({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [formData, onContentGenerated]);
+
+  // Kick off metadata creation / AI generation exactly once, when this
+  // component first mounts with no generatedContent yet. The hasInitialized
+  // guard (rather than an empty deps array) lets this list its real
+  // dependencies for exhaustive-deps while still only running the actual
+  // generation logic a single time, even if formData/handleGenerate/
+  // onContentGenerated identities change on a later re-render.
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    if (generatedContent) return;
+    hasInitialized.current = true;
+
+    if (formData.uploadSource === 'uploaded' && formData.uploadedZipPath) {
+      const metadata = {
+        id: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        title: formData.title,
+        description: formData.gameIdea || 'Uploaded game',
+        type: formData.type,
+        category: formData.subject,
+        gradeLevel: formData.gradeLevel,
+        difficulty: formData.difficulty,
+        skills: formData.skills,
+        estimatedTime: formData.estimatedTime,
+        featured: false,
+        htmlPath: `/${formData.type}s/${formData.subscriptionTier}/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`,
+        subscriptionTier: formData.subscriptionTier,
+        uploadedContent: true,
+        platform: formData.uploadPlatform,
+        sourceCodeUrl: formData.sourceCodeUrl,
+      };
+      onContentGenerated({ htmlContent: '', metadata });
+    } else {
+      handleGenerate();
+    }
+  }, [generatedContent, formData, onContentGenerated, handleGenerate]);
 
   const handleApplyEdit = async () => {
     if (!editPrompt.trim() || !generatedContent) return;

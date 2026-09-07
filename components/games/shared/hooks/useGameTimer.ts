@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 interface UseGameTimerOptions {
   initialTime?: number;
@@ -98,17 +98,22 @@ export function useGameTimer(options: UseGameTimerOptions = {}) {
     return `${sign}${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
-  return {
-    time,
-    isRunning,
-    isFinished,
-    formattedTime: formatTime(time),
-    actions: {
+  const actions = useMemo(
+    () => ({
       start,
       pause,
       reset,
       stop,
       addTime,
-    },
+    }),
+    [start, pause, reset, stop, addTime]
+  );
+
+  return {
+    time,
+    isRunning,
+    isFinished,
+    formattedTime: formatTime(time),
+    actions,
   };
 }

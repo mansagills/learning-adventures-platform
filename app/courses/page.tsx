@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import CourseCard from '@/components/courses/CourseCard';
@@ -41,11 +41,7 @@ export default function CourseCatalogPage() {
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [isPremiumUser, setIsPremiumUser] = useState(false);
 
-  useEffect(() => {
-    fetchCourses();
-  }, [status]);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
       const includeProgress = status === 'authenticated';
@@ -80,7 +76,11 @@ export default function CourseCatalogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, session]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   // Filter courses
   const filteredCourses = courses.filter((course) => {

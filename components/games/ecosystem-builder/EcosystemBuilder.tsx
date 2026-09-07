@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   GameContainer,
   GameButton,
@@ -98,7 +98,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
   const [tickCount, setTickCount] = useState(0);
 
   // Calculate ecosystem balance
-  const calculateBalance = () => {
+  const calculateBalance = useCallback(() => {
     if (ecosystem.length === 0) return 50;
 
     const producers = ecosystem.filter((o) => o.role === 'producer').length;
@@ -127,7 +127,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
     }
 
     return Math.max(0, Math.min(100, avgScore));
-  };
+  }, [ecosystem]);
 
   // Update ecosystem simulation
   useEffect(() => {
@@ -213,7 +213,7 @@ export default function EcosystemBuilder({ onExit, onComplete }: GameProps) {
       actions.levelUp();
       setShowVictoryModal(true);
     }
-  }, [ecosystem, tickCount]);
+  }, [ecosystem, tickCount, actions, calculateBalance, gameState.level]);
 
   // Add organism to ecosystem
   const addOrganism = (

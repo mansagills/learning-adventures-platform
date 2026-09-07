@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
@@ -47,7 +47,7 @@ function fallbackUser(supabaseUser: User): AuthUser {
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  const supabase = hasSupabaseEnv ? createClient() : null;
+  const supabase = useMemo(() => (hasSupabaseEnv ? createClient() : null), []);
 
   useEffect(() => {
     if (!supabase) {
@@ -95,7 +95,7 @@ export function useAuth(): UseAuthReturn {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   return { user, status };
 }
