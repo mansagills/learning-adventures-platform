@@ -21,7 +21,7 @@ interface CourseDetailProps {
 
 export default function CourseDetailPage({ params }: CourseDetailProps) {
   const { slug } = params;
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);

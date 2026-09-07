@@ -21,7 +21,7 @@ interface LessonPlayerProps {
 
 export default function LessonPlayerPage({ params }: LessonPlayerProps) {
   const { slug, order } = params;
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
 
   const [course, setCourse] = useState<any>(null);

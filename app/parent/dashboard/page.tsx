@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Icon from '@/components/Icon';
@@ -96,7 +95,6 @@ function ChildCard({ child, onClick }: ChildCardProps) {
 }
 
 function ParentDashboard() {
-  const { user: session } = useAuth();
   const router = useRouter();
   const { students: children, loading, error } = useOversight();
 

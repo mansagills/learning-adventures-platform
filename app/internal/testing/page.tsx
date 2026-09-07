@@ -98,7 +98,7 @@ interface Feedback {
 }
 
 export default function TestingAdminPage() {
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
