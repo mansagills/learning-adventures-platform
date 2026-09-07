@@ -30,7 +30,7 @@ const AVATARS = [
  */
 export async function GET(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -87,7 +87,7 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(

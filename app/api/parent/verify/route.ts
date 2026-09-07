@@ -14,7 +14,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function POST(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function POST(_request: NextRequest) {
  */
 export async function GET(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json({ verified: false });

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AgentStudioPage() {
-  const { apiUser, error: authError } = await getApiUser();
+  const { apiUser } = await getApiUser();
 
   // DEBUG: Log session data
   console.log('🔍 Agent Studio Access Attempt:', {

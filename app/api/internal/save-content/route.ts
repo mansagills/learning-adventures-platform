@@ -10,7 +10,7 @@ import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(

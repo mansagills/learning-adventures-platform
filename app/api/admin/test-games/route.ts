@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 // GET /api/admin/test-games - List all test games
 export async function GET(_req: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,7 +39,7 @@ export async function GET(_req: NextRequest) {
 // POST /api/admin/test-games - Create new test game entry
 export async function POST(req: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

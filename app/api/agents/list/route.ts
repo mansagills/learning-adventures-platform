@@ -73,7 +73,7 @@ const agents = [
 export async function GET(_request: NextRequest) {
   try {
     // Check authentication
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
     if (!apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
