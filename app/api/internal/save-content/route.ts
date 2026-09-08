@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir, copyFile, readdir } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
@@ -10,7 +10,7 @@ import { extractZipSafely } from '@/lib/safe-zip';
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(

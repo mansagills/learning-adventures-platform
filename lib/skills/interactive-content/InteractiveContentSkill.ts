@@ -1,7 +1,5 @@
 import { BaseSkill } from '../BaseSkill';
 import type { SkillMetadata, SkillContext, SkillResult } from '../types';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 
 interface LessonContent {
   lessonId: string;

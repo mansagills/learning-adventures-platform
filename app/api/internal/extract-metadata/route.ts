@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import { join, resolve, sep } from 'path';
+import { resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
 
 interface ExtractedMetadata {
@@ -21,7 +20,7 @@ interface ExtractedMetadata {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and authorization
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(
@@ -55,7 +54,7 @@ export async function POST(request: NextRequest) {
     const zipEntries = zip.getEntries();
 
     // Look for metadata.json in the root or common locations
-    let metadataEntry = zipEntries.find(
+    const metadataEntry = zipEntries.find(
       (entry) =>
         entry.entryName === 'metadata.json' ||
         entry.entryName === 'game-metadata.json' ||

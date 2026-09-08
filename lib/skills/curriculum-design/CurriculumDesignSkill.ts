@@ -156,7 +156,7 @@ export class CurriculumDesignSkill extends BaseSkill {
       }
 
       // Validate lesson type distribution
-      const distributionWarnings = this.validateLessonTypeDistribution(
+      const _distributionWarnings = this.validateLessonTypeDistribution(
         curriculumData.curriculum.lessons
       );
 

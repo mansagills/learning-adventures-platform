@@ -21,9 +21,11 @@ export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady 
   const onReadyRef = useRef(onReady);
   const onSceneReadyRef = useRef(onSceneReady);
   const bootstrapRef = useRef(bootstrap);
+  const variantRef = useRef(variant);
   useEffect(() => { onReadyRef.current = onReady; }, [onReady]);
   useEffect(() => { onSceneReadyRef.current = onSceneReady; }, [onSceneReady]);
   useEffect(() => { bootstrapRef.current = bootstrap; }, [bootstrap]);
+  useEffect(() => { variantRef.current = variant; }, [variant]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -42,7 +44,7 @@ export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady 
         const game = createPhaserGame(
           'phaser-game-container',
           bootstrapRef.current ?? null,
-          variant
+          variantRef.current
         );
         gameRef.current = game;
         onReadyRef.current?.(game);

@@ -12,7 +12,7 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: ['demo/**', 'demos/**'],
+    ignores: ['demo/**', 'demos/**', '.next/**', 'node_modules/**'],
   },
   ...compat.extends('next/core-web-vitals'),
   {
@@ -22,7 +22,7 @@ const eslintConfig = [
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       'prefer-const': 'error',
       'no-var': 'error',

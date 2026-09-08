@@ -12,9 +12,9 @@ import { prisma } from '@/lib/prisma';
  * - OR $0.30 credit card charge for age verification
  * - Update this endpoint to integrate with chosen verification service
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -65,9 +65,9 @@ export async function POST(request: NextRequest) {
  * GET /api/parent/verify
  * Check if current user is verified adult
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json({ verified: false });

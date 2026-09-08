@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
@@ -37,11 +37,7 @@ export default function ChildDashboardPage() {
   const [child, setChild] = useState<ChildData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const res = await fetch('/api/child/session');
       const data = await res.json();
@@ -56,7 +52,11 @@ export default function ChildDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
 
   const handleLogout = async () => {
     try {

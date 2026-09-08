@@ -159,7 +159,7 @@ async function main() {
   console.log('👧 Creating Demo Child accounts...');
   const childPinHash = await bcrypt.hash('1234', 10);
 
-  const demoChild1 = await prisma.childProfile.create({
+  await prisma.childProfile.create({
     data: {
       parentId: demoParent.id,
       displayName: 'Emma',
@@ -172,7 +172,7 @@ async function main() {
     },
   });
 
-  const demoChild2 = await prisma.childProfile.create({
+  await prisma.childProfile.create({
     data: {
       parentId: demoParent.id,
       displayName: 'Liam',

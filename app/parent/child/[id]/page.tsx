@@ -111,7 +111,7 @@ function ChildDetailView() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">
-                {child.name}'s Progress
+                {child.name}&apos;s Progress
               </h1>
               <div className="flex items-center space-x-4 text-brand-100">
                 <span>Grade {child.gradeLevel}</span>

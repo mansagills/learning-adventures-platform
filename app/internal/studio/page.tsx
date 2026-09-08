@@ -122,8 +122,8 @@ export default function ContentStudioPage() {
                   </h4>
                   <p className="text-sm text-ink-600">
                     See your game instantly in a live preview. Make improvements
-                    with simple feedback like "add sound effects" or "make it
-                    3D".
+                    with simple feedback like &quot;add sound effects&quot; or &quot;make it
+                    3D&quot;.
                   </p>
                 </div>
                 <div>
@@ -141,9 +141,9 @@ export default function ContentStudioPage() {
               <div className="mt-6 p-4 bg-white rounded-lg border border-brand-200">
                 <p className="text-sm text-ink-700">
                   <strong>💡 Pro Tip:</strong> Be specific in your descriptions.
-                  Instead of "make a math game", try "create a 3D space
+                  Instead of &quot;make a math game&quot;, try &quot;create a 3D space
                   adventure where students solve multiplication problems (2-12
-                  tables) to navigate through asteroid fields".
+                  tables) to navigate through asteroid fields&quot;.
                 </p>
               </div>
             </div>
@@ -159,8 +159,8 @@ export default function ContentStudioPage() {
                 About Gemini 3 Content Studio
               </p>
               <p>
-                This tool uses Google's latest Gemini 3 Pro model with "vibe
-                coding" capabilities to generate complete, working educational
+                This tool uses Google&apos;s latest Gemini 3 Pro model with &quot;vibe
+                coding&quot; capabilities to generate complete, working educational
                 games from natural language descriptions. All games are created
                 as standalone HTML files with embedded CSS and JavaScript,
                 making them easy to deploy and maintain.

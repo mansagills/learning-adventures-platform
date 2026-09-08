@@ -36,7 +36,7 @@ vi.mock('fs', () => ({
 vi.mock('adm-zip', () => {
   return {
     default: class MockAdmZip {
-      constructor(path: string) {}
+      constructor(_path: string) {}
       extractAllTo = vi.fn();
       getEntries = vi.fn().mockReturnValue([]);
     },

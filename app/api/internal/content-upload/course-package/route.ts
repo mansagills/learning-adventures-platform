@@ -14,7 +14,7 @@ import {
 } from '@/lib/upload/gamePackageHandler';
 
 export async function POST(request: NextRequest) {
-  const { apiUser, error: authError } = await getApiUser();
+  const { apiUser } = await getApiUser();
   if (apiUser?.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

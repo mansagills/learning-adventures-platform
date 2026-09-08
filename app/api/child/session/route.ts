@@ -10,7 +10,7 @@ const CHILD_SESSION_COOKIE = 'child_session';
  * GET /api/child/session
  * Get current child session information
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get(CHILD_SESSION_COOKIE)?.value;

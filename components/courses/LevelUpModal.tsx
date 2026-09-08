@@ -47,7 +47,7 @@ export default function LevelUpModal({ level, onClose }: LevelUpModalProps) {
 
         {/* Message */}
         <p className="text-gray-600 mb-6">
-          Congratulations! You've leveled up and unlocked new achievements!
+          Congratulations! You&apos;ve leveled up and unlocked new achievements!
         </p>
 
         {/* Confetti effect */}

@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import CourseCard from '@/components/courses/CourseCard';
@@ -41,11 +41,7 @@ export default function CourseCatalogPage() {
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [isPremiumUser, setIsPremiumUser] = useState(false);
 
-  useEffect(() => {
-    fetchCourses();
-  }, [status]);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
       const includeProgress = status === 'authenticated';
@@ -80,7 +76,11 @@ export default function CourseCatalogPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status, session]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   // Filter courses
   const filteredCourses = courses.filter((course) => {
@@ -199,7 +199,7 @@ export default function CourseCatalogPage() {
                     </h3>
                   </div>
                   <p className="text-white text-sm md:text-base mb-3">
-                    You're currently enrolled in{' '}
+                    You&apos;re currently enrolled in{' '}
                     <span className="font-bold">
                       {enrollmentCount} of 2 free courses
                     </span>
@@ -350,7 +350,7 @@ export default function CourseCatalogPage() {
               )}
               {searchQuery && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                  "{searchQuery}"
+                  &quot;{searchQuery}&quot;
                 </span>
               )}
               <button

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { X, ShoppingBag, Coins } from 'lucide-react';
+import { X, ShoppingBag } from 'lucide-react';
 
 interface ShopItem {
   id: string;

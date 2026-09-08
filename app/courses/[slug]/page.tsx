@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import EnrollButton from '@/components/courses/EnrollButton';
@@ -21,18 +21,14 @@ interface CourseDetailProps {
 
 export default function CourseDetailPage({ params }: CourseDetailProps) {
   const { slug } = params;
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generatingCertificate, setGeneratingCertificate] = useState(false);
 
-  useEffect(() => {
-    fetchCourse();
-  }, [slug, status]);
-
-  const fetchCourse = async () => {
+  const fetchCourse = useCallback(async () => {
     try {
       setLoading(true);
       // First get course by slug from API
@@ -70,7 +66,11 @@ export default function CourseDetailPage({ params }: CourseDetailProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, status]);
+
+  useEffect(() => {
+    fetchCourse();
+  }, [fetchCourse]);
 
   if (loading) {
     return (

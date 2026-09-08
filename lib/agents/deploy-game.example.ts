@@ -57,7 +57,6 @@ async function deployGeneratedGame() {
   console.log('✅ Workflow completed successfully!\n');
 
   // Extract results
-  const componentData = result.results.step1;
   const catalogEntry = result.results.step3.catalogEntry;
 
   // Use a better game ID and component name

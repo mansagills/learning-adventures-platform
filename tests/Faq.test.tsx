@@ -95,7 +95,7 @@ describe('FAQ Component', () => {
 
     const buttons = screen.getAllByRole('button');
 
-    buttons.forEach((button, index) => {
+    buttons.forEach((button, _index) => {
       expect(button).toHaveAttribute('aria-expanded');
       expect(button).toHaveAttribute('aria-controls');
       expect(button).toHaveAttribute('id');

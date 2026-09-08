@@ -1,5 +1,12 @@
 # Lint Debt: Planning Doc
 
+> **Status update (mansagills/learning-adventures-platform#183): Phases 1-8 and 10 are done.** 292 -> 11 problems remain (269 -> 6 errors, 23 -> 5 warnings). See that PR's description for the full rundown, including two real bugs found and fixed along the way and a list of likely half-wired features surfaced during the cleanup (left `_`-prefixed rather than silently deleted). What's left, all deliberately out of scope:
+> - 2 errors in `app/api/agent/chat/route.ts` (`authError`, `context`) - an open product question, not a lint fix (see PR #183 notes).
+> - 4 errors in `tests/security/zip_slip_prevention.test.ts` - this test is broken independent of lint (fails to load; predates the NextAuth->Supabase migration) and needs a rewrite, not a rename.
+> - 5 `@next/next/no-img-element` warnings (Phase 9) - investigated and **not applied**: all 5 are poor fits for `next/image` in this codebase (3 external avatar URLs with no `images.domains`/`remotePatterns` configured, one `blob:` URL that `next/image` can't optimize at all, one relying on a manual sprite-sheet-cropping technique incompatible with `next/image`'s layout model). Still worth doing opportunistically per-file with real config/behavior changes, just not as a blind sweep.
+>
+> The content below is the original snapshot from before that cleanup, kept for reference on what each rule means and why the phasing was ordered this way - the counts and appendices are now stale.
+
 **Generated**: 2026-09-06, from `npx eslint .` on branch `fix/npc-duplicate-declaration` (mansagills/learning-adventures-platform#182), after fixing the plugin-resolution bug that had silently prevented `npm run lint` from ever completing in this repo. This is the **first time lint has actually analyzed this codebase** — every prior run crashed on `next lint`'s interactive setup wizard before reaching a single file (see PR #182 for that history).
 
 **Total: 292 problems — 269 errors, 23 warnings — across 144 files.** All are pre-existing; none are in files touched by PR #182. This doc catalogs every issue by rule, explains what each rule means and why it matters, and proposes a phased order to pay the debt down safely.

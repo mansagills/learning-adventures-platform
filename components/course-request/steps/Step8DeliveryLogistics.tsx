@@ -197,7 +197,7 @@ export default function Step8DeliveryLogistics() {
                     Printable Materials
                   </h4>
                   <p className="text-sm text-gray-700">
-                    We'll include downloadable PDFs with worksheets, activity
+                    We&apos;ll include downloadable PDFs with worksheets, activity
                     guides, and offline alternatives for key lessons. Great for
                     students with limited screen time or internet access!
                   </p>

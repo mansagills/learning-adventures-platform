@@ -7,9 +7,9 @@ import { getApiUser } from '@/lib/api-auth';
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     return NextResponse.json(
       {

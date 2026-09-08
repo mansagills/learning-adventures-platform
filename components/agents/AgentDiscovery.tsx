@@ -121,7 +121,7 @@ export default function AgentDiscovery() {
       <div className="mt-12 p-6 bg-gradient-to-r from-brand-500 to-accent-500 rounded-xl text-white">
         <h3 className="text-xl font-semibold mb-2">Need help choosing?</h3>
         <p className="mb-4 text-white/90">
-          Not sure which agent to use? Here's a quick guide:
+          Not sure which agent to use? Here&apos;s a quick guide:
         </p>
         <ul className="space-y-2 text-sm">
           <li className="flex items-start">
@@ -155,7 +155,7 @@ export default function AgentDiscovery() {
         </ul>
         <div className="mt-6">
           <p className="text-sm text-white/90">
-            💡 <strong>Tip:</strong> Switch to the "Workflows" tab above to use
+            💡 <strong>Tip:</strong> Switch to the &quot;Workflows&quot; tab above to use
             complete multi-agent workflows that combine these agents
             automatically!
           </p>

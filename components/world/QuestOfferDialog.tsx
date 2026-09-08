@@ -45,11 +45,11 @@ export function QuestOfferDialog({ offer, onAccept, onClose }: QuestOfferDialogP
         <div className="px-5 py-4 space-y-4">
           {isActive ? (
             <p className="text-white/70 text-sm italic">
-              "{offer.npcName} checks in on your progress..."
+              &quot;{offer.npcName} checks in on your progress...&quot;
             </p>
           ) : (
             <p className="text-white/70 text-sm italic">
-              "I have a quest for you, adventurer. Are you up for the challenge?"
+              &quot;I have a quest for you, adventurer. Are you up for the challenge?&quot;
             </p>
           )}
 

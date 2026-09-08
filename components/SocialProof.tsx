@@ -78,7 +78,7 @@ export default function SocialProof() {
           <h2 className="font-outfit text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             Kids{' '}
             <span className="relative inline-block">
-              <span className="text-pg-pink">Can't Stop</span>
+              <span className="text-pg-pink">Can&apos;t Stop</span>
               <svg
                 className="absolute -bottom-1 left-0 w-full h-3"
                 viewBox="0 0 200 8"
@@ -107,7 +107,7 @@ export default function SocialProof() {
             </div>
 
             <blockquote className="font-plus-jakarta text-xl md:text-2xl text-foreground text-center mb-8 leading-relaxed">
-              "{testimonials[currentTestimonial].content}"
+              &quot;{testimonials[currentTestimonial].content}&quot;
             </blockquote>
 
             <div className="flex items-center justify-center gap-4">

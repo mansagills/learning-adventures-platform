@@ -15,8 +15,8 @@ interface FormNavigationProps {
 }
 
 export default function FormNavigation({
-  currentStep,
-  totalSteps,
+  currentStep: _currentStep,
+  totalSteps: _totalSteps,
   onPrevious,
   onNext,
   onSaveDraft,

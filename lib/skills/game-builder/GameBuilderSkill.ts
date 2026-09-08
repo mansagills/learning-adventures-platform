@@ -11,7 +11,6 @@ import {
   SkillContext,
   SkillResult,
   GameConcept,
-  GameFile,
 } from '../types';
 
 interface GameBuilderResponse {
@@ -77,7 +76,7 @@ export class GameBuilderSkill extends BaseSkill {
    */
   public async canHandle(
     userRequest: string,
-    context?: Partial<SkillContext>
+    _context?: Partial<SkillContext>
   ): Promise<number> {
     const metadata = this.getMetadata();
     let confidence = this.calculateKeywordConfidence(
@@ -275,14 +274,14 @@ export class GameBuilderSkill extends BaseSkill {
   /**
    * Extract learning objectives
    */
-  private extractLearningObjectives(userRequest: string): string[] {
+  private extractLearningObjectives(_userRequest: string): string[] {
     return ['Master core concepts', 'Practice skills through gameplay'];
   }
 
   /**
    * Build prompt for game generation
    */
-  private buildPrompt(concept: GameConcept, context: SkillContext): string {
+  private buildPrompt(concept: GameConcept, _context: SkillContext): string {
     return `Create an educational HTML game with the following specifications:
 
 **Title**: ${concept.title}

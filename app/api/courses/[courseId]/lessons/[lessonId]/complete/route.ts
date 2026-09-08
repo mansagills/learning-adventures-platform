@@ -18,7 +18,6 @@ import {
   successResponse,
   errorResponse,
   handleApiError,
-  validateRequestBody,
 } from '@/lib/responses';
 
 interface CompleteLessonBody {

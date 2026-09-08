@@ -7,7 +7,7 @@ import { join } from 'path';
 export async function POST(request: NextRequest) {
   try {
     // Check authentication and authorization
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || !['ADMIN', 'TEACHER'].includes(apiUser.role)) {
       return NextResponse.json(

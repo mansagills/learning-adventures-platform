@@ -73,7 +73,7 @@ export default function DailyXPGoal() {
       }`}
     >
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-gray-700">Today's Progress</h3>
+        <h3 className="text-sm font-medium text-gray-700">Today&apos;s Progress</h3>
         {isGoalReached && (
           <span className="text-green-600 text-sm font-semibold flex items-center gap-1">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -110,7 +110,7 @@ export default function DailyXPGoal() {
         <div className="text-xs text-gray-600">
           {isGoalReached ? (
             <span className="text-green-700 font-medium">
-              🎉 Amazing! You've exceeded your daily goal by{' '}
+              🎉 Amazing! You&apos;ve exceeded your daily goal by{' '}
               {dailyXP.totalXP - DAILY_XP_GOAL} XP!
             </span>
           ) : (

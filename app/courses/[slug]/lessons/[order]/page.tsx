@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import XPReward from '@/components/courses/XPReward';
@@ -21,7 +21,7 @@ interface LessonPlayerProps {
 
 export default function LessonPlayerPage({ params }: LessonPlayerProps) {
   const { slug, order } = params;
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
 
   const [course, setCourse] = useState<any>(null);
@@ -37,18 +37,18 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [newLevel, setNewLevel] = useState(0);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push(`/login?redirect=/courses/${slug}/lessons/${order}` as any);
-      return;
+  const startLesson = useCallback(async (lessonId: string, courseId: string) => {
+    try {
+      await fetch(`/api/courses/${courseId}/lessons/${lessonId}/start`, {
+        method: 'POST',
+      });
+      setStartTime(Date.now());
+    } catch (err) {
+      console.error('Error starting lesson:', err);
     }
+  }, []);
 
-    if (status === 'authenticated') {
-      fetchLesson();
-    }
-  }, [slug, order, status]);
-
-  const fetchLesson = async () => {
+  const fetchLesson = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -106,18 +106,18 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, order, startLesson]);
 
-  const startLesson = async (lessonId: string, courseId: string) => {
-    try {
-      await fetch(`/api/courses/${courseId}/lessons/${lessonId}/start`, {
-        method: 'POST',
-      });
-      setStartTime(Date.now());
-    } catch (err) {
-      console.error('Error starting lesson:', err);
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push(`/login?redirect=/courses/${slug}/lessons/${order}` as any);
+      return;
     }
-  };
+
+    if (status === 'authenticated') {
+      fetchLesson();
+    }
+  }, [slug, order, status, router, fetchLesson]);
 
   const handleComplete = async (score?: number) => {
     if (!lesson || !course) return;
@@ -287,12 +287,12 @@ export default function LessonPlayerPage({ params }: LessonPlayerProps) {
 
             <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
               <p className="text-blue-800 font-semibold">
-                💡 To complete this lesson, click the "Complete Lesson" button
+                💡 To complete this lesson, click the &quot;Complete Lesson&quot; button
                 below.
               </p>
               {lesson.requiredScore && (
                 <p className="text-blue-700 text-sm mt-2">
-                  You'll be prompted to enter a score. Make sure to score at
+                  You&apos;ll be prompted to enter a score. Make sure to score at
                   least {lesson.requiredScore}% to unlock the next lesson!
                 </p>
               )}

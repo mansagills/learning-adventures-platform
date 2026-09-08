@@ -42,7 +42,6 @@ export default function ProfileSettings({
   onClose,
 }: ProfileSettingsProps) {
   const { user: session } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);

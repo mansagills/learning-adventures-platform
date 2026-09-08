@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   GameContainer,
   GameButton,
@@ -38,7 +38,7 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
   const [showPauseModal, setShowPauseModal] = useState(false);
 
   // Generate a new question based on current level
-  const generateQuestion = (): Question => {
+  const generateQuestion = useCallback((): Question => {
     const level = gameState.level;
     const maxNum = Math.min(10 + level * 2, 50);
     const operations: Array<'+' | '-' | '*'> = ['+'];
@@ -69,7 +69,7 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
     }
 
     return { num1, num2, operation, correctAnswer };
-  };
+  }, [gameState.level]);
 
   // Generate answer options
   const generateAnswerOptions = (correct: number): number[] => {
@@ -142,10 +142,20 @@ export default function SampleMathGame({ onExit, onComplete }: GameProps) {
   };
 
   // Initialize game
+  const generateQuestionRef = useRef(generateQuestion);
   useEffect(() => {
-    setCurrentQuestion(generateQuestion());
+    generateQuestionRef.current = generateQuestion;
+  }, [generateQuestion]);
+
+  // Runs once on mount only - deliberately not depending on generateQuestion
+  // (which changes identity on every level-up) or the question would get
+  // regenerated and the timer restarted a second time, racing with the
+  // setTimeout in handleAnswerSelect that already does this after each answer.
+  useEffect(() => {
+    setCurrentQuestion(generateQuestionRef.current());
     timer.actions.start();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timer.actions]);
 
   // Generate answer options for current question
   const answerOptions = currentQuestion
