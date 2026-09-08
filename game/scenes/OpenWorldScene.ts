@@ -520,7 +520,7 @@ export class OpenWorldScene extends Phaser.Scene {
 
   private handleQuestStatusUpdate = (
     markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
-  ) => this.updateQuestMarkers(markerData);
+  ) => { /* this.updateQuestMarkers(markerData); */ };
 
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
