@@ -8,9 +8,16 @@ const DEAD_ZONE = 0.15;
 
 interface TouchControlsProps {
   disabled?: boolean;
+  /** Screen corner for the stick. 'left' (default) collides with the
+   *  Minimap on small screens — pages that mount both should use 'right'. */
+  side?: 'left' | 'right';
+  /** Distance from the container bottom in px (default 24). Pages whose
+   *  h-screen container starts below the site header overflow the visible
+   *  viewport by the header height — raise the stick so it isn't clipped. */
+  bottomOffset?: number;
 }
 
-export function TouchControls({ disabled }: TouchControlsProps) {
+export function TouchControls({ disabled, side = 'left', bottomOffset = 24 }: TouchControlsProps) {
   const stickRef = useRef<HTMLDivElement>(null);
   const originRef = useRef({ x: 0, y: 0 });
   const activeRef = useRef(false);
@@ -76,7 +83,8 @@ export function TouchControls({ disabled }: TouchControlsProps) {
 
   return (
     <div
-      className="absolute bottom-6 left-6 z-20 pointer-events-auto md:hidden touch-none select-none"
+      className={`absolute ${side === 'right' ? 'right-6' : 'left-6'} z-20 pointer-events-auto md:hidden touch-none select-none`}
+      style={{ bottom: `${bottomOffset}px` }}
       aria-label="Movement joystick"
     >
       <div
