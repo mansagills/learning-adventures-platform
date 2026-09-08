@@ -226,7 +226,7 @@ export class OpenWorldScene extends Phaser.Scene {
 
     // Place Campus V1 buildings, NPCs, shop, and quest board
     this.createInteractables();
-    this.createCampusSignage();
+    // this.createCampusSignage();
 
     // Setup interaction key (SPACE)
     if (this.input.keyboard) {
