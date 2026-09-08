@@ -6,3 +6,7 @@
 2. Use strict type checking and linting to catch undefined variables and missing imports.
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
+## 2025-02-21 - [Replaced predictable Math.random() with crypto.randomUUID()]
+**Vulnerability:** Predictable pseudo-random number generator (`Math.random()`) used for generating security-sensitive IDs like `workflowId` and `tempId`.
+**Learning:** This could lead to Insecure Direct Object Reference (IDOR) vulnerabilities or enumeration attacks if predictable IDs are exposed in API endpoints, database schemas or local state tracking. The `demo` folder components often get out of sync with fixes in root.
+**Prevention:** Always use cryptographically secure functions (`crypto.randomUUID()`) when generating unique IDs for tokens, session trackers or any logic sensitive workflows on the frontend and backend.
