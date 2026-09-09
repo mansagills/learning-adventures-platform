@@ -25,7 +25,6 @@ export class NPC extends InteractableObject {
   private dialog: DialogLine[];
   private currentDialogIndex: number = 0;
   private questConfig?: QuestGiverConfig;
-  private readonly onFinalDialogLine?: () => void;
   // Injected by OpenWorldScene after each quest-status-update
   questStatus: 'available' | 'active' | 'completed' | 'locked' | 'none' = 'none';
 
@@ -37,7 +36,6 @@ export class NPC extends InteractableObject {
     npcName: string,
     dialog: DialogLine[],
     questConfigOrFinalDialogLine?: QuestGiverConfig | (() => void),
-    onFinalDialogLine?: () => void
     private readonly onFinalDialogLine?: () => void
   ) {
     super(scene, x, y, texture);
