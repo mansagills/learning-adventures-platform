@@ -47,6 +47,17 @@ export class OpenWorldScene extends Phaser.Scene {
   // Chunk streaming state
   private mapData: number[][] = [];
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
+  /**
+   * Every wall tile body in the loaded chunks, in ONE static group.
+   *
+   * Previously each wall tile got its own `physics.add.collider(player, wall)`.
+   * Chunk teardown destroyed the tile but never removed the collider, so they
+   * piled up in the physics world for the life of the session and each one was
+   * walked separately every step. One group means one collider per colliding
+   * party, and members drop out of it automatically when their chunk is
+   * destroyed.
+   */
+  protected wallGroup?: Phaser.Physics.Arcade.StaticGroup;
   private lastCameraChunk = { cx: -1, cy: -1 };
 
   /** Subclasses (e.g. GatherCampusScene) pass their own scene key. */
@@ -156,6 +167,11 @@ export class OpenWorldScene extends Phaser.Scene {
     // Configure camera for open world
     this.cameras.main.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+
+    // Wall collision: one static group for every wall tile, collided against
+    // once. Must exist before the first chunk is built.
+    this.wallGroup = this.physics.add.staticGroup();
+    this.physics.add.collider(this.player, this.wallGroup);
 
     // Bootstrap chunk streaming (loads the 3×3 chunks around spawn)
     this.createInitialChunks();
@@ -427,15 +443,14 @@ export class OpenWorldScene extends Phaser.Scene {
           tileIndex === TILE.WALL_ENG ||
           tileIndex === TILE.WALL_BRICK
         ) {
-          const wall = this.physics.add.staticImage(
+          const wall = this.wallGroup!.create(
             px + TILE_SIZE / 2,
             py + TILE_SIZE / 2,
             'wall-tile',
-          );
+          ) as Phaser.Physics.Arcade.Sprite;
           wall.setVisible(false).setDisplaySize(TILE_SIZE, TILE_SIZE).refreshBody();
-          if (this.player) {
-            this.physics.add.collider(this.player, wall);
-          }
+          // Also tracked by the chunk group so unloading the chunk destroys it
+          // (which removes it from wallGroup too).
           group.add(wall);
         }
       }

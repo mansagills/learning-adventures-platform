@@ -133,6 +133,26 @@ export default function CampusSandboxPage() {
       hasSeenWelcome,
       resetWelcome: () => { resetWelcomeSeen(); setShowWelcome(true); },
       resetDemo,
+      // Resolves with every NPC's position + physics body (collision testing)
+      npcs: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('npc-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('npc-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
+      // Resolves with physics-world totals (collider/body leak testing)
+      physics: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('physics-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('physics-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
     };
 
     EventBus.on('npc-conversation', handleConversation);

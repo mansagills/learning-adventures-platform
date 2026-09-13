@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { EventBus } from '@/components/phaser/EventBus';
+import { containerFeetBody } from '../world/characterBody';
 
 export interface NpcWaypoint {
   x: number;
@@ -59,6 +60,13 @@ const END_RADIUS = 130;   // conversation ends (hysteresis so it doesn't flicker
 const BUBBLE_WIDTH = 230;
 const TYPE_INTERVAL_MS = 22;
 
+/** How close counts as "arrived" at a waypoint (px). */
+const ARRIVE_RADIUS = 8;
+/** Distance we must close each frame to count as making progress (px). */
+const PROGRESS_EPSILON = 0.25;
+/** Give up on a blocked leg after this long and move to the next waypoint. */
+const STUCK_TIMEOUT_MS = 2500;
+
 export class TalkableNPC extends Phaser.GameObjects.Container {
   public readonly npcId: string;
   public readonly npcName: string;
@@ -82,9 +90,15 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
   /** Quest override: fixed dialogue replacing lineSets rotation while set. */
   private questLines: string[] | null = null;
 
-  private wanderTween?: Phaser.Tweens.Tween;
+  /** Steering state. NPCs move by body velocity so they collide like the
+   *  player does; a tween would write x/y straight past the physics step. */
   private wanderIndex = 0;
   private wanderTimer?: Phaser.Time.TimerEvent;
+  private walkTarget: NpcWaypoint | null = null;
+  /** Distance to the target last frame — used to notice we stopped making
+   *  progress (blocked by a wall, a prop, or another NPC). */
+  private lastDistToTarget = Number.POSITIVE_INFINITY;
+  private blockedForMs = 0;
   private emoteTag?: Phaser.GameObjects.Text;
   private emoteTimer?: Phaser.Time.TimerEvent;
 
@@ -140,6 +154,22 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     scene.add.existing(this);
     this.setDepth(10);
 
+    // Physics body — the same feet box the player uses (characterBody.ts), so
+    // NPCs are stopped by walls, furniture and each other instead of gliding
+    // over them. A Container has no origin, so the offset is a plain
+    // world-pixel shift from its centre.
+    scene.physics.add.existing(this);
+    const body = this.body as Phaser.Physics.Arcade.Body | null;
+    if (body) {
+      const feet = containerFeetBody();
+      body.setSize(feet.width, feet.height);
+      body.setOffset(feet.offsetX, feet.offsetY);
+      body.setCollideWorldBounds(true);
+      // The player can walk up against an NPC and be blocked, but never shove
+      // them off their patrol route; NPC-vs-NPC likewise just blocks.
+      body.pushable = false;
+    }
+
     if (def.wander && def.wander.length > 1) {
       this.scheduleNextWander(1000 + Math.random() * 1500);
     }
@@ -161,48 +191,89 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.wanderTimer = this.scene.time.delayedCall(delayMs, () => this.moveToNextWaypoint());
   }
 
+  /** Pick the next waypoint and start steering toward it. */
   private moveToNextWaypoint(): void {
     if (this.isTalking || !this.def.wander || !this.scene) return;
 
     this.wanderIndex = (this.wanderIndex + 1) % this.def.wander.length;
     const wp = this.def.wander[this.wanderIndex];
-    const dx = wp.x - this.x;
-    const dy = wp.y - this.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 4) {
+    if (Phaser.Math.Distance.Between(this.x, this.y, wp.x, wp.y) < 4) {
       this.scheduleNextWander(1500);
       return;
     }
 
-    // Face/animate toward movement direction
-    if (Math.abs(dx) > Math.abs(dy)) {
-      this.playAnim('walk-side');
-      this.sprite.setFlipX(dx < 0);
+    this.walkTarget = wp;
+    this.lastDistToTarget = Number.POSITIVE_INFINITY;
+    this.blockedForMs = 0;
+  }
+
+  /** Stop steering, stand still, and queue the next leg after `pauseMs`. */
+  private arriveAtWaypoint(wp: NpcWaypoint): void {
+    this.walkTarget = null;
+    this.setVelocity(0, 0);
+    this.playAnim('idle');
+
+    const pause = wp.pauseMs ?? 1800 + Math.random() * 2000;
+    if (wp.emote) {
+      this.showEmote(wp.emote, pause);
+    }
+    this.scheduleNextWander(pause);
+  }
+
+  private setVelocity(x: number, y: number): void {
+    const body = this.body as Phaser.Physics.Arcade.Body | null;
+    body?.setVelocity(x, y);
+  }
+
+  /**
+   * Per-frame steering, driven by the scene's update loop.
+   *
+   * Waypoint routes are hand-authored along wall-free lines, so collision is
+   * normally just a safety net — but the player (or another NPC) can still
+   * body-block a route. If we stop closing on the target for STUCK_TIMEOUT_MS
+   * we give up on this leg and move on rather than grinding into the obstacle
+   * forever, since there is no pathfinding here to route around it.
+   */
+  public updateMovement(delta: number): void {
+    const wp = this.walkTarget;
+    if (!wp) return;
+    if (this.isTalking) {
+      this.setVelocity(0, 0);
+      return;
+    }
+
+    const dist = Phaser.Math.Distance.Between(this.x, this.y, wp.x, wp.y);
+    if (dist < ARRIVE_RADIUS) {
+      this.arriveAtWaypoint(wp);
+      return;
+    }
+
+    // Progress check: closing in resets the timer, standing still accrues it.
+    if (dist < this.lastDistToTarget - PROGRESS_EPSILON) {
+      this.blockedForMs = 0;
+      this.lastDistToTarget = dist;
     } else {
-      this.playAnim(dy > 0 ? 'walk-down' : 'walk-up');
-      this.sprite.setFlipX(false);
+      this.blockedForMs += delta;
+      if (this.blockedForMs >= STUCK_TIMEOUT_MS) {
+        this.arriveAtWaypoint(wp);
+        return;
+      }
     }
 
     const speed = this.def.speed ?? 90; // px/s stroll
-    this.wanderTween = this.scene.tweens.add({
-      targets: this,
-      x: wp.x,
-      y: wp.y,
-      duration: (dist / speed) * 1000,
-      ease: 'Linear',
-      onComplete: () => {
-        // Tween is finished/removed from the manager — drop the reference so
-        // pauseWandering() never tries to pause a dead tween (Phaser throws
-        // "Cannot read properties of null (reading 'onPause')" if it does).
-        this.wanderTween = undefined;
-        this.playAnim('idle');
-        const pause = wp.pauseMs ?? 1800 + Math.random() * 2000;
-        if (wp.emote) {
-          this.showEmote(wp.emote, pause);
-        }
-        this.scheduleNextWander(pause);
-      },
-    });
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, wp.x, wp.y);
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed;
+    this.setVelocity(vx, vy);
+
+    // Face/animate toward travel direction
+    if (Math.abs(vx) > Math.abs(vy)) {
+      this.playAnim('walk-side');
+      this.sprite.setFlipX(vx < 0);
+    } else {
+      this.playAnim(vy > 0 ? 'walk-down' : 'walk-up');
+      this.sprite.setFlipX(false);
+    }
   }
 
   /** Show a floating emote above the name tag while the NPC lingers. */
@@ -292,25 +363,24 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     }
   }
 
+  /** Stand still for a conversation, keeping the current leg to resume later. */
   private pauseWandering(): void {
-    // Defense in depth: only pause a tween Phaser still considers active.
-    // A finished/removed tween throws on .pause() (its internal event data
-    // is torn down), and the onComplete handler above should already clear
-    // the reference — this guard covers any other stale-reference path.
-    if (this.wanderTween?.isPlaying()) {
-      this.wanderTween.pause();
-    }
+    this.setVelocity(0, 0);
     this.wanderTimer?.remove();
     this.wanderTimer = undefined;
   }
 
   private resumeWandering(): void {
     if (!this.def.wander) return;
-    if (this.wanderTween && this.wanderTween.isPaused()) {
-      this.wanderTween.resume();
-    } else {
-      this.scheduleNextWander(800);
+    // Mid-leg: updateMovement picks straight back up on the stored target.
+    // The player may have nudged us while we talked, so reset the progress
+    // tracker rather than counting that as being stuck.
+    if (this.walkTarget) {
+      this.lastDistToTarget = Number.POSITIVE_INFINITY;
+      this.blockedForMs = 0;
+      return;
     }
+    this.scheduleNextWander(800);
   }
 
   // ─── Proximity / conversation lifecycle ──────────────────────────────────────
@@ -480,9 +550,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.stopTyping();
     this.emoteTimer?.remove();
     this.wanderTimer?.remove();
-    if (this.wanderTween) {
-      this.wanderTween.stop();
-    }
+    this.walkTarget = null;
     super.destroy(fromScene);
   }
 }
