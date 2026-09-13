@@ -14,6 +14,24 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    # Placeholder config, mirroring the build job below. These are fake values
+    # for a CI runner with no Supabase project — never real credentials.
+    #
+    # NOTE: this does NOT fix any currently-failing test. Without it the API
+    # route tests die at "supabaseUrl is required", which masks their real
+    # problem: they mock @/lib/prisma and bcryptjs but not the Supabase client,
+    # so the signup route attempts a live auth request and fails with
+    # "AuthRetryableFetchError: fetch failed". They were written against the
+    # pre-Supabase signup flow. Setting config here just lets them fail for
+    # their actual reason instead of a misleading one.
+    env:
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
+      DIRECT_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-placeholder-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "ci-placeholder-service-role-key"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
