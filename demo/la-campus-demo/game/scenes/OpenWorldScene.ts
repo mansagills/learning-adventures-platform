@@ -285,7 +285,9 @@ export class OpenWorldScene extends Phaser.Scene {
   protected addBuildingLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '8px',
+      // 8px of a pixel face renders as mush at this zoom — building signs are
+      // meant to be read from across the plaza.
+      fontSize: '12px',
       color: '#ccddff',
       backgroundColor: '#050810DD',
       padding: { x: 6, y: 4 },
@@ -298,7 +300,8 @@ export class OpenWorldScene extends Phaser.Scene {
   protected addNameLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      // Was 6px: station names under the arcade cabinets were unreadable.
+      fontSize: '10px',
       color: '#00ccff',
       backgroundColor: '#050810CC',
       padding: { x: 4, y: 2 },

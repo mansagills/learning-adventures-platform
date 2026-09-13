@@ -104,6 +104,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
 
   private typeTimer?: Phaser.Time.TimerEvent;
   private fullLineText = '';
+  /** Bubble hangs below the NPC when the player is standing above them. */
+  private bubbleBelow = false;
 
   constructor(scene: Phaser.Scene, def: TalkableNpcConfig) {
     super(scene, def.x, def.y);
@@ -405,9 +407,19 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     }
 
     if (!this.isTalking && !this.needsExit && canStart && dist < TALK_RADIUS) {
-      this.startConversation(playerX);
+      this.startConversation(playerX, playerY);
     } else if (this.isTalking && dist > END_RADIUS) {
       this.endConversation(false);
+    }
+
+    // Keep the bubble on the opposite side from the player, so walking around
+    // an NPC mid-conversation never leaves the bubble sitting on top of you.
+    if (this.isTalking) {
+      const below = playerY < this.y;
+      if (below !== this.bubbleBelow) {
+        this.bubbleBelow = below;
+        this.layoutBubble();
+      }
     }
 
     return this.isTalking;
@@ -423,7 +435,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.questLines = lines;
   }
 
-  private startConversation(playerX: number): void {
+  private startConversation(playerX: number, playerY: number): void {
     this.isTalking = true;
     this.lineIndex = 0;
     if (this.questLines) {
@@ -435,6 +447,7 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.encounterCount++;
     this.pauseWandering();
     this.hideEmote();
+    this.bubbleBelow = playerY < this.y;
 
     // Face the player
     this.playAnim('idle');
@@ -470,6 +483,8 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     EventBus.emit('npc-conversation', {
       npcId: this.npcId,
       npcName: this.npcName,
+      // The React card crops a portrait out of this character's sprite sheet.
+      charKey: this.def.charKey,
       text,
       lineIndex: this.lineIndex,
       total: this.activeLines.length,
@@ -525,12 +540,22 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     this.typeTimer = undefined;
   }
 
-  /** Redraws the bubble background (reusing one Graphics) to fit the text. */
+  /**
+   * Redraws the bubble background (reusing one Graphics) to fit the text.
+   *
+   * The bubble sits above the NPC by default, but flips below when the player
+   * is standing above them — otherwise the bubble covers the player's own
+   * sprite, which happens constantly with the room hosts since you approach
+   * most of them from the doorway side.
+   */
   private layoutBubble(): void {
     const w = Math.max(this.bubbleText.width + 24, 80);
     const h = this.bubbleText.height + 18;
-    const bubbleY = -58 - h / 2; // hover above the name tag
-    const tailTop = bubbleY + h / 2;
+    // Clear of the name tag above, or of the character's feet below.
+    const bubbleY = this.bubbleBelow ? 62 + h / 2 : -58 - h / 2;
+    // The edge the tail grows from, and which way it points (toward the NPC).
+    const tailBase = this.bubbleBelow ? bubbleY - h / 2 : bubbleY + h / 2;
+    const tailDir = this.bubbleBelow ? -1 : 1;
 
     const g = this.bubbleBg;
     g.clear();
@@ -539,9 +564,13 @@ export class TalkableNPC extends Phaser.GameObjects.Container {
     g.fillRoundedRect(-w / 2, bubbleY - h / 2, w, h, 8);
     g.strokeRoundedRect(-w / 2, bubbleY - h / 2, w, h, 8);
     // Tail pointing at the NPC: outline, then white fill covering the border
-    g.lineBetween(-7, tailTop, 0, tailTop + 9);
-    g.lineBetween(7, tailTop, 0, tailTop + 9);
-    g.fillTriangle(-7, tailTop - 2, 7, tailTop - 2, 0, tailTop + 8);
+    g.lineBetween(-7, tailBase, 0, tailBase + 9 * tailDir);
+    g.lineBetween(7, tailBase, 0, tailBase + 9 * tailDir);
+    g.fillTriangle(
+      -7, tailBase - 2 * tailDir,
+      7, tailBase - 2 * tailDir,
+      0, tailBase + 8 * tailDir,
+    );
 
     this.bubbleText.setPosition(0, bubbleY);
   }
