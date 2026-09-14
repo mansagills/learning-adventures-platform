@@ -1,11 +1,26 @@
 # Lint Debt: Planning Doc
 
-> **Status update (mansagills/learning-adventures-platform#183): Phases 1-8 and 10 are done.** 292 -> 11 problems remain (269 -> 6 errors, 23 -> 5 warnings). See that PR's description for the full rundown, including two real bugs found and fixed along the way and a list of likely half-wired features surfaced during the cleanup (left `_`-prefixed rather than silently deleted). What's left, all deliberately out of scope:
-> - 2 errors in `app/api/agent/chat/route.ts` (`authError`, `context`) - an open product question, not a lint fix (see PR #183 notes).
-> - 4 errors in `tests/security/zip_slip_prevention.test.ts` - this test is broken independent of lint (fails to load; predates the NextAuth->Supabase migration) and needs a rewrite, not a rename.
-> - 5 `@next/next/no-img-element` warnings (Phase 9) - investigated and **not applied**: all 5 are poor fits for `next/image` in this codebase (3 external avatar URLs with no `images.domains`/`remotePatterns` configured, one `blob:` URL that `next/image` can't optimize at all, one relying on a manual sprite-sheet-cropping technique incompatible with `next/image`'s layout model). Still worth doing opportunistically per-file with real config/behavior changes, just not as a blind sweep.
+> ## Status: paid down. 292 -> 6 problems, and the gate is now strict.
 >
-> The content below is the original snapshot from before that cleanup, kept for reference on what each rule means and why the phasing was ordered this way - the counts and appendices are now stale.
+> **All ten phases are complete** (mansagills/learning-adventures-platform#183). `npm run lint` reports **0 errors, 6 warnings**, down from 269 errors and 23 warnings.
+>
+> **The two noisy rules are back at `error`.** When the lint gate was first switched on (#190) it held `@typescript-eslint/no-unused-vars` and `react/no-unescaped-entities` at `warn` as a deliberate day-one baseline, with a note saying to burn the warnings down and promote them back. That is done: both now fail the build, so this debt cannot silently re-accumulate. `eslint.config.mjs` also gained `varsIgnorePattern: '^_'` alongside the existing `argsIgnorePattern`, so a leading underscore marks something intentionally unused for variables as well as arguments.
+>
+> ### The 6 remaining warnings, all deliberate
+>
+> - **5x `@next/next/no-img-element`** (Phase 9) - investigated and **not applied**. All five are poor fits for `next/image` here: three are external avatar URLs with no `images.domains`/`remotePatterns` configured (they would throw at runtime), one is a `URL.createObjectURL()` `blob:` URL the optimizer cannot fetch at all, and one relies on a manual sprite-sheet crop (`width: 400%` plus a transform) incompatible with `next/image`'s layout model. Worth doing opportunistically per-file alongside real config changes, not as a blind sweep.
+> - **1x `react-hooks/exhaustive-deps`** in `hooks/useAuth.ts` - arrived with the `fallbackUser()` work in #190, after this cleanup's Phase 10 had already run.
+>
+> ### Two items this doc previously listed as remaining are now resolved
+>
+> - **`app/api/agent/chat/route.ts`** (was 2 errors). `authError` is dropped from the `getApiUser()` destructure, matching the other 44 call sites. `context` is underscored: it is accepted in the request body but never forwarded to `agent.execute()`, so whether to wire it through remains a genuine product question - but it is no longer a lint failure. On the related question this doc raised about that route not gating on auth the way its sibling `/api/agent/[agentId]/chat` does: re-reading it, **that looks deliberate** - it falls back to an `'anonymous'` conversation id a few lines below. A comment now says so in place.
+> - **`tests/security/zip_slip_prevention.test.ts`** (was 4 errors). No longer exists. #190 found it had never once executed - it spreads an undefined `actual` into a mock, references `fs`/`existsSync` that are never imported, and its first test builds a request without ever calling `POST` or asserting anything. It is deleted; its real coverage lives in `zip-slip.test.ts`, which is ported to the Supabase-era auth mocks and passing, including the malicious-entry case.
+>
+> ### Still open, and not lint
+>
+> The ~13 dead-code and half-wired findings surfaced during the cleanup - a `requireAll` prop that is accepted but ignored, a feedback banner that can never display, a prompt built and then discarded before the API call - are catalogued in #183's description and remain **unaddressed by design**. They are product decisions. The unused bindings behind them are `_`-prefixed rather than deleted, so the evidence stays in the code.
+>
+> The content below is the original 2026-09-06 snapshot from before the cleanup, kept for reference on what each rule means and why the phasing was ordered this way. **Its counts and appendices are stale** - read them as history, not as current state.
 
 **Generated**: 2026-09-06, from `npx eslint .` on branch `fix/npc-duplicate-declaration` (mansagills/learning-adventures-platform#182), after fixing the plugin-resolution bug that had silently prevented `npm run lint` from ever completing in this repo. This is the **first time lint has actually analyzed this codebase** — every prior run crashed on `next lint`'s interactive setup wizard before reaching a single file (see PR #182 for that history).
 
