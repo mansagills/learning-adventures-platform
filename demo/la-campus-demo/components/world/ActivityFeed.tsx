@@ -126,7 +126,10 @@ export function ActivityFeed() {
   return (
     <div
       className="absolute hidden md:flex flex-col gap-1.5 pointer-events-none"
-      style={{ left: '212px', bottom: '80px' }}
+      // Sits beside the minimap horizontally, but lifted above the bottom-
+      // centre conversation card (up to ~222px tall) so entries are not
+      // hidden behind it while an NPC is talking.
+      style={{ left: '212px', bottom: '250px' }}
       aria-live="polite"
       aria-label="Campus activity feed"
     >

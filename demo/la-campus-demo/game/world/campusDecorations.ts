@@ -304,11 +304,16 @@ export function preloadCampusProps(scene: Phaser.Scene): void {
 
 /**
  * Place all decorations. Call from create() AFTER the base scene built the
- * map and player (solid props need the player collider).
+ * map and player.
+ *
+ * Solid props add an invisible blocker to `solids`, a static group the scene
+ * collides the player AND the NPCs against. It used to take the player and
+ * register a collider per prop, which meant NPCs walked straight through every
+ * desk and bookcase, and each prop cost its own entry in the physics world.
  */
 export function placeCampusProps(
   scene: Phaser.Scene,
-  player: Phaser.Physics.Arcade.Sprite | undefined,
+  solids: Phaser.Physics.Arcade.StaticGroup,
 ): void {
   PLACEMENTS.forEach((p) => {
     if (!scene.textures.exists(p.key)) return;
@@ -319,11 +324,10 @@ export function placeCampusProps(
     img.setScale(SCALE);
     img.setDepth(p.flat ? 1 : p.raise ? 6 : 5);
 
-    if (p.solid && player) {
+    if (p.solid) {
       // Invisible blocker on the prop's base tile (same trick as stations)
-      const body = scene.physics.add.staticImage(x, y - T / 2, 'wall-tile');
+      const body = solids.create(x, y - T / 2, 'wall-tile') as Phaser.Physics.Arcade.Sprite;
       body.setVisible(false).setDisplaySize(48, 40).refreshBody();
-      scene.physics.add.collider(player, body);
     }
   });
 
@@ -351,10 +355,9 @@ export function placeCampusProps(
       sprite.anims.play(`${p.key}-loop`);
     }
 
-    if (p.solid && player) {
-      const body = scene.physics.add.staticImage(x, y - T / 2, 'wall-tile');
+    if (p.solid) {
+      const body = solids.create(x, y - T / 2, 'wall-tile') as Phaser.Physics.Arcade.Sprite;
       body.setVisible(false).setDisplaySize(48, 40).refreshBody();
-      scene.physics.add.collider(player, body);
     }
   });
 }
