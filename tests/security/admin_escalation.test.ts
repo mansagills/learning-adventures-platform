@@ -23,8 +23,18 @@ vi.mock('bcryptjs', () => ({
   },
 }));
 
+// Mock the Supabase service client the route creates the auth user with
+const supabaseMock = vi.hoisted(() => ({ createUser: vi.fn() }));
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: () => ({
+    auth: { admin: { createUser: supabaseMock.createUser } },
+  }),
+}));
+import { createdUser } from '../helpers/supabaseAdmin';
+
 describe('Signup Security Controls', () => {
   beforeEach(() => {
+    supabaseMock.createUser.mockResolvedValue(createdUser());
     vi.clearAllMocks();
   });
 
@@ -81,7 +91,10 @@ describe('Signup Security Controls', () => {
 
     const response = await POST(req);
     expect(response.status).toBe(400);
-    expect((await response.json()).error).toBe('Password must be at least 8 characters long');
+    // Matched loosely on the substance rather than the exact sentence: the
+    // route's wording is "Password must be at least 8 characters", and the
+    // assertion should not break again on a copy tweak.
+    expect((await response.json()).error).toMatch(/at least 8 characters/);
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 

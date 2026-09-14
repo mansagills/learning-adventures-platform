@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import path from 'path';
-import { getServerSession } from 'next-auth/next';
+import { getApiUser } from '@/lib/api-auth';
+import { authedAs } from '../helpers/apiUser';
 
 // Mock fs/promises and fs
 // We need to hoist mocks to use them in vi.mock
@@ -24,22 +25,6 @@ vi.mock('fs/promises', () => {
     },
   };
 });
-
-// Mock next-auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: {
-      name: 'Admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    },
-  }),
-}));
-
-// Mock auth options
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
 
 vi.mock('fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
@@ -69,13 +54,11 @@ vi.mock('adm-zip', () => {
   };
 });
 
-// Mock Auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+// Mock Auth — the route authenticates via getApiUser (Supabase).
+// A second, earlier mock of the old auth module used to sit further up this
+// file; only the last vi.mock for a module takes effect, so it was dead weight.
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 // Import after mocking
@@ -84,11 +67,7 @@ import { POST } from '@/app/api/internal/save-content/route';
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
-      user: {
-        role: 'ADMIN',
-      },
-    });
+    (getApiUser as any).mockResolvedValue(authedAs('ADMIN'));
   });
 
   it('should prevent path traversal via fileName parameter', async () => {
