@@ -10,11 +10,11 @@ import { ShopModal } from '@/components/world/ShopModal';
 import { InventoryPanel } from '@/components/world/InventoryPanel';
 import { JobBoard } from '@/components/world/JobBoard';
 import { WorldDialog, type NpcDialogState } from '@/components/world/WorldDialog';
+import { QuestLog } from '@/components/world/QuestLog';
+import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
 import Minimap from '@/components/world/Minimap';
 import { JaylenGuide } from '@/components/onboarding/JaylenGuide';
 import { SparkChat } from '@/components/world/SparkChat';
-import { QuestLog } from '@/components/world/QuestLog';
-import { QuestOfferDialog } from '@/components/world/QuestOfferDialog';
 import type { WorldBootstrap } from '@/game/worldBootstrap';
 
 // Dynamically import Phaser component to avoid SSR issues

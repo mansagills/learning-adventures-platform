@@ -14,6 +14,15 @@ vi.mock('../../lib/prisma', () => ({
   },
 }));
 
+// Mock the Supabase service client the route creates the auth user with
+const supabaseMock = vi.hoisted(() => ({ createUser: vi.fn() }));
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: () => ({
+    auth: { admin: { createUser: supabaseMock.createUser } },
+  }),
+}));
+import { createdUser } from '../helpers/supabaseAdmin';
+
 // Mock bcrypt
 vi.mock('bcryptjs', () => {
   const hash = vi.fn();
@@ -30,6 +39,7 @@ vi.mock('bcryptjs', () => {
 
 describe('Signup API Security Validation', () => {
   beforeEach(() => {
+    supabaseMock.createUser.mockResolvedValue(createdUser());
     vi.clearAllMocks();
   });
 

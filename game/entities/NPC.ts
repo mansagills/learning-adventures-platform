@@ -37,7 +37,7 @@ export class NPC extends InteractableObject {
     npcName: string,
     dialog: DialogLine[],
     questConfigOrFinalDialogLine?: QuestGiverConfig | (() => void),
-    onFinalDialogLine?: () => void
+    onFinalDialogLine?: () => void,
   ) {
     super(scene, x, y, texture);
 

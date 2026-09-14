@@ -54,7 +54,7 @@
     "@types/node": "^20.8.10",
     "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.14",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
     "autoprefixer": "^10.4.16",
     "baseline-browser-mapping": "^2.8.28",
     "dotenv": "^17.2.3",
