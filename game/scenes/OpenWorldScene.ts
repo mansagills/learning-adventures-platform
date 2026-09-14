@@ -108,8 +108,6 @@ export class OpenWorldScene extends Phaser.Scene {
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
   private lastCameraChunk = { cx: -1, cy: -1 };
 
-  // Quest markers — keyed by buildingId
-  private questMarkers: Map<string, { marker: Phaser.GameObjects.Text; tween?: Phaser.Tweens.Tween }> = new Map();
   // Quest-giver NPCs — keyed by buildingId for status updates
   private questGiverNPCs: Map<string, NPC> = new Map();
 
@@ -226,7 +224,6 @@ export class OpenWorldScene extends Phaser.Scene {
 
     // Place Campus V1 buildings, NPCs, shop, and quest board
     this.createInteractables();
-    this.createCampusSignage();
 
     // Setup interaction key (SPACE)
     if (this.input.keyboard) {
@@ -518,14 +515,16 @@ export class OpenWorldScene extends Phaser.Scene {
     }
   };
 
-  private handleQuestStatusUpdate = (
-    markerData: { buildingId: string; status: 'available' | 'in_progress' | 'completed' | 'none' }[]
-  ) => this.updateQuestMarkers(markerData);
-
+  // NOTE: app/world/page.tsx emits 'quest-status-update', but this scene has
+  // no marker rendering to listen with — #158 added the listener and a call to
+  // updateQuestMarkers() without ever writing that method, so the event was
+  // never really handled here. WorldScene.setQuestMarker() is a complete
+  // implementation of the same feature for the other scene; reviving it here
+  // mainly needs marker positions for this map's buildings, which come from
+  // getBuildingDoorPositions() rather than WorldScene's hardcoded table.
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);
-    EventBus.on('quest-status-update', this.handleQuestStatusUpdate);
   }
 
   // ─── shutdown ────────────────────────────────────────────────────────────────
@@ -536,14 +535,7 @@ export class OpenWorldScene extends Phaser.Scene {
     this.cleanedUp = true;
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
-    EventBus.off('quest-status-update', this.handleQuestStatusUpdate);
 
-    // Destroy quest markers
-    this.questMarkers.forEach(({ marker, tween }) => {
-      tween?.destroy();
-      marker.destroy();
-    });
-    this.questMarkers.clear();
     this.questGiverNPCs.clear();
 
     // Clean up interactables before scene stops
