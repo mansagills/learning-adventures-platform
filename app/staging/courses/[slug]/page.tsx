@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 interface LessonData {
@@ -43,18 +43,7 @@ export default function StagingCoursePreviewPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
 
-  useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session || session?.role !== 'ADMIN') {
-      router.push('/unauthorized');
-      return;
-    }
-
-    fetchCourse();
-  }, [session, status, slug]);
-
-  const fetchCourse = async () => {
+  const fetchCourse = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/test-courses?slug=${slug}`);
       const data = await res.json();
@@ -76,7 +65,18 @@ export default function StagingCoursePreviewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session || session?.role !== 'ADMIN') {
+      router.push('/unauthorized');
+      return;
+    }
+
+    fetchCourse();
+  }, [session, status, slug, router, fetchCourse]);
 
   if (status === 'loading' || loading) {
     return (

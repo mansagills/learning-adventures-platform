@@ -36,64 +36,6 @@ const TOTAL_CHUNK_ROWS = WORLD_ROWS / CHUNK_TILE_ROWS;  // 6
  * The world is divided into a 6×6 grid of 16×12-tile chunks.
  * Only the 3×3 area of chunks surrounding the camera centre is active at any time.
  */
-// Quest-giver NPC definitions — buildingId matches Quest.buildingId in DB
-const QUEST_GIVERS: {
-  buildingId: string;
-  campusBuildingId: string;
-  building: string;
-  npcName: string;
-  doorTileCol: number;
-  doorTileRow: number;
-  questId: string;
-  questTitle: string;
-  questDescription: string;
-  xpReward: number;
-  coinReward: number;
-  greetingDialog: string;
-}[] = [
-  {
-    buildingId: 'math-building',
-    campusBuildingId: 'building_math_hall',
-    building: 'Math Hall',
-    npcName: 'Professor Pi',
-    doorTileCol: 14,
-    doorTileRow: 31,
-    questId: 'fraction-fundamentals',
-    questTitle: 'Fraction Fundamentals',
-    questDescription: 'Master fractions by completing the Fraction Frenzy game. Score 80% or higher!',
-    xpReward: 50,
-    coinReward: 25,
-    greetingDialog: 'Welcome to the Math Building! I have a quest for you, young mathematician.',
-  },
-  {
-    buildingId: 'science-building',
-    campusBuildingId: 'building_discovery_lab',
-    building: 'Discovery Lab',
-    npcName: 'Dr. Nova',
-    doorTileCol: 41,
-    doorTileRow: 8,
-    questId: 'lab-safety-basics',
-    questTitle: 'Lab Safety Basics',
-    questDescription: 'Pass the Lab Safety Quiz with a perfect score before entering the labs.',
-    xpReward: 40,
-    coinReward: 20,
-    greetingDialog: 'Safety goggles on! I have an important quest before you enter the lab.',
-  },
-  {
-    buildingId: 'business-building',
-    campusBuildingId: 'building_quest_board',
-    building: 'Quest Board',
-    npcName: 'CEO Cleo',
-    doorTileCol: 43,
-    doorTileRow: 43,
-    questId: 'entrepreneurship-101',
-    questTitle: 'Entrepreneurship 101',
-    questDescription: 'Learn the core concepts of entrepreneurship and identify 3 business ideas.',
-    xpReward: 50,
-    coinReward: 25,
-    greetingDialog: "Welcome, future entrepreneur! I've got just the quest to get you started.",
-  },
-];
 
 export class OpenWorldScene extends Phaser.Scene {
   protected player?: Player;
@@ -522,6 +464,13 @@ export class OpenWorldScene extends Phaser.Scene {
   // implementation of the same feature for the other scene; reviving it here
   // mainly needs marker positions for this map's buildings, which come from
   // getBuildingDoorPositions() rather than WorldScene's hardcoded table.
+  //
+  // A parallel hardcoded QUEST_GIVERS table also used to sit at the top of
+  // this file, carrying door tiles plus quest ids, rewards and greeting
+  // dialog. Nothing read it -- the scene already sources door positions from
+  // getBuildingDoorPositions() -- so it is removed here rather than left as
+  // a second source of truth. Recover it from git history (PR #182) if the
+  // quest metadata is wanted.
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);

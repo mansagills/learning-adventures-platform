@@ -26,6 +26,7 @@ const eslintConfig = [
       '.claude/**',
       '.next/**',
       'coverage/**',
+      'node_modules/**',
       'next-env.d.ts',
     ],
   },
@@ -36,22 +37,23 @@ const eslintConfig = [
     // \"@typescript-eslint\"") and eslint exits before linting anything.
     plugins: { '@typescript-eslint': tsPlugin },
     rules: {
-      // ── Baseline for a codebase that has never actually been linted ──────
-      // `next lint` could not read this flat config, so the CI lint step has
-      // been exiting on a setup prompt rather than running. Turning it on for
-      // the first time surfaces 272 pre-existing errors across ~100 files:
-      // 176 no-unused-vars and 92 react/no-unescaped-entities.
+      // These two were held at 'warn' when the lint gate was first switched
+      // on (#190), as a deliberate baseline for a codebase that had never
+      // actually been linted: 176 no-unused-vars and 92
+      // react/no-unescaped-entities, across ~100 files.
       //
-      // Those two are held at 'warn' so the gate reports them without failing
-      // the build on day one. Everything else — including parse errors and the
-      // Next.js correctness rules from next/core-web-vitals — still fails, so
-      // the gate is doing real work rather than being switched off. Burn the
-      // warnings down and promote these back to 'error'.
+      // That baseline has now been paid down (docs/LINT_DEBT.md, phases 1-10),
+      // so both are promoted back to 'error' as that config said to do. New
+      // violations fail the build rather than accumulating silently again.
+      //
+      // varsIgnorePattern matches the existing argsIgnorePattern convention:
+      // a leading underscore marks something intentionally unused, for
+      // variables as well as function arguments.
       '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_' },
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
-      'react/no-unescaped-entities': 'warn',
+      'react/no-unescaped-entities': 'error',
 
       // Cheap and mechanical, so these stay blocking.
       'prefer-const': 'error',

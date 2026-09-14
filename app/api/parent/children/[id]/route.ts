@@ -32,7 +32,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -80,7 +80,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -196,7 +196,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(

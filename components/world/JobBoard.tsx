@@ -27,12 +27,12 @@ interface JobBoardProps {
   onJobComplete: (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => void;
 }
 
-export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) {
+export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }: JobBoardProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [completedToday, setCompletedToday] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(5);
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, _setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -76,7 +76,7 @@ export function JobBoard({ onClose, onStartJob, onJobComplete }: JobBoardProps) 
     return `${m}m`;
   };
 
-  const availableCount = jobs.filter((j) => j.available).length;
+  const _availableCount = jobs.filter((j) => j.available).length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">

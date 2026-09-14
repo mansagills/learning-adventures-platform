@@ -9,7 +9,7 @@ const CHILD_SESSION_COOKIE = 'child_session';
  * POST /api/child/logout
  * End a child's session
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get(CHILD_SESSION_COOKIE)?.value;

@@ -133,7 +133,7 @@ export default function Step10FinalNotes() {
                     the selected urgency level
                   </li>
                   <li>
-                    • I agree to the platform's{' '}
+                    • I agree to the platform&apos;s{' '}
                     <a
                       href="/terms"
                       target="_blank"
@@ -183,7 +183,7 @@ export default function Step10FinalNotes() {
             </h4>
             <ol className="text-sm text-gray-700 space-y-2 ml-4 list-decimal">
               <li>
-                <strong>Confirmation Email</strong> - You'll receive an email
+                <strong>Confirmation Email</strong> - You&apos;ll receive an email
                 confirming we received your request
               </li>
               <li>
@@ -191,7 +191,7 @@ export default function Step10FinalNotes() {
                 request and may reach out with clarifying questions
               </li>
               <li>
-                <strong>Quote & Timeline</strong> - We'll send a detailed quote
+                <strong>Quote & Timeline</strong> - We&apos;ll send a detailed quote
                 and development timeline
               </li>
               <li>
@@ -199,11 +199,11 @@ export default function Step10FinalNotes() {
                 creates your custom content
               </li>
               <li>
-                <strong>Review & Launch</strong> - You'll get a preview to
+                <strong>Review & Launch</strong> - You&apos;ll get a preview to
                 approve before final delivery
               </li>
               <li>
-                <strong>Ongoing Support</strong> - We'll check in to ensure the
+                <strong>Ongoing Support</strong> - We&apos;ll check in to ensure the
                 course is meeting your goals
               </li>
             </ol>

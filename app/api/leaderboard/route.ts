@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { startOfWeek, startOfMonth, subWeeks, subMonths } from 'date-fns';
+import { startOfWeek, startOfMonth } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
 
       const userMap = new Map(users.map((u) => [u.id, u]));
 
-      leaderboard = progress.map((p, index) => {
+      leaderboard = progress.map((p, _index) => {
         const user = userMap.get(p.userId);
         return {
           userId: p.userId,

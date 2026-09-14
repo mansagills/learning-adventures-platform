@@ -98,7 +98,7 @@ Create a single HTML file interactive learning lesson for elementary students th
 export async function POST(request: NextRequest) {
   try {
     // Security check: Ensure user is authenticated and is an admin
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json(

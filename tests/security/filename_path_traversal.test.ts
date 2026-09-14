@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import path from 'path';
 import { getApiUser } from '@/lib/api-auth';
 import { authedAs } from '../helpers/apiUser';
 
@@ -47,7 +46,7 @@ const mockGetEntries = vi.fn().mockReturnValue([
 vi.mock('adm-zip', () => {
   return {
     default: class MockAdmZip {
-      constructor(path: string) {}
+      constructor(_path: string) {}
       extractAllTo = mockExtractAllTo;
       getEntries = mockGetEntries;
     },
