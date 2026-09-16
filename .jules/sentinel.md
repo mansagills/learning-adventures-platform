@@ -14,3 +14,9 @@
 1. Always use cryptographically secure random number generators for generating IDs, tokens, or any security-sensitive values.
 2. In Node.js or modern browsers, use `crypto.randomUUID()` or `crypto.randomBytes()`.
 3. Do not rely on `Math.random()` for anything other than non-security-critical randomness (e.g., visual effects, basic games).
+
+## 2025-02-23 - Predictable Randomness Vulnerability (Updated context)
+**Vulnerability:** The application used `Math.random()` to generate IDs for temporary files (`FileUploader.tsx`) and workflow identifiers (`ContentAgentOrchestrator.ts`).
+**Learning:** While initially flagged as a potential IDOR/predictability risk, further analysis revealed these IDs (`tempId` for in-flight React uploads and workflow IDs for in-memory logs) were not security tokens presented to the server. The actual defect was collision resistance—`Math.random().toString(36)` truncated to ~9 characters could cause collisions for multiple uploads in the same millisecond. Using `crypto.randomUUID()` resolves this collision risk.
+**Prevention:**
+1. Always use `crypto.randomUUID()` for unique IDs to ensure collision resistance, even if the ID is not used as a security token.
