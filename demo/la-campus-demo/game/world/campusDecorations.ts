@@ -96,6 +96,22 @@ interface Placement {
   raise?: boolean;
   /** Ground decal (manhole, grate): centered, drawn under everything. */
   flat?: boolean;
+  /**
+   * Override the invisible blocker's size, in rendered world px.
+   *
+   * The default below (48x40) is a base-tile footprint: you collide with the
+   * bottom of a prop and walk behind its upper part, which is what you want
+   * for a tree, a locker or a bookcase. It stops working once a prop is much
+   * wider than 48px, because then most of its base has no body at all and you
+   * can simply step in from either side.
+   *
+   * prop-clock-tower is the extreme case: 384x720 source art at SCALE renders
+   * 512x960, and its masonry is a near-constant 480px wide top to bottom, so a
+   * 48px blocker left ~90% of the base open. Since the tower reads as solid
+   * from the ground to the spire, it takes a body covering the whole silhouette
+   * rather than a footprint -- nobody expects to walk behind a clock tower.
+   */
+  blocker?: { w: number; h: number };
 }
 
 /** Looping animated props (spritesheets from the packs' Animated folders). */
@@ -181,7 +197,7 @@ const PLACEMENTS: Placement[] = [
 
   // ── Outdoors: landmarks near the central crossing ──────────────────────────
   // (fountain + school flag are animated — see ANIMATED_PLACEMENTS)
-  { key: 'prop-clock-tower', col: 23, row: 34.2, solid: true },
+  { key: 'prop-clock-tower', col: 23, row: 34.2, solid: true, blocker: { w: 480, h: 960 } },
   { key: 'prop-drinking-fountain', col: 58, row: 34.6, solid: true },
 
   // ── Basketball court (southwest yard, court art includes both hoops) ──────
@@ -325,9 +341,19 @@ export function placeCampusProps(
     img.setDepth(p.flat ? 1 : p.raise ? 6 : 5);
 
     if (p.solid) {
-      // Invisible blocker on the prop's base tile (same trick as stations)
-      const body = solids.create(x, y - T / 2, 'wall-tile') as Phaser.Physics.Arcade.Sprite;
-      body.setVisible(false).setDisplaySize(48, 40).refreshBody();
+      // Invisible blocker (same trick as stations). Defaults to a base-tile
+      // footprint; `blocker` overrides it for props whose art is far wider
+      // than one tile -- see the field's comment on Placement.
+      const w = p.blocker?.w ?? 48;
+      const h = p.blocker?.h ?? 40;
+      // Props draw with origin (0.5, 1), so the sprite occupies y-h .. y.
+      // An overridden blocker is centred over that span. The default keeps its
+      // original y - T/2 placement untouched: every other prop on the map was
+      // positioned against it by eye, and re-centring them would shift ~29
+      // working blockers to fix one broken one.
+      const cy = p.blocker ? y - h / 2 : y - T / 2;
+      const body = solids.create(x, cy, 'wall-tile') as Phaser.Physics.Arcade.Sprite;
+      body.setVisible(false).setDisplaySize(w, h).refreshBody();
     }
   });
 
