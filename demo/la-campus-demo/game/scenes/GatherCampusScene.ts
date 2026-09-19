@@ -11,15 +11,21 @@ import {
   GATHER_ROOMS,
   GATHER_STATIONS,
 } from '../world/gatherPresentation';
-import { exploration } from '../world/explorationState';
+import { exploration, EXPLORATION_ROOMS } from '../world/explorationState';
+import { chapter0, CHAPTER0_NPC_ID, professorGateDialogue } from '../world/chapter0';
+import { chapter1, CHAPTER1_GAME_ID, NULL_RUN_CABINET } from '../world/chapter1';
+import { storyItems } from '../world/storyItems';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
-import { preloadCampusProps, placeCampusProps } from '../world/campusDecorations';
+import { preloadCampusProps, placeCampusProps, getLampPositions } from '../world/campusDecorations';
 import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
+import { getIdentity, type PlayerIdentity } from '../world/playerIdentity';
+import { getWorldBootstrap } from '../worldBootstrap';
+import { hasSeenWelcome } from '../world/welcomeState';
 
 /**
  * Campus art source — switch here to compare looks (procedural futuristic
@@ -63,6 +69,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private isPaused = false;
   private extraInteractKey?: Phaser.Input.Keyboard.Key;
   private questGiver?: TalkableNPC;
+  /** Chapter 0 giver — Jaylen, the campus guide (docs/lore/chapters/chapter-0.md). */
+  private jaylen?: TalkableNPC;
   private questItems: Phaser.GameObjects.Image[] = [];
   /** Throttle for the exploration room check (no need to test every frame). */
   private nextExplorationCheck = 0;
@@ -74,6 +82,17 @@ export class GatherCampusScene extends OpenWorldScene {
   private shopDoor?: { x: number; y: number };
   private simStudents: TalkableNPC[] = [];
   private chatterTimer?: Phaser.Time.TimerEvent;
+  /** Demo identity (name tag/avatar picker) — sandbox only, never authed. */
+  private demoIdentityActive = false;
+  /** Cinematic intro flyover in progress (blocks double-starts). */
+  private introRunning = false;
+  // ── Ambient life (Tier 3) ──────────────────────────────────────────────────
+  private hoopsTimer?: Phaser.Time.TimerEvent;
+  /** Per-student greeting cooldown, keyed by npcId. */
+  private lastWaveAt = new Map<string, number>();
+  private nextGreetingAllowed = 0;
+  private nightOverlay?: Phaser.GameObjects.Rectangle;
+  private lampGlows: Phaser.GameObjects.Arc[] = [];
 
   constructor() {
     super('GatherCampusScene');
@@ -101,6 +120,18 @@ export class GatherCampusScene extends OpenWorldScene {
       applyRccTiles(this);
     } else if (CAMPUS_ART === 'modern') {
       applyModernTiles(this);
+    }
+
+    // Demo identity applies only to the sandbox. The authed /world/campus
+    // page provides a world bootstrap (the account's real character), and
+    // its avatar/name must never be overridden by sandbox-local identity —
+    // localStorage is shared per origin, so both pages see the same store.
+    this.demoIdentityActive = !getWorldBootstrap();
+
+    // Seed the avatar BEFORE super.create() spawns the player, so a chosen
+    // demo identity (welcome overlay) survives page reloads.
+    if (this.demoIdentityActive) {
+      this.game.registry.set('avatarId', getIdentity().avatarId);
     }
 
     super.create();
@@ -131,6 +162,10 @@ export class GatherCampusScene extends OpenWorldScene {
 
     this.setupQuest();
     this.setupWearables();
+    this.setupIdentity();
+    this.setupIntroCinematic();
+    this.setupCourtHoops();
+    this.setupDayNight();
 
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
@@ -154,6 +189,259 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.on('demo-economy-updated', this.updateWearable);
   }
 
+  // ─── Identity: demo name tag + avatar chosen on the welcome overlay ────────
+
+  private applyIdentity = (identity: PlayerIdentity) => {
+    EventBus.emit('set-player-name', { name: identity.name || null });
+    // Avatar texture swaps flow through the existing 'set-avatar' handler
+    // (OpenWorldScene), emitted by the overlay itself on selection.
+    // Jaylen greets the player by their chosen name — rebuild the dialogue
+    // for whichever story chapter he's currently running.
+    this.jaylen?.setQuestDialogue(
+      chapter0.isComplete ? chapter1.dialogue() : chapter0.dialogue()
+    );
+  };
+
+  private handleIdentityUpdated = (identity: PlayerIdentity) => {
+    this.applyIdentity(identity);
+  };
+
+  private setupIdentity(): void {
+    if (!this.demoIdentityActive) return;
+    // Player already exists (super.create()), so this initial emit lands.
+    this.applyIdentity(getIdentity());
+    // Live updates while the scene runs (welcome overlay save, demo reset).
+    EventBus.on('identity-updated', this.handleIdentityUpdated);
+  }
+
+  // ─── Cinematic intro: zoomed-out campus reveal gliding down to the player ──
+
+  private startIntroCinematic = () => {
+    if (this.introRunning || !this.player) return;
+    // Accessibility: honor OS-level reduced-motion preference
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+    this.introRunning = true;
+
+    // The flyover shows the whole map, so every chunk must exist and the
+    // per-frame streaming must not reclaim them mid-pan.
+    this.chunkStreamingPaused = true;
+    this.loadAllChunks();
+
+    const cam = this.cameras.main;
+    const worldW = this.physics.world.bounds.width;
+    const worldH = this.physics.world.bounds.height;
+    cam.stopFollow();
+    // Cover-fit: the smallest zoom that still fills the viewport with map
+    // (contain-fit would letterbox the void outside the world bounds).
+    cam.setZoom(Math.max(cam.width / worldW, cam.height / worldH));
+    cam.centerOn(worldW / 2, worldH / 2);
+
+    cam.zoomTo(1, 2500, Phaser.Math.Easing.Sine.InOut);
+    cam.pan(
+      this.player.x,
+      this.player.y,
+      2500,
+      Phaser.Math.Easing.Sine.InOut,
+      false,
+      (_c: Phaser.Cameras.Scene2D.Camera, progress: number) => {
+        if (progress === 1) this.finishIntroCinematic();
+      },
+    );
+  };
+
+  private finishIntroCinematic(): void {
+    if (!this.introRunning) return;
+    this.introRunning = false;
+    if (this.player) {
+      // Same follow params as OpenWorldScene.create(); the 0.1 lerp absorbs
+      // any drift if the player walked during the pan.
+      this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    }
+    this.chunkStreamingPaused = false;
+    this.trimChunksToCamera();
+  }
+
+  private setupIntroCinematic(): void {
+    // First visit: the welcome overlay covers the canvas, so the flyover
+    // waits for its "Start Exploring" click. Return visits (and demo
+    // replays via the test hook) start shortly after the scene boots.
+    EventBus.on('welcome-dismissed', this.startIntroCinematic);
+    EventBus.on('play-intro-cinematic', this.startIntroCinematic);
+    if (hasSeenWelcome()) {
+      this.time.delayedCall(400, this.startIntroCinematic);
+    }
+  }
+
+  // ─── Ambient life: hoops, greetings, day/night (Tier 3 polish) ────────────
+
+  /** Court students + the north hoop they shoot at (court decal is 13×16
+   *  centered at tile (24,49); the north rim sits ~row 46). */
+  private static readonly COURT_STUDENT_IDS = ['sim_kai', 'sim_nia'];
+  private static readonly HOOP = { x: 24 * TILE_SIZE, y: 46 * TILE_SIZE };
+
+  /** Demo/test controls: jump the sky to a phase, or trigger a shot now. */
+  private handleSetDayPhase = (data: { phase: number | null }) => {
+    this.forcedPhase =
+      data.phase === null || data.phase === undefined
+        ? null
+        : Phaser.Math.Clamp(data.phase, 0, 1);
+  };
+
+  private handleShootHoops = () => this.shootHoops();
+
+  private setupCourtHoops(): void {
+    EventBus.on('set-day-phase', this.handleSetDayPhase);
+    EventBus.on('shoot-hoops', this.handleShootHoops);
+    // A shot every ~7-10s: the court reads as an ongoing game, not a diorama.
+    this.hoopsTimer = this.time.addEvent({
+      delay: 7000,
+      loop: true,
+      callback: () => {
+        // Skip while paused (modal open) or off-camera — no wasted tweens.
+        if (this.isPaused) return;
+        this.shootHoops();
+      },
+    });
+  }
+
+  private shootHoops(): void {
+    const shooters = this.simStudents.filter((s) =>
+      GatherCampusScene.COURT_STUDENT_IDS.includes(s.npcId),
+    );
+    if (shooters.length === 0) return;
+    const shooter = Phaser.Utils.Array.GetRandom(shooters);
+    shooter.activityEmote('🏀', 1600);
+
+    const startX = shooter.x;
+    const startY = shooter.y - 18;
+    const target = GatherCampusScene.HOOP;
+
+    const hasBallArt = this.textures.exists('prop-basketball-1');
+    const ball: Phaser.GameObjects.Image | Phaser.GameObjects.Arc = hasBallArt
+      ? this.add.image(startX, startY, 'prop-basketball-1')
+      : this.add.circle(startX, startY, 9, 0xf97316);
+    if (hasBallArt) (ball as Phaser.GameObjects.Image).setDisplaySize(24, 24);
+    ball.setDepth(20);
+
+    // Parabolic arc: linear travel + a sine hop, so it reads as a real shot.
+    const prog = { t: 0 };
+    this.tweens.add({
+      targets: prog,
+      t: 1,
+      duration: 950,
+      ease: 'Sine.easeOut',
+      onUpdate: () => {
+        ball.x = Phaser.Math.Linear(startX, target.x, prog.t);
+        ball.y =
+          Phaser.Math.Linear(startY, target.y, prog.t) -
+          Math.sin(prog.t * Math.PI) * 86;
+      },
+      onComplete: () => {
+        ball.destroy();
+        const swish = this.add.text(target.x, target.y, '✨', { fontSize: '20px' });
+        swish.setOrigin(0.5).setDepth(21);
+        this.tweens.add({
+          targets: swish,
+          alpha: 0,
+          y: target.y - 34,
+          duration: 650,
+          onComplete: () => swish.destroy(),
+        });
+      },
+    });
+  }
+
+  /**
+   * A quick 👋 when the player walks *past* a sim student — near enough to
+   * notice, but outside conversation range (END_RADIUS 130) so it never
+   * competes with the walk-up chat. Throttled per student and globally.
+   */
+  private updateGreetings(time: number): void {
+    if (!this.player || time < this.nextGreetingAllowed) return;
+    for (const s of this.simStudents) {
+      const d = Phaser.Math.Distance.Between(s.x, s.y, this.player.x, this.player.y);
+      if (d < 165 || d > 310) continue;
+      const last = this.lastWaveAt.get(s.npcId) ?? -Infinity;
+      if (time - last < 25000) continue;
+      this.lastWaveAt.set(s.npcId, time);
+      this.nextGreetingAllowed = time + 4000; // never a chorus of waves
+      s.wave();
+      return;
+    }
+  }
+
+  /**
+   * Slow ambient day→dusk→night tint with the campus lamps glowing after
+   * dark. Deliberately gentle: night peaks at 34% so a presenter mid-pitch
+   * never loses the world to darkness, and the cycle starts at midday.
+   */
+  private static readonly DAY_CYCLE_MS = 240000; // 4 min round trip
+  private static readonly NIGHT_PEAK_ALPHA = 0.34;
+
+  private setupDayNight(): void {
+    const cam = this.cameras.main;
+    // NOTE: fill alpha must be 1 — Phaser multiplies a Shape's fillAlpha by
+    // its object alpha, so building it at 0 would make setAlpha() a no-op.
+    // Sized once, far larger than any viewport: a scrollFactor-0 quad shrinks
+    // on screen as the camera zooms out (the intro flyover), so an
+    // exactly-viewport-sized rect would leave the edges untinted.
+    this.nightOverlay = this.add.rectangle(-6000, -6000, 20000, 20000, 0x0a1330, 1);
+    this.nightOverlay.setAlpha(0);
+    this.nightOverlay.setOrigin(0, 0);
+    this.nightOverlay.setScrollFactor(0);
+    this.nightOverlay.setDepth(900); // above the world, below the React HUD
+    void cam;
+
+    this.lampGlows = getLampPositions().map((p) => {
+      const glow = this.add.circle(p.x, p.y - 26, 46, 0xffd27a, 1);
+      glow.setAlpha(0); // see fillAlpha note above
+      glow.setDepth(8);
+      glow.setBlendMode(Phaser.BlendModes.ADD);
+      return glow;
+    });
+  }
+
+  /** Test/demo override for the cycle phase (0..1); null = follow the clock. */
+  private forcedPhase: number | null = null;
+
+  /** 0 = full day, 1 = deepest night. */
+  private nightFactor(time: number): number {
+    const phase =
+      this.forcedPhase ??
+      (time % GatherCampusScene.DAY_CYCLE_MS) / GatherCampusScene.DAY_CYCLE_MS;
+    // Cosine so dawn/dusk ease in and out instead of stepping.
+    return (1 - Math.cos(phase * Math.PI * 2)) / 2;
+  }
+
+  private updateDayNight(time: number): void {
+    if (!this.nightOverlay) return;
+    const n = this.nightFactor(time);
+    this.nightOverlay.setAlpha(n * GatherCampusScene.NIGHT_PEAK_ALPHA);
+    // Lamps kick in through dusk, full bright at night.
+    const lampAlpha = Phaser.Math.Clamp((n - 0.25) / 0.5, 0, 1) * 0.5;
+    for (const g of this.lampGlows) g.setAlpha(lampAlpha);
+
+    // Publish the sky state when it meaningfully changes (HUD/test visibility).
+    if (Math.abs(n - this.lastPublishedNight) > 0.02) {
+      this.lastPublishedNight = n;
+      EventBus.emit('day-night-updated', {
+        night: n,
+        overlayAlpha: this.nightOverlay.alpha,
+        overlayVisible: this.nightOverlay.visible,
+        overlayDepth: this.nightOverlay.depth,
+        lampAlpha,
+        lamps: this.lampGlows.length,
+      });
+    }
+  }
+
+  private lastPublishedNight = -1;
+
   /** Mark the room the player is standing inside (if any) as explored. */
   private checkExploration(time: number): void {
     if (!this.player || time < this.nextExplorationCheck) return;
@@ -165,9 +453,50 @@ export class GatherCampusScene extends OpenWorldScene {
       // Strictly inside the walls (walking past outside doesn't count)
       if (col > room.c0 && col < room.c1 && row > room.r0 && row < room.r1) {
         exploration.markVisited(room.id);
+        // Chapter 0 Spark ignition — fires on entering ANY building while the
+        // chapter is in its explore stage. Uses the scene check (not the
+        // exploration event) because exploration persists across reloads and
+        // never re-fires for already-visited rooms.
+        const label = EXPLORATION_ROOMS.find((r) => r.id === room.id)?.label ?? room.id;
+        if (chapter0.enterBuilding(label)) {
+          this.playSparkIgnition();
+          this.jaylen?.setQuestDialogue(chapter0.dialogue());
+        }
         return;
       }
     }
+  }
+
+  /** One-shot Spark ignition VFX — a warm light waking up at the player
+   *  (Chapter 0, Scene 4: "barely visible... easy to miss" made demo-visible). */
+  private playSparkIgnition(): void {
+    if (!this.player) return;
+    const { x, y } = this.player;
+    for (let i = 0; i < 3; i++) {
+      const ring = this.add.circle(x, y - 8, 6, 0xffa726, 0.85);
+      ring.setDepth(this.player.depth + 2);
+      ring.setBlendMode(Phaser.BlendModes.ADD);
+      this.tweens.add({
+        targets: ring,
+        radius: 46 + i * 14,
+        alpha: 0,
+        delay: i * 220,
+        duration: 750,
+        ease: 'Cubic.easeOut',
+        onComplete: () => ring.destroy(),
+      });
+    }
+    const core = this.add.circle(x, y - 8, 4, 0xfff3c4, 1);
+    core.setDepth(this.player.depth + 2);
+    core.setBlendMode(Phaser.BlendModes.ADD);
+    this.tweens.add({
+      targets: core,
+      radius: 14,
+      alpha: 0,
+      duration: 1100,
+      ease: 'Sine.easeOut',
+      onComplete: () => core.destroy(),
+    });
   }
 
   // ─── Demo quest: Professor Numbers → power cells → Math Race Rally 80+ ──────
@@ -187,8 +516,21 @@ export class GatherCampusScene extends OpenWorldScene {
       g.destroy();
     }
 
-    this.questGiver.setQuestDialogue(mathQuest.dialogue());
-    EventBus.emit('quest-updated', mathQuest.snapshot());
+    // Jaylen runs the STORY arc: Chapter 0 (onboarding) then Chapter 1 (Null).
+    // Professor Numbers gates the Racing License side-quest behind Chapter 0.
+    this.jaylen = this.npcs.find((n) => n.npcId === CHAPTER0_NPC_ID);
+    if (chapter0.isComplete) {
+      // Ch0 done → Jaylen offers Chapter 1; the tracked quest is the story.
+      chapter1.unlock(); // locked → offer (no-op if already further along)
+      this.jaylen?.setQuestDialogue(chapter1.dialogue());
+      this.questGiver.setQuestDialogue(mathQuest.dialogue());
+      EventBus.emit('quest-updated', chapter1.snapshot());
+    } else {
+      this.jaylen?.setQuestDialogue(chapter0.dialogue());
+      this.questGiver.setQuestDialogue(professorGateDialogue());
+      EventBus.emit('quest-updated', chapter0.snapshot());
+    }
+    storyItems.announce();
 
     EventBus.on('npc-conversation-end', this.handleQuestConversation);
     EventBus.on('adventure-completed', this.handleQuestGameResult);
@@ -232,6 +574,28 @@ export class GatherCampusScene extends OpenWorldScene {
 
   /** Where should the player go right now? null = no guidance (all done). */
   private questTarget(): { x: number; y: number } | null {
+    // Chapter 0 first: point at Jaylen for the intro; once exploring, the
+    // whole point is "follow what pulls at you" — no arrow (free choice).
+    if (!chapter0.isComplete) {
+      switch (chapter0.currentStage) {
+        case 'meet':
+          return this.jaylen ? { x: this.jaylen.x, y: this.jaylen.y } : null;
+        case 'ignite':
+        case 'play':
+          return null;
+      }
+    }
+    // Chapter 1 (the story headline) takes the arrow until it's done: Jaylen
+    // for the briefing, the Null Run cabinet in Math Hall for the run.
+    if (chapter0.isComplete && !chapter1.isComplete) {
+      switch (chapter1.currentStage) {
+        case 'locked':
+        case 'offer':
+          return this.jaylen ? { x: this.jaylen.x, y: this.jaylen.y } : null;
+        case 'play':
+          return { x: NULL_RUN_CABINET.x, y: NULL_RUN_CABINET.y };
+      }
+    }
     switch (mathQuest.currentStage) {
       case 'available':
       case 'return':
@@ -355,7 +719,37 @@ export class GatherCampusScene extends OpenWorldScene {
   }
 
   private handleQuestConversation = (data: { npcId: string; completed: boolean }) => {
-    if (data.npcId !== QUEST_NPC_ID || !data.completed || !this.questGiver) return;
+    if (!data.completed) return;
+
+    // Jaylen drives the story arc.
+    if (data.npcId === CHAPTER0_NPC_ID && this.jaylen) {
+      if (!chapter0.isComplete) {
+        // Chapter 0: finishing his intro conversation starts the exploration
+        chapter0.beginExploring();
+        this.jaylen.setQuestDialogue(chapter0.dialogue());
+        return;
+      }
+      // Chapter 1: offer briefing → accept → (re)open Null Run
+      switch (chapter1.currentStage) {
+        case 'offer':
+          chapter1.accept(); // briefing shown; now go run the Null field
+          break;
+        case 'play':
+          // talking again re-opens Null Run for another attempt
+          EventBus.emit('open-adventure', { adventureId: CHAPTER1_GAME_ID, type: 'game' });
+          break;
+      }
+      this.jaylen.setQuestDialogue(chapter1.dialogue());
+      return;
+    }
+
+    if (data.npcId !== QUEST_NPC_ID || !this.questGiver) return;
+
+    // Professor Numbers redirects to Jaylen until Chapter 0 is done
+    if (!chapter0.isComplete) {
+      this.questGiver.setQuestDialogue(professorGateDialogue());
+      return;
+    }
 
     switch (mathQuest.currentStage) {
       case 'available':
@@ -376,6 +770,35 @@ export class GatherCampusScene extends OpenWorldScene {
   };
 
   private handleQuestGameResult = (data: { adventureId: string; score?: number }) => {
+    // Chapter 0: ANY game clear completes it (low-stakes by design). On
+    // completion, Professor Numbers' quest unlocks — the tracker celebrates,
+    // then hands the objective over to the Racing License arc.
+    if (chapter0.currentStage === 'play') {
+      if (chapter0.completePlay()) {
+        // Ch0 debrief plays; Chapter 1 unlocks and becomes the tracked story
+        // quest (Jaylen offers it). Racing License stays a side quest.
+        chapter1.unlock();
+        this.jaylen?.setQuestDialogue(chapter1.dialogue());
+        this.jaylen?.celebrate();
+        this.questGiver?.setQuestDialogue(mathQuest.dialogue());
+        this.time.delayedCall(600, () => {
+          EventBus.emit('quest-updated', chapter1.snapshot());
+        });
+      }
+      return;
+    }
+
+    // Chapter 1: a Null Run clear with score >= 80 finishes the quest and
+    // grants the Null Fragment (first clear only, via storyItems).
+    if (chapter1.currentStage === 'play' && data.adventureId === CHAPTER1_GAME_ID) {
+      if (chapter1.reportScore(data.score)) {
+        this.jaylen?.setQuestDialogue(chapter1.dialogue());
+        this.jaylen?.celebrate();
+        this.simStudents.forEach((s) => s.celebrate());
+      }
+      return;
+    }
+
     if (data.adventureId !== QUEST_GAME_ID) return;
     const completed = mathQuest.reportScore(data.score);
     this.questGiver?.setQuestDialogue(mathQuest.dialogue());
@@ -503,6 +926,8 @@ export class GatherCampusScene extends OpenWorldScene {
 
     this.checkExploration(time);
     this.updateQuestGuidance(time);
+    this.updateGreetings(time);
+    this.updateDayNight(time);
 
     // Proximity conversations — only one NPC may talk at a time
     let talkingNpc: TalkableNPC | null = null;
@@ -546,8 +971,20 @@ export class GatherCampusScene extends OpenWorldScene {
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
     EventBus.off('demo-economy-updated', this.updateWearable);
+    EventBus.off('identity-updated', this.handleIdentityUpdated);
+    EventBus.off('welcome-dismissed', this.startIntroCinematic);
+    EventBus.off('play-intro-cinematic', this.startIntroCinematic);
     this.chatterTimer?.remove();
     this.chatterTimer = undefined;
+    EventBus.off('set-day-phase', this.handleSetDayPhase);
+    EventBus.off('shoot-hoops', this.handleShootHoops);
+    this.hoopsTimer?.remove();
+    this.hoopsTimer = undefined;
+    this.lampGlows.forEach((g) => g.destroy());
+    this.lampGlows = [];
+    this.nightOverlay?.destroy();
+    this.nightOverlay = undefined;
+    this.lastWaveAt.clear();
     stopAmbience();
     this.questItems.forEach((c) => c.destroy());
     this.questItems = [];

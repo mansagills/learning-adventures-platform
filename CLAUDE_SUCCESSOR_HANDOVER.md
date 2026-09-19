@@ -262,13 +262,23 @@ blood:
 
 - **Branch:** `claude-demo-gather` — all demo work. History is descriptive;
   read `git log --oneline` for the feature inventory.
-- **Public deploy:** Vercel project `claude-campus-demo`, Root Directory
+- **Public deploy:** Vercel project **`learning-adventures-platform-2mxb`**
+  (an earlier draft of this doc said `claude-campus-demo` — wrong), live at
+  **https://learning-adventures-platform-2mxb.vercel.app**, Root Directory
   `demo/la-campus-demo` on `main`. Zero env vars needed (verified). `/`
   307-redirects to `/dev/campus-sandbox`. Its README documents what was
   removed and how to re-sync. **Sync is manual**: copy `game/`,
   `components/world/`, `components/phaser/`, `app/dev/campus-sandbox/` —
   do NOT re-copy `app/api`, `middleware.ts`, or other pages (that's what
-  required the trim).
+  required the trim). Full step-by-step procedure lives in
+  `GATHER_DEMO_FUTURE_FEATURES.md`. Two traps: **never copy
+  `app/dev/campus-sandbox/page.tsx` wholesale** (its production
+  `return null` guard + red DEV banner would blank the public demo —
+  hand-merge the feature lines and keep the indigo public banner), and
+  **poll the public alias, not the `...-<hash>.vercel.app` deployment URL**
+  (that one is gated by deployment-protection auth and never returns 200,
+  so a "waiting for deploy" loop hangs forever while the site is actually
+  live).
 - **Sandbox:** `/dev/campus-sandbox` — no auth, full test hooks, the page
   investors see. Authed twin: `/world/campus` (needs Supabase + character;
   Supabase has graceful-degradation guards in `lib/supabase/middleware.ts`
@@ -293,10 +303,77 @@ blood:
 - **Useful test coordinates:** prof (960, 2040); cells (1920, 2272),
   (3040, 768), (3040, 3520); central plaza (3040, 2272); Math Hall interior
   ~(752, 1900); `TILE_SIZE = 64`, world 6144×4608.
-- **Docs:** `GATHER_DEMO_FUTURE_FEATURES.md` (next features, ranked — the
-  user's chosen reference), `GATHER_ASSET_INTEGRATION_GUIDE.md` (art
-  options, licenses, swap procedure), plus the original GATHER_* planning
-  suite (partly obsolete — the code is ahead of the plans; trust code).
+- **Docs:** `GATHER_DEMO_FUTURE_FEATURES.md` (**start here** — now the
+  status record: what shipped, the parking lot, the full snapshot-sync
+  procedure, and every test hook), `docs/lore/` (the Season 1 story bible —
+  `SEASON_1_ARC.md`, `QUEST_DEV_BRIEF.md`, `characters/jaylen.md`,
+  `chapters/chapter-0.md`, `factions/the-academy.md`, `timeline.md`),
+  `GATHER_ASSET_INTEGRATION_GUIDE.md` (art options, licenses, swap
+  procedure), plus the original GATHER_* planning suite (partly obsolete —
+  the code is ahead of the plans; trust code).
+
+---
+
+## 8. What changed after this handover was written (as of 2026-07-26)
+
+Everything in §1–7 still holds — the seam, the discipline, the failure
+modes. This section is just the newer inventory. **All of it is live on
+the public demo.**
+
+**The demo is now a story, not a sandbox tour.** Full flow: name +
+avatar picker → cinematic flyover → Chapter 0 (Jaylen onboards, Spark
+ignites on entering any building, any game clears it, +50 XP) → Chapter 1
+(Jaylen sends you to Null Run in Math Hall; score ≥80 grants the Null
+Fragment + 150 XP) → ambient campus life around all of it.
+
+**New systems, all following the §2 recipe (pure state module → scene
+wiring → React chip → test hook):**
+- `playerIdentity.ts` — name + avatar, `gather-demo-identity`.
+- `chapter0.ts` / `chapter1.ts` — stage machines, in-memory like
+  `mathQuest.ts`. Jaylen (`npc_jaylen_guide`) is the story quest-giver;
+  Professor Numbers' Racing License is now a **side** quest gated behind
+  Chapter 0.
+- `storyItems.ts` — persistent, **first-clear-only** story items
+  (`gather-demo-story-items`); grants the Null Fragment. `StoryItemsChip.tsx`
+  shows them in the HUD.
+- `public/games/null-run.html` — the platform's **first canvas action
+  game** (delta-time rAF loop, no prior side-scroller existed to copy).
+  Side-scrolling math shooter; frozen→restored color arc; deterministic
+  0–100 accuracy score (no RNG, satisfies the Quest Dev Brief); shootable
+  ice debris for a separate bonus tally that is deliberately **not**
+  posted; own touch controls. Placed as a `GATHER_STATIONS` cabinet in
+  Math Hall (col 12, row 32). `adventureId` auto-resolves to
+  `/games/{id}.html` — no `GAME_MAP` entry needed.
+- Ambient life in `GatherCampusScene`: `shootHoops()`, `updateGreetings()`,
+  `updateDayNight()`; `TalkableNPC.wave()` / `.activityEmote()`;
+  `getLampPositions()` exported from `campusDecorations.ts`.
+- New localStorage keys beyond §7's list: `gather-demo-identity`,
+  `gather-demo-story-items`.
+
+**Scars worth keeping (in the spirit of §6):**
+- **Phaser Shape alpha trap.** `this.add.rectangle(...,color, 0)` /
+  `add.circle(...,color, 0)` sets *fillAlpha* 0, and Phaser multiplies
+  fillAlpha by object alpha — so every later `setAlpha()` is a silent
+  no-op that renders nothing and throws nothing. Build shapes with
+  fillAlpha **1**, then `setAlpha(0)`.
+- **Don't judge subtle visuals by eye.** I twice declared a *working*
+  day/night tint "not darkening" from looking at screenshots, and made one
+  unnecessary change on that bad read. Measuring settled it instantly
+  (PIL mean RGB: day 155 → night 108; the genuinely broken build measured
+  identical across all three phases). For any low-contrast visual, diff
+  mean pixel values between states rather than trusting your eyes.
+- **Teleport probes race the intro flyover.** The cinematic pans to the
+  player's *pre-teleport* position, so a teleport within ~9s of boot leaves
+  the camera showing the old spot — it looks like the teleport failed.
+  Wait for the flyover to finish before screenshotting.
+- **`npx tsx` can't resolve named exports from `game/world/*`** (tried to
+  dump the tilemap in Node to check walkability — `TILE`,
+  `carveGatherRooms` both failed to import). Probe the running game
+  instead: teleport the player to candidate coordinates and screenshot.
+  That's how the basketball-court patrol lines were validated, and it's
+  more trustworthy anyway (§3: verify with your eyes, not arithmetic).
+- The **`page.tsx` hand-merge** and **public-alias polling** traps are
+  documented under "Public deploy" above — both cost real time.
 
 ---
 

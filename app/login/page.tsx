@@ -16,9 +16,9 @@ function LoginInner() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.replace('/');
+      if (user) router.replace(callbackUrl?.startsWith('/') ? callbackUrl : '/');
     });
-  }, []);
+  }, [callbackUrl, router, supabase.auth]);
 
   return <LoginPageContent defaultMode={mode} callbackUrl={callbackUrl} />;
 }

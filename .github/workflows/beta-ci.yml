@@ -14,6 +14,22 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    # Placeholder config, mirroring the build job below. These are fake values
+    # for a CI runner with no Supabase project — never real credentials.
+    #
+    # The suite passes without these: the tests that touch Supabase now mock
+    # the client directly (tests/helpers/supabaseAdmin.ts). They are kept for
+    # parity with the build job, so a test that does construct a client fails
+    # on its own logic rather than on "supabaseUrl is required".
+    env:
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
+      DIRECT_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-placeholder-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "ci-placeholder-service-role-key"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      CHILD_SESSION_SECRET: "ci-placeholder-child-session-secret"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +41,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -44,12 +60,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    # CHILD_SESSION_SECRET is required, not optional padding: lib/childAuth.ts
+    # throws at module scope if it is unset, and `next build` imports every
+    # route module during "Collecting page data" - so /api/child/login and
+    # /api/child/logout failed the build outright. That guard is a deliberate
+    # fail-fast (a child session token must never be signed with a default or
+    # guessable key), so it is fed a placeholder here rather than softened.
+    # Nothing is signed at build time; a real value belongs in the deployment
+    # environment, as .env.local.example already documents.
     env:
       DATABASE_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
       DIRECT_URL: "postgresql://user:pass@localhost:5432/testdb?sslmode=disable"
       NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "ci-placeholder-anon-key"
       NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      CHILD_SESSION_SECRET: "ci-placeholder-child-session-secret"
 
     steps:
       - name: Checkout code
@@ -62,7 +87,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Generate Prisma client
         run: npx prisma generate

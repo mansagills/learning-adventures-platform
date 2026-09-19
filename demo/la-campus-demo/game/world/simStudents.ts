@@ -218,6 +218,52 @@ const SIM_STUDENTS: SimStudentDef[] = [
       ],
     ],
   },
+  // ── Basketball court (southwest yard) ──────────────────────────────────────
+  // The court decal is 13×16 tiles centered at (24, 49) → cols 17.5-30.5,
+  // rows 41-57. These two patrol short horizontal lines well inside the
+  // painted asphalt (verified in-game at (20,49), (24,49) and (28,49)); the
+  // only solid props out here — the stands (col 14.5) and stadium lights
+  // (cols 16.5 / 31.5) — sit outside their range, so the lines stay clear.
+  {
+    id: 'sim_kai',
+    name: 'Kai',
+    charKey: 'human-2',
+    speed: 100, // hustles up and down the court
+    waypoints: [
+      { x: 22 * T, y: 48 * T, pauseMs: 3200, emote: '🏀' },
+      { x: 27 * T, y: 48 * T, pauseMs: 3600, emote: '🏀' },
+    ],
+    lineSets: [
+      [
+        'You hoop? We\'ve got a game going — first to eleven.',
+        'Fair warning: Nia has not missed a free throw all week.',
+      ],
+      [
+        'Best part of campus, right here. Nobody ever books the court.',
+        'Come shoot around after your quests. I\'ll rebound for you.',
+      ],
+    ],
+  },
+  {
+    id: 'sim_nia',
+    name: 'Nia',
+    charKey: 'cat-orange',
+    speed: 85,
+    waypoints: [
+      { x: 27 * T, y: 51 * T, pauseMs: 4000, emote: '🏀' },
+      { x: 23 * T, y: 51 * T, pauseMs: 3400, emote: '💪' },
+    ],
+    lineSets: [
+      [
+        'Twenty-two in a row. I\'m counting. Kai says he isn\'t counting.',
+        'He\'s definitely counting.',
+      ],
+      [
+        'Shooting\'s just angles and practice — same as the math stuff inside.',
+        'That\'s not me being a nerd about it. That\'s just true.',
+      ],
+    ],
+  },
 ];
 
 /**

@@ -340,8 +340,31 @@ export class OpenWorldScene extends Phaser.Scene {
     this.updateChunks();
   }
 
+  /**
+   * While true, per-frame chunk streaming is skipped entirely. Used by the
+   * intro flyover (GatherCampusScene): every chunk is pre-loaded and the
+   * camera sweeps the whole map, so streaming would blank tiles mid-pan.
+   */
+  protected chunkStreamingPaused = false;
+
+  /** Force-load every chunk in the world (intro flyover establishing shot). */
+  protected loadAllChunks(): void {
+    for (let cy = 0; cy < TOTAL_CHUNK_ROWS; cy++) {
+      for (let cx = 0; cx < TOTAL_CHUNK_COLS; cx++) {
+        this.createChunk(cx, cy);
+      }
+    }
+  }
+
+  /** Drop chunks outside the 3×3 around the camera (after the flyover). */
+  protected trimChunksToCamera(): void {
+    this.lastCameraChunk = { cx: -1, cy: -1 };
+    this.updateChunks();
+  }
+
   /** Create/destroy chunks so only the 3×3 area around the camera is loaded. */
   private updateChunks(): void {
+    if (this.chunkStreamingPaused) return;
     const { cx, cy } = this.getCameraChunk();
     if (cx === this.lastCameraChunk.cx && cy === this.lastCameraChunk.cy) return;
     this.lastCameraChunk = { cx, cy };

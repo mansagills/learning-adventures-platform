@@ -7,10 +7,7 @@
 3. Test security controls with valid AND invalid data to ensure they don't break functionality.
 4. Use established libraries/helpers (like `extractZipSafely`) instead of ad-hoc implementation.
 
-## 2025-02-23 - Zip Bomb (Decompression Bomb) DoS Risk in AdmZip
-**Vulnerability:** Across `safe-zip.ts`, `gamePackageHandler.ts`, and `coursePackageHandler.ts`, the `adm-zip` library was used to call `entry.getData()` on zip file entries without first verifying the uncompressed size (`entry.header.size`). Because `getData()` buffers the entire uncompressed file into memory, an attacker could upload a small zip containing a highly compressed massive file (a Zip Bomb) causing a Denial-of-Service (OOM crash).
-**Learning:** Even when protecting against Zip Slip (path traversal), Zip Bombs are a separate attack vector that must be explicitly mitigated. Any library that reads file contents into memory must be gated by a maximum size check.
-**Prevention:**
-1. Always enforce a reasonable size limit (e.g., 50MB for game/lesson files, 1MB for metadata) by checking `entry.header.size` before calling `.getData()`.
-2. When mocking AdmZip entries in tests, include a mock `header: { size: <number> }` so these security limits don't break existing tests.
-3. Be aware that the project duplicates some backend logic (like `lib/safe-zip.ts`) into demo apps (`demo/la-campus-demo/lib/safe-zip.ts`), and fixes must be applied to both.
+## 2024-05-27 - [CRITICAL] Prevent Database Connection Pool Exhaustion in Serverless Environments
+**Vulnerability:** Direct instantiation of `PrismaClient` in API routes (`new PrismaClient()`) combined with `await prisma.$disconnect()` in a serverless environment (Next.js API routes). This creates new connection pools on every request, which can rapidly exhaust the database connection limits, causing a Denial-of-Service (DoS) condition.
+**Learning:** In a serverless architecture like Next.js, each API route invocation may spawn a new execution context. Creating a new PrismaClient instance in each handler leads to uncontrolled connection pooling. The `.disconnect()` method does not resolve this completely and adds overhead.
+**Prevention:** Never instantiate `new PrismaClient()` directly inside API route handlers or module scope within API routes. Always import the shared Prisma singleton instance (e.g., `import { prisma } from '@/lib/prisma'`), which reuses a single connection pool across hot reloads in development and execution contexts in production. Remove any manual `prisma.$disconnect()` calls.
