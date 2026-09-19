@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
@@ -19,7 +18,7 @@ interface WelcomeOverlayProps {
    * the authed /world/campus page gets its avatar from the account, so it
    * must NOT pass this.
    */
-
+  identityPicker?: boolean;
 }
 
 /**

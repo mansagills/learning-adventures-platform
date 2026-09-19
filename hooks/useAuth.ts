@@ -65,27 +65,11 @@ export function useAuth(): UseAuthReturn {
           });
           setStatus('authenticated');
         } else {
-          setUser({
-            id: supabaseUser.id,
-            email: supabaseUser.email || '',
-            name: supabaseUser.email?.split('@')[0] || 'User',
-            image: null,
-            role: 'STUDENT',
-            gradeLevel: null,
-            subjects: [],
-          });
+          setUser(fallbackUser(supabaseUser));
           setStatus('authenticated');
         }
       } catch {
-        setUser({
-            id: supabaseUser.id,
-            email: supabaseUser.email || '',
-            name: supabaseUser.email?.split('@')[0] || 'User',
-            image: null,
-            role: 'STUDENT',
-            gradeLevel: null,
-            subjects: [],
-        });
+        setUser(fallbackUser(supabaseUser));
         setStatus('authenticated');
       }
     };

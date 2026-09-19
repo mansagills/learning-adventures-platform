@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -234,7 +233,7 @@ export default function CampusSandboxPage() {
         Learning Adventures — Campus Demo Preview
       </div>
 
-      {showWelcome && <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />}
+      {showWelcome && <WelcomeOverlay identityPicker onDismiss={() => setShowWelcome(false)} />}
     </div>
   );
 }

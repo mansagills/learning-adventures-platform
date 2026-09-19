@@ -1,4 +1,3 @@
-// import removed
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import path from 'path';
@@ -20,7 +19,7 @@ vi.mock('@/lib/auth', () => ({
   authOptions: {},
 }));
 
-
+import { POST } from '@/app/api/internal/save-content/route';
 
 const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -83,7 +82,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 
 // Import after mocking
-
+import { POST } from '@/app/api/internal/save-content/route';
 
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
