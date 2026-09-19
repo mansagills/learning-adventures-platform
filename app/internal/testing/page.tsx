@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface TestGame {
@@ -98,8 +98,7 @@ interface Feedback {
 }
 
 export default function TestingAdminPage() {
-  const { user: session, status } = useAuth();
-  const router = useRouter();
+  const { status } = useAuth();
   const searchParams = useSearchParams();
 
   // Tab management
@@ -154,7 +153,7 @@ export default function TestingAdminPage() {
   // Handle URL params for tab and selection
   useEffect(() => {
     const tab = searchParams.get('tab');
-    const selectId = searchParams.get('select');
+    const _selectId = searchParams.get('select');
 
     if (tab === 'courses') {
       setActiveTab('courses');

@@ -25,6 +25,17 @@ interface FileUploaderProps {
   maxFileSizeMB?: number;
 }
 
+const ALLOWED_EXTENSIONS = [
+  '.md',
+  '.pdf',
+  '.docx',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+];
+
 export default function FileUploader({
   conversationId,
   onFileUploaded,
@@ -34,7 +45,7 @@ export default function FileUploader({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const allowedTypes = [
+  const _allowedTypes = [
     'text/markdown',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -45,26 +56,15 @@ export default function FileUploader({
     'image/webp',
   ];
 
-  const allowedExtensions = [
-    '.md',
-    '.pdf',
-    '.docx',
-    '.png',
-    '.jpg',
-    '.jpeg',
-    '.gif',
-    '.webp',
-  ];
-
-  const isImageFile = (fileName: string): boolean => {
+  const isImageFile = useCallback((fileName: string): boolean => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '');
-  };
+  }, []);
 
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     // Check file type
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!allowedExtensions.includes(extension)) {
+    if (!ALLOWED_EXTENSIONS.includes(extension)) {
       return `File type not supported. Please upload MD, PDF, DOCX, or image files (PNG, JPG, GIF, WEBP).`;
     }
 
@@ -75,9 +75,9 @@ export default function FileUploader({
     }
 
     return null;
-  };
+  }, [maxFileSizeMB]);
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (file: File) => {
     const tempId = crypto.randomUUID();
 
     // Create preview URL for images
@@ -143,9 +143,9 @@ export default function FileUploader({
         )
       );
     }
-  };
+  }, [conversationId, onFileUploaded, isImageFile]);
 
-  const handleFiles = (files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | null) => {
     if (!files) return;
 
     Array.from(files).forEach((file) => {
@@ -156,7 +156,7 @@ export default function FileUploader({
       }
       uploadFile(file);
     });
-  };
+  }, [validateFile, uploadFile]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -172,7 +172,7 @@ export default function FileUploader({
     e.preventDefault();
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
-  }, []);
+  }, [handleFiles]);
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(e.target.files);

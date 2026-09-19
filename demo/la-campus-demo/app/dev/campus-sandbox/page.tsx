@@ -133,6 +133,26 @@ export default function CampusSandboxPage() {
       hasSeenWelcome,
       resetWelcome: () => { resetWelcomeSeen(); setShowWelcome(true); },
       resetDemo,
+      // Resolves with every NPC's position + physics body (collision testing)
+      npcs: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('npc-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('npc-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
+      // Resolves with physics-world totals (collider/body leak testing)
+      physics: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('physics-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('physics-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -166,8 +186,11 @@ export default function CampusSandboxPage() {
     EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showWelcome));
   }, [currentAdventure, showShop, showWelcome]);
 
+  // Dark ground, not cream: the Phaser canvas is a fixed 16:9 FIT, so
+  // whatever sits behind it shows as letterbox bars on other aspect ratios —
+  // dark reads as part of the game, cream reads as a rendering bug.
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
+    <div className="relative w-full h-screen overflow-hidden bg-[#050810]">
       <div className="absolute inset-0">
         <PhaserGame variant="gather" />
       </div>
@@ -229,8 +252,9 @@ export default function CampusSandboxPage() {
         </div>
       )}
 
-      <div className="absolute top-4 left-4 bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">
-        Learning Adventures — Campus Demo Preview
+      {/* Shortened on narrow screens so it never runs under the XP chip */}
+      <div className="absolute top-4 left-4 max-w-[55vw] truncate bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">
+        <span className="hidden sm:inline">Learning Adventures — </span>Campus Demo Preview
       </div>
 
       {showWelcome && <WelcomeOverlay identityPicker onDismiss={() => setShowWelcome(false)} />}

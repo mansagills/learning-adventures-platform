@@ -182,7 +182,7 @@ function GamesContent() {
               )}
               {searchQuery && (
                 <span className="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-sm font-medium flex items-center gap-1">
-                  "{searchQuery}"
+                  &quot;{searchQuery}&quot;
                   <button
                     onClick={() => setSearchQuery('')}
                     className="hover:text-brand-900"

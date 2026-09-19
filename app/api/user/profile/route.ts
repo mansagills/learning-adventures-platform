@@ -1,13 +1,11 @@
 export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function PUT(request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -61,14 +59,12 @@ export async function PUT(request: NextRequest) {
       { error: 'Failed to update profile' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
 
     if (!apiUser?.id) {
       return NextResponse.json(
@@ -104,7 +100,5 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch profile' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

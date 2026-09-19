@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserAchievement {
@@ -34,7 +34,7 @@ export function useAchievements() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAchievements = async () => {
+  const fetchAchievements = useCallback(async () => {
     if (status !== 'authenticated' || !session) {
       setLoading(false);
       return;
@@ -57,11 +57,11 @@ export function useAchievements() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, status]);
 
   useEffect(() => {
     fetchAchievements();
-  }, [session, status]);
+  }, [fetchAchievements]);
 
   return {
     data,

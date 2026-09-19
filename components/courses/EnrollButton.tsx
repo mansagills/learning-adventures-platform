@@ -28,7 +28,7 @@ export default function EnrollButton({
   isPremium,
   onEnrollmentChange,
 }: EnrollButtonProps) {
-  const { user: session, status } = useAuth();
+  const { status } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

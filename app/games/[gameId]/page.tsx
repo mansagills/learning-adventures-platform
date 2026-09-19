@@ -4,7 +4,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   loadGameComponent,
-  getGameMetadata,
   isGameRegistered,
 } from '@/lib/gameLoader';
 import { GameProps } from '@/components/games/shared/types';

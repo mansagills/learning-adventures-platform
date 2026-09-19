@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Icon from '@/components/Icon';
@@ -56,7 +55,6 @@ function getAvatarEmoji(avatarId: string): string {
 }
 
 function ManageChildrenPage() {
-  const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
@@ -293,7 +291,7 @@ function ManageChildrenPage() {
           </div>
           <h1 className="text-3xl font-bold">Manage Children</h1>
           <p className="text-brand-100 mt-2">
-            Add and manage your children's learning accounts
+            Add and manage your children&apos;s learning accounts
           </p>
         </div>
       </header>
@@ -320,7 +318,7 @@ function ManageChildrenPage() {
                   Parent Verification Required
                 </h3>
                 <p className="text-amber-800 mb-4">
-                  To comply with COPPA regulations and protect children's
+                  To comply with COPPA regulations and protect children&apos;s
                   privacy, we require parent verification before you can add
                   children to your account.
                 </p>
@@ -460,7 +458,7 @@ function ManageChildrenPage() {
           <form onSubmit={handleAddChild} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Child's Name (or Nickname)
+                Child&apos;s Name (or Nickname)
               </label>
               <input
                 type="text"
@@ -596,7 +594,7 @@ function ManageChildrenPage() {
           <form onSubmit={handleEditChild} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Child's Name (or Nickname)
+                Child&apos;s Name (or Nickname)
               </label>
               <input
                 type="text"
@@ -734,7 +732,7 @@ function ManageChildrenPage() {
               <Icon name="info" size={32} className="text-red-600" />
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Delete {selectedChild.displayName}'s Account?
+              Delete {selectedChild.displayName}&apos;s Account?
             </h3>
             <p className="text-gray-600 mb-6">
               This will permanently delete their learning progress,

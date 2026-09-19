@@ -194,7 +194,7 @@ export default function PremiumPaywallModal({
                   Free Course Limit Reached
                 </h2>
                 <p id={descriptionId} className="text-gray-600 mb-2">
-                  You're currently enrolled in{' '}
+                  You&apos;re currently enrolled in{' '}
                   <span className="font-semibold">
                     {freeCoursesEnrolled} free courses
                   </span>

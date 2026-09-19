@@ -24,7 +24,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
     if (!apiUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface CourseRequest {
   id: string;
@@ -25,7 +25,7 @@ export function useCourseRequests(options: UseCourseRequestsOptions = {}) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -49,13 +49,13 @@ export function useCourseRequests(options: UseCourseRequestsOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [status]);
 
   useEffect(() => {
     if (autoFetch) {
       fetchRequests();
     }
-  }, [status, autoFetch]);
+  }, [autoFetch, fetchRequests]);
 
   return {
     requests,

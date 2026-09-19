@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-// Import getServerSession from the mock source
-import { getServerSession } from 'next-auth/next';
+// Import getApiUser from the mock source
+import { getApiUser } from '@/lib/api-auth';
+import { authedAs, unauthenticated } from '../helpers/apiUser';
 
 // 1. Mock dependencies BEFORE importing the module under test
 const { mockCreate } = vi.hoisted(() => {
@@ -19,14 +20,9 @@ vi.mock('@anthropic-ai/sdk', () => {
   };
 });
 
-// Mock next-auth/next (simulating auth functions)
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue(null), // Default to no session
-}));
-
-// Mock @/lib/auth (to avoid prisma issues)
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+// Mock the route's auth: getApiUser (Supabase), not NextAuth
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 // 2. Import the module under test AFTER mocks
@@ -58,7 +54,7 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should return 403 and NOT call Anthropic API if unauthenticated', async () => {
     // Mock no session
-    (getServerSession as any).mockResolvedValue(null);
+    (getApiUser as any).mockResolvedValue(unauthenticated());
 
     const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
         method: 'POST',
@@ -77,9 +73,9 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should return 403 and NOT call Anthropic API if user is not ADMIN', async () => {
     // Mock student session
-    (getServerSession as any).mockResolvedValue({
-      user: { role: 'STUDENT', email: 'student@example.com' }
-    });
+    (getApiUser as any).mockResolvedValue(
+      authedAs('STUDENT', { email: 'student@example.com' }),
+    );
 
     const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
         method: 'POST',
@@ -95,9 +91,9 @@ describe('POST /api/internal/claude-generate', () => {
 
   it('should call Anthropic API if user IS ADMIN', async () => {
     // Mock admin session
-    (getServerSession as any).mockResolvedValue({
-      user: { role: 'ADMIN', email: 'admin@learningadventures.org' }
-    });
+    (getApiUser as any).mockResolvedValue(
+      authedAs('ADMIN', { email: 'admin@learningadventures.org' }),
+    );
 
     const req = new NextRequest('http://localhost:3000/api/internal/claude-generate', {
         method: 'POST',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ContentFormData, GeneratedContent } from '../types';
 import { generateContent } from '../services/claudeApi';
 
@@ -28,36 +28,7 @@ export default function ContentPreview({
   const [fixPrompt, setFixPrompt] = useState('');
   const [isApplyingFix, setIsApplyingFix] = useState(false);
 
-  useEffect(() => {
-    if (!generatedContent) {
-      // For uploaded content, create metadata immediately without AI generation
-      if (formData.uploadSource === 'uploaded' && formData.uploadedZipPath) {
-        const metadata = {
-          id: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          title: formData.title,
-          description: formData.gameIdea || 'Uploaded game',
-          type: formData.type,
-          category: formData.subject,
-          gradeLevel: formData.gradeLevel,
-          difficulty: formData.difficulty,
-          skills: formData.skills,
-          estimatedTime: formData.estimatedTime,
-          featured: false,
-          htmlPath: `/${formData.type}s/${formData.subscriptionTier}/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`,
-          subscriptionTier: formData.subscriptionTier,
-          uploadedContent: true,
-          platform: formData.uploadPlatform,
-          sourceCodeUrl: formData.sourceCodeUrl,
-        };
-        onContentGenerated({ htmlContent: '', metadata });
-      } else {
-        // For AI-generated content, trigger generation
-        handleGenerate();
-      }
-    }
-  }, []);
-
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     setError('');
     try {
@@ -93,7 +64,43 @@ export default function ContentPreview({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [formData, onContentGenerated]);
+
+  // Kick off metadata creation / AI generation exactly once, when this
+  // component first mounts with no generatedContent yet. The hasInitialized
+  // guard (rather than an empty deps array) lets this list its real
+  // dependencies for exhaustive-deps while still only running the actual
+  // generation logic a single time, even if formData/handleGenerate/
+  // onContentGenerated identities change on a later re-render.
+  const hasInitialized = useRef(false);
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    if (generatedContent) return;
+    hasInitialized.current = true;
+
+    if (formData.uploadSource === 'uploaded' && formData.uploadedZipPath) {
+      const metadata = {
+        id: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        title: formData.title,
+        description: formData.gameIdea || 'Uploaded game',
+        type: formData.type,
+        category: formData.subject,
+        gradeLevel: formData.gradeLevel,
+        difficulty: formData.difficulty,
+        skills: formData.skills,
+        estimatedTime: formData.estimatedTime,
+        featured: false,
+        htmlPath: `/${formData.type}s/${formData.subscriptionTier}/${formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/`,
+        subscriptionTier: formData.subscriptionTier,
+        uploadedContent: true,
+        platform: formData.uploadPlatform,
+        sourceCodeUrl: formData.sourceCodeUrl,
+      };
+      onContentGenerated({ htmlContent: '', metadata });
+    } else {
+      handleGenerate();
+    }
+  }, [generatedContent, formData, onContentGenerated, handleGenerate]);
 
   const handleApplyEdit = async () => {
     if (!editPrompt.trim() || !generatedContent) return;
@@ -310,7 +317,7 @@ export default function ContentPreview({
             🎨 Edit & Improve Content
           </h3>
           <p className="text-gray-600 text-sm mb-4">
-            Describe what changes you'd like to make to improve the{' '}
+            Describe what changes you&apos;d like to make to improve the{' '}
             {formData.type}. Be specific about design, functionality, or
             educational elements.
           </p>
@@ -404,7 +411,7 @@ export default function ContentPreview({
           </h3>
           <p className="text-gray-600 text-sm mb-4">
             Describe any problems, bugs, or issues you found with the{' '}
-            {formData.type}. Be specific about what's not working correctly.
+            {formData.type}. Be specific about what&apos;s not working correctly.
           </p>
 
           <div className="space-y-4">
@@ -589,7 +596,7 @@ export default function ContentPreview({
                   zip file will be extracted and made available to users.
                 </p>
                 <p className="text-sm text-gray-600">
-                  Click "Publish to Catalog →" above to continue.
+                  Click &quot;Publish to Catalog →&quot; above to continue.
                 </p>
               </div>
             </div>
