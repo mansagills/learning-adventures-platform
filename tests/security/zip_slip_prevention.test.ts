@@ -2,10 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/internal/save-content/route';
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
-import * as fs from "fs/promises";
-import { existsSync } from "fs";
-import { extractZipSafely } from "@/lib/safe-zip";
-import path from "path";
 
 // Mock next-auth
 vi.mock('next-auth', () => ({
@@ -34,14 +30,9 @@ vi.mock('fs/promises', () => {
   };
 });
 
-const { existsSyncMock } = vi.hoisted(() => ({
-  existsSyncMock: vi.fn().mockReturnValue(true),
-}));
-
 vi.mock('fs', () => ({
-  existsSync: existsSyncMock,
+  existsSync: vi.fn().mockReturnValue(true),
   default: {
-    existsSync: existsSyncMock,
     mkdir: vi.fn(),
     writeFile: vi.fn(),
   }
@@ -163,8 +154,7 @@ describe('Security: Zip Slip Prevention', () => {
         {
           isDirectory: false,
           entryName: 'level1/level2/file.txt',
-          getData: () => Buffer.from('content'),
-          header: { size: 10 }
+          getData: () => Buffer.from('content')
         }
       ]
     };
