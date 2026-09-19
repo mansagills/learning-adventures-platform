@@ -7,7 +7,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { CourseStatus, LessonProgressStatus } from '@prisma/client';
-import type { CourseEnrollment, User } from '@prisma/client';
+import type { CourseEnrollment } from '@prisma/client';
 import type {
   EnrollmentEligibility,
   EnrollmentWithDetails,

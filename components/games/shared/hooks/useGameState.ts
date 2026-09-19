@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 export interface GameState {
   score: number;
@@ -137,9 +137,8 @@ export function useGameState(options: UseGameStateOptions = {}) {
     [onAchievement]
   );
 
-  return {
-    gameState,
-    actions: {
+  const actions = useMemo(
+    () => ({
       addScore,
       loseLife,
       gainLife,
@@ -148,6 +147,21 @@ export function useGameState(options: UseGameStateOptions = {}) {
       resumeGame,
       resetGame,
       addAchievement,
-    },
+    }),
+    [
+      addScore,
+      loseLife,
+      gainLife,
+      levelUp,
+      pauseGame,
+      resumeGame,
+      resetGame,
+      addAchievement,
+    ]
+  );
+
+  return {
+    gameState,
+    actions,
   };
 }

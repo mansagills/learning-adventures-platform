@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
@@ -22,11 +22,7 @@ export default function ChildLoginPage() {
   ];
 
   // Check if already logged in as child
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const res = await fetch('/api/child/session');
       const data = await res.json();
@@ -36,7 +32,11 @@ export default function ChildLoginPage() {
     } catch (err) {
       // Not logged in, stay on page
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
 
   const handlePinChange = (index: number, value: string) => {
     // Only allow digits

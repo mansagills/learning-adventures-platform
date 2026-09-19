@@ -1,4 +1,9 @@
 import AdmZip from 'adm-zip';
+import {
+  readZipEntry,
+  assertArchiveWithinLimits,
+  MAX_ENTRY_BYTES,
+} from '@/lib/zip-limits';
 import path from 'path';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
@@ -9,6 +14,8 @@ import { existsSync } from 'fs';
  * @param targetDir The directory to extract to
  */
 export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<void> {
+  assertArchiveWithinLimits(zip);
+
   const entries = zip.getEntries();
   const targetDirResolved = path.resolve(targetDir);
 
@@ -54,6 +61,9 @@ export async function extractZipSafely(zip: AdmZip, targetDir: string): Promise<
     }
 
     // Write file content
-    await fs.writeFile(destPath, entry.getData());
+    await fs.writeFile(
+      destPath,
+      readZipEntry(entry, MAX_ENTRY_BYTES, entryName)
+    );
   }
 }

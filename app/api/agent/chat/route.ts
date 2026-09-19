@@ -21,10 +21,17 @@ async function getLearningBuilderAgent(): Promise<LearningBuilderAgent> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
     const body = await request.json();
 
-    const { message, conversationId, context } = body;
+    // NOTE: unlike /api/agent/[agentId]/chat, this route does not gate on
+    // auth -- it falls back to an 'anonymous' conversation id below, which
+    // reads as deliberate rather than a missing check.
+    //
+    // `context` is accepted in the body but never forwarded to
+    // agent.execute(). Prefixed to keep the field visible while it is
+    // unused; wiring it through is a product decision, not a lint fix.
+    const { message, conversationId, context: _context } = body;
 
     if (!message) {
       return NextResponse.json(
@@ -53,7 +60,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   return NextResponse.json({
     message: 'Learning Builder Agent Chat API',
     description:

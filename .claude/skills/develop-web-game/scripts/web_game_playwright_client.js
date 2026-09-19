@@ -176,7 +176,7 @@ async function isCanvasTransparent(canvas) {
 
 async function captureScreenshot(page, canvas, outPath) {
   let buffer = null;
-  let base64 = canvas ? await captureCanvasPngBase64(canvas) : "";
+  const base64 = canvas ? await captureCanvasPngBase64(canvas) : "";
   if (base64) {
     buffer = Buffer.from(base64, "base64");
     const transparent = canvas ? await isCanvasTransparent(canvas) : false;

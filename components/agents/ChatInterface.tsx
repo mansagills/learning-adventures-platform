@@ -174,7 +174,7 @@ export default function ChatInterface({
                 </h3>
                 <p className="text-neutral-600 mb-6">
                   Start a conversation by asking a question or describing what
-                  you'd like to create.
+                  you&apos;d like to create.
                 </p>
                 <div className="space-y-2 text-sm">
                   <button

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { markWelcomeSeen } from '@/game/world/welcomeState';
-import { unlockAudio, startAmbience } from '@/game/world/campusAudio';
+import { unlockAudio } from '@/game/world/campusAudio';
 import {
   AVATAR_CHOICES,
   getIdentity,
@@ -45,8 +45,11 @@ export function WelcomeOverlay({ onDismiss, identityPicker }: WelcomeOverlayProp
       EventBus.emit('set-avatar', { avatarId: saved.avatarId });
     }
     markWelcomeSeen();
+    // unlockAudio() stays: the first user gesture is the only moment the
+    // browser lets us open the AudioContext, and the pickup/XP/quest cues
+    // need it. The ambient pad is deliberately not started -- see the note
+    // in GatherCampusScene.create().
     unlockAudio();
-    startAmbience();
     // Cue the scene's cinematic intro flyover (GatherCampusScene)
     EventBus.emit('welcome-dismissed');
     onDismiss();

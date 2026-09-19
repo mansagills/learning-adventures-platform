@@ -32,6 +32,31 @@ const hasSupabaseEnv = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+/**
+ * The AuthUser to use when the profile lookup fails.
+ *
+ * Everything here comes from the Supabase session itself, which is already
+ * verified at this point — the only thing that failed is the `/api/auth/profile`
+ * call that enriches it. So the user stays signed in rather than being bounced
+ * out over a transient API error, just without their profile details.
+ *
+ * The defaults deliberately match what the success branch falls back to when a
+ * profile field is absent. `role` in particular defaults to STUDENT, the least
+ * privileged role: a failed profile fetch must never be a way to come back with
+ * more access than the profile would have granted.
+ */
+function fallbackUser(supabaseUser: User): AuthUser {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email ?? '',
+    name: supabaseUser.user_metadata?.full_name ?? null,
+    image: supabaseUser.user_metadata?.avatar_url ?? null,
+    role: 'STUDENT',
+    gradeLevel: null,
+    subjects: [],
+  };
+}
+
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');

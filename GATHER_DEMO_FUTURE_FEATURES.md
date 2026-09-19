@@ -58,6 +58,94 @@ first. The public deployment is a **manually synced snapshot** in
 
 ---
 
+## Demo polish pass — character physics + character cards
+
+Shipped on `claude/campus-sandbox-demo-polish-egidd9`.
+
+### Physics: characters could stand on the buildings
+
+Two separate causes, both fixed:
+
+1. **The player's collision box was misaligned with the sprite.** A 40×40
+   body at offset (28, 40) on a 96×96 frame drawn at 64×64 is, after the
+   0.667 scale, a 26.7×26.7 world-pixel box centred on the sprite's
+   **middle**. Measured against four walls, the feet overlapped a wall tile
+   by ~11px walking down and the head/torso by ~27px walking up. Characters
+   draw above the tile layer, so that overlap is what read as walking on the
+   building — the tile collision itself was working the whole time.
+2. **NPCs had no physics body at all.** `TalkableNPC` was a Container moved
+   by position tweens, so all 16 characters passed through walls, furniture
+   and each other. Patrol routes were hand-drawn along wall-free lines to
+   hide it (the placement rule at the top of `simStudents.ts`).
+
+New `game/world/characterBody.ts` owns one feet-shaped footprint (36×20
+world px) and converts it into the two coordinate spaces Phaser wants —
+source-frame px for a Sprite, world px for a Container. `TalkableNPC` now
+takes an Arcade body and moves by velocity steering instead of tweens
+(a tween writes straight past the physics step). NPC bodies are
+`pushable: false`, so the player is blocked by an NPC without shoving them
+off route, and a 2.5s stuck timer retires a blocked leg since there is no
+pathfinding to route around an obstacle.
+
+Also fixed a **collider leak**: every wall tile registered its own player
+collider on chunk load and chunk teardown never removed it. Walls now live
+in one static group with one collider per colliding party, and solid
+props/stations likewise — which is also what lets NPCs collide with
+furniture rather than only the player.
+
+Verified in-browser: player stops exactly on the wall edge in all four
+directions; all 16 NPCs carry the correct 36×20 box and 12 still patrol;
+the player is blocked exactly 36px from an NPC and the NPC does not shift;
+colliders hold flat at 6 across three full map laps.
+
+### Character pop-up cards
+
+`ConversationPanel` was a flat text box — name, line, dot progress — so a
+player meeting Professor Numbers learned nothing about her. It is now a
+character card: portrait, role, location and a one-line blurb above the
+dialogue. The blurb shows only while the first line is on screen, so it
+introduces the character once then gets out of the way.
+
+Portraits are cropped from the existing walk sheets (384×384, 4×4 grid of
+96×96 frames; frame 8 is the facing-camera pose) — no new art needed.
+Copy lives in `game/world/characterCards.ts`, drawn from the Spark
+Chronicles bible so the demo and the story stay in step; the 10 simulated
+students fall back to a generic "Academy Student" card.
+
+### Other polish
+
+- **Site chrome removed from the campus routes.** `HeaderFooterWrapper` only
+  hid chrome on `/login`, so the full-screen `h-screen` canvas rendered
+  under the marketing nav bar with the footer below it — the page ran
+  1210px tall and scrolled. `/world/*` and `/dev/campus-sandbox` now render
+  full-bleed (measured: body height exactly matches the viewport).
+- **HUD overlaps fixed.** The quest card overlapped the exploration
+  checklist by 7px when the objective wrapped to three lines, and the
+  activity feed ran behind the conversation card. Measured every HUD box in
+  the browser: now zero overlaps.
+- **In-world labels enlarged** — station names 6px → 10px, building signs
+  8px → 12px. A pixel face at 6px is unreadable at this zoom.
+- **Speech bubbles no longer cover the player** — the in-canvas bubble flips
+  below the NPC when the player stands above them, which is most of the time
+  for the room hosts since you enter from the doorway side.
+- **Dark letterbox** — the page behind the fixed 16:9 canvas was cream, so
+  the FIT bars read as a rendering bug on any other aspect ratio.
+
+### Known, deliberately not done
+
+- **Mobile canvas is small.** Phaser is configured `Scale.FIT` at a fixed
+  1280×720, so at phone widths the world occupies a ~236px strip between
+  letterbox bars. Fixing it properly means `Scale.RESIZE` plus auditing
+  everything that reads `cam.width/height` (the intro flyover zoom, the
+  screen-space quest arrow, the night overlay). That is a scale-architecture
+  change, not polish, so it is flagged rather than rushed into a demo build.
+- **No Y-depth sorting.** Characters are a fixed depth 10 and props 1–7, so
+  a character never passes behind a tall bookcase. The feet box makes wall
+  overlap read correctly, which was the actual complaint; y-sorting is the
+  next increment if the demo needs it.
+
+---
+
 ## Parking lot — ideas not yet started
 
 Nothing here is committed to; these are the natural next moves.

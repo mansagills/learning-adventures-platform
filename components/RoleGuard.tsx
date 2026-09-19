@@ -29,7 +29,7 @@ export default function RoleGuard({
   children,
   allowedRoles,
   fallback = null,
-  requireAll = false,
+  requireAll: _requireAll = false,
 }: RoleGuardProps) {
   const { user, status } = useAuth();
 

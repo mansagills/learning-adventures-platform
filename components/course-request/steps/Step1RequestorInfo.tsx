@@ -184,7 +184,7 @@ export default function Step1RequestorInfo() {
               Why we need this information
             </h4>
             <p className="text-sm text-gray-700">
-              We'll use your contact details to send updates about your course
+              We&apos;ll use your contact details to send updates about your course
               request, answer questions, and coordinate delivery of your custom
               learning materials.
             </p>

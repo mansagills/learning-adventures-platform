@@ -9,7 +9,6 @@ import { prisma } from '@/lib/prisma';
 import type {
   Course,
   CourseLesson,
-  CourseEnrollment,
   Difficulty,
 } from '@prisma/client';
 import type {

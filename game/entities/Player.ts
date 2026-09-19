@@ -170,7 +170,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     EventBus.on('set-wearable', this.handleSetWearable);
   }
 
-  public update(time: number, delta: number): void {
+  public update(time: number, _delta: number): void {
     // Keep the worn accessory glued to the head — runs even while paused so
     // it stays aligned after a teleport or during a modal.
     if (this.wearable && this.wearable.visible) {

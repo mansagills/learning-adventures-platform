@@ -1,25 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import path from 'path';
-import { getServerSession } from 'next-auth/next';
-
-// Mock next-auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn().mockResolvedValue({
-    user: {
-      name: 'Admin',
-      email: 'admin@example.com',
-      role: 'ADMIN',
-    },
-  }),
-}));
-
-// Mock auth options
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
-}));
-
-import { POST } from '@/app/api/internal/save-content/route';
+import { getApiUser } from '@/lib/api-auth';
+import { authedAs } from '../helpers/apiUser';
 
 const { writeFileMock, mkdirMock } = vi.hoisted(() => ({
   writeFileMock: vi.fn(),
@@ -65,20 +47,18 @@ const mockGetEntries = vi.fn().mockReturnValue([safeEntry]);
 vi.mock('adm-zip', () => {
   return {
     default: class MockAdmZip {
-      constructor(path: string) {}
+      constructor(_path: string) {}
       extractAllTo = mockExtractAllTo;
       getEntries = mockGetEntries;
     },
   };
 });
 
-// Mock Auth
-vi.mock('next-auth/next', () => ({
-  getServerSession: vi.fn(),
-}));
-
-vi.mock('@/lib/auth', () => ({
-  authOptions: {},
+// Mock Auth — the route authenticates via getApiUser (Supabase).
+// An earlier duplicate of this mock, and a duplicate import of POST, used to
+// sit at the top of the file; only the later copies ever took effect.
+vi.mock('@/lib/api-auth', () => ({
+  getApiUser: vi.fn(),
 }));
 
 // Import after mocking
@@ -87,11 +67,7 @@ import { POST } from '@/app/api/internal/save-content/route';
 describe('Security: Filename Path Traversal in save-content', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getServerSession as any).mockResolvedValue({
-      user: {
-        role: 'ADMIN',
-      },
-    });
+    (getApiUser as any).mockResolvedValue(authedAs('ADMIN'));
   });
 
   it('should prevent path traversal via fileName parameter', async () => {
@@ -114,7 +90,10 @@ describe('Security: Filename Path Traversal in save-content', () => {
     // Should return 400 Bad Request
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toMatch(/Invalid filename/);
+    // The route's message is "Invalid file name. Path traversal detected."
+    // Asserting on the reason is stronger than the old /Invalid filename/,
+    // which no longer matched the wording at all.
+    expect(json.error).toMatch(/Path traversal detected/i);
 
     const mkdirCalls = mkdirMock.mock.calls;
     console.log('mkdir calls:', mkdirCalls);
