@@ -46,7 +46,30 @@ Auth (login/signup/seed) uses **Supabase**, and Postgres is provided by a **loca
 ### Database
 After Supabase is up: `npm run db:push` (schema) then seed. The seed script (`tsx prisma/seed.ts`) reads `process.env` directly and does NOT auto-load `.env.local`, so run it with env loaded: `set -a && . ./.env.local && set +a && npm run db:seed` (or `npm run db:reset` to wipe + reseed). Seeded logins are in `DEVELOPMENT_README.md` (e.g. `student@test.com` / `password123`).
 
-### Lint / test / build caveats
-- `npm run build` and `npx tsc --noEmit` pass for the **main app** (all `tsc` errors are in the un-installed `demo/la-campus-demo/` copy, a separate nested project — ignore it).
-- `npm run lint` (`next lint`) does not detect the flat `eslint.config.mjs`; it prompts interactively and effectively no-ops. Prefer `npx tsc --noEmit` for static checking.
-- `npm test` (Vitest) has **pre-existing failures unrelated to the environment**: many tests are stale after the NextAuth→Supabase auth migration (they mock Prisma but the routes now call live Supabase, so results are order-dependent), and the `demo/la-campus-demo/` tests reference uninstalled `next-auth`. The Vitest toolchain itself runs fine.
+### Lint / test / build
+
+All four gates pass and are enforced in CI (`.github/workflows/beta-ci.yml`).
+Treat any failure as a real regression to fix, not as pre-existing noise:
+
+- `npx tsc --noEmit` — 0 errors.
+- `npm run lint` — 0 errors, 6 warnings. The script is `eslint .`, not
+  `next lint`. `@typescript-eslint/no-unused-vars` and
+  `react/no-unescaped-entities` are at `error`, so a new unused variable
+  fails the build; prefix a deliberately unused binding with `_`.
+  The 6 warnings are known and deliberate: 5 `@next/next/no-img-element`
+  and 1 `react-hooks/exhaustive-deps` in `hooks/useAuth.ts`.
+- `npm test` — 21 files / 70 tests, all passing.
+- `npm run build` — exit 0.
+
+`demo/la-campus-demo/` is a standalone app with its own `package.json` and
+its own Vercel project. It is excluded from the root `tsconfig.json`,
+`vitest.config.ts` and `eslint.config.mjs`, so the root gates say nothing
+about it — run its own `npx tsc --noEmit` from inside that directory when
+you change it.
+
+> Superseded notes: an earlier version of this section said `tsc` errors in
+> `demo/` were expected, that `next lint` no-opped on the flat config, and
+> that the test suite had pre-existing failures from the NextAuth→Supabase
+> migration. All three were true in July 2026 and were fixed by #190 (CI
+> repair), #183 (lint debt) and the demo exclusions above. Do not reinstate
+> them.
