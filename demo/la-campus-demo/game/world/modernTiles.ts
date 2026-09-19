@@ -1,17 +1,34 @@
 import * as Phaser from 'phaser';
 
 /**
- * modernTiles — campus tile art from the user-supplied "Modern
- * Interiors/Exteriors" packs (LimeZu). Bright contemporary style: grass
- * campus, sidewalk paths, colored school-building walls.
+ * modernTiles — the campus base tiles. Bright contemporary style: grass
+ * campus, sidewalk paths, colored school-building walls. Loaded under
+ * staging keys in preload, then swapped behind the campus texture keys in
+ * create() — same pattern as rccTiles.
  *
- * public/game-assets/modern/ holds 48×48 tiles prepared from the packs:
- * terrain "Singles" copied directly, wall faces cut from the Room Builder
- * 3d-walls sheet. Same pattern as rccTiles: loaded under staging keys in
- * preload, then swapped behind the campus texture keys in create().
+ * What these files actually are
+ * ----------------------------
+ * This header used to say the 8 tiles in public/game-assets/modern/ were
+ * "prepared from the packs: terrain Singles copied directly, wall faces cut
+ * from the Room Builder 3d-walls sheet" (LimeZu Modern Interiors/Exteriors),
+ * and carried that pack's redistribution warning. Decoding them says
+ * otherwise — they are flat colour swatches:
  *
- * NOTE: LimeZu's license allows use in games but not redistributing raw
- * asset files — keep this repo private or clear the license before release.
+ *   dirt.png, grass.png, water.png    1 distinct RGBA value, 155 bytes each
+ *   wall-red.png                      3 values
+ *   wall-blue.png                     5 values
+ *   wall-green/grey.png, sidewalk.png 6 values
+ *
+ * A 48×48 tile holding a single colour contains no pack artwork, so the
+ * LimeZu attribution and its redistribution warning do not belong on these
+ * files. Whatever was originally cut from those sheets is not what is here
+ * now. Treat them as placeholders.
+ *
+ * Where the real question lives: campusDecorations.ts, which loads the 58
+ * genuine pixel-art props in public/game-assets/modern/props/ — 7–79 colours
+ * each, visible in every screenshot of the demo. See docs/ASSET_INVENTORY.md
+ * for the full picture, including the 41 files under sprites/ and tilemaps/
+ * that have no recorded origin at all.
  */
 
 const TILE = 48;
