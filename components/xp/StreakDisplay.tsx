@@ -104,7 +104,7 @@ export default function StreakDisplay() {
       {streakData.currentStreak >= 3 && (
         <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="text-xs text-gray-600">
-            💡 <span className="font-medium">Streak Bonus:</span> You're earning{' '}
+            💡 <span className="font-medium">Streak Bonus:</span> You&apos;re earning{' '}
             <span className="text-orange-600 font-semibold">
               {streakData.currentStreak >= 30
                 ? '2x'

@@ -39,7 +39,7 @@ function ProgressTestContent() {
 
   const handleStart = async () => {
     try {
-      const result = await startAdventure(adventureId, 'game', 'math');
+      await startAdventure(adventureId, 'game', 'math');
       setMessage(`✅ Started tracking: ${adventureId}`);
       await refetchProgress();
     } catch (error: any) {

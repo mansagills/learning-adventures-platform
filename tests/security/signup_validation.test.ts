@@ -125,7 +125,7 @@ describe('Signup API Security Validation', () => {
     });
 
     const res = await POST(req);
-    const data = await res.json();
+    const _data = await res.json();
 
     expect(res.status).toBe(201);
     expect(prisma.user.create).toHaveBeenCalled();

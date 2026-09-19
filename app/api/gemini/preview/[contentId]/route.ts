@@ -9,7 +9,7 @@ export async function GET(
 ) {
   try {
     // 1. Authenticate user
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
     if (!apiUser || apiUser.role !== 'ADMIN') {
       return new NextResponse('Unauthorized', { status: 401 });
     }

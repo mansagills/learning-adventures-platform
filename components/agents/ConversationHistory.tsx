@@ -21,7 +21,7 @@ interface Conversation {
 }
 
 export default function ConversationHistory() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, _setConversations] = useState<Conversation[]>([]);
   const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);

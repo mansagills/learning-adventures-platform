@@ -9,7 +9,6 @@ import { getApiUser } from '@/lib/api-auth';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import AgentDiscovery from '@/components/agents/AgentDiscovery';
-import ProtectedRoute from '@/components/ProtectedRoute';
 
 export const metadata: Metadata = {
   title: 'AI Agent Studio | Learning Adventures',
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AgentStudioPage() {
-  const { apiUser, error: authError } = await getApiUser();
+  const { apiUser } = await getApiUser();
 
   // DEBUG: Log session data
   console.log('🔍 Agent Studio Access Attempt:', {

@@ -13,7 +13,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, status } = useAuth();
 
-  const handleCTAClick = () => {
+  const _handleCTAClick = () => {
     if (user) {
       window.location.href = '/world';
     } else {

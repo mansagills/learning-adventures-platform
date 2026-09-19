@@ -59,7 +59,7 @@ vi.mock('adm-zip', () => {
 
   return {
     default: class MockAdmZip {
-      constructor(buffer: any) {}
+      constructor(_buffer: any) {}
       getEntries() {
         return [
           entry(MANIFEST_BYTES, 'metadata.json'),

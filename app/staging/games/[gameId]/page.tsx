@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 
 interface TestGame {
@@ -31,18 +31,7 @@ export default function StagingGamePreviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session || session?.role !== 'ADMIN') {
-      router.push('/unauthorized');
-      return;
-    }
-
-    fetchGame();
-  }, [session, status, gameId]);
-
-  const fetchGame = async () => {
+  const fetchGame = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/test-games?gameId=${gameId}`);
       const data = await res.json();
@@ -57,7 +46,18 @@ export default function StagingGamePreviewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [gameId]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session || session?.role !== 'ADMIN') {
+      router.push('/unauthorized');
+      return;
+    }
+
+    fetchGame();
+  }, [session, status, gameId, router, fetchGame]);
 
   if (status === 'loading' || loading) {
     return (
