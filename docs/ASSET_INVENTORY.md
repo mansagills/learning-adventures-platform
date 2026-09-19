@@ -283,8 +283,33 @@ The root `public/game-assets/` is untouched and still has all 110 files, so
 nothing is lost — the `/world` scenes there keep working, and the demo can
 restore any file from it.
 
-**Verified after the deletion:** `tsc --noEmit` clean in both trees, root lint
-0 errors / 6 warnings, 21 test files / 70 tests passing.
+**A 15th change the deletion forced, and a finding that came with it.**
+`GatherCampusScene extends OpenWorldScene`, and its `preload()` calls
+`super.preload()` — which loaded 14 of the deleted tilemaps. Reading only
+`GatherCampusScene` for asset paths missed this; a headless browser run
+against the built demo caught it, as 14 console 404s on page load.
+
+None of them affected what renders, and the reason is the interesting part.
+`applyFuturisticTiles()` builds each of those texture keys with
+`Graphics.generateTexture()`, then `applyModernTiles()` overwrites them from
+the 48×48 tiles in `modern/`. Both call `textures.remove(key)` first, so
+neither ever reads the loaded file. Two more keys (`wall-math-2`,
+`wall-math-3`) are loaded but only ever drawn by `WorldScene`, which does not
+run here.
+
+So those 14 loads were fetching **~23 MB of 1024×1024 PNGs on every single
+page load and discarding all of it** — before this change, and for as long as
+the demo has existed. The loads are gone from this tree's
+`OpenWorldScene.preload()`, with the key list and the restore instructions in
+a comment there.
+
+**Verified after the deletion and the fix:** `tsc --noEmit` clean in both
+trees, root lint 0 errors / 6 warnings, 21 test files / 70 tests passing,
+demo `npm run build` exit 0. A headless Chromium run of
+`/dev/campus-sandbox` against the built demo reports **0 non-200 asset
+responses, 0 failed requests and 0 console errors**, and a screenshot with
+the welcome overlay dismissed shows the campus rendering as before — ground,
+paths, buildings, props, NPCs and HUD all intact.
 
 **One trap left deliberately, and signposted.** `OpenWorldScene` and
 `MathBuildingScene` still exist in the demo tree and still reference tilemap

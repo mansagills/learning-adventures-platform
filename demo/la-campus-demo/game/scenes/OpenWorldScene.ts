@@ -82,23 +82,31 @@ export class OpenWorldScene extends Phaser.Scene {
     this.load.spritesheet('player-cat-orange',   '/game-assets/sprites/cat-orange.png',     { frameWidth: 96, frameHeight: 96 });
     this.load.spritesheet('player-knight-silver','/game-assets/sprites/knight-silver.png',  { frameWidth: 96, frameHeight: 96 });
 
-    // Ground tiles (1024x1024 seamless, displayed at 64x64)
-    this.load.image('ground-grass-1',   '/game-assets/tilemaps/grass-plain-1.png');
-    this.load.image('ground-grass-2',   '/game-assets/tilemaps/grass-plain-2.png');
-    this.load.image('ground-grass-3',   '/game-assets/tilemaps/grass-plain-3.png');
-    this.load.image('ground-flowers-1', '/game-assets/tilemaps/grass-flowers-1.png');
-    this.load.image('ground-flowers-2', '/game-assets/tilemaps/grass-flowers-2.png');
-    this.load.image('ground-path',      '/game-assets/tilemaps/stone-path-1.png');
-    this.load.image('ground-dirt',      '/game-assets/tilemaps/dirt-earth-1.png');
-    this.load.image('ground-water',     '/game-assets/tilemaps/water-1.png');
-
-    // Building wall tiles
-    this.load.image('wall-math-1',     '/game-assets/tilemaps/math-wall-1.png');
-    this.load.image('wall-math-2',     '/game-assets/tilemaps/math-wall-2.png');
-    this.load.image('wall-math-3',     '/game-assets/tilemaps/math-wall-3.png');
-    this.load.image('wall-science-1',  '/game-assets/tilemaps/science-building-1.png');
-    this.load.image('wall-english-1',  '/game-assets/tilemaps/english-building-1.png');
-    this.load.image('wall-brick-1',    '/game-assets/tilemaps/brick-wall-1.png');
+    // Ground and building-wall tiles are NOT loaded in this tree.
+    //
+    // GatherCampusScene is the only scene that runs here, and it replaces
+    // every one of these texture keys in create(), before the tilemap images
+    // are built: applyFuturisticTiles() generates each one with
+    // Graphics.generateTexture(), then applyModernTiles() overwrites them
+    // from the 48x48 tiles in game-assets/modern/. Neither reads the file
+    // that used to be loaded here -- both call textures.remove(key) first.
+    //
+    // So these 14 loads fetched ~23 MB of 1024x1024 PNGs on every single
+    // page load and threw all of it away. Two of the keys (wall-math-2,
+    // wall-math-3) were never drawn by this variant at all; only WorldScene
+    // uses them. The files were deleted from this tree along with the other
+    // 33 unused tilemaps -- see docs/ASSET_INVENTORY.md.
+    //
+    // The keys, for reference, all supplied by modernTiles.ts KEY_MAP:
+    //   ground-grass-1..3  ground-flowers-1..2  ground-path  ground-dirt
+    //   ground-water  wall-math-1  wall-science-1  wall-english-1
+    //   wall-brick-1
+    //
+    // If you add a route that renders OpenWorldScene or MathBuildingScene
+    // directly (neither applies the tile overrides), restore both these
+    // loads and the PNGs from the root tree first, or the world renders
+    // untextured. game/main.ts carries the same warning at the variant
+    // switch.
 
     // Fallback placeholder textures for doors/collision bodies (generated at runtime)
     const g = this.add.graphics();
