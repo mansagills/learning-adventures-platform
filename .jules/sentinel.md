@@ -12,3 +12,7 @@
 **Prevention:**
 1. Standardize on cryptographically secure pseudorandom number generators (CSPRNG).
 2. Utilize native platform APIs like `crypto.randomUUID()` in both frontend and backend contexts for generating unguessable, universally unique identifiers.
+## 2025-02-23 - `crypto.randomUUID()` Constraints
+**Vulnerability:** Weak randomness from `Math.random().toString(36)`.
+**Learning:** Replacing `Math.random()` with `crypto.randomUUID()` on the client side introduces a requirement for a **secure context** (HTTPS or localhost). If the application runs on plain HTTP (non-localhost), `crypto.randomUUID()` will throw an error, breaking functionality.
+**Prevention:** Ensure the application is deployed on HTTPS environments when introducing Web Crypto API calls on the client side, or provide a fallback for insecure contexts if necessary. Also, be aware of repository duplication (e.g. `lib/` vs `demo/.../lib/`) as drift can occur causing repeated vulnerability reports.
