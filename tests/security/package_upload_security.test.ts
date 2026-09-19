@@ -27,30 +27,48 @@ vi.mock('@/lib/upload/metadataExtractor', () => ({
   extractMetadata: vi.fn().mockResolvedValue({}),
 }));
 
-// Mock adm-zip
+// Mock adm-zip.
+//
+// Entries carry a `header.size` and the archive answers getEntries(), because
+// the handler now reads both: lib/zip-limits.ts checks an entry's declared
+// uncompressed size before decompressing it, and the archive's entry count and
+// total declared size before touching any entry. A mock without them stands in
+// for a ZipEntry that could not exist, and the handler rejects it before this
+// suite's path-traversal assertion is ever reached.
+//
+// The sizes below are the real byte lengths of the payloads, so this fixture
+// stays honest: it exercises the traversal path, not the size limits, which
+// zip-bomb.test.ts covers against real archives.
+const MANIFEST_BYTES = Buffer.from(
+  JSON.stringify({
+    id: '../../../../tmp/hacked',
+    title: 'Hacked Game',
+    description: 'This is a test',
+    gameFile: 'index.html',
+  })
+);
+const GAME_BYTES = Buffer.from('<h1>You have been hacked</h1>');
+
 vi.mock('adm-zip', () => {
+  const entry = (data: Buffer, entryName: string) => ({
+    entryName,
+    isDirectory: false,
+    header: { size: data.length },
+    getData: () => data,
+  });
+
   return {
     default: class MockAdmZip {
       constructor(_buffer: any) {}
+      getEntries() {
+        return [
+          entry(MANIFEST_BYTES, 'metadata.json'),
+          entry(GAME_BYTES, 'index.html'),
+        ];
+      }
       getEntry(name: string) {
-        if (name === 'metadata.json') {
-          return {
-            getData: () =>
-              Buffer.from(
-                JSON.stringify({
-                  id: '../../../../tmp/hacked',
-                  title: 'Hacked Game',
-                  description: 'This is a test',
-                  gameFile: 'index.html',
-                })
-              ),
-          };
-        }
-        if (name === 'index.html') {
-          return {
-            getData: () => Buffer.from('<h1>You have been hacked</h1>'),
-          };
-        }
+        if (name === 'metadata.json') return entry(MANIFEST_BYTES, 'metadata.json');
+        if (name === 'index.html') return entry(GAME_BYTES, 'index.html');
         return null;
       }
     },

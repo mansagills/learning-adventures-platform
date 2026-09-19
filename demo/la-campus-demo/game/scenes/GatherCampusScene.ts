@@ -20,7 +20,7 @@ import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
 import { preloadCampusProps, placeCampusProps, getLampPositions } from '../world/campusDecorations';
-import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
+import { playPickup, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
 import { getIdentity, type PlayerIdentity } from '../world/playerIdentity';
@@ -81,6 +81,8 @@ export class GatherCampusScene extends OpenWorldScene {
   private lastGuidanceTarget: { x: number; y: number } | null = null;
   private shopDoor?: { x: number; y: number };
   private simStudents: TalkableNPC[] = [];
+  /** Invisible blockers for furniture, outdoor props and learning stations. */
+  private solidProps?: Phaser.Physics.Arcade.StaticGroup;
   private chatterTimer?: Phaser.Time.TimerEvent;
   /** Demo identity (name tag/avatar picker) — sandbox only, never authed. */
   private demoIdentityActive = false;
@@ -134,12 +136,18 @@ export class GatherCampusScene extends OpenWorldScene {
       this.game.registry.set('avatarId', getIdentity().avatarId);
     }
 
+    // Station blockers are created during super.create() (createStations), so
+    // the group has to exist first.
+    this.solidProps = this.physics.add.staticGroup();
+
     super.create();
 
-    // Furniture + outdoor props (needs the player for solid-prop colliders)
+    // Furniture + outdoor props — blockers land in solidProps, collided below
     if (CAMPUS_ART === 'modern') {
-      placeCampusProps(this, this.player);
+      placeCampusProps(this, this.solidProps);
     }
+
+    this.setupCharacterCollision();
 
     // Building signs over the open rooms
     getGatherRoomLabels().forEach((label) => {
@@ -170,10 +178,83 @@ export class GatherCampusScene extends OpenWorldScene {
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
 
-    // Soft ambient pad — silent until the player's first click/keypress
-    // unlocks the AudioContext (browser autoplay policy), then fades in.
-    startAmbience();
+    // Ambient pad intentionally NOT started. The synthesized pad in
+    // campusAudio.ts (three sine oscillators at C3-E3-G3 through a 900Hz
+    // lowpass) read as a drone rather than music, so it is off pending a
+    // decision on real background music. startAmbience()/stopAmbience() are
+    // left intact -- re-enabling is restoring this one call, plus the twin in
+    // components/world/WelcomeOverlay.tsx.
+    //
+    // Everything else stays wired: unlockAudio() still runs on the welcome
+    // overlay's first gesture, so the pickup, XP, quest and purchase cues
+    // keep working, and the mute button still governs them.
   }
+
+  // ─── Character collision ───────────────────────────────────────────────────
+
+  /**
+   * Wire up every collision pair once, after the base scene has built the
+   * player, the wall group and all the NPCs.
+   *
+   * Before this, only the player collided with anything: TalkableNPC was a
+   * plain Container with no physics body, so all 16 campus characters walked
+   * through walls, furniture and each other. Their patrol routes had to be
+   * hand-drawn along wall-free lines to hide it (see the placement rule at the
+   * top of simStudents.ts) — with real bodies, collision is the safety net
+   * instead of the routing rule.
+   */
+  private setupCharacterCollision(): void {
+    if (!this.player || this.npcs.length === 0) return;
+
+    // Deterministic test hook (same pattern as the other __campusTest hooks):
+    // answers on demand, so it costs nothing when nobody is asking.
+    EventBus.on('request-npc-snapshot', this.handleNpcSnapshotRequest);
+
+    // NPCs vs the world: walls first, then furniture/props/stations.
+    if (this.wallGroup) {
+      this.physics.add.collider(this.npcs, this.wallGroup);
+    }
+    if (this.solidProps) {
+      this.physics.add.collider(this.player, this.solidProps);
+      this.physics.add.collider(this.npcs, this.solidProps);
+    }
+
+    // Characters vs each other. NPC bodies are pushable:false, so walking into
+    // one stops you without shoving them off their route, and two NPCs meeting
+    // on a path block rather than shunt each other — their stuck timer moves
+    // them on to the next waypoint.
+    this.physics.add.collider(this.player, this.npcs);
+    this.physics.add.collider(this.npcs, this.npcs);
+  }
+
+  /** Reports every NPC's position and body state for automated testing. */
+  private handleNpcSnapshotRequest = () => {
+    const world = this.physics.world;
+    EventBus.emit('physics-snapshot', {
+      // Total Collider objects registered in the physics world. This used to
+      // grow by one per wall tile per chunk load and never shrink.
+      colliders: world.colliders.getActive().length,
+      staticBodies: world.staticBodies.size,
+      dynamicBodies: world.bodies.size,
+    });
+    EventBus.emit(
+      'npc-snapshot',
+      this.npcs.map((npc) => {
+        const body = npc.body as Phaser.Physics.Arcade.Body | null;
+        return {
+          id: npc.npcId,
+          name: npc.npcName,
+          x: Math.round(npc.x),
+          y: Math.round(npc.y),
+          hasBody: Boolean(body),
+          bodyX: body ? Math.round(body.x) : null,
+          bodyY: body ? Math.round(body.y) : null,
+          bodyW: body ? Math.round(body.width) : null,
+          bodyH: body ? Math.round(body.height) : null,
+        };
+      }),
+    );
+  };
 
   // ─── Wearables: show the best shop-bought accessory on the player ──────────
 
@@ -910,12 +991,9 @@ export class GatherCampusScene extends OpenWorldScene {
       this.interactables.push(station); // base loop handles proximity prompts
       this.addNameLabel(def.name, def.x, def.y + 42);
 
-      // Solid so the player walks up to (not through) the station
-      const body = this.physics.add.staticImage(def.x, def.y, 'wall-tile');
+      // Solid so characters walk up to (not through) the station
+      const body = this.solidProps!.create(def.x, def.y, 'wall-tile') as Phaser.Physics.Arcade.Sprite;
       body.setVisible(false).setDisplaySize(48, 48).refreshBody();
-      if (this.player) {
-        this.physics.add.collider(this.player, body);
-      }
     });
   }
 
@@ -929,9 +1007,12 @@ export class GatherCampusScene extends OpenWorldScene {
     this.updateGreetings(time);
     this.updateDayNight(time);
 
-    // Proximity conversations — only one NPC may talk at a time
+    // Proximity conversations — only one NPC may talk at a time.
+    // updateMovement drives the velocity steering that replaced the old
+    // position tweens (tweens wrote straight past the physics step).
     let talkingNpc: TalkableNPC | null = null;
     for (const npc of this.npcs) {
+      npc.updateMovement(delta);
       const canStart = this.activeNpc === null || this.activeNpc === npc;
       if (npc.updateProximity(this.player.x, this.player.y, canStart)) {
         talkingNpc = npc;
@@ -968,6 +1049,7 @@ export class GatherCampusScene extends OpenWorldScene {
     if (this.gatherCleaned) return;
     this.gatherCleaned = true;
     EventBus.off('world-pause', this.handleWorldPause);
+    EventBus.off('request-npc-snapshot', this.handleNpcSnapshotRequest);
     EventBus.off('npc-conversation-end', this.handleQuestConversation);
     EventBus.off('adventure-completed', this.handleQuestGameResult);
     EventBus.off('demo-economy-updated', this.updateWearable);

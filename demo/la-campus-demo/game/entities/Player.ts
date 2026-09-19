@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { EventBus } from '@/components/phaser/EventBus';
+import { spriteFeetBody } from '../world/characterBody';
 
 /**
  * Player entity for top-down movement
@@ -43,12 +44,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Scale sprite to 64x64 display (sprites are 96x96 per frame)
     this.setDisplaySize(64, 64);
 
-    // Configure physics body
+    // Configure physics body — a shallow box at the feet, shared with the
+    // NPCs via characterBody.ts so every character collides identically.
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
+      const feet = spriteFeetBody();
       body.setCollideWorldBounds(true);
-      body.setSize(40, 40);   // Collision box — slightly smaller than display
-      body.setOffset(28, 40); // Offset within 96px frame to align feet
+      body.setSize(feet.width, feet.height);
+      body.setOffset(feet.offsetX, feet.offsetY);
     }
 
     // Setup controls
