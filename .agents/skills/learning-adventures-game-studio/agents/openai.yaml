@@ -1,0 +1,4 @@
+interface:
+  display_name: "Learning Adventures Game Studio"
+  short_description: "Design and build educational mini-games"
+  default_prompt: "Use $learning-adventures-game-studio to design a playable educational mini-game from this concept."

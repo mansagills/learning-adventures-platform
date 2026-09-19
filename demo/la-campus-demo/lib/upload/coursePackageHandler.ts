@@ -1,4 +1,10 @@
 import AdmZip from 'adm-zip';
+import {
+  readZipEntry,
+  assertArchiveWithinLimits,
+  MAX_ENTRY_BYTES,
+  MAX_MANIFEST_BYTES,
+} from '@/lib/zip-limits';
 import { prisma } from '@/lib/prisma';
 import path from 'path';
 import fs from 'fs/promises';
@@ -52,6 +58,8 @@ export async function processCoursePackage(
   const buffer = Buffer.from(await zipFile.arrayBuffer());
   const zip = new AdmZip(buffer);
 
+  assertArchiveWithinLimits(zip);
+
   // Find metadata.json
   const manifestEntry = zip.getEntry('metadata.json');
   if (!manifestEntry) {
@@ -59,7 +67,7 @@ export async function processCoursePackage(
   }
 
   const manifest: CourseManifest = JSON.parse(
-    manifestEntry.getData().toString('utf8')
+    readZipEntry(manifestEntry, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
   );
 
   // Validate manifest
@@ -106,7 +114,7 @@ export async function processCoursePackage(
       continue;
     }
 
-    const lessonData = lessonEntry.getData();
+    const lessonData = readZipEntry(lessonEntry, MAX_ENTRY_BYTES, lessonMeta.file);
     const lessonFileName = path.basename(lessonMeta.file);
     const stagingFilePath = path.join(stagingDir, lessonFileName);
 
@@ -127,7 +135,10 @@ export async function processCoursePackage(
     if (thumbnailEntry) {
       const thumbnailFileName = path.basename(manifest.thumbnail);
       const thumbnailStagingPath = path.join(stagingDir, thumbnailFileName);
-      await fs.writeFile(thumbnailStagingPath, thumbnailEntry.getData());
+      await fs.writeFile(
+        thumbnailStagingPath,
+        readZipEntry(thumbnailEntry, MAX_ENTRY_BYTES, manifest.thumbnail)
+      );
       thumbnailPath = `/staging/lessons/courses/${slug}/${thumbnailFileName}`;
     }
   }
@@ -325,7 +336,9 @@ export function isCoursePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
-    const data = JSON.parse(manifest.getData().toString('utf8'));
+    const data = JSON.parse(
+      readZipEntry(manifest, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
+    );
     return Array.isArray(data.lessons) && data.lessons.length > 0;
   } catch {
     return false;
@@ -350,7 +363,9 @@ export function validateCoursePackage(zip: AdmZip): {
 
   let manifestData: CourseManifest;
   try {
-    manifestData = JSON.parse(manifest.getData().toString('utf8'));
+    manifestData = JSON.parse(
+      readZipEntry(manifest, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
+    );
   } catch {
     errors.push('Invalid JSON in metadata.json');
     return { valid: false, errors };

@@ -16,9 +16,16 @@ import { AudioToggle } from '@/components/world/AudioToggle';
 import * as campusAudio from '@/game/world/campusAudio';
 import Minimap from '@/components/world/Minimap';
 import { demoEconomy } from '@/game/world/demoEconomy';
+import { wearableForOwned } from '@/game/world/wearables';
+import { getIdentity, saveIdentity } from '@/game/world/playerIdentity';
+import { chapter0 } from '@/game/world/chapter0';
+import { chapter1 } from '@/game/world/chapter1';
+import { storyItems } from '@/game/world/storyItems';
 import { WelcomeOverlay } from '@/components/world/WelcomeOverlay';
 import { hasSeenWelcome, resetWelcomeSeen } from '@/game/world/welcomeState';
 import { RestartDemoButton } from '@/components/world/RestartDemoButton';
+import { StoryItemsChip } from '@/components/world/StoryItemsChip';
+import { TouchControls } from '@/components/world/TouchControls';
 import { resetDemo } from '@/game/world/demoReset';
 
 const PhaserGame = dynamic(
@@ -67,13 +74,20 @@ export default function CampusSandboxPage() {
       (window as any).__campusTest.shopOpened = true;
       setShowShop(true);
     };
-    const handleQuestCompleted = (data: { xp: number }) => {
-      demoEconomy.addXP(data.xp, 'Racing License quest');
+    const handleQuestCompleted = (data: { xp: number; questId?: string }) => {
+      const reason =
+        data.questId === 'chapter-0-first-spark' ? 'First Spark'
+        : data.questId === 'chapter-1-null-run' ? 'Null Fragment recovered'
+        : 'Racing License quest';
+      demoEconomy.addXP(data.xp, reason);
     };
     const handleOpenJobBoard = () => {
       (window as any).__campusTest.questBoardOpened = true;
       setNotice('📋 Quest Board would open here (requires login)');
       setTimeout(() => setNotice(null), 3000);
+    };
+    const handleDayNight = (data: unknown) => {
+      (window as any).__campusTest.dayNight = data;
     };
     const handlePosition = (data: { x: number; y: number }) => {
       (window as any).__campusTest.position = data;
@@ -101,11 +115,44 @@ export default function CampusSandboxPage() {
         EventBus.emit('adventure-completed', { adventureId, score }),
       getEconomy: () => demoEconomy.snapshot(),
       buyItem: (itemId: string) => demoEconomy.purchase(itemId),
+      wearable: () => wearableForOwned(demoEconomy.snapshot().owned),
+      identity: getIdentity,
+      chapter0: () => chapter0.snapshot(),
+      chapter1: () => chapter1.snapshot(),
+      storyItems: () => storyItems.list(),
+      playIntro: () => EventBus.emit('play-intro-cinematic'),
+      setDayPhase: (phase: number | null) => EventBus.emit('set-day-phase', { phase }),
+      shootHoops: () => EventBus.emit('shoot-hoops'),
+      setIdentity: (name: string, avatarId: string) => {
+        const saved = saveIdentity({ name, avatarId });
+        EventBus.emit('set-avatar', { avatarId: saved.avatarId });
+        return saved;
+      },
       openShop: () => setShowShop(true),
       audio: campusAudio,
       hasSeenWelcome,
       resetWelcome: () => { resetWelcomeSeen(); setShowWelcome(true); },
       resetDemo,
+      // Resolves with every NPC's position + physics body (collision testing)
+      npcs: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('npc-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('npc-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
+      // Resolves with physics-world totals (collider/body leak testing)
+      physics: () =>
+        new Promise((resolve) => {
+          const once = (data: unknown) => {
+            EventBus.off('physics-snapshot', once);
+            resolve(data);
+          };
+          EventBus.on('physics-snapshot', once);
+          EventBus.emit('request-npc-snapshot', {});
+        }),
     };
 
     EventBus.on('npc-conversation', handleConversation);
@@ -114,6 +161,7 @@ export default function CampusSandboxPage() {
     EventBus.on('open-shop', handleOpenShop);
     EventBus.on('open-job-board', handleOpenJobBoard);
     EventBus.on('minimap-position', handlePosition);
+    EventBus.on('day-night-updated', handleDayNight);
     EventBus.on('quest-updated', handleQuestUpdate);
     EventBus.on('exploration-updated', handleExplorationUpdate);
     EventBus.on('quest-completed', handleQuestCompleted);
@@ -125,6 +173,7 @@ export default function CampusSandboxPage() {
       EventBus.off('open-shop', handleOpenShop);
       EventBus.off('open-job-board', handleOpenJobBoard);
       EventBus.off('minimap-position', handlePosition);
+      EventBus.off('day-night-updated', handleDayNight);
       EventBus.off('quest-updated', handleQuestUpdate);
       EventBus.off('exploration-updated', handleExplorationUpdate);
       EventBus.off('quest-completed', handleQuestCompleted);
@@ -137,11 +186,22 @@ export default function CampusSandboxPage() {
     EventBus.emit('world-pause', Boolean(currentAdventure || showShop || showWelcome));
   }, [currentAdventure, showShop, showWelcome]);
 
+  // Dark ground, not cream: the Phaser canvas is a fixed 16:9 FIT, so
+  // whatever sits behind it shows as letterbox bars on other aspect ratios —
+  // dark reads as part of the game, cream reads as a rendering bug.
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#FFFDF5]">
+    <div className="relative w-full h-screen overflow-hidden bg-[#050810]">
       <div className="absolute inset-0">
         <PhaserGame variant="gather" />
       </div>
+
+      {/* On-screen joystick — mobile only (md:hidden inside the component).
+          Same modal-disable logic as the world-pause effect above. */}
+      <TouchControls
+        side="right"
+        bottomOffset={96}
+        disabled={Boolean(currentAdventure || showShop || showWelcome)}
+      />
 
       {currentAdventure && (
         <AdventureEmbed
@@ -165,6 +225,8 @@ export default function CampusSandboxPage() {
 
       {/* Demo quest objective HUD (same as /world/campus) */}
       <QuestTracker />
+
+      <StoryItemsChip />
 
       {/* Demo economy: XP chip + campus shop (sandbox-local, no backend) */}
       <DemoXpChip />
@@ -190,11 +252,12 @@ export default function CampusSandboxPage() {
         </div>
       )}
 
-      <div className="absolute top-4 left-4 bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">
-        Learning Adventures — Campus Demo Preview
+      {/* Shortened on narrow screens so it never runs under the XP chip */}
+      <div className="absolute top-4 left-4 max-w-[55vw] truncate bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">
+        <span className="hidden sm:inline">Learning Adventures — </span>Campus Demo Preview
       </div>
 
-      {showWelcome && <WelcomeOverlay onDismiss={() => setShowWelcome(false)} />}
+      {showWelcome && <WelcomeOverlay identityPicker onDismiss={() => setShowWelcome(false)} />}
     </div>
   );
 }

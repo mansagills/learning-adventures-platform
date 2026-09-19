@@ -235,17 +235,17 @@ export class WorkflowExecutor {
     const agent = new GameIdeaGeneratorAgent();
 
     // Build prompt based on action and context
-    let prompt = '';
+    let _prompt = '';
     if (context.input?.topic) {
-      prompt = `Generate 3 educational game ideas for the topic: ${context.input.topic}`;
+      _prompt = `Generate 3 educational game ideas for the topic: ${context.input.topic}`;
       if (context.input.gradeLevel) {
-        prompt += ` (Grade level: ${context.input.gradeLevel})`;
+        _prompt += ` (Grade level: ${context.input.gradeLevel})`;
       }
       if (context.input.subject) {
-        prompt += ` (Subject: ${context.input.subject})`;
+        _prompt += ` (Subject: ${context.input.subject})`;
       }
     } else {
-      prompt =
+      _prompt =
         'Generate 3 creative educational game ideas for elementary students';
     }
 
@@ -268,7 +268,7 @@ export class WorkflowExecutor {
    */
   private async executeContentBuilder(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement ContentBuilderAgent
     // For now, return mock response
@@ -287,7 +287,7 @@ export class WorkflowExecutor {
    */
   private async executeQualityAssurance(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement QualityAssuranceAgent
     // For now, return mock response
@@ -306,7 +306,7 @@ export class WorkflowExecutor {
    */
   private async executeCatalogManager(
     action: string,
-    context: any
+    _context: any
   ): Promise<any> {
     // TODO: Implement CatalogManagerAgent
     // For now, return mock response

@@ -94,7 +94,7 @@ export default function LoginPageContent({
       const destination = formData.role === 'STUDENT' ? '/world/create' : '/';
       router.push(destination);
     } else {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });

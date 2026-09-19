@@ -20,12 +20,22 @@ vi.mock('bcryptjs', () => ({
   },
 }));
 
+// Mock the Supabase service client the route creates the auth user with
+const supabaseMock = vi.hoisted(() => ({ createUser: vi.fn() }));
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: () => ({
+    auth: { admin: { createUser: supabaseMock.createUser } },
+  }),
+}));
+import { createdUser } from '../../helpers/supabaseAdmin';
+
 // Import AFTER mocking
 import { POST } from '@/app/api/auth/signup/route';
 
 describe('Signup API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    supabaseMock.createUser.mockResolvedValue(createdUser());
   });
 
   it('should prevent ADMIN role creation (mass assignment vulnerability fix)', async () => {

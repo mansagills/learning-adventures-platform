@@ -1,7 +1,5 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Container from '@/components/Container';
 import Icon from '@/components/Icon';
@@ -132,7 +130,7 @@ function ProgressContent() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-ink-900">
-                  Completed "Fractions Fundamentals"
+                  Completed &quot;Fractions Fundamentals&quot;
                 </p>
                 <p className="text-sm text-gray-600">
                   Earned 50 XP • 2 hours ago
@@ -146,7 +144,7 @@ function ProgressContent() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-ink-900">
-                  Earned "Math Master" badge
+                  Earned &quot;Math Master&quot; badge
                 </p>
                 <p className="text-sm text-gray-600">
                   Achievement unlocked • Yesterday
@@ -160,7 +158,7 @@ function ProgressContent() {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-ink-900">
-                  Started "Science Adventures"
+                  Started &quot;Science Adventures&quot;
                 </p>
                 <p className="text-sm text-gray-600">
                   New course enrolled • 3 days ago

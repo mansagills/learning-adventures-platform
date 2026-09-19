@@ -70,7 +70,7 @@ function CourseRequestSuccessContent() {
                       Confirmation Email
                     </p>
                     <p className="text-sm text-gray-600">
-                      You'll receive an email confirmation within the next few
+                      You&apos;ll receive an email confirmation within the next few
                       minutes
                     </p>
                   </div>
@@ -98,7 +98,7 @@ function CourseRequestSuccessContent() {
                       Quote & Timeline
                     </p>
                     <p className="text-sm text-gray-600">
-                      We'll send a detailed quote and development timeline for
+                      We&apos;ll send a detailed quote and development timeline for
                       approval
                     </p>
                   </div>
@@ -125,7 +125,7 @@ function CourseRequestSuccessContent() {
                       Delivery & Support
                     </p>
                     <p className="text-sm text-gray-600">
-                      You'll receive your course with ongoing support and
+                      You&apos;ll receive your course with ongoing support and
                       updates
                     </p>
                   </div>

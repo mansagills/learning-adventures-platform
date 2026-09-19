@@ -105,7 +105,7 @@ export async function checkLessonAccess(
   }
 
   // Get this lesson's progress
-  const thisLessonProgress = enrollment.lessonProgress.find(
+  const _thisLessonProgress = enrollment.lessonProgress.find(
     (p) => p.lessonId === lessonId
   );
 

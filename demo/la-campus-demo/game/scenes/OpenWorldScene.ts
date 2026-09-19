@@ -47,6 +47,17 @@ export class OpenWorldScene extends Phaser.Scene {
   // Chunk streaming state
   private mapData: number[][] = [];
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
+  /**
+   * Every wall tile body in the loaded chunks, in ONE static group.
+   *
+   * Previously each wall tile got its own `physics.add.collider(player, wall)`.
+   * Chunk teardown destroyed the tile but never removed the collider, so they
+   * piled up in the physics world for the life of the session and each one was
+   * walked separately every step. One group means one collider per colliding
+   * party, and members drop out of it automatically when their chunk is
+   * destroyed.
+   */
+  protected wallGroup?: Phaser.Physics.Arcade.StaticGroup;
   private lastCameraChunk = { cx: -1, cy: -1 };
 
   /** Subclasses (e.g. GatherCampusScene) pass their own scene key. */
@@ -156,6 +167,11 @@ export class OpenWorldScene extends Phaser.Scene {
     // Configure camera for open world
     this.cameras.main.setBounds(0, 0, WORLD_PIXEL_W, WORLD_PIXEL_H);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+
+    // Wall collision: one static group for every wall tile, collided against
+    // once. Must exist before the first chunk is built.
+    this.wallGroup = this.physics.add.staticGroup();
+    this.physics.add.collider(this.player, this.wallGroup);
 
     // Bootstrap chunk streaming (loads the 3×3 chunks around spawn)
     this.createInitialChunks();
@@ -269,7 +285,9 @@ export class OpenWorldScene extends Phaser.Scene {
   protected addBuildingLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '8px',
+      // 8px of a pixel face renders as mush at this zoom — building signs are
+      // meant to be read from across the plaza.
+      fontSize: '12px',
       color: '#ccddff',
       backgroundColor: '#050810DD',
       padding: { x: 6, y: 4 },
@@ -282,7 +300,8 @@ export class OpenWorldScene extends Phaser.Scene {
   protected addNameLabel(label: string, x: number, y: number): void {
     const text = this.add.text(x, y, label, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '6px',
+      // Was 6px: station names under the arcade cabinets were unreadable.
+      fontSize: '10px',
       color: '#00ccff',
       backgroundColor: '#050810CC',
       padding: { x: 4, y: 2 },
@@ -340,8 +359,31 @@ export class OpenWorldScene extends Phaser.Scene {
     this.updateChunks();
   }
 
+  /**
+   * While true, per-frame chunk streaming is skipped entirely. Used by the
+   * intro flyover (GatherCampusScene): every chunk is pre-loaded and the
+   * camera sweeps the whole map, so streaming would blank tiles mid-pan.
+   */
+  protected chunkStreamingPaused = false;
+
+  /** Force-load every chunk in the world (intro flyover establishing shot). */
+  protected loadAllChunks(): void {
+    for (let cy = 0; cy < TOTAL_CHUNK_ROWS; cy++) {
+      for (let cx = 0; cx < TOTAL_CHUNK_COLS; cx++) {
+        this.createChunk(cx, cy);
+      }
+    }
+  }
+
+  /** Drop chunks outside the 3×3 around the camera (after the flyover). */
+  protected trimChunksToCamera(): void {
+    this.lastCameraChunk = { cx: -1, cy: -1 };
+    this.updateChunks();
+  }
+
   /** Create/destroy chunks so only the 3×3 area around the camera is loaded. */
   private updateChunks(): void {
+    if (this.chunkStreamingPaused) return;
     const { cx, cy } = this.getCameraChunk();
     if (cx === this.lastCameraChunk.cx && cy === this.lastCameraChunk.cy) return;
     this.lastCameraChunk = { cx, cy };
@@ -404,15 +446,14 @@ export class OpenWorldScene extends Phaser.Scene {
           tileIndex === TILE.WALL_ENG ||
           tileIndex === TILE.WALL_BRICK
         ) {
-          const wall = this.physics.add.staticImage(
+          const wall = this.wallGroup!.create(
             px + TILE_SIZE / 2,
             py + TILE_SIZE / 2,
             'wall-tile',
-          );
+          ) as Phaser.Physics.Arcade.Sprite;
           wall.setVisible(false).setDisplaySize(TILE_SIZE, TILE_SIZE).refreshBody();
-          if (this.player) {
-            this.physics.add.collider(this.player, wall);
-          }
+          // Also tracked by the chunk group so unloading the chunk destroys it
+          // (which removes it from wallGroup too).
           group.add(wall);
         }
       }

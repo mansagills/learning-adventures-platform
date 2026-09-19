@@ -24,7 +24,7 @@ interface GenerateRequest {
 export async function POST(req: NextRequest) {
   try {
     // 1. Authenticate user
-    const { apiUser, error: authError } = await getApiUser();
+    const { apiUser } = await getApiUser();
     if (!apiUser || apiUser.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
 
     // Track failed attempt
     try {
-      const { apiUser, error: authError } = await getApiUser();
+      const { apiUser } = await getApiUser();
       if (apiUser) {
         await prisma.geminiUsage.create({
           data: {

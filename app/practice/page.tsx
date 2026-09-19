@@ -201,7 +201,7 @@ function PracticeContent() {
             <div>
               <h2 className="text-xl font-bold mb-1">Daily Challenge</h2>
               <p className="text-white/90 text-sm">
-                Complete today's challenge to earn bonus XP
+                Complete today&apos;s challenge to earn bonus XP
               </p>
             </div>
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">

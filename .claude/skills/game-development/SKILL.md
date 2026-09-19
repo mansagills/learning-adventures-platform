@@ -42,6 +42,8 @@ You are working on a game development project. This skill teaches the PRINCIPLES
 | Multiplayer, networking | `game-development/multiplayer` |
 | Visual style, asset pipeline, animation | `game-development/game-art` |
 | Sound design, music, adaptive audio | `game-development/game-audio` |
+| Sorceress sprite design, bulk prompt gen, Phaser integration | `game-development/sorceress-sprite-creator` |
+| Load Sorceress exports into Phaser scenes | `game-development/sprite-integration` |
 
 ---
 
@@ -161,6 +163,11 @@ Abstract input into ACTIONS, not raw keys:
 → `game-development/vr-ar` for comfort and immersion
 → `game-development/3d-games` for rendering
 → `game-development/multiplayer` for networking
+
+### Example 4: "Create sprites for the Learning Adventures campus world" (Sorceress workflow)
+→ `game-development/sorceress-sprite-creator` — full orchestrator: design → prompt gen → Phaser integration
+→ After Sorceress export only: `game-development/sprite-integration` for loading patterns
+→ Scene architecture questions: `game-development/2d-world-dev`
 
 ---
 

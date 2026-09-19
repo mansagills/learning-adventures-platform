@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserProgress {
@@ -49,7 +49,7 @@ export function useUserProgress() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
     if (status !== 'authenticated' || !session) {
       setLoading(false);
       return;
@@ -72,11 +72,11 @@ export function useUserProgress() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, status]);
 
   useEffect(() => {
     fetchProgress();
-  }, [session, status]);
+  }, [fetchProgress]);
 
   return {
     data,

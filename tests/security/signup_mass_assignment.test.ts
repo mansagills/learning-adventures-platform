@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '@/app/api/auth/signup/route';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 import { NextRequest } from 'next/server';
 
 // Mock prisma
@@ -21,8 +20,18 @@ vi.mock('bcryptjs', () => ({
   }
 }));
 
+// Mock the Supabase service client the route creates the auth user with
+const supabaseMock = vi.hoisted(() => ({ createUser: vi.fn() }));
+vi.mock('@/lib/supabase/server', () => ({
+  createServiceClient: () => ({
+    auth: { admin: { createUser: supabaseMock.createUser } },
+  }),
+}));
+import { createdUser } from '../helpers/supabaseAdmin';
+
 describe('Security: Signup Mass Assignment', () => {
   beforeEach(() => {
+    supabaseMock.createUser.mockResolvedValue(createdUser());
     vi.clearAllMocks();
   });
 

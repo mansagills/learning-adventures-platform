@@ -1,5 +1,3 @@
-import { MetadataRoute } from 'next';
-
 export function GET(): Response {
   const robotsTxt = `User-agent: *
 Allow: /

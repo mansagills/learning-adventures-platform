@@ -42,7 +42,7 @@ const statusConfig = {
 
 export default function GoalCard({
   goal,
-  onUpdate,
+  onUpdate: _onUpdate,
   onDelete,
   onComplete,
   onUpdateProgress,
@@ -51,7 +51,7 @@ export default function GoalCard({
   const [loading, setLoading] = useState(false);
 
   const typeConfig = goalTypeConfig[goal.type];
-  const status = statusConfig[goal.status];
+  const _status = statusConfig[goal.status];
   const progressPercent = goal.progressPercent || 0;
   const isComplete = goal.isComplete || goal.status === 'COMPLETED';
 

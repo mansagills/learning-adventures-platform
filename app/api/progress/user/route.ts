@@ -1,15 +1,13 @@
 export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/progress/user
  * Get all progress for the current user
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { apiUser, error: authError } = await getApiUser();
 
@@ -55,8 +53,6 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch user progress' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

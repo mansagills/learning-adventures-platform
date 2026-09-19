@@ -36,6 +36,7 @@ const TOTAL_CHUNK_ROWS = WORLD_ROWS / CHUNK_TILE_ROWS;  // 6
  * The world is divided into a 6×6 grid of 16×12-tile chunks.
  * Only the 3×3 area of chunks surrounding the camera centre is active at any time.
  */
+
 export class OpenWorldScene extends Phaser.Scene {
   protected player?: Player;
   protected interactables: InteractableObject[] = [];
@@ -48,6 +49,9 @@ export class OpenWorldScene extends Phaser.Scene {
   private mapData: number[][] = [];
   private chunks: Map<string, Phaser.GameObjects.Group> = new Map();
   private lastCameraChunk = { cx: -1, cy: -1 };
+
+  // Quest-giver NPCs — keyed by buildingId for status updates
+  private questGiverNPCs: Map<string, NPC> = new Map();
 
   /** Subclasses (e.g. GatherCampusScene) pass their own scene key. */
   constructor(key: string = 'OpenWorldScene') {
@@ -453,6 +457,20 @@ export class OpenWorldScene extends Phaser.Scene {
     }
   };
 
+  // NOTE: app/world/page.tsx emits 'quest-status-update', but this scene has
+  // no marker rendering to listen with — #158 added the listener and a call to
+  // updateQuestMarkers() without ever writing that method, so the event was
+  // never really handled here. WorldScene.setQuestMarker() is a complete
+  // implementation of the same feature for the other scene; reviving it here
+  // mainly needs marker positions for this map's buildings, which come from
+  // getBuildingDoorPositions() rather than WorldScene's hardcoded table.
+  //
+  // A parallel hardcoded QUEST_GIVERS table also used to sit at the top of
+  // this file, carrying door tiles plus quest ids, rewards and greeting
+  // dialog. Nothing read it -- the scene already sources door positions from
+  // getBuildingDoorPositions() -- so it is removed here rather than left as
+  // a second source of truth. Recover it from git history (PR #182) if the
+  // quest metadata is wanted.
   private setupEventListeners(): void {
     EventBus.on('save-player-position', this.savePositionHandler);
     EventBus.on('set-avatar', this.handleSetAvatar);
@@ -466,6 +484,8 @@ export class OpenWorldScene extends Phaser.Scene {
     this.cleanedUp = true;
     EventBus.off('save-player-position', this.savePositionHandler);
     EventBus.off('set-avatar', this.handleSetAvatar);
+
+    this.questGiverNPCs.clear();
 
     // Clean up interactables before scene stops
     this.interactables.forEach((interactable) => {

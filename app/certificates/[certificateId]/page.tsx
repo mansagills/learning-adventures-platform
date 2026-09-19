@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CertificateView from '@/components/certificates/CertificateView';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -24,11 +24,7 @@ export default function CertificatePage({ params }: CertificatePageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCertificate();
-  }, [certificateId]);
-
-  const fetchCertificate = async () => {
+  const fetchCertificate = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/certificates/${certificateId}`);
@@ -45,7 +41,11 @@ export default function CertificatePage({ params }: CertificatePageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [certificateId]);
+
+  useEffect(() => {
+    fetchCertificate();
+  }, [fetchCertificate]);
 
   const handlePrint = () => {
     window.print();
@@ -146,11 +146,11 @@ export default function CertificatePage({ params }: CertificatePageProps) {
             How to Save as PDF
           </h3>
           <ol className="list-decimal list-inside text-blue-800 space-y-1 text-sm">
-            <li>Click "Download PDF" or "Print Certificate" button above</li>
+            <li>Click &quot;Download PDF&quot; or &quot;Print Certificate&quot; button above</li>
             <li>
-              In the print dialog, select "Save as PDF" as the destination
+              In the print dialog, select &quot;Save as PDF&quot; as the destination
             </li>
-            <li>Click "Save" and choose where to save your certificate</li>
+            <li>Click &quot;Save&quot; and choose where to save your certificate</li>
           </ol>
           <p className="mt-4 text-xs text-blue-700">
             <strong>Tip:</strong> You can share this page URL to allow others to

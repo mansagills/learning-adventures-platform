@@ -193,7 +193,7 @@ export async function revealAnswerWithXP(
  */
 export function calculateRevealCost(
   questionPoints: number,
-  userLevel: number = 1
+  _userLevel: number = 1
 ): number {
   // Base cost is 10 XP, but can scale with question difficulty
   const baseCost = 10;

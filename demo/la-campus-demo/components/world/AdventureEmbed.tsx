@@ -8,6 +8,8 @@ interface AdventureEmbedProps {
   type: 'game' | 'lesson';
   onClose: () => void;
   onComplete?: (score?: number) => void;
+  manualCompleteScore?: number;
+  isCompletionAccepted?: (score?: number) => boolean;
   rewardXP?: number;
 }
 
@@ -32,6 +34,8 @@ export function AdventureEmbed({
   type,
   onClose,
   onComplete,
+  manualCompleteScore,
+  isCompletionAccepted,
   rewardXP = 50,
 }: AdventureEmbedProps) {
   const [completed, setCompleted] = useState(false);
@@ -45,8 +49,9 @@ export function AdventureEmbed({
         (data.type === 'game-complete' || data.type === 'lesson-complete') &&
         data.adventureId === adventureId
       ) {
-        setCompleted(true);
-        onComplete?.(data.score);
+        const score = typeof data.score === 'number' ? data.score : undefined;
+        setCompleted(isCompletionAccepted?.(score) ?? true);
+        onComplete?.(score);
       }
     };
 
@@ -60,7 +65,7 @@ export function AdventureEmbed({
       window.removeEventListener('message', handleMessage);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [adventureId, onComplete, onClose]);
+  }, [adventureId, isCompletionAccepted, onComplete, onClose]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
@@ -90,7 +95,10 @@ export function AdventureEmbed({
           <div className="flex items-center gap-3">
             {!completed && (
               <button
-                onClick={() => { setCompleted(true); onComplete?.(); }}
+                onClick={() => {
+                  setCompleted(isCompletionAccepted?.(manualCompleteScore) ?? true);
+                  onComplete?.(manualCompleteScore);
+                }}
                 className="px-4 py-1.5 rounded transition-all hover:brightness-125"
                 style={{
                   background: 'rgba(0,255,179,0.1)',
