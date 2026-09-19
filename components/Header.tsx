@@ -13,12 +13,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, status } = useAuth();
 
-  const _handleCTAClick = () => {
-    if (user) {
-      window.location.href = '/world';
-    } else {
-      window.location.href = '/login?mode=signup';
-    }
+  const handleCTAClick = () => {
+    window.location.href = '/login?mode=signup';
     analytics.clickCTA('Header CTA', 'header');
   };
 
@@ -26,8 +22,8 @@ export default function Header() {
     window.location.href = '/login?mode=signin';
   };
 
-  const handleSignUp = () => {
-    window.location.href = '/login?mode=signup';
+  const handlePlayCampusClick = () => {
+    analytics.clickCTA('Header CTA', 'header');
   };
 
   const toggleMenu = () => {
@@ -113,6 +109,7 @@ export default function Header() {
                 )}
                 <Link
                   href="/world"
+                  onClick={() => handlePlayCampusClick()}
                   className="text-ink-600 hover:text-brand-500 transition-colors duration-250 font-medium"
                 >
                   Play Campus
@@ -128,7 +125,7 @@ export default function Header() {
                   Sign In
                 </button>
                 <Button
-                  onClick={() => handleSignUp()}
+                  onClick={() => handleCTAClick()}
                   data-analytics="header-cta-sign-up"
                 >
                   Sign Up
@@ -204,7 +201,10 @@ export default function Header() {
                     <Link
                       href="/world"
                       className="block text-center py-2 text-brand-500 font-medium"
-                      onClick={() => setIsMenuOpen(false)}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handlePlayCampusClick();
+                      }}
                     >
                       Play Campus
                     </Link>
@@ -226,7 +226,7 @@ export default function Header() {
                     <Button
                       onClick={() => {
                         setIsMenuOpen(false);
-                        handleSignUp();
+                        handleCTAClick();
                       }}
                       className="w-full"
                       data-analytics="mobile-header-cta-sign-up"
