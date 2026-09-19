@@ -1,4 +1,10 @@
 import AdmZip from 'adm-zip';
+import {
+  readZipEntry,
+  assertArchiveWithinLimits,
+  MAX_ENTRY_BYTES,
+  MAX_MANIFEST_BYTES,
+} from '@/lib/zip-limits';
 import { prisma } from '@/lib/prisma';
 import path from 'path';
 import fs from 'fs/promises';
@@ -40,6 +46,8 @@ export async function processGamePackage(
   const buffer = Buffer.from(await zipFile.arrayBuffer());
   const zip = new AdmZip(buffer);
 
+  assertArchiveWithinLimits(zip);
+
   // Find metadata.json
   const manifestEntry = zip.getEntry('metadata.json');
   if (!manifestEntry) {
@@ -47,7 +55,7 @@ export async function processGamePackage(
   }
 
   const manifest: GameManifest = JSON.parse(
-    manifestEntry.getData().toString('utf8')
+    readZipEntry(manifestEntry, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
   );
 
   // Validate manifest
@@ -88,7 +96,7 @@ export async function processGamePackage(
   await fs.mkdir(stagingDir, { recursive: true });
 
   // Extract and save the game file to staging
-  const gameData = gameEntry.getData();
+  const gameData = readZipEntry(gameEntry, MAX_ENTRY_BYTES, manifest.gameFile);
   await fs.writeFile(stagingFilePath, gameData);
 
   // Try to extract additional metadata from HTML if available
@@ -170,7 +178,9 @@ export function isGamePackage(zip: AdmZip): boolean {
   if (!manifest) return false;
 
   try {
-    const data = JSON.parse(manifest.getData().toString('utf8'));
+    const data = JSON.parse(
+      readZipEntry(manifest, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
+    );
     // If it has 'gameFile' field, it's a game package
     // If it has 'lessons' array, it's a course package
     return !!data.gameFile && !data.lessons;
@@ -197,7 +207,9 @@ export function validateGamePackage(zip: AdmZip): {
 
   let manifestData: GameManifest;
   try {
-    manifestData = JSON.parse(manifest.getData().toString('utf8'));
+    manifestData = JSON.parse(
+      readZipEntry(manifest, MAX_MANIFEST_BYTES, 'metadata.json').toString('utf8')
+    );
   } catch {
     errors.push('Invalid JSON in metadata.json');
     return { valid: false, errors };
