@@ -234,24 +234,10 @@ export class WorkflowExecutor {
   ): Promise<any> {
     const agent = new GameIdeaGeneratorAgent();
 
-    // Build prompt based on action and context
-    let _prompt = '';
-    if (context.input?.topic) {
-      _prompt = `Generate 3 educational game ideas for the topic: ${context.input.topic}`;
-      if (context.input.gradeLevel) {
-        _prompt += ` (Grade level: ${context.input.gradeLevel})`;
-      }
-      if (context.input.subject) {
-        _prompt += ` (Subject: ${context.input.subject})`;
-      }
-    } else {
-      _prompt =
-        'Generate 3 creative educational game ideas for elementary students';
-    }
-
     const result = await agent.execute({
       subject: context.input?.subject || 'math',
       gradeLevel: context.input?.gradeLevel || '3-5',
+      topic: context.input?.topic,
       learningObjectives: [],
     });
 

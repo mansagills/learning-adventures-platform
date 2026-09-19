@@ -27,11 +27,7 @@ export async function POST(request: NextRequest) {
     // NOTE: unlike /api/agent/[agentId]/chat, this route does not gate on
     // auth -- it falls back to an 'anonymous' conversation id below, which
     // reads as deliberate rather than a missing check.
-    //
-    // `context` is accepted in the body but never forwarded to
-    // agent.execute(). Prefixed to keep the field visible while it is
-    // unused; wiring it through is a product decision, not a lint fix.
-    const { message, conversationId, context: _context } = body;
+    const { message, conversationId, context } = body;
 
     if (!message) {
       return NextResponse.json(
@@ -47,7 +43,8 @@ export async function POST(request: NextRequest) {
     const result = await agent.execute(
       message,
       conversationId || `user-${apiUser?.id || 'anonymous'}`,
-      apiUser?.id
+      apiUser?.id,
+      context
     );
 
     return NextResponse.json(result);

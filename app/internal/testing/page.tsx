@@ -150,10 +150,9 @@ export default function TestingAdminPage() {
     issueSeverity: null as 'CRITICAL' | 'MAJOR' | 'MINOR' | 'TRIVIAL' | null,
   });
 
-  // Handle URL params for tab and selection
+  // Handle URL params for tab
   useEffect(() => {
     const tab = searchParams.get('tab');
-    const _selectId = searchParams.get('select');
 
     if (tab === 'courses') {
       setActiveTab('courses');
@@ -165,6 +164,26 @@ export default function TestingAdminPage() {
     fetchGames();
     fetchCourses();
   }, []);
+
+  // Once games/courses are loaded, select the item named by ?select= (game id/gameId or course id/slug)
+  useEffect(() => {
+    const selectId = searchParams.get('select');
+    if (!selectId) return;
+
+    const tab = searchParams.get('tab');
+    if (tab === 'courses') {
+      const course = courses.find(
+        (c) => c.id === selectId || c.slug === selectId
+      );
+      if (course) handleSelectCourse(course);
+    } else {
+      const game = games.find(
+        (g) => g.id === selectId || g.gameId === selectId
+      );
+      if (game) handleSelectGame(game);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [games, courses, searchParams]);
 
   const fetchGames = async () => {
     try {

@@ -42,7 +42,7 @@ const statusConfig = {
 
 export default function GoalCard({
   goal,
-  onUpdate: _onUpdate,
+  onUpdate,
   onDelete,
   onComplete,
   onUpdateProgress,
@@ -51,7 +51,7 @@ export default function GoalCard({
   const [loading, setLoading] = useState(false);
 
   const typeConfig = goalTypeConfig[goal.type];
-  const _status = statusConfig[goal.status];
+  const status = statusConfig[goal.status];
   const progressPercent = goal.progressPercent || 0;
   const isComplete = goal.isComplete || goal.status === 'COMPLETED';
 
@@ -93,6 +93,20 @@ export default function GoalCard({
     }
   };
 
+  const handleTogglePause = async () => {
+    if (!onUpdate) return;
+    setLoading(true);
+    try {
+      await onUpdate(goal.id, {
+        status: goal.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED',
+      });
+    } catch (error) {
+      console.error('Failed to update goal:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const deadlineText = formatDeadline(goal.deadline);
 
   return (
@@ -116,6 +130,17 @@ export default function GoalCard({
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                   <Icon name="check" size={12} className="mr-1" />
                   Complete
+                </span>
+              )}
+              {!isComplete && goal.status !== 'ACTIVE' && (
+                <span
+                  className={cn(
+                    'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
+                    status.bgColor,
+                    status.color
+                  )}
+                >
+                  {status.label}
                 </span>
               )}
             </div>
@@ -183,6 +208,22 @@ export default function GoalCard({
                   <span>Mark Complete</span>
                 </button>
               )}
+              {!isComplete &&
+                (goal.status === 'ACTIVE' || goal.status === 'PAUSED') &&
+                onUpdate && (
+                  <button
+                    onClick={handleTogglePause}
+                    className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center space-x-2 text-sm"
+                    disabled={loading}
+                  >
+                    <Icon
+                      name={goal.status === 'PAUSED' ? 'play' : 'clock'}
+                      size={16}
+                      className="text-gray-600"
+                    />
+                    <span>{goal.status === 'PAUSED' ? 'Resume Goal' : 'Pause Goal'}</span>
+                  </button>
+                )}
               {onDelete && (
                 <button
                   onClick={handleDelete}

@@ -11,6 +11,7 @@ import type { AgentResult, GameConcept } from './types';
 interface GameIdeaRequest {
   subject: 'math' | 'science' | 'english' | 'history' | 'interdisciplinary';
   gradeLevel: string;
+  topic?: string;
   learningObjectives?: string[];
   skills?: string[];
   preferences?: {
@@ -117,6 +118,10 @@ Generate 3-5 diverse concepts per request, exploring different gameplay styles.`
     let prompt = `Generate 3-5 creative educational game concepts for:\n\n`;
     prompt += `- Subject: ${input.subject}\n`;
     prompt += `- Grade Level: ${input.gradeLevel}\n`;
+
+    if (input.topic) {
+      prompt += `- Specific Topic: ${input.topic}\n`;
+    }
 
     if (input.learningObjectives && input.learningObjectives.length > 0) {
       prompt += `- Learning Objectives: ${input.learningObjectives.join(', ')}\n`;

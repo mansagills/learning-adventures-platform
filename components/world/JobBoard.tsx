@@ -24,15 +24,14 @@ interface Job {
 interface JobBoardProps {
   onClose: () => void;
   onStartJob: (job: Job) => void;
-  onJobComplete: (currencyEarned: number, xpEarned: number, newLevel: number, leveledUp: boolean) => void;
 }
 
-export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }: JobBoardProps) {
+export function JobBoard({ onClose, onStartJob }: JobBoardProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [completedToday, setCompletedToday] = useState(0);
   const [dailyLimit, setDailyLimit] = useState(5);
   const [loading, setLoading] = useState(true);
-  const [feedback, _setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -62,7 +61,17 @@ export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }:
   }, [onClose]);
 
   const handleTakeJob = (job: Job) => {
-    if (!job.available) return;
+    if (!job.available) {
+      const reason = job.onCooldown
+        ? `Come back in ${job.cooldownEndsAt ? formatCooldown(job.cooldownEndsAt) : 'a bit'} — this quest is on cooldown.`
+        : !job.meetsLevel
+          ? `Requires Level ${job.minLevel} — keep leveling up!`
+          : job.dailyLimitReached
+            ? 'Daily quest limit reached — come back tomorrow.'
+            : 'This quest is not available right now.';
+      setFeedback({ type: 'error', message: reason });
+      return;
+    }
     onStartJob(job);
     onClose();
   };
@@ -76,7 +85,14 @@ export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }:
     return `${m}m`;
   };
 
-  const _availableCount = jobs.filter((j) => j.available).length;
+  const availableCount = jobs.filter((j) => j.available).length;
+
+  // Auto-dismiss feedback toasts after a few seconds
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 4000);
+    return () => clearTimeout(timer);
+  }, [feedback]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
@@ -99,7 +115,7 @@ export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }:
                 QUEST BOARD
               </h2>
               <p style={{ fontFamily: 'var(--font-pixel, monospace)', fontSize: '6px', color: '#ccddff', marginTop: '4px' }}>
-                Choose a quest · earn campus rewards
+                Choose a quest · earn campus rewards · {availableCount} available
               </p>
             </div>
           </div>
@@ -171,12 +187,12 @@ export function JobBoard({ onClose, onStartJob, onJobComplete: _onJobComplete }:
               return (
                 <div
                   key={job.jobId}
-                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
+                  className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
                     job.available
-                      ? 'border-[#F59E0B]/40 bg-[#F59E0B]/5 hover:bg-[#F59E0B]/10 cursor-pointer'
-                      : 'border-white/10 bg-white/5 opacity-60'
+                      ? 'border-[#F59E0B]/40 bg-[#F59E0B]/5 hover:bg-[#F59E0B]/10'
+                      : 'border-white/10 bg-white/5 opacity-60 hover:opacity-75'
                   }`}
-                  onClick={() => job.available && handleTakeJob(job)}
+                  onClick={() => handleTakeJob(job)}
                 >
                   {/* Icon */}
                   <div className="text-4xl shrink-0">{job.iconEmoji}</div>
