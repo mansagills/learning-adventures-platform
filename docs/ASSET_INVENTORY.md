@@ -6,9 +6,15 @@ come from, and what is its licence?* — and *if we replace a pack, what breaks?
 Written to support two decisions: how widely the prototype can be shared, and
 what to tell a game developer rebuilding this from scratch.
 
-**Scope.** All 110 PNG files under `public/game-assets/`. That tree is mirrored
-byte-for-byte into `demo/la-campus-demo/public/game-assets/`, which is what the
-public campus demo actually deploys. Both copies total **50.7 MB**.
+**Scope.** All 110 PNG files under `public/game-assets/`.
+
+> **Status: §5's first and fifth recommendations have been applied.** The
+> 36 unloaded files were deleted from `demo/la-campus-demo/`, taking that
+> tree from 110 files / 50.7 MB to **74 files / 1.4 MB**, and the misleading
+> header on `modernTiles.ts` was corrected. The root `public/game-assets/`
+> still holds all 110. Everything measured below describes the state before
+> that deletion, so the numbers still explain *why* it was done; §6 records
+> what changed.
 
 > **Method note.** Provenance below comes from the repo's own docs and git
 > history — not from reading the vendors' licence text. The "measured" columns
@@ -257,3 +263,38 @@ tiles as cut from LimeZu sheets when they are flat colour swatches.
 `wood-floor-1` · `wood-floor-2` · `wood-floor-3`
 
 `*` = referenced nowhere in the codebase.
+
+---
+
+## 6. What was applied
+
+Recommendations 1 and 5 were carried out; the rest remain open decisions.
+
+**Deleted from `demo/la-campus-demo/` only** — 36 files, 49.3 MB:
+
+- 33 of the 35 `tilemaps/` files. `arcade-cabinet.png` and `desk-computer.png`
+  stay, because `GatherCampusScene` loads them.
+- all 3 `rcc/` files, together with `game/world/rccTiles.ts` and the `'rcc'`
+  branch of `CAMPUS_ART` in `GatherCampusScene.ts`. Deleting the files while
+  leaving code that loads them would have been a trap, so both went together.
+  `CAMPUS_ART` is now `'procedural' | 'modern'` in this tree.
+
+The root `public/game-assets/` is untouched and still has all 110 files, so
+nothing is lost — the `/world` scenes there keep working, and the demo can
+restore any file from it.
+
+**Verified after the deletion:** `tsc --noEmit` clean in both trees, root lint
+0 errors / 6 warnings, 21 test files / 70 tests passing.
+
+**One trap left deliberately, and signposted.** `OpenWorldScene` and
+`MathBuildingScene` still exist in the demo tree and still reference tilemap
+paths that are now absent there. They cannot run — `game/main.ts` only
+registers them for the non-`gather` variant, and both of the demo's routes
+(`/` and `/dev/campus-sandbox`) use `variant="gather"`. A comment at that
+switch in `game/main.ts` says so, and says to restore the files from the root
+tree before wiring up a route that renders them. Deleting those scenes
+outright was out of scope here.
+
+**Still open:** recommendations 2 (`modern/props/` and `sprites/` are the live,
+visible art and the real licensing question), 3 (chase or drop RCC in the root
+tree too), and 4 (the wording for the rebuild brief).

@@ -17,7 +17,6 @@ import { chapter1, CHAPTER1_GAME_ID, NULL_RUN_CABINET } from '../world/chapter1'
 import { storyItems } from '../world/storyItems';
 import { buildSimStudentConfigs } from '../world/simStudents';
 import { applyFuturisticTiles } from '../world/futuristicTiles';
-import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
 import { preloadCampusProps, placeCampusProps, getLampPositions } from '../world/campusDecorations';
 import { playPickup, stopAmbience } from '../world/campusAudio';
@@ -31,11 +30,15 @@ import { hasSeenWelcome } from '../world/welcomeState';
  * Campus art source — switch here to compare looks (procedural futuristic
  * set always loads first as the fallback):
  *  - 'procedural': neon/alloy tiles generated at runtime (futuristicTiles.ts)
- *  - 'rcc':        RCC apartment pack, cyberpunk (game-assets/rcc/)
- *  - 'modern':     Modern Interiors/Exteriors pack, bright contemporary
- *                  campus (game-assets/modern/)
+ *  - 'modern':     base tiles from game-assets/modern/ plus the props in
+ *                  game-assets/modern/props/
+ *
+ * The 'rcc' option is gone from this tree. Its three spritesheets shipped
+ * with no licence file of any kind, and nothing loaded them while this
+ * constant read 'modern', so they were removed from the demo along with
+ * rccTiles.ts. The root tree still has both. See docs/ASSET_INVENTORY.md.
  */
-const CAMPUS_ART: 'procedural' | 'rcc' | 'modern' = 'modern';
+const CAMPUS_ART: 'procedural' | 'modern' = 'modern';
 import {
   mathQuest,
   QUEST_NPC_ID,
@@ -105,9 +108,7 @@ export class GatherCampusScene extends OpenWorldScene {
     // Station objects (1024×1024 sources displayed at 64×64)
     this.load.image('arcade-cabinet', '/game-assets/tilemaps/arcade-cabinet.png');
     this.load.image('desk-computer', '/game-assets/tilemaps/desk-computer.png');
-    if (CAMPUS_ART === 'rcc') {
-      preloadRccSheets(this);
-    } else if (CAMPUS_ART === 'modern') {
+    if (CAMPUS_ART === 'modern') {
       preloadModernTiles(this);
       preloadCampusProps(this);
     }
@@ -118,9 +119,7 @@ export class GatherCampusScene extends OpenWorldScene {
     // images (keys stay the same, only pixels change). Procedural futuristic
     // set first as the fallback, then the selected pack overrides.
     applyFuturisticTiles(this);
-    if (CAMPUS_ART === 'rcc') {
-      applyRccTiles(this);
-    } else if (CAMPUS_ART === 'modern') {
+    if (CAMPUS_ART === 'modern') {
       applyModernTiles(this);
     }
 
