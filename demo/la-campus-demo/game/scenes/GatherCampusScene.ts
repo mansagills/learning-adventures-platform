@@ -20,7 +20,7 @@ import { applyFuturisticTiles } from '../world/futuristicTiles';
 import { preloadRccSheets, applyRccTiles } from '../world/rccTiles';
 import { preloadModernTiles, applyModernTiles } from '../world/modernTiles';
 import { preloadCampusProps, placeCampusProps, getLampPositions } from '../world/campusDecorations';
-import { playPickup, startAmbience, stopAmbience } from '../world/campusAudio';
+import { playPickup, stopAmbience } from '../world/campusAudio';
 import { demoEconomy } from '../world/demoEconomy';
 import { wearableForOwned } from '../world/wearables';
 import { getIdentity, type PlayerIdentity } from '../world/playerIdentity';
@@ -178,9 +178,16 @@ export class GatherCampusScene extends OpenWorldScene {
     // Hydrate the exploration HUD with any previously-visited rooms
     exploration.announce();
 
-    // Soft ambient pad — silent until the player's first click/keypress
-    // unlocks the AudioContext (browser autoplay policy), then fades in.
-    startAmbience();
+    // Ambient pad intentionally NOT started. The synthesized pad in
+    // campusAudio.ts (three sine oscillators at C3-E3-G3 through a 900Hz
+    // lowpass) read as a drone rather than music, so it is off pending a
+    // decision on real background music. startAmbience()/stopAmbience() are
+    // left intact -- re-enabling is restoring this one call, plus the twin in
+    // components/world/WelcomeOverlay.tsx.
+    //
+    // Everything else stays wired: unlockAudio() still runs on the welcome
+    // overlay's first gesture, so the pickup, XP, quest and purchase cues
+    // keep working, and the mute button still governs them.
   }
 
   // ─── Character collision ───────────────────────────────────────────────────
