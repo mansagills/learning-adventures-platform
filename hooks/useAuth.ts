@@ -24,6 +24,16 @@ interface UseAuthReturn {
  * Returns the same shape: { user, status }
  * Components can switch from useSession() to useAuth() with no other changes.
  */
+const fallbackUser = (supabaseUser: User): AuthUser => ({
+  id: supabaseUser.id,
+  email: supabaseUser.email || '',
+  name: supabaseUser.email?.split('@')[0] || 'User',
+  image: null,
+  role: 'STUDENT',
+  gradeLevel: null,
+  subjects: [],
+});
+
 // No Supabase env (e.g. fresh clone / worktree without .env.local): report
 // signed-out instead of crashing the whole client tree. Mirrors the guard in
 // lib/supabase/middleware.ts.

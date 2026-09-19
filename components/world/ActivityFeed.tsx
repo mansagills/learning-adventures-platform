@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { EventBus } from '@/components/phaser/EventBus';
+import { getIdentity } from '@/game/world/playerIdentity';
 
 /**
  * ActivityFeed — ambient "other students are playing" ticker for the campus.
@@ -91,11 +92,19 @@ export function ActivityFeed() {
     };
 
     // Quest completion: the player's own achievement headlines the feed
-    const handleQuestCompleted = () => {
+    const handleQuestCompleted = (data?: { questId?: string }) => {
       const id = ++idRef.current;
+      // Demo identity name when chosen ("Mansa earned..."), else "YOU"
+      const playerName = getIdentity().name || 'YOU';
+      const entry =
+        data?.questId === 'chapter-0-first-spark'
+          ? { icon: '✨', text: `${playerName}'s Spark just woke up!` }
+          : data?.questId === 'chapter-1-null-run'
+          ? { icon: '🧊', text: `${playerName} recovered a Null Fragment!` }
+          : { icon: '🏁', text: `${playerName} earned the Racing License!` };
       setEntries((prev) => [
         ...prev.slice(-(MAX_VISIBLE - 1)),
-        { id, icon: '🏁', text: 'YOU earned the Racing License!' },
+        { id, ...entry },
       ]);
       setTimeout(() => {
         setEntries((prev) => prev.filter((e) => e.id !== id));
