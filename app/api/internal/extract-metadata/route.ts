@@ -3,6 +3,11 @@ import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
+import {
+  assertArchiveWithinLimits,
+  readZipEntry,
+  MAX_MANIFEST_BYTES,
+} from '@/lib/zip-limits';
 
 interface ExtractedMetadata {
   title?: string;
@@ -51,6 +56,7 @@ export async function POST(request: NextRequest) {
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
+    assertArchiveWithinLimits(zip);
     const zipEntries = zip.getEntries();
 
     // Look for metadata.json in the root or common locations
@@ -112,14 +118,18 @@ export async function POST(request: NextRequest) {
 
     // Extract metadata if found
     if (metadataEntry) {
-      if (metadataEntry.header.size > 1024 * 1024) {
+      if (metadataEntry.header.size > MAX_MANIFEST_BYTES) {
         return NextResponse.json(
           { error: 'Metadata file is too large (exceeds 1MB limit).' },
           { status: 400 }
         );
       }
 
-      const metadataContent = metadataEntry.getData().toString('utf8');
+      const metadataContent = readZipEntry(
+        metadataEntry,
+        MAX_MANIFEST_BYTES,
+        metadataEntry.entryName
+      ).toString('utf8');
       extractedMetadata = JSON.parse(metadataContent);
     }
 
