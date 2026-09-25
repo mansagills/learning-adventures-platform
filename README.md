@@ -55,15 +55,14 @@ tests/                # vitest tests (tests/content checks the content files)
 ## ➕ Adding content
 
 **A game:** save the HTML file to `public/games/<name>.html` (or `public/lessons/`), then add an
-entry to the `games` array in `lib/content/games.ts` (`slug`, `title`, `subject`, `kind`,
-`gradeBand`, `description`, `skills`, `estimatedTime`, `htmlPath`, and optionally `featured` and
-`bookSlugs`). Run `npm test`: it fails if the file is missing, a slug is repeated, or a
-`bookSlugs` entry doesn't exist.
+entry to the `games` array in `lib/content/games.ts` (`slug`, `title`, `subject`, `kind`, `emoji`,
+`grades`, `difficulty`, `description`, `skills`, `estimatedTime`, `htmlPath`, and optionally
+`featured` and `thumbnail`). Run `npm test`: it fails if the file is missing or a slug is repeated.
 
 **A book:** add or edit an entry in `lib/content/books.ts`. To publish one, set
 `status: 'available'`, `ebookUrl` (the book's page in the ebook store), `coverImage`, and
 `samplePages` (images saved in `public/books/<slug>/`). Link it to its games with
-`companionGameSlugs`. Run `npm test` to check the paths.
+`companionGameSlugs` (this also shows the book on those games' pages). Run `npm test` to check the paths.
 
 ## 🔧 Configuration
 

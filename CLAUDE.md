@@ -120,89 +120,76 @@ npm run type-check
 
 ## Game/Lesson Creation Workflow
 
-When creating new games or lessons for this platform, follow this specific workflow:
+The v1 public site lists games from **`lib/content/games.ts`**. `lib/catalogData.ts` is the old catalog and only feeds the hidden account features (`NEXT_PUBLIC_ENABLE_ACCOUNTS`), so a game added only there will **not** appear on the site.
 
 ### 📋 Step-by-Step Process
 
-1. **Review content in `games` folder** - Check existing game ideas and patterns
-2. **Review content in `interactive-learning` folder** - Check existing lesson ideas and patterns
-3. **Review prompts in `final-content/` folders** - Use established prompt templates
-4. **Look at README files** - Understand project structure and requirements
-5. **Create the games/lessons** - Build HTML or React component files
-6. **Upload to the app** - Place files in correct directories
-7. **Test in isolated environment** - Add to test games list (see Test Games Workflow below)
-8. **Quality assurance** - Run comprehensive testing
-9. **Publish to catalog** - Update catalog data with metadata when ready for production
+1. **Look at existing games** in `public/games/` and activities in `public/lessons/` for patterns (single HTML file, embedded CSS/JS).
+2. **Create the game** as one HTML file (see Design Patterns and Content Creation Guidelines below).
+3. **Save it** to `public/games/[game-name].html` (games) or `public/lessons/[lesson-name].html` (activities).
+4. **Test it on its own** before listing it (see Test Games Workflow below).
+5. **Publish it** by adding an entry to `lib/content/games.ts` (see Integration Process below).
+6. **Run the checks**: `npm test` (content test), `npx tsc --noEmit`, `npm run lint`.
+7. **Check it on the site** (see Testing Checklist below).
 
 ### 🧪 Test Games Workflow
 
-**IMPORTANT**: Games can be tested without adding them to the catalog!
+**Key Concept**: Saved ≠ Listed
 
-**For React Component Games:**
+- **Saved**: the HTML file is in `public/games/` and opens directly at its file URL, so it can be tested. Visitors won't find it.
+- **Listed**: the game has an entry in `lib/content/games.ts`, so it appears on `/games`, its subject page, the homepage rows and the sitemap, and plays inside the site's player at `/games/[slug]`.
 
-1. Create game in `components/games/[game-name]/`
-2. Register in `lib/gameLoader.ts` `initializeGameRegistry()`
-3. Add to `docs/test-games.md` with direct URL
-4. Test at `http://localhost:3000/games/[game-id]`
-5. DO NOT add to `lib/catalogData.ts` until testing is complete
+**For HTML games/lessons (the normal case):**
 
-**For HTML Games/Lessons:**
+1. Save the file to `public/games/` or `public/lessons/`
+2. Open `http://localhost:3000/games/[game-name].html` (or `/lessons/...`) and play it through
+3. Optionally note it in `platform-docs/test-games.md`
+4. Only add it to `lib/content/games.ts` once it works
 
-1. Save file to `public/games/` or `public/lessons/`
-2. Add to `docs/test-games.md` with direct URL
-3. Test at `http://localhost:3000/games/[game-name].html`
-4. DO NOT add to `lib/catalogData.ts` until testing is complete
+**For React component games** (rare; the v1 site has none listed): create it in `components/games/[game-name]/`, register it in `lib/gameLoader.ts` `initializeGameRegistry()`, and test at `http://localhost:3000/games/[game-id]`. Ids that aren't in `lib/content/games.ts` fall through to the React loader (`app/games/[gameId]/ReactGamePage.tsx`).
 
-**Key Concept**: Registered ≠ Cataloged
-
-- **Registered**: Game is accessible by URL and can be tested
-- **Cataloged**: Game appears in public catalog for all users
-
-**Testing Reference**: See `docs/test-games.md` for complete testing workflow and checklist
+**Testing Reference**: `platform-docs/test-games.md`
 
 ### 📁 Directory Structure
 
 ```
 learning-adventures-platform/
-├── games/                          # Game ideas and concepts
-├── interactive-learning/           # Lesson ideas and concepts
-├── final-content/                  # Prompt templates and finished content
-│   ├── interactive-game-prompts.txt
-│   ├── interactive-learning-prompts.txt
-│   ├── finished-games/
-│   └── finished-lessons/
 ├── public/
 │   ├── games/                  # HTML game files
-│   └── lessons/                # HTML lesson files
-└── lib/catalogData.ts          # Catalog metadata
+│   ├── lessons/                # HTML activity files
+│   └── books/<slug>/           # Interactive ebook sample pages
+├── lib/content/
+│   ├── subjects.ts             # The 5 subjects
+│   ├── games.ts                # ✏️ Every game/activity listed on the site
+│   └── books.ts                # Interactive ebooks
+├── tests/content/content.test.ts   # Checks the content files
+└── lib/catalogData.ts          # Old catalog (hidden account features only)
 ```
 
 ### 🎯 File Locations for New Content
 
-- **Lessons**: `/public/lessons/[lesson-name].html`
 - **Games**: `/public/games/[game-name].html`
-- **Catalog Updates**: `/lib/catalogData.ts`
+- **Activities (lessons)**: `/public/lessons/[lesson-name].html`
+- **Listing on the site**: `/lib/content/games.ts`
 
 ### 🔄 Integration Process
 
-1. Create HTML files in appropriate public directories
-2. Add metadata to `catalogData.ts` in the corresponding arrays:
-   - Science lessons: `scienceLessons` array
-   - Science games: `scienceGames` array
-   - Math lessons: `mathLessons` array
-   - Math games: `mathGames` array
-3. Include required metadata fields:
-   - `id`, `title`, `description`, `type`, `category`
-   - `gradeLevel`, `difficulty`, `skills`, `estimatedTime`
-   - `featured` (boolean), `htmlPath` (for clickable items)
+1. Save the HTML file in the right `public/` folder.
+2. Add an entry to the `games` array in `lib/content/games.ts`:
+   - Required: `slug` (unique, used in the URL `/games/[slug]`), `title`, `subject` (`math`, `science`, `english`, `history`, `interdisciplinary`), `kind` (`'game'` or `'activity'`), `emoji` (shown on its card art), `grades` (e.g. `"2–5"`), `difficulty` (`'easy'`, `'medium'`, `'hard'`), `description`, `skills`, `estimatedTime`, `htmlPath` (e.g. `/games/my-game.html`)
+   - Optional: `featured: true` (shown first), `thumbnail` (a screenshot in `public/`)
+3. If the game goes with an interactive ebook, add its slug to that book's `companionGameSlugs` in `lib/content/books.ts`. That one list links them both ways (the game's page shows the book, and the book's page shows the game).
+4. Run `npm test`. The content test fails if the file is missing, the slug is already used, or a book's `companionGameSlugs` names a game that doesn't exist.
+5. Optional: if the game posts `window.parent.postMessage({ type: 'game-complete', score }, '*')` when finished, the player shows a "Nice work!" banner.
 
 ### ✅ Testing Checklist
 
-- [ ] Files accessible at correct URLs
-- [ ] Catalog page shows updated count
-- [ ] New items appear in featured section (if featured: true)
-- [ ] HTML files load and function properly
-- [ ] Metadata displays correctly in catalog
+- [ ] The file opens at its direct URL and plays with no console errors
+- [ ] It appears on `/games` (and the count went up) and under the right subject filter
+- [ ] It appears on `/subjects/[subject]`
+- [ ] `/games/[slug]` plays it in the site player, including full screen
+- [ ] Title, description, grades and time display correctly on its card
+- [ ] It works at phone width (390px) with no sideways scrolling
 
 ### 🎨 Design Patterns to Follow
 
@@ -212,6 +199,7 @@ learning-adventures-platform/
 - Progress tracking and educational objectives
 - Mobile-responsive design
 - Accessibility considerations
+- No sign-in, no external trackers, and nothing that needs a backend (the public site has none)
 
 ### 🧪 Development Commands
 
@@ -219,12 +207,16 @@ learning-adventures-platform/
 # Start development server
 npm run dev
 
-# Test specific lesson/game
-curl http://localhost:3000/lessons/[lesson-name].html
+# Open a game/activity file directly
 curl http://localhost:3000/games/[game-name].html
+curl http://localhost:3000/lessons/[lesson-name].html
 
-# Check catalog integration
-curl http://localhost:3000/catalog
+# Check it is listed and plays in the site player
+curl http://localhost:3000/games
+curl http://localhost:3000/games/[slug]
+
+# Content checks
+npm test
 ```
 
 ## 📝 Content Creation Guidelines
@@ -234,14 +226,12 @@ curl http://localhost:3000/catalog
 - Use educational best practices with scaffolded learning
 - Include multiple learning modalities (visual, auditory, kinesthetic)
 - Provide immediate feedback and progress tracking
-- Follow the lesson prompt template in `final-content/interactive-learning-prompts.txt`
 
 ### For Educational Games:
 
 - Balance 70% entertainment with 30% obvious learning
 - Include progressive difficulty and achievable challenges
 - Provide meaningful choices that affect learning outcomes
-- Follow the game prompt template in `final-content/interactive-game-prompts.txt`
 
 ---
 
