@@ -193,8 +193,8 @@ affects the Phase 6 cutover.
 | 1. Foundation                  | COMPLETED ✅ |
 | 2. Games experience            | COMPLETED ✅ |
 | 3. Homepage                    | COMPLETED ✅ |
-| 4. Books                       | Next         |
-| 5. Hub World demo landing page | Not started  |
+| 4. Books                       | COMPLETED ✅ |
+| 5. Hub World demo landing page | Next         |
 | 6. Polish, docs, cutover       | Not started  |
 
 ### Phase 1 notes
@@ -226,3 +226,11 @@ affects the Phase 6 cutover.
 - The FAQ uses native `<details>`: no JavaScript needed, and it works with keyboards and screen readers.
 - Site-wide SEO title/description and the JSON-LD descriptions in `lib/seo.ts` now describe the games and interactive ebooks.
 - The footer is still the old one with placeholder links; Phase 6 replaces it.
+
+### Phase 4 notes
+
+- `/books` (shelf + "How it works" strip) and `/books/[slug]` (pre-built for every book; unknown slugs 404) are live. Every existing link to them (header, homepage, subject pages, game player sidebar and "Nice work!" banner) now resolves.
+- New components: `components/books/SamplePageViewer.tsx` (Previous/Next, dots, arrow keys when focused, swipe via pointer events, "Page N of 3" announced to screen readers) and `components/books/GetEbookButton.tsx`.
+- `GetEbookButton` shows "Get the interactive ebook" only when a book's `status` is `'available'` and it has a link (`ebookUrl`, else `NEXT_PUBLIC_EBOOK_STORE_URL`). Otherwise it shows "Interactive ebook coming soon", plus a "Tell me when it's out" link if `NEXT_PUBLIC_NEWSLETTER_URL` is set. The ebook platform is never named.
+- Placeholder sample pages: `public/books/<slug>/sample-1..3.svg` (a subject-colored "illustration coming soon" page plus a text page with a short opening scene based on the lore). Replace them with the real pages (any image format) and update `samplePages` in `lib/content/books.ts`. Covers are still drawn by `BookCover` until `coverImage` is set.
+- **To publish a real book:** set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` in `lib/content/books.ts`, then run `npm test`. The content test fails if any image path is missing.

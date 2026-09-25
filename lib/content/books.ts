@@ -44,7 +44,11 @@ export const books: Book[] = [
     hook: 'The numbers at the Academy have stopped moving. Can a curious new student get them counting again?',
     synopsis:
       "On their very first day at the Academy, a new student notices something strange in the Math wing: the patterns on the walls have frozen solid and the numbers refuse to add up. With help from Jaylen, the Academy's first Spark, and SPARK, his wise-cracking study buddy, they follow the clues through fractions, number lines and a very hungry monster to face Null, the shadow who wants every number stuck in place forever.",
-    samplePages: [],
+    samplePages: [
+      '/books/jaylen-and-the-frozen-numbers/sample-1.svg',
+      '/books/jaylen-and-the-frozen-numbers/sample-2.svg',
+      '/books/jaylen-and-the-frozen-numbers/sample-3.svg',
+    ],
     status: 'coming-soon',
     companionGameSlugs: [
       'number-line-ninja',
@@ -62,7 +66,11 @@ export const books: Book[] = [
     hook: 'Every experiment in the Science wing is fizzling out, and nobody knows why.',
     synopsis:
       "Crystals won't grow, magnets won't stick and the light lab has gone dark. Jaylen suspects Static, a sneaky jammer who stops discoveries before they start. To bring the Science wing back to life, our heroes will need to mix, measure and test like real scientists, and remember that the best experiments begin with a question.",
-    samplePages: [],
+    samplePages: [
+      '/books/the-experiment-that-wouldnt-spark/sample-1.svg',
+      '/books/the-experiment-that-wouldnt-spark/sample-2.svg',
+      '/books/the-experiment-that-wouldnt-spark/sample-3.svg',
+    ],
     status: 'coming-soon',
     companionGameSlugs: [
       'crystal-cave-chemistry',
@@ -80,7 +88,11 @@ export const books: Book[] = [
     hook: 'Words are vanishing from the Academy library. Only the right spelling can bring them back.',
     synopsis:
       "Something called the Blot is drinking the stories right off the page. Books go blank, signs lose their letters and even Jaylen can't remember the end of his favorite tale. Spelling bee by spelling bee, word by word, our heroes set out to fill the library with stories again.",
-    samplePages: [],
+    samplePages: [
+      '/books/the-day-the-stories-went-quiet/sample-1.svg',
+      '/books/the-day-the-stories-went-quiet/sample-2.svg',
+      '/books/the-day-the-stories-went-quiet/sample-3.svg',
+    ],
     status: 'coming-soon',
     companionGameSlugs: ['spelling-bee-challenge'],
     characters: ['Jaylen', 'SPARK', 'The Blot'],
