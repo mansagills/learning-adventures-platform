@@ -177,6 +177,15 @@ The current homepage is already a landing page for the Hub World, so it becomes 
 
 ---
 
+## Known issue: Vercel project for the repo root fails to deploy
+
+The Vercel project `learning-adventures-platform` (the one that builds the repo root and owns
+`learningadventures.org`) has failed every deployment since 2026-07-05. Since mid-September it fails
+with "Resource provisioning failed" before any code runs. The domain is still serving a 2026-07-04
+build. This is not caused by the v1 work; it will be investigated on its own branch after all
+phases are done. Details, timeline and a checklist: `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`. It
+affects the Phase 6 cutover.
+
 ## Progress log
 
 | Phase                          | Status       |

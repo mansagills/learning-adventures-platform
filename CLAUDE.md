@@ -9,6 +9,7 @@
 **Next Phase**: v1 Phase 3 - Homepage (components/home/HomePage.tsx)
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
+**Known issue**: the `learning-adventures-platform` Vercel project fails every deploy ("Resource provisioning failed"); see docs/VERCEL_DEPLOY_FAILURE_NOTES.md. Not caused by code changes; investigate after v1.
 
 ### 📋 Development Session Protocol
 
