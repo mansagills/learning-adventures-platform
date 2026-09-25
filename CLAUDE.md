@@ -5,8 +5,8 @@
 ### Current Development Status
 
 **Active Development Plan**: docs/V1_WEBSITE_REBUILD_PLAN.md (v1 public site: games by subject, interactive ebooks, Hub World demo)
-**Last Completed**: v1 Phase 1 - Foundation ✅
-**Next Phase**: v1 Phase 2 - Games experience (/games, /subjects/[subject], game player)
+**Last Completed**: v1 Phase 2 - Games experience ✅
+**Next Phase**: v1 Phase 3 - Homepage (components/home/HomePage.tsx)
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
 

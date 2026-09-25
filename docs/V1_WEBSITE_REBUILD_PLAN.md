@@ -182,8 +182,8 @@ The current homepage is already a landing page for the Hub World, so it becomes 
 | Phase                          | Status       |
 | ------------------------------ | ------------ |
 | 1. Foundation                  | COMPLETED ✅ |
-| 2. Games experience            | Next         |
-| 3. Homepage                    | Not started  |
+| 2. Games experience            | COMPLETED ✅ |
+| 3. Homepage                    | Next         |
 | 4. Books                       | Not started  |
 | 5. Hub World demo landing page | Not started  |
 | 6. Polish, docs, cutover       | Not started  |
@@ -198,3 +198,12 @@ The current homepage is already a landing page for the Hub World, so it becomes 
 - Build now works with no env vars. Two fixes were needed: `lib/childAuth.ts` read `CHILD_SESSION_SECRET` when the module loaded (moved into a function, still fails closed), and `AuthModal`, `UserMenu` and `app/internal/layout.tsx` created a Supabase client on render (now created inside the click handlers).
 - `.claude/settings.json` hooks used bash-only `[[ =~ ]]` syntax and failed under `sh` in Linux containers; rewritten with portable `case` patterns (same behavior).
 - Nav links to `/books`, `/hub`, `/about` and `/subjects/*` 404 until their phases land.
+
+### Phase 2 notes
+
+- `/games` is public: subject filter chips (the choice is kept in `?subject=` so filtered views can be shared) and a search across titles, descriptions and skills. The page's HTML includes the full grid, so the first paint and search engines see every game.
+- `/subjects/[subject]` is pre-built for all 5 subjects, with a "coming soon" state for subjects with no games (Mixed Skills today) and a "Read the story" row of companion ebooks.
+- `/games/[gameId]` plays HTML games in a same-origin iframe, with a loading state, a full-screen button, a sidebar (skills, level, companion ebook) and a "More [subject] games" row. When a game posts `{ type: 'game-complete', score }` (7 games do today), a "Nice work!" banner links to the companion ebook and more games. Unknown ids still go to the React game loader, now in `app/games/[gameId]/ReactGamePage.tsx`.
+- New components: `components/play/` (`GameArt`, `PlayableGameCard`, `GameBrowser`, `GamePlayer`) and `components/books/` (`BookCover` with drawn placeholder covers, `BookCard`). Phase 4 builds on the book components.
+- An automated smoke test opened all 43 games in the player. `time-attack-clock.html` had a typo (`const correct Time=`) that stopped its whole script, so the game could not start; fixed and played through one round. All 43 now load with no script errors.
+- The old `components/games/GameCard.tsx`, `GameCardSkeleton.tsx` and `lib/games/gameHelpers.ts` are no longer used by the public site; they are kept for when accounts return.
