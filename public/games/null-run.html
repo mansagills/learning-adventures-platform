@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Null Run — Learning Adventures</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #05070f;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+  #stage {
+    position: relative;
+    width: 100vw; height: 100vh;
+    max-width: 1100px; max-height: 720px;
+    overflow: hidden;
+    background: #070b16;
+  }
+  @media (min-width: 1140px) and (min-height: 760px) {
+    #stage { border-radius: 18px; box-shadow: 0 24px 70px rgba(0,0,0,.6); }
+  }
+  canvas#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* ---- Overlay screens (house style: rounded card, gradient buttons) ---- */
+  .overlay {
+    position: absolute; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background: radial-gradient(ellipse at center, rgba(10,14,26,.55), rgba(3,5,12,.9));
+    backdrop-filter: blur(2px);
+  }
+  .overlay.hidden { display: none; }
+  .card {
+    background: linear-gradient(135deg, #10192e 0%, #0b1120 100%);
+    border: 1px solid rgba(120,170,255,.28);
+    border-radius: 20px;
+    padding: 28px 30px;
+    width: min(92vw, 500px);
+    text-align: center;
+    box-shadow: 0 18px 60px rgba(0,0,0,.55);
+  }
+  .card h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); margin-bottom: 6px; letter-spacing: .5px; }
+  .brand-orange { color: #ffa726; }
+  .card .sub { color: rgba(255,255,255,.72); font-size: .95rem; line-height: 1.5; margin-bottom: 18px; }
+  .card p.story {
+    color: rgba(210,225,255,.9); font-size: .95rem; line-height: 1.55;
+    background: rgba(90,130,200,.10); border-left: 3px solid #22d3ee;
+    border-radius: 8px; padding: 12px 14px; margin: 0 0 18px; text-align: left;
+  }
+  .diff-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .diff-btn {
+    flex: 1 1 120px; min-width: 110px;
+    background: rgba(255,255,255,.05); color: #fff;
+    border: 2px solid rgba(255,255,255,.15); border-radius: 14px;
+    padding: 12px 10px; cursor: pointer; transition: transform .15s, border-color .15s, background .15s;
+  }
+  .diff-btn:hover { transform: translateY(-2px); }
+  .diff-btn.sel { border-color: #ffa726; background: rgba(255,167,38,.14); }
+  .diff-btn .d-name { font-weight: 800; font-size: 1.05rem; }
+  .diff-btn .d-desc { display: block; font-size: .72rem; color: rgba(255,255,255,.6); margin-top: 4px; }
+  .btn {
+    background: linear-gradient(135deg, #ffa726, #fb8c00); color: #2a1600;
+    border: none; padding: 14px 40px; border-radius: 26px;
+    font-size: 1.1rem; font-weight: 800; cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(255,167,38,.45); }
+  .btn.secondary { background: linear-gradient(135deg, #3b4a66, #2a3550); color: #eaf0ff; }
+  .controls-hint { color: rgba(255,255,255,.55); font-size: .82rem; margin-top: 14px; line-height: 1.5; }
+  .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 14px 0 4px; }
+  .badge { background: rgba(52,211,153,.16); color: #6ee7b7; border: 1px solid rgba(52,211,153,.4);
+    border-radius: 20px; padding: 6px 14px; font-size: .82rem; font-weight: 700; }
+  .big-score { font-size: 3rem; font-weight: 900; color: #ffa726; margin: 6px 0; }
+  .fragment { font-size: 2.6rem; margin: 8px 0; }
+
+  /* ---- HUD ---- */
+  #hud {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 12;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    background: linear-gradient(180deg, rgba(5,8,16,.82), rgba(5,8,16,0));
+    pointer-events: none;
+    font-size: .82rem;
+  }
+  #hud.hidden { display: none; }
+  .hud-pill {
+    background: rgba(8,12,24,.7); border: 1px solid rgba(120,170,255,.3);
+    border-radius: 20px; padding: 5px 12px; font-weight: 700; white-space: nowrap;
+  }
+  #shields { color: #ff6b8a; letter-spacing: 2px; }
+  #thaw-wrap { flex: 1; min-width: 60px; height: 10px; background: rgba(255,255,255,.12);
+    border-radius: 6px; overflow: hidden; }
+  #thaw-bar { height: 100%; width: 0%; border-radius: 6px;
+    background: linear-gradient(90deg, #64748b, #22d3ee 55%, #ffa726); transition: width .4s ease; }
+
+  /* transient feedback banner over gameplay */
+  #flash {
+    position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%) scale(.8);
+    z-index: 15; pointer-events: none; opacity: 0;
+    font-size: clamp(1.3rem, 5vw, 2rem); font-weight: 900; text-align: center;
+    text-shadow: 0 2px 12px rgba(0,0,0,.7);
+  }
+  #flash.show { animation: flashpop 1s ease-out; }
+  @keyframes flashpop {
+    0% { opacity: 0; transform: translate(-50%,-50%) scale(.7); }
+    18% { opacity: 1; transform: translate(-50%,-50%) scale(1.08); }
+    70% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1); }
+  }
+
+  /* mobile touch zone hints (shown only on coarse pointers) */
+  #touchhint { position: absolute; inset: 0; z-index: 11; display: none; pointer-events: none; }
+  @media (pointer: coarse) { #touchhint.on { display: block; } }
+  #touchhint .zone { position: absolute; bottom: 14px; font-size: .72rem; color: rgba(255,255,255,.5);
+    background: rgba(8,12,24,.5); padding: 4px 10px; border-radius: 12px; }
+  #touchhint .left { left: 14px; }
+  #touchhint .right { right: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #flash.show { animation-duration: .01s; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="game"></canvas>
+
+  <div id="hud" class="hidden">
+    <span class="hud-pill">Score <b id="hud-score">0</b></span>
+    <span class="hud-pill">Cores <b id="hud-cores">0/0</b></span>
+    <span class="hud-pill" id="hud-bonus-pill">❄️ <b id="hud-bonus">0</b></span>
+    <span class="hud-pill" id="shields">♥♥♥</span>
+    <div id="thaw-wrap"><div id="thaw-bar"></div></div>
+  </div>
+
+  <div id="flash"></div>
+
+  <div id="touchhint"><span class="zone left">◀ drag to steer ▶</span><span class="zone right">tap = boost</span></div>
+
+  <!-- Briefing -->
+  <div id="screen-brief" class="overlay">
+    <div class="card">
+      <h1><span class="brand-orange">NULL</span> RUN</h1>
+      <div class="sub">Chapter 1 · The Math Wing</div>
+      <p class="story">The Hush sent <b>Null</b> to freeze the field — patterns locked, numbers gone gray, the equation cores sealed shut. Fly in, steer into the <b>right answer</b>, and thaw the color back. Every core you recover pushes the gray back a little more.</p>
+      <div class="diff-row" id="diff-row">
+        <button class="diff-btn sel" data-diff="EASY"><span class="d-name">Easy</span><span class="d-desc">+ − · 6 cores</span></button>
+        <button class="diff-btn" data-diff="MEDIUM"><span class="d-name">Medium</span><span class="d-desc">+ − × · 8 cores</span></button>
+        <button class="diff-btn" data-diff="HARD"><span class="d-name">Hard</span><span class="d-desc">+ − × · 10 cores</span></button>
+      </div>
+      <button class="btn" id="start-btn">🚀 Launch</button>
+      <div class="controls-hint">Steer: ↑ ↓ / W S / drag &nbsp;·&nbsp; your ship auto-fires<br>Fly into the asteroid with the correct answer.</div>
+    </div>
+  </div>
+
+  <!-- Victory -->
+  <div id="screen-win" class="overlay hidden">
+    <div class="card">
+      <h1>Field <span class="brand-orange">Restored!</span></h1>
+      <div class="fragment">✨🧊➡️🌈</div>
+      <div class="big-score" id="win-score">100</div>
+      <div class="sub">accuracy — cores recovered on the first try</div>
+      <div class="badges" id="win-badges"></div>
+      <p class="story" style="margin-top:16px">You pulled a <b>Null Fragment</b> out of the last core. The gray pulled back — for now. Jaylen's going to want to see this.</p>
+      <button class="btn" id="win-again">Run it again</button>
+    </div>
+  </div>
+
+  <!-- Retry -->
+  <div id="screen-retry" class="overlay hidden">
+    <div class="card">
+      <h1>The gate <span style="color:#8aa0c0">held</span>.</h1>
+      <p class="story">Null's seal froze you out this time — but the cores are still there. Warm up your Spark and try the run again.</p>
+      <div class="sub">Cores recovered: <b id="retry-cores">0</b></div>
+      <button class="btn" id="retry-btn">Try again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------------------------------------------------------------------------
+  // Config
+  // ---------------------------------------------------------------------------
+  var SPARK = '#ffa726';
+  try {
+    // Reskin: carry the player's chosen Spark color if present (campus embed).
+    var idRaw = window.localStorage.getItem('gather-demo-identity');
+    // (identity has no color field yet; reserved hook — default stays Spark-orange)
+    void idRaw;
+  } catch (e) { /* storage blocked — standalone default */ }
+
+  var DIFFICULTIES = {
+    EASY:   { ops: ['+', '-'],           min: 1, max: 10, twoStep: false, scroll: 150, shields: 4, cores: 6 },
+    MEDIUM: { ops: ['+', '-', '×'],      min: 2, max: 12, twoStep: false, scroll: 200, shields: 3, cores: 8 },
+    HARD:   { ops: ['+', '-', '×'],      min: 2, max: 12, twoStep: true,  scroll: 250, shields: 3, cores: 10 },
+  };
+  var DIFF_SEED = { EASY: 1001, MEDIUM: 2002, HARD: 3003 };
+  var BONUS_PER = 5;   // fixed points per ice-debris shot (deterministic, not posted)
+
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------------------------------------------------------------------------
+  // Deterministic RNG (mulberry32) — used for the question sequence so rewards
+  // are reproducible (no RNG in scoring). Cosmetics may use Math.random freely.
+  // ---------------------------------------------------------------------------
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function randint(rng, lo, hi) { return lo + Math.floor(rng() * (hi - lo + 1)); }
+
+  function swapDigits(n) {
+    if (n < 10) return n + 11;
+    var s = ('' + n).split('');
+    var i = s.length - 1;
+    var tmp = s[i]; s[i] = s[i - 1]; s[i - 1] = tmp;
+    var v = parseInt(s.join(''), 10);
+    return isNaN(v) ? n + 1 : v;
+  }
+
+  function makeEquation(cfg, rng) {
+    var op = cfg.ops[randint(rng, 0, cfg.ops.length - 1)];
+    var a = randint(rng, cfg.min, cfg.max);
+    var b = randint(rng, cfg.min, cfg.max);
+    var text, answer;
+    if (op === '-') { if (a < b) { var t = a; a = b; b = t; } text = a + ' − ' + b; answer = a - b; }
+    else if (op === '×') { text = a + ' × ' + b; answer = a * b; }
+    else { text = a + ' + ' + b; answer = a + b; }
+
+    if (cfg.twoStep && rng() < 0.5) {
+      var c = randint(rng, 1, Math.min(9, cfg.max));
+      if (answer + c <= 200) { text = text + ' + ' + c; answer = answer + c; }
+    }
+
+    // Distractors: near-misses so the number must actually be read.
+    var pool = [answer + 1, answer - 1, answer + 2, answer + 10, Math.max(0, answer - 10), swapDigits(answer)];
+    // deterministic shuffle
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1)); var tmp2 = pool[i]; pool[i] = pool[j]; pool[j] = tmp2;
+    }
+    var opts = [answer];
+    for (var k = 0; k < pool.length && opts.length < 3; k++) {
+      if (pool[k] >= 0 && opts.indexOf(pool[k]) === -1) opts.push(pool[k]);
+    }
+    while (opts.length < 3) { var extra = answer + opts.length + 3; if (opts.indexOf(extra) === -1) opts.push(extra); }
+    // deterministic placement into 3 lanes
+    for (var m = opts.length - 1; m > 0; m--) {
+      var n = Math.floor(rng() * (m + 1)); var tmp3 = opts[m]; opts[m] = opts[n]; opts[n] = tmp3;
+    }
+    return { text: text, answer: answer, options: opts };
+  }
+
+  function buildRun(diffName) {
+    var cfg = DIFFICULTIES[diffName];
+    var rng = mulberry32(DIFF_SEED[diffName]);
+    var qs = [];
+    for (var i = 0; i < cfg.cores; i++) qs.push(makeEquation(cfg, rng));
+    return { cfg: cfg, questions: qs };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Canvas + view
+  // ---------------------------------------------------------------------------
+  var canvas = document.getElementById('game');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0, DPR = 1;
+  function resize() {
+    var stage = document.getElementById('stage');
+    var r = stage.getBoundingClientRect();
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // 3 answer lanes (fractions of playfield height)
+  function laneY(i) { return H * (0.30 + i * 0.20); }
+
+  // ---------------------------------------------------------------------------
+  // Colors — frozen -> restored lerp by thaw
+  // ---------------------------------------------------------------------------
+  function hexToRgb(h) { var n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function lerpColor(c1, c2, t) {
+    var A = hexToRgb(c1), B = hexToRgb(c2);
+    return 'rgb(' + Math.round(lerp(A[0], B[0], t)) + ',' + Math.round(lerp(A[1], B[1], t)) + ',' + Math.round(lerp(A[2], B[2], t)) + ')';
+  }
+
+  // ---------------------------------------------------------------------------
+  // Game state
+  // ---------------------------------------------------------------------------
+  var S = null;   // active run state (null until start)
+  var stars = [];
+  function seedStars() {
+    stars = [];
+    var n = 70;
+    for (var i = 0; i < n; i++) {
+      stars.push({ x: Math.random() * W, y: Math.random() * H, z: 0.3 + Math.random() * 1.2, r: 0.6 + Math.random() * 1.6 });
+    }
+  }
+
+  function newState(diffName) {
+    var run = buildRun(diffName);
+    return {
+      screen: 'playing',
+      diff: diffName,
+      cfg: run.cfg,
+      questions: run.questions,
+      gateIndex: 0,           // which question/gate is active
+      score: 0,               // 0..100 accuracy (posted to platform)
+      bonus: 0,               // in-game ice-debris points (NOT posted; deterministic +5/hit)
+      firstTryCorrect: 0,
+      coresRecovered: 0,
+      totalCores: run.cfg.cores,
+      shields: run.cfg.shields,
+      maxShields: run.cfg.shields,
+      thaw: 0,                // 0..1
+      shake: 0,
+      timeElapsed: 0,
+      gateFailedThisRound: false,
+      ship: { x: W * 0.16, y: H * 0.5, targetY: H * 0.5, vy: 0 },
+      bullets: [],
+      asteroids: [],
+      debris: [],
+      particles: [],
+      spawnGateAt: 0.6,       // seconds until first gate enters
+      gateActive: false,
+      nextDebris: 0,
+      resolving: false,
+    };
+  }
+
+  function spawnGate() {
+    if (S.gateIndex >= S.totalCores) return;
+    var q = S.questions[S.gateIndex];
+    S.gateFailedThisRound = false;
+    S.gateActive = true;
+    S.asteroids = [];
+    var enterX = W + 60;
+    for (var i = 0; i < 3; i++) {
+      S.asteroids.push({
+        x: enterX + i * 8, y: laneY(i), r: Math.min(46, H * 0.075),
+        value: q.options[i], correct: q.options[i] === q.answer,
+        vx: -(S.cfg.scroll * 0.62), dead: false, spin: Math.random() * 6.28,
+      });
+    }
+    S.gateText = q.text;
+    S.gateX = enterX + 130;
+  }
+
+  function spawnDebris() {
+    var y = H * (0.15 + Math.random() * 0.7);
+    S.debris.push({ x: W + 30, y: y, r: 10 + Math.random() * 16, vx: -(S.cfg.scroll * (0.7 + Math.random() * 0.4)), spin: Math.random() * 6.28, dead: false });
+  }
+
+  function burst(x, y, color, count) {
+    var c = reduceMotion ? Math.min(6, count) : count;
+    for (var i = 0; i < c; i++) {
+      var ang = Math.random() * 6.28, sp = 40 + Math.random() * 180;
+      S.particles.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, life: 0.5 + Math.random() * 0.5, max: 1, color: color, r: 2 + Math.random() * 3 });
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Resolve a gate — the single choke point for correct/wrong (also test hook)
+  // ---------------------------------------------------------------------------
+  function resolveGate(hitValue) {
+    if (!S || S.screen !== 'playing' || !S.gateActive || S.resolving) return;
+    var q = S.questions[S.gateIndex];
+    var correct = hitValue === q.answer;
+
+    // burst at the hit asteroid
+    var hit = null;
+    for (var i = 0; i < S.asteroids.length; i++) if (S.asteroids[i].value === hitValue) hit = S.asteroids[i];
+    var hx = hit ? hit.x : S.ship.x + 120, hy = hit ? hit.y : S.ship.y;
+
+    if (correct) {
+      if (!S.gateFailedThisRound) S.firstTryCorrect++;
+      S.coresRecovered++;
+      S.thaw = S.coresRecovered / S.totalCores;
+      burst(hx, hy, '#34d399', 26);
+      burst(hx, hy, SPARK, 18);
+      showFlash('✨ Core recovered!', SPARK);
+      advanceGate();
+    } else {
+      S.shields = Math.max(0, S.shields - 1);
+      S.gateFailedThisRound = true;
+      S.shake = reduceMotion ? 0 : 0.35;
+      burst(hx, hy, '#ff6b8a', 20);
+      showFlash('✕ Frozen! −1 shield', '#ff6b8a');
+      // remove the wrong asteroid; keep trying for the correct one
+      if (hit) hit.dead = true;
+      if (S.shields <= 0) { endRun(false); return; }
+      // if only the correct asteroid remains, auto-advance is NOT forced —
+      // the player still must steer into it, keeping it skill-based.
+    }
+    updateHud();
+  }
+
+  function advanceGate() {
+    S.resolving = true;
+    S.gateActive = false;
+    S.asteroids = [];
+    S.gateIndex++;
+    if (S.gateIndex >= S.totalCores) {
+      // small beat, then victory
+      window.setTimeout(function () { endRun(true); }, reduceMotion ? 10 : 650);
+    } else {
+      window.setTimeout(function () { if (S && S.screen === 'playing') { S.resolving = false; spawnGate(); } }, reduceMotion ? 10 : 700);
+    }
+  }
+
+  function endRun(won) {
+    if (!S) return;
+    S.score = Math.round(S.firstTryCorrect / S.totalCores * 100);
+    if (won) {
+      S.screen = 'victory';
+      showScreen('screen-win');
+      document.getElementById('win-score').textContent = S.score;
+      var badges = document.getElementById('win-badges');
+      badges.innerHTML = '';
+      if (S.shields === S.maxShields) badges.appendChild(mkBadge('🛡️ Flawless'));
+      if (S.timeElapsed < S.totalCores * 4) badges.appendChild(mkBadge('⚡ Quick clear'));
+      badges.appendChild(mkBadge('🧩 ' + S.firstTryCorrect + '/' + S.totalCores + ' first-try'));
+      if (S.bonus > 0) badges.appendChild(mkBadge('❄️ ' + S.bonus + ' frost'));
+      postComplete(S.score);
+    } else {
+      S.screen = 'retry';
+      document.getElementById('retry-cores').textContent = S.coresRecovered;
+      showScreen('screen-retry');
+    }
+    document.getElementById('hud').classList.add('hidden');
+  }
+
+  function mkBadge(t) { var s = document.createElement('span'); s.className = 'badge'; s.textContent = t; return s; }
+
+  function postComplete(score) {
+    var msg = { type: 'game-complete', adventureId: 'null-run', score: score };
+    try { if (window.opener) window.opener.postMessage(msg, '*'); } catch (e) {}
+    try { if (window.parent !== window) window.parent.postMessage(msg, '*'); } catch (e) {}
+  }
+
+  // ---------------------------------------------------------------------------
+  // Update
+  // ---------------------------------------------------------------------------
+  function update(dt) {
+    if (!S || S.screen !== 'playing') return;
+    S.timeElapsed += dt;
+    if (S.shake > 0) S.shake = Math.max(0, S.shake - dt);
+
+    // ship steering (smooth toward targetY)
+    var ship = S.ship;
+    ship.y += (ship.targetY - ship.y) * Math.min(1, dt * 10);
+    ship.y = Math.max(H * 0.12, Math.min(H * 0.9, ship.y));
+    ship.x = W * 0.16;
+
+    // auto-fire
+    S.fireCd = (S.fireCd || 0) - dt;
+    if (S.fireCd <= 0) {
+      S.fireCd = 0.16;
+      S.bullets.push({ x: ship.x + 26, y: ship.y, vx: 620, r: 5 });
+    }
+
+    // first gate timer
+    if (!S.gateActive && !S.resolving && S.gateIndex < S.totalCores) {
+      S.spawnGateAt -= dt;
+      if (S.spawnGateAt <= 0) { spawnGate(); }
+    }
+
+    // debris between/around encounters (continuous action)
+    S.nextDebris -= dt;
+    if (S.nextDebris <= 0) { S.nextDebris = 1.1 + Math.random() * 1.6; if (S.gateIndex < S.totalCores) spawnDebris(); }
+
+    // move bullets
+    for (var i = 0; i < S.bullets.length; i++) { S.bullets[i].x += S.bullets[i].vx * dt; }
+    S.bullets = S.bullets.filter(function (b) { return b.x < W + 20; });
+
+    // move asteroids; hold them near the ship if they'd pass (so kids get time)
+    for (var a = 0; a < S.asteroids.length; a++) {
+      var ast = S.asteroids[a];
+      ast.spin += dt * 1.5;
+      var minX = W * 0.30;
+      if (ast.x > minX) ast.x += ast.vx * dt;
+      // bullet collision — only once the asteroid has drifted into the near
+      // "resolution zone", so the kid gets time to read the equation and steer
+      // to the correct lane before auto-fire commits the answer.
+      var hittable = ast.x < W * 0.45;
+      for (var b2 = 0; b2 < S.bullets.length && hittable; b2++) {
+        var bl = S.bullets[b2];
+        if (!ast.dead && Math.abs(bl.x - ast.x) < ast.r && Math.abs(bl.y - ast.y) < ast.r) {
+          bl.x = W + 999; // consume bullet
+          resolveGate(ast.value);
+          break;
+        }
+      }
+    }
+    S.asteroids = S.asteroids.filter(function (a2) { return !a2.dead; });
+
+    // gate marker follows leftmost asteroid area
+    if (S.gateActive && S.asteroids.length) {
+      var lead = Math.min.apply(null, S.asteroids.map(function (a3) { return a3.x; }));
+      S.gateX = lead + 120;
+    }
+
+    // debris move + collisions (bullets shatter ice for bonus points; ship
+    // contact still costs a shield — shooting the ice is the safe play).
+    for (var d = 0; d < S.debris.length; d++) {
+      var db = S.debris[d]; db.x += db.vx * dt; db.spin += dt;
+      // bullet hit → shatter for a small deterministic bonus (+5 each)
+      for (var bd = 0; bd < S.bullets.length; bd++) {
+        var bb = S.bullets[bd];
+        if (!db.dead && Math.abs(bb.x - db.x) < db.r && Math.abs(bb.y - db.y) < db.r) {
+          bb.x = W + 999; db.dead = true;
+          S.bonus += BONUS_PER;
+          burst(db.x, db.y, '#22d3ee', 16); burst(db.x, db.y, '#e0f7ff', 10);
+          updateHud();
+          break;
+        }
+      }
+      // ship contact → shield loss
+      if (!db.dead && Math.abs(db.x - ship.x) < db.r + 14 && Math.abs(db.y - ship.y) < db.r + 12) {
+        db.dead = true; S.shields = Math.max(0, S.shields - 1); S.shake = reduceMotion ? 0 : 0.3;
+        burst(db.x, db.y, '#ff6b8a', 14); showFlash('✕ Frozen debris! −1 shield', '#ff6b8a'); updateHud();
+        if (S.shields <= 0) { endRun(false); return; }
+      }
+    }
+    S.debris = S.debris.filter(function (x) { return !x.dead && x.x > -40; });
+
+    // particles
+    for (var p = 0; p < S.particles.length; p++) {
+      var pt = S.particles[p]; pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.vy += 60 * dt; pt.life -= dt;
+    }
+    S.particles = S.particles.filter(function (q) { return q.life > 0; });
+
+    // stars parallax (stutter when frozen)
+    var freeze = 1 - S.thaw;
+    for (var s = 0; s < stars.length; s++) {
+      var st = stars[s];
+      var step = reduceMotion ? 1 : (1 - freeze * 0.5); // choppier when frozen
+      st.x -= (S.cfg.scroll * 0.25 * st.z) * dt * (0.5 + 0.5 * step);
+      if (st.x < -4) { st.x = W + 4; st.y = Math.random() * H; }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+  function render() {
+    var thaw = S ? S.thaw : 0;
+    // background gradient: frozen steel -> warm restored
+    var top = lerpColor('#0b1220', '#161033', thaw);
+    var bot = lerpColor('#0a1a24', '#241a12', thaw);
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, top); g.addColorStop(1, bot);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    var ox = 0, oy = 0;
+    if (S && S.shake > 0) { ox = (Math.random() - 0.5) * 12 * S.shake; oy = (Math.random() - 0.5) * 12 * S.shake; }
+    ctx.save(); ctx.translate(ox, oy);
+
+    // stars
+    var starCol = lerpColor('#7b8aa0', '#ffe7b3', thaw);
+    for (var i = 0; i < stars.length; i++) {
+      var st = stars[i];
+      ctx.globalAlpha = 0.3 + st.z * 0.4; ctx.fillStyle = starCol;
+      ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 6.283); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (S && (S.screen === 'playing' || S.screen === 'victory')) {
+      // lane guides (faint)
+      ctx.strokeStyle = 'rgba(120,150,200,' + (0.06 + thaw * 0.05) + ')';
+      ctx.lineWidth = 1;
+      for (var L = 0; L < 3; L++) { ctx.beginPath(); ctx.moveTo(0, laneY(L)); ctx.lineTo(W, laneY(L)); ctx.stroke(); }
+
+      // gate seal
+      if (S.gateActive) {
+        var gx = S.gateX;
+        var seal = lerpColor('#3b4a5a', '#22d3ee', thaw * 0.5);
+        ctx.globalAlpha = 0.5; ctx.fillStyle = seal;
+        ctx.fillRect(gx - 6, 0, 12, H); ctx.globalAlpha = 1;
+        // equation label
+        ctx.font = '800 ' + Math.round(Math.min(38, H * 0.06)) + 'px Segoe UI, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        var eqText = S.gateText + ' = ?';
+        ctx.fillStyle = 'rgba(5,8,16,.75)';
+        var tw = ctx.measureText(eqText).width + 28;
+        var ty = Math.min(H * 0.14, 60);
+        roundRect(gx - tw / 2, ty - 22, tw, 44, 12); ctx.fill();
+        ctx.fillStyle = lerpColor('#aeb9c9', '#ffffff', thaw);
+        ctx.fillText(eqText, gx, ty);
+      }
+
+      // ice debris (cold cyan so it reads as shootable frost, not just rock)
+      for (var d = 0; d < S.debris.length; d++) {
+        var db = S.debris[d];
+        drawRock(db.x, db.y, db.r, db.spin, lerpColor('#5f7f96', '#7fb4c8', thaw), null);
+      }
+
+      // asteroids w/ answers
+      for (var a = 0; a < S.asteroids.length; a++) {
+        var ast = S.asteroids[a];
+        drawRock(ast.x, ast.y, ast.r, ast.spin, lerpColor('#48586c', '#3a5a7a', thaw), ast.value);
+      }
+
+      // bullets
+      ctx.fillStyle = SPARK;
+      for (var b = 0; b < S.bullets.length; b++) {
+        var bl = S.bullets[b];
+        ctx.beginPath(); ctx.ellipse(bl.x, bl.y, 8, 3, 0, 0, 6.283); ctx.fill();
+      }
+
+      // ship
+      drawShip(S.ship.x, S.ship.y);
+
+      // particles
+      for (var p = 0; p < S.particles.length; p++) {
+        var pt = S.particles[p];
+        ctx.globalAlpha = Math.max(0, pt.life / pt.max);
+        ctx.fillStyle = pt.color;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.restore();
+
+    // frost vignette that fades as the field thaws
+    if (thaw < 1) {
+      var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.7);
+      vg.addColorStop(0, 'rgba(140,170,200,0)');
+      vg.addColorStop(1, 'rgba(90,120,160,' + (0.28 * (1 - thaw)) + ')');
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  function drawRock(x, y, r, spin, color, value) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(spin * 0.2);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (var i = 0; i < 8; i++) {
+      var ang = (i / 8) * 6.283;
+      var rr = r * (0.82 + (i % 2 ? 0.18 : 0));
+      var px = Math.cos(ang) * rr, py = Math.sin(ang) * rr;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.restore();
+    if (value !== null && value !== undefined) {
+      ctx.font = '800 ' + Math.round(r * 0.8) + 'px Segoe UI, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff'; ctx.fillText('' + value, x, y);
+    }
+  }
+
+  function drawShip(x, y) {
+    ctx.save(); ctx.translate(x, y);
+    // glow
+    ctx.shadowColor = SPARK; ctx.shadowBlur = reduceMotion ? 0 : 16;
+    ctx.fillStyle = SPARK;
+    ctx.beginPath();
+    ctx.moveTo(26, 0); ctx.lineTo(-16, -15); ctx.lineTo(-8, 0); ctx.lineTo(-16, 15);
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#fff7e6';
+    ctx.beginPath(); ctx.arc(2, 0, 5, 0, 6.283); ctx.fill();
+    // thruster flicker
+    ctx.fillStyle = 'rgba(34,211,238,.85)';
+    var fl = 8 + (reduceMotion ? 2 : Math.random() * 8);
+    ctx.beginPath(); ctx.moveTo(-16, -7); ctx.lineTo(-16 - fl, 0); ctx.lineTo(-16, 7); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Loop
+  // ---------------------------------------------------------------------------
+  var last = 0, raf = 0;
+  function frame(now) {
+    if (!last) last = now;
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    update(dt); render();
+    raf = window.requestAnimationFrame(frame);
+  }
+  raf = window.requestAnimationFrame(frame);
+
+  // ---------------------------------------------------------------------------
+  // HUD + screens
+  // ---------------------------------------------------------------------------
+  function updateHud() {
+    if (!S) return;
+    document.getElementById('hud-score').textContent = Math.round(S.firstTryCorrect / S.totalCores * 100);
+    document.getElementById('hud-cores').textContent = S.coresRecovered + '/' + S.totalCores;
+    document.getElementById('hud-bonus').textContent = S.bonus;
+    var hearts = '';
+    for (var i = 0; i < S.maxShields; i++) hearts += (i < S.shields ? '♥' : '·');
+    document.getElementById('shields').textContent = hearts;
+    document.getElementById('thaw-bar').style.width = Math.round(S.thaw * 100) + '%';
+  }
+
+  var flashTimer = 0;
+  function showFlash(text, color) {
+    var f = document.getElementById('flash');
+    f.textContent = text; f.style.color = color;
+    f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+  }
+
+  function showScreen(id) {
+    ['screen-brief', 'screen-win', 'screen-retry'].forEach(function (s) {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
+    });
+  }
+
+  function startRun(diffName) {
+    S = newState(diffName);
+    seedStars();
+    showScreen(null);
+    document.getElementById('screen-brief').classList.add('hidden');
+    document.getElementById('screen-win').classList.add('hidden');
+    document.getElementById('screen-retry').classList.add('hidden');
+    document.getElementById('hud').classList.remove('hidden');
+    document.getElementById('touchhint').classList.add('on');
+    updateHud();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Input
+  // ---------------------------------------------------------------------------
+  var selDiff = 'EASY';
+  document.getElementById('diff-row').addEventListener('click', function (e) {
+    var b = e.target.closest('.diff-btn'); if (!b) return;
+    selDiff = b.getAttribute('data-diff');
+    Array.prototype.forEach.call(this.children, function (c) { c.classList.toggle('sel', c === b); });
+  });
+  document.getElementById('start-btn').addEventListener('click', function () { startRun(selDiff); });
+  document.getElementById('win-again').addEventListener('click', function () { showScreen('screen-brief'); });
+  document.getElementById('retry-btn').addEventListener('click', function () { showScreen('screen-brief'); });
+
+  // keyboard steering
+  var keys = {};
+  window.addEventListener('keydown', function (e) {
+    keys[e.key.toLowerCase()] = true;
+    if ([' ', 'arrowup', 'arrowdown'].indexOf(e.key.toLowerCase()) >= 0) e.preventDefault();
+  });
+  window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
+  window.setInterval(function () {
+    if (!S || S.screen !== 'playing') return;
+    var d = 0;
+    if (keys['arrowup'] || keys['w']) d -= 1;
+    if (keys['arrowdown'] || keys['s']) d += 1;
+    if (d !== 0) S.ship.targetY = Math.max(H * 0.12, Math.min(H * 0.9, S.ship.targetY + d * 16));
+  }, 16);
+
+  // pointer / touch steering — dragging anywhere on the left ~85% steers to y
+  var dragging = false;
+  function pointerY(e) {
+    var r = canvas.getBoundingClientRect();
+    var cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return Math.max(H * 0.12, Math.min(H * 0.9, cy));
+  }
+  function pStart(e) { if (!S || S.screen !== 'playing') return; dragging = true; S.ship.targetY = pointerY(e); }
+  function pMove(e) { if (dragging && S && S.screen === 'playing') { S.ship.targetY = pointerY(e); e.preventDefault(); } }
+  function pEnd() { dragging = false; }
+  canvas.addEventListener('mousedown', pStart);
+  window.addEventListener('mousemove', pMove);
+  window.addEventListener('mouseup', pEnd);
+  canvas.addEventListener('touchstart', pStart, { passive: false });
+  canvas.addEventListener('touchmove', pMove, { passive: false });
+  canvas.addEventListener('touchend', pEnd);
+
+  // ---------------------------------------------------------------------------
+  // Test hook — drives gate resolution deterministically for verification.
+  // Harmless in the demo (mirrors the campus __campusTest pattern).
+  // ---------------------------------------------------------------------------
+  window.__nullRun = {
+    start: function (d) { startRun(d || 'EASY'); },
+    state: function () {
+      if (!S) return { screen: 'briefing' };
+      var q = S.questions[S.gateIndex];
+      return {
+        screen: S.screen, diff: S.diff, score: S.score,
+        hudScore: Math.round(S.firstTryCorrect / S.totalCores * 100),
+        cores: S.coresRecovered, totalCores: S.totalCores,
+        shields: S.shields, maxShields: S.maxShields, thaw: S.thaw, bonus: S.bonus,
+        gateActive: S.gateActive, gateIndex: S.gateIndex, debris: S.debris.length,
+        equation: q ? { text: q.text, answer: q.answer, options: q.options } : null,
+      };
+    },
+    // spawn an ice-debris rock in the ship's lane (test: verify shooting bonus)
+    spawnIce: function () {
+      if (!S || S.screen !== 'playing') return;
+      S.debris.push({ x: W * 0.42, y: S.ship.y, r: 14, vx: -10, spin: 0, dead: false });
+    },
+    // resolve current gate by the value the player "hit"
+    pick: function (value) { resolveGate(value); },
+    pickCorrect: function () { if (S && S.gateActive) resolveGate(S.questions[S.gateIndex].answer); },
+    pickWrong: function () {
+      if (!S || !S.gateActive) return;
+      var q = S.questions[S.gateIndex];
+      var w = q.options.filter(function (o) { return o !== q.answer; })[0];
+      resolveGate(w);
+    },
+    // fast-forward: answer all remaining gates correctly to reach victory
+    autoWin: function () {
+      var guard = 0;
+      function step() {
+        if (!S || S.screen !== 'playing') return;
+        if (S.gateActive) { resolveGate(S.questions[S.gateIndex].answer); }
+        if (++guard < 200 && S && S.screen === 'playing') window.setTimeout(step, reduceMotion ? 12 : 40);
+      }
+      step();
+    },
+  };
+})();
+</script>
+</body>
+</html>

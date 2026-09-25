@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-const AUTH_ROUTES = ['/login'];
+// Routes that render full screen, without the site header and footer
+const CHROMELESS_ROUTES = ['/login', '/demo/play', '/dev/campus-sandbox'];
 
 export default function HeaderFooterWrapper() {
   const pathname = usePathname();
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
+  const isChromeless = CHROMELESS_ROUTES.some((route) => pathname === route);
 
-  if (isAuthRoute) return null;
+  if (isChromeless) return null;
 
   return (
     <>
@@ -21,9 +22,9 @@ export default function HeaderFooterWrapper() {
 
 export function FooterWrapper() {
   const pathname = usePathname();
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname === route);
+  const isChromeless = CHROMELESS_ROUTES.some((route) => pathname === route);
 
-  if (isAuthRoute) return null;
+  if (isChromeless) return null;
 
   return <Footer />;
 }
