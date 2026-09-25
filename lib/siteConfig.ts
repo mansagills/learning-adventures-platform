@@ -23,8 +23,8 @@ export const siteConfig = {
   links: {
     /** Storefront for the interactive ebooks. Individual books can override it. */
     ebookStore: process.env.NEXT_PUBLIC_EBOOK_STORE_URL || '',
-    /** YouTube/Vimeo embed URL for the Hub World demo trailer. */
-    hubTrailer: process.env.NEXT_PUBLIC_HUB_TRAILER_URL || '',
+    /** YouTube/Vimeo embed URL for the Learning Adventures World demo trailer. */
+    demoTrailer: process.env.NEXT_PUBLIC_DEMO_TRAILER_URL || '',
     /** Optional sign-up form (e.g. for "tell me when the books launch"). */
     newsletter: process.env.NEXT_PUBLIC_NEWSLETTER_URL || '',
   },

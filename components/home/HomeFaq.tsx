@@ -18,9 +18,9 @@ const faqs = [
       'Each interactive ebook is a children’s story set in the same world as our games, with Jaylen and SPARK. Every ebook has a free sample right here on the site. To buy and read the full ebook, you’ll open it in our interactive ebook reader, which has its own sign-in, separate from this website.',
   },
   {
-    question: 'What is the Hub World demo?',
+    question: 'What is the Learning Adventures World demo?',
     answer:
-      'It’s an early preview of something bigger: a pixel-art campus where kids walk between subject buildings, meet characters and play games. The demo is a showcase of where we’re headed. It’s still in development, and progress in the demo isn’t saved.',
+      'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet Jaylen and SPARK, and play games. The demo is a showcase of where we’re headed and is still in development. It saves progress only in your browser, and you can restart it any time.',
   },
   {
     question: 'What devices does it work on?',

@@ -274,7 +274,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* ── Hub World teaser ─────────────────────────────────────────── */}
+      {/* ── Learning Adventures World demo teaser ───────────────────── */}
       <section className="pb-16 md:pb-20" aria-labelledby="hub-heading">
         <Container>
           <div className="relative overflow-hidden rounded-[2rem] border-2 border-pg-border bg-ink-900 p-8 text-white shadow-pop md:p-12">
@@ -295,7 +295,7 @@ export default function HomePage() {
                   id="hub-heading"
                   className="mt-4 font-display text-3xl font-extrabold md:text-4xl"
                 >
-                  Take a peek at the Hub World
+                  Take a peek at the Learning Adventures World
                 </h2>
                 <p className="mt-3 max-w-2xl text-lg text-white/80">
                   We&apos;re building a pixel-art Academy campus where kids walk
@@ -305,7 +305,7 @@ export default function HomePage() {
                 </p>
               </div>
               <Link
-                href="/hub"
+                href="/demo"
                 className={cn(
                   primaryButton,
                   'justify-self-start bg-pg-yellow text-ink-900 md:justify-self-end'

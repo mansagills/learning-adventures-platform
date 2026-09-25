@@ -188,14 +188,14 @@ affects the Phase 6 cutover.
 
 ## Progress log
 
-| Phase                          | Status       |
-| ------------------------------ | ------------ |
-| 1. Foundation                  | COMPLETED ✅ |
-| 2. Games experience            | COMPLETED ✅ |
-| 3. Homepage                    | COMPLETED ✅ |
-| 4. Books                       | COMPLETED ✅ |
-| 5. Hub World demo landing page | Next         |
-| 6. Polish, docs, cutover       | Not started  |
+| Phase                             | Status       |
+| --------------------------------- | ------------ |
+| 1. Foundation                     | COMPLETED ✅ |
+| 2. Games experience               | COMPLETED ✅ |
+| 3. Homepage                       | COMPLETED ✅ |
+| 4. Books                          | COMPLETED ✅ |
+| 5. Learning Adventures World demo | COMPLETED ✅ |
+| 6. Polish, docs, cutover          | Next         |
 
 ### Phase 1 notes
 
@@ -234,3 +234,13 @@ affects the Phase 6 cutover.
 - `GetEbookButton` shows "Get the interactive ebook" only when a book's `status` is `'available'` and it has a link (`ebookUrl`, else `NEXT_PUBLIC_EBOOK_STORE_URL`). Otherwise it shows "Interactive ebook coming soon", plus a "Tell me when it's out" link if `NEXT_PUBLIC_NEWSLETTER_URL` is set. The ebook platform is never named.
 - Placeholder sample pages: `public/books/<slug>/sample-1..3.svg` (a subject-colored "illustration coming soon" page plus a text page with a short opening scene based on the lore). Replace them with the real pages (any image format) and update `samplePages` in `lib/content/books.ts`. Covers are still drawn by `BookCover` until `coverImage` is set.
 - **To publish a real book:** set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` in `lib/content/books.ts`, then run `npm test`. The content test fails if any image path is missing.
+
+### Phase 5 notes
+
+- **Renamed:** the demo is the **Learning Adventures World demo** (user decision), no longer "Hub World". Routes are `/demo` and `/demo/play` (not `/hub`); the header link reads "World Demo". Earlier sections of this plan that say "Hub World" or `/hub` are superseded by this. The in-game zone name "Main Hub" (the central plaza) is unchanged.
+- **Demo merged into the main app.** The public snapshot (`demo/la-campus-demo`) was ahead of the main app: Chapter 0/1 story quests, name/avatar picker, story items, day/night, touch joystick. A three-way merge of 21 files against `50be5e3` (the last point both copies shared) had zero conflicts and kept the main app's later lint/CI fixes. 7 demo-only files were added (`game/world/chapter0`, `chapter1`, `characterBody`, `characterCards`, `playerIdentity`, `storyItems`, `components/world/StoryItemsChip`) plus `public/games/null-run.html`.
+- `components/demo/CampusDemoExperience.tsx` is the one shared demo component, used by `/demo/play` (public, full screen, "Exit demo" button, noindex) and `/dev/campus-sandbox` (still dev-only). `PhaserGame`'s letterbox background is now dark, as the demo intended.
+- The old homepage moved (with history) to `components/demo/` and is now the `/demo` landing page. Every CTA is "Play the demo" → `/demo/play`. Removed or replaced: sign-in/`AuthModal`, "100+ quests"/"+50 XP"/"Lv. 12" stats, "COPPA-compliant" claims, the parent dashboard/premium plan FAQ answers, dead "Contact Support"/"Schedule a Demo"/"Watch a Preview" buttons, and the invented testimonials (`SocialProof.tsx` is kept but not rendered). "What's coming" lists planned features, clearly labeled as in development.
+- The hero shows a real screenshot of the demo (`public/demo/campus-preview.png`, captured with Playwright). An optional trailer appears when `NEXT_PUBLIC_DEMO_TRAILER_URL` is set.
+- Verified in the production build: the canvas loads, the name picker saves, the arrow keys move the player, the phone joystick moves the player, "Exit demo" returns to `/demo`, there are no script errors, and the demo makes **no** `/api` calls.
+- **`demo/la-campus-demo` can now be retired** once the site goes live (Phase 6 cutover), because the main app has everything it had.

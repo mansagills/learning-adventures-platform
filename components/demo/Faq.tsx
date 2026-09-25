@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Container from '@/components/Container';
-import Button from '@/components/Button';
+import Link from 'next/link';
 import { analytics } from '@/lib/analytics';
 
 interface FAQItem {
@@ -17,39 +17,33 @@ export default function Faq() {
   const faqItems: FAQItem[] = [
     {
       id: 'what-is-it',
-      question: 'What exactly is Learning Adventures?',
+      question: 'What is the Learning Adventures World demo?',
       answer:
-        'Learning Adventures is a 2D pixel game world where kids explore a living campus, go on quests, and earn XP — with math, science, reading, and more woven into every challenge. Think Adventure Academy meets an open-world RPG.',
+        'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet Jaylen and SPARK, follow the first story quests and play games. It’s a showcase of where we’re headed, and it’s still in development.',
     },
     {
-      id: 'age-range',
-      question: 'What ages is it for?',
+      id: 'controls',
+      question: 'How do I move around?',
       answer:
-        'The world is designed for kids ages 5–12 (grades K–5). Quests and challenges automatically scale to match your child\'s level, so a 6-year-old and a 12-year-old can both be in the world at the same time.',
-    },
-    {
-      id: 'learning',
-      question: 'Does my kid actually learn anything, or is it just a game?',
-      answer:
-        'Both — by design. Every quest, mini-game, and challenge is built around real curriculum standards (math, science, reading, history). Kids are solving real problems; they just don\'t realize it because they\'re trying to beat the dungeon.',
+        'Use the arrow keys or W, A, S, D on a keyboard. Walk up to a character to talk to them, and walk into a building to see what’s inside. On a phone or tablet, use the on-screen joystick. The demo works best on a computer or tablet.',
     },
     {
       id: 'progress',
-      question: "How do I know what my child is doing in the world?",
+      question: 'Is my progress saved?',
       answer:
-        'Parents get a dashboard showing XP earned, quests completed, subjects covered, and time spent. You can see exactly which skills your child is working on without interrupting their game.',
+        'Your name, character and demo XP are saved in this browser on this device only. Nothing is sent to us, and there’s no account. Use the Restart button in the demo to start fresh at any time.',
     },
     {
-      id: 'pricing',
-      question: 'How much does it cost?',
+      id: 'full-world',
+      question: 'When is the full Learning Adventures World coming?',
       answer:
-        'You can start for free — no credit card needed. Premium plans unlock the full world, all quest lines, and exclusive gear. We\'ll always keep a meaningful free tier so every kid can explore.',
+        'We’re building it now. The full world will have a season-long story, games in every building and more. There’s no release date yet, so keep an eye on this page.',
     },
     {
-      id: 'privacy',
-      question: "Is it safe for kids?",
+      id: 'games',
+      question: 'Where are the regular games?',
       answer:
-        'Absolutely. We are fully COPPA-compliant, never share personal data, and the world is moderated. Kids use display names — never real names — and parents have full control over their child\'s account.',
+        'All of our mini-games are free to play right now on the Games page, with no sign-up. You can also read the stories behind them in our interactive ebooks.',
     },
   ];
 
@@ -134,8 +128,7 @@ export default function Faq() {
           </h2>
 
           <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
-            Questions about the world? We&apos;ve got answers. Can&apos;t find what you&apos;re
-            looking for? Reach out to our team.
+            Quick answers about the demo and what&apos;s coming next.
           </p>
         </div>
 
@@ -215,26 +208,29 @@ export default function Faq() {
           <div className="card-sticker-featured p-8 text-center relative">
             {/* Floating decoration */}
             <div className="absolute -top-4 -right-4 w-10 h-10 bg-pg-mint border-2 border-pg-border rounded-lg shadow-pop rotate-12 flex items-center justify-center">
-              <span className="text-lg">💬</span>
+              <span className="text-lg">🎮</span>
             </div>
 
             <h3 className="font-outfit text-2xl font-extrabold text-foreground mb-3">
-              Still have questions?
+              Looking for the games?
             </h3>
             <p className="font-plus-jakarta text-foreground/70 mb-6">
-              Our team is here to help you and your adventurer get the most out
-              of the world.
+              Every mini-game is free to play today, and each interactive ebook
+              tells the story behind them.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="candy" size="md">
-                <span className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center mr-2">
-                  📧
-                </span>
-                Contact Support
-              </Button>
-              <Button variant="outline-pop" size="md">
-                Schedule a Demo
-              </Button>
+              <Link
+                href="/games"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-6 py-3 font-bold text-white shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
+              >
+                🎮 Play the games
+              </Link>
+              <Link
+                href="/books"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-white px-6 py-3 font-bold text-ink-900 transition-all duration-200 hover:bg-pg-yellow focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
+              >
+                📚 See the books
+              </Link>
             </div>
           </div>
         </div>

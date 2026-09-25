@@ -16,7 +16,7 @@ import { analytics } from '@/lib/analytics';
 const NAV_LINKS = [
   { href: '/games', label: 'Games' },
   { href: '/books', label: 'Books' },
-  { href: '/hub', label: 'Hub World Demo' },
+  { href: '/demo', label: 'World Demo' },
   { href: '/about', label: 'About' },
 ];
 

@@ -46,7 +46,7 @@ export function generateWebSiteSchema(): WebSiteSchema {
     name: 'Learning Adventures',
     url: 'https://learningadventures.org',
     description:
-      'Free math, science, reading and history games for grades K–5, plus interactive ebooks and an early look at the Hub World.',
+      'Free math, science, reading and history games for grades K–5, plus interactive ebooks and an early look at the Learning Adventures World.',
     publisher: {
       '@type': 'Organization',
       name: 'Learning Adventures',

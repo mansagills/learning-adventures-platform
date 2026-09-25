@@ -1,89 +1,83 @@
-'use client';
-
-import { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
 import Container from '@/components/Container';
-import Button from '@/components/Button';
-import AuthModal from '@/components/AuthModal';
-import { analytics } from '@/lib/analytics';
+
+const primaryButton =
+  'inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border px-7 py-3.5 text-lg font-bold shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40';
+
+const facts = [
+  {
+    emoji: '🏫',
+    value: '1 campus',
+    label: 'to explore',
+    color: 'text-pg-violet',
+    circle: 'icon-circle-violet',
+  },
+  {
+    emoji: '🎟️',
+    value: 'Free',
+    label: 'No sign-up needed',
+    color: 'text-pg-pink',
+    circle: 'icon-circle-pink',
+  },
+  {
+    emoji: '💻',
+    value: 'Browser',
+    label: 'Nothing to install',
+    color: 'text-pg-yellow',
+    circle: 'icon-circle-yellow',
+  },
+];
 
 export default function Hero() {
-  const router = useRouter();
-  const { status } = useAuth();
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-
-  const handleEnterWorld = () => {
-    analytics.clickCTA('Enter the World', 'hero');
-    if (status === 'authenticated') {
-      router.push('/world');
-      return;
-    }
-    setAuthMode('signin');
-    setIsAuthModalOpen(true);
-  };
-
-  const handleCreateCharacter = () => {
-    analytics.clickCTA('Create Your Character', 'hero');
-    if (status === 'authenticated') {
-      router.push('/world/create');
-      return;
-    }
-    setAuthMode('signup');
-    setIsAuthModalOpen(true);
-  };
-
   return (
-    <>
-    <section className="relative bg-background pt-20 pb-24 overflow-hidden">
+    <section className="relative overflow-hidden bg-background pb-24 pt-16 md:pt-20">
       {/* Dot grid pattern background */}
-      <div className="absolute inset-0 bg-dot-grid opacity-40"></div>
+      <div
+        className="absolute inset-0 bg-dot-grid opacity-40"
+        aria-hidden
+      ></div>
 
       {/* Large decorative glow behind content */}
-      <div className="absolute top-10 left-0 w-[500px] h-[500px] bg-pg-violet/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-pg-mint/20 rounded-full blur-3xl"></div>
-
-      {/* Floating pixel-style decorative elements */}
-      <div className="absolute top-32 right-20 w-8 h-8 bg-pg-pink rotate-45 opacity-60 animate-float"></div>
       <div
-        className="absolute top-48 right-40 w-6 h-6 bg-pg-violet rounded-sm opacity-50 animate-float"
-        style={{ animationDelay: '0.5s' }}
+        className="absolute left-0 top-10 h-[500px] w-[500px] rounded-full bg-pg-violet/20 blur-3xl"
+        aria-hidden
       ></div>
       <div
-        className="absolute bottom-32 right-32 w-4 h-4 bg-pg-yellow opacity-60 animate-float"
-        style={{ animationDelay: '1s' }}
-      ></div>
-      <div
-        className="absolute top-64 left-20 w-5 h-5 bg-pg-mint rounded-sm opacity-50 animate-float"
-        style={{ animationDelay: '1.5s' }}
+        className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-pg-mint/20 blur-3xl"
+        aria-hidden
       ></div>
 
       <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="relative z-10 grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
           {/* Content */}
           <div className="text-center lg:text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 mb-6 px-5 py-2.5 bg-white border-2 border-pg-border rounded-full shadow-pop">
-              <span className="w-8 h-8 bg-pg-violet rounded-sm flex items-center justify-center text-lg">
-                🗺️
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pg-border bg-white px-5 py-2.5 shadow-pop">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-sm bg-pg-violet text-lg"
+                aria-hidden
+              >
+                🧪
               </span>
-              <span className="text-sm font-bold text-foreground uppercase tracking-wide">
-                A Living Pixel World
+              <span className="text-sm font-bold uppercase tracking-wide text-foreground">
+                Early preview demo
               </span>
             </div>
 
-            <h1 className="font-outfit text-5xl md:text-6xl lg:text-7xl font-extrabold text-foreground mb-6 leading-tight">
-              Your{' '}
+            <h1 className="mb-6 font-outfit text-4xl font-extrabold leading-tight text-foreground md:text-5xl">
+              Explore the{' '}
               <span className="relative inline-block">
-                <span className="relative z-10 text-pg-violet">Adventure</span>
+                <span className="relative z-10 text-pg-violet">
+                  Learning Adventures
+                </span>
                 {/* Squiggle underline */}
                 <svg
-                  className="absolute -bottom-2 left-0 w-full h-4"
+                  className="absolute -bottom-2 left-0 h-4 w-full"
                   viewBox="0 0 200 12"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden
                 >
                   <path
                     d="M2 6C20 2 40 10 60 6C80 2 100 10 120 6C140 2 160 10 180 6C190 4 198 6 198 6"
@@ -93,133 +87,93 @@ export default function Hero() {
                   />
                 </svg>
               </span>{' '}
-              Awaits
+              World
             </h1>
 
-            <p className="font-plus-jakarta text-xl md:text-2xl text-foreground/80 mb-10 leading-relaxed">
-              Explore a vast pixel world, go on quests, level up your character
-              — and learn along the way.
+            <p className="mb-10 font-plus-jakarta text-xl leading-relaxed text-foreground/80 md:text-2xl">
+              Take an early look at the pixel-art Academy campus we&apos;re
+              building. Walk between the subject buildings, meet Jaylen and
+              SPARK, and jump into games along the way.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button
-                variant="candy"
-                size="lg"
-                className="text-lg w-full sm:w-auto"
-                onClick={handleEnterWorld}
-                disabled={status === 'loading'}
+            <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
+              <Link
+                href="/demo/play"
+                className={`${primaryButton} bg-pg-violet text-white`}
               >
-                  <span className="w-7 h-7 bg-white/20 rounded-sm flex items-center justify-center mr-2">
-                    🌍
-                  </span>
-                  Enter the World
-              </Button>
-              <Button
-                variant="outline-pop"
-                size="lg"
-                onClick={handleCreateCharacter}
-                disabled={status === 'loading'}
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-sm bg-white/20"
+                  aria-hidden
+                >
+                  🎮
+                </span>
+                Play the demo
+              </Link>
+              <Link
+                href="/games"
+                className={`${primaryButton} bg-white text-ink-900`}
               >
-                Create Your Character →
-              </Button>
+                Back to the games
+              </Link>
             </div>
+            <p className="mt-4 text-sm font-medium text-ink-500 md:hidden">
+              The demo works best on a computer or tablet. On phones, use the
+              on-screen joystick.
+            </p>
           </div>
 
-          {/* Hero visual area */}
+          {/* Hero visual: a real screenshot of the demo */}
           <div className="relative">
-            {/* Jaylen & S.P.A.R.K. hero image */}
-            <div className="relative rounded-3xl border-2 border-pg-border shadow-pop">
+            <div className="relative overflow-hidden rounded-3xl border-2 border-pg-border bg-ink-900 shadow-pop">
               <Image
-                src="/images/jaylen-and-spark.png"
-                alt="Jaylen the Adventurer and S.P.A.R.K. the Tech Buddy — mascots of Learning Adventures"
-                width={1376}
-                height={768}
-                className="w-full h-auto rounded-3xl"
+                src="/demo/campus-preview.png"
+                alt="Screenshot of the Learning Adventures World demo: a pixel-art Academy campus with subject buildings and students walking around"
+                width={1280}
+                height={720}
+                className="h-auto w-full"
                 priority
               />
             </div>
-
-            {/* Floating stat stickers */}
-            <div className="absolute -top-6 -right-4 w-20 h-20 bg-pg-yellow border-2 border-pg-border rounded-xl shadow-pop rotate-12 flex flex-col items-center justify-center animate-float z-20">
-              <span className="text-xl">⚡</span>
-              <span className="font-outfit font-extrabold text-foreground text-xs">+50 XP</span>
-            </div>
-            <div
-              className="absolute -bottom-4 -left-4 w-24 h-20 bg-pg-mint border-2 border-pg-border rounded-2xl shadow-pop -rotate-6 flex flex-col items-center justify-center animate-float z-20"
-              style={{ animationDelay: '1s' }}
-            >
-              <span className="text-2xl">🗡️</span>
-              <span className="font-outfit font-extrabold text-foreground text-xs">New Quest!</span>
-            </div>
-            <div
-              className="absolute top-1/3 -right-8 w-16 h-16 bg-pg-pink border-2 border-pg-border rounded-full shadow-pop flex flex-col items-center justify-center animate-float z-20"
-              style={{ animationDelay: '2s' }}
-            >
-              <span className="text-xl">🏆</span>
-              <span className="font-outfit font-extrabold text-foreground text-xs">Lv. 12</span>
+            <div className="absolute -right-4 -top-6 z-20 flex h-20 w-24 rotate-12 animate-float flex-col items-center justify-center rounded-xl border-2 border-pg-border bg-pg-yellow shadow-pop">
+              <span className="text-xl" aria-hidden>
+                🚧
+              </span>
+              <span className="font-outfit text-xs font-extrabold text-foreground">
+                In progress
+              </span>
             </div>
           </div>
         </div>
 
-        {/* World stats — pixel game style */}
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto lg:mx-0">
-          <div className="card-sticker group hover:-translate-y-1 transition-transform duration-200 ease-bounce">
-            <div className="flex items-center gap-3">
-              <div className="icon-circle-violet">
-                <span className="text-lg">🌍</span>
-              </div>
-              <div>
-                <div className="font-outfit text-3xl font-bold text-pg-violet">
-                  1 World
+        {/* Honest quick facts */}
+        <div className="mx-auto mt-16 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-3 lg:mx-0">
+          {facts.map((fact) => (
+            <div
+              key={fact.value}
+              className="card-sticker group p-4 transition-transform duration-200 ease-bounce hover:-translate-y-1"
+            >
+              <div className="flex items-center gap-3">
+                <div className={fact.circle}>
+                  <span className="text-lg" aria-hidden>
+                    {fact.emoji}
+                  </span>
                 </div>
-                <div className="text-sm text-foreground/70 font-medium">
-                  Always Growing
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-sticker group hover:-translate-y-1 transition-transform duration-200 ease-bounce">
-            <div className="flex items-center gap-3">
-              <div className="icon-circle-pink">
-                <span className="text-lg">⚔️</span>
-              </div>
-              <div>
-                <div className="font-outfit text-3xl font-bold text-pg-pink">
-                  100+
-                </div>
-                <div className="text-sm text-foreground/70 font-medium">
-                  Quests & Challenges
+                <div>
+                  <div
+                    className={`font-outfit text-2xl font-bold ${fact.color}`}
+                  >
+                    {fact.value}
+                  </div>
+                  <div className="text-sm font-medium text-foreground/70">
+                    {fact.label}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="card-sticker group hover:-translate-y-1 transition-transform duration-200 ease-bounce">
-            <div className="flex items-center gap-3">
-              <div className="icon-circle-yellow">
-                <span className="text-lg">⭐</span>
-              </div>
-              <div>
-                <div className="font-outfit text-3xl font-bold text-pg-yellow">
-                  K–5
-                </div>
-                <div className="text-sm text-foreground/70 font-medium">
-                  Grade Levels
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </Container>
     </section>
-    <AuthModal
-      key={authMode}
-      isOpen={isAuthModalOpen}
-      onClose={() => setIsAuthModalOpen(false)}
-      defaultMode={authMode}
-    />
-    </>
   );
 }
