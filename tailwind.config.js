@@ -4,6 +4,8 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    // Subject themes store full class names in data files
+    './lib/content/**/*.{js,ts}',
   ],
   theme: {
     extend: {
@@ -45,7 +47,7 @@ module.exports = {
         },
 
         // Playful Geometric accent colors
-        'pg-violet': '#8B5CF6', // Primary accent
+        'pg-violet': '#7C3AED', // Primary accent (violet-600: white text passes WCAG AA)
         'pg-pink': '#F472B6', // Hot Pink (secondary)
         'pg-yellow': '#FBBF24', // Amber (tertiary - optimism)
         'pg-mint': '#34D399', // Emerald (quaternary - freshness)

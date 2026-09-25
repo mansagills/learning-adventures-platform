@@ -2,12 +2,19 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
 
-if (!process.env.CHILD_SESSION_SECRET) {
-  throw new Error('CHILD_SESSION_SECRET environment variable is required');
+/**
+ * The signing key for child session JWTs. Read when a session is created or
+ * verified (not when this module loads) so the site can build and run without
+ * child accounts configured. Still fails closed: with no secret, creating a
+ * session throws and verifying one returns null.
+ */
+function getChildSessionSecret(): Uint8Array {
+  const secret = process.env.CHILD_SESSION_SECRET;
+  if (!secret) {
+    throw new Error('CHILD_SESSION_SECRET environment variable is required');
+  }
+  return new TextEncoder().encode(secret);
 }
-const CHILD_SESSION_SECRET = new TextEncoder().encode(
-  process.env.CHILD_SESSION_SECRET
-);
 const CHILD_SESSION_DURATION = 4 * 60 * 60; // 4 hours in seconds
 
 export interface ChildSessionData {
@@ -51,7 +58,7 @@ export async function createChildSession(
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(`${CHILD_SESSION_DURATION}s`)
-    .sign(CHILD_SESSION_SECRET);
+    .sign(getChildSessionSecret());
 
   // Store session in database
   const expiresAt = new Date(Date.now() + CHILD_SESSION_DURATION * 1000);
@@ -74,7 +81,7 @@ export async function verifyChildSession(
   token: string
 ): Promise<ChildSessionData | null> {
   try {
-    const { payload } = await jwtVerify(token, CHILD_SESSION_SECRET);
+    const { payload } = await jwtVerify(token, getChildSessionSecret());
 
     // Check if session exists in database and is not expired
     const session = await prisma.childSession.findUnique({
