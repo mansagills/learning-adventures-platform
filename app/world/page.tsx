@@ -445,7 +445,6 @@ export default function WorldPage() {
         <JobBoard
           onClose={() => setShowJobBoard(false)}
           onStartJob={handleStartJob}
-          onJobComplete={handleJobComplete}
         />
       )}
 

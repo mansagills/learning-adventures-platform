@@ -314,7 +314,6 @@ export default function CampusWorldPage() {
               setCurrentAdventure({ adventureId: job.jobId, type: 'game' });
             }
           }}
-          onJobComplete={() => {}}
         />
       )}
 

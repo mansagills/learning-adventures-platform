@@ -1,8 +1,6 @@
 'use client';
 
 interface FormNavigationProps {
-  currentStep: number;
-  totalSteps: number;
   onPrevious: () => void;
   onNext: () => void;
   onSaveDraft?: () => void;
@@ -15,8 +13,6 @@ interface FormNavigationProps {
 }
 
 export default function FormNavigation({
-  currentStep: _currentStep,
-  totalSteps: _totalSteps,
   onPrevious,
   onNext,
   onSaveDraft,

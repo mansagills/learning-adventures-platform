@@ -156,15 +156,20 @@ export class CurriculumDesignSkill extends BaseSkill {
       }
 
       // Validate lesson type distribution
-      const _distributionWarnings = this.validateLessonTypeDistribution(
+      const distributionWarnings = this.validateLessonTypeDistribution(
         curriculumData.curriculum.lessons
       );
 
       const executionTime = Date.now() - startTime;
 
+      const message =
+        distributionWarnings.length > 0
+          ? `Curriculum designed successfully: ${curriculumData.curriculum.lessons.length} lessons across ${curriculumData.curriculum.chapters.length} chapters (${distributionWarnings.length} distribution warning${distributionWarnings.length === 1 ? '' : 's'})`
+          : `Curriculum designed successfully: ${curriculumData.curriculum.lessons.length} lessons across ${curriculumData.curriculum.chapters.length} chapters`;
+
       return this.buildSuccessResult(
-        curriculumData,
-        `Curriculum designed successfully: ${curriculumData.curriculum.lessons.length} lessons across ${curriculumData.curriculum.chapters.length} chapters`,
+        { ...curriculumData, distributionWarnings },
+        message,
         executionTime,
         95,
         ['interactive-content', 'narrative-integration'] // Suggest next skills

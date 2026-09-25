@@ -29,7 +29,7 @@ export default function RoleGuard({
   children,
   allowedRoles,
   fallback = null,
-  requireAll: _requireAll = false,
+  requireAll = false,
 }: RoleGuardProps) {
   const { user, status } = useAuth();
 
@@ -51,14 +51,15 @@ export default function RoleGuard({
     STUDENT: 1,
   };
 
-  // Check if user has permission
-  const hasPermission = allowedRoles.some((role) => {
-    const userLevel =
-      roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
-    const requiredLevel = roleHierarchy[role];
-    // Users with higher or equal role level have access
-    return userLevel >= requiredLevel;
-  });
+  const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
+
+  // requireAll=false (default): user needs to clear the *lowest* bar among
+  // allowedRoles (any one qualifying role is enough).
+  // requireAll=true: user needs to clear the *highest* bar among
+  // allowedRoles (must qualify for all of them at once).
+  const hasPermission = requireAll
+    ? allowedRoles.every((role) => userLevel >= roleHierarchy[role])
+    : allowedRoles.some((role) => userLevel >= roleHierarchy[role]);
 
   if (!hasPermission) {
     return <>{fallback}</>;

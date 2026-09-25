@@ -60,7 +60,8 @@ export class LearningBuilderAgent {
   public async execute(
     userRequest: string,
     conversationId?: string,
-    userId?: string
+    userId?: string,
+    requestContext?: { files?: any[]; previousOutput?: Record<string, any> }
   ): Promise<AgentResult> {
     const startTime = Date.now();
 
@@ -68,11 +69,22 @@ export class LearningBuilderAgent {
       // Build execution context with previous skill outputs
       const convId = conversationId || 'default';
       const history = this.conversationHistory.get(convId) || [];
-      const previousOutputs = this.skillOutputs.get(convId) || new Map();
+      const previousOutputs = new Map(this.skillOutputs.get(convId) || new Map());
+
+      // Merge caller-supplied previous output (e.g. from a prior client-side
+      // step) on top of what this agent instance already tracked in-memory
+      if (requestContext?.previousOutput) {
+        for (const [skillId, output] of Object.entries(
+          requestContext.previousOutput
+        )) {
+          previousOutputs.set(skillId, output);
+        }
+      }
 
       const context = SkillContextBuilder.build(userRequest, {
         conversationHistory: history,
         previousOutputs,
+        uploadedFiles: requestContext?.files,
         conversationId,
         userId,
       });

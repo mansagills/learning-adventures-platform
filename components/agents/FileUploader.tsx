@@ -36,6 +36,17 @@ const ALLOWED_EXTENSIONS = [
   '.webp',
 ];
 
+const ALLOWED_MIME_TYPES = [
+  'text/markdown',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/gif',
+  'image/webp',
+];
+
 export default function FileUploader({
   conversationId,
   onFileUploaded,
@@ -45,27 +56,25 @@ export default function FileUploader({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileInfo[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const _allowedTypes = [
-    'text/markdown',
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'image/png',
-    'image/jpeg',
-    'image/jpg',
-    'image/gif',
-    'image/webp',
-  ];
-
   const isImageFile = useCallback((fileName: string): boolean => {
     const ext = fileName.split('.').pop()?.toLowerCase();
     return ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext || '');
   }, []);
 
   const validateFile = useCallback((file: File): string | null => {
-    // Check file type
+    // Check file extension
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
     if (!ALLOWED_EXTENSIONS.includes(extension)) {
       return `File type not supported. Please upload MD, PDF, DOCX, or image files (PNG, JPG, GIF, WEBP).`;
+    }
+
+    // Cross-check the browser-reported MIME type against the extension.
+    // Some browsers report an empty type for extensions they don't
+    // recognize (e.g. .md), so only reject when a type IS reported and
+    // it doesn't match - this catches a mismatched/renamed file without
+    // false-rejecting legitimate uploads the browser can't sniff.
+    if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
+      return `File type "${file.type}" doesn't match its extension. Please upload MD, PDF, DOCX, or image files (PNG, JPG, GIF, WEBP).`;
     }
 
     // Check file size

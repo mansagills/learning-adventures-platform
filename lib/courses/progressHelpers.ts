@@ -504,7 +504,7 @@ export async function completeLesson(
   });
 
   // Award XP and update level
-  const xpResult = await awardXP(userId, xpCalc.totalXP, 'lesson');
+  const xpResult = await awardXP(userId, xpCalc.totalXP);
 
   // Record daily XP
   await recordDailyXP(userId, lesson.xpReward, 'lesson');

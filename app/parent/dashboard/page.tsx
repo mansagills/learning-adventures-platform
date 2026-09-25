@@ -104,7 +104,7 @@ function ParentDashboard() {
 
   // Calculate family stats
   const totalChildren = children.length;
-  const _avgCompletion =
+  const avgCompletion =
     totalChildren > 0
       ? Math.round(
           children.reduce((sum, c) => sum + c.stats.completionRate, 0) /
@@ -163,7 +163,7 @@ function ParentDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Family Overview Stats */}
         {totalChildren > 0 && !loading && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -222,6 +222,22 @@ function ParentDashboard() {
                 </div>
                 <div className="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center">
                   <Icon name="chart" size={24} className="text-accent-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-ink-500">
+                    Avg Completion
+                  </p>
+                  <p className="text-3xl font-bold text-ink-800 mt-2">
+                    {avgCompletion}%
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Icon name="target" size={24} className="text-purple-600" />
                 </div>
               </div>
             </div>

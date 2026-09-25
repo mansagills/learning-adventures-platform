@@ -278,8 +278,6 @@ function WizardContent() {
 
       {/* Navigation */}
       <FormNavigation
-        currentStep={state.currentStep}
-        totalSteps={10}
         onPrevious={handlePrevious}
         onNext={handleNext}
         onSaveDraft={handleSaveDraft}
