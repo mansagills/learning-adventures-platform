@@ -1,11 +1,11 @@
 'use client';
 
-import Hero from '@/components/Hero';
-import Benefits from '@/components/Benefits';
-import HowItWorks from '@/components/HowItWorks';
-import SocialProof from '@/components/SocialProof';
-import SecondaryCta from '@/components/SecondaryCta';
-import Faq from '@/components/Faq';
+import Hero from './Hero';
+import Benefits from './Benefits';
+import HowItWorks from './HowItWorks';
+import SocialProof from './SocialProof';
+import SecondaryCta from './SecondaryCta';
+import Faq from './Faq';
 import WelcomeBackBanner from '@/components/WelcomeBackBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { siteConfig } from '@/lib/siteConfig';

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Container from './Container';
-import Button from './Button';
+import Container from '@/components/Container';
+import Button from '@/components/Button';
 import { analytics } from '@/lib/analytics';
 
 interface FAQItem {

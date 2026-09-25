@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Container from './Container';
-import Button from './Button';
+import Container from '@/components/Container';
+import Button from '@/components/Button';
 
 export default function HowItWorks() {
   const steps = [

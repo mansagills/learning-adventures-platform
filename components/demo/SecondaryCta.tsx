@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import Container from './Container';
-import Button from './Button';
-import AuthModal from './AuthModal';
+import Container from '@/components/Container';
+import Button from '@/components/Button';
+import AuthModal from '@/components/AuthModal';
 import { analytics } from '@/lib/analytics';
 
 export default function SecondaryCta() {
