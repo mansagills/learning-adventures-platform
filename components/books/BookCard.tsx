@@ -37,7 +37,7 @@ export default function BookCard({
         compact={layout === 'horizontal'}
         className={cn(
           'shrink-0 transition-transform duration-300 group-hover:-rotate-2',
-          layout === 'vertical' ? 'w-full' : 'w-24'
+          layout === 'vertical' ? 'mx-auto w-full max-w-[200px]' : 'w-24'
         )}
       />
       <div className="min-w-0">

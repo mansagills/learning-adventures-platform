@@ -192,8 +192,8 @@ affects the Phase 6 cutover.
 | ------------------------------ | ------------ |
 | 1. Foundation                  | COMPLETED ✅ |
 | 2. Games experience            | COMPLETED ✅ |
-| 3. Homepage                    | Next         |
-| 4. Books                       | Not started  |
+| 3. Homepage                    | COMPLETED ✅ |
+| 4. Books                       | Next         |
 | 5. Hub World demo landing page | Not started  |
 | 6. Polish, docs, cutover       | Not started  |
 
@@ -216,3 +216,13 @@ affects the Phase 6 cutover.
 - New components: `components/play/` (`GameArt`, `PlayableGameCard`, `GameBrowser`, `GamePlayer`) and `components/books/` (`BookCover` with drawn placeholder covers, `BookCard`). Phase 4 builds on the book components.
 - An automated smoke test opened all 43 games in the player. `time-attack-clock.html` had a typo (`const correct Time=`) that stopped its whole script, so the game could not start; fixed and played through one round. All 43 now load with no script errors.
 - The old `components/games/GameCard.tsx`, `GameCardSkeleton.tsx` and `lib/games/gameHelpers.ts` are no longer used by the public site; they are kept for when accounts return.
+
+### Phase 3 notes
+
+- New homepage in `components/home/` (`HomePage`, `GameRow`, `HomeFaq`); `app/page.tsx` renders it. `components/LandingPage.tsx` and its sections are untouched and unrouted until Phase 5 turns them into the Hub World demo page.
+- Sections: hero ("Play. Read. Explore.", draft copy for approval) → subject grid (with counts and "Coming soon") → scrolling game rows → "Stories behind the games" (ebook cards with "Play along" links to their companion games) → Hub World "Early preview demo" teaser → "Made for kids. Easy for parents." → parent FAQ.
+- Uneven content handled: subjects with 3+ games get their own row (Math, Science); the rest share a "Reading, history and more" row. Rows adapt automatically as games are added.
+- Parent-facing claims were checked against the code: no ad code anywhere, no accounts needed, and no player-to-player chat.
+- The FAQ uses native `<details>`: no JavaScript needed, and it works with keyboards and screen readers.
+- Site-wide SEO title/description and the JSON-LD descriptions in `lib/seo.ts` now describe the games and interactive ebooks.
+- The footer is still the old one with placeholder links; Phase 6 replaces it.

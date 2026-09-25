@@ -29,7 +29,7 @@ export function generateOrganizationSchema(): OrganizationSchema {
     url: 'https://learningadventures.org',
     logo: 'https://learningadventures.org/logo.png',
     description:
-      'Interactive educational games and lessons for elementary and middle school students.',
+      'Free educational mini-games for kids in grades K–5, and interactive ebooks that tell the stories behind them.',
     foundingDate: '2024',
     sameAs: [
       'https://twitter.com/learningadventures',
@@ -46,7 +46,7 @@ export function generateWebSiteSchema(): WebSiteSchema {
     name: 'Learning Adventures',
     url: 'https://learningadventures.org',
     description:
-      "Transform your child's learning journey with engaging, interactive educational content designed for elementary and middle school students.",
+      'Free math, science, reading and history games for grades K–5, plus interactive ebooks and an early look at the Hub World.',
     publisher: {
       '@type': 'Organization',
       name: 'Learning Adventures',
@@ -62,9 +62,10 @@ export function createJSONLD(
 
 // SEO metadata helpers
 export const seoConfig = {
-  defaultTitle: 'Learning Adventures - Interactive Education for Kids',
+  defaultTitle:
+    'Learning Adventures | Free Learning Games and Interactive Ebooks for Kids',
   defaultDescription:
-    "Transform your child's learning journey with engaging, interactive educational games and lessons designed for elementary and middle school students.",
+    'Free math, science, reading and history mini-games for grades K–5, plus interactive ebooks that turn every game into a story. No sign-up needed.',
   defaultImage: '/hero-image.jpg',
   siteUrl: 'https://learningadventures.org',
   twitterHandle: '@learningadventures',
