@@ -75,7 +75,7 @@ export default function GameBrowser() {
             aria-pressed={subjectFilter === 'all'}
             onClick={() => setSubject('all')}
           >
-            All <span className="opacity-70">{games.length}</span>
+            All <span>{games.length}</span>
           </button>
           {subjects.map((subject) => {
             const count = counts[subject.id];
@@ -95,9 +95,7 @@ export default function GameBrowser() {
               >
                 <span aria-hidden>{subject.emoji}</span>
                 {subject.name}
-                <span className="opacity-70">
-                  {count === 0 ? 'soon' : count}
-                </span>
+                <span>{count === 0 ? 'soon' : count}</span>
               </button>
             );
           })}

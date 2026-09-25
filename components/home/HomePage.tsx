@@ -106,7 +106,7 @@ export default function HomePage() {
               <span className="absolute -left-3 -top-4 rotate-[-6deg] rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-left-6">
                 {games.length} free games
               </span>
-              <span className="absolute -bottom-4 -right-2 rotate-[4deg] rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-white shadow-pop md:-right-5">
+              <span className="absolute -bottom-4 -right-2 rotate-[4deg] rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
                 📚 Stories to read
               </span>
             </div>
@@ -223,7 +223,7 @@ export default function HomePage() {
       <section className="py-16 md:py-20" aria-labelledby="books-heading">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="font-bold uppercase tracking-wider text-pg-pink">
+            <p className="font-bold uppercase tracking-wider text-coral-700">
               Interactive ebooks
             </p>
             <h2
@@ -266,7 +266,7 @@ export default function HomePage() {
           <div className="mt-10 text-center">
             <Link
               href="/books"
-              className={cn(primaryButton, 'bg-pg-pink text-white')}
+              className={cn(primaryButton, 'bg-pg-pink text-ink-900')}
             >
               <BookOpen size={22} aria-hidden /> See all books
             </Link>

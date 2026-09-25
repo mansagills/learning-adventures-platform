@@ -22,6 +22,8 @@ export interface SubjectTheme {
   text: string;
   /** Border color for chips and outlines */
   border: string;
+  /** Text color that meets contrast on the solid color */
+  onSolid: string;
 }
 
 export interface Subject {
@@ -46,6 +48,7 @@ export const subjects: Subject[] = [
       soft: 'bg-brand-50',
       text: 'text-brand-700',
       border: 'border-pg-violet',
+      onSolid: 'text-white',
     },
   },
   {
@@ -60,6 +63,7 @@ export const subjects: Subject[] = [
       soft: 'bg-grass-50',
       text: 'text-grass-700',
       border: 'border-pg-mint',
+      onSolid: 'text-ink-900',
     },
   },
   {
@@ -74,6 +78,7 @@ export const subjects: Subject[] = [
       soft: 'bg-coral-50',
       text: 'text-coral-700',
       border: 'border-pg-pink',
+      onSolid: 'text-ink-900',
     },
   },
   {
@@ -88,6 +93,7 @@ export const subjects: Subject[] = [
       soft: 'bg-sunshine-50',
       text: 'text-sunshine-700',
       border: 'border-pg-yellow',
+      onSolid: 'text-ink-900',
     },
   },
   {
@@ -98,10 +104,11 @@ export const subjects: Subject[] = [
     description:
       'Adventures that mix math, science, reading and history into one big challenge.',
     theme: {
-      solid: 'bg-ocean-500',
+      solid: 'bg-ocean-600',
       soft: 'bg-ocean-50',
       text: 'text-ocean-700',
-      border: 'border-ocean-500',
+      border: 'border-ocean-600',
+      onSolid: 'text-white',
     },
   },
 ];

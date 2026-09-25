@@ -41,15 +41,27 @@ export default function HowItWorks() {
     violet: {
       bg: 'bg-pg-violet',
       text: 'text-pg-violet',
+      onBg: 'text-white',
       shadow: 'shadow-pop',
     },
-    pink: { bg: 'bg-pg-pink', text: 'text-pg-pink', shadow: 'shadow-pop' },
+    pink: {
+      bg: 'bg-pg-pink',
+      text: 'text-coral-600',
+      onBg: 'text-ink-900',
+      shadow: 'shadow-pop',
+    },
     yellow: {
       bg: 'bg-pg-yellow',
-      text: 'text-pg-yellow',
+      text: 'text-sunshine-700',
+      onBg: 'text-ink-900',
       shadow: 'shadow-pop',
     },
-    mint: { bg: 'bg-pg-mint', text: 'text-pg-mint', shadow: 'shadow-pop' },
+    mint: {
+      bg: 'bg-pg-mint',
+      text: 'text-grass-700',
+      onBg: 'text-ink-900',
+      shadow: 'shadow-pop',
+    },
   };
 
   return (
@@ -72,7 +84,7 @@ export default function HowItWorks() {
           <h2 className="font-outfit text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             Your Quest Starts{' '}
             <span className="relative inline-block">
-              <span className="text-pg-pink">Here</span>
+              <span className="text-coral-600">Here</span>
               <svg
                 className="absolute -bottom-1 left-0 w-full h-3"
                 viewBox="0 0 200 8"
@@ -126,7 +138,9 @@ export default function HowItWorks() {
                   <div
                     className={`w-20 h-20 ${colors.bg} border-2 border-pg-border rounded-xl ${colors.shadow} flex items-center justify-center mx-auto -mt-2 mb-4 group-hover:scale-110 transition-transform duration-200`}
                   >
-                    <span className="font-outfit text-2xl font-extrabold text-white">
+                    <span
+                      className={`font-outfit text-2xl font-extrabold ${colors.onBg}`}
+                    >
                       {step.number}
                     </span>
                   </div>

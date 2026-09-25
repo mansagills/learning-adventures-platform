@@ -1,98 +1,94 @@
-# Learning Adventures - Marketing Landing Page
+# Learning Adventures
 
-A modern, responsive marketing landing page built with Next.js 14, TypeScript, and Tailwind CSS for the Learning Adventures educational platform.
+The Learning Adventures website: free learning games for grades K–5 organized by subject,
+interactive ebooks that tell the stories behind the games, and a playable preview of the
+Learning Adventures World. Built with Next.js 14 (App Router), TypeScript and Tailwind CSS.
+
+The public site (v1) runs with **no backend, database or secrets**. Accounts, dashboards and admin
+tools are still in the code but hidden behind a feature flag (see "Configuration" below).
 
 ## 🚀 Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Run tests
-npm test
-
-# Run linting
+npm run dev          # http://localhost:3000
+npm run build        # production build (works with no env vars)
+npm start            # serve the production build
+npm test             # vitest (includes the content checks)
 npm run lint
-
-# Format code
-npm run format
+npm run type-check
 ```
 
-## 📁 Project Structure
+## 🗺️ Site map (v1)
+
+| Route                          | What it is                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------ |
+| `/`                            | Homepage: subject grid, game rows, interactive ebooks, demo teaser, parent FAQ |
+| `/games`                       | Every playable game, with subject filters and search                           |
+| `/games/[gameId]`              | The game player (HTML games play in an iframe)                                 |
+| `/subjects/[subject]`          | One subject's games and companion ebooks                                       |
+| `/books`, `/books/[slug]`      | Interactive ebooks with free sample pages                                      |
+| `/demo`, `/demo/play`          | Learning Adventures World demo: landing page and the playable campus           |
+| `/about`, `/privacy`, `/terms` | About and legal pages                                                          |
+
+## 📁 Where things live
 
 ```
-learning-adventures-app/
-├── app/                    # Next.js 14 App Router
-│   ├── layout.tsx         # Root layout with fonts, metadata
-│   ├── page.tsx           # Landing page
-│   ├── globals.css        # Global styles and CSS variables
-│   ├── robots.txt/        # SEO robots.txt route
-│   └── sitemap.xml/       # SEO sitemap route
-├── components/            # React components
-│   ├── Header.tsx         # Navigation header
-│   ├── Hero.tsx           # Hero section
-│   ├── Benefits.tsx       # Features section
-│   ├── HowItWorks.tsx     # Process explanation
-│   ├── SocialProof.tsx    # Testimonials and reviews
-│   ├── SecondaryCta.tsx   # Call-to-action section
-│   ├── Faq.tsx            # Frequently asked questions
-│   ├── Footer.tsx         # Site footer
-│   ├── TrustBadges.tsx    # Trust indicators
-│   ├── Icon.tsx           # SVG icon component
-│   ├── Button.tsx         # Reusable button component
-│   └── Container.tsx      # Layout container
-├── lib/                   # Utility libraries
-│   ├── analytics.ts       # Analytics tracking
-│   ├── seo.ts            # SEO helpers and metadata
-│   └── utils.ts          # General utilities
-├── tests/                 # Test files
-│   ├── setup.ts          # Test configuration
-│   └── Faq.test.tsx      # FAQ component tests
-└── public/               # Static assets
-    └── .gitkeep          # Placeholder for images
+app/                  # Routes (App Router)
+components/
+  home/               # Homepage sections
+  play/               # Game cards, game browser, game player
+  books/              # Book covers, cards, sample page viewer, "Get the ebook" button
+  demo/               # Demo landing page and CampusDemoExperience (the playable demo)
+  Header.tsx, Footer.tsx, ContentPage.tsx
+lib/
+  content/            # ✏️ The site's content: subjects.ts, games.ts, books.ts
+  siteConfig.ts       # Feature flag and external links
+  seo.ts              # Metadata and structured data
+public/
+  games/, lessons/    # The HTML games and activities
+  books/<slug>/       # Ebook sample pages
+game/                 # Phaser code for the Learning Adventures World
+tests/                # vitest tests (tests/content checks the content files)
 ```
 
-## 🎨 Design System
+## ➕ Adding content
 
-### Colors
+**A game:** save the HTML file to `public/games/<name>.html` (or `public/lessons/`), then add an
+entry to the `games` array in `lib/content/games.ts` (`slug`, `title`, `subject`, `kind`,
+`gradeBand`, `description`, `skills`, `estimatedTime`, `htmlPath`, and optionally `featured` and
+`bookSlugs`). Run `npm test`: it fails if the file is missing, a slug is repeated, or a
+`bookSlugs` entry doesn't exist.
 
-- **Brand Primary**: `#6C5CE7` (brand-500)
-- **Brand Secondary**: `#5A4ED1` (brand-600)
-- **Brand Light**: `#ECEBFF` (brand-100)
-- **Accent**: `#00C2A8` (accent-500)
-- **Text Dark**: `#0F172A` (ink-900)
-- **Text Medium**: `#334155` (ink-600)
-- **Highlight**: `#FFD166` (sun-400)
-- **Error**: `#EF4444` (error-500)
+**A book:** add or edit an entry in `lib/content/books.ts`. To publish one, set
+`status: 'available'`, `ebookUrl` (the book's page in the ebook store), `coverImage`, and
+`samplePages` (images saved in `public/books/<slug>/`). Link it to its games with
+`companionGameSlugs`. Run `npm test` to check the paths.
 
-### Typography
+## 🔧 Configuration
 
-- **Display Font**: Nunito (headings)
-- **Body Font**: Inter (body text)
+Every variable is optional. With none set, the site works and hides the matching feature.
 
-### Motion
+| Variable                       | Effect                                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_CONTACT_EMAIL`    | Shows a contact email in the footer and on About/Privacy/Terms                             |
+| `NEXT_PUBLIC_EBOOK_STORE_URL`  | Fallback "Get the interactive ebook" link for books with no `ebookUrl`                     |
+| `NEXT_PUBLIC_NEWSLETTER_URL`   | "Tell me when it's out" link under coming-soon books                                       |
+| `NEXT_PUBLIC_DEMO_TRAILER_URL` | YouTube/Vimeo trailer on `/demo`                                                           |
+| `NEXT_PUBLIC_ENABLE_ACCOUNTS`  | `true` turns accounts, dashboards and admin back on (these need Supabase and the database) |
 
-- Transition duration: 200-300ms
-- Respects `prefers-reduced-motion`
+Going live: see `docs/V1_GO_LIVE_CHECKLIST.md`. Plan and progress: `docs/V1_WEBSITE_REBUILD_PLAN.md`.
 
 ## 🏗️ Technology Stack
 
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Fonts**: next/font with Nunito & Inter
+- **Fonts**: next/font with Outfit (headings) and Plus Jakarta Sans (body)
 - **Testing**: Vitest + Testing Library
 - **Linting**: ESLint + Prettier
 - **Build**: PostCSS + Autoprefixer
+- **Demo**: Phaser 3 (the Learning Adventures World)
 
 ## ♿ Accessibility Features
 
@@ -102,7 +98,7 @@ learning-adventures-app/
 - ARIA labels and descriptions
 - Keyboard navigation support
 - Screen reader compatibility
-- High contrast support
+- Text colors meet WCAG AA contrast (checked with axe on every public page)
 - Reduced motion support
 
 ## 🔍 SEO Optimization
@@ -115,23 +111,6 @@ learning-adventures-app/
 - Performance optimized images
 - Core Web Vitals optimized
 
-## 📊 Analytics
-
-The analytics system is implemented with a flexible interface that can be connected to various providers:
-
-```typescript
-import { analytics } from '@/lib/analytics';
-
-// Track CTA clicks
-analytics.clickCTA('Start Your Adventure', 'hero');
-
-// Track section views
-analytics.viewSection('benefits');
-
-// Track FAQ interactions
-analytics.openFAQ('How much does it cost?');
-```
-
 ## 🧪 Testing
 
 Run the test suite with:
@@ -142,36 +121,12 @@ npm test
 
 The project includes:
 
-- Component testing with Testing Library
-- Accessibility testing
-- Keyboard navigation testing
-- Analytics tracking verification
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env.local` file for environment-specific configurations:
-
-```bash
-# Analytics
-NEXT_PUBLIC_GA_ID=your-ga-id
-NEXT_PUBLIC_ANALYTICS_API=your-analytics-endpoint
-
-# SEO
-NEXT_PUBLIC_SITE_URL=https://learningadventures.org
-```
-
-### Customization
-
-1. **Colors**: Update `tailwind.config.ts` and CSS variables in `globals.css`
-2. **Fonts**: Modify font imports in `app/layout.tsx`
-3. **Content**: Edit component props and copy directly in component files
-4. **Analytics**: Implement your preferred analytics provider in `lib/analytics.ts`
+- Content checks (`tests/content`): every game and image file exists, slugs are unique, and links between games and books point to real items
+- Component tests with Testing Library
 
 ## 📱 Responsive Design
 
-The landing page is fully responsive across all device sizes:
+The site is fully responsive across all device sizes:
 
 - **Mobile**: 320px - 767px
 - **Tablet**: 768px - 1023px
@@ -179,32 +134,8 @@ The landing page is fully responsive across all device sizes:
 
 ## 🚢 Deployment
 
-### Vercel (Recommended)
-
-```bash
-npm run build
-```
-
-Deploy to Vercel with zero configuration.
-
-### Other Platforms
-
-The app generates static files and can be deployed to any hosting service that supports Next.js.
-
-## 📋 Requirements Checklist
-
-- ✅ Next.js 14 with App Router
-- ✅ TypeScript configuration
-- ✅ Tailwind CSS styling
-- ✅ Responsive design (320px-1440px)
-- ✅ Accessibility features (WCAG 2.1 AA)
-- ✅ SEO optimization
-- ✅ Analytics integration
-- ✅ Performance optimization
-- ✅ Testing setup
-- ✅ ESLint + Prettier
-- ✅ Component library
-- ✅ Documentation
+Deploy on Vercel with the repo root as the Root Directory and no environment variables. Step by
+step, including the current Vercel issue: `docs/V1_GO_LIVE_CHECKLIST.md`.
 
 ## 🤝 Contributing
 

@@ -81,7 +81,7 @@ export default function SubjectPage({ params }: SubjectPageProps) {
             {subject.description}
           </p>
           {subjectGames.length > 0 && (
-            <p className="mt-3 text-sm font-bold text-ink-500">
+            <p className="mt-3 text-sm font-bold text-ink-600">
               {[
                 gameCount > 0 &&
                   `${gameCount} game${gameCount === 1 ? '' : 's'}`,

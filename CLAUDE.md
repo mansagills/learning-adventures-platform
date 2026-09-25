@@ -5,11 +5,24 @@
 ### Current Development Status
 
 **Active Development Plan**: docs/V1_WEBSITE_REBUILD_PLAN.md (v1 public site: games by subject, interactive ebooks, Learning Adventures World demo)
-**Last Completed**: v1 Phase 5 - Learning Adventures World demo (/demo, /demo/play) ✅
-**Next Phase**: v1 Phase 6 - Polish, docs, cutover (footer, about/privacy/terms, sitemap, go-live)
+**Last Completed**: v1 Phase 6 - Polish, docs, cutover prep ✅ (all v1 build phases done)
+**Next Phase**: Go-live (user steps in docs/V1_GO_LIVE_CHECKLIST.md), then investigate the Vercel deploy failure on its own branch
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
 **Known issue**: the `learning-adventures-platform` Vercel project fails every deploy ("Resource provisioning failed"); see docs/VERCEL_DEPLOY_FAILURE_NOTES.md. Not caused by code changes; investigate after v1.
+
+### 🌐 v1 Public Site: How It's Organized
+
+- **Content lives in `lib/content/`**: `subjects.ts` (5 subjects and their colors), `games.ts` (every playable game/activity), `books.ts` (interactive ebooks). Pages are built from these files, including the sitemap.
+- **Add a game**: save the HTML to `public/games/` (or `public/lessons/`) and add an entry to `games` in `lib/content/games.ts`. `lib/catalogData.ts` is the old catalog, used only by the hidden account features.
+- **Add or publish a book**: edit `lib/content/books.ts`. To publish, set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` (images in `public/books/<slug>/`). Visitor-facing text calls them "interactive ebooks" and never names the ebook platform.
+- **Run `npm test` after content changes**: `tests/content/content.test.ts` checks files exist, slugs are unique and cross-links are valid.
+- **Routes**: `/`, `/games`, `/games/[gameId]`, `/subjects/[subject]`, `/books`, `/books/[slug]`, `/demo`, `/demo/play`, `/about`, `/privacy`, `/terms`.
+- **Components**: `components/home/`, `components/play/`, `components/books/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
+- **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL`, `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
+- **Keep it backend-free**: public pages must not need Supabase, Prisma or secrets. Check with `npm run build` and no env vars.
+- **Colors**: text on colored backgrounds must pass WCAG AA contrast. Use `subject.theme.onSolid` for text on a subject's solid color.
+- **Going live**: `docs/V1_GO_LIVE_CHECKLIST.md`.
 
 ### 📋 Development Session Protocol
 
@@ -24,6 +37,7 @@
 ### 🎯 Session Continuation Instructions
 
 When asked to continue development work:
+
 - Read the comprehensive plan to understand the current state
 - Continue from the next uncompleted phase
 - Use TodoWrite to track current session progress
@@ -33,6 +47,7 @@ When asked to continue development work:
 ### 📊 Current Platform Architecture
 
 **Completed Features**:
+
 - ✅ Authentication system with NextAuth.js
 - ✅ Database schema design (Prisma)
 - ✅ PostgreSQL database (local installation via Homebrew)
@@ -88,12 +103,14 @@ npm run type-check
 ### 🗄️ Database Configuration
 
 **Local PostgreSQL Setup**:
+
 - Database: `template1` (default PostgreSQL database)
 - Username: `mansagills` (system username)
 - Connection: `postgresql://mansagills@localhost:5432/template1?sslmode=disable`
 - Environment files: `.env` and `.env.local` (must have matching DATABASE_URL)
 
 **Test Credentials** (created by seed script):
+
 - Student: `student@test.com` / `password123`
 - Teacher: `teacher@test.com` / `password123`
 - Parent: `parent@test.com` / `password123`
@@ -106,6 +123,7 @@ npm run type-check
 When creating new games or lessons for this platform, follow this specific workflow:
 
 ### 📋 Step-by-Step Process
+
 1. **Review content in `games` folder** - Check existing game ideas and patterns
 2. **Review content in `interactive-learning` folder** - Check existing lesson ideas and patterns
 3. **Review prompts in `final-content/` folders** - Use established prompt templates
@@ -121,6 +139,7 @@ When creating new games or lessons for this platform, follow this specific workf
 **IMPORTANT**: Games can be tested without adding them to the catalog!
 
 **For React Component Games:**
+
 1. Create game in `components/games/[game-name]/`
 2. Register in `lib/gameLoader.ts` `initializeGameRegistry()`
 3. Add to `docs/test-games.md` with direct URL
@@ -128,18 +147,21 @@ When creating new games or lessons for this platform, follow this specific workf
 5. DO NOT add to `lib/catalogData.ts` until testing is complete
 
 **For HTML Games/Lessons:**
+
 1. Save file to `public/games/` or `public/lessons/`
 2. Add to `docs/test-games.md` with direct URL
 3. Test at `http://localhost:3000/games/[game-name].html`
 4. DO NOT add to `lib/catalogData.ts` until testing is complete
 
 **Key Concept**: Registered ≠ Cataloged
+
 - **Registered**: Game is accessible by URL and can be tested
 - **Cataloged**: Game appears in public catalog for all users
 
 **Testing Reference**: See `docs/test-games.md` for complete testing workflow and checklist
 
 ### 📁 Directory Structure
+
 ```
 learning-adventures-platform/
 ├── games/                          # Game ideas and concepts
@@ -156,11 +178,13 @@ learning-adventures-platform/
 ```
 
 ### 🎯 File Locations for New Content
+
 - **Lessons**: `/public/lessons/[lesson-name].html`
 - **Games**: `/public/games/[game-name].html`
 - **Catalog Updates**: `/lib/catalogData.ts`
 
 ### 🔄 Integration Process
+
 1. Create HTML files in appropriate public directories
 2. Add metadata to `catalogData.ts` in the corresponding arrays:
    - Science lessons: `scienceLessons` array
@@ -173,6 +197,7 @@ learning-adventures-platform/
    - `featured` (boolean), `htmlPath` (for clickable items)
 
 ### ✅ Testing Checklist
+
 - [ ] Files accessible at correct URLs
 - [ ] Catalog page shows updated count
 - [ ] New items appear in featured section (if featured: true)
@@ -180,6 +205,7 @@ learning-adventures-platform/
 - [ ] Metadata displays correctly in catalog
 
 ### 🎨 Design Patterns to Follow
+
 - Single HTML files with embedded CSS and JavaScript
 - Child-friendly, colorful interfaces
 - Interactive elements with immediate feedback
@@ -188,6 +214,7 @@ learning-adventures-platform/
 - Accessibility considerations
 
 ### 🧪 Development Commands
+
 ```bash
 # Start development server
 npm run dev
@@ -203,12 +230,14 @@ curl http://localhost:3000/catalog
 ## 📝 Content Creation Guidelines
 
 ### For Interactive Lessons:
+
 - Use educational best practices with scaffolded learning
 - Include multiple learning modalities (visual, auditory, kinesthetic)
 - Provide immediate feedback and progress tracking
 - Follow the lesson prompt template in `final-content/interactive-learning-prompts.txt`
 
 ### For Educational Games:
+
 - Balance 70% entertainment with 30% obvious learning
 - Include progressive difficulty and achievable challenges
 - Provide meaningful choices that affect learning outcomes
@@ -221,6 +250,7 @@ curl http://localhost:3000/catalog
 **Development Status**: Phase 3A Complete - Dashboard Infrastructure Built
 **Platform Features**: NextAuth.js, PostgreSQL, Prisma, User Roles, Permission System, Progress Tracking, Achievement System, Continue Learning Section, Authentication Gating, Preview Components with Progress Indicators, Save for Later, Social Sharing, Content Rotation, Dashboard Infrastructure
 **Database**: PostgreSQL 14 (local via Homebrew)
+
 - Always check the comprehensive_platform_plan to see which phase we last worked on from previous sessions.
 
 <!-- ROCKETRIDE:BEGIN -->

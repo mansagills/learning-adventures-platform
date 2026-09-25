@@ -6,7 +6,7 @@ export interface OrganizationSchema {
   logo: string;
   description: string;
   foundingDate: string;
-  sameAs: string[];
+  sameAs?: string[];
 }
 
 export interface WebSiteSchema {
@@ -31,11 +31,6 @@ export function generateOrganizationSchema(): OrganizationSchema {
     description:
       'Free educational mini-games for kids in grades K–5, and interactive ebooks that tell the stories behind them.',
     foundingDate: '2024',
-    sameAs: [
-      'https://twitter.com/learningadventures',
-      'https://facebook.com/learningadventures',
-      'https://linkedin.com/company/learningadventures',
-    ],
   };
 }
 
@@ -66,7 +61,7 @@ export const seoConfig = {
     'Learning Adventures | Free Learning Games and Interactive Ebooks for Kids',
   defaultDescription:
     'Free math, science, reading and history mini-games for grades K–5, plus interactive ebooks that turn every game into a story. No sign-up needed.',
-  defaultImage: '/hero-image.jpg',
+  defaultImage: '/og-image.png',
   siteUrl: 'https://learningadventures.org',
   twitterHandle: '@learningadventures',
 };

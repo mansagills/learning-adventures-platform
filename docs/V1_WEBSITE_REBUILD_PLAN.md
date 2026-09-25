@@ -195,7 +195,7 @@ affects the Phase 6 cutover.
 | 3. Homepage                       | COMPLETED ✅ |
 | 4. Books                          | COMPLETED ✅ |
 | 5. Learning Adventures World demo | COMPLETED ✅ |
-| 6. Polish, docs, cutover          | Next         |
+| 6. Polish, docs, cutover          | COMPLETED ✅ |
 
 ### Phase 1 notes
 
@@ -244,3 +244,12 @@ affects the Phase 6 cutover.
 - The hero shows a real screenshot of the demo (`public/demo/campus-preview.png`, captured with Playwright). An optional trailer appears when `NEXT_PUBLIC_DEMO_TRAILER_URL` is set.
 - Verified in the production build: the canvas loads, the name picker saves, the arrow keys move the player, the phone joystick moves the player, "Exit demo" returns to `/demo`, there are no script errors, and the demo makes **no** `/api` calls.
 - **`demo/la-campus-demo` can now be retired** once the site goes live (Phase 6 cutover), because the main app has everything it had.
+
+### Phase 6 notes
+
+- **Footer** rebuilt with real links only: Play (all games + each subject), Read & Explore (interactive ebooks, World Demo), About (about us, privacy, terms). The placeholder social links were removed. The contact email shows only when `NEXT_PUBLIC_CONTACT_EMAIL` is set.
+- **New pages:** `/about`, `/privacy` and `/terms` (shared layout in `components/ContentPage.tsx`) and a friendly 404 (`app/not-found.tsx`). Privacy and Terms are **drafts** written from how the site actually works (no accounts, no analytics, progress in browser storage only, Google Fonts in 2 games, the external ebook reader) and show a "Draft" notice until the `draft` prop is removed after review.
+- **SEO:** `sitemap.xml` is built from `lib/content/*` (58 URLs; `/demo/play` left out because it's noindex). `robots.txt` also blocks `/internal/`, `/staging/` and `/dev/`. New link-preview image (`public/og-image.png`, 1200×630), logo (`public/logo.png`) and `apple-touch-icon.png`. The empty social profile list was removed from the structured data.
+- **Accessibility:** an axe scan of every public page at desktop and phone widths found only color-contrast problems, all fixed. `pg-violet` darkened slightly (`#7C3AED`) so white text on it passes; subjects gained an `onSolid` text color (dark text on mint, pink and yellow); Mixed Skills now uses `ocean-600`; pink/yellow/mint text on light backgrounds switched to darker shades. The final scan reports **no violations**. Iframes already had titles and images alt text.
+- **Docs:** `README.md` rewritten for v1, `CLAUDE.md` has a "v1 Public Site" section (how to add games and books, env vars), `COMPREHENSIVE_PLATFORM_PLAN.md` has a v1 section, and `docs/V1_GO_LIVE_CHECKLIST.md` lists the go-live steps.
+- **Still to do by the user:** review the legal pages, set the contact email, and do the Vercel cutover (the root project's deploy failure has to be fixed first, or the working `-2mxb` project repointed). Retiring `demo/la-campus-demo` is a separate, confirmed step after go-live.

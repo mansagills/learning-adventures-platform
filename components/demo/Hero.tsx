@@ -17,14 +17,14 @@ const facts = [
     emoji: '🎟️',
     value: 'Free',
     label: 'No sign-up needed',
-    color: 'text-pg-pink',
+    color: 'text-coral-600',
     circle: 'icon-circle-pink',
   },
   {
     emoji: '💻',
     value: 'Browser',
     label: 'Nothing to install',
-    color: 'text-pg-yellow',
+    color: 'text-sunshine-700',
     circle: 'icon-circle-yellow',
   },
 ];

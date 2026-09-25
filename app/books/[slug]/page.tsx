@@ -52,7 +52,7 @@ export default function BookPage({ params }: BookPageProps) {
         <Container className="py-8 md:py-12">
           <nav
             aria-label="Breadcrumb"
-            className="flex items-center gap-1 text-sm font-semibold text-ink-500"
+            className="flex items-center gap-1 text-sm font-semibold text-ink-600"
           >
             <Link href="/books" className="hover:text-brand-600">
               Books
@@ -70,7 +70,7 @@ export default function BookPage({ params }: BookPageProps) {
               className="mx-auto w-56 -rotate-2 shadow-pop md:w-full"
             />
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-ink-500">
+              <p className="text-sm font-bold uppercase tracking-wider text-ink-600">
                 {book.series}
               </p>
               <h1 className="mt-2 font-display text-4xl font-extrabold leading-tight text-ink-900 md:text-5xl">

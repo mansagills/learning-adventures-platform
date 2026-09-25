@@ -53,15 +53,15 @@ export default function Benefits() {
     },
     pink: {
       iconBg: 'bg-pg-pink',
-      titleColor: 'text-pg-pink',
+      titleColor: 'text-coral-600',
     },
     yellow: {
       iconBg: 'bg-pg-yellow',
-      titleColor: 'text-pg-yellow',
+      titleColor: 'text-sunshine-700',
     },
     mint: {
       iconBg: 'bg-pg-mint',
-      titleColor: 'text-pg-mint',
+      titleColor: 'text-grass-700',
     },
   };
 

@@ -49,7 +49,7 @@ export default function GamePage({ params }: GamePageProps) {
         {/* Breadcrumb */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-1 text-sm font-semibold text-ink-500"
+          className="flex items-center gap-1 text-sm font-semibold text-ink-600"
         >
           <Link href="/games" className="hover:text-brand-600">
             Games
@@ -108,7 +108,7 @@ export default function GamePage({ params }: GamePageProps) {
                 About this {game.kind}
               </h2>
               <p className="mt-2 text-sm text-ink-600">{game.description}</p>
-              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-ink-400">
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-ink-500">
                 Skills practiced
               </p>
               <ul className="mt-2 flex flex-wrap gap-2">

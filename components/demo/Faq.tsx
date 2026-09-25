@@ -79,15 +79,15 @@ export default function Faq() {
       icon: 'bg-pg-violet',
     },
     pink: {
-      number: 'text-pg-pink',
+      number: 'text-coral-600',
       icon: 'bg-pg-pink',
     },
     yellow: {
-      number: 'text-pg-yellow',
+      number: 'text-sunshine-700',
       icon: 'bg-pg-yellow',
     },
     mint: {
-      number: 'text-pg-mint',
+      number: 'text-grass-700',
       icon: 'bg-pg-mint',
     },
   };

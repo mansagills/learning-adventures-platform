@@ -33,7 +33,7 @@ export default function BooksPage() {
     <div className="pb-20">
       <section className="border-b-2 border-pg-border bg-coral-50">
         <Container className="py-12 text-center md:py-16">
-          <p className="font-bold uppercase tracking-wider text-pg-pink">
+          <p className="font-bold uppercase tracking-wider text-coral-700">
             Interactive ebooks
           </p>
           <h1 className="mt-2 font-display text-4xl font-extrabold text-ink-900 md:text-5xl">

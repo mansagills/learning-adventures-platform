@@ -21,7 +21,7 @@
   --accent-600: #0d9488;
 
   /* Playful Geometric accent palette */
-  --pg-violet: #8b5cf6;
+  --pg-violet: #7c3aed;
   --pg-pink: #f472b6;
   --pg-yellow: #fbbf24;
   --pg-mint: #34d399;
@@ -327,7 +327,9 @@
     color: #ccddff;
     font-family: var(--font-pixel);
     box-shadow: 0 0 12px color-mix(in srgb, var(--hud-accent) 30%, transparent);
-    transition: border-color 500ms ease, box-shadow 500ms ease;
+    transition:
+      border-color 500ms ease,
+      box-shadow 500ms ease;
     position: relative;
   }
 
@@ -363,9 +365,13 @@
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--hud-accent) 40%, transparent);
+    box-shadow: 0 4px 20px
+      color-mix(in srgb, var(--hud-accent) 40%, transparent);
     white-space: nowrap;
-    transition: border-color 500ms ease, color 500ms ease, box-shadow 500ms ease;
+    transition:
+      border-color 500ms ease,
+      color 500ms ease,
+      box-shadow 500ms ease;
   }
 
   .zone-banner.visible {
@@ -648,10 +654,22 @@
 
   /* Zone banner slide-in from top, hold, slide out */
   @keyframes zone-banner-slide {
-    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-    12% { transform: translateX(-50%) translateY(0); opacity: 1; }
-    75% { transform: translateX(-50%) translateY(0); opacity: 1; }
-    100% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    0% {
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+    }
+    12% {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    75% {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+    }
   }
 
   /* Pixel canvas — ensure crisp rendering */

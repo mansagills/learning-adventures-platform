@@ -65,8 +65,9 @@ export default function BookCover({
   return (
     <div
       className={cn(
-        'relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-r-xl rounded-l-sm border-2 border-pg-border p-4 text-white',
+        'relative flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-r-xl rounded-l-sm border-2 border-pg-border p-4',
         subject?.theme.solid,
+        subject?.theme.onSolid ?? 'text-white',
         className
       )}
       role="img"
@@ -77,10 +78,10 @@ export default function BookCover({
       <span className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-white/20" />
       <span className="absolute -bottom-6 left-6 h-16 w-16 rotate-12 rounded-lg bg-white/15" />
 
-      <p className="relative pl-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
+      <p className="relative pl-2 text-[10px] font-bold uppercase tracking-widest">
         {book.series}
       </p>
-      <p className="relative pl-2 font-display text-lg font-extrabold leading-tight drop-shadow">
+      <p className="relative pl-2 font-display text-lg font-extrabold leading-tight">
         {book.title}
       </p>
       <p className="relative pl-2 text-3xl" aria-hidden>
