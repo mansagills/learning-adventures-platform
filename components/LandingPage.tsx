@@ -8,12 +8,15 @@ import SecondaryCta from '@/components/SecondaryCta';
 import Faq from '@/components/Faq';
 import WelcomeBackBanner from '@/components/WelcomeBackBanner';
 import { useAuth } from '@/hooks/useAuth';
+import { siteConfig } from '@/lib/siteConfig';
 
 export default function LandingPage() {
   const { user } = useAuth();
   return (
     <>
-      {user && <WelcomeBackBanner userName={user.name} />}
+      {siteConfig.features.accounts && user && (
+        <WelcomeBackBanner userName={user.name} />
+      )}
       <Hero />
       <HowItWorks />
       <Benefits />

@@ -14,7 +14,6 @@ interface UserMenuProps {
 export default function UserMenu({ className = '' }: UserMenuProps) {
   const { user } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +42,7 @@ export default function UserMenu({ className = '' }: UserMenuProps) {
 
   const handleSignOut = async () => {
     setIsOpen(false);
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.push('/');
   };
 

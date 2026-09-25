@@ -15,7 +15,6 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModalProps) {
   const router = useRouter();
-  const supabase = createClient();
   const [mode, setMode] = useState<'signin' | 'signup'>(defaultMode);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +25,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await createClient().auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
@@ -61,7 +60,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await createClient().auth.signInWithPassword({
         email: formData.email, password: formData.password,
       });
 
@@ -74,7 +73,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: A
       onClose();
       router.push(formData.role === 'STUDENT' ? '/world/create' : '/');
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await createClient().auth.signInWithPassword({
         email: formData.email, password: formData.password,
       });
 
