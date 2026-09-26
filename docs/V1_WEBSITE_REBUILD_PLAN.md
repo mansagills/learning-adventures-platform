@@ -296,11 +296,24 @@ Out of scope for UX-1: the hidden account pages, the in-game World demo panels (
 
 Work goes in 3 phases; each needs the owner's approval before the next starts.
 
-| Phase | What                                                                                                                                                                                    | Status                  |
-| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| 1     | Real screenshots on game cards                                                                                                                                                          | Done, awaiting approval |
-| 2     | Custom subject + section icons (style: bold navy outlines, flat colors, one cel shadow, Jaylen orange / S.P.A.R.K. cyan, lightning-bolt and star motifs), previewed on a dev page first | Not started             |
-| 3     | Replace the Lucide UI icons in the same style; lint rule keeps Lucide out of public pages                                                                                               | Not started             |
+| Phase | What                                                                                     | Status                  |
+| ----- | ---------------------------------------------------------------------------------------- | ----------------------- |
+| 1     | Real screenshots on game cards                                                           | COMPLETED ✅ (approved) |
+| 2a    | Draw the icon set and show it on a preview page                                          | Done, awaiting approval |
+| 2b    | Swap the subject and section emojis for the icons                                        | Not started             |
+| 3     | Replace the Lucide UI icons in the same style; a lint rule keeps Lucide off public pages | Not started             |
+
+**Phase 2a notes:**
+
+- 25 icons, drawn as code (inline SVG), in `components/icons/art.tsx`. The colors are in `components/icons/palette.ts`. Use them with `<SiteIcon name="…" size={…} />` from `components/icons/SiteIcon.tsx`. A misspelled icon name fails the type check.
+- House style, from the Jaylen & S.P.A.R.K. art:
+  - navy outline
+  - flat colors
+  - one darker cel-shadow shape per icon
+  - one white shine
+  - Jaylen orange and S.P.A.R.K. cyan accents, with lightning-bolt and star motifs
+- Icons: `math`, `flask`, `abc-book`, `columns`, `puzzle` (the 5 subjects), plus `books`, `open-book`, `compass`, `map`, `magnifier`, `controller`, `tools`, `campus`, `ticket`, `laptop`, `avatar`, `chat`, `bolt`, `sword`, `chest`, `high-five`, `family`, `sparkle`, `spark-bot`, `question`.
+- Preview page: `/dev/icons` shows every icon at 96, 48 and 24px, on each subject color, and in mock headings and buttons. It works locally and on Vercel previews, and 404s on the live site (`VERCEL_ENV=production`, checked with a production-flag build). It is also `noindex`.
 
 **Phase 1 notes:**
 
