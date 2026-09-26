@@ -10,10 +10,10 @@ export const metadata = seoMetadata({
 });
 
 /**
- * DRAFT privacy policy, written from how the v1 site actually works (no
- * accounts, no analytics, progress kept in browser storage). Set `draft` to
- * false once it has been reviewed, and keep it in sync with the site: if
- * accounts, analytics or the newsletter are turned on, this page must change.
+ * Privacy policy, written from how the v1 site actually works (no accounts,
+ * no analytics, progress kept in browser storage). Keep it in sync with the
+ * site: if accounts, analytics or the newsletter are turned on, this page must
+ * change first.
  */
 export default function PrivacyPage() {
   const { contactEmail } = siteConfig.links;
@@ -29,7 +29,6 @@ export default function PrivacyPage() {
           information.
         </p>
       }
-      draft
       updated="September 2026"
     >
       <h2>What we collect</h2>

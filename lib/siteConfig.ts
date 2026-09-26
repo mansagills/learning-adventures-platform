@@ -27,8 +27,12 @@ export const siteConfig = {
     demoTrailer: process.env.NEXT_PUBLIC_DEMO_TRAILER_URL || '',
     /** Optional sign-up form (e.g. for "tell me when the books launch"). */
     newsletter: process.env.NEXT_PUBLIC_NEWSLETTER_URL || '',
-    /** Public contact address shown in the footer and legal pages, if set. */
-    contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || '',
+    /**
+     * Public contact address shown in the footer and on the Privacy and Terms
+     * pages. NEXT_PUBLIC_CONTACT_EMAIL overrides the default.
+     */
+    contactEmail:
+      process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@learningadventures.org',
   },
 } as const;
 

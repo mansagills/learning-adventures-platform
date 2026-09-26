@@ -6,19 +6,18 @@ work done in Vercel and in `lib/content/`.
 
 ## Before go-live
 
-- [ ] **Review the draft legal pages.** `/privacy` and `/terms` were written from how the site
-      works today (no accounts, no analytics, progress saved only in the browser). Have them
-      reviewed, then remove the `draft` prop in `app/privacy/page.tsx` and `app/terms/page.tsx`
-      and update the `updated` date.
-- [ ] **Set a contact email** (optional but recommended): `NEXT_PUBLIC_CONTACT_EMAIL`. It shows in
-      the footer and on the About, Privacy and Terms pages. Without it those pages say "Contact
-      details will be added here."
-- [ ] **Approve the homepage copy** ("Play. Read. Explore.") and the demo landing page copy.
-- [ ] Optional links (each one is hidden until it is set):
+- [x] **Legal pages approved for launch** (2026-09-26). `/privacy` and `/terms` are published
+      without the draft notice; more refined copy will replace them later. Keep them in sync if
+      accounts, analytics or a newsletter are turned on.
+- [x] **Contact email:** `info@learningadventures.org` is the default in `lib/siteConfig.ts`
+      (pending team confirmation). It shows in the footer and on the Privacy and Terms pages.
+      Set `NEXT_PUBLIC_CONTACT_EMAIL` to use a different address without a code change.
+- [x] **Homepage copy approved** ("Play. Read. Explore.").
+- [x] Optional links left unset for launch; each one stays hidden until it is set:
   - `NEXT_PUBLIC_EBOOK_STORE_URL`: the ebook store, used by books that have no `ebookUrl` of their own
   - `NEXT_PUBLIC_NEWSLETTER_URL`: adds "Tell me when it's out" under books that are coming soon
   - `NEXT_PUBLIC_DEMO_TRAILER_URL`: a YouTube/Vimeo embed on `/demo`
-- [ ] Leave `NEXT_PUBLIC_ENABLE_ACCOUNTS` **unset** (accounts, dashboards and admin stay hidden).
+- [x] Leave `NEXT_PUBLIC_ENABLE_ACCOUNTS` **unset** (accounts, dashboards and admin stay hidden).
 
 The site needs **no other environment variables**: no Supabase, database or secrets.
 

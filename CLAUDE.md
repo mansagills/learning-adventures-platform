@@ -19,7 +19,7 @@
 - **Run `npm test` after content changes**: `tests/content/content.test.ts` checks files exist, slugs are unique and cross-links are valid.
 - **Routes**: `/`, `/games`, `/games/[gameId]`, `/subjects/[subject]`, `/books`, `/books/[slug]`, `/demo`, `/demo/play`, `/about`, `/privacy`, `/terms`.
 - **Components**: `components/home/`, `components/play/`, `components/books/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
-- **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL`, `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
+- **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL` (defaults to info@learningadventures.org), `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
 - **Keep it backend-free**: public pages must not need Supabase, Prisma or secrets. Check with `npm run build` and no env vars.
 - **Colors**: text on colored backgrounds must pass WCAG AA contrast. Use `subject.theme.onSolid` for text on a subject's solid color.
 - **Going live**: `docs/V1_GO_LIVE_CHECKLIST.md`.

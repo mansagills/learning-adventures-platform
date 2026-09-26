@@ -68,13 +68,13 @@ entry to the `games` array in `lib/content/games.ts` (`slug`, `title`, `subject`
 
 Every variable is optional. With none set, the site works and hides the matching feature.
 
-| Variable                       | Effect                                                                                     |
-| ------------------------------ | ------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_CONTACT_EMAIL`    | Shows a contact email in the footer and on About/Privacy/Terms                             |
-| `NEXT_PUBLIC_EBOOK_STORE_URL`  | Fallback "Get the interactive ebook" link for books with no `ebookUrl`                     |
-| `NEXT_PUBLIC_NEWSLETTER_URL`   | "Tell me when it's out" link under coming-soon books                                       |
-| `NEXT_PUBLIC_DEMO_TRAILER_URL` | YouTube/Vimeo trailer on `/demo`                                                           |
-| `NEXT_PUBLIC_ENABLE_ACCOUNTS`  | `true` turns accounts, dashboards and admin back on (these need Supabase and the database) |
+| Variable                       | Effect                                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_CONTACT_EMAIL`    | Overrides the contact email (default `info@learningadventures.org`) in the footer and on Privacy/Terms |
+| `NEXT_PUBLIC_EBOOK_STORE_URL`  | Fallback "Get the interactive ebook" link for books with no `ebookUrl`                                 |
+| `NEXT_PUBLIC_NEWSLETTER_URL`   | "Tell me when it's out" link under coming-soon books                                                   |
+| `NEXT_PUBLIC_DEMO_TRAILER_URL` | YouTube/Vimeo trailer on `/demo`                                                                       |
+| `NEXT_PUBLIC_ENABLE_ACCOUNTS`  | `true` turns accounts, dashboards and admin back on (these need Supabase and the database)             |
 
 Going live: see `docs/V1_GO_LIVE_CHECKLIST.md`. Plan and progress: `docs/V1_WEBSITE_REBUILD_PLAN.md`.
 

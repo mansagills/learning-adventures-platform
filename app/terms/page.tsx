@@ -9,7 +9,7 @@ export const metadata = seoMetadata({
   path: '/terms',
 });
 
-/** DRAFT terms of use. Set `draft` to false once reviewed. */
+/** Terms of use for the public site. */
 export default function TermsPage() {
   const { contactEmail } = siteConfig.links;
 
@@ -23,7 +23,6 @@ export default function TermsPage() {
           you&apos;re a child, please read them with a parent or guardian.
         </p>
       }
-      draft
       updated="September 2026"
     >
       <h2>Using the site</h2>
