@@ -268,9 +268,9 @@ affects the Phase 6 cutover.
 
 ### UX changes
 
-Each change is listed as page → problem → change, and marked done when it lands. Branch: `claude/vigilant-shannon-7ao3su` (off `main` at `6dfd685`).
+Each change is listed as page → problem → change, and marked done when it lands. Each change gets its own feature branch off `main` and a PR.
 
-#### UX-1: Replace emoji and Lucide icons with Learning Adventures artwork (in progress)
+#### UX-1: Replace emoji and Lucide icons with Learning Adventures artwork: COMPLETED ✅ (PR #200, merged 2026-09-26 as `11f8406`)
 
 - **Pages:** all public pages (home, `/games`, `/games/[slug]`, `/subjects/*`, `/books`, `/books/[slug]`, `/demo`, 404).
 - **Problem:** emojis are used as icons everywhere, which makes the site look like a generic AI-built site. The owner wants the site to feel more unique.
@@ -302,7 +302,7 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
 | 2a    | Draw the icon set and show it on a preview page                                         | COMPLETED ✅ (approved)                           |
 | 2b    | Swap the subject and section emojis for the icons                                       | COMPLETED ✅ (approved)                           |
 | 3a    | Draw UI icons, a shield sticker and 3 logo options on the preview page                  | COMPLETED ✅ (approved; owner picked `logo-bolt`) |
-| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | Done, awaiting approval                           |
+| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | COMPLETED ✅ (approved, merged)                   |
 
 **Phase 3b notes:**
 
@@ -399,3 +399,11 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
 - Problem: on `/demo/play`, the "What's your first name?" box in the welcome card couldn't receive the game's movement keys, so names like "Sadie" or "Wes" couldn't be typed.
 - Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
 - Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
+
+#### UX-2: next, to be described by the owner
+
+Start by asking the owner for the page, the problem and the desired result (screenshots help). Record them here as page → problem → change, then work on a feature branch off `main` with a PR to `main`. Tools from UX-1 you can reuse:
+
+- `npm run thumbnails` for game card pictures
+- `/dev/icons` to preview icons
+- `SiteIcon` and `UiIcon` from `components/icons/` (see the icon guide under UX-1)
