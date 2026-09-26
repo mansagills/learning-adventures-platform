@@ -1,8 +1,28 @@
 # Vercel deploy failure: `learning-adventures-platform` project
 
-**Status:** open, to be investigated on its own branch after the v1 site rebuild
-(`docs/V1_WEBSITE_REBUILD_PLAN.md`) is finished.
+**Status:** cause found 2026-09-26 (see "Resolution" below).
 **Written:** 2026-09-25, from the Vercel API (deployment list, deployment details and build logs).
+
+## Resolution (2026-09-26)
+
+Two separate problems, one after the other:
+
+1. **"Resource provisioning failed" = the paused Supabase project.** The project had
+   environment variables linked from the Supabase integration (the `POSTGRES_*` variables, added
+   2026-06-29). Before each build Vercel fetches those from Supabase. The free Supabase project was
+   paused for inactivity about a week later, so the fetch failed and every build stopped in under a
+   second, with no log. Unpausing Supabase made the builds start again. **Lasting fix:** remove the
+   Supabase integration from this Vercel project while accounts are off (v1 needs no env vars), so
+   a future pause can't block deploys. Reconnect it when accounts come back.
+2. **Stale `pnpm-lock.yaml`.** Once builds started, the install failed:
+   `ERR_PNPM_OUTDATED_LOCKFILE` (`@typescript-eslint/eslint-plugin` missing from the pnpm lockfile).
+   The repo and CI use **npm** (`package-lock.json`, `npm ci`); the root `pnpm-lock.yaml` was a
+   leftover last updated in #78, and its presence made Vercel install with pnpm. It was deleted,
+   so Vercel now installs with npm.
+
+Other things checked and ruled out: Build Machine (matches the working project), Root Directory
+(repo root, correct), Node.js version (changed 22.x → 24.x to match the working projects; it did
+not fix the error on its own, but 24.x is fine to keep).
 
 ## Summary
 
