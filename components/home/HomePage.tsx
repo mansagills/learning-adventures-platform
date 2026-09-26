@@ -253,9 +253,16 @@ export default function HomePage() {
                       <Link
                         key={slug}
                         href={`/games/${slug}`}
-                        className="rounded-full border-2 border-pg-border bg-white px-2.5 py-0.5 font-semibold text-ink-800 hover:bg-pg-yellow"
+                        className="inline-flex items-center gap-1.5 rounded-full border-2 border-pg-border bg-white py-0.5 pl-0.5 pr-2.5 font-semibold text-ink-800 hover:bg-pg-yellow"
                       >
-                        {game.emoji} {game.title}
+                        <Image
+                          src={game.thumbnail}
+                          alt=""
+                          width={32}
+                          height={20}
+                          className="h-5 w-8 rounded-full object-cover object-top"
+                        />
+                        {game.title}
                       </Link>
                     );
                   })}

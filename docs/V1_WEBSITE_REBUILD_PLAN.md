@@ -270,7 +270,7 @@ affects the Phase 6 cutover.
 
 Each change is listed as page → problem → change, and marked done when it lands. Branch: `claude/vigilant-shannon-7ao3su` (off `main` at `6dfd685`).
 
-#### UX-1: Replace emoji icons with a custom icon set (planning)
+#### UX-1: Replace emoji and Lucide icons with Learning Adventures artwork (in progress)
 
 - **Pages:** all public pages (home, `/games`, `/games/[slug]`, `/subjects/*`, `/books`, `/books/[slug]`, `/demo`, 404).
 - **Problem:** emojis are used as icons everywhere, which makes the site look like a generic AI-built site. The owner wants the site to feel more unique.
@@ -287,11 +287,28 @@ Each change is listed as page → problem → change, and marked done when it la
 
 Out of scope for UX-1: the hidden account pages, the in-game World demo panels (`components/world/`) and the games' own HTML files.
 
-**Proposed approach (awaiting owner decisions):**
+**Owner decisions (2026-09-26):**
 
-1. **Game cards → real screenshots.** `GameArt` already shows `thumbnail` when a game has one. Capture a screenshot of each of the 43 games (automated with Playwright) into `public/games/thumbnails/`. Real gameplay looks less generic than any icon and needs no drawing.
-2. **Subjects + sections → a custom SVG icon set** (about 5 subject icons + about 15 section icons) in the site's colors and one drawing style. Source: Claude Design (owner) or drafted in code by Claude, reviewed on a preview page before going in.
-3. **Code:** a `components/icons/` folder with one `<SiteIcon name="…" />` component. `subjects.ts` and the section components use icon names instead of emoji strings. The content test checks every name has an icon.
-4. **Optional:** restyle the Lucide UI icons (stroke width, rounded ends) to match the new set.
+- icons match the friendly character style of Jaylen and S.P.A.R.K. (`public/images/jaylen-and-spark.png`)
+- Claude draws them first (Claude Design is the fallback)
+- game cards use real screenshots
+- the Lucide icons are replaced too
 
-**Owner decisions needed:** icon style, who draws the icons (Claude Design or Claude), and screenshots vs. illustrated icons for game cards.
+Work goes in 3 phases; each needs the owner's approval before the next starts.
+
+| Phase | What                                                                                                                                                                                    | Status                  |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1     | Real screenshots on game cards                                                                                                                                                          | Done, awaiting approval |
+| 2     | Custom subject + section icons (style: bold navy outlines, flat colors, one cel shadow, Jaylen orange / S.P.A.R.K. cyan, lightning-bolt and star motifs), previewed on a dev page first | Not started             |
+| 3     | Replace the Lucide UI icons in the same style; lint rule keeps Lucide out of public pages                                                                                               | Not started             |
+
+**Phase 1 notes:**
+
+- `npm run thumbnails` (`scripts/capture-game-thumbnails.ts`) serves `public/` itself, opens each game in Chromium at 1000×625, presses its Start button so the picture shows gameplay instead of the "How to play" box, and saves `public/games/thumbnails/<slug>.jpg` (640×400, about 25 KB each, 1.1 MB total). Use `--only <slug>` for one game. `overrides` in the script handles games that need other buttons or longer waits (none needed today). Set `CHROMIUM_PATH` to use an installed Chrome; otherwise run `npx playwright install chromium` once. `playwright` is a new devDependency.
+- `PlayableGame.emoji` is gone and `thumbnail` is required.
+  - `GameArt` shows the screenshot, lined up to the top so the game's title shows, with a small zoom on hover.
+  - The game page title no longer has an emoji.
+  - The player's loading screen shows the blurred screenshot.
+  - The homepage "Play along" links show a tiny screenshot.
+- The content test checks every game's `thumbnail` file exists. CLAUDE.md and README "add a game" steps now include making the thumbnail.
+- **Bug fixed along the way:** Math Adventure Island and Solar System Explorer showed their "game over" box the moment they opened, covering the Start button. Their `.modal` CSS rule came after `.hidden` and won. `.hidden` is now `display: none !important`. A scan of all games and lessons found no others with this problem.

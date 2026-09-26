@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Maximize2, Minimize2, PartyPopper, X } from 'lucide-react';
 import type { PlayableGame } from '@/lib/content/games';
@@ -72,11 +73,17 @@ export default function GamePlayer({ game, book }: GamePlayerProps) {
           }
         >
           {!loaded && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-brand-50 text-ink-700">
-              <span className="animate-bounce text-5xl" aria-hidden>
-                {game.emoji}
-              </span>
-              <p className="font-bold">Loading {game.title}…</p>
+            <div className="absolute inset-0 flex items-center justify-center bg-ink-900">
+              <Image
+                src={game.thumbnail}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 66vw, 100vw"
+                className="object-cover object-top opacity-40 blur-sm"
+              />
+              <p className="relative animate-pulse rounded-full border-2 border-pg-border bg-white px-4 py-2 font-bold text-ink-800 shadow-pop-active">
+                Loading {game.title}…
+              </p>
             </div>
           )}
           <iframe

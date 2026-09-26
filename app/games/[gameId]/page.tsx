@@ -73,7 +73,6 @@ export default function GamePage({ params }: GamePageProps) {
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
           <h1 className="font-display text-3xl font-extrabold text-ink-900 md:text-4xl">
-            <span aria-hidden>{game.emoji} </span>
             {game.title}
           </h1>
           <div className="flex flex-wrap gap-2 text-xs font-bold">

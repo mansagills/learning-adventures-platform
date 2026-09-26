@@ -21,6 +21,16 @@ describe('public content data', () => {
     expect(missing).toEqual([]);
   });
 
+  it('every game has a card picture that exists in public/', () => {
+    const missing = games
+      .filter((game) => !existsSync(resolve(publicDir, `.${game.thumbnail}`)))
+      .map(
+        (game) =>
+          `${game.slug} -> ${game.thumbnail} (run: npm run thumbnails -- --only ${game.slug})`
+      );
+    expect(missing).toEqual([]);
+  });
+
   it('game and book slugs are unique across the site', () => {
     expect(duplicates(games.map((game) => game.slug))).toEqual([]);
     expect(duplicates(books.map((book) => book.slug))).toEqual([]);
