@@ -4,6 +4,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loadGameComponent, isGameRegistered } from '@/lib/gameLoader';
 import { GameProps } from '@/components/games/shared/types';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 function GameLoader({
   gameId,
@@ -47,7 +48,7 @@ function GameLoader({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center p-8">
-          <div className="text-6xl mb-4">🎮</div>
+          <SiteIcon name="controller" size={72} className="mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
             Game Not Found
           </h1>

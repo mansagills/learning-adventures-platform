@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Container from './Container';
-import Icon from './Icon';
 import { subjects } from '@/lib/content/subjects';
 import { siteConfig } from '@/lib/siteConfig';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 const columns = [
   {
@@ -44,9 +44,7 @@ export default function Footer() {
               href="/"
               className="mb-4 flex items-center space-x-2 font-display text-xl font-bold"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-accent-500">
-                <Icon name="academic" size={20} className="text-white" />
-              </span>
+              <SiteIcon name="logo-bolt" size={34} />
               <span>Learning Adventures</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-300">

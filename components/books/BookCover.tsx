@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { Book } from '@/lib/content/books';
 import { getSubject } from '@/lib/content/subjects';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 interface BookCoverProps {
   book: Book;
@@ -55,9 +56,11 @@ export default function BookCover({
       >
         <span className="absolute inset-y-0 left-0 w-2 bg-black/15" />
         <span className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-white/20" />
-        <span className="relative text-3xl" aria-hidden>
-          {subject?.emoji}
-        </span>
+        {subject && (
+          <span className="relative rounded-xl bg-white/90 p-1 ring-2 ring-pg-border">
+            <SiteIcon name={subject.icon} size={32} />
+          </span>
+        )}
       </div>
     );
   }
@@ -84,9 +87,11 @@ export default function BookCover({
       <p className="relative pl-2 font-display text-lg font-extrabold leading-tight">
         {book.title}
       </p>
-      <p className="relative pl-2 text-3xl" aria-hidden>
-        {subject?.emoji}
-      </p>
+      {subject && (
+        <span className="relative ml-2 self-start rounded-xl bg-white/90 p-1 ring-2 ring-pg-border">
+          <SiteIcon name={subject.icon} size={36} />
+        </span>
+      )}
     </div>
   );
 }

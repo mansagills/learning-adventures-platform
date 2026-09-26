@@ -266,11 +266,136 @@ affects the Phase 6 cutover.
   - Details are in `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`.
 - **Launched:** PR #198 was squash-merged to `main` as `1f0d9db`. The production deploy went live on learningadventures.org and www, the first successful deploy since 2026-07-04.
 
-### UX changes (next)
+### UX changes
 
-To be defined with the owner at the start of the next session. List each change here (page → problem → change) and mark it done as it lands.
+Each change is listed as page → problem → change, and marked done when it lands. Branch: `claude/vigilant-shannon-7ao3su` (off `main` at `6dfd685`).
 
-1. **World Demo → name box ignores W, A, S, D (and E, Space, arrows)** — DONE ✅
-   - Problem: on `/demo/play`, the "What's your first name?" box in the welcome card couldn't receive the game's movement keys, so names like "Sadie" or "Wes" couldn't be typed.
-   - Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
-   - Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
+#### UX-1: Replace emoji and Lucide icons with Learning Adventures artwork (in progress)
+
+- **Pages:** all public pages (home, `/games`, `/games/[slug]`, `/subjects/*`, `/books`, `/books/[slug]`, `/demo`, 404).
+- **Problem:** emojis are used as icons everywhere, which makes the site look like a generic AI-built site. The owner wants the site to feel more unique.
+- **Change:** replace every emoji that works as an icon with artwork made for Learning Adventures, in one consistent style.
+
+**Where the emojis are today (public site only):**
+
+| Group                                   | Count    | Where it shows                                                                                                                                        | Source                                       |
+| --------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Game icons                              | 43       | Game card art (`GameArt`), player header, homepage "Stories" links, game page title                                                                   | `emoji` in `lib/content/games.ts`            |
+| Subject icons                           | 5        | Subject tiles, filter chips, card labels, book covers, subject page hero, homepage row titles                                                         | `emoji` in `lib/content/subjects.ts`         |
+| Section / step icons                    | about 25 | Homepage rows (📚 🗺️ 🧭), `/books` "How it works", `/demo` (`Hero`, `HowItWorks`, `Benefits`, `SecondaryCta`, `Faq`), 404 page, subject "coming soon" | Hard-coded in those components               |
+| UI icons (arrows, search, close, clock) | about 13 | Buttons and controls                                                                                                                                  | `lucide-react` (not emoji; optional restyle) |
+
+Out of scope for UX-1: the hidden account pages, the in-game World demo panels (`components/world/`) and the games' own HTML files.
+
+**Owner decisions (2026-09-26):**
+
+- icons match the friendly character style of Jaylen and S.P.A.R.K. (`public/images/jaylen-and-spark.png`)
+- Claude draws them first (Claude Design is the fallback)
+- game cards use real screenshots
+- the Lucide icons are replaced too
+
+Work goes in 3 phases; each needs the owner's approval before the next starts.
+
+| Phase | What                                                                                    | Status                                            |
+| ----- | --------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 1     | Real screenshots on game cards                                                          | COMPLETED ✅ (approved)                           |
+| 2a    | Draw the icon set and show it on a preview page                                         | COMPLETED ✅ (approved)                           |
+| 2b    | Swap the subject and section emojis for the icons                                       | COMPLETED ✅ (approved)                           |
+| 3a    | Draw UI icons, a shield sticker and 3 logo options on the preview page                  | COMPLETED ✅ (approved; owner picked `logo-bolt`) |
+| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | Done, awaiting approval                           |
+
+**Phase 3b notes:**
+
+- Public pages no longer use Lucide or the old `components/Icon.tsx`:
+  - **Header:** the `logo-bolt` mark, the Subjects menu chevron, and the phone menu and close buttons (settings shows only with accounts on)
+  - **Footer:** the `logo-bolt` mark
+  - **Homepage:**
+    - sticker icons in the hero badge and buttons
+    - "Browse all" arrow
+    - "Made for kids" tiles: ticket, bolt, shield, sparkle, each on a light tint
+    - FAQ chevrons
+  - **Game rows and game pages:** "See all" arrows and row scroll buttons; breadcrumbs; grades and time chips
+  - **Games browser:** search and clear buttons
+  - **Game player:** full-screen and close buttons; a sparkle sticker on the "Nice work!" banner
+  - **Book pages:** sample viewer arrows; ebook button (open-book sticker + external-link icon)
+  - **Subject pages:** the "All games" back arrow
+  - **Demo:**
+    - FAQ chevron
+    - quick-facts checks
+    - "Exit demo" arrow
+- Removed the logo options the owner didn't pick (`logo-spark`, `logo-la`). `/dev/icons` shows just the chosen mark.
+- **Guards:**
+  - `eslint.config.mjs` blocks `lucide-react` and `components/Icon` imports in public-site files (checked once with a throwaway import for each)
+  - the content test also fails on `←`, `→`, `✓` and `✔` in public source
+- Checked in the production build: header (desktop Subjects menu, phone menu), homepage, `/games` search and no results, a game page with the "Nice work!" banner, a book page, `/demo` FAQ and quick facts, and the footer. No script errors, no sideways scroll at 390px, and no axe violations.
+
+**Icon guide (for future work):**
+
+- `SiteIcon` (`components/icons/art.tsx`) is for content: subjects, section headings, feature tiles, big buttons, and the logo mark. These are multi-colored stickers with a navy outline.
+- `UiIcon` (`components/icons/ui.tsx`) is for controls: arrows, chevrons, close, search, full screen, clock and the like. It is one color, taken from the surrounding text.
+- New icons go in those two files and appear on `/dev/icons` automatically. Don't use emoji or other icon packs on public pages; lint and `npm test` will fail.
+
+**Phase 3a notes:**
+
+- Owner decisions: replace the header and footer logo mark (Claude draws options, the owner picks one), and use sticker icons in the homepage "Made for kids" tiles.
+- New `components/icons/ui.tsx` + `UiIcon.tsx`: 15 small interface icons on a 24×24 grid that use the surrounding text color:
+  - arrows and chevrons
+  - search, close, menu
+  - clock, grad cap
+  - expand, shrink
+  - external, check, settings
+
+  They have thick round strokes and solid arrowheads, to match the stickers. Use `UiIcon` for controls and `SiteIcon` for content.
+
+- New sticker `shield` (violet shield with a heart), for "No chat, no ads".
+- Three logo options: `logo-spark` (S.P.A.R.K.'s star-eyed screen), `logo-bolt` (lightning bolt badge) and `logo-la` ("LA" block with a bolt). `/dev/icons` shows them next to the wordmark on light and dark bars, plus a new "UI icons" section.
+
+**Phase 2b notes:**
+
+- `Subject.emoji` is now `Subject.icon` in `lib/content/subjects.ts` (`math`, `flask`, `abc-book`, `columns`, `puzzle`). Subject icons now show in:
+  - the header Subjects menu (desktop and phone)
+  - the homepage subject tiles and row titles
+  - the game-card labels and the filter chips on `/games`
+  - the book covers
+  - the subject page header and the game and book pages
+- Every section emoji on the public pages is now an icon:
+  - homepage badge, rows and demo button
+  - `/books` "How it works"
+  - the 404 page
+  - "coming soon" and "no results" states
+  - the `/demo` sections (hero, how it works, what's coming, call to action, FAQ)
+  - the React game loader's "Game not found" screen
+- Emojis inside button text became a small icon next to the text. The subject tiles and subject page header now use the light subject tint behind the icon, so the icon stands out.
+- New content tests:
+  - every subject's icon exists in the set
+  - public source files contain no emoji characters. © and ® are allowed. Arrows and ✓ are not emojis and get replaced in Phase 3. `SocialProof.tsx` is skipped because it isn't rendered.
+- Checked in the production build: `/`, `/games`, `/subjects/math`, `/subjects/interdisciplinary`, `/books`, a book page, `/demo`, 404 and a game page at 1280 and 390px. No sideways scroll, no script errors, and no axe (WCAG A/AA) violations.
+
+**Phase 2a notes:**
+
+- 25 icons, drawn as code (inline SVG), in `components/icons/art.tsx`. The colors are in `components/icons/palette.ts`. Use them with `<SiteIcon name="…" size={…} />` from `components/icons/SiteIcon.tsx`. A misspelled icon name fails the type check.
+- House style, from the Jaylen & S.P.A.R.K. art:
+  - navy outline
+  - flat colors
+  - one darker cel-shadow shape per icon
+  - one white shine
+  - Jaylen orange and S.P.A.R.K. cyan accents, with lightning-bolt and star motifs
+- Icons: `math`, `flask`, `abc-book`, `columns`, `puzzle` (the 5 subjects), plus `books`, `open-book`, `compass`, `map`, `magnifier`, `controller`, `tools`, `campus`, `ticket`, `laptop`, `avatar`, `chat`, `bolt`, `sword`, `chest`, `high-five`, `family`, `sparkle`, `spark-bot`, `question`.
+- Preview page: `/dev/icons` shows every icon at 96, 48 and 24px, on each subject color, and in mock headings and buttons. It works locally and on Vercel previews, and 404s on the live site (`VERCEL_ENV=production`, checked with a production-flag build). It is also `noindex`.
+
+**Phase 1 notes:**
+
+- `npm run thumbnails` (`scripts/capture-game-thumbnails.ts`) serves `public/` itself, opens each game in Chromium at 1000×625, presses its Start button so the picture shows gameplay instead of the "How to play" box, and saves `public/games/thumbnails/<slug>.jpg` (640×400, about 25 KB each, 1.1 MB total). Use `--only <slug>` for one game. `overrides` in the script handles games that need other buttons or longer waits (none needed today). Set `CHROMIUM_PATH` to use an installed Chrome; otherwise run `npx playwright install chromium` once. `playwright` is a new devDependency.
+- `PlayableGame.emoji` is gone and `thumbnail` is required.
+  - `GameArt` shows the screenshot, lined up to the top so the game's title shows, with a small zoom on hover.
+  - The game page title no longer has an emoji.
+  - The player's loading screen shows the blurred screenshot.
+  - The homepage "Play along" links show a tiny screenshot.
+- The content test checks every game's `thumbnail` file exists. CLAUDE.md and README "add a game" steps now include making the thumbnail.
+- **Bug fixed along the way:** Math Adventure Island and Solar System Explorer showed their "game over" box the moment they opened, covering the Start button. Their `.modal` CSS rule came after `.hidden` and won. `.hidden` is now `display: none !important`. A scan of all games and lessons found no others with this problem.
+
+#### World Demo: name box ignores W, A, S, D (and E, Space, arrows): DONE ✅ (PR #201)
+
+- Problem: on `/demo/play`, the "What's your first name?" box in the welcome card couldn't receive the game's movement keys, so names like "Sadie" or "Wes" couldn't be typed.
+- Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
+- Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.

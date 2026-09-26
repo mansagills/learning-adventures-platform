@@ -14,13 +14,14 @@
 ### 🌐 v1 Public Site: How It's Organized
 
 - **Content lives in `lib/content/`**: `subjects.ts` (5 subjects and their colors), `games.ts` (every playable game/activity), `books.ts` (interactive ebooks). Pages are built from these files, including the sitemap.
-- **Add a game**: save the HTML to `public/games/` (or `public/lessons/`) and add an entry to `games` in `lib/content/games.ts`. `lib/catalogData.ts` is the old catalog, used only by the hidden account features.
+- **Add a game**: save the HTML to `public/games/` (or `public/lessons/`), add an entry to `games` in `lib/content/games.ts`, then run `npm run thumbnails -- --only <slug>` to screenshot it for its card. `lib/catalogData.ts` is the old catalog, used only by the hidden account features.
 - **Add or publish a book**: edit `lib/content/books.ts`. To publish, set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` (images in `public/books/<slug>/`). Visitor-facing text calls them "interactive ebooks" and never names the ebook platform.
 - **Run `npm test` after content changes**: `tests/content/content.test.ts` checks files exist, slugs are unique and cross-links are valid.
 - **Routes**: `/`, `/games`, `/games/[gameId]`, `/subjects/[subject]`, `/books`, `/books/[slug]`, `/demo`, `/demo/play`, `/about`, `/privacy`, `/terms`.
 - **Components**: `components/home/`, `components/play/`, `components/books/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
 - **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL` (defaults to info@learningadventures.org), `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
 - **Keep it backend-free**: public pages must not need Supabase, Prisma or secrets. Check with `npm run build` and no env vars.
+- **Icons**: use `SiteIcon` (sticker icons: subjects, sections, big buttons, logo) or `UiIcon` (small controls: arrows, close, search) from `components/icons/`; preview them all at `/dev/icons`. No emoji, Lucide or `components/Icon` on public pages: lint and `npm test` fail if they come back. The icon guide is in `docs/V1_WEBSITE_REBUILD_PLAN.md` (UX-1).
 - **Colors**: text on colored backgrounds must pass WCAG AA contrast. Use `subject.theme.onSolid` for text on a subject's solid color.
 - **Going live**: `docs/V1_GO_LIVE_CHECKLIST.md`.
 
@@ -146,7 +147,7 @@ The v1 public site lists games from **`lib/content/games.ts`**. `lib/catalogData
 2. **Create the game** as one HTML file (see Design Patterns and Content Creation Guidelines below).
 3. **Save it** to `public/games/[game-name].html` (games) or `public/lessons/[lesson-name].html` (activities).
 4. **Test it on its own** before listing it (see Test Games Workflow below).
-5. **Publish it** by adding an entry to `lib/content/games.ts` (see Integration Process below).
+5. **Publish it** by adding an entry to `lib/content/games.ts` and running `npm run thumbnails -- --only <slug>` (see Integration Process below).
 6. **Run the checks**: `npm test` (content test), `npx tsc --noEmit`, `npm run lint`.
 7. **Check it on the site** (see Testing Checklist below).
 
@@ -194,11 +195,12 @@ learning-adventures-platform/
 
 1. Save the HTML file in the right `public/` folder.
 2. Add an entry to the `games` array in `lib/content/games.ts`:
-   - Required: `slug` (unique, used in the URL `/games/[slug]`), `title`, `subject` (`math`, `science`, `english`, `history`, `interdisciplinary`), `kind` (`'game'` or `'activity'`), `emoji` (shown on its card art), `grades` (e.g. `"2–5"`), `difficulty` (`'easy'`, `'medium'`, `'hard'`), `description`, `skills`, `estimatedTime`, `htmlPath` (e.g. `/games/my-game.html`)
-   - Optional: `featured: true` (shown first), `thumbnail` (a screenshot in `public/`)
-3. If the game goes with an interactive ebook, add its slug to that book's `companionGameSlugs` in `lib/content/books.ts`. That one list links them both ways (the game's page shows the book, and the book's page shows the game).
-4. Run `npm test`. The content test fails if the file is missing, the slug is already used, or a book's `companionGameSlugs` names a game that doesn't exist.
-5. Optional: if the game posts `window.parent.postMessage({ type: 'game-complete', score }, '*')` when finished, the player shows a "Nice work!" banner.
+   - Required: `slug` (unique, used in the URL `/games/[slug]`), `title`, `subject` (`math`, `science`, `english`, `history`, `interdisciplinary`), `kind` (`'game'` or `'activity'`), `thumbnail` (`/games/thumbnails/<slug>.jpg`, its card picture), `grades` (e.g. `"2–5"`), `difficulty` (`'easy'`, `'medium'`, `'hard'`), `description`, `skills`, `estimatedTime`, `htmlPath` (e.g. `/games/my-game.html`)
+   - Optional: `featured: true` (shown first)
+3. Make its card picture: `npm run thumbnails -- --only <slug>`. This opens the game in Chromium, presses its Start button and saves a screenshot to `public/games/thumbnails/<slug>.jpg`. If the picture doesn't show the game well, add an entry for the slug to `overrides` in `scripts/capture-game-thumbnails.ts` (buttons to click, extra wait). On a new machine run `npx playwright install chromium` once.
+4. If the game goes with an interactive ebook, add its slug to that book's `companionGameSlugs` in `lib/content/books.ts`. That one list links them both ways (the game's page shows the book, and the book's page shows the game).
+5. Run `npm test`. The content test fails if the HTML file or card picture is missing, the slug is already used, or a book's `companionGameSlugs` names a game that doesn't exist.
+6. Optional: if the game posts `window.parent.postMessage({ type: 'game-complete', score }, '*')` when finished, the player shows a "Nice work!" banner.
 
 ### ✅ Testing Checklist
 

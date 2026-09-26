@@ -60,6 +60,38 @@ const eslintConfig = [
       'no-var': 'error',
     },
   },
+  {
+    // The public site uses its own icon set (UX-1): SiteIcon for content and
+    // UiIcon for controls, both in components/icons/. Stock icon packs stay
+    // available to the hidden account pages only.
+    files: [
+      'components/{home,play,books,demo}/**/*.{ts,tsx}',
+      'components/{Header,Footer,ContentPage}.tsx',
+      'app/{page,not-found}.tsx',
+      'app/{games,subjects,books,demo,about,privacy,terms}/**/*.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'lucide-react',
+              message:
+                'Public pages use the Learning Adventures icons: UiIcon for controls, SiteIcon for everything else (components/icons/).',
+            },
+          ],
+          patterns: [
+            {
+              group: ['**/components/Icon', './Icon'],
+              message:
+                'Public pages use UiIcon or SiteIcon (components/icons/) instead of the old Icon component.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default eslintConfig;

@@ -1,13 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  BookOpen,
-  Gamepad2,
-  Heart,
-  Shield,
-  Sparkles,
-  UserX,
-} from 'lucide-react';
 import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
 import { cn } from '@/lib/utils';
@@ -16,6 +8,8 @@ import { books } from '@/lib/content/books';
 import { subjects } from '@/lib/content/subjects';
 import GameRow from './GameRow';
 import HomeFaq from './HomeFaq';
+import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 /** Subjects with enough games for a row of their own */
 const ROW_MIN_GAMES = 3;
@@ -48,7 +42,7 @@ export default function HomePage() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="text-center lg:text-left">
               <p className="inline-flex items-center gap-2 rounded-full border-2 border-pg-border bg-white px-4 py-2 text-sm font-bold uppercase tracking-wide text-ink-800 shadow-pop">
-                <Sparkles size={16} className="text-pg-violet" aria-hidden />
+                <SiteIcon name="sparkle" size={22} />
                 Free learning games · Grades K–5
               </p>
               <h1 className="mt-6 font-display text-5xl font-extrabold leading-tight text-ink-900 md:text-6xl lg:text-7xl">
@@ -81,13 +75,13 @@ export default function HomePage() {
                   href="/games"
                   className={cn(primaryButton, 'bg-pg-violet text-white')}
                 >
-                  <Gamepad2 size={22} aria-hidden /> Play a game
+                  <SiteIcon name="controller" size={30} /> Play a game
                 </Link>
                 <Link
                   href="/books"
                   className={cn(primaryButton, 'bg-white text-ink-900')}
                 >
-                  <BookOpen size={22} aria-hidden /> Meet the books
+                  <SiteIcon name="books" size={30} /> Meet the books
                 </Link>
               </div>
             </div>
@@ -106,8 +100,8 @@ export default function HomePage() {
               <span className="absolute -left-3 -top-4 rotate-[-6deg] rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-left-6">
                 {games.length} free games
               </span>
-              <span className="absolute -bottom-4 -right-2 rotate-[4deg] rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
-                📚 Stories to read
+              <span className="absolute -bottom-4 -right-2 inline-flex rotate-[4deg] items-center gap-1.5 rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
+                <SiteIcon name="books" size={22} /> Stories to read
               </span>
             </div>
           </div>
@@ -142,12 +136,11 @@ export default function HomePage() {
                 >
                   <span
                     className={cn(
-                      'flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-pg-border text-3xl transition-transform group-hover:-rotate-6 group-hover:scale-110',
-                      subject.theme.solid
+                      'flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-pg-border transition-transform group-hover:-rotate-6 group-hover:scale-110',
+                      subject.theme.soft
                     )}
-                    aria-hidden
                   >
-                    {subject.emoji}
+                    <SiteIcon name={subject.icon} size={44} />
                   </span>
                   <span className="mt-3 font-display text-xl font-bold text-ink-900">
                     {subject.name}
@@ -191,9 +184,9 @@ export default function HomePage() {
             </div>
             <Link
               href="/games"
-              className="font-bold text-brand-600 hover:text-brand-700"
+              className="inline-flex items-center gap-1 font-bold text-brand-600 hover:text-brand-700"
             >
-              Browse all {games.length} →
+              Browse all {games.length} <UiIcon name="arrow-right" size={18} />
             </Link>
           </div>
           <div className="space-y-12">
@@ -201,7 +194,7 @@ export default function HomePage() {
               <GameRow
                 key={subject.id}
                 title={`${subject.name} games`}
-                emoji={subject.emoji}
+                icon={subject.icon}
                 href={`/subjects/${subject.id}`}
                 games={getFeaturedGames(subject.id, 10)}
               />
@@ -209,7 +202,7 @@ export default function HomePage() {
             {otherGames.length > 0 && (
               <GameRow
                 title="Reading, history and more"
-                emoji="🧭"
+                icon="compass"
                 href="/games"
                 games={otherGames}
                 showSubject
@@ -253,9 +246,16 @@ export default function HomePage() {
                       <Link
                         key={slug}
                         href={`/games/${slug}`}
-                        className="rounded-full border-2 border-pg-border bg-white px-2.5 py-0.5 font-semibold text-ink-800 hover:bg-pg-yellow"
+                        className="inline-flex items-center gap-1.5 rounded-full border-2 border-pg-border bg-white py-0.5 pl-0.5 pr-2.5 font-semibold text-ink-800 hover:bg-pg-yellow"
                       >
-                        {game.emoji} {game.title}
+                        <Image
+                          src={game.thumbnail}
+                          alt=""
+                          width={32}
+                          height={20}
+                          className="h-5 w-8 rounded-full object-cover object-top"
+                        />
+                        {game.title}
                       </Link>
                     );
                   })}
@@ -268,7 +268,7 @@ export default function HomePage() {
               href="/books"
               className={cn(primaryButton, 'bg-pg-pink text-ink-900')}
             >
-              <BookOpen size={22} aria-hidden /> See all books
+              <SiteIcon name="books" size={30} /> See all books
             </Link>
           </div>
         </Container>
@@ -311,7 +311,7 @@ export default function HomePage() {
                   'justify-self-start bg-pg-yellow text-ink-900 md:justify-self-end'
                 )}
               >
-                🗺️ See the demo
+                <SiteIcon name="map" size={26} /> See the demo
               </Link>
             </div>
           </div>
@@ -333,42 +333,41 @@ export default function HomePage() {
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
-                icon: Heart,
+                icon: 'ticket' as const,
                 title: 'Free to play',
                 text: `All ${games.length} games and activities are free, with no trials or paywalls.`,
-                color: 'bg-pg-pink',
+                color: 'bg-coral-50',
               },
               {
-                icon: UserX,
+                icon: 'bolt' as const,
                 title: 'No sign-up',
                 text: 'No accounts, passwords or personal details. Just press play.',
-                color: 'bg-pg-violet',
+                color: 'bg-brand-50',
               },
               {
-                icon: Shield,
+                icon: 'shield' as const,
                 title: 'No chat, no ads',
                 text: 'Nothing to click away to and no strangers to talk to.',
-                color: 'bg-pg-mint',
+                color: 'bg-grass-50',
               },
               {
-                icon: Sparkles,
+                icon: 'sparkle' as const,
                 title: 'Real skills',
                 text: 'Fractions, times tables, planets, ecosystems, spelling and more for grades K–5.',
-                color: 'bg-pg-yellow',
+                color: 'bg-sunshine-50',
               },
-            ].map(({ icon: Icon, title, text, color }) => (
+            ].map(({ icon, title, text, color }) => (
               <div
                 key={title}
                 className="rounded-3xl border-2 border-pg-border bg-white p-6 shadow-pop"
               >
                 <span
                   className={cn(
-                    'flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-pg-border text-white',
+                    'flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-pg-border',
                     color
                   )}
-                  aria-hidden
                 >
-                  <Icon size={24} />
+                  <SiteIcon name={icon} size={40} />
                 </span>
                 <h3 className="mt-4 font-display text-xl font-bold text-ink-900">
                   {title}

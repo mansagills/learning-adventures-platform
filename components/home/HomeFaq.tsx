@@ -1,6 +1,6 @@
-import { ChevronDown } from 'lucide-react';
 import Container from '@/components/Container';
 import { games } from '@/lib/content/games';
+import UiIcon from '@/components/icons/UiIcon';
 
 const faqs = [
   {
@@ -52,10 +52,10 @@ export default function HomeFaq() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-bold text-ink-900 [&::-webkit-details-marker]:hidden">
                 {faq.question}
-                <ChevronDown
+                <UiIcon
+                  name="chevron-down"
                   size={20}
-                  className="shrink-0 transition-transform group-open:rotate-180"
-                  aria-hidden
+                  className="transition-transform group-open:rotate-180"
                 />
               </summary>
               <p className="mt-3 text-ink-600">{faq.answer}</p>

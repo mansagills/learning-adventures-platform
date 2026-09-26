@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
 import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
 import BookCover from '@/components/books/BookCover';
@@ -12,6 +11,8 @@ import { books, getBook } from '@/lib/content/books';
 import { getGame, type PlayableGame } from '@/lib/content/games';
 import { getSubject } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
+import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface BookPageProps {
   params: { slug: string };
@@ -57,7 +58,7 @@ export default function BookPage({ params }: BookPageProps) {
             <Link href="/books" className="hover:text-brand-600">
               Books
             </Link>
-            <ChevronRight size={14} aria-hidden />
+            <UiIcon name="chevron-right" size={14} />
             <span className="truncate text-ink-800" aria-current="page">
               {book.title}
             </span>
@@ -88,11 +89,11 @@ export default function BookPage({ params }: BookPageProps) {
                 {subject && (
                   <span
                     className={cn(
-                      'rounded-full bg-white px-3 py-1',
+                      'inline-flex items-center gap-1 rounded-full bg-white py-1 pl-1.5 pr-3',
                       subject.theme.text
                     )}
                   >
-                    {subject.emoji} {subject.name}
+                    <SiteIcon name={subject.icon} size={18} /> {subject.name}
                   </span>
                 )}
               </div>

@@ -1,44 +1,45 @@
 import Container from '@/components/Container';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 export default function Benefits() {
   // Planned features for the full Learning Adventures World (see
   // docs/lore/SEASON_1_ARC.md). None of these are in the demo yet.
   const benefits = [
     {
-      emoji: '📖',
+      icon: 'open-book' as const,
       title: 'A Season-Long Story',
       description:
         'Help Jaylen and SPARK uncover the mystery behind the Hush across the Math, Science, English and History wings.',
       color: 'violet' as const,
     },
     {
-      emoji: '🏫',
+      icon: 'campus' as const,
       title: 'Games in Every Building',
       description:
         'Every subject building filled with games and challenges that tie into the story.',
       color: 'pink' as const,
     },
     {
-      emoji: '📚',
+      icon: 'books' as const,
       title: 'Characters From the Books',
       description:
         'Meet the heroes and villains from our interactive ebooks, right on campus.',
       color: 'mint' as const,
     },
     {
-      emoji: '💾',
+      icon: 'chest' as const,
       title: 'Progress That Travels',
       description: 'Keep your character, XP and story progress on any device.',
       color: 'yellow' as const,
     },
     {
-      emoji: '🤝',
+      icon: 'high-five' as const,
       title: 'Explore Together',
       description: 'A shared campus where classmates can explore side by side.',
       color: 'violet' as const,
     },
     {
-      emoji: '👪',
+      icon: 'family' as const,
       title: 'Parent View',
       description:
         'See which skills your child is practicing and how far they have come.',
@@ -78,7 +79,7 @@ export default function Benefits() {
         {/* Section Header */}
         <div className="text-center mb-16 relative z-10">
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
-            <span className="text-lg">✨</span>
+            <SiteIcon name="sparkle" size={26} />
             <span className="text-sm font-bold text-foreground uppercase tracking-wide">
               What&apos;s Coming
             </span>
@@ -122,9 +123,9 @@ export default function Benefits() {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div
-                  className={`absolute -top-5 left-6 w-14 h-14 ${colors.iconBg} border-2 border-pg-border rounded-xl shadow-pop flex items-center justify-center text-2xl group-hover:animate-wiggle`}
+                  className={`absolute -top-5 left-6 w-14 h-14 ${colors.iconBg} border-2 border-pg-border rounded-xl shadow-pop flex items-center justify-center group-hover:animate-wiggle`}
                 >
-                  {benefit.emoji}
+                  <SiteIcon name={benefit.icon} size={42} />
                 </div>
 
                 <div className="pt-8">
@@ -149,9 +150,7 @@ export default function Benefits() {
         {/* Bottom trust badge */}
         <div className="mt-16 text-center relative z-10">
           <div className="inline-flex items-center gap-3 bg-white border-2 border-pg-border px-6 py-3 rounded-full shadow-pop">
-            <div className="w-8 h-8 bg-pg-mint rounded-full flex items-center justify-center">
-              <span className="text-sm">🚧</span>
-            </div>
+            <SiteIcon name="tools" size={32} />
             <span className="font-outfit font-bold text-foreground">
               In development: the demo shows where we&apos;re headed
             </span>

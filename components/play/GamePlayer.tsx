@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Maximize2, Minimize2, PartyPopper, X } from 'lucide-react';
 import type { PlayableGame } from '@/lib/content/games';
 import type { Book } from '@/lib/content/books';
+import UiIcon from '@/components/icons/UiIcon';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 interface GamePlayerProps {
   game: PlayableGame;
@@ -72,11 +74,17 @@ export default function GamePlayer({ game, book }: GamePlayerProps) {
           }
         >
           {!loaded && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-brand-50 text-ink-700">
-              <span className="animate-bounce text-5xl" aria-hidden>
-                {game.emoji}
-              </span>
-              <p className="font-bold">Loading {game.title}…</p>
+            <div className="absolute inset-0 flex items-center justify-center bg-ink-900">
+              <Image
+                src={game.thumbnail}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 66vw, 100vw"
+                className="object-cover object-top opacity-40 blur-sm"
+              />
+              <p className="relative animate-pulse rounded-full border-2 border-pg-border bg-white px-4 py-2 font-bold text-ink-800 shadow-pop-active">
+                Loading {game.title}…
+              </p>
             </div>
           )}
           <iframe
@@ -95,9 +103,9 @@ export default function GamePlayer({ game, book }: GamePlayerProps) {
           aria-label={isFullscreen ? 'Exit full screen' : 'Play full screen'}
         >
           {isFullscreen ? (
-            <Minimize2 size={16} aria-hidden />
+            <UiIcon name="shrink" size={16} />
           ) : (
-            <Maximize2 size={16} aria-hidden />
+            <UiIcon name="expand" size={16} />
           )}
           <span className="hidden sm:inline">
             {isFullscreen ? 'Exit full screen' : 'Full screen'}
@@ -110,11 +118,7 @@ export default function GamePlayer({ game, book }: GamePlayerProps) {
           className="mt-4 flex flex-col gap-3 rounded-2xl border-2 border-pg-border bg-pg-mint/20 p-4 sm:flex-row sm:items-center"
           role="status"
         >
-          <PartyPopper
-            className="shrink-0 text-grass-600"
-            size={28}
-            aria-hidden
-          />
+          <SiteIcon name="sparkle" size={44} />
           <div className="flex-1">
             <p className="font-display text-lg font-bold text-ink-900">
               Nice work!
@@ -147,7 +151,7 @@ export default function GamePlayer({ game, book }: GamePlayerProps) {
               className="rounded-full p-1.5 text-ink-500 hover:bg-white"
               aria-label="Dismiss"
             >
-              <X size={18} aria-hidden />
+              <UiIcon name="close" size={18} />
             </button>
           </div>
         </div>

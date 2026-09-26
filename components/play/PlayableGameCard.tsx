@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { Clock, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayableGame } from '@/lib/content/games';
 import { getSubject } from '@/lib/content/subjects';
 import GameArt from './GameArt';
+import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface PlayableGameCardProps {
   game: PlayableGame;
@@ -47,12 +48,12 @@ export default function PlayableGameCard({
         {showSubject && subject && (
           <span
             className={cn(
-              'mb-2 self-start rounded-full px-2 py-0.5 text-xs font-semibold',
+              'mb-2 inline-flex items-center gap-1 self-start rounded-full py-0.5 pl-1 pr-2 text-xs font-semibold',
               subject.theme.soft,
               subject.theme.text
             )}
           >
-            {subject.emoji} {subject.name}
+            <SiteIcon name={subject.icon} size={16} /> {subject.name}
           </span>
         )}
         <h3 className="font-display text-lg font-bold leading-snug text-ink-900 group-hover:text-brand-600">
@@ -63,11 +64,11 @@ export default function PlayableGameCard({
         </p>
         <div className="mt-3 flex items-center gap-4 text-xs font-medium text-ink-500">
           <span className="inline-flex items-center gap-1">
-            <GraduationCap size={14} aria-hidden />
+            <UiIcon name="grad-cap" size={14} />
             Grades {game.grades}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Clock size={14} aria-hidden />
+            <UiIcon name="clock" size={14} />
             {game.estimatedTime}
           </span>
         </div>

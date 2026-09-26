@@ -2,14 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayableGame } from '@/lib/content/games';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
+import SiteIcon, { type IconName } from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface GameRowProps {
   title: string;
-  emoji?: string;
+  icon?: IconName;
   /** "See all" link target */
   href: string;
   games: PlayableGame[];
@@ -23,7 +24,7 @@ interface GameRowProps {
  */
 export default function GameRow({
   title,
-  emoji,
+  icon,
   href,
   games,
   showSubject = false,
@@ -62,15 +63,21 @@ export default function GameRow({
     <section aria-label={title}>
       <div className="mb-4 flex items-end justify-between gap-4">
         <h3 className="font-display text-2xl font-bold text-ink-900">
-          {emoji && <span aria-hidden>{emoji} </span>}
+          {icon && (
+            <SiteIcon
+              name={icon}
+              size={34}
+              className="-mt-1 mr-2 align-middle"
+            />
+          )}
           {title}
         </h3>
         <div className="flex items-center gap-2">
           <Link
             href={href}
-            className="mr-2 text-sm font-bold text-brand-600 hover:text-brand-700"
+            className="mr-2 inline-flex items-center gap-1 text-sm font-bold text-brand-600 hover:text-brand-700"
           >
-            See all →
+            See all <UiIcon name="arrow-right" size={16} />
           </Link>
           <button
             type="button"
@@ -79,7 +86,7 @@ export default function GameRow({
             disabled={!canScroll.left}
             aria-label={`Scroll ${title} left`}
           >
-            <ChevronLeft size={20} aria-hidden />
+            <UiIcon name="chevron-left" size={20} />
           </button>
           <button
             type="button"
@@ -88,7 +95,7 @@ export default function GameRow({
             disabled={!canScroll.right}
             aria-label={`Scroll ${title} right`}
           >
-            <ChevronRight size={20} aria-hidden />
+            <UiIcon name="chevron-right" size={20} />
           </button>
         </div>
       </div>

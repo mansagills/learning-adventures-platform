@@ -2,6 +2,7 @@ import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
 import { books } from '@/lib/content/books';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 export const metadata = seoMetadata({
   title: 'Interactive Ebooks for Kids | Learning Adventures',
@@ -12,17 +13,17 @@ export const metadata = seoMetadata({
 
 const steps = [
   {
-    emoji: '👀',
+    icon: 'magnifier' as const,
     title: 'Read a free sample',
     text: 'Flip through the first pages of any book right here on the site.',
   },
   {
-    emoji: '📖',
+    icon: 'open-book' as const,
     title: 'Get the interactive ebook',
     text: 'Buy and read the full story in our interactive ebook reader.',
   },
   {
-    emoji: '🎮',
+    icon: 'controller' as const,
     title: 'Play the games',
     text: 'Every book comes with free games that continue the adventure.',
   },
@@ -71,9 +72,7 @@ export default function BooksPage() {
                 <span className="absolute -top-4 left-6 flex h-8 w-8 items-center justify-center rounded-full border-2 border-pg-border bg-pg-yellow text-sm font-extrabold text-ink-900">
                   {index + 1}
                 </span>
-                <p className="text-4xl" aria-hidden>
-                  {step.emoji}
-                </p>
+                <SiteIcon name={step.icon} size={48} />
                 <h3 className="mt-3 font-display text-xl font-bold text-ink-900">
                   {step.title}
                 </h3>

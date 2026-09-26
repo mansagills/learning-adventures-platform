@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import Container from '@/components/Container';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
 import BookCard from '@/components/books/BookCard';
@@ -9,6 +8,8 @@ import { getGamesBySubject } from '@/lib/content/games';
 import { getBooksBySubject } from '@/lib/content/books';
 import { getSubject, subjects } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
+import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface SubjectPageProps {
   params: { subject: string };
@@ -54,17 +55,16 @@ export default function SubjectPage({ params }: SubjectPageProps) {
             href="/games"
             className="inline-flex items-center gap-1 text-sm font-bold text-ink-600 hover:text-brand-600"
           >
-            <ArrowLeft size={16} aria-hidden /> All games
+            <UiIcon name="arrow-left" size={16} /> All games
           </Link>
           <div className="mt-4 flex items-center gap-5">
             <span
               className={cn(
-                'flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border-2 border-pg-border text-4xl shadow-pop',
-                subject.theme.solid
+                'flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border-2 border-pg-border shadow-pop',
+                subject.theme.soft
               )}
-              aria-hidden
             >
-              {subject.emoji}
+              <SiteIcon name={subject.icon} size={56} />
             </span>
             <div>
               <h1 className="font-display text-4xl font-extrabold text-ink-900 md:text-5xl">
@@ -104,9 +104,7 @@ export default function SubjectPage({ params }: SubjectPageProps) {
           </div>
         ) : (
           <div className="rounded-3xl border-2 border-dashed border-ink-300 bg-white px-6 py-16 text-center">
-            <p className="text-5xl" aria-hidden>
-              🛠️
-            </p>
+            <SiteIcon name="tools" size={64} />
             <h2 className="mt-3 font-display text-2xl font-bold text-ink-900">
               {subject.name} games are on the way
             </h2>

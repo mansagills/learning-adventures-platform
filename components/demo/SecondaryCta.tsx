@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import Container from '@/components/Container';
+import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 const facts = [
   { label: 'Free to play', color: 'bg-pg-mint', text: '' },
@@ -30,22 +32,20 @@ export default function SecondaryCta() {
         className="absolute right-20 top-20 hidden h-12 w-12 rotate-12 items-center justify-center rounded-sm border-2 border-white/30 bg-pg-yellow opacity-80 lg:flex"
         aria-hidden
       >
-        <span className="text-xl">🏫</span>
+        <SiteIcon name="campus" size={38} />
       </div>
       <div
         className="absolute bottom-16 left-16 hidden h-10 w-10 items-center justify-center rounded-sm border-2 border-white/30 bg-pg-mint opacity-80 lg:flex"
         aria-hidden
       >
-        <span className="text-lg">🤖</span>
+        <SiteIcon name="spark-bot" size={32} />
       </div>
 
       <Container>
         <div className="relative z-10 text-center">
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pg-border bg-white px-5 py-2.5 shadow-pop">
-            <span className="text-lg" aria-hidden>
-              🧪
-            </span>
+            <SiteIcon name="flask" size={26} />
             <span className="text-sm font-bold uppercase tracking-wide text-foreground">
               Early preview demo
             </span>
@@ -82,12 +82,7 @@ export default function SecondaryCta() {
               href="/demo/play"
               className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-white px-7 py-3.5 text-lg font-bold text-pg-violet shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-pg-yellow hover:text-foreground hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60 sm:w-auto"
             >
-              <span
-                className="flex h-6 w-6 items-center justify-center rounded-sm bg-pg-violet/20"
-                aria-hidden
-              >
-                🎮
-              </span>
+              <SiteIcon name="controller" size={30} />
               Play the demo
             </Link>
             <Link
@@ -105,9 +100,7 @@ export default function SecondaryCta() {
                 <div
                   className={`flex h-6 w-6 items-center justify-center rounded-sm ${fact.color}`}
                 >
-                  <span className={`text-xs ${fact.text}`} aria-hidden>
-                    ✓
-                  </span>
+                  <UiIcon name="check" size={16} className={fact.text} />
                 </div>
                 <span className="font-plus-jakarta text-sm font-medium">
                   {fact.label}
