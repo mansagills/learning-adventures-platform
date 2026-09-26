@@ -6,6 +6,7 @@ import {
   isCampusDemoBypassPath,
   isNoAuthCampusDemoPath,
 } from '@/lib/campusDemoAccess';
+import { isAccountOnlyRoute, matchesRoute, siteConfig } from '@/lib/siteConfig';
 
 // Routes that require a logged-in user
 const PROTECTED_ROUTES = [
@@ -25,6 +26,31 @@ const PROTECTED_ROUTES = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ── Public site (v1) ──────────────────────────────────────────────────────
+  // The old catalog page is replaced by /games.
+  if (matchesRoute(pathname, '/catalog')) {
+    return NextResponse.redirect(new URL('/games', request.url));
+  }
+
+  // With accounts switched off, account-only pages send visitors home.
+  if (!siteConfig.features.accounts && isAccountOnlyRoute(pathname)) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  if (!siteConfig.features.accounts) {
+    // Admin tools need a signed-in admin, which can't exist while accounts
+    // are off, so send those home too.
+    if (
+      matchesRoute(pathname, '/internal') ||
+      matchesRoute(pathname, '/staging')
+    ) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    // Everything else is public: skip the Supabase session check entirely so
+    // page loads never wait on a network call to Supabase.
+    return NextResponse.next();
+  }
 
   if (isNoAuthCampusDemoPath(pathname, request.nextUrl.searchParams)) {
     return NextResponse.next();

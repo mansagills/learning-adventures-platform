@@ -7,6 +7,16 @@ This comprehensive plan covers the complete development roadmap for the Learning
 **Future Enhancement Time**: 6-8 weeks (Phase 6 - AI Agent Studio)
 **Implementation Approach**: Incremental, one-day-at-a-time development with phase completion milestones
 
+## 🌐 v1 PUBLIC SITE (current focus, September 2026)
+
+Learning Adventures' offering changed, so the public site was rebuilt around what exists today:
+mini-games by subject, interactive ebooks that go with the games, and a showcase demo of the
+Learning Adventures World. The full plan and progress log is `docs/V1_WEBSITE_REBUILD_PLAN.md`
+(Phases 1–6 COMPLETED ✅); go-live steps are in `docs/V1_GO_LIVE_CHECKLIST.md`.
+
+- The site runs with no backend or secrets. Content comes from `lib/content/`.
+- Everything in this plan (accounts, dashboards, courses, admin, agents) is **kept but hidden** behind `NEXT_PUBLIC_ENABLE_ACCOUNTS` (off in v1). The phases below are paused, not deleted, and resume when accounts return.
+
 ## 🚦 CURRENT DEVELOPMENT STATUS
 **Active Development Plan**: COMPREHENSIVE_PLATFORM_PLAN.md + 2D_GAME_WORLD_PLAN.md (parallel track)
 **Last Completed**: Phase 3E - Gamification & Social Features (COMPLETE) ✅

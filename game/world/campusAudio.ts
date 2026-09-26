@@ -165,6 +165,12 @@ export function playPurchase(): void {
 // ─── Ambience: soft looping pad ──────────────────────────────────────────────
 
 /** Start the ambient campus pad (idempotent — no-op if already running). */
+/**
+ * NOT CURRENTLY CALLED. The pad below reads as a drone rather than music, so
+ * both call sites (GatherCampusScene.create and WelcomeOverlay's dismiss
+ * handler) are commented out pending a decision on real background music.
+ * Kept intact so re-enabling is restoring those two calls.
+ */
 export function startAmbience(): void {
   const c = ensureContext();
   if (!c || !masterGain || ambience) return;

@@ -5,18 +5,23 @@ import { EventBus } from '@/components/phaser/EventBus';
 
 /**
  * QuestTracker — HUD chip showing the active demo quest objective.
- * Listens to 'quest-updated' from the Phaser quest flow (game/world/mathQuest.ts).
+ * Listens to 'quest-updated' from the Phaser quest flow. Quest-agnostic:
+ * snapshots may come from any quest module (mathQuest, chapter0, ...) — a
+ * snapshot can carry its own `icon` and `celebrateText`; the legacy
+ * mathQuest stages fall back to the icon table below.
  */
 
 interface QuestSnapshot {
-  stage: 'available' | 'gather' | 'return' | 'play' | 'complete';
+  stage: string;
   collected: number;
   total: number;
   objective: string;
   hint?: string;
+  icon?: string;
+  celebrateText?: string;
 }
 
-const STAGE_ICON: Record<QuestSnapshot['stage'], string> = {
+const STAGE_ICON: Record<string, string> = {
   available: '❗',
   gather: '🔋',
   return: '↩️',
@@ -26,14 +31,14 @@ const STAGE_ICON: Record<QuestSnapshot['stage'], string> = {
 
 export function QuestTracker() {
   const [quest, setQuest] = useState<QuestSnapshot | null>(null);
-  const [celebrate, setCelebrate] = useState(false);
+  const [celebrate, setCelebrate] = useState<string | null>(null);
 
   useEffect(() => {
     const handleUpdate = (snapshot: QuestSnapshot) => {
       setQuest((prev) => {
         if (prev && prev.stage !== 'complete' && snapshot.stage === 'complete') {
-          setCelebrate(true);
-          setTimeout(() => setCelebrate(false), 4000);
+          setCelebrate(snapshot.celebrateText ?? '🏁 Racing License earned!');
+          setTimeout(() => setCelebrate(null), 4000);
         }
         return snapshot;
       });
@@ -64,7 +69,7 @@ export function QuestTracker() {
           QUEST
         </p>
         <p className="text-white text-sm leading-snug">
-          <span aria-hidden className="mr-1.5">{STAGE_ICON[quest.stage]}</span>
+          <span aria-hidden className="mr-1.5">{quest.icon ?? STAGE_ICON[quest.stage] ?? '❗'}</span>
           {quest.objective}
         </p>
         {quest.hint && (
@@ -94,7 +99,7 @@ export function QuestTracker() {
       {celebrate && (
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
           <div className="bg-yellow-400 text-yellow-900 font-extrabold text-2xl px-10 py-4 rounded-2xl shadow-2xl animate-bounce">
-            🏁 Racing License earned!
+            {celebrate}
           </div>
         </div>
       )}

@@ -1,48 +1,67 @@
 import Link from 'next/link';
-import Container from './Container';
-import Button from './Button';
+import Container from '@/components/Container';
 
 export default function HowItWorks() {
   const steps = [
     {
       number: '01',
-      title: 'Create Your Character',
+      title: 'Pick Your Look',
       description:
-        'Pick your look, name your hero, and choose your starting gear. Your adventure identity is yours to keep.',
-      emoji: '🧙',
+        'Choose a name and one of six characters. The demo remembers them on this device.',
+      emoji: '🧑‍🎨',
       color: 'violet' as const,
     },
     {
       number: '02',
       title: 'Explore the Campus',
       description:
-        'Roam a living pixel world — discover buildings, meet quirky NPCs, and find hidden secrets around every corner.',
+        'Walk the Academy with the arrow keys or WASD (or the on-screen joystick on a phone) and find every subject building.',
       emoji: '🗺️',
       color: 'pink' as const,
     },
     {
       number: '03',
-      title: 'Go on Quests',
+      title: 'Follow the Story',
       description:
-        'Accept missions, solve challenges, and battle through mini-games to earn XP, coins, and rare gear.',
-      emoji: '⚔️',
+        'Talk to Jaylen, SPARK and the students around campus, and help with the first story quests.',
+      emoji: '💬',
       color: 'yellow' as const,
     },
     {
       number: '04',
-      title: 'Level Up',
+      title: 'Play and Earn',
       description:
-        'Unlock new areas, power up your character, and collect badges as you grow stronger — and smarter.',
-      emoji: '🏆',
+        'Play mini-games inside the buildings, earn demo XP, and spend it in the campus shop.',
+      emoji: '🎮',
       color: 'mint' as const,
     },
   ];
 
   const colorClasses = {
-    violet: { bg: 'bg-pg-violet', text: 'text-pg-violet', shadow: 'shadow-pop' },
-    pink: { bg: 'bg-pg-pink', text: 'text-pg-pink', shadow: 'shadow-pop' },
-    yellow: { bg: 'bg-pg-yellow', text: 'text-pg-yellow', shadow: 'shadow-pop' },
-    mint: { bg: 'bg-pg-mint', text: 'text-pg-mint', shadow: 'shadow-pop' },
+    violet: {
+      bg: 'bg-pg-violet',
+      text: 'text-pg-violet',
+      onBg: 'text-white',
+      shadow: 'shadow-pop',
+    },
+    pink: {
+      bg: 'bg-pg-pink',
+      text: 'text-coral-600',
+      onBg: 'text-ink-900',
+      shadow: 'shadow-pop',
+    },
+    yellow: {
+      bg: 'bg-pg-yellow',
+      text: 'text-sunshine-700',
+      onBg: 'text-ink-900',
+      shadow: 'shadow-pop',
+    },
+    mint: {
+      bg: 'bg-pg-mint',
+      text: 'text-grass-700',
+      onBg: 'text-ink-900',
+      shadow: 'shadow-pop',
+    },
   };
 
   return (
@@ -58,14 +77,14 @@ export default function HowItWorks() {
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
             <span className="text-lg">🎮</span>
             <span className="text-sm font-bold text-foreground uppercase tracking-wide">
-              How It Works
+              How the Demo Works
             </span>
           </div>
 
           <h2 className="font-outfit text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             Your Quest Starts{' '}
             <span className="relative inline-block">
-              <span className="text-pg-pink">Here</span>
+              <span className="text-coral-600">Here</span>
               <svg
                 className="absolute -bottom-1 left-0 w-full h-3"
                 viewBox="0 0 200 8"
@@ -83,7 +102,7 @@ export default function HowItWorks() {
           </h2>
 
           <p className="font-plus-jakarta text-xl text-foreground/70 max-w-2xl mx-auto">
-            Four steps from sign-up to legendary adventurer.
+            Here&apos;s what you can do in the demo today. No sign-up needed.
           </p>
         </div>
 
@@ -115,18 +134,22 @@ export default function HowItWorks() {
                 )}
 
                 {/* Step Card */}
-                <div className="card-sticker group hover:-translate-y-1 transition-all duration-200 ease-bounce text-center relative">
+                <div className="card-sticker group p-6 hover:-translate-y-1 transition-all duration-200 ease-bounce text-center relative">
                   <div
                     className={`w-20 h-20 ${colors.bg} border-2 border-pg-border rounded-xl ${colors.shadow} flex items-center justify-center mx-auto -mt-2 mb-4 group-hover:scale-110 transition-transform duration-200`}
                   >
-                    <span className="font-outfit text-2xl font-extrabold text-white">
+                    <span
+                      className={`font-outfit text-2xl font-extrabold ${colors.onBg}`}
+                    >
                       {step.number}
                     </span>
                   </div>
 
                   <div className="text-4xl mb-4">{step.emoji}</div>
 
-                  <h3 className={`font-outfit text-xl font-bold ${colors.text} mb-3`}>
+                  <h3
+                    className={`font-outfit text-xl font-bold ${colors.text} mb-3`}
+                  >
                     {step.title}
                   </h3>
                   <p className="font-plus-jakarta text-foreground/70 text-sm leading-relaxed">
@@ -149,24 +172,25 @@ export default function HowItWorks() {
             </div>
 
             <h3 className="font-outfit text-3xl font-extrabold text-foreground mb-4">
-              Ready to Begin?
+              Ready to explore?
             </h3>
             <p className="font-plus-jakarta text-lg text-foreground/70 mb-8">
-              Your character is waiting. The world is open. What happens next is
-              up to you.
+              The demo runs right in your browser. Progress is saved on this
+              device, and you can restart any time.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/world">
-                <Button variant="candy" size="lg">
-                  <span className="w-6 h-6 bg-white/20 rounded-sm flex items-center justify-center mr-2">
-                    🌍
-                  </span>
-                  Enter the World
-                </Button>
+              <Link
+                href="/demo/play"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-7 py-3.5 text-lg font-bold text-white shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
+              >
+                <span
+                  className="flex h-6 w-6 items-center justify-center rounded-sm bg-white/20"
+                  aria-hidden
+                >
+                  🎮
+                </span>
+                Play the demo
               </Link>
-              <Button variant="outline-pop" size="lg">
-                Watch a Preview →
-              </Button>
             </div>
           </div>
         </div>

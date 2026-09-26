@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Container from './Container';
+import Container from '@/components/Container';
 
 export default function SocialProof() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);

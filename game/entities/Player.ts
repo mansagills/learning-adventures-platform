@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
 import { EventBus } from '@/components/phaser/EventBus';
+import { spriteFeetBody } from '../world/characterBody';
 
 /**
  * Player entity for top-down movement
@@ -22,12 +23,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   /** Optional worn accessory (e.g. a shop-bought helmet) riding above the head. */
   private wearable?: Phaser.GameObjects.Text;
   private wearableOffsetY = 28;
+  /** Gather-style name tag above the head (demo identity feature). */
+  private nameLabel?: Phaser.GameObjects.Text;
+  private nameLabelOffsetY = 48;
   private handleTeleport!: (data: { x: number; y: number; scene?: string }) => void;
   private handleSpeedChange!: (data: { speed: number }) => void;
   private handleTouchMove!: (data: { x: number; y: number }) => void;
   private handleWorldPause!: (paused: boolean) => void;
   private handleForceSave!: () => void;
   private handleSetWearable!: (data: { emoji: string | null; offsetY?: number }) => void;
+  private handleSetPlayerName!: (data: { name: string | null }) => void;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
     super(scene, x, y, texture);
@@ -39,12 +44,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Scale sprite to 64x64 display (sprites are 96x96 per frame)
     this.setDisplaySize(64, 64);
 
-    // Configure physics body
+    // Configure physics body — a shallow box at the feet, shared with the
+    // NPCs via characterBody.ts so every character collides identically.
     if (this.body) {
       const body = this.body as Phaser.Physics.Arcade.Body;
+      const feet = spriteFeetBody();
       body.setCollideWorldBounds(true);
-      body.setSize(40, 40);   // Collision box — slightly smaller than display
-      body.setOffset(28, 40); // Offset within 96px frame to align feet
+      body.setSize(feet.width, feet.height);
+      body.setOffset(feet.offsetX, feet.offsetY);
     }
 
     // Setup controls
@@ -162,12 +169,38 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.wearable.setVisible(true);
     };
 
+    // Name tag: null/empty clears it. Same visual language as the NPC
+    // nameTag (TalkableNPC) so the player reads as one of the campus crowd.
+    this.handleSetPlayerName = (data: { name: string | null }) => {
+      if (!data.name) {
+        this.nameLabel?.setVisible(false);
+        return;
+      }
+      if (!this.nameLabel) {
+        this.nameLabel = this.scene.add.text(this.x, this.y - this.nameLabelOffsetY, data.name, {
+          fontSize: '12px',
+          fontFamily: 'monospace',
+          color: '#ffffff',
+          backgroundColor: '#1f2937e6',
+          padding: { x: 6, y: 2 },
+          align: 'center',
+        });
+        this.nameLabel.setOrigin(0.5, 1);
+        this.nameLabel.setDepth(this.depth + 1);
+      } else {
+        this.nameLabel.setText(data.name);
+        this.nameLabel.setPosition(this.x, this.y - this.nameLabelOffsetY);
+      }
+      this.nameLabel.setVisible(true);
+    };
+
     EventBus.on('teleport-player', this.handleTeleport);
     EventBus.on('player-speed-change', this.handleSpeedChange);
     EventBus.on('touch-move', this.handleTouchMove);
     EventBus.on('world-pause', this.handleWorldPause);
     EventBus.on('force-save-position', this.handleForceSave);
     EventBus.on('set-wearable', this.handleSetWearable);
+    EventBus.on('set-player-name', this.handleSetPlayerName);
   }
 
   public update(time: number, _delta: number): void {
@@ -175,6 +208,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // it stays aligned after a teleport or during a modal.
     if (this.wearable && this.wearable.visible) {
       this.wearable.setPosition(this.x, this.y - this.wearableOffsetY);
+    }
+    if (this.nameLabel && this.nameLabel.visible) {
+      this.nameLabel.setPosition(this.x, this.y - this.nameLabelOffsetY);
     }
     if (this.isPaused) return;
     this.handleMovement();
@@ -288,8 +324,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     EventBus.off('world-pause', this.handleWorldPause);
     EventBus.off('force-save-position', this.handleForceSave);
     EventBus.off('set-wearable', this.handleSetWearable);
+    EventBus.off('set-player-name', this.handleSetPlayerName);
     EventBus.emit('touch-move', { x: 0, y: 0 });
     this.wearable?.destroy();
+    this.nameLabel?.destroy();
 
     super.destroy(fromScene);
   }

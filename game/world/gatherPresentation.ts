@@ -168,6 +168,7 @@ export const GATHER_STATIONS: GatherStationDef[] = [
   { id: 'math-bingo',  name: 'Multiplication Bingo',adventureId: 'multiplication-bingo-bonanza',  texture: 'arcade-cabinet', x: 14 * T, y: 27 * T },
   { id: 'math-monster',name: 'Number Monsters',     adventureId: 'number-monster-feeding',        texture: 'desk-computer',  x: 18 * T, y: 27 * T },
   { id: 'math-jep',    name: 'Math Jeopardy',       adventureId: 'math-jeopardy-junior',          texture: 'desk-computer',  x: 8 * T,  y: 32 * T },
+  { id: 'math-nullrun',name: 'Null Run',            adventureId: 'null-run',                      texture: 'arcade-cabinet', x: 12 * T, y: 32 * T },
   // Discovery Lab (interior cols 35-44, rows 5-14). Dr. Spark at (40,10).
   { id: 'sci-crystal', name: 'Crystal Chemistry',   adventureId: 'crystal-cave-chemistry',        texture: 'desk-computer',  x: 36 * T, y: 6 * T },
   { id: 'sci-solar',   name: 'Solar System',        adventureId: 'solar-system-explorer',         texture: 'arcade-cabinet', x: 43 * T, y: 6 * T },

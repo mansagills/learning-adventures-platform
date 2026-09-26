@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
 import AppSideNav from './AppSideNav';
+import { siteConfig } from '@/lib/siteConfig';
 
 /**
  * Routes that should show the side navigation
@@ -28,8 +29,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user: session, status } = useAuth();
   const pathname = usePathname();
 
-  // Check if current route should show side nav
+  // Check if current route should show side nav (only when accounts are on)
   const shouldShowSideNav =
+    siteConfig.features.accounts &&
     session &&
     status === 'authenticated' &&
     (APP_ROUTES.some((route) => pathname.startsWith(route)) ||

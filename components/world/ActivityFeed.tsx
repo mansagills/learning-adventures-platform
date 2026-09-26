@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { EventBus } from '@/components/phaser/EventBus';
+import { getIdentity } from '@/game/world/playerIdentity';
 
 /**
  * ActivityFeed — ambient "other students are playing" ticker for the campus.
@@ -91,11 +92,19 @@ export function ActivityFeed() {
     };
 
     // Quest completion: the player's own achievement headlines the feed
-    const handleQuestCompleted = () => {
+    const handleQuestCompleted = (data?: { questId?: string }) => {
       const id = ++idRef.current;
+      // Demo identity name when chosen ("Mansa earned..."), else "YOU"
+      const playerName = getIdentity().name || 'YOU';
+      const entry =
+        data?.questId === 'chapter-0-first-spark'
+          ? { icon: '✨', text: `${playerName}'s Spark just woke up!` }
+          : data?.questId === 'chapter-1-null-run'
+          ? { icon: '🧊', text: `${playerName} recovered a Null Fragment!` }
+          : { icon: '🏁', text: `${playerName} earned the Racing License!` };
       setEntries((prev) => [
         ...prev.slice(-(MAX_VISIBLE - 1)),
-        { id, icon: '🏁', text: 'YOU earned the Racing License!' },
+        { id, ...entry },
       ]);
       setTimeout(() => {
         setEntries((prev) => prev.filter((e) => e.id !== id));
@@ -117,7 +126,10 @@ export function ActivityFeed() {
   return (
     <div
       className="absolute hidden md:flex flex-col gap-1.5 pointer-events-none"
-      style={{ left: '212px', bottom: '80px' }}
+      // Sits beside the minimap horizontally, but lifted above the bottom-
+      // centre conversation card (up to ~222px tall) so entries are not
+      // hidden behind it while an NPC is talking.
+      style={{ left: '212px', bottom: '250px' }}
       aria-live="polite"
       aria-label="Campus activity feed"
     >

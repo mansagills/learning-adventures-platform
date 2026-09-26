@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { siteConfig } from '@/lib/siteConfig';
 import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
@@ -24,13 +25,16 @@ interface UseAuthReturn {
  * Returns the same shape: { user, status }
  * Components can switch from useSession() to useAuth() with no other changes.
  */
-// No Supabase env (e.g. fresh clone / worktree without .env.local): report
-// signed-out instead of crashing the whole client tree. Mirrors the guard in
-// lib/supabase/middleware.ts.
-const hasSupabaseEnv = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+// Report signed-out without ever contacting Supabase when accounts are
+// switched off (v1 public site) or when there is no Supabase env (e.g. fresh
+// clone / worktree without .env.local). Mirrors the guards in middleware.ts
+// and lib/supabase/middleware.ts.
+const authEnabled =
+  siteConfig.features.accounts &&
+  Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
 /**
  * The AuthUser to use when the profile lookup fails.
@@ -59,8 +63,10 @@ function fallbackUser(supabaseUser: User): AuthUser {
 
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  const supabase = hasSupabaseEnv ? createClient() : null;
+  const [status, setStatus] = useState<
+    'loading' | 'authenticated' | 'unauthenticated'
+  >('loading');
+  const supabase = authEnabled ? createClient() : null;
 
   useEffect(() => {
     if (!supabase) {
@@ -83,7 +89,8 @@ export function useAuth(): UseAuthReturn {
             id: supabaseUser.id,
             email: supabaseUser.email ?? '',
             name: profile.name ?? supabaseUser.user_metadata?.full_name ?? null,
-            image: profile.image ?? supabaseUser.user_metadata?.avatar_url ?? null,
+            image:
+              profile.image ?? supabaseUser.user_metadata?.avatar_url ?? null,
             role: profile.role ?? 'STUDENT',
             gradeLevel: profile.gradeLevel ?? null,
             subjects: profile.subjects ?? [],
@@ -103,7 +110,9 @@ export function useAuth(): UseAuthReturn {
     supabase.auth.getUser().then(({ data: { user: u } }) => loadUser(u));
 
     // Listen for auth state changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       loadUser(session?.user ?? null);
     });
 

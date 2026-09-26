@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Faq from '@/components/Faq';
+import Faq from '@/components/demo/Faq';
 import { analytics } from '@/lib/analytics';
 
 // Mock the analytics module

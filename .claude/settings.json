@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$FILE\" =~ \\.(ts|tsx|js|jsx|css|json|md)$ ]]; then npx prettier --write \"$FILE\" 2>/dev/null || true; fi"
+            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; case \"$FILE\" in *.ts|*.tsx|*.js|*.jsx|*.css|*.json|*.md) npx prettier --write \"$FILE\" 2>/dev/null || true ;; esac"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; if [[ \"$FILE\" =~ \\.env(\\.local|\\.example)?$ ]]; then echo 'BLOCKED: .env files contain real API keys and secrets. Edit these files manually in your editor.'; exit 2; fi"
+            "command": "FILE=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; case \"$FILE\" in *.env|*.env.local|*.env.example) echo 'BLOCKED: .env files contain real API keys and secrets. Edit these files manually in your editor.'; exit 2 ;; esac"
           }
         ]
       }

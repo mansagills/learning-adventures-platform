@@ -80,7 +80,7 @@ export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full flex items-center justify-center bg-[#FFFDF5]"
+      className="relative w-full h-full flex items-center justify-center bg-[#050810]"
     >
       <div id="phaser-game-container" className="w-full h-full" />
 

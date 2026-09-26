@@ -1,18 +1,18 @@
+import { seoConfig } from '@/lib/seo';
+
 export function GET(): Response {
   const robotsTxt = `User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://learningadventures.org/sitemap.xml
+Sitemap: ${seoConfig.siteUrl}/sitemap.xml
 
-# Disallow private/admin areas
-Disallow: /admin/
+# Not for search results: APIs, build files, admin/staging and dev tools
 Disallow: /api/
 Disallow: /_next/
-Disallow: /dashboard/
-
-# Crawl-delay for respectful crawling
-Crawl-delay: 1`;
+Disallow: /internal/
+Disallow: /staging/
+Disallow: /dev/`;
 
   return new Response(robotsTxt, {
     headers: {

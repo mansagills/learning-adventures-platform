@@ -54,7 +54,9 @@ export function ExplorationTracker() {
   return (
     <>
       <div
-        className="absolute top-44 left-4 px-3 py-2 pointer-events-none min-w-[10rem]"
+        // top-60 (240px), not top-44: the quest card above starts at 96px and
+        // grows with the objective text, so it needs the headroom.
+        className="absolute top-60 left-4 px-3 py-2 pointer-events-none min-w-[10rem]"
         style={{
           background: 'rgba(5,8,16,0.82)',
           border: '1px solid var(--hud-accent, #00ccff)',

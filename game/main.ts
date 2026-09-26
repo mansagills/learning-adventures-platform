@@ -47,6 +47,16 @@ export const createPhaserGame = (
 
     // Scene configuration. Gather buildings are open rooms (no interior scene),
     // so the gather variant needs only its single scene.
+    //
+    // WARNING for anyone adding a route that uses the non-gather variant:
+    // OpenWorldScene and MathBuildingScene load tilemap PNGs that no longer
+    // exist in this tree. This demo ships two routes (/ and
+    // /dev/campus-sandbox), both of which use variant 'gather', so 33 of the
+    // 35 files under public/game-assets/tilemaps/ were never fetched -- 49 MB
+    // served to every visitor for nothing, most of it art with no recorded
+    // licence. They were deleted; see docs/ASSET_INVENTORY.md. Restore them
+    // from the root tree (which still has all 35) before wiring up a route
+    // that renders these scenes, or their ground and walls will 404.
     scene:
       variant === 'gather'
         ? [GatherCampusScene]

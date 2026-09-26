@@ -15,9 +15,8 @@ interface InternalLayoutProps {
 export default function InternalLayout({ children }: InternalLayoutProps) {
   const { user: session } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await createClient().auth.signOut();
     router.push('/');
   };
 
