@@ -5,8 +5,8 @@
 ### Current Development Status
 
 **Active Development Plan**: docs/V1_WEBSITE_REBUILD_PLAN.md (v1 public site: games by subject, interactive ebooks, Learning Adventures World demo)
-**Last Completed**: v1 Phase 6 - Polish, docs, cutover prep ✅ (all v1 build phases done)
-**Next Phase**: UX changes on PR #198, then merge to go live (Option A in docs/V1_GO_LIVE_CHECKLIST.md)
+**Last Completed**: v1 is LIVE ✅ on learningadventures.org (PR #198 merged 2026-09-26 as `1f0d9db`; all 6 phases plus launch prep done)
+**Next Phase**: v1 UX changes. The site owner will describe them at the start of the session; ask for the page, the problem and the desired result (screenshots help) before coding. Record them as a "UX changes" section in docs/V1_WEBSITE_REBUILD_PLAN.md and work through them one at a time on a feature branch off `main`, with a PR to `main` (merging to `main` deploys to production).
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
 **Vercel**: the `learning-adventures-platform` project deploys again (fixed 2026-09-26: paused Supabase integration + stale `pnpm-lock.yaml`; see docs/VERCEL_DEPLOY_FAILURE_NOTES.md). Use **npm** only (no pnpm/yarn lockfiles), and keep the Supabase integration disconnected from this project while accounts are off.
@@ -24,11 +24,29 @@
 - **Colors**: text on colored backgrounds must pass WCAG AA contrast. Use `subject.theme.onSolid` for text on a subject's solid color.
 - **Going live**: `docs/V1_GO_LIVE_CHECKLIST.md`.
 
+### 🧭 Handoff notes (read first)
+
+- **Where things stand**: the v1 site is live. Production = Vercel project `learning-adventures-platform`, which deploys `main` automatically. Every PR gets a Vercel preview (behind Vercel login).
+- **Owner decisions that still hold**:
+  - accounts stay off until paid features exist (it's a kids' site)
+  - books are placeholders until real ones exist
+  - the demo is called "Learning Adventures World demo" (header: "World Demo")
+  - never name the ebook platform
+  - the legal pages are approved for now and will be refined later
+  - the contact email is info@learningadventures.org (pending team confirmation)
+- **Run it locally**: `npm install && npm run dev` (http://localhost:3000). For real speed, use `npm run build && npm start`; dev mode compiles each page on first visit.
+- **Before pushing**: `npx tsc --noEmit`, `npm run lint` (0 errors; 6 known warnings), `npm test`, `npm run build`.
+- **Open follow-ups** (not UX; do only when asked):
+  - retire `demo/la-campus-demo` and its Vercel project `learning-adventures-platform-2mxb` in a separate PR
+  - the owner will rotate the flagged `GEMINI_API_KEY` in Vercel
+  - reconnect Supabase only when accounts return
+- **The owner is new to coding**: explain changes and the reasons for them in plain language.
+
 ### 📋 Development Session Protocol
 
 **IMPORTANT**: When starting any development session, ALWAYS:
 
-1. **Check Development Status**: Read `COMPREHENSIVE_PLATFORM_PLAN.md` to understand current progress
+1. **Check Development Status**: Read `docs/V1_WEBSITE_REBUILD_PLAN.md` (current work) and the status lines above. `COMPREHENSIVE_PLATFORM_PLAN.md` is the paused account-platform plan; read it only for account/dashboard work
 2. **Review Last Completed Phase**: Look for the "COMPLETED" marker in the plan
 3. **Continue from Next Phase**: Pick up from the next uncompleted phase/day
 4. **Update Progress**: When completing a phase, mark it as "COMPLETED ✅" in the plan
