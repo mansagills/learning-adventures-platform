@@ -77,7 +77,7 @@ describe('site icons', () => {
     }
   });
 
-  it('public pages use SiteIcon instead of emojis', () => {
+  it('public pages use SiteIcon/UiIcon instead of emojis and text arrows', () => {
     // Public-site source files. SocialProof.tsx is left out because it is not
     // rendered (see components/demo/DemoLanding.tsx). © and ® are allowed.
     const roots = [
@@ -100,7 +100,8 @@ describe('site icons', () => {
       'lib/content',
     ].map((path) => resolve(__dirname, '../..', path));
     const skip = new Set(['SocialProof.tsx']);
-    const emoji = /(?![©®])\p{Extended_Pictographic}/u;
+    // Arrows and ticks are drawn with UiIcon too, so they count as well.
+    const emoji = /(?![©®])\p{Extended_Pictographic}|[←→✓✔]/u;
 
     const files = roots.flatMap(function walk(path: string): string[] {
       if (statSync(path).isDirectory()) {

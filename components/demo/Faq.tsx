@@ -5,6 +5,7 @@ import Container from '@/components/Container';
 import Link from 'next/link';
 import { analytics } from '@/lib/analytics';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface FAQItem {
   id: string;
@@ -167,19 +168,11 @@ export default function Faq() {
                     <div
                       className={`flex-shrink-0 w-10 h-10 ${colorClass.icon} border-2 border-pg-border rounded-full flex items-center justify-center shadow-pop transition-transform duration-200 ${isOpen(item.id) ? 'rotate-180' : ''}`}
                     >
-                      <svg
-                        className="w-5 h-5 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      <UiIcon
+                        name="chevron-down"
+                        size={20}
+                        className="text-white"
+                      />
                     </div>
                   </button>
 

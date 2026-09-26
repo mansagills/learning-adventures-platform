@@ -2,8 +2,8 @@
 
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface SamplePageViewerProps {
   title: string;
@@ -105,7 +105,7 @@ export default function SamplePageViewer({
           disabled={index === 0}
           aria-label="Previous page"
         >
-          <ChevronLeft size={22} aria-hidden />
+          <UiIcon name="chevron-left" size={22} />
         </button>
 
         <div className="flex flex-col items-center gap-2">
@@ -136,7 +136,7 @@ export default function SamplePageViewer({
           disabled={index === last}
           aria-label="Next page"
         >
-          <ChevronRight size={22} aria-hidden />
+          <UiIcon name="chevron-right" size={22} />
         </button>
       </div>
     </div>

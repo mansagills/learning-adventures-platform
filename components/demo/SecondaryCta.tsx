@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Container from '@/components/Container';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 const facts = [
   { label: 'Free to play', color: 'bg-pg-mint', text: '' },
@@ -99,9 +100,7 @@ export default function SecondaryCta() {
                 <div
                   className={`flex h-6 w-6 items-center justify-center rounded-sm ${fact.color}`}
                 >
-                  <span className={`text-xs ${fact.text}`} aria-hidden>
-                    ✓
-                  </span>
+                  <UiIcon name="check" size={16} className={fact.text} />
                 </div>
                 <span className="font-plus-jakarta text-sm font-medium">
                   {fact.label}

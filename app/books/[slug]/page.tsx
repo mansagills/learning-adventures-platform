@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
 import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
 import BookCover from '@/components/books/BookCover';
@@ -13,6 +12,7 @@ import { getGame, type PlayableGame } from '@/lib/content/games';
 import { getSubject } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface BookPageProps {
   params: { slug: string };
@@ -58,7 +58,7 @@ export default function BookPage({ params }: BookPageProps) {
             <Link href="/books" className="hover:text-brand-600">
               Books
             </Link>
-            <ChevronRight size={14} aria-hidden />
+            <UiIcon name="chevron-right" size={14} />
             <span className="truncate text-ink-800" aria-current="page">
               {book.title}
             </span>

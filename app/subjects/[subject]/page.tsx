@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import Container from '@/components/Container';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
 import BookCard from '@/components/books/BookCard';
@@ -10,6 +9,7 @@ import { getBooksBySubject } from '@/lib/content/books';
 import { getSubject, subjects } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface SubjectPageProps {
   params: { subject: string };
@@ -55,7 +55,7 @@ export default function SubjectPage({ params }: SubjectPageProps) {
             href="/games"
             className="inline-flex items-center gap-1 text-sm font-bold text-ink-600 hover:text-brand-600"
           >
-            <ArrowLeft size={16} aria-hidden /> All games
+            <UiIcon name="arrow-left" size={16} /> All games
           </Link>
           <div className="mt-4 flex items-center gap-5">
             <span

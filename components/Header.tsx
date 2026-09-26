@@ -3,16 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { siteConfig } from '@/lib/siteConfig';
 import { subjects } from '@/lib/content/subjects';
 import Container from './Container';
 import Button from './Button';
-import Icon from './Icon';
 import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 const NAV_LINKS = [
   { href: '/games', label: 'Games' },
@@ -81,9 +80,7 @@ export default function Header() {
             href="/"
             className="flex items-center space-x-2 font-display font-bold text-xl text-brand-500"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-accent-500 rounded-lg flex items-center justify-center">
-              <Icon name="academic" size={20} className="text-white" />
-            </div>
+            <SiteIcon name="logo-bolt" size={34} />
             <span>Learning Adventures</span>
           </Link>
 
@@ -109,10 +106,10 @@ export default function Header() {
                 aria-haspopup="true"
               >
                 Subjects
-                <ChevronDown
+                <UiIcon
+                  name="chevron-down"
                   size={16}
                   className={`transition-transform ${isSubjectsOpen ? 'rotate-180' : ''}`}
-                  aria-hidden
                 />
               </button>
               {isSubjectsOpen && (
@@ -171,7 +168,7 @@ export default function Header() {
                     href="/internal"
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-600 transition-all"
                   >
-                    <Icon name="settings" size={16} />
+                    <UiIcon name="settings" size={16} />
                     Admin
                   </Link>
                 )}
@@ -199,7 +196,7 @@ export default function Header() {
             aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
           >
-            <Icon name={isMenuOpen ? 'close' : 'menu'} size={24} />
+            <UiIcon name={isMenuOpen ? 'close' : 'menu'} size={24} />
           </button>
         </div>
 
@@ -249,7 +246,7 @@ export default function Header() {
                         href="/internal"
                         className="flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg font-medium"
                       >
-                        <Icon name="settings" size={18} />
+                        <UiIcon name="settings" size={18} />
                         Admin Dashboard
                       </Link>
                     )}

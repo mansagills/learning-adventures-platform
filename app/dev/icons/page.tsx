@@ -36,7 +36,7 @@ export default function IconPreviewPage() {
       </h1>
       <p className="mt-2 max-w-2xl text-ink-600">
         Every icon at 24, 48 and 96 pixels, the small UI icons, and the logo
-        options. Hidden on the live site.
+        mark. Hidden on the live site.
       </p>
 
       <section className="mt-10">
@@ -133,31 +133,25 @@ export default function IconPreviewPage() {
 
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-ink-900">
-          Logo options
+          Logo mark
         </h2>
-        <p className="mt-1 text-ink-600">Pick one for the header and footer.</p>
-        <div className="mt-4 space-y-4">
-          {(['logo-spark', 'logo-bolt', 'logo-la'] as const).map((name) => (
-            <div key={name} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-              <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-white px-5">
-                <SiteIcon name={name} size={36} />
-                <span className="font-display text-xl font-bold text-brand-500">
-                  Learning Adventures
-                </span>
-              </div>
-              <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-ink-900 px-5">
-                <SiteIcon name={name} size={36} />
-                <span className="font-display text-xl font-bold text-white">
-                  Learning Adventures
-                </span>
-              </div>
-              <div className="flex items-center gap-3 rounded-2xl border-2 border-pg-border bg-white px-4">
-                <SiteIcon name={name} size={96} />
-                <SiteIcon name={name} size={16} />
-                <code className="text-sm font-bold text-ink-700">{name}</code>
-              </div>
-            </div>
-          ))}
+        <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+          <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-white px-5">
+            <SiteIcon name="logo-bolt" size={34} />
+            <span className="font-display text-xl font-bold text-brand-500">
+              Learning Adventures
+            </span>
+          </div>
+          <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-ink-900 px-5">
+            <SiteIcon name="logo-bolt" size={34} />
+            <span className="font-display text-xl font-bold text-white">
+              Learning Adventures
+            </span>
+          </div>
+          <div className="flex items-center gap-3 rounded-2xl border-2 border-pg-border bg-white px-4">
+            <SiteIcon name="logo-bolt" size={96} />
+            <SiteIcon name="logo-bolt" size={16} />
+          </div>
         </div>
       </section>
 

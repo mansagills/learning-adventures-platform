@@ -28,6 +28,7 @@ import { RestartDemoButton } from '@/components/world/RestartDemoButton';
 import { StoryItemsChip } from '@/components/world/StoryItemsChip';
 import { TouchControls } from '@/components/world/TouchControls';
 import { resetDemo } from '@/game/world/demoReset';
+import UiIcon from '@/components/icons/UiIcon';
 
 const PhaserGame = dynamic(
   () => import('@/components/phaser/PhaserGame').then((mod) => mod.PhaserGame),
@@ -283,9 +284,9 @@ export default function CampusDemoExperience({
         {exitHref && (
           <Link
             href={exitHref}
-            className="shrink-0 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-ink-900 shadow-lg hover:bg-pg-yellow"
+            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-ink-900 shadow-lg hover:bg-pg-yellow"
           >
-            ← Exit demo
+            <UiIcon name="arrow-left" size={14} /> Exit demo
           </Link>
         )}
         <div className="truncate bg-indigo-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg pointer-events-none">

@@ -21,6 +21,7 @@
 - **Components**: `components/home/`, `components/play/`, `components/books/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
 - **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL` (defaults to info@learningadventures.org), `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
 - **Keep it backend-free**: public pages must not need Supabase, Prisma or secrets. Check with `npm run build` and no env vars.
+- **Icons**: use `SiteIcon` (sticker icons: subjects, sections, big buttons, logo) or `UiIcon` (small controls: arrows, close, search) from `components/icons/`; preview them all at `/dev/icons`. No emoji, Lucide or `components/Icon` on public pages: lint and `npm test` fail if they come back. The icon guide is in `docs/V1_WEBSITE_REBUILD_PLAN.md` (UX-1).
 - **Colors**: text on colored backgrounds must pass WCAG AA contrast. Use `subject.theme.onSolid` for text on a subject's solid color.
 - **Going live**: `docs/V1_GO_LIVE_CHECKLIST.md`.
 

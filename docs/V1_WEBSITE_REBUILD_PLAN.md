@@ -296,13 +296,44 @@ Out of scope for UX-1: the hidden account pages, the in-game World demo panels (
 
 Work goes in 3 phases; each needs the owner's approval before the next starts.
 
-| Phase | What                                                                                    | Status                  |
-| ----- | --------------------------------------------------------------------------------------- | ----------------------- |
-| 1     | Real screenshots on game cards                                                          | COMPLETED ✅ (approved) |
-| 2a    | Draw the icon set and show it on a preview page                                         | COMPLETED ✅ (approved) |
-| 2b    | Swap the subject and section emojis for the icons                                       | COMPLETED ✅ (approved) |
-| 3a    | Draw UI icons, a shield sticker and 3 logo options on the preview page                  | Done, awaiting approval |
-| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | Not started             |
+| Phase | What                                                                                    | Status                                            |
+| ----- | --------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| 1     | Real screenshots on game cards                                                          | COMPLETED ✅ (approved)                           |
+| 2a    | Draw the icon set and show it on a preview page                                         | COMPLETED ✅ (approved)                           |
+| 2b    | Swap the subject and section emojis for the icons                                       | COMPLETED ✅ (approved)                           |
+| 3a    | Draw UI icons, a shield sticker and 3 logo options on the preview page                  | COMPLETED ✅ (approved; owner picked `logo-bolt`) |
+| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | Done, awaiting approval                           |
+
+**Phase 3b notes:**
+
+- Public pages no longer use Lucide or the old `components/Icon.tsx`:
+  - **Header:** the `logo-bolt` mark, the Subjects menu chevron, and the phone menu and close buttons (settings shows only with accounts on)
+  - **Footer:** the `logo-bolt` mark
+  - **Homepage:**
+    - sticker icons in the hero badge and buttons
+    - "Browse all" arrow
+    - "Made for kids" tiles: ticket, bolt, shield, sparkle, each on a light tint
+    - FAQ chevrons
+  - **Game rows and game pages:** "See all" arrows and row scroll buttons; breadcrumbs; grades and time chips
+  - **Games browser:** search and clear buttons
+  - **Game player:** full-screen and close buttons; a sparkle sticker on the "Nice work!" banner
+  - **Book pages:** sample viewer arrows; ebook button (open-book sticker + external-link icon)
+  - **Subject pages:** the "All games" back arrow
+  - **Demo:**
+    - FAQ chevron
+    - quick-facts checks
+    - "Exit demo" arrow
+- Removed the logo options the owner didn't pick (`logo-spark`, `logo-la`). `/dev/icons` shows just the chosen mark.
+- **Guards:**
+  - `eslint.config.mjs` blocks `lucide-react` and `components/Icon` imports in public-site files (checked once with a throwaway import for each)
+  - the content test also fails on `←`, `→`, `✓` and `✔` in public source
+- Checked in the production build: header (desktop Subjects menu, phone menu), homepage, `/games` search and no results, a game page with the "Nice work!" banner, a book page, `/demo` FAQ and quick facts, and the footer. No script errors, no sideways scroll at 390px, and no axe violations.
+
+**Icon guide (for future work):**
+
+- `SiteIcon` (`components/icons/art.tsx`) is for content: subjects, section headings, feature tiles, big buttons, and the logo mark. These are multi-colored stickers with a navy outline.
+- `UiIcon` (`components/icons/ui.tsx`) is for controls: arrows, chevrons, close, search, full screen, clock and the like. It is one color, taken from the surrounding text.
+- New icons go in those two files and appear on `/dev/icons` automatically. Don't use emoji or other icon packs on public pages; lint and `npm test` will fail.
 
 **Phase 3a notes:**
 

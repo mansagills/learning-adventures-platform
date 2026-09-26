@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { games } from '@/lib/content/games';
 import { subjects, type SubjectId } from '@/lib/content/subjects';
 import PlayableGameCard from './PlayableGameCard';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 type SubjectFilter = SubjectId | 'all';
 
@@ -104,10 +104,10 @@ export default function GameBrowser() {
 
         <label className="relative block w-full lg:w-72">
           <span className="sr-only">Search games</span>
-          <Search
+          <UiIcon
+            name="search"
             size={18}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
-            aria-hidden
           />
           <input
             type="search"
@@ -147,7 +147,7 @@ export default function GameBrowser() {
             }}
             className="mt-4 inline-flex items-center gap-1 font-bold text-brand-600 hover:text-brand-700"
           >
-            <X size={16} aria-hidden /> Clear search
+            <UiIcon name="close" size={16} /> Clear search
           </button>
         </div>
       )}

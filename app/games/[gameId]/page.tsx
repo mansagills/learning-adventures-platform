@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChevronRight, Clock, GraduationCap } from 'lucide-react';
 import Container from '@/components/Container';
 import GamePlayer from '@/components/play/GamePlayer';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
@@ -11,6 +10,7 @@ import { getSubject } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
 import ReactGamePage from './ReactGamePage';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
 
 interface GamePageProps {
   params: { gameId: string };
@@ -55,7 +55,7 @@ export default function GamePage({ params }: GamePageProps) {
           <Link href="/games" className="hover:text-brand-600">
             Games
           </Link>
-          <ChevronRight size={14} aria-hidden />
+          <UiIcon name="chevron-right" size={14} />
           {subject && (
             <>
               <Link
@@ -64,7 +64,7 @@ export default function GamePage({ params }: GamePageProps) {
               >
                 {subject.name}
               </Link>
-              <ChevronRight size={14} aria-hidden />
+              <UiIcon name="chevron-right" size={14} />
             </>
           )}
           <span className="truncate text-ink-800" aria-current="page">
@@ -89,10 +89,10 @@ export default function GamePage({ params }: GamePageProps) {
               </span>
             )}
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-ink-700 ring-1 ring-ink-200">
-              <GraduationCap size={14} aria-hidden /> Grades {game.grades}
+              <UiIcon name="grad-cap" size={14} /> Grades {game.grades}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-ink-700 ring-1 ring-ink-200">
-              <Clock size={14} aria-hidden /> {game.estimatedTime}
+              <UiIcon name="clock" size={14} /> {game.estimatedTime}
             </span>
           </div>
         </div>
@@ -146,9 +146,9 @@ export default function GamePage({ params }: GamePageProps) {
             </h2>
             <Link
               href={`/subjects/${subject.id}`}
-              className="text-sm font-bold text-brand-600 hover:text-brand-700"
+              className="inline-flex items-center gap-1 text-sm font-bold text-brand-600 hover:text-brand-700"
             >
-              See all →
+              See all <UiIcon name="arrow-right" size={16} />
             </Link>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

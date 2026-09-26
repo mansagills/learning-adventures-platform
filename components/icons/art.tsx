@@ -984,42 +984,7 @@ export const art = {
     </>
   ),
 
-  /** Logo option: S.P.A.R.K.'s star-eyed screen as a badge. */
-  'logo-spark': (
-    <>
-      <path d="M34 7.5L37.5 2.5" strokeWidth={2} fill={none} />
-      <circle cx={38.5} cy={2.8} r={2.4} fill={c.orange} strokeWidth={1.8} />
-      <Block
-        x={3}
-        y={6}
-        w={42}
-        h={39}
-        r={12}
-        fill={c.botBody}
-        shade={c.botScreen}
-        shine={false}
-      />
-      <rect
-        x={8}
-        y={11}
-        width={32}
-        height={27}
-        rx={8}
-        fill={c.botScreen}
-        strokeWidth={2}
-      />
-      <polygon points={star(18, 23, 6.2, 2.6)} fill={c.cyan} stroke={none} />
-      <polygon points={star(30, 23, 6.2, 2.6)} fill={c.cyan} stroke={none} />
-      <path
-        d="M18.5 30.5Q24 35 29.5 30.5"
-        stroke={c.cyan}
-        strokeWidth={2.4}
-        fill={none}
-      />
-    </>
-  ),
-
-  /** Logo option: Jaylen's lightning bolt on a violet badge. */
+  /** The site logo mark: Jaylen's lightning bolt on a violet badge. */
   'logo-bolt': (
     <>
       <Block
@@ -1046,29 +1011,6 @@ export const art = {
         points={star(37, 37, 4, 1.5, 4)}
         fill={c.white}
         strokeWidth={1.6}
-      />
-    </>
-  ),
-
-  /** Logo option: an "LA" block with a bolt. */
-  'logo-la': (
-    <>
-      <Block
-        x={3}
-        y={6}
-        w={42}
-        h={39}
-        r={11}
-        fill={c.yellow}
-        shade={c.yellowShade}
-      />
-      <Label x={24} y={34} size={22}>
-        LA
-      </Label>
-      <path
-        d="M40.5 1.5L34 11H38.5L35.5 18.5L44 8H39.3Z"
-        fill={c.orange}
-        strokeWidth={2}
       />
     </>
   ),
