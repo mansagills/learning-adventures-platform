@@ -15,9 +15,12 @@ interface PhaserGameProps {
 /** True for elements the player types into (name box, search field, etc.) */
 function isTextEntry(el: Element | null): boolean {
   if (!el) return false;
-  if (el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) return true;
+  if (el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+    return true;
+  }
   if (el instanceof HTMLInputElement) {
-    return !['button', 'checkbox', 'radio', 'range', 'submit', 'reset'].includes(el.type);
+    const nonText = ['button', 'checkbox', 'radio', 'range', 'submit', 'reset'];
+    return !nonText.includes(el.type);
   }
   return (el as HTMLElement).isContentEditable === true;
 }
