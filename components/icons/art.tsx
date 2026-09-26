@@ -952,6 +952,126 @@ export const art = {
       </Label>
     </>
   ),
+
+  /** Safe for kids: a shield with a heart. */
+  shield: (
+    <>
+      <path
+        d="M24 4Q34 8.5 42 7Q43.5 30 24 44Q4.5 30 6 7Q14 8.5 24 4Z"
+        fill={c.violet}
+        stroke={none}
+      />
+      <path
+        d="M24 4Q34 8.5 42 7Q43.5 30 24 44Z"
+        fill={c.violetShade}
+        stroke={none}
+      />
+      <path
+        d="M11.5 12.5Q11.3 17 12 20.5"
+        stroke={c.white}
+        strokeWidth={2.2}
+        fill={none}
+      />
+      <path
+        d="M24 4Q34 8.5 42 7Q43.5 30 24 44Q4.5 30 6 7Q14 8.5 24 4Z"
+        fill={none}
+      />
+      <path
+        d="M24 32C15.5 26.5 16 18 21 18.5Q23 18.8 24 21Q25 18.8 27 18.5C32 18 32.5 26.5 24 32Z"
+        fill={c.pink}
+        strokeWidth={2.2}
+      />
+    </>
+  ),
+
+  /** Logo option: S.P.A.R.K.'s star-eyed screen as a badge. */
+  'logo-spark': (
+    <>
+      <path d="M34 7.5L37.5 2.5" strokeWidth={2} fill={none} />
+      <circle cx={38.5} cy={2.8} r={2.4} fill={c.orange} strokeWidth={1.8} />
+      <Block
+        x={3}
+        y={6}
+        w={42}
+        h={39}
+        r={12}
+        fill={c.botBody}
+        shade={c.botScreen}
+        shine={false}
+      />
+      <rect
+        x={8}
+        y={11}
+        width={32}
+        height={27}
+        rx={8}
+        fill={c.botScreen}
+        strokeWidth={2}
+      />
+      <polygon points={star(18, 23, 6.2, 2.6)} fill={c.cyan} stroke={none} />
+      <polygon points={star(30, 23, 6.2, 2.6)} fill={c.cyan} stroke={none} />
+      <path
+        d="M18.5 30.5Q24 35 29.5 30.5"
+        stroke={c.cyan}
+        strokeWidth={2.4}
+        fill={none}
+      />
+    </>
+  ),
+
+  /** Logo option: Jaylen's lightning bolt on a violet badge. */
+  'logo-bolt': (
+    <>
+      <Block
+        x={3}
+        y={3}
+        w={42}
+        h={42}
+        r={12}
+        fill={c.violet}
+        shade={c.violetShade}
+        shine={false}
+      />
+      <path
+        d="M8.5 13V10.5Q8.5 8.5 10.5 8.5H13"
+        stroke={c.white}
+        strokeWidth={2.2}
+        fill={none}
+      />
+      <path
+        d="M27 8L13.5 26.5H22.5L19.5 40L34.5 21H25.5L29 8Z"
+        fill={c.yellow}
+      />
+      <polygon
+        points={star(37, 37, 4, 1.5, 4)}
+        fill={c.white}
+        strokeWidth={1.6}
+      />
+    </>
+  ),
+
+  /** Logo option: an "LA" block with a bolt. */
+  'logo-la': (
+    <>
+      <Block
+        x={3}
+        y={6}
+        w={42}
+        h={39}
+        r={11}
+        fill={c.yellow}
+        shade={c.yellowShade}
+      />
+      <Label x={24} y={34} size={22}>
+        LA
+      </Label>
+      <path
+        d="M40.5 1.5L34 11H38.5L35.5 18.5L44 8H39.3Z"
+        fill={c.orange}
+        strokeWidth={2}
+      />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof art;

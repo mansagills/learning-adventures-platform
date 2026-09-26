@@ -296,12 +296,28 @@ Out of scope for UX-1: the hidden account pages, the in-game World demo panels (
 
 Work goes in 3 phases; each needs the owner's approval before the next starts.
 
-| Phase | What                                                                                     | Status                  |
-| ----- | ---------------------------------------------------------------------------------------- | ----------------------- |
-| 1     | Real screenshots on game cards                                                           | COMPLETED ✅ (approved) |
-| 2a    | Draw the icon set and show it on a preview page                                          | COMPLETED ✅ (approved) |
-| 2b    | Swap the subject and section emojis for the icons                                        | Done, awaiting approval |
-| 3     | Replace the Lucide UI icons in the same style; a lint rule keeps Lucide off public pages | Not started             |
+| Phase | What                                                                                    | Status                  |
+| ----- | --------------------------------------------------------------------------------------- | ----------------------- |
+| 1     | Real screenshots on game cards                                                          | COMPLETED ✅ (approved) |
+| 2a    | Draw the icon set and show it on a preview page                                         | COMPLETED ✅ (approved) |
+| 2b    | Swap the subject and section emojis for the icons                                       | COMPLETED ✅ (approved) |
+| 3a    | Draw UI icons, a shield sticker and 3 logo options on the preview page                  | Done, awaiting approval |
+| 3b    | Replace Lucide, the stock logo mark and →/←/✓ on public pages; lint rule keeps them out | Not started             |
+
+**Phase 3a notes:**
+
+- Owner decisions: replace the header and footer logo mark (Claude draws options, the owner picks one), and use sticker icons in the homepage "Made for kids" tiles.
+- New `components/icons/ui.tsx` + `UiIcon.tsx`: 15 small interface icons on a 24×24 grid that use the surrounding text color:
+  - arrows and chevrons
+  - search, close, menu
+  - clock, grad cap
+  - expand, shrink
+  - external, check, settings
+
+  They have thick round strokes and solid arrowheads, to match the stickers. Use `UiIcon` for controls and `SiteIcon` for content.
+
+- New sticker `shield` (violet shield with a heart), for "No chat, no ads".
+- Three logo options: `logo-spark` (S.P.A.R.K.'s star-eyed screen), `logo-bolt` (lightning bolt badge) and `logo-la` ("LA" block with a bolt). `/dev/icons` shows them next to the wordmark on light and dark bars, plus a new "UI icons" section.
 
 **Phase 2b notes:**
 

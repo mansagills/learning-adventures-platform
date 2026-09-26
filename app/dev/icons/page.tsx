@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Container from '@/components/Container';
 import SiteIcon from '@/components/icons/SiteIcon';
+import UiIcon from '@/components/icons/UiIcon';
+import { uiIconNames } from '@/components/icons/ui';
 import { iconNames, type IconName } from '@/components/icons/art';
 import { subjects } from '@/lib/content/subjects';
 import { cn } from '@/lib/utils';
@@ -33,7 +35,8 @@ export default function IconPreviewPage() {
         Icon preview
       </h1>
       <p className="mt-2 max-w-2xl text-ink-600">
-        Every icon at 24, 48 and 96 pixels. Hidden on the live site.
+        Every icon at 24, 48 and 96 pixels, the small UI icons, and the logo
+        options. Hidden on the live site.
       </p>
 
       <section className="mt-10">
@@ -125,6 +128,92 @@ export default function IconPreviewPage() {
               <SiteIcon name="books" size={24} /> See the books
             </span>
           </div>
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-ink-900">
+          Logo options
+        </h2>
+        <p className="mt-1 text-ink-600">Pick one for the header and footer.</p>
+        <div className="mt-4 space-y-4">
+          {(['logo-spark', 'logo-bolt', 'logo-la'] as const).map((name) => (
+            <div key={name} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+              <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-white px-5">
+                <SiteIcon name={name} size={36} />
+                <span className="font-display text-xl font-bold text-brand-500">
+                  Learning Adventures
+                </span>
+              </div>
+              <div className="flex h-16 items-center gap-2 rounded-2xl border-2 border-pg-border bg-ink-900 px-5">
+                <SiteIcon name={name} size={36} />
+                <span className="font-display text-xl font-bold text-white">
+                  Learning Adventures
+                </span>
+              </div>
+              <div className="flex items-center gap-3 rounded-2xl border-2 border-pg-border bg-white px-4">
+                <SiteIcon name={name} size={96} />
+                <SiteIcon name={name} size={16} />
+                <code className="text-sm font-bold text-ink-700">{name}</code>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-ink-900">
+          UI icons
+        </h2>
+        <p className="mt-1 text-ink-600">
+          For buttons and controls. They take the text color around them.
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {uiIconNames.map((name) => (
+            <div
+              key={name}
+              className="flex flex-col items-center gap-3 rounded-2xl border-2 border-pg-border bg-white p-4"
+            >
+              <div className="flex items-end gap-3 text-ink-900">
+                <UiIcon name={name} size={48} />
+                <UiIcon name={name} size={24} />
+                <UiIcon name={name} size={20} />
+                <UiIcon name={name} size={16} />
+              </div>
+              <div className="flex gap-2">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-pg-border bg-pg-violet text-white">
+                  <UiIcon name={name} size={18} />
+                </span>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-pg-border bg-white text-pg-violet">
+                  <UiIcon name={name} size={18} />
+                </span>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border-2 border-pg-border bg-pg-yellow text-ink-900">
+                  <UiIcon name={name} size={18} />
+                </span>
+              </div>
+              <code className="text-sm font-bold text-ink-700">{name}</code>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 flex flex-wrap items-center gap-4">
+          <span className="inline-flex items-center gap-1 font-bold text-brand-600">
+            See all <UiIcon name="arrow-right" size={18} />
+          </span>
+          <span className="inline-flex items-center gap-1 text-sm font-semibold text-ink-600">
+            <UiIcon name="arrow-left" size={16} /> All games
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink-700 ring-1 ring-ink-200">
+            <UiIcon name="grad-cap" size={14} /> Grades 2–5
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink-700 ring-1 ring-ink-200">
+            <UiIcon name="clock" size={14} /> 10–15 min
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-pg-border bg-white/95 px-3 py-1.5 text-sm font-bold text-ink-800">
+            <UiIcon name="expand" size={16} /> Full screen
+          </span>
+          <span className="inline-flex w-72 items-center gap-2 rounded-full border-2 border-pg-border bg-white px-4 py-2 text-ink-400">
+            <UiIcon name="search" size={18} /> Search games or skills…
+          </span>
         </div>
       </section>
     </Container>
