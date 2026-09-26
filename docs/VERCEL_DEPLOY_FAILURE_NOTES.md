@@ -67,9 +67,17 @@ These fail **about half a second** after they start, before install or build, an
 build log**. So the code isn't even reached: Vercel can't set up a build machine for this
 project. That's why fixing the code errors from stage 1 didn't bring the deploys back.
 
-Not yet pinned down: the exact date between 2026-07-08 and 2026-09-13 when the error type
-switched. Checking the deployments in that window (Vercel dashboard → Deployments, or the API)
-would date it.
+**When it switched (checked 2026-09-26 via the API):** between **2026-07-07 02:35 UTC**
+(`dpl_2cbrxhaNHP7MPCUTHp6D1kZBgmSo`, still a real `pnpm run build` failure after 50 s) and
+**2026-07-08 02:37 UTC** (`dpl_BpuhoXMWX89bZo9L5XEoyN1c571C`, the first "Resource provisioning
+failed", after 0.5 s). Every deployment since then, about 200 of them, fails the same way.
+
+**It's this project, not the account.** `codex-campus-demo` (created 2026-07-04) and
+`learning-adventures-platform-2mxb` (created 2026-07-05) are in the same team and have deployed
+fine throughout, including the same commits. So something set on this project, or something it
+uses that the others don't, changed around 2026-07-07. The API access available here can't read
+the project's build-machine setting or its environment variables (403), so those have to be
+checked in the dashboard (below).
 
 ## What to check in the Vercel dashboard
 
