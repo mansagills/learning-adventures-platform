@@ -38,6 +38,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
+  if (!siteConfig.features.accounts) {
+    // Admin tools need a signed-in admin, which can't exist while accounts
+    // are off, so send those home too.
+    if (
+      matchesRoute(pathname, '/internal') ||
+      matchesRoute(pathname, '/staging')
+    ) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    // Everything else is public: skip the Supabase session check entirely so
+    // page loads never wait on a network call to Supabase.
+    return NextResponse.next();
+  }
+
   if (isNoAuthCampusDemoPath(pathname, request.nextUrl.searchParams)) {
     return NextResponse.next();
   }
