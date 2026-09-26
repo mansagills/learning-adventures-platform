@@ -197,7 +197,7 @@ affects the Phase 6 cutover.
 | 5. Learning Adventures World demo | COMPLETED ✅ |
 | 6. Polish, docs, cutover          | COMPLETED ✅ |
 | Go-live                           | COMPLETED ✅ |
-| UX changes                        | Next         |
+| UX changes                        | In progress  |
 
 ### Phase 1 notes
 
@@ -269,3 +269,8 @@ affects the Phase 6 cutover.
 ### UX changes (next)
 
 To be defined with the owner at the start of the next session. List each change here (page → problem → change) and mark it done as it lands.
+
+1. **World Demo → name box ignores W, A, S, D (and E, Space, arrows)** — DONE ✅
+   - Problem: on `/demo/play`, the "What's your first name?" box in the welcome card couldn't receive the game's movement keys, so names like "Sadie" or "Wes" couldn't be typed.
+   - Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
+   - Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
