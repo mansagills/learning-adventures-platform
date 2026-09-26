@@ -197,7 +197,7 @@ affects the Phase 6 cutover.
 | 5. Learning Adventures World demo | COMPLETED ✅ |
 | 6. Polish, docs, cutover          | COMPLETED ✅ |
 | Go-live                           | COMPLETED ✅ |
-| UX changes                        | Next         |
+| UX changes                        | In progress  |
 
 ### Phase 1 notes
 
@@ -266,6 +266,32 @@ affects the Phase 6 cutover.
   - Details are in `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`.
 - **Launched:** PR #198 was squash-merged to `main` as `1f0d9db`. The production deploy went live on learningadventures.org and www, the first successful deploy since 2026-07-04.
 
-### UX changes (next)
+### UX changes
 
-To be defined with the owner at the start of the next session. List each change here (page → problem → change) and mark it done as it lands.
+Each change is listed as page → problem → change, and marked done when it lands. Branch: `claude/vigilant-shannon-7ao3su` (off `main` at `6dfd685`).
+
+#### UX-1: Replace emoji icons with a custom icon set (planning)
+
+- **Pages:** all public pages (home, `/games`, `/games/[slug]`, `/subjects/*`, `/books`, `/books/[slug]`, `/demo`, 404).
+- **Problem:** emojis are used as icons everywhere, which makes the site look like a generic AI-built site. The owner wants the site to feel more unique.
+- **Change:** replace every emoji that works as an icon with artwork made for Learning Adventures, in one consistent style.
+
+**Where the emojis are today (public site only):**
+
+| Group                                   | Count    | Where it shows                                                                                                                                        | Source                                       |
+| --------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Game icons                              | 43       | Game card art (`GameArt`), player header, homepage "Stories" links, game page title                                                                   | `emoji` in `lib/content/games.ts`            |
+| Subject icons                           | 5        | Subject tiles, filter chips, card labels, book covers, subject page hero, homepage row titles                                                         | `emoji` in `lib/content/subjects.ts`         |
+| Section / step icons                    | about 25 | Homepage rows (📚 🗺️ 🧭), `/books` "How it works", `/demo` (`Hero`, `HowItWorks`, `Benefits`, `SecondaryCta`, `Faq`), 404 page, subject "coming soon" | Hard-coded in those components               |
+| UI icons (arrows, search, close, clock) | about 13 | Buttons and controls                                                                                                                                  | `lucide-react` (not emoji; optional restyle) |
+
+Out of scope for UX-1: the hidden account pages, the in-game World demo panels (`components/world/`) and the games' own HTML files.
+
+**Proposed approach (awaiting owner decisions):**
+
+1. **Game cards → real screenshots.** `GameArt` already shows `thumbnail` when a game has one. Capture a screenshot of each of the 43 games (automated with Playwright) into `public/games/thumbnails/`. Real gameplay looks less generic than any icon and needs no drawing.
+2. **Subjects + sections → a custom SVG icon set** (about 5 subject icons + about 15 section icons) in the site's colors and one drawing style. Source: Claude Design (owner) or drafted in code by Claude, reviewed on a preview page before going in.
+3. **Code:** a `components/icons/` folder with one `<SiteIcon name="…" />` component. `subjects.ts` and the section components use icon names instead of emoji strings. The content test checks every name has an icon.
+4. **Optional:** restyle the Lucide UI icons (stroke width, rounded ends) to match the new set.
+
+**Owner decisions needed:** icon style, who draws the icons (Claude Design or Claude), and screenshots vs. illustrated icons for game cards.
