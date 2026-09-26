@@ -28,7 +28,7 @@
 ### 🧭 Handoff notes (read first)
 
 - **Where things stand**: the v1 site is live. Production = Vercel project `learning-adventures-platform`, which deploys `main` automatically. Every PR gets a Vercel preview (behind Vercel login).
-- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is next**; ask the owner to describe it. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
+- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is planned**: a newsletter sign-up page for parents (stored in an email marketing service such as Kit or MailerLite, not Supabase) and a blog with a first welcome post. The phases are in the UX-2 section of `docs/V1_WEBSITE_REBUILD_PLAN.md`; start at the first phase not marked done. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
 - **Owner decisions that still hold**:
   - accounts stay off until paid features exist (it's a kids' site)
   - books are placeholders until real ones exist
