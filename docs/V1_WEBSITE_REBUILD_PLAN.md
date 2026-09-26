@@ -196,6 +196,8 @@ affects the Phase 6 cutover.
 | 4. Books                          | COMPLETED ✅ |
 | 5. Learning Adventures World demo | COMPLETED ✅ |
 | 6. Polish, docs, cutover          | COMPLETED ✅ |
+| Go-live                           | COMPLETED ✅ |
+| UX changes                        | Next         |
 
 ### Phase 1 notes
 
@@ -253,3 +255,17 @@ affects the Phase 6 cutover.
 - **Accessibility:** an axe scan of every public page at desktop and phone widths found only color-contrast problems, all fixed. `pg-violet` darkened slightly (`#7C3AED`) so white text on it passes; subjects gained an `onSolid` text color (dark text on mint, pink and yellow); Mixed Skills now uses `ocean-600`; pink/yellow/mint text on light backgrounds switched to darker shades. The final scan reports **no violations**. Iframes already had titles and images alt text.
 - **Docs:** `README.md` rewritten for v1, `CLAUDE.md` has a "v1 Public Site" section (how to add games and books, env vars), `COMPREHENSIVE_PLATFORM_PLAN.md` has a v1 section, and `docs/V1_GO_LIVE_CHECKLIST.md` lists the go-live steps.
 - **Still to do by the user:** review the legal pages, set the contact email, and do the Vercel cutover (the root project's deploy failure has to be fixed first, or the working `-2mxb` project repointed). Retiring `demo/la-campus-demo` is a separate, confirmed step after go-live.
+
+### Go-live notes (2026-09-26)
+
+- The owner reviewed the site locally and approved the legal pages, homepage copy and contact email (`info@learningadventures.org`); the optional links stay unset.
+- **Supabase calls removed:** while accounts are off, `middleware.ts` skips the Supabase session refresh and `hooks/useAuth.ts` never creates a Supabase client. Local navigation had been slow because of those calls.
+- **Vercel deploy failure fixed:**
+  - "Resource provisioning failed" was caused by Supabase-integration env vars linked to a paused Supabase project. The integration is now disconnected from the project.
+  - The follow-up install failure was caused by a stale `pnpm-lock.yaml`. It was deleted, so the repo uses npm only.
+  - Details are in `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`.
+- **Launched:** PR #198 was squash-merged to `main` as `1f0d9db`. The production deploy went live on learningadventures.org and www, the first successful deploy since 2026-07-04.
+
+### UX changes (next)
+
+To be defined with the owner at the start of the next session. List each change here (page → problem → change) and mark it done as it lands.
