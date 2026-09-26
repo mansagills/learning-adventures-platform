@@ -299,9 +299,30 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
 | Phase | What                                                                                     | Status                  |
 | ----- | ---------------------------------------------------------------------------------------- | ----------------------- |
 | 1     | Real screenshots on game cards                                                           | COMPLETED ✅ (approved) |
-| 2a    | Draw the icon set and show it on a preview page                                          | Done, awaiting approval |
-| 2b    | Swap the subject and section emojis for the icons                                        | Not started             |
+| 2a    | Draw the icon set and show it on a preview page                                          | COMPLETED ✅ (approved) |
+| 2b    | Swap the subject and section emojis for the icons                                        | Done, awaiting approval |
 | 3     | Replace the Lucide UI icons in the same style; a lint rule keeps Lucide off public pages | Not started             |
+
+**Phase 2b notes:**
+
+- `Subject.emoji` is now `Subject.icon` in `lib/content/subjects.ts` (`math`, `flask`, `abc-book`, `columns`, `puzzle`). Subject icons now show in:
+  - the header Subjects menu (desktop and phone)
+  - the homepage subject tiles and row titles
+  - the game-card labels and the filter chips on `/games`
+  - the book covers
+  - the subject page header and the game and book pages
+- Every section emoji on the public pages is now an icon:
+  - homepage badge, rows and demo button
+  - `/books` "How it works"
+  - the 404 page
+  - "coming soon" and "no results" states
+  - the `/demo` sections (hero, how it works, what's coming, call to action, FAQ)
+  - the React game loader's "Game not found" screen
+- Emojis inside button text became a small icon next to the text. The subject tiles and subject page header now use the light subject tint behind the icon, so the icon stands out.
+- New content tests:
+  - every subject's icon exists in the set
+  - public source files contain no emoji characters. © and ® are allowed. Arrows and ✓ are not emojis and get replaced in Phase 3. `SocialProof.tsx` is skipped because it isn't rendered.
+- Checked in the production build: `/`, `/games`, `/subjects/math`, `/subjects/interdisciplinary`, `/books`, a book page, `/demo`, 404 and a game page at 1280 and 390px. No sideways scroll, no script errors, and no axe (WCAG A/AA) violations.
 
 **Phase 2a notes:**
 

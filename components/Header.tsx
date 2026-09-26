@@ -12,6 +12,7 @@ import Button from './Button';
 import Icon from './Icon';
 import UserMenu from './UserMenu';
 import { analytics } from '@/lib/analytics';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 const NAV_LINKS = [
   { href: '/games', label: 'Games' },
@@ -123,10 +124,9 @@ export default function Header() {
                       className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-brand-50 transition-colors"
                     >
                       <span
-                        className={`w-9 h-9 rounded-full flex items-center justify-center text-lg ${subject.theme.soft}`}
-                        aria-hidden
+                        className={`w-9 h-9 rounded-full flex items-center justify-center ${subject.theme.soft}`}
                       >
-                        {subject.emoji}
+                        <SiteIcon name={subject.icon} size={26} />
                       </span>
                       <span>
                         <span className="block font-semibold text-ink-800">
@@ -221,7 +221,7 @@ export default function Header() {
                     href={`/subjects/${subject.id}`}
                     className={`flex items-center gap-2 rounded-xl px-3 py-2 font-medium text-ink-700 ${subject.theme.soft}`}
                   >
-                    <span aria-hidden>{subject.emoji}</span>
+                    <SiteIcon name={subject.icon} size={22} />
                     {subject.name}
                   </Link>
                 ))}

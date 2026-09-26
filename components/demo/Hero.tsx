@@ -1,27 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Container from '@/components/Container';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 const primaryButton =
   'inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border px-7 py-3.5 text-lg font-bold shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40';
 
 const facts = [
   {
-    emoji: '🏫',
+    icon: 'campus' as const,
     value: '1 campus',
     label: 'to explore',
     color: 'text-pg-violet',
     circle: 'icon-circle-violet',
   },
   {
-    emoji: '🎟️',
+    icon: 'ticket' as const,
     value: 'Free',
     label: 'No sign-up needed',
     color: 'text-coral-600',
     circle: 'icon-circle-pink',
   },
   {
-    emoji: '💻',
+    icon: 'laptop' as const,
     value: 'Browser',
     label: 'Nothing to install',
     color: 'text-sunshine-700',
@@ -54,12 +55,7 @@ export default function Hero() {
           <div className="text-center lg:text-left">
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border-2 border-pg-border bg-white px-5 py-2.5 shadow-pop">
-              <span
-                className="flex h-8 w-8 items-center justify-center rounded-sm bg-pg-violet text-lg"
-                aria-hidden
-              >
-                🧪
-              </span>
+              <SiteIcon name="flask" size={32} />
               <span className="text-sm font-bold uppercase tracking-wide text-foreground">
                 Early preview demo
               </span>
@@ -102,12 +98,7 @@ export default function Hero() {
                 href="/demo/play"
                 className={`${primaryButton} bg-pg-violet text-white`}
               >
-                <span
-                  className="flex h-7 w-7 items-center justify-center rounded-sm bg-white/20"
-                  aria-hidden
-                >
-                  🎮
-                </span>
+                <SiteIcon name="controller" size={32} />
                 Play the demo
               </Link>
               <Link
@@ -136,9 +127,7 @@ export default function Hero() {
               />
             </div>
             <div className="absolute -right-4 -top-6 z-20 flex h-20 w-24 rotate-12 animate-float flex-col items-center justify-center rounded-xl border-2 border-pg-border bg-pg-yellow shadow-pop">
-              <span className="text-xl" aria-hidden>
-                🚧
-              </span>
+              <SiteIcon name="tools" size={30} />
               <span className="font-outfit text-xs font-extrabold text-foreground">
                 In progress
               </span>
@@ -155,9 +144,7 @@ export default function Hero() {
             >
               <div className="flex items-center gap-3">
                 <div className={fact.circle}>
-                  <span className="text-lg" aria-hidden>
-                    {fact.emoji}
-                  </span>
+                  <SiteIcon name={fact.icon} size={34} />
                 </div>
                 <div>
                   <div

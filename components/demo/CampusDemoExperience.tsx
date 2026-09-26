@@ -100,7 +100,7 @@ export default function CampusDemoExperience({
     const handleOpenJobBoard = () => {
       (window as any).__campusTest.questBoardOpened = true;
       setNotice(
-        '📋 The Quest Board is coming in the full Learning Adventures World!'
+        'The Quest Board is coming in the full Learning Adventures World!'
       );
       setTimeout(() => setNotice(null), 3000);
     };

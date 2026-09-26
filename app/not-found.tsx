@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Container from '@/components/Container';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 export const metadata = {
   title: 'Page not found | Learning Adventures',
@@ -8,9 +9,7 @@ export const metadata = {
 export default function NotFound() {
   return (
     <Container size="sm" className="py-20 text-center md:py-28">
-      <p className="text-6xl" aria-hidden>
-        🧭
-      </p>
+      <SiteIcon name="compass" size={80} />
       <h1 className="mt-4 font-display text-4xl font-extrabold text-ink-900 md:text-5xl">
         This path leads nowhere
       </h1>
@@ -21,9 +20,9 @@ export default function NotFound() {
       <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
         <Link
           href="/games"
-          className="inline-flex items-center justify-center rounded-full border-2 border-pg-border bg-pg-violet px-7 py-3 font-bold text-white shadow-pop transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover"
+          className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-7 py-3 font-bold text-white shadow-pop transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover"
         >
-          🎮 Play a game
+          <SiteIcon name="controller" size={26} /> Play a game
         </Link>
         <Link
           href="/"

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Container from '@/components/Container';
 import Link from 'next/link';
 import { analytics } from '@/lib/analytics';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 interface FAQItem {
   id: string;
@@ -101,7 +102,7 @@ export default function Faq() {
         {/* Section Header */}
         <div className="text-center mb-12 relative z-10">
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
-            <span className="text-lg">❓</span>
+            <SiteIcon name="question" size={26} />
             <span className="text-sm font-bold text-foreground uppercase tracking-wide">
               FAQ
             </span>
@@ -208,7 +209,7 @@ export default function Faq() {
           <div className="card-sticker-featured p-8 text-center relative">
             {/* Floating decoration */}
             <div className="absolute -top-4 -right-4 w-10 h-10 bg-pg-mint border-2 border-pg-border rounded-lg shadow-pop rotate-12 flex items-center justify-center">
-              <span className="text-lg">🎮</span>
+              <SiteIcon name="controller" size={30} />
             </div>
 
             <h3 className="font-outfit text-2xl font-extrabold text-foreground mb-3">
@@ -223,13 +224,13 @@ export default function Faq() {
                 href="/games"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-6 py-3 font-bold text-white shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
               >
-                🎮 Play the games
+                <SiteIcon name="controller" size={26} /> Play the games
               </Link>
               <Link
                 href="/books"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-white px-6 py-3 font-bold text-ink-900 transition-all duration-200 hover:bg-pg-yellow focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
               >
-                📚 See the books
+                <SiteIcon name="books" size={26} /> See the books
               </Link>
             </div>
           </div>

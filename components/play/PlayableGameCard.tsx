@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import type { PlayableGame } from '@/lib/content/games';
 import { getSubject } from '@/lib/content/subjects';
 import GameArt from './GameArt';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 interface PlayableGameCardProps {
   game: PlayableGame;
@@ -47,12 +48,12 @@ export default function PlayableGameCard({
         {showSubject && subject && (
           <span
             className={cn(
-              'mb-2 self-start rounded-full px-2 py-0.5 text-xs font-semibold',
+              'mb-2 inline-flex items-center gap-1 self-start rounded-full py-0.5 pl-1 pr-2 text-xs font-semibold',
               subject.theme.soft,
               subject.theme.text
             )}
           >
-            {subject.emoji} {subject.name}
+            <SiteIcon name={subject.icon} size={16} /> {subject.name}
           </span>
         )}
         <h3 className="font-display text-lg font-bold leading-snug text-ink-900 group-hover:text-brand-600">

@@ -16,6 +16,7 @@ import { books } from '@/lib/content/books';
 import { subjects } from '@/lib/content/subjects';
 import GameRow from './GameRow';
 import HomeFaq from './HomeFaq';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 /** Subjects with enough games for a row of their own */
 const ROW_MIN_GAMES = 3;
@@ -106,8 +107,8 @@ export default function HomePage() {
               <span className="absolute -left-3 -top-4 rotate-[-6deg] rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-left-6">
                 {games.length} free games
               </span>
-              <span className="absolute -bottom-4 -right-2 rotate-[4deg] rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
-                📚 Stories to read
+              <span className="absolute -bottom-4 -right-2 inline-flex rotate-[4deg] items-center gap-1.5 rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
+                <SiteIcon name="books" size={22} /> Stories to read
               </span>
             </div>
           </div>
@@ -142,12 +143,11 @@ export default function HomePage() {
                 >
                   <span
                     className={cn(
-                      'flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-pg-border text-3xl transition-transform group-hover:-rotate-6 group-hover:scale-110',
-                      subject.theme.solid
+                      'flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-pg-border transition-transform group-hover:-rotate-6 group-hover:scale-110',
+                      subject.theme.soft
                     )}
-                    aria-hidden
                   >
-                    {subject.emoji}
+                    <SiteIcon name={subject.icon} size={44} />
                   </span>
                   <span className="mt-3 font-display text-xl font-bold text-ink-900">
                     {subject.name}
@@ -201,7 +201,7 @@ export default function HomePage() {
               <GameRow
                 key={subject.id}
                 title={`${subject.name} games`}
-                emoji={subject.emoji}
+                icon={subject.icon}
                 href={`/subjects/${subject.id}`}
                 games={getFeaturedGames(subject.id, 10)}
               />
@@ -209,7 +209,7 @@ export default function HomePage() {
             {otherGames.length > 0 && (
               <GameRow
                 title="Reading, history and more"
-                emoji="🧭"
+                icon="compass"
                 href="/games"
                 games={otherGames}
                 showSubject
@@ -318,7 +318,7 @@ export default function HomePage() {
                   'justify-self-start bg-pg-yellow text-ink-900 md:justify-self-end'
                 )}
               >
-                🗺️ See the demo
+                <SiteIcon name="map" size={26} /> See the demo
               </Link>
             </div>
           </div>

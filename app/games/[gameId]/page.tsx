@@ -10,6 +10,7 @@ import { getBooksForGame } from '@/lib/content/books';
 import { getSubject } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
 import ReactGamePage from './ReactGamePage';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 interface GamePageProps {
   params: { gameId: string };
@@ -79,12 +80,12 @@ export default function GamePage({ params }: GamePageProps) {
             {subject && (
               <span
                 className={cn(
-                  'rounded-full px-3 py-1',
+                  'inline-flex items-center gap-1 rounded-full py-1 pl-1.5 pr-3',
                   subject.theme.soft,
                   subject.theme.text
                 )}
               >
-                {subject.emoji} {subject.name}
+                <SiteIcon name={subject.icon} size={16} /> {subject.name}
               </span>
             )}
             <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-ink-700 ring-1 ring-ink-200">

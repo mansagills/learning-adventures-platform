@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Container from '@/components/Container';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 export default function HowItWorks() {
   const steps = [
@@ -8,7 +9,7 @@ export default function HowItWorks() {
       title: 'Pick Your Look',
       description:
         'Choose a name and one of six characters. The demo remembers them on this device.',
-      emoji: '🧑‍🎨',
+      icon: 'avatar' as const,
       color: 'violet' as const,
     },
     {
@@ -16,7 +17,7 @@ export default function HowItWorks() {
       title: 'Explore the Campus',
       description:
         'Walk the Academy with the arrow keys or WASD (or the on-screen joystick on a phone) and find every subject building.',
-      emoji: '🗺️',
+      icon: 'map' as const,
       color: 'pink' as const,
     },
     {
@@ -24,7 +25,7 @@ export default function HowItWorks() {
       title: 'Follow the Story',
       description:
         'Talk to Jaylen, SPARK and the students around campus, and help with the first story quests.',
-      emoji: '💬',
+      icon: 'chat' as const,
       color: 'yellow' as const,
     },
     {
@@ -32,7 +33,7 @@ export default function HowItWorks() {
       title: 'Play and Earn',
       description:
         'Play mini-games inside the buildings, earn demo XP, and spend it in the campus shop.',
-      emoji: '🎮',
+      icon: 'controller' as const,
       color: 'mint' as const,
     },
   ];
@@ -75,7 +76,7 @@ export default function HowItWorks() {
         {/* Section Header */}
         <div className="text-center mb-16 relative z-10">
           <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white border-2 border-pg-border rounded-full shadow-pop">
-            <span className="text-lg">🎮</span>
+            <SiteIcon name="controller" size={26} />
             <span className="text-sm font-bold text-foreground uppercase tracking-wide">
               How the Demo Works
             </span>
@@ -145,7 +146,7 @@ export default function HowItWorks() {
                     </span>
                   </div>
 
-                  <div className="text-4xl mb-4">{step.emoji}</div>
+                  <SiteIcon name={step.icon} size={52} className="mb-4" />
 
                   <h3
                     className={`font-outfit text-xl font-bold ${colors.text} mb-3`}
@@ -165,10 +166,10 @@ export default function HowItWorks() {
         <div className="mt-20 relative z-10">
           <div className="card-sticker-featured max-w-2xl mx-auto text-center p-10">
             <div className="absolute -top-4 -left-4 w-10 h-10 bg-pg-yellow border-2 border-pg-border rounded-lg shadow-pop rotate-12 flex items-center justify-center">
-              <span className="text-lg">⚡</span>
+              <SiteIcon name="bolt" size={30} />
             </div>
             <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-pg-mint border-2 border-pg-border rounded-full shadow-pop flex items-center justify-center">
-              <span className="text-sm">🗡️</span>
+              <SiteIcon name="sword" size={26} />
             </div>
 
             <h3 className="font-outfit text-3xl font-extrabold text-foreground mb-4">
@@ -183,12 +184,7 @@ export default function HowItWorks() {
                 href="/demo/play"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-7 py-3.5 text-lg font-bold text-white shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
               >
-                <span
-                  className="flex h-6 w-6 items-center justify-center rounded-sm bg-white/20"
-                  aria-hidden
-                >
-                  🎮
-                </span>
+                <SiteIcon name="controller" size={30} />
                 Play the demo
               </Link>
             </div>

@@ -6,6 +6,8 @@
  * `tailwind.config.js` `content` for the same reason.
  */
 
+import type { IconName } from '@/components/icons/art';
+
 export type SubjectId =
   | 'math'
   | 'science'
@@ -29,7 +31,8 @@ export interface SubjectTheme {
 export interface Subject {
   id: SubjectId;
   name: string;
-  emoji: string;
+  /** Its icon from the Learning Adventures set (components/icons/art.tsx) */
+  icon: IconName;
   tagline: string;
   description: string;
   theme: SubjectTheme;
@@ -39,7 +42,7 @@ export const subjects: Subject[] = [
   {
     id: 'math',
     name: 'Math',
-    emoji: '🔢',
+    icon: 'math',
     tagline: 'Numbers, patterns and puzzles',
     description:
       'Race, build, sort and solve your way through counting, fractions, times tables, money, time and more.',
@@ -54,7 +57,7 @@ export const subjects: Subject[] = [
   {
     id: 'science',
     name: 'Science',
-    emoji: '🔬',
+    icon: 'flask',
     tagline: 'Experiments, space and nature',
     description:
       'Dive into oceans, blast off to the planets, mix crystals and discover how the world works.',
@@ -69,7 +72,7 @@ export const subjects: Subject[] = [
   {
     id: 'english',
     name: 'English',
-    emoji: '📚',
+    icon: 'abc-book',
     tagline: 'Words, spelling and stories',
     description:
       'Build vocabulary, practice spelling and explore the power of stories.',
@@ -84,7 +87,7 @@ export const subjects: Subject[] = [
   {
     id: 'history',
     name: 'History',
-    emoji: '🏛️',
+    icon: 'columns',
     tagline: 'People, places and the past',
     description:
       'Travel back in time to ancient civilizations and the people who shaped our world.',
@@ -99,7 +102,7 @@ export const subjects: Subject[] = [
   {
     id: 'interdisciplinary',
     name: 'Mixed Skills',
-    emoji: '🧩',
+    icon: 'puzzle',
     tagline: 'Where subjects team up',
     description:
       'Adventures that mix math, science, reading and history into one big challenge.',

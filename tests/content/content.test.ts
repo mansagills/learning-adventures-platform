@@ -1,9 +1,10 @@
-import { existsSync } from 'fs';
-import { resolve } from 'path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
+import { basename, join, resolve } from 'path';
 import { describe, expect, it } from 'vitest';
 import { games } from '@/lib/content/games';
 import { books } from '@/lib/content/books';
 import { subjects } from '@/lib/content/subjects';
+import { iconNames } from '@/components/icons/art';
 
 const publicDir = resolve(__dirname, '../../public');
 const subjectIds = new Set(subjects.map((subject) => subject.id));
@@ -66,5 +67,56 @@ describe('public content data', () => {
       (path) => !existsSync(resolve(publicDir, `.${path}`))
     );
     expect(missing).toEqual([]);
+  });
+});
+
+describe('site icons', () => {
+  it('every subject uses an icon from the Learning Adventures set', () => {
+    for (const subject of subjects) {
+      expect(iconNames).toContain(subject.icon);
+    }
+  });
+
+  it('public pages use SiteIcon instead of emojis', () => {
+    // Public-site source files. SocialProof.tsx is left out because it is not
+    // rendered (see components/demo/DemoLanding.tsx). © and ® are allowed.
+    const roots = [
+      'components/home',
+      'components/play',
+      'components/books',
+      'components/demo',
+      'components/Header.tsx',
+      'components/Footer.tsx',
+      'components/ContentPage.tsx',
+      'app/page.tsx',
+      'app/games',
+      'app/subjects',
+      'app/books',
+      'app/demo',
+      'app/about',
+      'app/privacy',
+      'app/terms',
+      'app/not-found.tsx',
+      'lib/content',
+    ].map((path) => resolve(__dirname, '../..', path));
+    const skip = new Set(['SocialProof.tsx']);
+    const emoji = /(?![©®])\p{Extended_Pictographic}/u;
+
+    const files = roots.flatMap(function walk(path: string): string[] {
+      if (statSync(path).isDirectory()) {
+        return readdirSync(path).flatMap((name) => walk(join(path, name)));
+      }
+      return /\.tsx?$/.test(path) && !skip.has(basename(path)) ? [path] : [];
+    });
+    const found = files.flatMap((file) =>
+      readFileSync(file, 'utf8')
+        .split('\n')
+        .flatMap((line, index) =>
+          emoji.test(line)
+            ? [`${file.split('/').slice(-2).join('/')}:${index + 1}`]
+            : []
+        )
+    );
+    expect(found).toEqual([]);
   });
 });

@@ -6,10 +6,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PlayableGame } from '@/lib/content/games';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
+import SiteIcon, { type IconName } from '@/components/icons/SiteIcon';
 
 interface GameRowProps {
   title: string;
-  emoji?: string;
+  icon?: IconName;
   /** "See all" link target */
   href: string;
   games: PlayableGame[];
@@ -23,7 +24,7 @@ interface GameRowProps {
  */
 export default function GameRow({
   title,
-  emoji,
+  icon,
   href,
   games,
   showSubject = false,
@@ -62,7 +63,13 @@ export default function GameRow({
     <section aria-label={title}>
       <div className="mb-4 flex items-end justify-between gap-4">
         <h3 className="font-display text-2xl font-bold text-ink-900">
-          {emoji && <span aria-hidden>{emoji} </span>}
+          {icon && (
+            <SiteIcon
+              name={icon}
+              size={34}
+              className="-mt-1 mr-2 align-middle"
+            />
+          )}
           {title}
         </h3>
         <div className="flex items-center gap-2">

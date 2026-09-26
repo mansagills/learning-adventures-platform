@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { games } from '@/lib/content/games';
 import { subjects, type SubjectId } from '@/lib/content/subjects';
 import PlayableGameCard from './PlayableGameCard';
+import SiteIcon from '@/components/icons/SiteIcon';
 
 type SubjectFilter = SubjectId | 'all';
 
@@ -93,7 +94,7 @@ export default function GameBrowser() {
                 onClick={() => setSubject(subject.id)}
                 title={count === 0 ? 'Coming soon' : undefined}
               >
-                <span aria-hidden>{subject.emoji}</span>
+                <SiteIcon name={subject.icon} size={20} />
                 {subject.name}
                 <span>{count === 0 ? 'soon' : count}</span>
               </button>
@@ -134,9 +135,7 @@ export default function GameBrowser() {
         </div>
       ) : (
         <div className="rounded-3xl border-2 border-dashed border-ink-300 bg-white px-6 py-16 text-center">
-          <p className="text-4xl" aria-hidden>
-            🔍
-          </p>
+          <SiteIcon name="magnifier" size={56} />
           <p className="mt-3 font-display text-xl font-bold text-ink-900">
             No games match &ldquo;{query}&rdquo;
           </p>
