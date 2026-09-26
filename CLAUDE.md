@@ -5,7 +5,7 @@
 ### Current Development Status
 
 **Active Development Plan**: docs/V1_WEBSITE_REBUILD_PLAN.md (v1 public site: games by subject, interactive ebooks, Learning Adventures World demo)
-**Last Completed**: v1 is LIVE ✅ on learningadventures.org (PR #198 merged 2026-09-26 as `1f0d9db`; all 6 phases plus launch prep done)
+**Last Completed**: UX-1 ✅: custom icon set (Jaylen & S.P.A.R.K. style), real game screenshots on cards, bolt logo (PR #200 merged 2026-09-26 as `11f8406`). v1 went live in PR #198.
 **Next Phase**: v1 UX changes. The site owner will describe them at the start of the session; ask for the page, the problem and the desired result (screenshots help) before coding. Record them as a "UX changes" section in docs/V1_WEBSITE_REBUILD_PLAN.md and work through them one at a time on a feature branch off `main`, with a PR to `main` (merging to `main` deploys to production).
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
@@ -28,6 +28,7 @@
 ### 🧭 Handoff notes (read first)
 
 - **Where things stand**: the v1 site is live. Production = Vercel project `learning-adventures-platform`, which deploys `main` automatically. Every PR gets a Vercel preview (behind Vercel login).
+- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is next**; ask the owner to describe it. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
 - **Owner decisions that still hold**:
   - accounts stay off until paid features exist (it's a kids' site)
   - books are placeholders until real ones exist
