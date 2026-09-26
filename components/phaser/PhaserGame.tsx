@@ -12,6 +12,19 @@ interface PhaserGameProps {
   onSceneReady?: (scene: string) => void;
 }
 
+/** True for elements the player types into (name box, search field, etc.) */
+function isTextEntry(el: Element | null): boolean {
+  if (!el) return false;
+  if (el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+    return true;
+  }
+  if (el instanceof HTMLInputElement) {
+    const nonText = ['button', 'checkbox', 'radio', 'range', 'submit', 'reset'];
+    return !nonText.includes(el.type);
+  }
+  return (el as HTMLElement).isContentEditable === true;
+}
+
 export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady }: PhaserGameProps) {
   const gameRef = useRef<Phaser.Game | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,10 +79,35 @@ export function PhaserGame({ bootstrap, variant = 'open', onReady, onSceneReady 
 
     EventBus.on('scene-ready', handleSceneReady);
 
+    // Phaser listens for keys on the whole page and blocks the ones it uses
+    // (WASD, arrows, Space, E), so they never reach a text box. Switch the
+    // game's keyboard off while the player is typing, and back on after.
+    const syncKeyboardToFocus = () => {
+      const keyboard = gameRef.current?.input?.keyboard;
+      if (!keyboard) return;
+      const typing = isTextEntry(document.activeElement);
+      if (keyboard.enabled === !typing) return;
+      keyboard.enabled = !typing;
+      if (typing) {
+        // Drop any key Phaser thought was held so the player doesn't drift
+        gameRef.current?.scene
+          .getScenes(true)
+          .forEach((scene) => scene.input?.keyboard?.resetKeys());
+      }
+    };
+    // focusout fires before the next element gains focus, so check afterwards
+    const handleFocusChange = () => window.setTimeout(syncKeyboardToFocus, 0);
+    document.addEventListener('focusin', handleFocusChange);
+    document.addEventListener('focusout', handleFocusChange);
+    EventBus.on('scene-ready', syncKeyboardToFocus);
+
     return () => {
       cancelled = true;
       window.clearInterval(progressTimer);
       EventBus.off('scene-ready', handleSceneReady);
+      EventBus.off('scene-ready', syncKeyboardToFocus);
+      document.removeEventListener('focusin', handleFocusChange);
+      document.removeEventListener('focusout', handleFocusChange);
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;

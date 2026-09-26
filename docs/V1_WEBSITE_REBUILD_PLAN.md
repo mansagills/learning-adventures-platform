@@ -393,3 +393,9 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
   - The homepage "Play along" links show a tiny screenshot.
 - The content test checks every game's `thumbnail` file exists. CLAUDE.md and README "add a game" steps now include making the thumbnail.
 - **Bug fixed along the way:** Math Adventure Island and Solar System Explorer showed their "game over" box the moment they opened, covering the Start button. Their `.modal` CSS rule came after `.hidden` and won. `.hidden` is now `display: none !important`. A scan of all games and lessons found no others with this problem.
+
+#### World Demo: name box ignores W, A, S, D (and E, Space, arrows): DONE ✅ (PR #201)
+
+- Problem: on `/demo/play`, the "What's your first name?" box in the welcome card couldn't receive the game's movement keys, so names like "Sadie" or "Wes" couldn't be typed.
+- Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
+- Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
