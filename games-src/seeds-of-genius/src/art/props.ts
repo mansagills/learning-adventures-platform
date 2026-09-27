@@ -565,6 +565,45 @@ export function paintFurniture(kind: 'bed' | 'wardrobe' | 'shelf' | 'desk' | 'pl
   }
 }
 
+/** Schoolhouse furniture. */
+export function paintSchool(kind: 'desk' | 'easel' | 'globe', variant = 0): PixelBuffer {
+  if (kind === 'desk') {
+    const b = new PixelBuffer(32, 22);
+    b.rect(1, 4, 30, 4, P.wood3); // desk top
+    b.hline(1, 30, 4, '#d99a62');
+    b.rect(2, 8, 2, 12, P.wood2);
+    b.rect(28, 8, 2, 12, P.wood2);
+    b.rect(3, 14, 26, 3, P.wood1); // bench
+    b.rect(6, 1, 7, 3, P.paper); // open book
+    b.vline(9, 1, 3, P.paper2);
+    b.rect(20, 2, 5, 2, '#3a3a44'); // slate
+    return b.outline();
+  }
+  if (kind === 'globe') {
+    const b = new PixelBuffer(14, 22);
+    b.ellipse(1, 1, 12, 12, P.water1);
+    b.ellipse(3, 3, 5, 4, P.leaf2);
+    b.ellipse(7, 7, 4, 3, P.leaf2);
+    b.vline(7, 13, 19, P.metal);
+    b.hline(3, 11, 20, P.wood2);
+    return b.outline();
+  }
+  // easel with a framed storybook picture (colors vary)
+  const b = new PixelBuffer(20, 32);
+  const skies = ['#9fd3ee', '#f6d9a8', '#cfe6c4', '#e6ddf5', '#fbe3c0', '#bfe3c8'];
+  b.vline(4, 10, 30, P.wood2);
+  b.vline(15, 10, 30, P.wood2);
+  b.vline(10, 12, 30, P.woodDark);
+  b.rect(1, 2, 18, 15, P.wood1); // frame
+  b.rect(3, 4, 14, 11, skies[variant % skies.length]);
+  b.rect(3, 11, 14, 4, P.grass1);
+  b.ellipse(10, 5, 4, 4, P.gold);
+  b.rect(6, 9, 3, 4, P.trunk);
+  b.ellipse(4, 6, 7, 5, P.leaf2);
+  b.hline(2, 17, 18, P.wood3); // ledge
+  return b.outline();
+}
+
 /** Seedling that appears in the windowsill pot after the practice quest. */
 export function paintSprout(): PixelBuffer {
   const b = new PixelBuffer(12, 16);

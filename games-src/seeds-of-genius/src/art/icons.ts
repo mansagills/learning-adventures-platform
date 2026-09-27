@@ -18,6 +18,21 @@ const PAINTERS: Record<string, Painter> = {
     b.set(6, 6, P.flowerYellow);
     b.hline(5, 10, 11, P.ink);
   },
+  folder: (b) => {
+    b.rect(1, 4, 14, 10, '#c9a25a');
+    b.rect(1, 3, 6, 2, '#c9a25a');
+    b.rect(2, 6, 12, 7, '#e2c27a');
+    b.rect(4, 2, 9, 8, P.paper);
+    b.hline(5, 11, 4, P.ink);
+    b.hline(5, 9, 6, P.ink);
+  },
+  sketch: (b) => {
+    b.rect(2, 1, 12, 14, P.paper);
+    b.ellipse(4, 3, 8, 10, '#d9e8c4');
+    b.vline(8, 3, 13, P.ink);
+    [[6, 6], [10, 7], [6, 9], [10, 10]].forEach(([x, y]) => b.set(x, y, P.ink));
+    b.rect(12, 9, 2, 6, P.flowerYellow);
+  },
   notebook: (b) => {
     b.rect(3, 1, 10, 14, '#3f7f3a');
     b.rect(4, 2, 8, 12, '#4f9a4a');

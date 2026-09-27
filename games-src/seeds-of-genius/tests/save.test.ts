@@ -26,6 +26,22 @@ describe('save system', () => {
     expect(r.data.world.scene).toBe('room');
   });
 
+  it('keeps the schoolhouse scene and Chapter 2 data, and drops unknown scenes', () => {
+    const mem = new MemStorage();
+    const d = freshSave();
+    d.world = { scene: 'school', x: 7, y: 7.3, facing: 'up' };
+    d.chapterData.ch2 = { visited: ['reading'], skipped: ['reading'] };
+    new SaveStore(mem).save(d);
+    const r = new SaveStore(mem).load();
+    expect(r.data.world.scene).toBe('school');
+    expect(r.data.chapterData.ch2).toEqual({ visited: ['reading'], skipped: ['reading'] });
+    const bad = freshSave();
+    (bad.world as { scene: string }).scene = 'castle';
+    const mem2 = new MemStorage();
+    new SaveStore(mem2).save(bad);
+    expect(new SaveStore(mem2).load().data.world.scene).toBe('hub');
+  });
+
   it('starts fresh with no save', () => {
     expect(new SaveStore(new MemStorage()).load().status).toBe('fresh');
   });

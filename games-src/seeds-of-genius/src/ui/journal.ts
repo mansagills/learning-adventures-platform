@@ -188,14 +188,18 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
           ),
         );
       }
-      if (p.stage === 'complete') {
+      // Show the reflection of this chapter, or of the one just finished
+      // while the next one waits to be started.
+      const lastDone = [...e.allChapters()].reverse().find((c) => e.progress(c.id).stage === 'complete');
+      const reflect = p.stage === 'complete' ? chapter : p.stage === 'available' ? lastDone : undefined;
+      if (reflect) {
         wrap.append(
           h(
             'div',
             { class: 'section' },
-            h('h3', { text: 'Chapter reflection' }),
-            h('p', { style: 'margin:0 0 6px', text: `You earned ${chapter.rewards.xp} XP and ${chapter.rewards.seeds} Seeds.${chapter.rewards.unlock ? ` Unlocked: ${chapter.rewards.unlock}.` : ''}` }),
-            chapter.reflection ? h('p', { style: 'margin:0', text: chapter.reflection }) : null,
+            h('h3', { text: reflect === chapter ? 'Chapter reflection' : `Chapter reflection: ${reflect.title}` }),
+            h('p', { style: 'margin:0 0 6px', text: `You earned ${reflect.rewards.xp} XP and ${reflect.rewards.seeds} Seeds.${reflect.rewards.unlock ? ` Unlocked: ${reflect.rewards.unlock}.` : ''}` }),
+            reflect.reflection ? h('p', { style: 'margin:0', text: reflect.reflection }) : null,
           ),
         );
       }

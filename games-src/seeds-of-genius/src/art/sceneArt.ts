@@ -334,6 +334,150 @@ function spotMushrooms(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------ Chapter 2: the journey
+
+/** George as a teenager and as a young man (dark hair: he is not yet the gray-haired guide). */
+const TEEN_GEORGE: CharacterLook = { ...YOUNG_GEORGE, build: 'adult', shirt: { base: '#c9b27a', shade: '#a8925e' } };
+const YOUNG_MAN_GEORGE: CharacterLook = {
+  ...YOUNG_GEORGE,
+  build: 'adult',
+  shirt: { base: '#f4efe4', shade: '#d9d2c2' },
+  pants: '#4a4038',
+  extras: { jacket: { base: '#5a4a6b', shade: '#46394f' }, tie: '#2f2521', mustache: '#2a1f1d' },
+};
+const TEACHER: CharacterLook = {
+  build: 'adult',
+  skin: { base: '#f0c9a4', shade: '#d9ab86' },
+  hair: { style: 'bun', base: '#7a4a2a', shade: '#5d371e', light: '#96603a' },
+  shirt: { base: '#2f7a6a', shade: '#235e51' },
+  pants: '#3a3a44',
+  shoes: '#2f2521',
+  accessory: 'none',
+  accent: P.flowerYellow,
+};
+
+function room(b: PixelBuffer, wall: string, floor: string): void {
+  b.rect(0, 0, PAINT_W, 44, wall);
+  b.rect(0, 44, PAINT_W, 20, floor);
+  for (let x = 0; x < PAINT_W; x += 8) b.vline(x, 44, 63, mix(floor, P.outline, 0.2));
+  b.hline(0, PAINT_W - 1, 44, mix(wall, P.outline, 0.3));
+}
+
+function ch2Reading(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#8a5a3a', '#6e472e');
+  for (let y = 4; y < 44; y += 6) b.hline(0, PAINT_W - 1, y, '#7a4f33'); // log walls
+  b.rect(60, 8, 20, 16, '#f2d38a'); // window light
+  b.vline(70, 8, 23, P.wood2);
+  b.rect(10, 34, 30, 4, P.wood3); // table
+  b.rect(12, 38, 2, 10, P.wood2);
+  b.rect(36, 38, 2, 10, P.wood2);
+  b.rect(20, 30, 10, 4, P.paper); // open book
+  b.vline(25, 30, 33, P.paper2);
+  b.rect(32, 26, 3, 8, '#e0a93a'); // lamp
+  b.set(33, 25, P.lampGlow);
+  b.blit(paintCharacter(YOUNG_GEORGE, 'right', 0), 44, 30);
+  return b;
+}
+
+function ch2Neosho(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#a8dcf0', '#f6e2b8', 30);
+  hills(b, 30, '#8cc463', 2);
+  grassField(b, 30, 4);
+  for (let y = 36; y < 64; y++) b.hline(40 - Math.floor((y - 36) / 2), 52 + Math.floor((y - 36) / 2), y, P.path1); // road
+  b.rect(62, 14, 26, 18, P.plaster); // small schoolhouse
+  for (let j = 0; j < 7; j++) b.hline(60 + j, 89 - j, 13 - j, P.roofRed2);
+  b.rect(72, 22, 6, 10, P.wood2);
+  b.rect(73, 2, 3, 4, P.gold); // bell
+  b.blit(paintCharacter(YOUNG_GEORGE, 'up', 1), 38, 40);
+  b.rect(52, 50, 4, 3, '#b89a68'); // bundle
+  return b;
+}
+
+function ch2Kansas(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#bfe3f0', '#f8ecc8', 34);
+  grassField(b, 34, 6);
+  for (let x = 0; x < PAINT_W; x += 3) b.vline(x, 30 + (x % 2), 34, '#d9c26a'); // prairie grass
+  b.rect(6, 12, 30, 22, '#d8c4a0'); // small town building
+  b.rect(6, 10, 30, 3, P.wood2);
+  b.rect(14, 22, 6, 12, P.wood2);
+  b.rect(24, 18, 8, 6, P.windowDark);
+  b.hline(50, 92, 24, P.ink); // clothesline
+  [54, 62, 70, 80].forEach((x, i) => b.rect(x, 25, 6, 8, [P.white, '#9fd3ee', P.flowerYellow, P.white][i]));
+  b.rect(44, 44, 14, 8, P.metalLight); // wash tub
+  b.hline(44, 57, 44, P.metal);
+  b.blit(paintCharacter(TEEN_GEORGE, 'left', 0), 58, 32);
+  b.rect(76, 50, 8, 3, '#7a3f2c'); // books on a crate
+  b.rect(76, 47, 8, 3, '#3e5a88');
+  return b;
+}
+
+function ch2Highland(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#c8d4e0', '#e8e4dc', 40);
+  grassField(b, 40, 8);
+  b.rect(30, 4, 60, 36, P.brick1); // college building
+  for (let y = 6; y < 40; y += 4) b.hline(30, 89, y, P.brick2);
+  b.rect(54, 22, 12, 18, '#4a3326'); // closed doors
+  b.vline(60, 22, 39, P.outline);
+  [36, 76].forEach((x) => b.rect(x, 12, 8, 8, P.windowDark));
+  b.rect(50, 40, 20, 3, P.cobble2); // steps
+  b.blit(paintCharacter(YOUNG_MAN_GEORGE, 'right', 0), 20, 34);
+  b.rect(10, 52, 8, 7, '#8a5a3a'); // suitcase
+  b.rect(12, 50, 4, 2, P.outline);
+  b.rect(32, 44, 5, 4, P.paper); // letter in hand
+  return b;
+}
+
+function ch2Simpson(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#efe0bf', '#a0643c');
+  b.rect(8, 6, 22, 16, P.wood2); // window
+  b.rect(10, 8, 18, 12, '#9fd3ee');
+  b.rect(48, 14, 22, 20, P.wood1); // easel canvas with a painted flower
+  b.rect(50, 16, 18, 16, P.paper);
+  b.vline(59, 22, 31, P.leaf1);
+  b.ellipse(54, 17, 10, 8, '#dc6f9c');
+  b.ellipse(57, 19, 4, 4, P.flowerYellow);
+  b.vline(52, 34, 50, P.wood2);
+  b.vline(66, 34, 50, P.wood2);
+  b.blit(paintCharacter(YOUNG_MAN_GEORGE, 'right', 0), 28, 30);
+  b.blit(paintCharacter(TEACHER, 'left', 0), 72, 30);
+  b.rect(80, 50, 10, 6, '#b8634a'); // potted plant model
+  b.ellipse(80, 42, 10, 9, P.leaf2);
+  return b;
+}
+
+function ch2IowaState(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#a8dcf0', '#eaf6e8', 28);
+  grassField(b, 28, 10);
+  b.rect(46, 6, 44, 24, P.glass1); // greenhouse
+  for (let x = 46; x < 90; x += 6) b.vline(x, 6, 29, P.glassFrame);
+  b.hline(46, 89, 6, P.glassFrame);
+  for (let x = 48; x < 88; x += 5) b.vline(x, 22, 28, P.leaf2);
+  for (let x = 4; x < 40; x += 6) for (let y = 40; y < 62; y += 6) b.rect(x, y, 3, 3, P.leaf2); // test plots
+  b.blit(paintCharacter(YOUNG_MAN_GEORGE, 'down', 0), 22, 26);
+  b.rect(38, 36, 6, 8, P.paper); // diploma scroll
+  b.hline(38, 43, 40, '#c9483f');
+  return b;
+}
+
+function ch2Tuskegee(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#9fd3ee', '#fbeec8', 30);
+  grassField(b, 30, 12);
+  b.rect(12, 6, 58, 26, P.brick1);
+  for (let y = 8; y < 32; y += 4) b.hline(12, 69, y, P.brick2);
+  for (const x of [18, 32, 46, 60]) b.rect(x, 12, 6, 8, P.windowDark);
+  b.rect(36, 22, 10, 10, P.wood2);
+  for (let j = 0; j < 6; j++) b.hline(10 + j, 71 - j, 5 - j, P.roofRed2);
+  b.blit(paintCharacter({ ...YOUNG_MAN_GEORGE, extras: { ...YOUNG_MAN_GEORGE.extras, lapelFlower: '#e0574f' } }, 'down', 0), 74, 34);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -345,6 +489,13 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   bee: spotBee,
   snail: spotSnail,
   mushrooms: spotMushrooms,
+  'ch2-reading': ch2Reading,
+  'ch2-neosho': ch2Neosho,
+  'ch2-kansas': ch2Kansas,
+  'ch2-highland': ch2Highland,
+  'ch2-simpson': ch2Simpson,
+  'ch2-iowastate': ch2IowaState,
+  'ch2-tuskegee': ch2Tuskegee,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();
@@ -356,4 +507,9 @@ export function paintingCanvas(key: string): HTMLCanvasElement {
     cache.set(key, cv);
   }
   return cv;
+}
+
+/** Is there a painting with this key? (Used by the content tests.) */
+export function hasPainting(key: string): boolean {
+  return key in PAINTERS;
 }

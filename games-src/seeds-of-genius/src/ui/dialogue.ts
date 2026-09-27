@@ -75,17 +75,26 @@ export class DialogueUI {
         const line = node as LineNode;
         const text = this.resolve(retried && line.textIfRetried ? line.textIfRetried : line.text);
         this.showSpeaker(node);
+        this.showSensitive(line.sensitive);
         await this.type(text);
+        if (this.jumpTo !== undefined) {
+          id = this.takeJump();
+          continue;
+        }
         const choices = (line.choices ?? []).filter((c) => !c.requiresFlag);
         if (choices.length) {
           this.skipping = false;
           const pick = await this.choose(choices.map((c) => c.text));
+          if (pick < 0) {
+            id = this.takeJump();
+            continue;
+          }
           const choice = choices[pick];
           if (!opts.replay) await this.applyAll(choice.effects);
           id = choice.next;
         } else {
           await this.waitAdvance();
-          id = line.next ?? null;
+          id = this.jumpTo !== undefined ? this.takeJump() : (line.next ?? null);
         }
       }
     } finally {
@@ -97,6 +106,44 @@ export class DialogueUI {
   }
 
   private suspended = false;
+  private jumpTo: string | null | undefined = undefined;
+  private sensitiveEl!: HTMLElement;
+  private choiceResolve: ((i: number) => void) | null = null;
+
+  private takeJump(): string | null {
+    const t = this.jumpTo ?? null;
+    this.jumpTo = undefined;
+    this.showSensitive(undefined);
+    return t;
+  }
+
+  /** A gentle note with a skip button for lines about hard subjects. */
+  private showSensitive(s: LineNode['sensitive']): void {
+    if (!s) {
+      this.sensitiveEl.hidden = true;
+      return;
+    }
+    this.sensitiveEl.hidden = false;
+    this.sensitiveEl.replaceChildren(
+      h('span', { text: 'This part talks about unfair treatment because of race. You can read it, or skip it and replay it later from your journal.' }),
+      h('button', {
+        class: 'btn small',
+        type: 'button',
+        text: 'Skip this part',
+        onclick: (e: Event) => {
+          e.stopPropagation();
+          this.jumpTo = s.skipTo;
+          if (this.typing && this.finishTyping) this.finishTyping();
+          const r = this.resolveAdvance;
+          this.resolveAdvance = null;
+          r?.();
+          const c = this.choiceResolve;
+          this.choiceResolve = null;
+          c?.(-1);
+        },
+      }),
+    );
+  }
 
   /** Run effects in order; while one is open (a memory), dialogue keys pause. */
   private async applyAll(effects: DialogueEffect[] | undefined): Promise<void> {
@@ -139,6 +186,7 @@ export class DialogueUI {
     this.textEl = h('div', { class: 'text', 'aria-hidden': 'true' });
     this.live = h('div', { class: 'sr-only', 'aria-live': 'polite' });
     this.feedbackEl = h('div', { class: 'feedback', hidden: true });
+    this.sensitiveEl = h('div', { class: 'sensitive-note', hidden: true, role: 'note' });
     this.choicesEl = h('ul', { class: 'choices' });
     this.footerHint = h('span', { class: 'continue-hint' });
     this.skipBtn = h('button', {
@@ -160,6 +208,7 @@ export class DialogueUI {
         'div',
         { class: 'body' },
         h('div', { class: 'nameplate' }, this.nameEl, this.roleEl, this.badgeEl),
+        this.sensitiveEl,
         this.textEl,
         this.live,
         this.feedbackEl,
@@ -292,6 +341,7 @@ export class DialogueUI {
   private choose(labels: string[], opts: { disabled?: Set<number>; highlight?: number } = {}): Promise<number> {
     this.footerHint.textContent = 'Choose an answer';
     return new Promise((resolve) => {
+      this.choiceResolve = resolve;
       this.choicesEl.replaceChildren();
       labels.forEach((label, i) => {
         const btn = h(
@@ -302,6 +352,7 @@ export class DialogueUI {
             disabled: opts.disabled?.has(i),
             onclick: () => {
               audio.click();
+              this.choiceResolve = null;
               resolve(i);
             },
           },

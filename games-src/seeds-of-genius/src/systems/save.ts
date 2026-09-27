@@ -3,6 +3,7 @@ import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from
 import type { ProgressState } from '../quests/engine';
 import type { ChapterProgress, InventoryEntry } from '../quests/types';
 import type { LearnerState, ObjectiveRecord } from '../learning/learnerModel';
+import type { SceneId } from '../world/map';
 
 /**
  * Versioned save file, kept in this browser's localStorage only. No names,
@@ -27,7 +28,7 @@ export interface SaveData {
   savedAt: number;
   customized: boolean;
   appearance: Appearance;
-  world: { scene: 'hub' | 'room'; x: number; y: number; facing: Dir };
+  world: { scene: SceneId; x: number; y: number; facing: Dir };
   time: { minutes: number; day: number; paused: boolean };
   progress: ProgressState;
   learner: LearnerState;
@@ -150,7 +151,7 @@ export function sanitize(raw: Record<string, unknown>, now = Date.now()): SaveDa
     customized: raw.customized === true,
     appearance: cleanAppearance(raw.appearance),
     world: {
-      scene: oneOf(world.scene, ['hub', 'room'] as const, 'hub'),
+      scene: oneOf(world.scene, ['hub', 'room', 'school'] as const, 'hub'),
       x: num(world.x, base.world.x, 0, 60),
       y: num(world.y, base.world.y, 0, 60),
       facing: oneOf(world.facing, DIRS, 'down'),

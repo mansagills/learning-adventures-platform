@@ -1,16 +1,17 @@
 import * as THREE from 'three';
 import { K, PX } from '../render/pixelRenderer';
 import { paintGround } from '../art/tiles';
-import { paintFurniture, paintProp, paintSprout } from '../art/props';
+import { paintFurniture, paintProp, paintSchool, paintSprout } from '../art/props';
 import { PixelBuffer } from '../art/pixel';
+import { paintingCanvas } from '../art/sceneArt';
 import { P } from '../art/palette';
 import { hash2, mulberry32 } from '../core/rng';
 import { CollisionGrid, propFootprint } from './collision';
-import { buildHubMap, buildRoomMap, type MapDef, type PropDef } from './map';
+import { SCHOOL_EASEL_ART, SCHOOL_EASELS, buildHubMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
 import { Lighting, billboard, buildBuilding, glowSprite, lightPool, pixelTexture } from './sceneKit';
 
 export interface WorldScene {
-  id: 'hub' | 'room';
+  id: SceneId;
   map: MapDef;
   scene: THREE.Scene;
   grid: CollisionGrid;
@@ -278,4 +279,111 @@ export function buildRoomScene(): WorldScene {
       pot.visible = planted;
     },
   };
+}
+
+// ------------------------------------------------------------ schoolhouse
+
+function paintSchoolWall(night: boolean): HTMLCanvasElement {
+  const W = 224;
+  const H = 40;
+  const b = new PixelBuffer(W, H);
+  b.rect(0, 0, W, H, '#e8dcc2');
+  for (let x = 6; x < W; x += 12) b.vline(x, 0, H - 13, '#dccfb2');
+  b.rect(0, H - 12, W, 12, P.wood2);
+  b.hline(0, W - 1, H - 12, P.wood3);
+  for (let x = 0; x < W; x += 12) b.vline(x, H - 11, H - 1, P.wood1);
+  b.rect(0, 0, W, 2, P.woodDark);
+  // chalkboard with a chalk timeline (dots on a line)
+  const cx = 72;
+  b.rect(cx, 5, 80, 22, P.wood2);
+  b.rect(cx + 2, 7, 76, 18, '#2f5a45');
+  b.hline(cx + 8, cx + 70, 18, '#e8f0e8');
+  for (let i = 0; i < 7; i++) {
+    const x = cx + 10 + i * 10;
+    b.rect(x, 16, 3, 5, '#e8f0e8');
+    b.hline(x - 1, x + 3, 12 - (i % 2) * 2, '#cfe0cf');
+  }
+  b.rect(cx + 30, 26, 20, 2, P.wood3); // chalk ledge
+  b.set(cx + 34, 25, P.white);
+  // windows either side
+  for (const wx of [18, 176]) {
+    b.rect(wx, 6, 28, 20, P.wood2);
+    b.rect(wx + 2, 8, 24, 16, night ? '#2b3a66' : '#9fd3ee');
+    if (night) b.set(wx + 8, 11, '#fff6c8');
+    else b.ellipse(wx + 4, 16, 12, 8, '#7cb356');
+    b.vline(wx + 13, 8, 23, P.wood2);
+    b.hline(wx + 2, wx + 25, 15, P.wood2);
+  }
+  // clock
+  b.ellipse(158, 6, 10, 10, P.white);
+  b.set(163, 9, P.outline);
+  b.set(163, 10, P.outline);
+  b.set(164, 11, P.outline);
+  return b.toCanvas();
+}
+
+export function buildSchoolScene(): WorldScene {
+  const map = buildSchoolMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  scene.background = new THREE.Color('#1e1622');
+  scene.add(groundMesh(lighting, map));
+  const dayTex = pixelTexture(paintSchoolWall(false));
+  const nightTex = pixelTexture(paintSchoolWall(true));
+  const wallMat = lighting.add(new THREE.MeshBasicMaterial({ map: dayTex }));
+  const wallGeo = new THREE.PlaneGeometry(14, 2.5 * K);
+  wallGeo.translate(0, (2.5 * K) / 2, 0);
+  const wall = new THREE.Mesh(wallGeo, wallMat);
+  wall.position.set(7, 0, 2 * K);
+  scene.add(wall);
+
+  const desk = paintSchool('desk').toCanvas();
+  for (const [x, y] of [
+    [4, 4.95],
+    [10, 4.95],
+    [4, 6.95],
+    [10, 6.95],
+  ])
+    scene.add(billboard(lighting, desk, x, y, { name: 'desk' }));
+  SCHOOL_EASELS.forEach(([x, y], i) => scene.add(billboard(lighting, easelWithPicture(i), x + 0.5, y + 0.8, { name: 'easel' })));
+  scene.add(billboard(lighting, paintSchool('globe').toCanvas(), 12.5, 7.8, { name: 'globe' }));
+  scene.add(glowSprite(lighting, 48, '#ffd88a', 7, 3.0, 1.9, 0.35));
+
+  return {
+    id: 'school',
+    map,
+    scene,
+    grid: new CollisionGrid(map),
+    lighting,
+    interior: true,
+    update: (_dt, _t, night) => {
+      const want = night > 0.5 ? nightTex : dayTex;
+      if (wallMat.map !== want) {
+        wallMat.map = want;
+        wallMat.needsUpdate = true;
+      }
+    },
+  };
+}
+
+/**
+ * An easel showing a tiny copy of its own storybook painting, so each
+ * display looks different from across the room. The painting is shrunk in
+ * two steps, which averages it into flat 14x11 pixels.
+ */
+function easelWithPicture(i: number): HTMLCanvasElement {
+  const cv = paintSchool('easel', i).toCanvas();
+  const art = SCHOOL_EASEL_ART[i];
+  if (!art) return cv;
+  const half = document.createElement('canvas');
+  half.width = 28;
+  half.height = 22;
+  const hg = half.getContext('2d')!;
+  hg.imageSmoothingEnabled = true;
+  hg.imageSmoothingQuality = 'high';
+  hg.drawImage(paintingCanvas(art), 0, 0, 28, 22);
+  const g = cv.getContext('2d')!;
+  g.imageSmoothingEnabled = true;
+  g.drawImage(half, 3, 4, 14, 11);
+  return cv;
 }

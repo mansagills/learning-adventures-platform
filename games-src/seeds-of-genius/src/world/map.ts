@@ -64,8 +64,11 @@ export interface PlaceDef {
   radius: number;
 }
 
+/** Every place the player can be. Interiors share the scene kit. */
+export type SceneId = 'hub' | 'room' | 'school';
+
 export interface MapDef {
-  id: 'hub' | 'room';
+  id: SceneId;
   w: number;
   h: number;
   ground: GroundKind[][];
@@ -75,6 +78,12 @@ export interface MapDef {
   spawn: { x: number; y: number };
   /** Extra blocked tiles (e.g. room furniture) as "x,y". */
   blocked: Set<string>;
+  /**
+   * Interiors: where you appear when you come in, and the doorway you walk
+   * out through (going below exitY between exitX0 and exitX1 leaves).
+   */
+  entry?: { x: number; y: number };
+  exit?: { x0: number; x1: number; y: number; to: SceneId; at: { x: number; y: number } };
 }
 
 const G: Record<string, GroundKind> = {
@@ -276,5 +285,55 @@ export function buildRoomMap(): MapDef {
     ],
     spawn: { x: 5, y: 7.2 },
     blocked,
+    entry: { x: 5, y: 7.2 },
+    exit: { x0: 4, x1: 6, y: 8.05, to: 'hub', at: { x: 5.5, y: 18.5 } },
+  };
+}
+
+// ------------------------------------------------------------------ schoolhouse
+
+const SCHOOL_ROWS = [
+  '##############',
+  '##############',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#ooooorrooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '######oo######',
+];
+
+/** Easel tiles in the schoolhouse (chapters hang their memory displays here). */
+export const SCHOOL_EASELS: Array<[number, number]> = [
+  [2, 2],
+  [11, 2],
+  [1, 4],
+  [12, 4],
+  [1, 6],
+  [12, 6],
+];
+/** The storybook painting on each easel (same order as Chapter 2's stages). */
+export const SCHOOL_EASEL_ART = ['ch2-reading', 'ch2-neosho', 'ch2-kansas', 'ch2-highland', 'ch2-simpson', 'ch2-iowastate'];
+
+/** The schoolhouse: desks, a chalkboard and room for memory displays. */
+export function buildSchoolMap(): MapDef {
+  const blocked = new Set<string>();
+  // desks (two rows of two) and the teacher's desk by the chalkboard
+  ['3,4', '4,4', '9,4', '10,4', '3,6', '4,6', '9,6', '10,6'].forEach((k) => blocked.add(k));
+  // memory-display easels along the walls
+  SCHOOL_EASELS.forEach(([x, y]) => blocked.add(`${x},${y}`));
+  return {
+    id: 'school',
+    w: 14,
+    h: 9,
+    ground: parseGround(SCHOOL_ROWS),
+    buildings: [],
+    props: [],
+    places: [{ id: 'school_exit', label: 'Go outside', x: 7, y: 8.3, radius: 1.1 }],
+    spawn: { x: 7, y: 7.3 },
+    blocked,
+    entry: { x: 7, y: 7.3 },
+    exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 6.5, y: 26.4 } },
   };
 }

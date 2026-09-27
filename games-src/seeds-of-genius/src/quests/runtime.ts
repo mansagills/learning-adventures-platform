@@ -2,6 +2,7 @@ import type { LearnerState } from '../learning/learnerModel';
 import type { SaveData } from '../systems/save';
 import type { QuestEngine } from './engine';
 import type { DialogueEffect, Expression, NpcId } from './types';
+import type { SceneId } from '../world/map';
 
 /**
  * What a chapter's code can see and do. The game builds one of these for
@@ -33,6 +34,8 @@ export interface RuntimePlace {
   radius: number;
   /** 'sparkle' = a clear marker; 'faint' = a hidden bonus that twinkles when you're close. */
   marker: 'sparkle' | 'faint' | null;
+  /** Which scene the place is in (default: the hub). */
+  scene?: SceneId;
 }
 
 export interface ChapterRuntime {
@@ -43,7 +46,7 @@ export interface ChapterRuntime {
   /** Values for {tokens} in this chapter's dialogue, so NPCs react to what happened. */
   tokens(ctx: RuntimeContext): Record<string, string>;
   /** A more specific "Next" line while the chapter's minigame step is open. */
-  objective?(ctx: RuntimeContext): { text: string; x: number; y: number } | null;
+  objective?(ctx: RuntimeContext): { text: string; x: number; y: number; scene?: SceneId; label?: string } | null;
   /** Extra journal content (e.g. the player's notebook). */
   journal?(ctx: RuntimeContext): HTMLElement | null;
 }

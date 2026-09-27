@@ -22,6 +22,7 @@ npm run build        # typecheck + build into ../../public/games/seeds-of-genius
 npx vite preview --port 4173 &   # serve the build
 npm run e2e -- http://localhost:4173/   # Phase 0 browser check-in (Playwright)
 node scripts/e2e-phase1.mjs http://localhost:4173/   # Phase 1 check-in (Chapter 1)
+node scripts/e2e-phase2.mjs http://localhost:4173/   # Phase 2 check-in (Chapter 2)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -57,6 +58,7 @@ src/
   art/                    every sprite, tile, portrait and icon, painted in code
   quests/                 chapter/item/dialogue types, the QuestEngine, the chapter runtime interface
   chapters/ch1/           Chapter 1's code: garden spots, close-up inspection, card game (lazy-loaded)
+  chapters/ch2/           Chapter 2's code: schoolhouse displays, journey timeline, barrier/support (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -90,7 +92,10 @@ required path.
 5. Put its minigame in `src/chapters/<id>/runtime.ts` (a `ChapterRuntime`: world
    places, dialogue `{tokens}`, objective line, journal section) and point
    `loadRuntime` at it with a dynamic `import()`, so it loads lazily.
-6. Run `npm test`: `tests/content.test.ts` checks that every conversation,
+6. Mark any dialogue line about a hard subject with `sensitive: { skipTo }`.
+   The player gets a note and a "Skip this part" button; the lines it can skip
+   must not carry effects (a test checks this).
+7. Run `npm test`: `tests/content.test.ts` checks that every conversation,
    NPC, item, step and effect a chapter names really exists, and that Carver
    opens and closes every playable chapter.
 
@@ -131,14 +136,26 @@ holds keys in the browser, and falls back to authored hints on any error.
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Playable foundation | Approved ✅ |
-| 1 | A Seed Is Planted / Curiosity Collector | Built, awaiting owner approval |
-| 2 | Science Against the Odds / Choose the Path | Not started |
+| 1 | A Seed Is Planted / Curiosity Collector | Approved ✅ |
+| 2 | Science Against the Odds / Choose the Path | Built, waiting for approval |
 | 3 | The Soil Speaks / Virtual Soil Lab | Not started |
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Not started |
 | 5 | Science for the People / Farm Helper | Not started |
 | 6 | A Scientist's Method / Design Your Own Experiment | Not started |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 2)
+
+- On phones, the timeline is a long scrolling list (six cards with two
+  buttons each). Everything is reachable, but you scroll to reach "Check my
+  order".
+- Cards move one step at a time with Move up / Move down (no drag and drop
+  yet). This works the same with a mouse, keyboard, touch or a screen reader.
+- The storybook paintings are small 96x64 pixel scenes; people in them are
+  simple figures, not portraits of the real people.
+- Printing the Journey Card works on the website; the Claude artifact preview
+  can't open the print dialog.
 
 ## Known issues (Phase 1)
 

@@ -273,7 +273,7 @@ await sleep(page, 500);
 s = await state(page);
 check('Chapter 1 complete; Carver gave the Nature Observation Card', s.ch1.stage === 'complete' && s.inventory.some((e) => e.itemId === 'nature_card' && e.from === 'carver'));
 check('Rewards: +150 XP and +20 Seeds (plus the bonus)', s.xp === 50 + 150 + 10 && s.seeds === 10 + 20 + 3, `xp ${s.xp}, seeds ${s.seeds}`);
-check('Chapter 2 shows as unlocked', s.chapters.ch2 === 'locked' && /Chapter 2 is unlocked/.test(s.objective), s.objective);
+check('Chapter 2 opens next, and Carver offers it', s.chapters.ch2 === 'available' && /Carver/.test(s.objective), s.objective);
 
 // --- Journal: evidence, memory, activity card ---
 await page.keyboard.press('j');
@@ -290,7 +290,7 @@ await page.screenshot({ path: `${OUT}/08-activity-card.png` });
 await closeModal(page);
 await page.getByRole('tab', { name: /Map/ }).click();
 await sleep(page, 200);
-check('Chapter map shows Chapter 2 as unlocked', /Unlocked · arrives in the next update/.test((await page.locator('.modal .content').textContent()) ?? ''));
+check('Chapter map shows Chapter 2 as ready to start', /Science Against the Odds/.test((await page.locator('.modal .content').textContent()) ?? ''));
 await closeModal(page);
 
 // --- Replay: card game again, no duplicate rewards ---
@@ -302,7 +302,7 @@ await closeModal(page);
 await walkPath(page, [[19.5, 9.6], [19.5, 7.5], [20.3, 7.5]]);
 await tapKey(page, 'ArrowRight', 30);
 await talk(page);
-check("Carver's after-chapter talk", /Nature Observation Card is in your bag/.test(await dialogueText(page)) || (await advanceUntil(page, /in your bag/)));
+check('Carver moves on to Chapter 2 next', /Last time I told you/.test(await dialogueText(page)) || (await advanceUntil(page, /Last time I told you/)));
 await finishDialogue(page);
 s = await state(page);
 check('Replaying gives no duplicate rewards', s.xp === 210 && s.seeds === 33, `xp ${s.xp}, seeds ${s.seeds}`);

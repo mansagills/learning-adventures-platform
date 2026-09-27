@@ -17,7 +17,8 @@ import { SaveStore, freshSave, type SaveData } from './systems/save';
 import { applySettingsToDocument, isTouchDevice, settings, touchControlsVisible, updateSettings } from './systems/settings';
 import { Actor } from './world/actor';
 import { findPath } from './world/collision';
-import { buildHubScene, buildRoomScene, type WorldScene } from './world/scenes';
+import { buildHubScene, buildRoomScene, buildSchoolScene, type WorldScene } from './world/scenes';
+import type { SceneId } from './world/map';
 import { openCustomize } from './ui/customize';
 import { DialogueUI } from './ui/dialogue';
 import { choose, h, type Modal } from './ui/dom';
@@ -57,6 +58,7 @@ export class Game {
   engine!: QuestEngine;
   readonly hub: WorldScene;
   readonly room: WorldScene;
+  readonly school: WorldScene;
   world: WorldScene;
   player!: Actor;
   private npcActors = new Map<string, Actor>();
@@ -86,6 +88,7 @@ export class Game {
     this.renderer = new PixelRenderer(host);
     this.hub = buildHubScene();
     this.room = buildRoomScene();
+    this.school = buildSchoolScene();
     this.world = this.hub;
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
@@ -241,8 +244,12 @@ export class Game {
     }
   }
 
-  private setScene(id: 'hub' | 'room', pos?: { x: number; y: number }, facing: Dir = 'down'): void {
-    this.world = id === 'hub' ? this.hub : this.room;
+  private sceneById(id: SceneId): WorldScene {
+    return { hub: this.hub, room: this.room, school: this.school }[id];
+  }
+
+  private setScene(id: SceneId, pos?: { x: number; y: number }, facing: Dir = 'down'): void {
+    this.world = this.sceneById(id);
     const p = pos ?? this.world.map.spawn;
     // Never leave the player inside a wall (e.g. after a map update).
     const free = this.world.grid.isFree(p.x, p.y, PLAYER_RADIUS);
@@ -260,7 +267,7 @@ export class Game {
     bus.emit('scene:changed', { scene: id });
   }
 
-  private async transition(to: 'hub' | 'room'): Promise<void> {
+  private async transition(to: SceneId): Promise<void> {
     if (this.transitioning) return;
     this.transitioning = true;
     audio.door();
@@ -268,8 +275,9 @@ export class Game {
     const fadeMs = settings.reducedMotion ? 0 : 280;
     this.hud.fade.classList.add('on');
     await wait(fadeMs);
-    if (to === 'room') this.setScene('room', { x: 5, y: 7.2 }, 'up');
-    else this.setScene('hub', { x: 5.5, y: 18.5 }, 'down');
+    const from = this.world;
+    if (to === 'hub') this.setScene('hub', from.map.exit?.at ?? this.hub.map.spawn, 'down');
+    else this.setScene(to, this.sceneById(to).map.entry, 'up');
     this.persist('quiet');
     this.hud.fade.classList.remove('on');
     await wait(fadeMs);
@@ -434,8 +442,9 @@ export class Game {
       if (!p.moving && this.path) this.path = null; // stuck: give up on the click-path
     } else p.moving = false;
 
-    // Walking out through the room's door.
-    if (this.world === this.room && p.y > 8.05 && !this.transitioning) void this.transition('hub');
+    // Walking out through an interior's doorway.
+    const ex = this.world.map.exit;
+    if (ex && p.y > ex.y && p.x >= ex.x0 && p.x <= ex.x1 && !this.transitioning) void this.transition(ex.to);
   }
 
   private onPointer(e: PointerEvent): void {
@@ -489,8 +498,8 @@ export class Game {
         if (p.kind === 'sign' && p.text) out.push({ kind: 'sign', text: p.text, label: 'Read the sign', x: p.x + 0.5, y: p.y + 0.5 });
     }
     for (const pl of this.world.map.places) out.push({ kind: 'place', id: pl.id, label: pl.label, x: pl.x, y: pl.y });
-    if (this.world === this.hub)
-      for (const [chapterId, place] of this.runtimePlaces())
+    for (const [chapterId, place] of this.runtimePlaces())
+      if ((place.scene ?? 'hub') === this.world.id)
         out.push({ kind: 'rplace', id: place.id, chapterId, label: place.label, x: place.x, y: place.y, radius: place.radius });
     return out;
   }
@@ -625,13 +634,13 @@ export class Game {
   }
 
   /** The HUD's "Next" line and where the arrow should point. */
-  private objective(): { text: string; npc?: string; point?: { x: number; y: number; label: string } } {
+  private objective(): { text: string; npc?: string; point?: { x: number; y: number; label: string; scene: SceneId } } {
     const next = this.engine.nextAction();
     if (next.targetPlaceId) {
       const cur = this.engine.currentChapter();
       const rt = cur ? this.runtimes.get(cur.id) : undefined;
       const o = rt?.objective?.(this.runtimeContext(cur!.id));
-      if (o) return { text: o.text, point: { x: o.x, y: o.y, label: 'Garden' } };
+      if (o) return { text: o.text, point: { x: o.x, y: o.y, label: o.label ?? 'Garden', scene: o.scene ?? 'hub' } };
     }
     return { text: next.text, npc: next.targetNpcId };
   }
@@ -639,13 +648,19 @@ export class Game {
   // Sparkles over chapter hotspots (clear for tasks, faint for hidden bonuses).
   private sparkles = new Map<string, THREE.Mesh>();
   private sparkleTex: THREE.CanvasTexture[] = [];
+  private sparkleWorld: WorldScene | null = null;
 
   private updateSparkles(): void {
     if (!this.sparkleTex.length) this.sparkleTex = [0, 1].map((f) => pixelTexture(paintSparkle(f).toCanvas()));
+    if (this.sparkleWorld !== this.world) {
+      // Moved to another scene: take the old sparkles down.
+      this.sparkles.forEach((m) => this.sparkleWorld?.scene.remove(m));
+      this.sparkles.clear();
+      this.sparkleWorld = this.world;
+    }
     const seen = new Set<string>();
-    if (this.world === this.hub)
-      for (const [, p] of this.runtimePlaces()) {
-        if (!p.marker) continue;
+    for (const [, p] of this.runtimePlaces()) {
+        if (!p.marker || (p.scene ?? 'hub') !== this.world.id) continue;
         const near = Math.hypot(p.x - this.player.x, p.y - this.player.y) < 3.2;
         if (p.marker === 'faint' && !near) continue;
         seen.add(p.id);
@@ -655,7 +670,7 @@ export class Game {
           m = new THREE.Mesh(new THREE.PlaneGeometry(11 / 16, 11 / 16), mat);
           m.rotation.x = -Math.PI / 4;
           m.renderOrder = 15;
-          this.hub.scene.add(m);
+          this.world.scene.add(m);
           this.sparkles.set(p.id, m);
         }
         const mat = m.material as THREE.MeshBasicMaterial;
@@ -670,7 +685,7 @@ export class Game {
       }
     for (const [id, m] of this.sparkles)
       if (!seen.has(id)) {
-        this.hub.scene.remove(m);
+        this.world.scene.remove(m);
         this.sparkles.delete(id);
       }
   }
@@ -733,7 +748,14 @@ export class Game {
       case 'cottage_door':
         return this.transition('room');
       case 'room_door':
+      case 'school_exit':
         return this.transition('hub');
+      case 'school_door': {
+        const st = this.engine.progress('ch2').stage;
+        if (st === 'active' || st === 'complete') return this.transition('school');
+        if (st === 'available') return this.say('The schoolhouse is closed. Carver has something to tell you about school first.');
+        return this.say(PLACE_LINES.school_door);
+      }
       case 'bed':
         return this.rest();
       case 'wardrobe':
@@ -848,10 +870,18 @@ export class Game {
     let targetNpc = obj.npc;
     if (this.clock < this.guideUntil) targetNpc = 'carver';
     const from = this.renderer.project(this.player.headPoint());
-    if (this.world === this.room && (targetNpc || obj.point)) {
-      const door = this.renderer.project(new THREE.Vector3(5, 0, 8.6 * K));
+    const ex = this.world.map.exit;
+    const pointHere = obj.point && obj.point.scene === this.world.id;
+    if (ex && (targetNpc || (obj.point && !pointHere))) {
+      // Inside, with the next task outside: point at the door.
+      const door = this.renderer.project(new THREE.Vector3((ex.x0 + ex.x1) / 2, 0, (ex.y + 0.5) * K));
       this.hud.setArrow(door.visible ? null : 'Door', from.x, from.y, door.x, door.y);
       return;
+    }
+    if (obj.point && !pointHere && this.world === this.hub) {
+      // The task is inside a building: point at its door.
+      const doorPlace = this.hub.map.places.find((q) => q.id === `${obj.point!.scene}_door`);
+      if (doorPlace) obj.point = { x: doorPlace.x, y: doorPlace.y, label: obj.point.label, scene: 'hub' };
     }
     const a = targetNpc ? this.npcActors.get(targetNpc) : null;
     if (a && this.world === this.hub) {
@@ -859,7 +889,7 @@ export class Game {
       const { w, h: hh } = this.renderer.hostSize;
       const onScreen = s.x > 40 && s.x < w - 40 && s.y > 60 && s.y < hh - 60;
       this.hud.setArrow(onScreen ? null : shortName(npcById(targetNpc!)!), from.x, from.y, s.x, s.y);
-    } else if (obj.point && this.world === this.hub) {
+    } else if (obj.point && obj.point.scene === this.world.id) {
       const s = this.renderer.project(new THREE.Vector3(obj.point.x, 0.8 * K, obj.point.y * K));
       const { w, h: hh } = this.renderer.hostSize;
       const onScreen = s.x > 40 && s.x < w - 40 && s.y > 60 && s.y < hh - 60;
@@ -970,9 +1000,10 @@ export class Game {
           bus.emit('toast', { text: 'Follow the arrow to Carver.', kind: 'hint' });
         },
         extraSections: () => {
+          // Newest chapter first, whatever order the chapters' code loaded in.
           const out: HTMLElement[] = [];
-          for (const [chapterId, rt] of this.runtimes) {
-            const el = rt.journal?.(this.runtimeContext(chapterId));
+          for (const c of [...this.engine.allChapters()].reverse()) {
+            const el = this.runtimes.get(c.id)?.journal?.(this.runtimeContext(c.id));
             if (el) out.push(el);
           }
           return out;
@@ -1093,7 +1124,7 @@ export class Game {
 
   // ================================================================ debug / tests
 
-  teleport(x: number, y: number, scene: 'hub' | 'room' = 'hub'): void {
+  teleport(x: number, y: number, scene: SceneId = 'hub'): void {
     if (scene !== this.world.id) this.setScene(scene, { x, y });
     this.player.x = x;
     this.player.y = y;
@@ -1151,6 +1182,8 @@ export class Game {
         chapters: this.engine ? Object.fromEntries(this.engine.allChapters().map((c) => [c.id, this.engine.progress(c.id).stage])) : {},
         ch1: this.engine?.progress('ch1'),
         ch1Data: this.save.chapterData.ch1 ?? null,
+        ch2: this.engine?.progress('ch2'),
+        ch2Data: this.save.chapterData.ch2 ?? null,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,
         version: this.save.version,
@@ -1163,7 +1196,7 @@ export class Game {
         internal: { w: this.renderer.internalW, h: this.renderer.internalH, scale: this.renderer.scale },
       }),
       project: (x: number, y: number) => this.renderer.project(new THREE.Vector3(x, 0, y * K)),
-      ...(this.debug ? { teleport: (x: number, y: number, s?: 'hub' | 'room') => this.teleport(x, y, s), setTime: (m: number) => this.setTime(m) } : {}),
+      ...(this.debug ? { teleport: (x: number, y: number, s?: SceneId) => this.teleport(x, y, s), setTime: (m: number) => this.setTime(m) } : {}),
     };
   }
 }
@@ -1193,5 +1226,8 @@ function sameTarget(a: Target, b: Target): boolean {
 }
 
 function shortName(n: NpcDefinition): string {
-  return n.id === 'carver' ? 'Carver' : n.name.split(' ')[0] === 'Mr.' ? n.name : n.name.split(' ')[0];
+  if (n.id === 'carver') return 'Carver';
+  const words = n.name.split(' ');
+  // "Mr. Odell" stays whole; "Ms. Ruth Nelson" becomes "Ms. Nelson".
+  return /^(Mr|Ms|Mrs|Dr)\.$/.test(words[0]) ? `${words[0]} ${words[words.length - 1]}` : words[0];
 }

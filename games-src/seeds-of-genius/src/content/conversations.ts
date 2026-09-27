@@ -498,6 +498,281 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'tc', speaker: 'theo', expression: 'curious', text: "I'm watching the pond skaters. They stand right on top of the water!", next: null },
     ]),
 
+    // ================================================ Chapter 2: Science Against the Odds
+    convo('carver_ch2_opening', 'Carver: The road to school', [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'neutral',
+        text: 'Last time I told you I kept on learning, even when a school would not let me in. Today I would like you to see that journey for yourself.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Ms. Nelson has opened the schoolhouse. Inside are storybook displays about my school years, but they are all out of order.',
+        next: 'o3',
+      },
+      {
+        id: 'o3',
+        speaker: 'carver',
+        expression: 'neutral',
+        sensitive: { skipTo: 'o5' },
+        text: 'Some parts are hard. When I was a boy, the school in Diamond, Missouri, did not allow Black children. That rule was unfair. It was racism, and it was not my fault.',
+        choices: [
+          { text: "That's not fair!", next: 'o4a' },
+          { text: 'What did you do?', next: 'o4b' },
+        ],
+      },
+      {
+        id: 'o4a',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: "You're right, it was not fair. I felt sad about it, and I still wanted to learn. So I kept looking for a way.",
+        next: 'o5',
+      },
+      {
+        id: 'o4b',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'I kept looking for a school that would teach me, even when it meant leaving home. And people helped me along the way.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch2' }],
+        text: 'Ms. Nelson, the teacher, has school records with dates in them. And Ada, the young artist in the town square, has something to show you about art.',
+        next: 'o6',
+      },
+      {
+        id: 'o6',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Put my journey in order. Then tell me: what stood in my way, and who helped me?',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch2_waiting', 'Carver: How is the timeline coming?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge2}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'Why was the school rule unfair?', next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'neutral',
+        sensitive: { skipTo: null },
+        text: 'Because it judged children by the color of their skin, instead of letting every child learn. Rules like that were wrong, even when they were the law.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch2_closing', 'Carver: Looking back at the road', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'You put my journey in order. Seeing it all laid out like that... it was a long road.', next: 'c2' },
+      {
+        id: 'c2',
+        speaker: 'carver',
+        expression: 'thinking',
+        sensitive: { skipTo: 'c3' },
+        text: 'You named a barrier: {barrierText} Doors were closed to me because I was Black. That was wrong, and it is good that you can see it clearly.',
+        next: 'c3',
+      },
+      { id: 'c3', speaker: 'carver', expression: 'proud', text: 'And you named someone who helped: {supportText} {supportThanks}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'journey',
+        text: 'Here is my question for you. Why do you think learning mattered so much for my science?',
+        options: [
+          {
+            id: 'rest',
+            text: 'So you would never have to work hard again.',
+            correct: false,
+            misconception: 'learning-as-escape-from-work',
+            feedback: 'Ha! I worked hard my whole life. Learning did not replace work. It made my work more useful.',
+          },
+          {
+            id: 'tools',
+            text: 'Learning gave you tools to help farmers and to share what you found.',
+            correct: true,
+            feedback: 'Yes. Reading, art and botany all became tools I could use to help people grow better crops.',
+          },
+          {
+            id: 'easy',
+            text: 'Because school was easy for you.',
+            correct: false,
+            misconception: 'school-was-easy',
+            feedback: 'It was not easy at all! Think about what learning let me do for other people.',
+          },
+        ],
+        hints: [
+          'Here is a clue: think about who Carver helped with his science.',
+          'Carver worked hard his whole life, and school was not easy. Which answer is about helping people?',
+          'Worked example: learning gave Carver skills he could use to help farmers. So "Learning gave you tools to help farmers and to share what you found" is the answer.',
+        ],
+        next: 'c4',
+      },
+      {
+        id: 'c4',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Everything I learned became something I could give back. That is what my helpers hoped for, too.',
+        textIfRetried: 'You thought it through and changed your answer. Good. Everything I learned became something I could give back. That is what my helpers hoped for, too.',
+        next: 'c5',
+      },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'journey_card', from: 'carver' }],
+        text: 'This is for you: a Journey Card. Draw a timeline of something you have learned, and write down one person who helped you.',
+        next: 'c6',
+      },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'neutral',
+        effects: [{ type: 'completeChapter', chapterId: 'ch2' }],
+        text: 'Next time, we will put that learning to work. Some of the farmland around here is tired, and the soil needs a scientist.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch2_after', 'Carver: Helpers along the way', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Your Journey Card is in your bag. The schoolhouse displays are always open if you want to visit them again.',
+        choices: [
+          { text: 'Who helped you the most?', next: 'a2' },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      {
+        id: 'a2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'So many people. A family who taught me to read, a nurse who gave me a home, an art teacher who saw what I could do. No one travels that road alone.',
+        next: null,
+      },
+    ]),
+
+    convo('ruth_ch2_give', 'Ms. Nelson: The school records', [
+      {
+        id: 'r1',
+        speaker: 'ruth',
+        expression: 'smile',
+        text: "Welcome! I'm Ms. Nelson, the teacher here. Carver says you are putting his school years back in order.",
+        next: 'r2',
+      },
+      {
+        id: 'r2',
+        speaker: 'ruth',
+        expression: 'neutral',
+        text: 'History detectives use records. I have a folder of copies about Carver\'s schooling, sent to us by a museum.',
+        choices: [
+          { text: 'What is a record?', next: 'r3' },
+          { text: 'Can I see the folder?', next: 'r4' },
+        ],
+      },
+      {
+        id: 'r3',
+        speaker: 'ruth',
+        expression: 'thinking',
+        text: 'A record is something written down at the time, like a diploma or a letter. It helps us know when things happened, instead of guessing.',
+        next: 'r4',
+      },
+      {
+        id: 'r4',
+        speaker: 'ruth',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'school_record', from: 'ruth' },
+          { type: 'completeStep', chapterId: 'ch2', stepId: 'get_record' },
+        ],
+        text: 'Here is the folder. Some records have dates. Two moments have no dates at all, so the displays will have to help you.',
+        next: 'r5',
+      },
+      {
+        id: 'r5',
+        speaker: 'ruth',
+        expression: 'neutral',
+        text: 'The schoolhouse door is open now. Visit every display, then build the timeline on my chalkboard.',
+        next: null,
+      },
+    ]),
+    convo('ruth_ch2_after', 'Ms. Nelson: Each display', [
+      { id: 'ra', speaker: 'ruth', expression: 'smile', text: 'Take your time inside. Every display is a real moment from Carver\'s life.', next: null },
+    ]),
+    convo('ruth_ambient', 'Ms. Nelson: A seat for everyone', [
+      { id: 'rb', speaker: 'ruth', expression: 'smile', text: 'Every child deserves a seat in a classroom. That is why I teach.', next: null },
+    ]),
+
+    convo('ada_ch2_give', 'Ada: The botanical sketch', [
+      {
+        id: 'd1',
+        speaker: 'ada',
+        expression: 'curious',
+        text: 'Oh, hi! Sorry, I was drawing this leaf. Did you know Carver was a painter before he was a scientist?',
+        choices: [
+          { text: 'Really? Tell me more.', next: 'd2' },
+          { text: 'Why are you drawing a leaf?', next: 'd2b' },
+        ],
+      },
+      {
+        id: 'd2',
+        speaker: 'ada',
+        expression: 'smile',
+        text: 'At Simpson College in Iowa, he studied art. His teacher, Etta Budd, saw how well he painted plants and encouraged him to study botany, the science of plants.',
+        next: 'd3',
+      },
+      {
+        id: 'd2b',
+        speaker: 'ada',
+        expression: 'neutral',
+        text: 'To draw something, you have to look really closely. Carver painted plants, too! His art teacher, Etta Budd, noticed and encouraged him to study plants in college.',
+        next: 'd3',
+      },
+      {
+        id: 'd3',
+        speaker: 'ada',
+        expression: 'thinking',
+        text: 'My art teacher encouraged me when I almost gave up. Sometimes one person believing in you changes everything.',
+        next: 'd4',
+      },
+      {
+        id: 'd4',
+        speaker: 'ada',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'botanical_sketch', from: 'ada' },
+          { type: 'completeStep', chapterId: 'ch2', stepId: 'get_sketch' },
+        ],
+        text: 'Here, take my leaf sketch. It is a clue for your timeline: Carver studied art first, and plants after.',
+        next: 'd5',
+      },
+      { id: 'd5', speaker: 'ada', expression: 'smile', text: 'Good luck! Tell Carver I said hi.', next: null },
+    ]),
+    convo('ada_ch2_after', 'Ada: Tricky shapes', [
+      { id: 'da', speaker: 'ada', expression: 'smile', text: 'I am drawing the pond reeds next. Their shapes are trickier than they look!', next: null },
+    ]),
+    convo('ada_ambient', 'Ada: Sketching', [
+      { id: 'db', speaker: 'ada', expression: 'curious', text: 'I sketch something new every day. Today it is the well. Look at all those stones!', next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {

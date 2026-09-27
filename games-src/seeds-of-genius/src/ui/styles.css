@@ -1329,3 +1329,206 @@ mark.mark-guess {
     width: 100%;
   }
 }
+
+/* ---------- sensitive content notes (Chapter 2) ---------- */
+.sensitive-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #ece6f6;
+  color: #3b2a5e;
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+
+/* ---------- Chapter 2: displays, timeline, Journey Card ---------- */
+.clue-box {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff6dc;
+  border: 2px solid #e2c57a;
+}
+.clue-box ul {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  line-height: 1.45;
+}
+.display-modal .memory-nav {
+  margin-top: 12px;
+}
+.content-note {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #ece6f6;
+  color: #2e2150;
+  border: 2px solid #b7a6d9;
+}
+.content-note p {
+  margin: 6px 0;
+  line-height: 1.45;
+}
+.note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.timeline-modal {
+  width: min(760px, 100%);
+}
+.timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tl-intro {
+  margin: 0;
+  line-height: 1.45;
+}
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.timeline-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--paper-3);
+}
+.timeline-card.locked {
+  background: var(--leaf-bg);
+  border-color: #7fb36a;
+}
+.timeline-card.finale {
+  background: #e6ddf5;
+  border-color: #b7a6d9;
+  border-style: dashed;
+}
+.tl-num {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--wood-dark);
+  color: #fff;
+  font-family: var(--font-pixel);
+  font-size: 18px;
+}
+.finale .tl-num {
+  background: #fff;
+}
+.tl-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.35;
+}
+.tl-clue {
+  font-size: var(--text-small);
+  color: #6a3d06;
+}
+.tl-goes {
+  font-weight: 700;
+  color: #1d4a1b;
+}
+.tl-lock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  color: #1d4a1b;
+}
+.tl-actions {
+  display: flex;
+  gap: 6px;
+}
+.tl-place {
+  font-weight: 400;
+}
+.tl-place::before {
+  content: ' · ';
+}
+.tl-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+.tl-picks {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 12px;
+  line-height: 1.4;
+}
+.tl-picks dt {
+  font-weight: 700;
+}
+.tl-picks dd {
+  margin: 0;
+}
+.grownups {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f1ece0;
+}
+.grownups summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.grownups p {
+  line-height: 1.45;
+}
+.jc-grid {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 10px;
+}
+.jc-pair {
+  grid-template-columns: 1fr 1fr;
+}
+.pc-lines.short {
+  height: 82px;
+}
+@media (max-width: 640px) {
+  .timeline-card {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+  .tl-actions,
+  .tl-lock {
+    grid-column: 1 / -1;
+  }
+  .tl-place {
+    display: block;
+  }
+  .tl-place::before {
+    content: none;
+  }
+  .tl-actions .btn {
+    flex: 1;
+  }
+  .jc-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .jc-pair {
+    grid-template-columns: 1fr;
+  }
+}
+.timeline-body .feedback,
+.display-modal .feedback {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  line-height: 1.4;
+}

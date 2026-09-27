@@ -90,13 +90,48 @@ describe('QuestEngine: practice quest loop', () => {
     expect(q.progress('ch1').stage).toBe('complete');
     expect(state.xp).toBe(200);
     expect(state.seeds).toBe(30);
-    // Chapter 2 is unlocked; it arrives in the next phase, so nothing dead-ends.
-    expect(q.isUnlocked('ch2')).toBe(true);
-    expect(q.progress('ch2').stage).toBe('locked');
-    expect(q.nextAction().text).toMatch(/Chapter 2 is unlocked/);
-    expect(q.conversationFor('carver')).toBe('carver_ch1_after');
+    // Chapter 2 is playable now, so Carver offers it next.
+    expect(q.progress('ch2').stage).toBe('available');
+    expect(q.markerFor('carver')).toBe('quest');
+    expect(q.conversationFor('carver')).toBe('carver_ch2_opening');
     q.completeChapter('ch1');
     expect(state.xp).toBe(200);
+  });
+
+  it('runs Chapter 2: Carver → Ms. Nelson + Ada → timeline → Carver, then Chapter 3 waits', () => {
+    const state = fresh();
+    // A save from Phase 1 (Chapter 1 done, Chapter 2 still 'locked') opens Chapter 2 on load.
+    for (const id of ['practice', 'ch1']) state.chapters[id] = { stage: 'complete', stepsDone: [], flags: [], rewarded: true };
+    state.chapters.ch2 = { stage: 'locked', stepsDone: [], flags: [], rewarded: false };
+    const q = new QuestEngine(CHAPTERS, ITEMS, state);
+    expect(q.progress('ch2').stage).toBe('available');
+    q.apply({ type: 'acceptQuest', chapterId: 'ch2' });
+    expect(q.markerFor('ruth')).toBe('lead');
+    expect(q.markerFor('ada')).toBe('lead');
+    expect(q.conversationFor('carver')).toBe('carver_ch2_waiting');
+    expect(q.conversationFor('ruth')).toBe('ruth_ch2_give');
+    q.apply({ type: 'grantItem', itemId: 'botanical_sketch', from: 'ada' });
+    q.apply({ type: 'completeStep', chapterId: 'ch2', stepId: 'get_sketch' });
+    expect(q.nextAction().targetNpcId).toBe('ruth');
+    q.apply({ type: 'grantItem', itemId: 'school_record', from: 'ruth' });
+    q.apply({ type: 'completeStep', chapterId: 'ch2', stepId: 'get_record' });
+    expect(q.nextAction()).toMatchObject({ targetPlaceId: 'school' });
+    expect(q.conversationFor('ruth')).toBe('ruth_ch2_after');
+    q.apply({ type: 'useItem', itemId: 'school_record', usedIn: 'x' });
+    q.apply({ type: 'useItem', itemId: 'botanical_sketch', usedIn: 'x' });
+    q.apply({ type: 'completeStep', chapterId: 'ch2', stepId: 'build_timeline' });
+    expect(q.markerFor('carver')).toBe('turnin');
+    expect(q.conversationFor('carver')).toBe('carver_ch2_closing');
+    q.apply({ type: 'grantItem', itemId: 'journey_card', from: 'carver' });
+    q.apply({ type: 'completeChapter', chapterId: 'ch2' });
+    expect(q.progress('ch2').stage).toBe('complete');
+    expect(state.xp).toBe(150);
+    expect(state.seeds).toBe(20);
+    // Chapter 3 arrives in the next phase, so nothing dead-ends.
+    expect(q.isUnlocked('ch3')).toBe(true);
+    expect(q.progress('ch3').stage).toBe('locked');
+    expect(q.nextAction().text).toMatch(/Chapter 3 is unlocked/);
+    expect(q.conversationFor('carver')).toBe('carver_ch2_after');
   });
 
   it('never duplicates items or one-time rewards', () => {

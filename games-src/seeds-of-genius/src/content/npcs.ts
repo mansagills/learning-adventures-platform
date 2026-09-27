@@ -10,7 +10,7 @@ export interface NpcDefinition {
   look: CharacterLook;
   /** Portrait painter key (art/portraits.ts). */
   portrait: string;
-  scene: 'hub' | 'room';
+  scene: 'hub';
   /** Tile position (x, y); fractional values are fine. */
   pos: { x: number; y: number };
   facing: Dir;
@@ -186,6 +186,56 @@ NPCS.push(
     presence: 'always',
     ambient: { default: 'theo_ambient' },
     voice: 380,
+    required: true,
+  },
+);
+
+/** Chapter 2: the schoolteacher and a young artist. */
+NPCS.push(
+  {
+    id: 'ruth',
+    name: 'Ms. Ruth Nelson',
+    role: 'Schoolteacher',
+    look: {
+      build: 'adult',
+      skin: { base: '#5a3825', shade: '#462a1b' },
+      hair: { style: 'bun', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#2f7a6a', shade: '#235e51' },
+      pants: '#3a3a44',
+      shoes: '#2f2521',
+      accessory: 'glasses',
+      accent: P.flowerYellow,
+    },
+    portrait: 'ruth',
+    scene: 'hub',
+    pos: { x: 4.5, y: 25.5 },
+    facing: 'right',
+    presence: 'always',
+    ambient: { default: 'ruth_ambient' },
+    voice: 260,
+    required: true,
+  },
+  {
+    id: 'ada',
+    name: 'Ada',
+    role: 'Young artist',
+    look: {
+      build: 'kid',
+      skin: { base: '#dcaa7e', shade: '#c38f65' },
+      hair: { style: 'braids', base: '#9c4a2c', shade: '#7a3620', light: '#bd6440' },
+      shirt: { base: '#e0823a', shade: '#bb652a' },
+      pants: '#4a5a7a',
+      shoes: '#3a2a22',
+      accessory: 'headband',
+      accent: '#4b7fcf',
+    },
+    portrait: 'ada',
+    scene: 'hub',
+    pos: { x: 15.5, y: 12.5 },
+    facing: 'down',
+    presence: 'always',
+    ambient: { default: 'ada_ambient' },
+    voice: 400,
     required: true,
   },
 );

@@ -65,6 +65,13 @@ export interface LineNode extends NodeBase {
    * what actually happened.
    */
   textIfRetried?: string;
+  /**
+   * Marks a line that talks about something hard (e.g. racism). The dialogue
+   * shows a short note and a "Skip this part" button that jumps to skipTo.
+   * Sensitive lines and the lines they skip must not carry effects, so
+   * skipping never loses progress.
+   */
+  sensitive?: { skipTo: string | null };
   next?: string | null;
   choices?: DialogueChoice[];
 }

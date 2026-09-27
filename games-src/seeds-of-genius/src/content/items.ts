@@ -56,4 +56,41 @@ export const ITEMS: Record<string, ItemDefinition> = {
     purpose: 'An off-screen activity: take it outside (open it from the Journal to print).',
     chapterId: 'ch1',
   },
+  school_record: {
+    id: 'school_record',
+    name: 'School Record Folder',
+    icon: 'folder',
+    description: "Ms. Nelson's folder of copied records about Carver's schooling.",
+    lookCloser: [
+      'A record is something written down at the time, like a diploma or a letter.',
+      'Some pages have dates: "1870s", "about 1885", "1890", "1891 to 1896".',
+      'Two moments in the folder have no date at all. The displays will have to help.',
+    ],
+    purpose: 'Put dates on the timeline cards.',
+    chapterId: 'ch2',
+  },
+  botanical_sketch: {
+    id: 'botanical_sketch',
+    name: 'Botanical Sketch',
+    icon: 'sketch',
+    description: "Ada's pencil drawing of a leaf, with every vein drawn in.",
+    lookCloser: [
+      'Ada counted the veins before she drew them. Drawing is a way of looking closely.',
+      'In the corner she wrote: "Carver studied art first, then plants."',
+    ],
+    purpose: 'A clue about where art fits in Carver\'s journey.',
+    chapterId: 'ch2',
+  },
+  journey_card: {
+    id: 'journey_card',
+    name: 'Journey Card',
+    icon: 'card',
+    description: 'A card from Carver for making your own learning timeline.',
+    lookCloser: [
+      'It has a long line with five empty dots, and a box that says "Someone who helped me".',
+      'At the bottom it says: "Every journey has helpers. Who are yours?"',
+    ],
+    purpose: 'An off-screen activity: draw a timeline of something you learned (open it from the Journal to print).',
+    chapterId: 'ch2',
+  },
 };
