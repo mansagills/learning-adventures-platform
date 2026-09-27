@@ -25,8 +25,8 @@ const inputClass =
   'mt-1 w-full rounded-2xl border-2 border-pg-border bg-white px-4 py-3 text-base font-medium text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-4 focus:ring-pg-violet/30';
 
 /**
- * Sign-up form for parents: email, optional first name, and a required
- * "I'm a parent or guardian" checkbox. It never asks about children.
+ * Sign-up form for parents: first name, optional last name, email, and a
+ * required "I'm a parent or guardian" checkbox. It never asks about children.
  */
 export default function NewsletterForm({
   mode,
@@ -35,6 +35,7 @@ export default function NewsletterForm({
   const id = useId();
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isParent, setIsParent] = useState(false);
   // A field real people never see. Bots that fill in every box fill this one
   // too, so those sign-ups can be ignored.
@@ -44,6 +45,10 @@ export default function NewsletterForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!firstName.trim()) {
+      setState({ step: 'error', message: 'Please enter your first name.' });
+      return;
+    }
     if (!EMAIL_PATTERN.test(email.trim())) {
       setState({
         step: 'error',
@@ -76,6 +81,7 @@ export default function NewsletterForm({
         body: JSON.stringify({
           email: email.trim(),
           firstName: firstName.trim(),
+          lastName: lastName.trim(),
           isParent,
           website,
         }),
@@ -132,8 +138,40 @@ export default function NewsletterForm({
       )}
     >
       <div className="grid gap-5">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="block">
+            <span className="font-bold text-ink-900">First name</span>
+            <input
+              type="text"
+              name="firstName"
+              autoComplete="given-name"
+              required
+              maxLength={50}
+              value={firstName}
+              onChange={(event) => setFirstName(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+
+          <label className="block">
+            <span className="font-bold text-ink-900">
+              Last name{' '}
+              <span className="font-medium text-ink-600">(optional)</span>
+            </span>
+            <input
+              type="text"
+              name="lastName"
+              autoComplete="family-name"
+              maxLength={50}
+              value={lastName}
+              onChange={(event) => setLastName(event.target.value)}
+              className={inputClass}
+            />
+          </label>
+        </div>
+
         <label className="block">
-          <span className="font-bold text-ink-900">Your email address</span>
+          <span className="font-bold text-ink-900">Email address</span>
           <input
             type="email"
             name="email"
@@ -142,22 +180,6 @@ export default function NewsletterForm({
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
-            className={inputClass}
-          />
-        </label>
-
-        <label className="block">
-          <span className="font-bold text-ink-900">
-            Your first name{' '}
-            <span className="font-medium text-ink-600">(optional)</span>
-          </span>
-          <input
-            type="text"
-            name="firstName"
-            autoComplete="given-name"
-            maxLength={50}
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
             className={inputClass}
           />
         </label>

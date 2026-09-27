@@ -428,7 +428,7 @@ Why not Supabase right now:
 
 **Rules for a kids' site (COPPA and anti-spam laws):**
 
-- The form is for **parents and guardians only**. It asks for an email address and (optionally) a first name, plus a required checkbox: "I'm a parent or guardian, 18 or older." It never asks for a child's name, age or email.
+- The form is for **parents and guardians only**. It asks for a first name, an optional last name and an email address, plus a required checkbox: "I'm a parent or guardian, 18 or older." It never asks for a child's name, age or email.
 - **Double opt-in:** the service emails a "confirm your subscription" link; people are only added once they click it. This is the proof they asked to join.
 - Every marketing email needs an unsubscribe link and a postal mailing address (US CAN-SPAM). The service adds these automatically, but the owner needs a mailing address or PO box to give it.
 - The Privacy page currently says the site has no sign-up forms. It must be updated **in the same PR** that turns the form on (Phase 3), not after.
@@ -466,7 +466,7 @@ Each phase ends with a check-in; the owner approves before the next starts. One 
   - `preview`: no key, not the live site (laptop or Vercel preview). The form can be tried out and a yellow note says nothing is sent.
   - `coming-soon`: no key, on the live site (`VERCEL_ENV=production`). The page says "Sign-ups open soon" and links to the blog.
   - The page is `noindex` and left out of the sitemap until `live`.
-- `components/newsletter/NewsletterForm.tsx` (client): email, optional first name, required "I'm a parent or guardian, 18 or older" checkbox, and a hidden honeypot field (`website`) that bots fill in; those sign-ups see the thank-you message but are never sent. Clear error messages (`role="alert"`) and a "Check your inbox to confirm" message after signing up.
+- `components/newsletter/NewsletterForm.tsx` (client): first name (required; owner decision 2026-09-27), optional last name, email, required "I'm a parent or guardian, 18 or older" checkbox, and a hidden honeypot field (`website`) that bots fill in; those sign-ups see the thank-you message but are never sent. Clear error messages (`role="alert"`) and a "Check your inbox to confirm" message after signing up.
 - `components/newsletter/NewsletterCta.tsx`: a "Get updates for parents" box linking to `/newsletter`, at the end of every blog post. It renders nothing while the status is `coming-soon`. It is server-only; the footer runs in the browser, so the footer link waits for Phase 4.
 - New `envelope` sticker in the icon set (shown on `/dev/icons`).
 - Tests: `tests/newsletter/status.test.ts` covers the three statuses. The lint icon rule and the emoji check cover `components/newsletter` and `app/newsletter`.
@@ -501,7 +501,7 @@ Follows the same pattern as games and books, so it stays backend-free:
 **Phase 2: Newsletter page and form (still no outside services)**
 
 - `/newsletter` page: a short pitch for parents (new games, book launches, learning tips; "about once a month, unsubscribe any time"), the form, and a note linking to the Privacy page.
-- `components/newsletter/NewsletterForm.tsx`: email, optional first name, the parent/guardian checkbox, and a hidden "honeypot" field that real people never fill in (bots do, so we can ignore those). Clear success ("Check your inbox to confirm") and error messages; accessible labels; works at 390px.
+- `components/newsletter/NewsletterForm.tsx`: first name, optional last name, email, the parent/guardian checkbox, and a hidden "honeypot" field that real people never fill in (bots do, so we can ignore those). Clear success ("Check your inbox to confirm") and error messages; accessible labels; works at 390px.
 - Until Phase 3 is switched on, the form area shows "Newsletter coming soon" (same idea as the books' "coming soon" button), so the page is safe to merge early.
 - A reusable `NewsletterCta` box for the end of blog posts, the homepage and book pages.
 
@@ -514,7 +514,7 @@ Follows the same pattern as games and books, so it stays backend-free:
   - `NEWSLETTER_LIST_ID` (the form, list or group to add people to)
 - `lib/newsletter.ts`: the only file that knows which provider we use. Changing providers means changing this file and the env vars.
 - If the env vars are missing (for example on a laptop), the page shows "coming soon" and the site still builds. That keeps the rule that public pages build with no env vars or secrets.
-- Update `app/privacy/page.tsx`: what we collect (parent's email and optional first name), why (updates and marketing), who holds it (the named provider), how to unsubscribe or ask for deletion, and that we never collect children's emails. Update the page's "updated" date and its code comment.
+- Update `app/privacy/page.tsx`: what we collect (parent's first name, optional last name and email), why (updates and marketing), who holds it (the named provider), how to unsubscribe or ask for deletion, and that we never collect children's emails. Update the page's "updated" date and its code comment.
 - Replace the optional `NEXT_PUBLIC_NEWSLETTER_URL` link on book pages ("Tell me when it's out") with a link to `/newsletter`, and retire that env var.
 - Test on the Vercel preview with a real address: sign up, get the confirmation email, confirm, see the contact in the provider, unsubscribe.
 
