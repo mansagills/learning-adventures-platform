@@ -156,7 +156,7 @@ export class QuestEngine {
       const upcoming = this.allChapters().find((c) => this.progress(c.id).stage !== 'complete');
       return {
         text: upcoming
-          ? `Chapter ${upcoming.number} arrives in the next update. Explore, rest in your room, or chat with Carver.`
+          ? `Chapter ${upcoming.number} is unlocked and arrives in the next update. Explore, rest in your room, or chat with Carver.`
           : 'You finished every chapter! Visit Carver any time.',
         targetNpcId: undefined,
       };
@@ -269,6 +269,17 @@ export class QuestEngine {
     }
     this.refreshUnlocks();
     this.bus?.emit('quest:changed', { chapterId });
+  }
+
+  /**
+   * Unlocked = the chapter before it is complete. A chapter that is unlocked
+   * but not built yet shows as "unlocked, arriving in the next update".
+   */
+  isUnlocked(chapterId: string): boolean {
+    const list = this.allChapters();
+    const i = list.findIndex((c) => c.id === chapterId);
+    if (i <= 0) return i === 0;
+    return this.progress(list[i - 1].id).stage === 'complete';
   }
 
   /** Chapters unlock strictly in order, and only once they are built. */

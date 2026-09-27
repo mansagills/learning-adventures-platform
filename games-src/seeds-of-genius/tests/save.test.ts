@@ -63,7 +63,8 @@ describe('save system', () => {
     const r = migrate({ x: 12, y: 9, facing: 'left', timeMinutes: 99999, timePaused: true, appearance: { skin: 'purple-alien', hairStyle: 'curly' }, progress: { xp: -5, inventory: [{ itemId: 'seed_packet' }, { itemId: 'seed_packet' }, 7] } });
     expect(r.data).not.toBeNull();
     const d = r.data!;
-    expect(d.version).toBe(1);
+    expect(d.version).toBe(2);
+    expect(d.chapterData).toEqual({});
     expect(d.world).toMatchObject({ x: 12, y: 9, facing: 'left' });
     expect(d.time.minutes).toBeLessThan(1440);
     expect(d.time.paused).toBe(true);
@@ -71,6 +72,23 @@ describe('save system', () => {
     expect(d.appearance.hairStyle).toBe('curly');
     expect(d.progress.xp).toBe(0);
     expect(d.progress.inventory).toHaveLength(1); // duplicates dropped
+  });
+
+  it('migrates a Phase 0 (version 1) save, keeping progress', () => {
+    const v1 = { version: 1, appearance: { skin: 'skin4', hairStyle: 'locs', hairColor: 'black', outfit: 'red', accessory: 'cap' }, progress: { xp: 50, seeds: 10, chapters: { practice: { stage: 'complete', stepsDone: ['get_seeds'], flags: [], rewarded: true } }, inventory: [{ itemId: 'seed_packet', from: 'mae', used: true }] } };
+    const d = migrate(v1).data!;
+    expect(d.version).toBe(2);
+    expect(d.progress.xp).toBe(50);
+    expect(d.progress.chapters.practice.stage).toBe('complete');
+    expect(d.chapterData).toEqual({});
+    expect(d.memories).toEqual([]);
+  });
+
+  it('keeps chapter state and drops junk', () => {
+    const d = migrate({ version: 2, chapterData: { ch1: { observations: [{ spot: 'beans', text: 'x' }] }, bad: 7 }, memories: ['childhood', 3] }).data!;
+    expect(d.chapterData.ch1).toEqual({ observations: [{ spot: 'beans', text: 'x' }] });
+    expect(d.chapterData.bad).toBeUndefined();
+    expect(d.memories).toEqual(['childhood']);
   });
 
   it('refuses saves from a newer version instead of corrupting them', () => {

@@ -18,6 +18,33 @@ const PAINTERS: Record<string, Painter> = {
     b.set(6, 6, P.flowerYellow);
     b.hline(5, 10, 11, P.ink);
   },
+  notebook: (b) => {
+    b.rect(3, 1, 10, 14, '#3f7f3a');
+    b.rect(4, 2, 8, 12, '#4f9a4a');
+    b.vline(3, 1, 14, '#2e5f2b');
+    b.rect(6, 4, 5, 3, P.paper);
+    b.hline(6, 10, 9, P.paper2);
+    b.hline(6, 9, 11, P.paper2);
+    b.rect(12, 0, 1, 5, P.flowerYellow);
+    b.set(12, 5, P.ink);
+  },
+  lens: (b) => {
+    b.ellipse(1, 1, 10, 10, P.metal);
+    b.ellipse(2, 2, 8, 8, '#cfeaf5');
+    b.set(4, 4, P.white);
+    b.set(5, 4, P.white);
+    b.set(4, 5, P.white);
+    [[10, 10], [11, 11], [12, 12], [13, 13], [14, 14]].forEach(([x, y]) => b.rect(x, y, 2, 1, P.wood2));
+  },
+  card: (b) => {
+    b.rect(1, 3, 14, 10, P.paper);
+    b.rect(1, 3, 14, 2, '#4f9a4a');
+    b.rect(3, 7, 3, 3, P.paper2);
+    b.rect(7, 7, 3, 3, P.paper2);
+    b.rect(11, 7, 2, 3, P.paper2);
+    b.set(4, 8, P.leaf2);
+    b.set(8, 8, P.flowerBlue);
+  },
   seed: (b) => {
     b.ellipse(4, 3, 8, 11, '#c98c4a');
     b.ellipse(5, 4, 4, 6, '#e0ad6a');

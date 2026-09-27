@@ -139,6 +139,57 @@ export const NPCS: NpcDefinition[] = [
   },
 ];
 
+/** Chapter 1: the community gardener and a young naturalist. */
+NPCS.push(
+  {
+    id: 'hattie',
+    name: 'Hattie Bell',
+    role: 'Community gardener',
+    look: {
+      build: 'adult',
+      skin: { base: '#7a4a2e', shade: '#633b23' },
+      hair: { style: 'bun', base: gray.base, shade: gray.shade, light: gray.light },
+      shirt: { base: '#e7d9b8', shade: '#cdbd98' },
+      pants: '#3e5a88',
+      shoes: '#4a3326',
+      accessory: 'sunhat',
+      accent: '#4f9a4a',
+      extras: { apron: '#4b6fa8' },
+    },
+    portrait: 'hattie',
+    scene: 'hub',
+    pos: { x: 13.5, y: 8.4 },
+    facing: 'down',
+    presence: 'always',
+    ambient: { default: 'hattie_ambient' },
+    voice: 240,
+    required: true,
+  },
+  {
+    id: 'theo',
+    name: 'Theo',
+    role: 'Young naturalist',
+    look: {
+      build: 'kid',
+      skin: { base: '#9c6440', shade: '#834f31' },
+      hair: { style: 'curly', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#c9b27a', shade: '#a8925e' },
+      pants: '#5d4a33',
+      shoes: '#3a2a22',
+      accessory: 'glasses',
+      accent: '#e0823a',
+    },
+    portrait: 'theo',
+    scene: 'hub',
+    pos: { x: 25.5, y: 19.5 },
+    facing: 'left',
+    presence: 'always',
+    ambient: { default: 'theo_ambient' },
+    voice: 380,
+    required: true,
+  },
+);
+
 export function npcById(id: NpcId): NpcDefinition | undefined {
   return NPCS.find((n) => n.id === id);
 }

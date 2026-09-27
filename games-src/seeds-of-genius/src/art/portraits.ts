@@ -193,7 +193,26 @@ export function paintPortrait(look: CharacterLook, expression: Expression, opts:
     }
   }
 
+  // glasses
+  if (look.accessory === 'glasses') {
+    const f = '#39364a';
+    [eyeL - 2, eyeR - 1].forEach((x) => {
+      b.hline(x, x + 6, eyeY - 2, f);
+      b.hline(x, x + 6, eyeY + 3, f);
+      b.vline(x, eyeY - 2, eyeY + 3, f);
+      b.vline(x + 6, eyeY - 2, eyeY + 3, f);
+    });
+    b.hline(eyeL + 5, eyeR - 1, eyeY, f);
+  }
   // hats last
+  if (look.accessory === 'sunhat') {
+    const straw = '#e2c27a';
+    b.ellipse(2, 5, 44, 10, '#c7a55c');
+    b.ellipse(3, 4, 42, 9, straw);
+    b.ellipse(12, 0, 24, 11, straw);
+    b.rect(12, 6, 24, 3, look.accent);
+    for (let x = 6; x < 42; x += 4) b.set(x, 9, '#c7a55c');
+  }
   if (look.accessory === 'cap') {
     b.ellipse(10, 1, 28, 12, look.accent);
     b.rect(10, 8, 28, 3, look.accent);

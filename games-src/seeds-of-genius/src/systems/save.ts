@@ -10,7 +10,7 @@ import type { LearnerState, ObjectiveRecord } from '../learning/learnerModel';
  * where they are, and what they have done.
  */
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 export const SAVE_KEY = 'seedsOfGenius.save';
 export const BACKUP_KEY = 'seedsOfGenius.save.backup';
 export const QUARANTINE_KEY = 'seedsOfGenius.save.unreadable';
@@ -34,6 +34,10 @@ export interface SaveData {
   log: DialogueLogEntry[];
   /** Onboarding tips already shown. */
   tips: string[];
+  /** Each chapter's own saved state (minigame progress, notes). Added in version 2. */
+  chapterData: Record<string, Record<string, unknown>>;
+  /** Memories from Carver's life the player has seen. Added in version 2. */
+  memories: string[];
 }
 
 export function freshSave(now = Date.now()): SaveData {
@@ -49,6 +53,8 @@ export function freshSave(now = Date.now()): SaveData {
     learner: {},
     log: [],
     tips: [],
+    chapterData: {},
+    memories: [],
   };
 }
 
@@ -168,13 +174,30 @@ export function sanitize(raw: Record<string, unknown>, now = Date.now()): SaveDa
           .map((e) => ({ conversationId: e.conversationId as string, npcId: str(e.npcId, ''), at: num(e.at, 0) }))
       : [],
     tips: strList(raw.tips, 100),
+    chapterData: cleanChapterData(raw.chapterData),
+    memories: strList(raw.memories, 50),
   };
+}
+
+/** Chapter state is plain JSON owned by each chapter; keep it bounded. */
+function cleanChapterData(v: unknown): Record<string, Record<string, unknown>> {
+  const out: Record<string, Record<string, unknown>> = {};
+  if (!isObj(v)) return out;
+  for (const [k, d] of Object.entries(v)) {
+    if (!isObj(d)) continue;
+    try {
+      const text = JSON.stringify(d);
+      if (text.length <= 50_000) out[k] = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      /* drop unserializable data */
+    }
+  }
+  return out;
 }
 
 /**
  * Upgrade older save versions step by step. Version 0 was the pre-release
- * layout (flat position fields); it is kept here so the migration path is
- * exercised by tests from day one.
+ * layout (flat position fields); version 1 was Phase 0 (no chapter state).
  */
 export function migrate(raw: unknown): { data: SaveData | null; reason?: string } {
   if (!isObj(raw)) return { data: null, reason: 'not an object' };
@@ -189,6 +212,11 @@ export function migrate(raw: unknown): { data: SaveData | null; reason?: string 
       version: 1,
     };
     v = 1;
+  }
+  if (v === 1) {
+    // Version 2 added per-chapter state and seen memories (both start empty).
+    d = { ...d, chapterData: d.chapterData ?? {}, memories: d.memories ?? [], version: 2 };
+    v = 2;
   }
   return { data: sanitize(d) };
 }

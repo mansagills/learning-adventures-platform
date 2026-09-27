@@ -234,6 +234,270 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'z1', speaker: 'carver', expression: 'smile', text: 'Hello again, friend. What have you noticed today?', next: null },
     ]),
 
+    // ================================================ Chapter 1: A Seed Is Planted
+    convo('carver_ch1_opening', 'Carver: What is the garden telling us?', [
+      { id: 'o1', speaker: 'carver', expression: 'curious', text: "Friend, I'm glad you're here. Something is going on in the community garden.", next: 'o2' },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Some bean leaves have holes. The soil by the fence stays dark. A small creature or two may be involved. What is the garden telling us?',
+        next: 'o3',
+      },
+      {
+        id: 'o3',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'When I was a boy, I spent every hour I could in the woods, just looking. Would you like to see a memory from those days?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'o4', effects: [{ type: 'showMemory', memoryId: 'childhood' }] },
+          { text: 'Maybe later.', next: 'o4' },
+        ],
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'neutral',
+        text: 'To investigate, we need two things: a way to look closely, and a way to remember what we see.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch1' }],
+        text: 'Hattie Bell, our gardener, keeps a field notebook for me. Young Theo, over by the pond, always carries a magnifying lens. Ask them both, then look closely at the garden.',
+        next: 'o6',
+      },
+      {
+        id: 'o6',
+        speaker: 'carver',
+        expression: 'curious',
+        text: "Write down only what you can really see. We'll sort out the guessing afterward.",
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch1_waiting', 'Carver: How is the investigation going?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'Can I see your memory again?', next: 'w2', effects: [{ type: 'showMemory', memoryId: 'childhood' }] },
+        ],
+      },
+      { id: 'w2', speaker: 'carver', expression: 'smile', text: 'Those woods taught me to be patient. Plants tell their story slowly.', next: null },
+    ]),
+
+    convo('carver_ch1_closing', 'Carver: Reading your notebook', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'Welcome back, investigator! May I see your notebook?', next: 'c2' },
+      {
+        id: 'c2',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'You wrote: "{obsFirst}" That is a real observation. Anyone could kneel down and check it.',
+        next: 'c3',
+      },
+      { id: 'c3', speaker: 'carver', expression: 'thinking', text: '{sortReflection}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'observe',
+        text: 'One more question. Why is "The soil by the fence is dark and damp" an observation, while "A rabbit must have chewed the bean leaves" is a guess?',
+        options: [
+          {
+            id: 'rabbits',
+            text: "Because rabbits don't like beans.",
+            correct: false,
+            misconception: 'new-guess-as-evidence',
+            feedback: "Hmm, that's a new guess about rabbits! The question is about what we can check right now.",
+          },
+          {
+            id: 'evidence',
+            text: 'We can see and touch the soil, but nobody saw a rabbit.',
+            correct: true,
+            feedback: 'Exactly. The soil is right in front of us. The rabbit is an idea about what might have happened.',
+          },
+          {
+            id: 'length',
+            text: 'Because the soil sentence is shorter.',
+            correct: false,
+            misconception: 'surface-feature',
+            feedback: "Length isn't the clue. Think about which one we can check with our own eyes.",
+          },
+        ],
+        hints: [
+          'Here is a clue: think about what is really in the garden right now that you can look at.',
+          'Did anyone actually see a rabbit? Pick the answer about what we can and cannot see.',
+          'Worked example: the soil is there to touch, but nobody saw a rabbit. So "We can see and touch the soil, but nobody saw a rabbit" is the answer.',
+        ],
+        next: 'c4',
+      },
+      {
+        id: 'c4',
+        speaker: 'carver',
+        expression: 'proud',
+        text: 'When I was young, I learned about plants by watching them, day after day. Today you did the same thing.',
+        textIfRetried:
+          'You checked your thinking and changed your answer. Good scientists do that. When I was young, I learned about plants by watching them, day after day. Today you did the same thing.',
+        next: 'c5',
+      },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'nature_card', from: 'carver' }],
+        text: 'This is for you: a Nature Observation Card. Take it outside in your own neighborhood and find three things you can see, hear or touch.',
+        next: 'c6',
+      },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: "Guesses aren't bad, you know. A good guess is where the next experiment begins. But first, we observe.",
+        next: 'c7',
+      },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'neutral',
+        effects: [{ type: 'completeChapter', chapterId: 'ch1' }],
+        text: 'Next time, I will tell you how I kept on learning, even when the nearby school would not let me in.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch1_after', 'Carver: After the garden', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Your Nature Observation Card is in your bag. The garden is always open if you want to look again.',
+        choices: [
+          { text: 'Can I see your memory again?', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'childhood' }] },
+          { text: 'How do I look at the garden again?', next: 'a3' },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'Some of my best teachers were trees.', next: null },
+      {
+        id: 'a3',
+        speaker: 'carver',
+        expression: 'neutral',
+        text: "Walk up to any spot in the garden and look with Theo's lens. The potting bench by the gate has the card game, if you'd like to sort again.",
+        next: null,
+      },
+    ]),
+
+    convo('hattie_ch1_give', 'Hattie: The field notebook', [
+      { id: 'h1', speaker: 'hattie', expression: 'smile', text: "Afternoon! You must be Carver's new helper. I'm Hattie Bell. I look after this garden.", next: 'h2' },
+      {
+        id: 'h2',
+        speaker: 'hattie',
+        expression: 'thinking',
+        text: "Something's been nibbling my beans, and the soil by the east fence never dries out. I keep meaning to write it all down.",
+        choices: [
+          { text: 'What should I look for?', next: 'h3' },
+          { text: 'Could I borrow the field notebook?', next: 'h4' },
+        ],
+      },
+      {
+        id: 'h3',
+        speaker: 'hattie',
+        expression: 'neutral',
+        text: 'Look at the undersides of the leaves, and kneel down by the soil. The small things tell the big story.',
+        next: 'h4',
+      },
+      {
+        id: 'h4',
+        speaker: 'hattie',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'field_notebook', from: 'hattie' },
+          { type: 'completeStep', chapterId: 'ch1', stepId: 'get_notebook' },
+        ],
+        text: 'Here is the field notebook. The first page shows how to write an observation: what you see, how many, what color, what size.',
+        next: 'h5',
+      },
+      {
+        id: 'h5',
+        speaker: 'hattie',
+        expression: 'neutral',
+        text: "Sparkles will mark the spots I'm puzzling over, once you have Theo's lens too. There's a sorting game on my potting bench for afterward.",
+        next: null,
+      },
+    ]),
+    convo('hattie_ch1_after', 'Hattie: Count it, measure it', [
+      { id: 'ha', speaker: 'hattie', expression: 'smile', text: 'How is the notebook? Remember: count it, measure it, and describe its color.', next: null },
+    ]),
+    convo('hattie_ambient', 'Hattie: Garden rows', [
+      { id: 'hb', speaker: 'hattie', expression: 'smile', text: "Beans on the left, lettuce and carrots in between. A garden is a lot of little neighbors sharing one bed.", next: null },
+    ]),
+
+    convo('theo_ch1_give', 'Theo: The magnifying lens', [
+      { id: 't1', speaker: 'theo', expression: 'curious', text: 'Shh! There is a ladybug on my sleeve. Look! What do you notice about it?', next: 'tq' },
+      {
+        id: 'tq',
+        kind: 'question',
+        speaker: 'theo',
+        expression: 'curious',
+        objectiveId: 'observe',
+        text: 'Which one is something you can notice, not a guess?',
+        options: [
+          {
+            id: 'family',
+            text: 'It is looking for its family.',
+            correct: false,
+            misconception: 'story-as-observation',
+            feedback: "Maybe! But we can't see what it's thinking. That part is a guess.",
+          },
+          {
+            id: 'fastest',
+            text: 'It is the fastest bug in town.',
+            correct: false,
+            misconception: 'opinion-as-observation',
+            feedback: "We'd need a race to know that! Right now it's a guess.",
+          },
+          { id: 'spots', text: 'It is red with seven black spots.', correct: true, feedback: 'Yes! I counted seven too. Spots are something you can check.' },
+        ],
+        hints: [
+          'Here is a clue: look at its color, and count its spots.',
+          'One answer describes the ladybug\'s body. The others are about feelings or races.',
+          'Worked example: "red with seven black spots" is something your eyes can check, so that one is the observation.',
+        ],
+        next: 't2',
+      },
+      {
+        id: 't2',
+        speaker: 'theo',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'magnifying_lens', from: 'theo' },
+          { type: 'completeStep', chapterId: 'ch1', stepId: 'get_lens' },
+        ],
+        text: "You'd make a good naturalist. Here, borrow my magnifying lens. It makes tiny things look big!",
+        next: 't3',
+      },
+      {
+        id: 't3',
+        speaker: 'theo',
+        expression: 'neutral',
+        text: 'Hold it close and look for the small details: edges, tiny hairs, specks of pollen.',
+        next: null,
+      },
+    ]),
+    convo('theo_ch1_after', 'Theo: Tiny things', [
+      { id: 'tb', speaker: 'theo', expression: 'smile', text: "Found anything tiny yet? Once I saw a beetle whose wings shimmered green and purple!", next: null },
+    ]),
+    convo('theo_ambient', 'Theo: Pond skaters', [
+      { id: 'tc', speaker: 'theo', expression: 'curious', text: "I'm watching the pond skaters. They stand right on top of the water!", next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {

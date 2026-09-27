@@ -40,7 +40,8 @@ export type PropKind =
   | 'scarecrow'
   | 'crate'
   | 'reeds'
-  | 'barrel';
+  | 'barrel'
+  | 'potting';
 
 export interface PropDef {
   kind: PropKind;
@@ -181,6 +182,8 @@ function hubProps(): PropDef[] {
   }
   for (let x = 31; x <= 36; x++) for (const y of [4, 6]) if (x !== 35) props.push({ kind: 'crop', x, y, variant: 3, solid: false });
   props.push({ kind: 'scarecrow', x: 35, y: 5 });
+  // Hattie's potting bench, where Chapter 1's card game is played.
+  props.push({ kind: 'potting', x: 9, y: 8 });
 
   // Town square.
   props.push({ kind: 'well', x: 19, y: 13 });

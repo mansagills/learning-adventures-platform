@@ -1010,3 +1010,322 @@ h3 {
   animation: none !important;
   transition: none !important;
 }
+
+/* ---------- Chapter 1: garden close-ups, card game, activity card ---------- */
+.small {
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+}
+.intro {
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+.painting {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 6px;
+}
+.inspect-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+.paint-wrap {
+  position: relative;
+  /* Sized by height so the notebook choices stay on screen; the zones use
+     percentages of this box, so it must match the picture exactly. */
+  width: min(100%, calc(40vh * 1.5));
+  margin-inline: auto;
+}
+.zone {
+  position: absolute;
+  border: 3px dashed rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: zoom-in;
+  padding: 0;
+  min-width: 28px;
+  min-height: 28px;
+}
+.zone:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.zone.seen {
+  border-style: solid;
+  border-color: rgba(255, 244, 201, 0.9);
+}
+.zone.glow {
+  border-color: #fff27a;
+  box-shadow: 0 0 0 3px rgba(242, 181, 58, 0.8);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.lens-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.lens-side h3 {
+  align-self: stretch;
+  margin: 6px 0 0;
+}
+.lens-view {
+  width: 120px;
+  height: 120px;
+  image-rendering: pixelated;
+}
+.lens-text {
+  margin: 0;
+  font-weight: 700;
+  text-align: center;
+  min-height: 2.8em;
+}
+.noticed {
+  align-self: stretch;
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.4;
+}
+.write {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px dashed var(--paper-3);
+}
+.write h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.write .choices {
+  margin-top: 8px;
+}
+.choices .btn.picked {
+  background: var(--leaf-bg);
+  opacity: 1;
+}
+.write .feedback {
+  margin-top: 10px;
+}
+.sort-modal .content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rule-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.rule {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid;
+}
+.rule.obs {
+  background: var(--leaf-bg);
+  border-color: #7fb36a;
+}
+.rule.guess {
+  background: #fdecc8;
+  border-color: #d9a54a;
+}
+.sort-progress {
+  margin: 0;
+  font-weight: 700;
+}
+.sort-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+.sort-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--paper-3);
+}
+.sort-card.focus {
+  border-color: var(--gold-dark);
+}
+.sort-card p {
+  margin: 0;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.sort-actions {
+  display: flex;
+  gap: 8px;
+}
+.sort-actions .btn {
+  flex: 1;
+}
+.sort-actions .btn.worked {
+  outline: 4px dashed var(--leaf);
+  outline-offset: 2px;
+}
+mark.mark-detail {
+  background: #bfe6a8;
+  color: #16380f;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+mark.mark-guess {
+  background: #ffe08a;
+  color: #4a2e00;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+.baskets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.basket {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  border: 2px dashed var(--wood);
+  min-height: 80px;
+}
+.basket h3 {
+  margin: 0 0 6px;
+}
+.basket-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-small);
+}
+.basket-list li {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.notebook-list {
+  margin: 0 0 8px;
+  padding-left: 22px;
+  line-height: 1.45;
+}
+.activity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  background: #e6f0fb;
+}
+.memory-modal {
+  width: min(720px, 100%);
+}
+.memory-modal header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.badge.history {
+  background: #e6ddf5;
+  color: #4b2f7a;
+  align-self: flex-start;
+}
+.memory-setting {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--text-small);
+  color: var(--wood-dark);
+}
+.memory-painting {
+  width: min(100%, calc(46vh * 1.5));
+  margin-inline: auto;
+}
+.memory-caption {
+  font-size: var(--text-dialogue);
+  line-height: 1.45;
+  margin: 12px 0;
+}
+.memory-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.memory-note {
+  margin: 10px 0 0;
+}
+.print-card {
+  background: #fff;
+  color: #222;
+  border: 3px solid #333;
+  border-radius: 10px;
+  padding: 16px;
+}
+.print-card h2 {
+  color: #2f6b2c;
+}
+.pc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pc-box {
+  border: 2px solid #555;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 150px;
+}
+.pc-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.pc-lines {
+  height: 110px;
+  background: repeating-linear-gradient(transparent 0 26px, #bbb 26px 27px);
+}
+.pc-tip,
+.pc-foot {
+  font-size: 14px;
+}
+@media (max-width: 640px) {
+  .inspect-grid,
+  .rule-cards,
+  .baskets,
+  .pc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-card,
+  .print-card * {
+    visibility: visible;
+  }
+  .print-card {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

@@ -51,10 +51,52 @@ describe('QuestEngine: practice quest loop', () => {
     expect(state.xp).toBe(50);
     expect(state.seeds).toBe(10);
     expect(q.itemChecklist('practice')[0]).toMatchObject({ collected: true, used: true });
-    expect(q.conversationFor('carver')).toBe('carver_practice_after');
-    // Chapter 1 is not built yet, so it stays locked and nothing dead-ends.
-    expect(q.progress('ch1').stage).toBe('locked');
-    expect(q.nextAction().text).toMatch(/Chapter 1/);
+    // Chapter 1 unlocks and Carver offers it next.
+    expect(q.progress('ch1').stage).toBe('available');
+    expect(q.markerFor('carver')).toBe('quest');
+    expect(q.conversationFor('carver')).toBe('carver_ch1_opening');
+  });
+
+  it('runs Chapter 1: Carver → Hattie + Theo (any order) → garden minigame → Carver', () => {
+    const state = fresh();
+    const q = new QuestEngine(CHAPTERS, ITEMS, state);
+    q.apply({ type: 'acceptQuest', chapterId: 'practice' });
+    q.apply({ type: 'grantItem', itemId: 'seed_packet', from: 'mae' });
+    q.apply({ type: 'completeStep', chapterId: 'practice', stepId: 'get_seeds' });
+    q.apply({ type: 'completeChapter', chapterId: 'practice' });
+
+    q.apply({ type: 'acceptQuest', chapterId: 'ch1' });
+    expect(q.markerFor('hattie')).toBe('lead');
+    expect(q.markerFor('theo')).toBe('lead');
+    expect(q.nextAction().targetNpcId).toBe('hattie');
+    expect(q.leads('ch1').map((l) => l.npcId)).toEqual(['hattie', 'theo']);
+    // Theo first is fine.
+    q.apply({ type: 'grantItem', itemId: 'magnifying_lens', from: 'theo' });
+    q.apply({ type: 'completeStep', chapterId: 'ch1', stepId: 'get_lens' });
+    expect(q.conversationFor('theo')).toBe('theo_ch1_after');
+    expect(q.nextAction().targetNpcId).toBe('hattie');
+    q.apply({ type: 'grantItem', itemId: 'field_notebook', from: 'hattie' });
+    q.apply({ type: 'completeStep', chapterId: 'ch1', stepId: 'get_notebook' });
+    expect(q.nextAction()).toMatchObject({ targetPlaceId: 'garden' });
+    expect(q.conversationFor('carver')).toBe('carver_ch1_waiting');
+    expect(q.readyToReturn('ch1')).toBe(false);
+    q.apply({ type: 'useItem', itemId: 'field_notebook', usedIn: 'x' });
+    q.apply({ type: 'useItem', itemId: 'magnifying_lens', usedIn: 'x' });
+    q.apply({ type: 'completeStep', chapterId: 'ch1', stepId: 'observe_sort' });
+    expect(q.markerFor('carver')).toBe('turnin');
+    expect(q.conversationFor('carver')).toBe('carver_ch1_closing');
+    q.apply({ type: 'grantItem', itemId: 'nature_card', from: 'carver' });
+    q.apply({ type: 'completeChapter', chapterId: 'ch1' });
+    expect(q.progress('ch1').stage).toBe('complete');
+    expect(state.xp).toBe(200);
+    expect(state.seeds).toBe(30);
+    // Chapter 2 is unlocked; it arrives in the next phase, so nothing dead-ends.
+    expect(q.isUnlocked('ch2')).toBe(true);
+    expect(q.progress('ch2').stage).toBe('locked');
+    expect(q.nextAction().text).toMatch(/Chapter 2 is unlocked/);
+    expect(q.conversationFor('carver')).toBe('carver_ch1_after');
+    q.completeChapter('ch1');
+    expect(state.xp).toBe(200);
   });
 
   it('never duplicates items or one-time rewards', () => {

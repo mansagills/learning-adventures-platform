@@ -275,8 +275,31 @@ function reeds(): PixelBuffer {
   return b.outline(P.grassDeep);
 }
 
+function potting(): PixelBuffer {
+  const b = new PixelBuffer(24, 22);
+  b.rect(2, 10, 20, 3, P.wood3);
+  b.hline(2, 21, 10, '#d99a62');
+  b.rect(3, 13, 2, 8, P.wood2);
+  b.rect(19, 13, 2, 8, P.wood2);
+  b.hline(4, 19, 17, P.wood2);
+  // pots with seedlings
+  [4, 11].forEach((x) => {
+    b.rect(x, 6, 5, 4, '#b8634a');
+    b.hline(x - 1, x + 5, 6, '#d0775b');
+    b.vline(x + 2, 2, 5, P.leaf1);
+    b.set(x + 1, 3, P.leaf3);
+    b.set(x + 3, 2, P.leaf3);
+  });
+  // a small stack of cards
+  b.rect(17, 7, 5, 3, P.paper);
+  b.hline(17, 21, 7, '#4f9a4a');
+  return b.outline();
+}
+
 export function paintProp(kind: PropKind, variant = 0): PixelBuffer {
   switch (kind) {
+    case 'potting':
+      return potting();
     case 'tree':
       return tree(variant);
     case 'pine':

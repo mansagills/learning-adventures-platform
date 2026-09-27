@@ -24,12 +24,12 @@ export function mountDebug(host: HTMLElement, game: Game): void {
     b('Go: Room', () => game.teleport(5, 6, 'room')),
     b('Finish practice', () => game.debugComplete()),
     ...CHAPTERS.filter((c) => c.number > 0).map((c) =>
-      b(`Chapter ${c.number}`, () =>
-        bus.emit('toast', {
-          text: c.status === 'playable' ? `Jumped to chapter ${c.number}` : `Chapter ${c.number} is not built yet (Phase ${c.number}).`,
-          kind: 'info',
-        }),
-      ),
+      b(`Chapter ${c.number}`, () => {
+        if (c.status === 'playable') {
+          game.debugJumpTo(c.number);
+          bus.emit('toast', { text: `Chapter ${c.number} is ready: talk to Carver.`, kind: 'info' });
+        } else bus.emit('toast', { text: `Chapter ${c.number} is not built yet (Phase ${c.number}).`, kind: 'info' });
+      }),
     ),
     b('Reset test save', () => {
       localStorage.removeItem('seedsOfGenius.save');

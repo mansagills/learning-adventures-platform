@@ -8,7 +8,10 @@ import { charsPerSecond, settings } from '../systems/settings';
 import { h } from './dom';
 
 export interface DialogueHooks {
-  apply(effect: DialogueEffect): void;
+  /** May return a promise (e.g. a memory the player reads before the talk goes on). */
+  apply(effect: DialogueEffect): void | Promise<void>;
+  /** Fill {tokens} so characters can react to what the player actually did. */
+  resolve?(text: string): string;
   learner: LearnerState;
   onLearningChanged(): void;
 }
@@ -62,7 +65,7 @@ export class DialogueUI {
       while (id && guard++ < 200) {
         const node: DialogueNode | undefined = conv.nodes[id];
         if (!node) break;
-        if (!opts.replay) (node.effects ?? []).forEach((e) => this.hooks.apply(e));
+        if (!opts.replay) await this.applyAll(node.effects);
         if (node.kind === 'question') {
           const tries = await this.ask(node, !!opts.replay);
           if (tries > 1) retried = true;
@@ -70,7 +73,7 @@ export class DialogueUI {
           continue;
         }
         const line = node as LineNode;
-        const text = retried && line.textIfRetried ? line.textIfRetried : line.text;
+        const text = this.resolve(retried && line.textIfRetried ? line.textIfRetried : line.text);
         this.showSpeaker(node);
         await this.type(text);
         const choices = (line.choices ?? []).filter((c) => !c.requiresFlag);
@@ -78,7 +81,7 @@ export class DialogueUI {
           this.skipping = false;
           const pick = await this.choose(choices.map((c) => c.text));
           const choice = choices[pick];
-          if (!opts.replay) (choice.effects ?? []).forEach((e) => this.hooks.apply(e));
+          if (!opts.replay) await this.applyAll(choice.effects);
           id = choice.next;
         } else {
           await this.waitAdvance();
@@ -91,6 +94,29 @@ export class DialogueUI {
       this.el = null;
       audio.close();
     }
+  }
+
+  private suspended = false;
+
+  /** Run effects in order; while one is open (a memory), dialogue keys pause. */
+  private async applyAll(effects: DialogueEffect[] | undefined): Promise<void> {
+    for (const e of effects ?? []) {
+      const r = this.hooks.apply(e);
+      if (r instanceof Promise) {
+        this.suspended = true;
+        if (this.el) this.el.style.visibility = 'hidden';
+        try {
+          await r;
+        } finally {
+          this.suspended = false;
+          if (this.el) this.el.style.visibility = '';
+        }
+      }
+    }
+  }
+
+  private resolve(text: string): string {
+    return this.hooks.resolve ? this.hooks.resolve(text) : text;
   }
 
   // ------------------------------------------------------------ layout
@@ -227,7 +253,7 @@ export class DialogueUI {
   }
 
   private onKey(e: KeyboardEvent): void {
-    if (!this.el) return;
+    if (!this.el || this.suspended) return;
     const k = e.key;
     const target = e.target as HTMLElement | null;
     const onButton = target?.tagName === 'BUTTON';
@@ -297,14 +323,14 @@ export class DialogueUI {
     this.showSpeaker(node);
     const correctIdx = node.options.findIndex((o) => o.correct);
     if (replay) {
-      await this.type(node.text);
+      await this.type(this.resolve(node.text));
       this.feedbackEl.hidden = false;
       this.feedbackEl.className = 'feedback good';
       this.feedbackEl.textContent = `Answer: ${node.options[correctIdx].text}`;
       await this.waitAdvance();
       return 1;
     }
-    await this.type(node.text);
+    await this.type(this.resolve(node.text));
     const disabled = new Set<number>();
     let highlight: number | undefined;
     let tries = 0;
@@ -343,7 +369,7 @@ export class DialogueUI {
       // Rung 2 narrows the choices; rung 3 shows a worked example.
       disabled.add(pick);
       if (rung >= 3) highlight = correctIdx;
-      this.textEl.textContent = node.text;
+      this.textEl.textContent = this.resolve(node.text);
       if (settings.textSpeed === 'instant') this.footerHint.textContent = '';
     }
   }

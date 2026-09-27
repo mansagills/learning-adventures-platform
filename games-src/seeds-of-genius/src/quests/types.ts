@@ -37,7 +37,9 @@ export type DialogueEffect =
   | { type: 'useItem'; itemId: ItemId; usedIn: string }
   | { type: 'completeStep'; chapterId: ChapterId; stepId: string }
   | { type: 'setFlag'; chapterId: ChapterId; flag: string }
-  | { type: 'completeChapter'; chapterId: ChapterId };
+  | { type: 'completeChapter'; chapterId: ChapterId }
+  /** Open an illustrated memory from Carver's life (handled by the UI, not the quest engine). */
+  | { type: 'showMemory'; memoryId: string };
 
 export interface DialogueChoice {
   text: string;
@@ -154,8 +156,14 @@ export interface ChapterDefinition {
   /** Learner-model objectives this chapter gives evidence for. */
   objectives: string[];
   analogActivity?: { title: string; description: string };
-  /** Lazy loader for the chapter's minigame and art (later phases). */
-  loadAssets?: () => Promise<unknown>;
+  /** What the player practised, shown in the journal after the chapter. */
+  reflection?: string;
+  /**
+   * Lazy loader for the chapter's runtime: its minigame, world hotspots,
+   * dialogue tokens and journal section (see quests/runtime.ts). Loaded
+   * only when the chapter is reached, so early chapters start fast.
+   */
+  loadRuntime?: () => Promise<{ default: import('./runtime').ChapterRuntime }>;
 }
 
 // ---------------------------------------------------------------- progress

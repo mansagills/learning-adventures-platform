@@ -27,6 +27,11 @@ import { onSaveFileChosen, openSettings } from './ui/settingsPanel';
 import { showTitle } from './ui/title';
 import { TouchControls } from './ui/touch';
 import { mountDebug } from './ui/debug';
+import { openMemory } from './ui/memory';
+import { MEMORIES } from './content/memories';
+import type { ChapterRuntime, RuntimeContext, RuntimePlace } from './quests/runtime';
+import { paintSparkle } from './art/sparkle';
+import { pixelTexture } from './world/sceneKit';
 
 const WALK_SPEED = 4.2;
 const RUN_SPEED = 6.4;
@@ -37,7 +42,8 @@ const NPC_SPACE = 0.85;
 type Target =
   | { kind: 'npc'; id: string; label: string; x: number; y: number }
   | { kind: 'place'; id: string; label: string; x: number; y: number }
-  | { kind: 'sign'; text: string; label: string; x: number; y: number };
+  | { kind: 'sign'; text: string; label: string; x: number; y: number }
+  | { kind: 'rplace'; id: string; chapterId: string; label: string; x: number; y: number; radius: number };
 
 /** Onboarding tips, shown one at a time until the player does the thing. */
 type TipId = 'move' | 'findCarver' | 'talk' | 'journal' | 'bag' | 'rest';
@@ -182,7 +188,8 @@ export class Game {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const game = this;
     this.dialogue ??= new DialogueUI(this.uiLayer, {
-      apply: (e) => this.applyEffect(e),
+      apply: (e) => (e.type === 'showMemory' ? this.showMemory(e.memoryId) : this.applyEffect(e)),
+      resolve: (text) => this.resolveTokens(text),
       // A getter, because loading a save replaces the learner object.
       get learner() {
         return game.save.learner;
@@ -192,6 +199,7 @@ export class Game {
     this.touch ??= new TouchControls(this.uiLayer, this.input, () => this.interact());
     if (this.debug) mountDebug(this.uiLayer, this);
     this.hud.setVisible(true);
+    this.ensureRuntimes();
     this.refreshHud();
     this.running = true;
     this.input.worldActive = true;
@@ -328,6 +336,7 @@ export class Game {
 
     this.renderer.lookAt(...this.cameraFocus(), rm ? 0 : 0.18);
     this.findTarget();
+    this.updateSparkles();
     this.updatePromptAndArrow();
     this.updateTips();
 
@@ -480,16 +489,27 @@ export class Game {
         if (p.kind === 'sign' && p.text) out.push({ kind: 'sign', text: p.text, label: 'Read the sign', x: p.x + 0.5, y: p.y + 0.5 });
     }
     for (const pl of this.world.map.places) out.push({ kind: 'place', id: pl.id, label: pl.label, x: pl.x, y: pl.y });
+    if (this.world === this.hub)
+      for (const [chapterId, place] of this.runtimePlaces())
+        out.push({ kind: 'rplace', id: place.id, chapterId, label: place.label, x: place.x, y: place.y, radius: place.radius });
     return out;
   }
 
   private findTarget(): void {
+    if (this.blocked) return;
     const p = this.player;
     let best: Target | null = null;
     let bestD = Infinity;
     for (const t of this.targetsInScene()) {
       const d = Math.hypot(t.x - p.x, t.y - p.y);
-      const reach = t.kind === 'npc' ? 1.7 : t.kind === 'sign' ? 1.35 : (this.world.map.places.find((q) => t.kind === 'place' && q.id === t.id)?.radius ?? 1);
+      const reach =
+        t.kind === 'npc'
+          ? 1.7
+          : t.kind === 'sign'
+            ? 1.35
+            : t.kind === 'rplace'
+              ? t.radius
+              : (this.world.map.places.find((q) => q.id === t.id)?.radius ?? 1);
       // Prefer things in front of the player.
       const ahead = facingBonus(p.facing, t.x - p.x, t.y - p.y);
       const score = d - ahead * 0.35;
@@ -509,7 +529,150 @@ export class Game {
     this.path = null;
     if (t.kind === 'npc') void this.talkTo(t.id);
     else if (t.kind === 'sign') void this.say(t.text);
+    else if (t.kind === 'rplace') void this.useRuntimePlace(t.chapterId, t.id);
     else void this.usePlace(t.id);
+  }
+
+  // ================================================================ chapter runtimes
+
+  private runtimes = new Map<string, ChapterRuntime>();
+  private loadingRuntimes = new Set<string>();
+
+  /** Lazily load the code for every chapter the player has reached. */
+  private ensureRuntimes(): void {
+    for (const c of this.engine.allChapters()) {
+      if (!c.loadRuntime || this.runtimes.has(c.id) || this.loadingRuntimes.has(c.id)) continue;
+      if (this.engine.progress(c.id).stage === 'locked') continue;
+      this.loadingRuntimes.add(c.id);
+      c.loadRuntime()
+        .then((m) => {
+          this.runtimes.set(c.id, m.default);
+          this.refreshHud();
+        })
+        .catch((err) => {
+          console.error(`[game] could not load chapter ${c.id}`, err);
+          bus.emit('toast', { text: 'Part of this chapter did not load. Please reload the page.', kind: 'info' });
+        })
+        .finally(() => this.loadingRuntimes.delete(c.id));
+    }
+  }
+
+  get runtimesReady(): boolean {
+    return this.loadingRuntimes.size === 0;
+  }
+
+  runtimeContext(chapterId: string): RuntimeContext {
+    const data = (this.save.chapterData[chapterId] ??= {});
+    return {
+      host: this.uiLayer,
+      engine: this.engine,
+      save: this.save,
+      data,
+      learner: this.save.learner,
+      apply: (e) => void this.applyEffect(e),
+      persist: () => this.persist('quiet'),
+      toast: (text, kind) => bus.emit('toast', { text, kind }),
+      say: async (lines) => {
+        const nodes: Conversation['nodes'] = {};
+        lines.forEach((l, i) => (nodes[`n${i}`] = { id: `n${i}`, speaker: l.speaker, expression: l.expression, text: l.text, next: i + 1 < lines.length ? `n${i + 1}` : null }));
+        await this.dialogue.run({ id: 'runtime', title: '', start: 'n0', nodes }, { replay: true });
+      },
+      grantBonus: (key, seeds, xp) => {
+        const store = (this.save.chapterData.__bonus ??= {});
+        if (store[key]) return false;
+        store[key] = true;
+        this.save.progress.seeds += seeds;
+        this.save.progress.xp += xp;
+        audio.itemGet();
+        this.refreshHud();
+        return true;
+      },
+      sound: (kind) => {
+        if (kind === 'correct') audio.correct();
+        else if (kind === 'retry') audio.retry();
+        else if (kind === 'item') audio.itemGet();
+        else if (kind === 'open') audio.open();
+        else if (kind === 'close') audio.close();
+        else audio.questComplete();
+      },
+    };
+  }
+
+  private *runtimePlaces(): Generator<[string, RuntimePlace]> {
+    for (const [chapterId, rt] of this.runtimes) for (const p of rt.places(this.runtimeContext(chapterId))) yield [chapterId, p];
+  }
+
+  private async useRuntimePlace(chapterId: string, placeId: string): Promise<void> {
+    const rt = this.runtimes.get(chapterId);
+    if (!rt) return;
+    await this.withModalGuard(() => rt.usePlace(placeId, this.runtimeContext(chapterId)));
+    this.persist();
+    this.refreshHud();
+  }
+
+  /** Fill {tokens} in dialogue from the chapter runtimes. */
+  private resolveTokens(text: string): string {
+    if (!text.includes('{')) return text;
+    const tokens: Record<string, string> = {};
+    for (const [chapterId, rt] of this.runtimes) Object.assign(tokens, rt.tokens(this.runtimeContext(chapterId)));
+    return text.replace(/\{(\w+)\}/g, (m, k: string) => tokens[k] ?? m);
+  }
+
+  private async showMemory(id: string): Promise<void> {
+    if (!this.save.memories.includes(id)) this.save.memories.push(id);
+    await openMemory(this.uiLayer, id);
+    this.persist('quiet');
+  }
+
+  /** The HUD's "Next" line and where the arrow should point. */
+  private objective(): { text: string; npc?: string; point?: { x: number; y: number; label: string } } {
+    const next = this.engine.nextAction();
+    if (next.targetPlaceId) {
+      const cur = this.engine.currentChapter();
+      const rt = cur ? this.runtimes.get(cur.id) : undefined;
+      const o = rt?.objective?.(this.runtimeContext(cur!.id));
+      if (o) return { text: o.text, point: { x: o.x, y: o.y, label: 'Garden' } };
+    }
+    return { text: next.text, npc: next.targetNpcId };
+  }
+
+  // Sparkles over chapter hotspots (clear for tasks, faint for hidden bonuses).
+  private sparkles = new Map<string, THREE.Mesh>();
+  private sparkleTex: THREE.CanvasTexture[] = [];
+
+  private updateSparkles(): void {
+    if (!this.sparkleTex.length) this.sparkleTex = [0, 1].map((f) => pixelTexture(paintSparkle(f).toCanvas()));
+    const seen = new Set<string>();
+    if (this.world === this.hub)
+      for (const [, p] of this.runtimePlaces()) {
+        if (!p.marker) continue;
+        const near = Math.hypot(p.x - this.player.x, p.y - this.player.y) < 3.2;
+        if (p.marker === 'faint' && !near) continue;
+        seen.add(p.id);
+        let m = this.sparkles.get(p.id);
+        if (!m) {
+          const mat = new THREE.MeshBasicMaterial({ map: this.sparkleTex[0], transparent: true, depthWrite: false });
+          m = new THREE.Mesh(new THREE.PlaneGeometry(11 / 16, 11 / 16), mat);
+          m.rotation.x = -Math.PI / 4;
+          m.renderOrder = 15;
+          this.hub.scene.add(m);
+          this.sparkles.set(p.id, m);
+        }
+        const mat = m.material as THREE.MeshBasicMaterial;
+        const frame = settings.reducedMotion ? 0 : Math.floor(this.clock * 2.5 + p.x) % 2;
+        if (mat.map !== this.sparkleTex[frame]) {
+          mat.map = this.sparkleTex[frame];
+          mat.needsUpdate = true;
+        }
+        mat.opacity = p.marker === 'faint' ? 0.55 : 1;
+        const bob = settings.reducedMotion ? 0 : Math.sin(this.clock * 3 + p.x) * 0.06;
+        m.position.set(p.x, (0.9 + bob) * K, p.y * K + 0.05);
+      }
+    for (const [id, m] of this.sparkles)
+      if (!seen.has(id)) {
+        this.hub.scene.remove(m);
+        this.sparkles.delete(id);
+      }
   }
 
   private async talkTo(npcId: string): Promise<void> {
@@ -640,17 +803,21 @@ export class Game {
       const c = this.engine.getChapter(chapterId);
       bus.emit('toast', { text: `Quest complete: ${c?.title}! +${xp} XP, +${seeds} Seeds`, kind: 'reward' });
       if (c?.rewards.unlock) bus.emit('toast', { text: `Unlocked: ${c.rewards.unlock}`, kind: 'reward' });
-      this.room.setPotPlanted?.(true);
-      this.markTipPending('rest');
+      if (chapterId === 'practice') {
+        this.room.setPotPlanted?.(true);
+        this.markTipPending('rest');
+      }
     });
-    bus.on('quest:changed', () => this.refreshHud());
+    bus.on('quest:changed', () => {
+      this.ensureRuntimes();
+      this.refreshHud();
+    });
     bus.on('settings:changed', () => this.touch?.setVisible(touchControlsVisible() && this.running));
   }
 
   private refreshHud(): void {
     if (!this.hud || !this.engine) return;
-    const next = this.engine.nextAction();
-    this.hud.setObjective(next.text);
+    this.hud.setObjective(this.objective().text);
     this.hud.setStats(this.save.progress.xp, this.save.progress.seeds);
     this.touch?.setVisible(touchControlsVisible());
   }
@@ -677,11 +844,11 @@ export class Game {
     }
 
     // Off-screen arrow to the next target (always Carver when asked to find him).
-    const next = this.engine.nextAction();
-    let targetNpc = next.targetNpcId;
+    const obj = this.objective();
+    let targetNpc = obj.npc;
     if (this.clock < this.guideUntil) targetNpc = 'carver';
     const from = this.renderer.project(this.player.headPoint());
-    if (this.world === this.room && targetNpc) {
+    if (this.world === this.room && (targetNpc || obj.point)) {
       const door = this.renderer.project(new THREE.Vector3(5, 0, 8.6 * K));
       this.hud.setArrow(door.visible ? null : 'Door', from.x, from.y, door.x, door.y);
       return;
@@ -692,6 +859,11 @@ export class Game {
       const { w, h: hh } = this.renderer.hostSize;
       const onScreen = s.x > 40 && s.x < w - 40 && s.y > 60 && s.y < hh - 60;
       this.hud.setArrow(onScreen ? null : shortName(npcById(targetNpc!)!), from.x, from.y, s.x, s.y);
+    } else if (obj.point && this.world === this.hub) {
+      const s = this.renderer.project(new THREE.Vector3(obj.point.x, 0.8 * K, obj.point.y * K));
+      const { w, h: hh } = this.renderer.hostSize;
+      const onScreen = s.x > 40 && s.x < w - 40 && s.y > 60 && s.y < hh - 60;
+      this.hud.setArrow(onScreen ? null : obj.point.label, from.x, from.y, s.x, s.y);
     } else this.hud.setArrow(null);
   }
 
@@ -797,6 +969,16 @@ export class Game {
           this.guideUntil = this.clock + 12;
           bus.emit('toast', { text: 'Follow the arrow to Carver.', kind: 'hint' });
         },
+        extraSections: () => {
+          const out: HTMLElement[] = [];
+          for (const [chapterId, rt] of this.runtimes) {
+            const el = rt.journal?.(this.runtimeContext(chapterId));
+            if (el) out.push(el);
+          }
+          return out;
+        },
+        memories: this.save.memories.filter((id) => MEMORIES[id]).map((id) => ({ id, title: MEMORIES[id].title, setting: MEMORIES[id].setting })),
+        openMemory: (id) => void this.showMemory(id),
         onInspect: (itemId) => {
           const e = this.engine.inventoryEntry(itemId);
           if (e && !e.inspected) {
@@ -925,6 +1107,23 @@ export class Game {
     this.persist('quiet');
   }
 
+  /** Debug: make chapter N ready to start (earlier chapters marked complete, no rewards). */
+  debugJumpTo(n: number): void {
+    for (const c of this.engine.allChapters()) {
+      const p = this.engine.progress(c.id);
+      if (c.number < n) {
+        p.stage = 'complete';
+        p.rewarded = true;
+        p.stepsDone = c.steps.map((s) => s.id);
+        c.requiredItems.forEach((id) => this.engine.grantItem(id, 'debug') && this.engine.useItem(id, 'Skipped with debug'));
+      } else if (c.number === n && c.status === 'playable') p.stage = 'available';
+    }
+    this.engine.refreshUnlocks();
+    this.ensureRuntimes();
+    this.refreshHud();
+    this.persist();
+  }
+
   debugComplete(): void {
     const e = this.engine;
     e.apply({ type: 'acceptQuest', chapterId: 'practice' });
@@ -947,8 +1146,14 @@ export class Game {
         target: this.target ? { kind: this.target.kind, label: this.target.label } : null,
         dialogueOpen: !!this.dialogue?.isOpen,
         modalOpen: !!this.modal,
-        objective: this.engine?.nextAction().text,
+        objective: this.engine ? this.objective().text : undefined,
         practice: this.engine?.progress('practice'),
+        chapters: this.engine ? Object.fromEntries(this.engine.allChapters().map((c) => [c.id, this.engine.progress(c.id).stage])) : {},
+        ch1: this.engine?.progress('ch1'),
+        ch1Data: this.save.chapterData.ch1 ?? null,
+        memories: this.save.memories,
+        runtimesReady: this.runtimesReady,
+        version: this.save.version,
         inventory: this.save.progress.inventory,
         xp: this.save.progress.xp,
         seeds: this.save.progress.seeds,

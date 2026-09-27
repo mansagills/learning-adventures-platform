@@ -20,6 +20,26 @@ export function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Attrs = 
 const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /**
+ * Open modals, newest last. One window-level listener sends Escape and Tab
+ * to the top one, so they work even when focus has fallen to the page
+ * (e.g. after the focused button was disabled).
+ */
+const stack: Modal[] = [];
+let listening = false;
+function listen(): void {
+  if (listening) return;
+  listening = true;
+  window.addEventListener(
+    'keydown',
+    (e) => {
+      const top = stack[stack.length - 1];
+      if (top) top.handleKey(e);
+    },
+    true,
+  );
+}
+
+/**
  * A modal layer that keeps keyboard focus inside itself, closes on Escape,
  * and hands focus back to where it came from.
  */
@@ -43,18 +63,29 @@ export class Modal {
         if (e.target === this.back) this.close();
       });
     this.onKey = (e) => {
-      if (e.key === 'Escape' && opts.escapeCloses !== false) {
+      if (e.key === 'Escape') {
         e.stopPropagation();
         e.preventDefault();
-        this.close();
+        if (opts.escapeCloses !== false) this.close();
       } else if (e.key === 'Tab') this.trap(e);
+      else if (!this.root.contains(document.activeElement) && ['Enter', ' '].includes(e.key)) {
+        // Focus fell off the dialog: bring it back rather than acting on the world.
+        e.preventDefault();
+        e.stopPropagation();
+        (this.root.querySelector(FOCUSABLE) as HTMLElement | null)?.focus();
+      }
     };
-    this.back.addEventListener('keydown', this.onKey);
+    listen();
+    stack.push(this);
     host.append(this.back);
     requestAnimationFrame(() => {
       const first = (root.querySelector('[data-autofocus]') as HTMLElement | null) ?? (root.querySelector(FOCUSABLE) as HTMLElement | null);
       first?.focus();
     });
+  }
+
+  handleKey(e: KeyboardEvent): void {
+    this.onKey(e);
   }
 
   private trap(e: KeyboardEvent): void {
@@ -74,6 +105,8 @@ export class Modal {
   close(): void {
     if (this.closed) return;
     this.closed = true;
+    const i = stack.indexOf(this);
+    if (i >= 0) stack.splice(i, 1);
     this.back.remove();
     if (this.returnFocus instanceof HTMLElement && document.contains(this.returnFocus)) this.returnFocus.focus();
     this.onClose?.();

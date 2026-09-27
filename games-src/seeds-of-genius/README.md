@@ -21,6 +21,7 @@ npm test             # unit tests (vitest)
 npm run build        # typecheck + build into ../../public/games/seeds-of-genius
 npx vite preview --port 4173 &   # serve the build
 npm run e2e -- http://localhost:4173/   # Phase 0 browser check-in (Playwright)
+node scripts/e2e-phase1.mjs http://localhost:4173/   # Phase 1 check-in (Chapter 1)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -54,7 +55,8 @@ src/
   render/pixelRenderer.ts 45-degree orthographic camera, integer-scaled pixels
   world/                  map data, collision + pathfinding, scene kit, actors, scenes
   art/                    every sprite, tile, portrait and icon, painted in code
-  quests/                 chapter/item/dialogue types + the QuestEngine
+  quests/                 chapter/item/dialogue types, the QuestEngine, the chapter runtime interface
+  chapters/ch1/           Chapter 1's code: garden spots, close-up inspection, card game (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -85,7 +87,9 @@ required path.
 4. Fill in the chapter's outline in `src/content/chapters.ts`: `steps`
    (talks and minigames), `requiredItems`, `itemUses`, `rewards`, and set
    `status: 'playable'`.
-5. Put its minigame behind `loadAssets` (a dynamic `import()`) so it loads lazily.
+5. Put its minigame in `src/chapters/<id>/runtime.ts` (a `ChapterRuntime`: world
+   places, dialogue `{tokens}`, objective line, journal section) and point
+   `loadRuntime` at it with a dynamic `import()`, so it loads lazily.
 6. Run `npm test`: `tests/content.test.ts` checks that every conversation,
    NPC, item, step and effect a chapter names really exists, and that Carver
    opens and closes every playable chapter.
@@ -126,8 +130,8 @@ holds keys in the browser, and falls back to authored hints on any error.
 
 | Phase | Scope | Status |
 |---|---|---|
-| 0 | Playable foundation | Built, awaiting owner approval |
-| 1 | A Seed Is Planted / Curiosity Collector | Not started |
+| 0 | Playable foundation | Approved ✅ |
+| 1 | A Seed Is Planted / Curiosity Collector | Built, awaiting owner approval |
 | 2 | Science Against the Odds / Choose the Path | Not started |
 | 3 | The Soil Speaks / Virtual Soil Lab | Not started |
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Not started |
@@ -135,6 +139,14 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 6 | A Scientist's Method / Design Your Own Experiment | Not started |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 1)
+
+- On phones, the garden close-up and the card game scroll inside their panel
+  (the picture, the lens and the notebook don't all fit on one screen).
+- Printing the Nature Observation Card works on the website; the Claude
+  artifact preview can't open the print dialog.
+- Carver's portrait uses the same few expressions as Phase 0.
 
 ## Known issues (Phase 0)
 

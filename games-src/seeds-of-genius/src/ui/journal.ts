@@ -18,6 +18,11 @@ export interface JournalContext {
   replay(conversationId: string): void;
   findCarver(): void;
   onInspect(itemId: string): void;
+  /** Extra Quest-tab sections supplied by chapter code (notebook, activities). */
+  extraSections(): HTMLElement[];
+  /** Memories the player has seen, to view again. */
+  memories: Array<{ id: string; title: string; setting: string }>;
+  openMemory(id: string): void;
 }
 
 const TABS: Array<{ id: JournalTab; label: string; icon: string }> = [
@@ -190,12 +195,33 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
             { class: 'section' },
             h('h3', { text: 'Chapter reflection' }),
             h('p', { style: 'margin:0 0 6px', text: `You earned ${chapter.rewards.xp} XP and ${chapter.rewards.seeds} Seeds.${chapter.rewards.unlock ? ` Unlocked: ${chapter.rewards.unlock}.` : ''}` }),
-            h('p', { style: 'margin:0', text: 'You practised telling an observation (something anyone can check right now) from a guess or an opinion.' }),
+            chapter.reflection ? h('p', { style: 'margin:0', text: chapter.reflection }) : null,
           ),
         );
       }
     }
-    const evidence = Object.entries(ctx.save.learner).flatMap(([, r]) => r.evidence);
+    ctx.extraSections().forEach((el) => wrap.append(el));
+    if (ctx.memories.length)
+      wrap.append(
+        h(
+          'div',
+          { class: 'section' },
+          h('h3', { text: "Memories from Carver's life" }),
+          h(
+            'ul',
+            { class: 'checklist' },
+            ...ctx.memories.map((m) =>
+              h(
+                'li',
+                { style: 'align-items:center;justify-content:space-between' },
+                h('span', {}, h('strong', { text: m.title }), ` (${m.setting})`),
+                h('button', { class: 'btn small', type: 'button', text: 'View again', onclick: () => ctx.openMemory(m.id) }),
+              ),
+            ),
+          ),
+        ),
+      );
+    const evidence = Object.entries(ctx.save.learner).flatMap(([, r]) => r.evidence).slice(-6);
     if (evidence.length)
       wrap.append(h('div', { class: 'section' }, h('h3', { text: 'Your science notes' }), h('ul', {}, ...evidence.map((t) => h('li', { text: t })))));
     return wrap;
@@ -321,7 +347,17 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
             const st = e.progress(c.id).stage;
             const cls = st === 'complete' ? 'done' : cur?.id === c.id ? 'current' : '';
             const label =
-              st === 'complete' ? 'Complete' : c.status === 'coming-soon' ? 'Coming in a later update' : st === 'locked' ? 'Locked' : st === 'active' ? 'In progress' : 'Ready';
+              st === 'complete'
+                ? 'Complete'
+                : c.status === 'coming-soon'
+                  ? e.isUnlocked(c.id)
+                    ? 'Unlocked · arrives in the next update'
+                    : 'Coming in a later update'
+                  : st === 'locked'
+                    ? 'Locked'
+                    : st === 'active'
+                      ? 'In progress'
+                      : 'Ready to start';
             return h(
               'li',
               { class: cls },

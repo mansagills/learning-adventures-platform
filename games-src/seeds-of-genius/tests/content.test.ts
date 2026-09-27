@@ -4,6 +4,7 @@ import { CONVERSATIONS } from '../src/content/conversations';
 import { ITEMS } from '../src/content/items';
 import { NPCS } from '../src/content/npcs';
 import type { DialogueEffect } from '../src/quests/types';
+import { MEMORIES } from '../src/content/memories';
 
 describe('content integrity', () => {
   const npcIds = new Set(NPCS.map((n) => n.id));
@@ -44,6 +45,7 @@ describe('content integrity', () => {
     const chapterIds = new Set(CHAPTERS.map((c) => c.id));
     const checkEffect = (e: DialogueEffect) => {
       if ('chapterId' in e) expect(chapterIds.has(e.chapterId)).toBe(true);
+      if (e.type === 'showMemory') expect(MEMORIES[e.memoryId]).toBeDefined();
       if ('itemId' in e) expect(ITEMS[e.itemId]).toBeDefined();
       if (e.type === 'completeStep') {
         const ch = CHAPTERS.find((c) => c.id === e.chapterId)!;
