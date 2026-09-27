@@ -17,7 +17,7 @@ import { SaveStore, freshSave, type SaveData } from './systems/save';
 import { applySettingsToDocument, isTouchDevice, settings, touchControlsVisible, updateSettings } from './systems/settings';
 import { Actor } from './world/actor';
 import { findPath } from './world/collision';
-import { buildHubScene, buildRoomScene, buildSchoolScene, type WorldScene } from './world/scenes';
+import { buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, type WorldScene } from './world/scenes';
 import type { SceneId } from './world/map';
 import { openCustomize } from './ui/customize';
 import { DialogueUI } from './ui/dialogue';
@@ -59,6 +59,7 @@ export class Game {
   readonly hub: WorldScene;
   readonly room: WorldScene;
   readonly school: WorldScene;
+  readonly farm: WorldScene;
   world: WorldScene;
   player!: Actor;
   private npcActors = new Map<string, Actor>();
@@ -89,6 +90,7 @@ export class Game {
     this.hub = buildHubScene();
     this.room = buildRoomScene();
     this.school = buildSchoolScene();
+    this.farm = buildFarmScene();
     this.world = this.hub;
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
@@ -245,7 +247,7 @@ export class Game {
   }
 
   private sceneById(id: SceneId): WorldScene {
-    return { hub: this.hub, room: this.room, school: this.school }[id];
+    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm }[id];
   }
 
   private setScene(id: SceneId, pos?: { x: number; y: number }, facing: Dir = 'down'): void {
@@ -749,7 +751,14 @@ export class Game {
         return this.transition('room');
       case 'room_door':
       case 'school_exit':
+      case 'farm_exit':
         return this.transition('hub');
+      case 'farm_door': {
+        const st = this.engine.progress('ch3').stage;
+        if (st === 'active' || st === 'complete') return this.transition('farm');
+        if (st === 'available') return this.say('The farm gate is latched. Carver has a question about this farm for you first.');
+        return this.say(PLACE_LINES.farm_door);
+      }
       case 'school_door': {
         const st = this.engine.progress('ch2').stage;
         if (st === 'active' || st === 'complete') return this.transition('school');
@@ -1184,6 +1193,7 @@ export class Game {
         ch1Data: this.save.chapterData.ch1 ?? null,
         ch2: this.engine?.progress('ch2'),
         ch2Data: this.save.chapterData.ch2 ?? null,
+        ch3Data: this.save.chapterData.ch3 ?? null,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,
         version: this.save.version,

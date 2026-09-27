@@ -773,6 +773,261 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'db', speaker: 'ada', expression: 'curious', text: 'I sketch something new every day. Today it is the well. Look at all those stones!', next: null },
     ]),
 
+    // ------------------------------------------------ Chapter 3: The Soil Speaks
+    convo('carver_ch3_opening', 'Carver: The tired field', [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Have you met Mr. Hill? He farms Hilltop Farm, just north of the road. His cotton in the west plot gets smaller every year, and he does not know why.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'When a crop keeps doing poorly, a scientist asks the soil. Soil is alive, and it tells you a lot if you look closely.',
+        choices: [
+          { text: 'How can soil be alive?', next: 'o3' },
+          { text: 'What should I do?', next: 'o4' },
+        ],
+      },
+      {
+        id: 'o3',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'A spoonful of healthy soil holds roots, worms, bits of old leaves and tiny living things too small to see. Together they feed the plants.',
+        next: 'o4',
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch3' }],
+        text: 'Mr. Hill has soil samples and a record of what he planted. Mae at the Seed & Mail keeps crop cards for the crops that grow around here.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Compare his two plots, test some planting plans for the next four seasons, and bring me the plan you think is best. Then tell me why it works.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch3_waiting', 'Carver: How is the soil lab going?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge3}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'What is nitrogen?', next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Nitrogen is a plant food. Plants need it to grow leaves and stems. Soil can run low on it, like a pantry running out of flour.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch3_closing', 'Carver: Your plan for the west plot', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'Let me see your plan: {planText}.', next: 'c2' },
+      { id: 'c2', speaker: 'carver', expression: 'thinking', text: '{planCompare}', next: 'c3' },
+      { id: 'c3', speaker: 'carver', expression: 'proud', text: '{cottonCompare}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'soil',
+        text: 'Here is my question for you. What did the legumes in your plan do for the soil?',
+        options: [
+          {
+            id: 'fixall',
+            text: 'They fixed all of the soil in one season.',
+            correct: false,
+            misconception: 'instant-restoration',
+            feedback: 'Not so fast! Soil gets better slowly. Look at your soil bar: each legume season added only a little.',
+          },
+          {
+            id: 'slow',
+            text: 'They put back a little nitrogen each season, so the soil slowly got healthier.',
+            correct: true,
+            feedback: 'Yes. Legumes add a little at a time. Taking turns, season after season, is what helps tired soil.',
+          },
+          {
+            id: 'pests',
+            text: 'They scared the pests away forever.',
+            correct: false,
+            misconception: 'legumes-stop-pests',
+            feedback: 'Changing crops can slow pests down, but nothing stops them forever. Think about what legume roots do.',
+          },
+        ],
+        hints: [
+          'Here is a clue: think about the bumps on the legume roots in the east plot.',
+          'Those bumps help put nitrogen into the soil. Did the soil bar jump all at once, or rise a little each season?',
+          'Worked example: each legume season added a few soil points, not all at once. So "They put back a little nitrogen each season" is the answer.',
+        ],
+        next: 'c4',
+      },
+      {
+        id: 'c4',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Right. And rain and weather still matter. A good plan makes good harvests more likely. It cannot promise them.',
+        textIfRetried: 'You changed your answer after thinking it through. That is good science. Rain and weather still matter, too: a good plan makes good harvests more likely, but it cannot promise them.',
+        next: 'c5',
+      },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'I worked on this very problem at Tuskegee, with farmers whose fields had grown cotton for years. Would you like to see a memory?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'c6', effects: [{ type: 'showMemory', memoryId: 'tuskegee_soil' }] },
+          { text: 'Maybe later.', next: 'c6' },
+        ],
+      },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'rotation_card', from: 'carver' }],
+        text: 'This is for you: a Crop-Rotation Planner. Plan four seasons on paper, or try it with cups of soil and bean seeds, with a grown-up.',
+        next: 'c7',
+      },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'curious',
+        effects: [{ type: 'completeChapter', chapterId: 'ch3' }],
+        text: 'Next time: peanuts. If farmers grow lots of them, they will need new ways to use them. That is a job for an inventor.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch3_after', 'Carver: Patient soil', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Mr. Hill is trying your plan in the west plot. Soil takes time, so we will keep watching. Your planner is in your bag.',
+        choices: [
+          { text: 'Can I see the Tuskegee memory?', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'tuskegee_soil' }] },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'Every field is an experiment, if you keep good notes.', next: null },
+    ]),
+
+    convo('amos_ch3_give', 'Mr. Hill: The west plot', [
+      {
+        id: 'm1',
+        speaker: 'amos',
+        expression: 'smile',
+        text: 'Howdy! Amos Hill. Carver sent you about my west plot? Glad to have the help.',
+        next: 'm2',
+      },
+      {
+        id: 'm2',
+        speaker: 'amos',
+        expression: 'thinking',
+        text: 'I have planted cotton there five years running. Cotton sells, and my family needs the money. But every year the plants come up thinner.',
+        choices: [
+          { text: 'Why not plant something else?', next: 'm3a' },
+          { text: 'What about your east plot?', next: 'm3b' },
+        ],
+      },
+      {
+        id: 'm3a',
+        speaker: 'amos',
+        expression: 'neutral',
+        text: 'I still need some cotton. It pays for seed and shoes. But I would take turns with other crops, if the plan still grows cotton sometimes.',
+        next: 'm4',
+      },
+      {
+        id: 'm3b',
+        speaker: 'amos',
+        expression: 'curious',
+        text: 'The east plot took turns: cotton, peanuts, cotton, cowpeas, cotton. My neighbor talked me into it. That cotton looks much better. Funny, right?',
+        next: 'm4',
+      },
+      {
+        id: 'm4',
+        speaker: 'amos',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'soil_samples', from: 'amos' },
+          { type: 'grantItem', itemId: 'crop_history', from: 'amos' },
+          { type: 'completeStep', chapterId: 'ch3', stepId: 'get_samples' },
+        ],
+        text: 'Here are two jars of soil, one from each plot, and my ledger of what I planted. Look at them up close out in the fields.',
+        next: 'm5',
+      },
+      {
+        id: 'm5',
+        speaker: 'amos',
+        expression: 'neutral',
+        text: 'The gate is open now. Just remember: any plan for the west plot has to grow some cotton.',
+        next: null,
+      },
+    ]),
+    convo('amos_ch3_after', 'Mr. Hill: Soil does not hurry', [
+      { id: 'ma', speaker: 'amos', expression: 'smile', text: 'Take your time in the fields. Soil does not hurry, and neither do I.', next: null },
+    ]),
+    convo('amos_ambient', 'Mr. Hill: The scarecrow', [
+      { id: 'mb', speaker: 'amos', expression: 'smile', text: 'Morning! The crows think my scarecrow is their friend. Maybe it is.', next: null },
+    ]),
+
+    convo('mae_ch3_give', 'Mae: Crop cards', [
+      { id: 'e1', speaker: 'mae', expression: 'smile', text: "Carver said you'd come by! You need crop cards for Mr. Hill's fields?", next: 'e2' },
+      {
+        id: 'e2',
+        speaker: 'mae',
+        expression: 'neutral',
+        text: 'Four crops grow well around here: cotton, peanuts, cowpeas and sweet potatoes.',
+        choices: [
+          { text: 'What is a legume?', next: 'e3a' },
+          { text: 'Which one is best?', next: 'e3b' },
+        ],
+      },
+      {
+        id: 'e3a',
+        speaker: 'mae',
+        expression: 'curious',
+        text: 'A legume is a plant in the bean family, like peanuts and cowpeas. Their roots have little bumps where helpful bacteria turn air into nitrogen, a plant food.',
+        next: 'e4',
+      },
+      {
+        id: 'e3b',
+        speaker: 'mae',
+        expression: 'thinking',
+        text: 'No single crop is best! It depends on what the soil needs and what the farmer needs. Peanuts and cowpeas are legumes, and they help the soil. That is what planning is for.',
+        next: 'e4',
+      },
+      {
+        id: 'e4',
+        speaker: 'mae',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'crop_cards', from: 'mae' },
+          { type: 'completeStep', chapterId: 'ch3', stepId: 'get_cards' },
+        ],
+        text: 'Take the whole set. I drew a little root with bumps on the legume cards.',
+        next: 'e5',
+      },
+      { id: 'e5', speaker: 'mae', expression: 'smile', text: 'Good luck! And tell Mr. Hill his seed order came in.', next: null },
+    ]),
+    convo('mae_ch3_after', 'Mae: Busy seed orders', [
+      { id: 'ea', speaker: 'mae', expression: 'smile', text: 'Peanuts, cowpeas, sweet potatoes... I will be busy if your plan catches on!', next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {
@@ -836,6 +1091,7 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
 /** One-off lines for objects and places (not replayed in the journal). */
 export const PLACE_LINES: Record<string, string> = {
   school_door: 'The schoolhouse is closed for now. It opens in Chapter 2.',
+  farm_door: 'The farm gate is latched. Mr. Hill opens the fields for lessons in Chapter 3.',
   workshop_door: 'The workshop is locked. The craftsperson will open it in Chapter 4.',
   greenhouse_door: "Carver's greenhouse is full of seedlings and jars. He'll invite you in for later experiments.",
   shop_door: 'The Seed & Mail smells like paper and fresh soil. Mae is working at the stall out front.',

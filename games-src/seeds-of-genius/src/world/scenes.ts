@@ -7,7 +7,7 @@ import { paintingCanvas } from '../art/sceneArt';
 import { P } from '../art/palette';
 import { hash2, mulberry32 } from '../core/rng';
 import { CollisionGrid, propFootprint } from './collision';
-import { SCHOOL_EASEL_ART, SCHOOL_EASELS, buildHubMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
+import { SCHOOL_EASEL_ART, SCHOOL_EASELS, buildFarmMap, buildHubMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
 import { Lighting, billboard, buildBuilding, glowSprite, lightPool, pixelTexture } from './sceneKit';
 
 export interface WorldScene {
@@ -52,15 +52,8 @@ function propCanvas(kind: PropDef['kind'], variant: number): HTMLCanvasElement {
   return cv;
 }
 
-export function buildHubScene(): WorldScene {
-  const map = buildHubMap();
-  const scene = new THREE.Scene();
-  const lighting = new Lighting();
-  const bg = new THREE.Color(P.grassDeep);
-  scene.background = bg.clone();
-  scene.add(groundMesh(lighting, map));
-  map.buildings.forEach((b) => scene.add(buildBuilding(lighting, b)));
-
+/** Stand every prop of a map up as a billboard (lamps also get their glow). */
+function addProps(scene: THREE.Scene, lighting: Lighting, map: MapDef): void {
   for (const p of map.props) {
     const variant = p.kind === 'fence' ? fenceVariant(p, map) : (p.variant ?? 0);
     const cv = propCanvas(p.kind, variant);
@@ -77,6 +70,18 @@ export function buildHubScene(): WorldScene {
       scene.add(lightPool(lighting, cx, baseY + 0.3, 1.9, '#ffc56b', 0.3));
     }
   }
+}
+
+export function buildHubScene(): WorldScene {
+  const map = buildHubMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  const bg = new THREE.Color(P.grassDeep);
+  scene.background = bg.clone();
+  scene.add(groundMesh(lighting, map));
+  map.buildings.forEach((b) => scene.add(buildBuilding(lighting, b)));
+
+  addProps(scene, lighting, map);
 
   // Warm light spilling from doors and windows at night.
   map.buildings.forEach((b) => {
@@ -386,4 +391,30 @@ function easelWithPicture(i: number): HTMLCanvasElement {
   g.imageSmoothingEnabled = true;
   g.drawImage(half, 3, 4, 14, 11);
   return cv;
+}
+
+// ------------------------------------------------------------ Hilltop Farm fields
+
+export function buildFarmScene(): WorldScene {
+  const map = buildFarmMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  const bg = new THREE.Color(P.grassDeep);
+  scene.background = bg.clone();
+  scene.add(groundMesh(lighting, map));
+  addProps(scene, lighting, map);
+  // A lantern glow on the planning bench after dark.
+  scene.add(glowSprite(lighting, 30, '#ffd98a', 7.5, 2.7, 1.2, 0.45));
+  return {
+    id: 'farm',
+    map,
+    scene,
+    grid: new CollisionGrid(map),
+    lighting,
+    interior: false,
+    update: (_dt, _time, night) => {
+      bg.set(P.grassDeep).multiplyScalar(1 - night * 0.45);
+      (scene.background as THREE.Color).copy(bg);
+    },
+  };
 }

@@ -120,6 +120,23 @@ export function paintGround(map: MapDef, seed = 7): HTMLCanvasElement {
           for (let i = 0; i < 4; i++) px(ox + Math.floor(r(i) * 16), oy + Math.floor(r(i + 4) * 16), P.soil3);
           break;
         }
+        case 'dryfield': {
+          // Tired, pale soil: a dusty crust with cracks and few furrows.
+          ctx.fillStyle = '#b89468';
+          ctx.fillRect(ox, oy, T, T);
+          for (let row = 0; row < T; row += 4) {
+            ctx.fillStyle = '#a4815a';
+            ctx.fillRect(ox, oy + row + 2, T, 1);
+          }
+          ctx.fillStyle = '#8a6a48';
+          const cx = ox + 2 + Math.floor(r(1) * 10);
+          const cy = oy + 2 + Math.floor(r(2) * 10);
+          ctx.fillRect(cx, cy, 3, 1);
+          ctx.fillRect(cx + 2, cy + 1, 1, 2);
+          ctx.fillRect(cx + 3, cy + 3, 2, 1);
+          for (let i = 0; i < 4; i++) px(ox + Math.floor(r(i + 3) * 16), oy + Math.floor(r(i + 8) * 16), '#cdb088');
+          break;
+        }
         case 'floor': {
           ctx.fillStyle = P.wood3;
           ctx.fillRect(ox, oy, T, T);
@@ -159,7 +176,7 @@ export function paintGround(map: MapDef, seed = 7): HTMLCanvasElement {
       const ox = tx * T;
       const oy = ty * T;
       const isGrassy = (g: GroundKind | null) => g === 'grass' || g === 'flowers';
-      if (k === 'path' || k === 'cobble' || k === 'soil' || k === 'field') {
+      if (k === 'path' || k === 'cobble' || k === 'soil' || k === 'field' || k === 'dryfield') {
         const sides: Array<[number, number, (i: number) => [number, number]]> = [
           [0, -1, (i) => [ox + i, oy]],
           [0, 1, (i) => [ox + i, oy + T - 1]],

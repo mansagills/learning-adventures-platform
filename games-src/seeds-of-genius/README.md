@@ -23,6 +23,7 @@ npx vite preview --port 4173 &   # serve the build
 npm run e2e -- http://localhost:4173/   # Phase 0 browser check-in (Playwright)
 node scripts/e2e-phase1.mjs http://localhost:4173/   # Phase 1 check-in (Chapter 1)
 node scripts/e2e-phase2.mjs http://localhost:4173/   # Phase 2 check-in (Chapter 2)
+node scripts/e2e-phase3.mjs http://localhost:4173/   # Phase 3 check-in (Chapter 3)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -59,6 +60,7 @@ src/
   quests/                 chapter/item/dialogue types, the QuestEngine, the chapter runtime interface
   chapters/ch1/           Chapter 1's code: garden spots, close-up inspection, card game (lazy-loaded)
   chapters/ch2/           Chapter 2's code: schoolhouse displays, journey timeline, barrier/support (lazy-loaded)
+  chapters/ch3/           Chapter 3's code: soil close-ups, the soil model, the rotation planner (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -137,13 +139,26 @@ holds keys in the browser, and falls back to authored hints on any error.
 |---|---|---|
 | 0 | Playable foundation | Approved ✅ |
 | 1 | A Seed Is Planted / Curiosity Collector | Approved ✅ |
-| 2 | Science Against the Odds / Choose the Path | Built, waiting for approval |
-| 3 | The Soil Speaks / Virtual Soil Lab | Not started |
+| 2 | Science Against the Odds / Choose the Path | Approved ✅ |
+| 3 | The Soil Speaks / Virtual Soil Lab | Built, waiting for approval |
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Not started |
 | 5 | Science for the People / Farm Helper | Not started |
 | 6 | A Scientist's Method / Design Your Own Experiment | Not started |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 3)
+
+- The soil model is deliberately simple (whole-number soil points, four
+  crops, one plot). It is labeled as a model in the game; real results
+  depend on weather, soil type and care.
+- On phones, the planner is a long scrolling panel (crop cards, four season
+  pickers, results, chart and table).
+- In automated tests with software rendering, the first frames after
+  loading into the farm can take about a second; on a normal graphics card
+  this is not noticeable.
+- Printing the Crop-Rotation Planner works on the website; the Claude
+  artifact preview can't open the print dialog.
 
 ## Known issues (Phase 2)
 

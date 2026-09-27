@@ -187,7 +187,14 @@ h3 {
   line-height: 1.25;
 }
 .objective.pulse {
-  animation: pulse 900ms ease-out 2;
+  /* Glow rather than grow, so a full-width box on a phone never pokes past the screen edge. */
+  animation: objective-glow 900ms ease-out 2;
+}
+@keyframes objective-glow {
+  40% {
+    background: #fff4c9;
+    box-shadow: 0 0 0 4px rgba(242, 181, 58, 0.7);
+  }
 }
 @keyframes pulse {
   0% {
@@ -1531,4 +1538,244 @@ mark.mark-guess {
   border-radius: 6px;
   font-weight: 700;
   line-height: 1.4;
+}
+
+/* ---------- Chapter 3: soil lab ---------- */
+.ledger-note {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  align-self: stretch;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff6dc;
+  border: 2px solid #e2c57a;
+  font-size: var(--text-small);
+  line-height: 1.4;
+}
+.soil-modal .feedback,
+.planner-modal .feedback {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-top: 10px;
+}
+.soil-compare h3 {
+  margin: 14px 0 6px;
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+  line-height: 1.35;
+}
+.compare-table th,
+.compare-table td {
+  border: 2px solid var(--paper-3);
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: middle;
+}
+.compare-table thead th {
+  background: #efe3c4;
+}
+.compare-table tbody th {
+  background: #f7eed8;
+}
+.plans-table tr.chosen td {
+  background: var(--leaf-bg);
+}
+.table-wrap {
+  overflow-x: auto;
+}
+.planner-modal {
+  width: min(860px, 100%);
+}
+.planner-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.planner-body h3 {
+  margin: 4px 0 0;
+}
+.planner-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.planner-top p {
+  margin: 0;
+}
+.crop-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.crop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+}
+.crop-card.legume {
+  border-color: #7fb36a;
+  background: #f1f8ea;
+}
+.crop-card .badge {
+  align-self: flex-start;
+}
+.season-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.season-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+  background: #fffaf0;
+}
+.season-slot legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+.crop-pick {
+  width: 100%;
+}
+.crop-pick.on {
+  background: var(--gold);
+  border-color: var(--wood-dark);
+  box-shadow: inset 0 0 0 2px #fff4c9;
+}
+.planner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.season-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.season-results:empty {
+  display: none;
+}
+.season-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 8px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+  animation: season-in 0.35s ease-out;
+}
+@keyframes season-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.season-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.season-text .why {
+  color: var(--ink-soft);
+}
+.plot-pic {
+  width: 112px;
+  height: 49px;
+  image-rendering: pixelated;
+  border: 2px solid var(--wood-dark);
+  border-radius: 4px;
+}
+.meter {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: #e7dcc4;
+  border: 2px solid var(--wood-dark);
+  overflow: hidden;
+}
+.meter.soil .meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c7a57a, #6e4a30);
+}
+.meter.harvest .meter-range {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #b9dc9a;
+}
+.meter.harvest .meter-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1px;
+  background: #2f6b2c;
+}
+.model-note {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.next-hint {
+  margin: 0;
+  font-weight: 700;
+  color: #2f6b2c;
+}
+.why-panel h3 {
+  margin: 0 0 8px;
+}
+.why-panel .choices .btn .num {
+  margin-right: 4px;
+}
+@media (max-width: 640px) {
+  .crop-cards,
+  .season-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .season-results {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .season-row {
+    animation: none;
+  }
+}
+.chart-wrap {
+  margin: 0 0 8px;
+}
+.soil-chart {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  margin-inline: auto;
+}
+.soil-chart .chart-label {
+  font: 700 10px var(--font-body, sans-serif);
+  fill: #4a3a30;
+}
+.chart-wrap figcaption {
+  text-align: center;
 }

@@ -478,6 +478,119 @@ function ch2Tuskegee(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------------ Chapter 3
+
+/** Magnified soil from the tired west plot: pale, crusted, almost lifeless. */
+function soilWest(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  soilBase(b, 0, 31, true);
+  // the crust on top, split by cracks
+  b.rect(40, 4, 50, 20, '#c7a57a');
+  const crack = (pts: Array<[number, number]>) => pts.forEach(([x, y]) => b.set(x, y, '#6e5236'));
+  for (let i = 0; i < 12; i++) crack([[46 + i, 8 + (i % 3)], [60 + (i % 4), 6 + i], [70 + i, 14 + (i % 2)]]);
+  for (let i = 0; i < 8; i++) crack([[80 + (i % 3), 6 + i * 2], [52 + i, 18 + (i % 2)]]);
+  // sandy specks
+  for (let i = 0; i < 40; i++) b.set(4 + Math.floor(hash2(i, 5, 7) * 30), 4 + Math.floor(hash2(i, 6, 7) * 22), '#e2cda4');
+  // a lower, dusty layer with one thin cotton root
+  b.rect(0, 30, PAINT_W, 34, '#a4815a');
+  for (let i = 0; i < 70; i++) b.set(Math.floor(hash2(i, 8, 3) * PAINT_W), 30 + Math.floor(hash2(i, 9, 3) * 34), '#8e6e4c');
+  for (let y = 30; y < 60; y++) b.set(52 + Math.round(Math.sin(y / 5) * 2), y, '#e6dcc0');
+  b.hline(0, PAINT_W - 1, 29, '#8a6a48');
+  return b;
+}
+
+/** Magnified soil from the rotated east plot: dark, crumbly, full of life. */
+function soilEast(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  soilBase(b, 0, 32);
+  b.rect(0, 0, PAINT_W, 30, '#5a3a26');
+  // crumbs
+  for (let i = 0; i < 26; i++) {
+    const x = Math.floor(hash2(i, 1, 11) * 90);
+    const y = Math.floor(hash2(i, 2, 11) * 26);
+    b.ellipse(x, y, 4, 3, i % 2 ? '#6e4a30' : '#432b1d');
+  }
+  // bits of old leaves
+  [[8, 20], [30, 6], [84, 22]].forEach(([x, y]) => b.rect(x, y, 3, 2, '#8a7a3a'));
+  // earthworm
+  for (let i = 0; i < 24; i++) {
+    const x = 42 + i;
+    const y = 14 + Math.round(Math.sin(i / 3) * 2);
+    b.set(x, y - 1, '#f0a0a0');
+    b.set(x, y, '#e08a8a');
+    b.set(x, y + 1, '#c86a70');
+  }
+  // lower layer with an old cowpea root and its nodules
+  b.rect(0, 30, PAINT_W, 34, '#4e3222');
+  for (let i = 0; i < 60; i++) b.set(Math.floor(hash2(i, 8, 5) * PAINT_W), 30 + Math.floor(hash2(i, 9, 5) * 34), '#65402a');
+  for (let t = 0; t <= 30; t++) {
+    const x = 36 + t;
+    const y = 34 + Math.round(t * 0.7);
+    b.set(x, y, '#e6d2a8');
+    b.set(x, y + 1, '#cdb88c');
+  }
+  for (let t = 0; t < 12; t++) b.set(50 + t, 44 - Math.round(t * 0.4), '#e6d2a8');
+  [[42, 38], [49, 42], [56, 45], [63, 51], [55, 38], [60, 36]].forEach(([x, y]) => {
+    b.ellipse(x, y, 4, 4, '#e6a98a');
+    b.set(x + 1, y + 1, '#fbd2b8');
+  });
+  b.hline(0, PAINT_W - 1, 29, '#3a2418');
+  return b;
+}
+
+/** A farmer Carver worked with (an imagined figure). */
+const TUSKEGEE_FARMER: CharacterLook = {
+  build: 'adult',
+  skin: { base: '#5a3825', shade: '#462a1b' },
+  hair: { style: 'short', base: '#2a1f1d', shade: '#1a1312', light: '#433331' },
+  shirt: { base: '#e7d9b8', shade: '#cdbd98' },
+  pants: '#3e5a88',
+  shoes: '#3a2a22',
+  accessory: 'cap',
+  accent: '#8a6a48',
+};
+
+/** Memory: Carver's test plots at Tuskegee's experiment station. */
+function memStation(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#9fd3ee', '#fbeec8', 22);
+  hills(b, 22, '#8fbf6a', 3);
+  b.rect(0, 22, PAINT_W, 42, '#b89468');
+  // test plots in rows: some pale and tired, some dark and green
+  const plots: Array<[number, number, boolean]> = [
+    [4, 28, false], [28, 28, true], [52, 28, false], [76, 28, true],
+    [4, 46, true], [28, 46, false], [52, 46, true],
+  ];
+  plots.forEach(([x, y, good]) => {
+    b.rect(x, y, 18, 12, good ? '#5a3a26' : '#c7a57a');
+    for (let i = 0; i < 4; i++) b.rect(x + 2 + i * 4, y + 3, 2, good ? 6 : 3, good ? P.leaf2 : '#b8b060');
+    b.vline(x, y - 4, y + 1, P.wood2); // stake
+    b.rect(x - 1, y - 6, 5, 3, P.paper);
+  });
+  b.blit(paintCharacter({ ...YOUNG_MAN_GEORGE, extras: { ...YOUNG_MAN_GEORGE.extras, lapelFlower: '#e0574f' } }, 'down', 0), 76, 40);
+  return b;
+}
+
+/** Memory: a plain-language bulletin for farmers. */
+function memBulletin(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#a8dcf0', '#f6eecb', 30);
+  grassField(b, 30, 14);
+  // a farmhouse porch
+  b.rect(0, 8, 34, 26, P.wood1);
+  for (let y = 10; y < 34; y += 3) b.hline(0, 33, y, P.wood2);
+  b.rect(8, 16, 8, 10, P.windowDark);
+  // Carver hands a booklet to a farmer
+  b.blit(paintCharacter({ ...YOUNG_MAN_GEORGE, extras: { ...YOUNG_MAN_GEORGE.extras, lapelFlower: '#e0574f' } }, 'right', 0), 40, 30);
+  b.blit(paintCharacter(TUSKEGEE_FARMER, 'left', 0), 60, 30);
+  b.rect(55, 40, 6, 7, P.paper);
+  b.hline(56, 59, 42, P.ink);
+  b.hline(56, 58, 44, P.ink);
+  // rows of young crops
+  for (let x = 4; x < 92; x += 8) b.rect(x, 56, 4, 3, P.leaf2);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -496,6 +609,10 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   'ch2-simpson': ch2Simpson,
   'ch2-iowastate': ch2IowaState,
   'ch2-tuskegee': ch2Tuskegee,
+  'soil-west': soilWest,
+  'soil-east': soilEast,
+  'mem-station': memStation,
+  'mem-bulletin': memBulletin,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();

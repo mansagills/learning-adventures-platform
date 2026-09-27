@@ -151,7 +151,7 @@ export function sanitize(raw: Record<string, unknown>, now = Date.now()): SaveDa
     customized: raw.customized === true,
     appearance: cleanAppearance(raw.appearance),
     world: {
-      scene: oneOf(world.scene, ['hub', 'room', 'school'] as const, 'hub'),
+      scene: oneOf(world.scene, ['hub', 'room', 'school', 'farm'] as const, 'hub'),
       x: num(world.x, base.world.x, 0, 60),
       y: num(world.y, base.world.y, 0, 60),
       facing: oneOf(world.facing, DIRS, 'down'),

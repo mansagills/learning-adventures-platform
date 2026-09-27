@@ -93,4 +93,56 @@ export const ITEMS: Record<string, ItemDefinition> = {
     purpose: 'An off-screen activity: draw a timeline of something you learned (open it from the Journal to print).',
     chapterId: 'ch2',
   },
+  soil_samples: {
+    id: 'soil_samples',
+    name: 'Soil Sample Jars',
+    icon: 'jar',
+    description: "Two jars of soil from Mr. Hill's fields: one from the west plot and one from the east plot.",
+    lookCloser: [
+      'The west jar is pale and dusty. It crumbles into hard little chunks.',
+      'The east jar is darker and smells like a forest floor.',
+      'Mr. Hill labeled them in pencil: "West" and "East".',
+    ],
+    purpose: 'Look at each plot\'s soil up close at the farm.',
+    chapterId: 'ch3',
+  },
+  crop_history: {
+    id: 'crop_history',
+    name: 'Crop History Ledger',
+    icon: 'ledger',
+    description: 'Mr. Hill\'s notebook of what he planted in each plot, year by year.',
+    lookCloser: [
+      'West plot: cotton, cotton, cotton, cotton, cotton.',
+      'East plot: cotton, peanuts, cotton, cowpeas, cotton.',
+      'In the margin: "West cotton gets smaller every year. Why?"',
+    ],
+    purpose: 'Compare what each plot grew before.',
+    chapterId: 'ch3',
+  },
+  crop_cards: {
+    id: 'crop_cards',
+    name: 'Crop Cards',
+    icon: 'cropcards',
+    description: "Mae's cards for four crops that grow well around here: cotton, peanuts, cowpeas and sweet potatoes.",
+    lookCloser: [
+      'Peanuts and cowpeas have a little root drawn on them with bumps. Mae wrote "legume" next to it.',
+      'Cotton\'s card says: "Sells well. Hungry for nitrogen."',
+      'Sweet potato\'s card says: "Not a legume. Needs less nitrogen than cotton."',
+    ],
+    purpose: 'Plan which crop to plant each season.',
+    chapterId: 'ch3',
+  },
+  rotation_card: {
+    id: 'rotation_card',
+    name: 'Crop-Rotation Planner',
+    icon: 'card',
+    description: 'A paper planner from Carver with four season boxes and a cup-of-soil experiment.',
+    lookCloser: [
+      'Four boxes in a circle: Season 1, Season 2, Season 3, Season 4.',
+      'At the bottom: "Try it with cups of soil and bean seeds, with a grown-up."',
+    ],
+    purpose: 'An off-screen activity: plan a rotation on paper or with cups of soil (open it from the Journal to print).',
+    chapterId: 'ch3',
+  },
 };
+

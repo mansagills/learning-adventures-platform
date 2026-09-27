@@ -21,6 +21,7 @@ import {
   clickChoice,
   layoutProblems,
   launch,
+  waitTarget,
 } from './e2e-lib.mjs';
 
 const BASE = process.argv[2] ?? 'http://localhost:4173/';
@@ -280,6 +281,7 @@ await closeModal(page);
 await reloadAndContinue(page);
 s = await state(page);
 check('Reload mid-activity: back in the schoolhouse, order and lock kept', s.scene === 'school' && s.ch2Data.order.join(',') === orderBefore && s.ch2Data.locked === lockedBefore, s.scene);
+await waitTarget(page, /timeline/);
 await page.keyboard.press('e');
 await page.locator('.timeline-modal').waitFor({ timeout: 3000 });
 await page.getByRole('button', { name: 'Check my order' }).click();
@@ -356,7 +358,7 @@ await sleep(page, 500);
 s = await state(page);
 check('Chapter 2 complete; Carver gave the Journey Card', s.ch2.stage === 'complete' && s.inventory.some((e) => e.itemId === 'journey_card' && e.from === 'carver'));
 check('Rewards: +150 XP and +20 Seeds', s.xp === 210 + 150 && s.seeds === 33 + 20, `xp ${s.xp}, seeds ${s.seeds}`);
-check('Chapter 3 shows as unlocked, arriving next', s.chapters.ch3 === 'locked' && /Chapter 3 is unlocked/.test(s.objective), s.objective);
+check('Chapter 3 opens next, and Carver offers it', s.chapters.ch3 === 'available' && /Carver/.test(s.objective), s.objective);
 check('Learner model records the journey objective', !!s.learner.journey && s.learner.journey.correct >= 3, JSON.stringify(s.learner.journey ?? {}));
 
 // --- Journal: timeline, picks, grown-up note, Journey Card, replay ---

@@ -42,6 +42,19 @@ export async function walkTo(page, x, y, tol = 0.2) {
   }
 }
 
+/**
+ * Wait until the game offers a prompt matching `re`. The first frames after
+ * loading a scene can be slow with software rendering, so a key pressed
+ * right away may arrive before the game has found what you are next to.
+ */
+export async function waitTarget(page, re, tries = 40) {
+  for (let i = 0; i < tries; i++) {
+    if (re.test((await state(page)).target?.label ?? '')) return true;
+    await sleep(page, 100);
+  }
+  return false;
+}
+
 export async function walkPath(page, pts) {
   for (const [x, y] of pts) await walkTo(page, x, y);
 }

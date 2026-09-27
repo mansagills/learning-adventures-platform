@@ -21,7 +21,7 @@ function portraitURL(npc: NpcDefinition, expression: Expression): string {
   const key = `${npc.id}:${expression}`;
   let url = portraitCache.get(key);
   if (!url) {
-    url = paintPortrait(npc.look, expression, { elder: npc.id === 'carver' || npc.id === 'odell' }).toDataURL(3);
+    url = paintPortrait(npc.look, expression, { elder: ['carver', 'odell', 'amos'].includes(npc.id) }).toDataURL(3);
     portraitCache.set(key, url);
   }
   return url;

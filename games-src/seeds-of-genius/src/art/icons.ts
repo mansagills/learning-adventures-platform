@@ -60,6 +60,33 @@ const PAINTERS: Record<string, Painter> = {
     b.set(4, 8, P.leaf2);
     b.set(8, 8, P.flowerBlue);
   },
+  jar: (b) => {
+    b.rect(2, 3, 5, 11, '#cfe3ea');
+    b.rect(3, 7, 3, 6, '#b89468');
+    b.rect(2, 2, 5, 2, P.wood2);
+    b.rect(9, 3, 5, 11, '#cfe3ea');
+    b.rect(10, 7, 3, 6, '#4e3222');
+    b.rect(9, 2, 5, 2, P.wood2);
+    b.set(11, 9, '#e08a8a');
+  },
+  ledger: (b) => {
+    b.rect(2, 1, 12, 14, '#7a3f2e');
+    b.rect(3, 2, 10, 12, P.paper);
+    for (const y of [4, 6, 8, 10, 12]) b.hline(4, 11, y, P.paper2);
+    b.rect(4, 4, 2, 1, P.white);
+    b.set(9, 8, P.leaf2);
+    b.set(10, 10, P.leaf2);
+  },
+  cropcards: (b) => {
+    b.rect(1, 5, 9, 10, P.paper2);
+    b.rect(4, 3, 9, 10, P.paper);
+    b.rect(4, 3, 9, 2, '#c9a25a');
+    b.rect(6, 1, 9, 10, P.paper);
+    b.rect(6, 1, 9, 2, P.leaf2);
+    b.ellipse(8, 4, 5, 5, P.leaf3);
+    b.set(10, 9, P.soil1);
+    b.set(12, 9, P.soil1);
+  },
   seed: (b) => {
     b.ellipse(4, 3, 8, 11, '#c98c4a');
     b.ellipse(5, 4, 4, 6, '#e0ad6a');

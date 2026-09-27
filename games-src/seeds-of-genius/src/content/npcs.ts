@@ -240,6 +240,32 @@ NPCS.push(
   },
 );
 
+/** Chapter 3: the farmer with the tired field. (Mae keeps the crop cards.) */
+NPCS.push({
+  id: 'amos',
+  name: 'Mr. Amos Hill',
+  role: 'Farmer at Hilltop Farm',
+  look: {
+    build: 'adult',
+    skin: { base: '#4e3020', shade: '#3c2418' },
+    hair: { style: 'short', base: gray.base, shade: gray.shade, light: gray.light },
+    shirt: { base: '#b8513a', shade: '#963f2d' },
+    pants: '#3e5a88',
+    shoes: '#3a2a22',
+    accessory: 'cap',
+    accent: '#d9b25a',
+    extras: { beard: '#bdb8b0' },
+  },
+  portrait: 'amos',
+  scene: 'hub',
+  pos: { x: 31.5, y: 8.4 },
+  facing: 'down',
+  presence: 'always',
+  ambient: { default: 'amos_ambient' },
+  voice: 150,
+  required: true,
+});
+
 export function npcById(id: NpcId): NpcDefinition | undefined {
   return NPCS.find((n) => n.id === id);
 }

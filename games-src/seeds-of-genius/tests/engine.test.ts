@@ -127,11 +127,43 @@ describe('QuestEngine: practice quest loop', () => {
     expect(q.progress('ch2').stage).toBe('complete');
     expect(state.xp).toBe(150);
     expect(state.seeds).toBe(20);
-    // Chapter 3 arrives in the next phase, so nothing dead-ends.
-    expect(q.isUnlocked('ch3')).toBe(true);
-    expect(q.progress('ch3').stage).toBe('locked');
-    expect(q.nextAction().text).toMatch(/Chapter 3 is unlocked/);
-    expect(q.conversationFor('carver')).toBe('carver_ch2_after');
+    // Chapter 3 is playable, so Carver offers it next.
+    expect(q.progress('ch3').stage).toBe('available');
+    expect(q.conversationFor('carver')).toBe('carver_ch3_opening');
+  });
+
+  it('runs Chapter 3: Carver → Mr. Hill + Mae → soil lab → Carver, then Chapter 4 waits', () => {
+    const state = fresh();
+    for (const id of ['practice', 'ch1', 'ch2']) state.chapters[id] = { stage: 'complete', stepsDone: [], flags: [], rewarded: true };
+    state.chapters.ch3 = { stage: 'locked', stepsDone: [], flags: [], rewarded: false };
+    const q = new QuestEngine(CHAPTERS, ITEMS, state);
+    expect(q.progress('ch3').stage).toBe('available');
+    q.apply({ type: 'acceptQuest', chapterId: 'ch3' });
+    expect(q.markerFor('amos')).toBe('lead');
+    expect(q.markerFor('mae')).toBe('lead');
+    expect(q.conversationFor('mae')).toBe('mae_ch3_give');
+    expect(q.nextAction().targetNpcId).toBe('amos');
+    q.apply({ type: 'grantItem', itemId: 'soil_samples', from: 'amos' });
+    q.apply({ type: 'grantItem', itemId: 'crop_history', from: 'amos' });
+    q.apply({ type: 'completeStep', chapterId: 'ch3', stepId: 'get_samples' });
+    expect(q.nextAction().targetNpcId).toBe('mae');
+    q.apply({ type: 'grantItem', itemId: 'crop_cards', from: 'mae' });
+    q.apply({ type: 'completeStep', chapterId: 'ch3', stepId: 'get_cards' });
+    expect(q.nextAction()).toMatchObject({ targetPlaceId: 'farm' });
+    expect(q.conversationFor('mae')).toBe('mae_ch3_after');
+    expect(q.readyToReturn('ch3')).toBe(false);
+    for (const it of ['soil_samples', 'crop_history', 'crop_cards']) q.apply({ type: 'useItem', itemId: it, usedIn: 'x' });
+    q.apply({ type: 'completeStep', chapterId: 'ch3', stepId: 'soil_lab' });
+    expect(q.conversationFor('carver')).toBe('carver_ch3_closing');
+    q.apply({ type: 'grantItem', itemId: 'rotation_card', from: 'carver' });
+    q.apply({ type: 'completeChapter', chapterId: 'ch3' });
+    expect(q.progress('ch3').stage).toBe('complete');
+    expect(state.xp).toBe(150);
+    expect(state.seeds).toBe(20);
+    expect(q.isUnlocked('ch4')).toBe(true);
+    expect(q.progress('ch4').stage).toBe('locked');
+    expect(q.nextAction().text).toMatch(/Chapter 4 is unlocked/);
+    expect(q.conversationFor('carver')).toBe('carver_ch3_after');
   });
 
   it('never duplicates items or one-time rewards', () => {

@@ -21,6 +21,7 @@ import {
   clickChoice,
   layoutProblems,
   launch,
+  waitTarget,
 } from './e2e-lib.mjs';
 
 const BASE = process.argv[2] ?? 'http://localhost:4173/';
@@ -239,7 +240,7 @@ await page.reload();
 await sleep(page, 900);
 await page.getByRole('button', { name: 'Continue' }).click();
 for (let i = 0; i < 30 && !(await state(page)).runtimesReady; i++) await sleep(page, 100);
-await sleep(page, 300);
+await waitTarget(page, /card game/);
 await page.keyboard.press('e');
 await page.locator('.sort-modal').waitFor({ timeout: 3000 });
 check('Reload mid-game resumes the card game where it was', ((await page.locator('.sort-progress').textContent()) ?? '') === progressText, progressText);

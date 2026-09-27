@@ -20,8 +20,9 @@ explicit approval**. A passing self-score is not approval.
 |---|---|
 | 0: Playable foundation | **COMPLETED ✅** (owner approved 2026-09-27: movement, camera, Carver, art and readability) |
 | 1: A Seed Is Planted / Curiosity Collector | **COMPLETED ✅** (owner approved 2026-09-27: "still feels cozy and fun") |
-| 2: Science Against the Odds / Choose the Path | In progress |
-| 3-8 | Not started |
+| 2: Science Against the Odds / Choose the Path | **COMPLETED ✅** (owner approved 2026-09-27 after reviewing tone and age fit) |
+| 3: The Soil Speaks / Virtual Soil Lab | In progress |
+| 4-8 | Not started |
 
 ## Phase 0: playable foundation
 
@@ -83,3 +84,23 @@ explicit approval**. A passing self-score is not approval.
 **Facts used (checked against the National Park Service biography):** Susan Carver helped George learn to read; the Diamond school did not admit Black children; he left home at about 11 for a school for Black children in Neosho, where Mariah Watkins took him in; he worked his way through schools in Kansas and finished high school in Minneapolis, Kansas; Highland College accepted him by letter and refused him when he arrived because he was Black; at Simpson College (1890) he studied art and piano, and his art teacher Etta Budd encouraged him to study botany; at Iowa State (from 1891) he was the first Black student, earning a bachelor's degree (1894) and a master's (1896); in 1896 Booker T. Washington invited him to Tuskegee Institute. Ms. Nelson and Ada are fictional.
 
 **Tests:** 62 unit tests; `node scripts/e2e-phase2.mjs` (68 browser checks), plus the Phase 0 and Phase 1 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase2/`.
+
+## Phase 3: The Soil Speaks / Virtual Soil Lab
+
+**Deliverables (from the spec):**
+
+- [x] Carver assigns the chapter: Mr. Hill's west plot gets thinner cotton every year; "ask the soil". Two answer branches ("How can soil be alive?" / "What should I do?")
+- [x] **Mr. Amos Hill** (farmer, new, by the Hilltop Farm gate) gives **Soil Sample Jars** and the **Crop History Ledger**, and states his need: any plan must still grow some cotton. **Mae** (the seed keeper at the Seed & Mail) explains the choices and what a legume is, then gives the **Crop Cards**
+- [x] A new outdoor scene, **Hilltop Farm fields**, through the farm gate: a tired west plot (pale cracked soil, thin cotton) and a rotated east plot (dark soil, sturdy cotton, cowpea vines), signs with each plot's history, and a planning bench. Reusable for Chapter 5
+- [x] **Magnified soil view** for each plot (lens close-ups): west = pale, crusted, almost lifeless; east = dark, crumbly, an earthworm, and root nodules that turn air into nitrogen. A side-by-side comparison appears after both
+- [x] **Rotation planner**: four seasons × four crop cards (cotton, peanuts and cowpeas marked as legumes, sweet potatoes). Each test runs season by season with a plot picture, a labeled soil meter, a harvest range (weather) and a one-line reason. A "soil over four seasons" chart compares every tested plan at a glance, next to a table with the same numbers in words
+- [x] **Honest model**: cotton uses soil (−6), legumes add a little (+6 / +9), sweet potatoes use a little (−2); a crop after itself loses harvest to pests. Labeled "a simple model, not a promise". No season adds more than +9, so nothing restores soil instantly (a unit test checks all 256 plans)
+- [x] **Learning gate** (can't be bypassed): both samples looked at → Mr. Hill's plan and a legume plan both tested → "why did cotton every season wear the soil out?" answered → only then can a plan be chosen, and it must grow cotton, include a legume, and not let the soil fall. Many plans pass (no single memorized answer)
+- [x] Hint ladder when a chosen plan doesn't fit: name the legumes → "legume, cotton, legume, cotton" → worked example filled in
+- [x] Carver's debrief reads the player's own plan, compares it with cotton every season (soil and total cotton), asks what legumes did (the "instant fix" myth gets a clear correction), offers a Tuskegee memory (test plots; rotating cotton with peanuts and peas; plain-language booklets), and gives the printable **Crop-Rotation Planner** (with a cup-of-soil experiment)
+- [x] Journal: soil lab notes, tested plans, chosen plan, the "why", reflection and the planner
+- [x] Completion saves, pays +150 XP / +20 Seeds once, and unlocks Chapter 4 (arrives in Phase 4); the lab can be replayed without duplicate rewards; mid-lab save/reload keeps looks, tested plans, draft and hints
+
+**Facts used (NPS biography and Tuskegee page; USDA NAL soil exhibit):** at Tuskegee Institute (from 1896) Carver worked with farmers whose soil had been worn out by growing cotton year after year; he used test plots; he taught crop rotation, alternating cotton with nitrogen-adding legumes such as peanuts and peas; he wrote plain-language bulletins for farmers. Legume root nodules hold bacteria that turn nitrogen from the air into a form plants use. Mr. Hill, Hilltop Farm and the numbers in the model are fictional.
+
+**Tests:** 77 unit tests; `node scripts/e2e-phase3.mjs` (58 browser checks), plus the Phase 0, 1 and 2 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase3/`.

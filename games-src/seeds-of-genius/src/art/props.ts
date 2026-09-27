@@ -194,6 +194,7 @@ function fence(variant: number): PixelBuffer {
 }
 
 function crop(variant: number): PixelBuffer {
+  if (variant >= 4) return fieldCrop(variant);
   const b = new PixelBuffer(16, variant === 3 ? 24 : 16);
   if (variant === 0) {
     // lettuce
@@ -223,6 +224,48 @@ function crop(variant: number): PixelBuffer {
       b.set(x + 1, 12, P.leaf2);
       b.set(x - 1, 16, P.leaf2);
       b.set(x, 3, P.flowerYellow);
+    }
+  }
+  return b.outline();
+}
+
+/**
+ * Chapter 3's field crops: 4 = thin cotton on tired soil (pale leaves, few
+ * bolls), 5 = legume vines (peanuts/cowpeas, low and leafy), 6 = sturdy
+ * cotton, 7 = sweet potato vines.
+ */
+function fieldCrop(variant: number): PixelBuffer {
+  const b = new PixelBuffer(16, 20);
+  if (variant === 4) {
+    for (const x of [4, 11]) {
+      b.vline(x, 11, 19, '#8a8a4a');
+      b.set(x - 1, 14, '#c9c46a');
+      b.set(x + 1, 13, '#b8b060');
+      b.set(x + 1, 16, '#c9c46a');
+    }
+    b.rect(10, 10, 2, 2, P.white); // one small boll
+  } else if (variant === 5) {
+    b.ellipse(1, 11, 14, 8, P.leaf2);
+    b.ellipse(3, 10, 5, 4, P.leaf3);
+    b.ellipse(9, 11, 5, 4, P.leaf3);
+    b.set(6, 15, P.leaf1);
+    b.set(11, 16, P.leaf1);
+    b.rect(4, 16, 3, 1, '#c9d36a'); // a pod
+  } else if (variant === 7) {
+    // sweet potato vines: low, heart-shaped leaves with purple stems
+    b.hline(1, 14, 18, '#7a4a7a');
+    for (const [x, y] of [[2, 13], [7, 11], [11, 14]] as Array<[number, number]>) {
+      b.ellipse(x, y, 5, 5, P.leaf2);
+      b.set(x + 2, y + 1, P.leaf3);
+    }
+    b.rect(5, 17, 4, 2, '#c8643a'); // a sweet potato peeking out
+  } else {
+    for (const x of [4, 8, 12]) {
+      b.vline(x, 5, 19, P.leaf1);
+      b.set(x - 1, 9, P.leaf2);
+      b.set(x + 1, 12, P.leaf2);
+      b.set(x - 1, 15, P.leaf3);
+      b.rect(x - 1, 3 + (x % 3), 3, 2, P.white); // cotton bolls
     }
   }
   return b.outline();

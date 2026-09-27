@@ -41,4 +41,22 @@ export const MEMORIES: Record<string, Memory> = {
       },
     ],
   },
+  tuskegee_soil: {
+    id: 'tuskegee_soil',
+    title: 'Tired Cotton Fields',
+    setting: 'Tuskegee Institute, Alabama, from 1896',
+    pages: [
+      {
+        art: 'mem-station',
+        caption:
+          "At Tuskegee Institute, Carver worked with farmers whose soil had grown cotton year after year. Cotton had worn much of the soil out. He used test plots to try ways to make it healthy again.",
+      },
+      {
+        art: 'mem-bulletin',
+        caption:
+          'He taught farmers to take turns: plant cotton one season, then legumes such as peanuts or peas, which put nitrogen back into the soil. He also wrote short booklets in plain words so farmers could try these ideas at home.',
+      },
+    ],
+  },
 };
+

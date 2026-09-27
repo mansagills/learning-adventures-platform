@@ -219,7 +219,7 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
                 'li',
                 { style: 'align-items:center;justify-content:space-between' },
                 h('span', {}, h('strong', { text: m.title }), ` (${m.setting})`),
-                h('button', { class: 'btn small', type: 'button', text: 'View again', onclick: () => ctx.openMemory(m.id) }),
+                h('button', { class: 'btn small', type: 'button', text: 'View again', 'aria-label': `View again: ${m.title}`, onclick: () => ctx.openMemory(m.id) }),
               ),
             ),
           ),

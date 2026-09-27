@@ -8,7 +8,7 @@
 
 export const TILE_PX = 16;
 
-export type GroundKind = 'grass' | 'path' | 'cobble' | 'water' | 'soil' | 'field' | 'flowers' | 'floor' | 'rug' | 'wall';
+export type GroundKind = 'grass' | 'path' | 'cobble' | 'water' | 'soil' | 'field' | 'dryfield' | 'flowers' | 'floor' | 'rug' | 'wall';
 
 export interface BuildingDef {
   id: string;
@@ -65,7 +65,7 @@ export interface PlaceDef {
 }
 
 /** Every place the player can be. Interiors share the scene kit. */
-export type SceneId = 'hub' | 'room' | 'school';
+export type SceneId = 'hub' | 'room' | 'school' | 'farm';
 
 export interface MapDef {
   id: SceneId;
@@ -93,6 +93,7 @@ const G: Record<string, GroundKind> = {
   w: 'water',
   s: 'soil',
   f: 'field',
+  d: 'dryfield',
   '*': 'flowers',
   o: 'floor',
   r: 'rug',
@@ -245,6 +246,7 @@ export function buildHubMap(): MapDef {
       { id: 'workshop_door', label: 'Workshop door', x: 33.5, y: 25.4, radius: 1.1 },
       { id: 'greenhouse_door', label: 'Greenhouse door', x: 19.9, y: 6.4, radius: 1.1 },
       { id: 'shop_door', label: 'Seed & Mail door', x: 33.5, y: 17.4, radius: 0.8 },
+      { id: 'farm_door', label: 'Hilltop Farm gate', x: 33.9, y: 7.6, radius: 1.0 },
     ],
     spawn: { x: 5.5, y: 18.5 },
     blocked: new Set(),
@@ -335,5 +337,71 @@ export function buildSchoolMap(): MapDef {
     blocked,
     entry: { x: 7, y: 7.3 },
     exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 6.5, y: 26.4 } },
+  };
+}
+
+// ------------------------------------------------------------------ Hilltop Farm fields
+
+const FARM_ROWS = [
+  '................',
+  '................',
+  '................',
+  '..dddddppfffff..',
+  '..dddddppfffff..',
+  '..dddddppfffff..',
+  '..dddddppfffff..',
+  '.......pp.......',
+  '..pppppppppppp..',
+  '.......pp.......',
+  '.......pp.......',
+  '.......pp.......',
+];
+
+/** The two plots Chapter 3 compares (tile rectangles, inclusive). */
+export const FARM_PLOTS = {
+  west: { x0: 2, y0: 3, x1: 6, y1: 6 },
+  east: { x0: 9, y0: 3, x1: 13, y1: 6 },
+};
+
+/**
+ * Hilltop Farm's fields, through the gate north of the road: a tired west
+ * plot (cotton every year) and a healthier east plot (rotated), with a
+ * planning bench between them. Chapters 3 and 5 use it.
+ */
+export function buildFarmMap(): MapDef {
+  const props: PropDef[] = [];
+  const W = 16;
+  const H = 12;
+  for (let x = 0; x < W; x++) props.push({ kind: (x % 3 === 0 ? 'pine' : 'tree'), x, y: 0, variant: x % 3 });
+  for (let y = 1; y < H; y++)
+    for (const x of [0, W - 1]) props.push({ kind: (x + y) % 3 === 0 ? 'pine' : 'tree', x, y, variant: (x + y) % 3 });
+  for (let x = 1; x < W - 1; x++) if (x < 6 || x > 9) props.push({ kind: x % 2 ? 'bush' : 'tree', x, y: H - 1, variant: x % 2 });
+  // Low fences behind each plot.
+  for (let x = FARM_PLOTS.west.x0; x <= FARM_PLOTS.west.x1; x++) props.push({ kind: 'fence', x, y: 2 });
+  for (let x = FARM_PLOTS.east.x0; x <= FARM_PLOTS.east.x1; x++) props.push({ kind: 'fence', x, y: 2 });
+  // West plot: thin, pale cotton. East plot: sturdy cotton after cowpeas.
+  for (let x = FARM_PLOTS.west.x0; x <= FARM_PLOTS.west.x1; x++) for (const y of [4, 6]) props.push({ kind: 'crop', x, y, variant: 4, solid: false });
+  for (let x = FARM_PLOTS.east.x0; x <= FARM_PLOTS.east.x1; x++) {
+    props.push({ kind: 'crop', x, y: 4, variant: 6, solid: false });
+    props.push({ kind: 'crop', x, y: 6, variant: 5, solid: false });
+  }
+  props.push({ kind: 'potting', x: 7, y: 2 });
+  props.push({ kind: 'scarecrow', x: 14, y: 4 });
+  props.push({ kind: 'crate', x: 5, y: 1 });
+  props.push({ kind: 'barrel', x: 10, y: 1 });
+  props.push({ kind: 'sign', x: 1, y: 7, text: 'West plot. Cotton, five years in a row.' });
+  props.push({ kind: 'sign', x: 14, y: 7, text: 'East plot. Cotton, peanuts, cotton, cowpeas, cotton.' });
+  return {
+    id: 'farm',
+    w: W,
+    h: H,
+    ground: parseGround(FARM_ROWS),
+    buildings: [],
+    props,
+    places: [{ id: 'farm_exit', label: 'Back to town', x: 7.9, y: 11.3, radius: 1.1 }],
+    spawn: { x: 7.9, y: 10.2 },
+    blocked: new Set(),
+    entry: { x: 7.9, y: 10.2 },
+    exit: { x0: 7, x1: 9, y: 11.05, to: 'hub', at: { x: 33.9, y: 8.6 } },
   };
 }

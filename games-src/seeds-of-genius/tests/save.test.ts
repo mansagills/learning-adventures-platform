@@ -35,6 +35,11 @@ describe('save system', () => {
     const r = new SaveStore(mem).load();
     expect(r.data.world.scene).toBe('school');
     expect(r.data.chapterData.ch2).toEqual({ visited: ['reading'], skipped: ['reading'] });
+    const farm = freshSave();
+    farm.world = { scene: 'farm', x: 7.9, y: 10.2, facing: 'up' };
+    const memFarm = new MemStorage();
+    new SaveStore(memFarm).save(farm);
+    expect(new SaveStore(memFarm).load().data.world.scene).toBe('farm');
     const bad = freshSave();
     (bad.world as { scene: string }).scene = 'castle';
     const mem2 = new MemStorage();
