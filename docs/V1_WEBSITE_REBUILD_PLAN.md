@@ -412,11 +412,11 @@ The owner asked for three things (2026-09-26):
 
 We don't need Supabase for this, and we shouldn't use it here. A list of email addresses is only half the job. We also have to _send_ the emails, let people unsubscribe with one click, prove they asked to join, and keep the emails out of spam folders. Email marketing services do all of that; Supabase only stores rows in a database.
 
-| Option                                                            | Stores emails | Sends newsletters | Unsubscribe + consent records | Works with our no-backend site           | Verdict                                                  |
-| ----------------------------------------------------------------- | ------------- | ----------------- | ----------------------------- | ---------------------------------------- | -------------------------------------------------------- |
-| **Email marketing service** (Kit, MailerLite, Beehiiv, Mailchimp) | Yes           | Yes               | Built in                      | Yes (one small API route, or no code)    | **Recommended**                                          |
-| Supabase table                                                    | Yes           | No                | We'd build it                 | No: needs the paused project reconnected | Not now. Brings back the setup that broke Vercel deploys |
-| Google Sheet / Airtable via a form tool                           | Yes           | No                | No                            | Yes                                      | OK as a stopgap, but we'd have to move everyone later    |
+| Option                                                    | Stores emails | Sends newsletters | Unsubscribe + consent records | Works with our no-backend site           | Verdict                                                  |
+| --------------------------------------------------------- | ------------- | ----------------- | ----------------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| **Email marketing service** (Kit, beehiiv, Brevo, Sender) | Yes           | Yes               | Built in                      | Yes (one small API route, or no code)    | **Recommended**                                          |
+| Supabase table                                            | Yes           | No                | We'd build it                 | No: needs the paused project reconnected | Not now. Brings back the setup that broke Vercel deploys |
+| Google Sheet / Airtable via a form tool                   | Yes           | No                | No                            | Yes                                      | OK as a stopgap, but we'd have to move everyone later    |
 
 Why not Supabase right now:
 
@@ -424,7 +424,7 @@ Why not Supabase right now:
 - We'd still need a separate service to send the emails, so the addresses would end up copied there anyway.
 - When accounts return, the service can sync with Supabase if we want (both have APIs). Nothing is lost by starting with a service.
 
-**Recommended provider:** Kit (formerly ConvertKit) or MailerLite. Both have a free plan for a small list, double opt-in, sign-up forms, tags and a simple API. Check current prices before choosing, since free-plan limits change. The owner picks one in Phase 0; the code is written so we can swap providers by changing one file.
+**Recommended provider: Kit** (formerly ConvertKit). Its free plan (checked 2026-09-27 from review sites; confirm on kit.com) covers up to 10,000 subscribers with unlimited sends, sign-up forms, tags, sending from our own domain, and API access, which is what Phase 3 needs. Paid plans start around $39/month once automations are needed. Runner-up: **beehiiv** (free up to 2,500 subscribers, API included). MailerLite and Mailchimp were dropped from the shortlist because in 2025–2026 they cut their free plans to 250 subscribers. The owner makes the final pick in Phase 0; the code is written so we can swap providers by changing one file.
 
 **Rules for a kids' site (COPPA and anti-spam laws):**
 
@@ -447,7 +447,7 @@ Each phase ends with a check-in; the owner approves before the next starts. One 
 
 **Phase 0: Decisions and accounts (owner, about 30 minutes)**
 
-- Pick the provider (Kit or MailerLite) and create a free account.
+- Pick the provider (Kit recommended; beehiiv as runner-up) and create a free account.
 - In the provider: turn on double opt-in, set the sender name ("Learning Adventures") and sender email (for example `hello@learningadventures.org`), and add the mailing address.
 - Verify the `learningadventures.org` domain in the provider (it gives DNS records to add where the domain is managed). This keeps emails out of spam.
 - Create the list/form (and a tag such as `parents`, plus `website` as the source).
@@ -479,7 +479,7 @@ Follows the same pattern as games and books, so it stays backend-free:
 
 - `app/api/newsletter/route.ts`: a small server function. The browser sends the form to our own site; our site passes it to the provider using a secret API key kept on the server. Why not call the provider directly from the browser? The key would be visible to anyone, and our own route lets us check the email, the checkbox and the honeypot first.
 - New env vars, set in Vercel (Production and Preview):
-  - `NEWSLETTER_PROVIDER` (`kit` or `mailerlite`)
+  - `NEWSLETTER_PROVIDER` (for example `kit` or `beehiiv`)
   - `NEWSLETTER_API_KEY` (secret; no `NEXT_PUBLIC_` prefix, so it never reaches the browser)
   - `NEWSLETTER_LIST_ID` (the form, list or group to add people to)
 - `lib/newsletter.ts`: the only file that knows which provider we use. Changing providers means changing this file and the env vars.
