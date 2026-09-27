@@ -400,10 +400,130 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
 - Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
 - Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
 
-#### UX-2: next, to be described by the owner
+#### UX-2: Newsletter sign-up page and blog: IN PROGRESS (branch `claude/blissful-curie-fjnw4i`)
 
-Start by asking the owner for the page, the problem and the desired result (screenshots help). Record them here as page → problem → change, then work on a feature branch off `main` with a PR to `main`. Tools from UX-1 you can reuse:
+The owner asked for three things (2026-09-26):
 
-- `npm run thumbnails` for game card pictures
-- `/dev/icons` to preview icons
-- `SiteIcon` and `UiIcon` from `components/icons/` (see the icon guide under UX-1)
+1. **Newsletter page:** a "Sign up for our newsletter" page where parents leave their email address for updates and marketing.
+2. **Blog:** a blog section, plus a first post that welcomes parents and kids to Learning Adventures and explains our goal of helping kids enjoy learning. The text is a draft; the owner will rewrite it later.
+3. **Where to keep the email addresses:** do we need Supabase, and where should marketing emails live?
+
+##### Answer to question 3: use an email marketing service, not Supabase
+
+We don't need Supabase for this, and we shouldn't use it here. A list of email addresses is only half the job. We also have to _send_ the emails, let people unsubscribe with one click, prove they asked to join, and keep the emails out of spam folders. Email marketing services do all of that; Supabase only stores rows in a database.
+
+| Option                                                    | Stores emails | Sends newsletters | Unsubscribe + consent records | Works with our no-backend site           | Verdict                                                  |
+| --------------------------------------------------------- | ------------- | ----------------- | ----------------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| **Email marketing service** (Kit, beehiiv, Brevo, Sender) | Yes           | Yes               | Built in                      | Yes (one small API route, or no code)    | **Recommended**                                          |
+| Supabase table                                            | Yes           | No                | We'd build it                 | No: needs the paused project reconnected | Not now. Brings back the setup that broke Vercel deploys |
+| Google Sheet / Airtable via a form tool                   | Yes           | No                | No                            | Yes                                      | OK as a stopgap, but we'd have to move everyone later    |
+
+Why not Supabase right now:
+
+- The Supabase project is paused and its Vercel integration was disconnected on purpose (it caused the "Resource provisioning failed" deploys; see `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`). Reconnecting it for one form brings that risk back.
+- We'd still need a separate service to send the emails, so the addresses would end up copied there anyway.
+- When accounts return, the service can sync with Supabase if we want (both have APIs). Nothing is lost by starting with a service.
+
+**Recommended provider: Kit** (formerly ConvertKit). Its free plan (checked 2026-09-27 from review sites; confirm on kit.com) covers up to 10,000 subscribers with unlimited sends, sign-up forms, tags, sending from our own domain, and API access, which is what Phase 3 needs. Paid plans start around $39/month once automations are needed. Runner-up: **beehiiv** (free up to 2,500 subscribers, API included). MailerLite and Mailchimp were dropped from the shortlist because in 2025–2026 they cut their free plans to 250 subscribers. The owner makes the final pick in Phase 0; the code is written so we can swap providers by changing one file.
+
+**Rules for a kids' site (COPPA and anti-spam laws):**
+
+- The form is for **parents and guardians only**. It asks for a first name, an optional last name and an email address, plus a required checkbox: "I'm a parent or guardian, 18 or older." It never asks for a child's name, age or email.
+- **Double opt-in:** the service emails a "confirm your subscription" link; people are only added once they click it. This is the proof they asked to join.
+- Every marketing email needs an unsubscribe link and a postal mailing address (US CAN-SPAM). The service adds these automatically, but the owner needs a mailing address or PO box to give it.
+- The Privacy page currently says the site has no sign-up forms. It must be updated **in the same PR** that turns the form on (Phase 3), not after.
+
+##### Phases
+
+Each phase ends with a check-in; the owner approves before the next starts. One branch and one PR (to `main`) unless the owner prefers a PR per phase.
+
+| Phase | What                                                         | Needs from the owner                               | Status                                                 |
+| ----- | ------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------ |
+| 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | In progress: Kit chosen; team deciding the email setup |
+| 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | COMPLETED ✅                                           |
+| 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | COMPLETED ✅ (copy review pending)                     |
+| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned                                                |
+| 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned                                                |
+
+**Owner decisions (2026-09-27):** use **Kit** for the newsletter, and **publish** the welcome post now (it can be rewritten any time).
+
+**Phase 1 notes (COMPLETED ✅):**
+
+- `lib/content/blog.ts` lists the posts (`slug`, `title`, `excerpt`, `publishedAt`, `author`, `icon`, `status`). `publishedPosts` (newest first) and `getPost` only return published posts, so drafts never appear on the site or in the sitemap.
+- Each post's text is Markdown in `content/blog/<slug>.md`, read at build time by `lib/blogPostBody.ts` and rendered by `components/blog/PostBody.tsx` (`react-markdown`, already a dependency). Links starting with `/` become site links; other links open in a new tab.
+- Pages: `/blog` (post cards, `components/blog/PostCard.tsx`) and `/blog/[slug]` (built ahead of time with `generateStaticParams`; unknown slugs and drafts are a 404). Post pages use `ContentPage` and end with a "Ready for an adventure?" box linking to games and books. The newsletter box replaces or joins it in Phase 2.
+- First post: `content/blog/welcome-to-learning-adventures.md` (published 2026-09-27).
+- "Blog" is in the header (desktop and phone menu), the footer's About column and the sitemap.
+- Guards: the lint icon rule and the emoji check now cover `components/blog` and `app/blog`. New content tests check that post slugs are unique and URL-safe, every post has its Markdown file, dates are real, icons exist, and the Markdown has no emoji.
+- Checked in the production build with no env vars: `/blog`, the welcome post, and a 404 for an unknown slug, at 1280px and 390px. No sideways scroll and no console errors.
+
+**Phase 2 notes (COMPLETED ✅, 2026-09-27):**
+
+- The owner is deciding the email setup with their team; Kit stays the plan. Phase 2 was built so it's safe to merge before then.
+- `/newsletter` (`app/newsletter/page.tsx`): hero, "What you'll get" (new games, book launches, learning ideas), "Our promises" (parents only and no child details, about one email a month, one-click unsubscribe, never sell your email) and the sign-up form. **The owner should confirm the promises and "about once a month" before sign-ups open.**
+- `lib/newsletter.ts` `getNewsletterStatus()` decides what the page shows (server-only):
+  - `live`: `NEWSLETTER_API_KEY` is set. The form posts to `/api/newsletter` (added in Phase 3).
+  - `preview`: no key, not the live site (laptop or Vercel preview). The form can be tried out and a yellow note says nothing is sent.
+  - `coming-soon`: no key, on the live site (`VERCEL_ENV=production`). The page says "Sign-ups open soon" and links to the blog.
+  - The page is `noindex` and left out of the sitemap until `live`.
+- `components/newsletter/NewsletterForm.tsx` (client): first name (required; owner decision 2026-09-27), optional last name, email, required "I'm a parent or guardian, 18 or older" checkbox, and a hidden honeypot field (`website`) that bots fill in; those sign-ups see the thank-you message but are never sent. Clear error messages (`role="alert"`) and a "Check your inbox to confirm" message after signing up.
+- `components/newsletter/NewsletterCta.tsx`: a "Get updates for parents" box linking to `/newsletter`, at the end of every blog post. It renders nothing while the status is `coming-soon`. It is server-only; the footer runs in the browser, so the footer link waits for Phase 4.
+- New `envelope` sticker in the icon set (shown on `/dev/icons`).
+- Tests: `tests/newsletter/status.test.ts` covers the three statuses. The lint icon rule and the emoji check cover `components/newsletter` and `app/newsletter`.
+- Checked in production builds: preview mode (a bad email and a missing checkbox show errors; a good sign-up shows "Check your inbox" and makes no network request) and live-site mode (`VERCEL_ENV=production`: "Sign-ups open soon", no blog box, not in the sitemap). 1280px and 390px, no sideways scroll, no console errors.
+- Unchanged until Phase 3: the Privacy page (the form sends nothing yet) and the book pages' optional "Tell me when it's out" link.
+
+**How to add a blog post:** add an entry to `posts` in `lib/content/blog.ts`, write `content/blog/<slug>.md` (plain text; `##` for headings, `**bold**`, `- ` for bullet points, `[text](/games)` for links), then run `npm test`. Use `status: 'draft'` to keep it hidden until it's ready.
+
+**Phase 0: Decisions and accounts (owner, about 30 minutes)**
+
+- Pick the provider (Kit recommended; beehiiv as runner-up) and create a free account.
+- In the provider: turn on double opt-in, set the sender name ("Learning Adventures") and sender email (for example `hello@learningadventures.org`), and add the mailing address.
+- Verify the `learningadventures.org` domain in the provider (it gives DNS records to add where the domain is managed). This keeps emails out of spam.
+- Create the list/form (and a tag such as `parents`, plus `website` as the source).
+- Decide: should the first blog post go live straight away, or stay a hidden draft until rewritten? **Default: publish it**, since it's a welcome post and can be edited any time.
+
+**Phase 1: Blog (no outside services needed)**
+
+Follows the same pattern as games and books, so it stays backend-free:
+
+- `lib/content/blog.ts`: a `posts` list with `slug`, `title`, `excerpt`, `publishedAt`, `author`, optional `coverImage`, and `status: 'published' | 'draft'`. Drafts don't appear on the site or in the sitemap.
+- `content/blog/<slug>.md`: the text of each post, in Markdown (plain text with `#` for headings and `**bold**`), so the owner can edit posts without touching code. It's rendered with `react-markdown`, which the project already has.
+- Pages:
+  - `/blog`: newest posts first, as cards (title, date, excerpt, cover)
+  - `/blog/[slug]`: the post, with a "Get updates" box at the end that links to `/newsletter`
+  - both built ahead of time with `generateStaticParams`, with titles and descriptions for search and social sharing
+- First post: `content/blog/welcome-to-learning-adventures.md`, a welcome to parents and kids: who we are, our goal (kids enjoy learning through play and stories), what's on the site today (games by subject, interactive ebooks, the World Demo), what's coming, and an invitation to join the newsletter. Written in plain, warm language; placeholder text is marked so it's easy to find and replace.
+- Add "Blog" to the header and footer, and the blog pages to `app/sitemap.xml/route.ts`.
+- Icons: `SiteIcon`/`UiIcon` only (lint and `npm test` block emoji). A new `pencil` or `newspaper` sticker if needed, drawn in the UX-1 house style and shown on `/dev/icons`.
+- Tests in `tests/content/content.test.ts`: post slugs are unique, every post has its Markdown file and cover image, dates are valid, and the Markdown files contain no emoji (the existing emoji check only covers source code).
+
+**Phase 2: Newsletter page and form (still no outside services)**
+
+- `/newsletter` page: a short pitch for parents (new games, book launches, learning tips; "about once a month, unsubscribe any time"), the form, and a note linking to the Privacy page.
+- `components/newsletter/NewsletterForm.tsx`: first name, optional last name, email, the parent/guardian checkbox, and a hidden "honeypot" field that real people never fill in (bots do, so we can ignore those). Clear success ("Check your inbox to confirm") and error messages; accessible labels; works at 390px.
+- Until Phase 3 is switched on, the form area shows "Newsletter coming soon" (same idea as the books' "coming soon" button), so the page is safe to merge early.
+- A reusable `NewsletterCta` box for the end of blog posts, the homepage and book pages.
+
+**Phase 3: Connect the email service**
+
+- `app/api/newsletter/route.ts`: a small server function. The browser sends the form to our own site; our site passes it to the provider using a secret API key kept on the server. Why not call the provider directly from the browser? The key would be visible to anyone, and our own route lets us check the email, the checkbox and the honeypot first.
+- New env vars, set in Vercel (Production and Preview):
+  - `NEWSLETTER_PROVIDER` (for example `kit` or `beehiiv`)
+  - `NEWSLETTER_API_KEY` (secret; no `NEXT_PUBLIC_` prefix, so it never reaches the browser)
+  - `NEWSLETTER_LIST_ID` (the form, list or group to add people to)
+- `lib/newsletter.ts`: the only file that knows which provider we use. Changing providers means changing this file and the env vars.
+- If the env vars are missing (for example on a laptop), the page shows "coming soon" and the site still builds. That keeps the rule that public pages build with no env vars or secrets.
+- Update `app/privacy/page.tsx`: what we collect (parent's first name, optional last name and email), why (updates and marketing), who holds it (the named provider), how to unsubscribe or ask for deletion, and that we never collect children's emails. Update the page's "updated" date and its code comment.
+- Replace the optional `NEXT_PUBLIC_NEWSLETTER_URL` link on book pages ("Tell me when it's out") with a link to `/newsletter`, and retire that env var.
+- Test on the Vercel preview with a real address: sign up, get the confirmation email, confirm, see the contact in the provider, unsubscribe.
+
+**Phase 4: Link everything, docs, go live**
+
+- "Get updates" links in the footer and at the end of the homepage; a blog link from the About page.
+- Update CLAUDE.md (routes, content folders, "how to add a blog post", new env vars) and `docs/V1_GO_LIVE_CHECKLIST.md`.
+- Mark UX-2 COMPLETED ✅ here.
+
+**Checks for every phase:** `npx tsc --noEmit`, `npm run lint` (0 errors), `npm test`, `npm run build` with no env vars, then the pages in the production build at 1280px and 390px (no sideways scroll, no console errors, axe clean).
+
+**Out of scope for UX-2:** a blog admin/editor (posts are Markdown files in the repo for now), comments on posts, RSS (easy to add later), and syncing subscribers with Supabase accounts.

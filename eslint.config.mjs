@@ -65,10 +65,10 @@ const eslintConfig = [
     // UiIcon for controls, both in components/icons/. Stock icon packs stay
     // available to the hidden account pages only.
     files: [
-      'components/{home,play,books,demo}/**/*.{ts,tsx}',
+      'components/{home,play,books,demo,blog,newsletter}/**/*.{ts,tsx}',
       'components/{Header,Footer,ContentPage}.tsx',
       'app/{page,not-found}.tsx',
-      'app/{games,subjects,books,demo,about,privacy,terms}/**/*.{ts,tsx}',
+      'app/{games,subjects,books,demo,blog,newsletter,about,privacy,terms}/**/*.{ts,tsx}',
     ],
     rules: {
       'no-restricted-imports': [

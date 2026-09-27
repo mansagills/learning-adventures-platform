@@ -3,6 +3,7 @@ import { basename, join, resolve } from 'path';
 import { describe, expect, it } from 'vitest';
 import { games } from '@/lib/content/games';
 import { books } from '@/lib/content/books';
+import { posts } from '@/lib/content/blog';
 import { subjects } from '@/lib/content/subjects';
 import { iconNames } from '@/components/icons/art';
 
@@ -70,6 +71,53 @@ describe('public content data', () => {
   });
 });
 
+describe('blog posts', () => {
+  const blogDir = resolve(__dirname, '../../content/blog');
+
+  it('post slugs are unique and URL-safe', () => {
+    expect(duplicates(posts.map((post) => post.slug))).toEqual([]);
+    for (const post of posts) {
+      expect(post.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    }
+  });
+
+  it('every post has its Markdown file in content/blog/', () => {
+    const missing = posts
+      .filter((post) => !existsSync(join(blogDir, `${post.slug}.md`)))
+      .map((post) => `${post.slug} -> content/blog/${post.slug}.md`);
+    expect(missing).toEqual([]);
+  });
+
+  it('every post has a real publish date (YYYY-MM-DD)', () => {
+    for (const post of posts) {
+      expect(post.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(
+        new Date(`${post.publishedAt}T00:00:00Z`).toISOString().slice(0, 10)
+      ).toBe(post.publishedAt);
+    }
+  });
+
+  it('every post uses an icon from the Learning Adventures set', () => {
+    for (const post of posts) {
+      expect(iconNames).toContain(post.icon);
+    }
+  });
+
+  it('post text has no emojis or text arrows', () => {
+    const emoji = /(?![©®])\p{Extended_Pictographic}|[←→✓✔]/u;
+    const found = readdirSync(blogDir)
+      .filter((name) => name.endsWith('.md'))
+      .flatMap((name) =>
+        readFileSync(join(blogDir, name), 'utf8')
+          .split('\n')
+          .flatMap((line, index) =>
+            emoji.test(line) ? [`${name}:${index + 1}`] : []
+          )
+      );
+    expect(found).toEqual([]);
+  });
+});
+
 describe('site icons', () => {
   it('every subject uses an icon from the Learning Adventures set', () => {
     for (const subject of subjects) {
@@ -85,6 +133,8 @@ describe('site icons', () => {
       'components/play',
       'components/books',
       'components/demo',
+      'components/blog',
+      'components/newsletter',
       'components/Header.tsx',
       'components/Footer.tsx',
       'components/ContentPage.tsx',
@@ -93,6 +143,8 @@ describe('site icons', () => {
       'app/subjects',
       'app/books',
       'app/demo',
+      'app/blog',
+      'app/newsletter',
       'app/about',
       'app/privacy',
       'app/terms',
