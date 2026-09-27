@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { publishedPosts } from '@/lib/content/blog';
 import { books } from '@/lib/content/books';
 import { games } from '@/lib/content/games';
 import { subjects } from '@/lib/content/subjects';
@@ -35,6 +36,8 @@ export function GET(): Response {
     page('/books', 'weekly', 0.8),
     ...books.map((book) => page(`/books/${book.slug}`, 'monthly', 0.7)),
     page('/demo', 'monthly', 0.7),
+    page('/blog', 'weekly', 0.6),
+    ...publishedPosts.map((post) => page(`/blog/${post.slug}`, 'monthly', 0.5)),
     page('/about', 'monthly', 0.5),
     page('/privacy', 'yearly', 0.3),
     page('/terms', 'yearly', 0.3),

@@ -400,7 +400,7 @@ Work goes in 3 phases; each needs the owner's approval before the next starts.
 - Cause: Phaser listens for keys on the whole page and blocks the ones the game uses, even when a text box has focus.
 - Change: `components/phaser/PhaserGame.tsx` turns the game's keyboard off while any text box has focus and back on when it loses focus. Movement keys work again as soon as the player leaves the box.
 
-#### UX-2: Newsletter sign-up page and blog: PLANNED (branch `claude/blissful-curie-fjnw4i`)
+#### UX-2: Newsletter sign-up page and blog: IN PROGRESS (branch `claude/blissful-curie-fjnw4i`)
 
 The owner asked for three things (2026-09-26):
 
@@ -437,13 +437,27 @@ Why not Supabase right now:
 
 Each phase ends with a check-in; the owner approves before the next starts. One branch and one PR (to `main`) unless the owner prefers a PR per phase.
 
-| Phase | What                                                         | Needs from the owner                               | Status  |
-| ----- | ------------------------------------------------------------ | -------------------------------------------------- | ------- |
-| 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | Planned |
-| 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | Planned |
-| 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | Planned |
-| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned |
-| 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned |
+| Phase | What                                                         | Needs from the owner                               | Status                                      |
+| ----- | ------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------- |
+| 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | In progress: Kit chosen, account setup next |
+| 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | COMPLETED ✅                                |
+| 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | Planned                                     |
+| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned                                     |
+| 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned                                     |
+
+**Owner decisions (2026-09-27):** use **Kit** for the newsletter, and **publish** the welcome post now (it can be rewritten any time).
+
+**Phase 1 notes (COMPLETED ✅):**
+
+- `lib/content/blog.ts` lists the posts (`slug`, `title`, `excerpt`, `publishedAt`, `author`, `icon`, `status`). `publishedPosts` (newest first) and `getPost` only return published posts, so drafts never appear on the site or in the sitemap.
+- Each post's text is Markdown in `content/blog/<slug>.md`, read at build time by `lib/blogPostBody.ts` and rendered by `components/blog/PostBody.tsx` (`react-markdown`, already a dependency). Links starting with `/` become site links; other links open in a new tab.
+- Pages: `/blog` (post cards, `components/blog/PostCard.tsx`) and `/blog/[slug]` (built ahead of time with `generateStaticParams`; unknown slugs and drafts are a 404). Post pages use `ContentPage` and end with a "Ready for an adventure?" box linking to games and books. The newsletter box replaces or joins it in Phase 2.
+- First post: `content/blog/welcome-to-learning-adventures.md` (published 2026-09-27).
+- "Blog" is in the header (desktop and phone menu), the footer's About column and the sitemap.
+- Guards: the lint icon rule and the emoji check now cover `components/blog` and `app/blog`. New content tests check that post slugs are unique and URL-safe, every post has its Markdown file, dates are real, icons exist, and the Markdown has no emoji.
+- Checked in the production build with no env vars: `/blog`, the welcome post, and a 404 for an unknown slug, at 1280px and 390px. No sideways scroll and no console errors.
+
+**How to add a blog post:** add an entry to `posts` in `lib/content/blog.ts`, write `content/blog/<slug>.md` (plain text; `##` for headings, `**bold**`, `- ` for bullet points, `[text](/games)` for links), then run `npm test`. Use `status: 'draft'` to keep it hidden until it's ready.
 
 **Phase 0: Decisions and accounts (owner, about 30 minutes)**
 
