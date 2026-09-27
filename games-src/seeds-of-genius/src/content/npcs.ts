@@ -266,6 +266,58 @@ NPCS.push({
   required: true,
 });
 
+/** Chapter 4: the community cook and the craftsperson. */
+NPCS.push(
+  {
+    id: 'lottie',
+    name: 'Miss Lottie Greene',
+    role: 'Cook at the community kitchen',
+    look: {
+      build: 'adult',
+      skin: { base: '#7a4a2e', shade: '#633b23' },
+      hair: { style: 'wrap', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#d95f5f', shade: '#b84a4a' },
+      pants: '#4a4038',
+      shoes: '#2f2521',
+      accessory: 'none',
+      accent: '#f2d15a',
+      extras: { apron: '#f6f0e0' },
+    },
+    portrait: 'lottie',
+    scene: 'hub',
+    pos: { x: 24.5, y: 14.5 },
+    facing: 'left',
+    presence: 'always',
+    ambient: { default: 'lottie_ambient' },
+    voice: 330,
+    required: true,
+  },
+  {
+    id: 'wendell',
+    name: 'Mr. Wendell Brooks',
+    role: 'Craftsperson at the workshop',
+    look: {
+      build: 'adult',
+      skin: { base: '#9c6440', shade: '#834f31' },
+      hair: { style: 'short', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#5a7a4a', shade: '#46603a' },
+      pants: '#6b5a4a',
+      shoes: '#3a2a22',
+      accessory: 'glasses',
+      accent: '#d9b25a',
+      extras: { apron: '#8a6a48', mustache: '#2a1f1d' },
+    },
+    portrait: 'wendell',
+    scene: 'hub',
+    pos: { x: 35.5, y: 25.5 },
+    facing: 'down',
+    presence: 'always',
+    ambient: { default: 'wendell_ambient' },
+    voice: 200,
+    required: true,
+  },
+);
+
 export function npcById(id: NpcId): NpcDefinition | undefined {
   return NPCS.find((n) => n.id === id);
 }

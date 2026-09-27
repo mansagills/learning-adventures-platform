@@ -65,7 +65,7 @@ export interface PlaceDef {
 }
 
 /** Every place the player can be. Interiors share the scene kit. */
-export type SceneId = 'hub' | 'room' | 'school' | 'farm';
+export type SceneId = 'hub' | 'room' | 'school' | 'farm' | 'workshop';
 
 export interface MapDef {
   id: SceneId;
@@ -219,7 +219,7 @@ function hubProps(): PropDef[] {
   props.push({ kind: 'sign', x: 9, y: 17, text: 'Your cottage. Rest, change your look and check your windowsill.' });
   props.push({ kind: 'sign', x: 29, y: 17, text: 'Seed & Mail. Seeds, letters and parcels.' });
   props.push({ kind: 'sign', x: 8, y: 25, text: 'Schoolhouse. Opens in Chapter 2.' });
-  props.push({ kind: 'sign', x: 31, y: 25, text: 'Workshop. Opens in Chapter 4.' });
+  props.push({ kind: 'sign', x: 31, y: 25, text: "Workshop. Mr. Brooks builds and fixes things here. Inventions start in Chapter 4." });
   props.push({ kind: 'sign', x: 17, y: 18, text: 'Sweetgum Pond. Please do not feed the ducks bread.' });
   return props;
 }
@@ -403,5 +403,58 @@ export function buildFarmMap(): MapDef {
     blocked: new Set(),
     entry: { x: 7.9, y: 10.2 },
     exit: { x0: 7, x1: 9, y: 11.05, to: 'hub', at: { x: 33.9, y: 8.6 } },
+  };
+}
+
+// ------------------------------------------------------------------ workshop
+
+const WORKSHOP_ROWS = [
+  '##############',
+  '##############',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooorroooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '######oo######',
+];
+
+/** Where the workshop's furniture stands (tile x, y). */
+export const WORKSHOP = {
+  cropShelf: [2, 2] as [number, number],
+  bench: [6, 4] as [number, number],
+  decorShelf: [11, 2] as [number, number],
+  rack: [1, 5] as [number, number],
+};
+
+/** Decorations players can buy with Seeds, and where each one shows up. */
+export const WORKSHOP_DECOR_SPOTS: Record<string, { x: number; y: number; wall?: boolean }> = {
+  fern: { x: 12.5, y: 7.6 },
+  stool: { x: 1.6, y: 7.6 },
+  poster: { x: 9.5, y: 2.0, wall: true },
+  chime: { x: 4.6, y: 2.0, wall: true },
+};
+
+/** Mr. Brooks's workshop: a crop shelf, a workbench, a decoration shelf. */
+export function buildWorkshopMap(): MapDef {
+  const blocked = new Set<string>();
+  const [cx, cy] = WORKSHOP.cropShelf;
+  const [bx, by] = WORKSHOP.bench;
+  const [dx, dy] = WORKSHOP.decorShelf;
+  const [rx, ry] = WORKSHOP.rack;
+  [`${cx},${cy}`, `${cx + 1},${cy}`, `${bx},${by}`, `${bx + 1},${by}`, `${dx},${dy}`, `${dx + 1},${dy}`, `${rx},${ry}`].forEach((k) => blocked.add(k));
+  return {
+    id: 'workshop',
+    w: 14,
+    h: 9,
+    ground: parseGround(WORKSHOP_ROWS),
+    buildings: [],
+    props: [],
+    places: [{ id: 'workshop_exit', label: 'Go outside', x: 7, y: 8.3, radius: 1.1 }],
+    spawn: { x: 7, y: 7.3 },
+    blocked,
+    entry: { x: 7, y: 7.3 },
+    exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 33.5, y: 26.4 } },
   };
 }

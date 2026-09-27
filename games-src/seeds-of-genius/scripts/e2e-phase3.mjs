@@ -332,7 +332,7 @@ await sleep(page, 500);
 s = await state(page);
 check('Chapter 3 complete; Carver gave the Crop-Rotation Planner', s.chapters.ch3 === 'complete' && s.inventory.some((e) => e.itemId === 'rotation_card' && e.from === 'carver'));
 check('Rewards: +150 XP and +20 Seeds', s.xp === 360 + 150 && s.seeds === 53 + 20, `xp ${s.xp}, seeds ${s.seeds}`);
-check('Chapter 4 shows as unlocked, arriving next', s.chapters.ch4 === 'locked' && /Chapter 4 is unlocked/.test(s.objective), s.objective);
+check('Chapter 4 opens next, and Carver offers it', s.chapters.ch4 === 'available' && /Carver/.test(s.objective), s.objective);
 check('Learner model records the soil objective', !!s.learner.soil && s.learner.soil.correct >= 4, JSON.stringify(s.learner.soil ?? {}));
 
 // --- Journal ---

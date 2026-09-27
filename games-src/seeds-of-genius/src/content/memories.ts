@@ -58,5 +58,23 @@ export const MEMORIES: Record<string, Memory> = {
       },
     ],
   },
+  peanut_lab: {
+    id: 'peanut_lab',
+    title: 'New Uses for Crops',
+    setting: 'Tuskegee Institute, Alabama, early 1900s',
+    pages: [
+      {
+        art: 'mem-lab',
+        caption:
+          'In his laboratory at Tuskegee, Carver looked for new ways to use peanuts, sweet potatoes and other crops that farmers could grow when they took turns with cotton. He shared many of his ideas and recipes in plain-language bulletins.',
+      },
+      {
+        art: 'mem-congress',
+        caption:
+          'In 1921, he spoke to a committee of the United States Congress about the many ways peanuts could be used. People sometimes say he invented peanut butter, but he did not. People had made peanut pastes long before him.',
+      },
+    ],
+  },
 };
+
 

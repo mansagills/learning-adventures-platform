@@ -160,10 +160,36 @@ describe('QuestEngine: practice quest loop', () => {
     expect(q.progress('ch3').stage).toBe('complete');
     expect(state.xp).toBe(150);
     expect(state.seeds).toBe(20);
-    expect(q.isUnlocked('ch4')).toBe(true);
-    expect(q.progress('ch4').stage).toBe('locked');
-    expect(q.nextAction().text).toMatch(/Chapter 4 is unlocked/);
-    expect(q.conversationFor('carver')).toBe('carver_ch3_after');
+    // Chapter 4 is playable, so Carver offers it next.
+    expect(q.progress('ch4').stage).toBe('available');
+    expect(q.conversationFor('carver')).toBe('carver_ch4_opening');
+  });
+
+  it('runs Chapter 4: Carver → Miss Lottie + Mr. Brooks → workshop → Carver, then Chapter 5 waits', () => {
+    const state = fresh();
+    for (const id of ['practice', 'ch1', 'ch2', 'ch3']) state.chapters[id] = { stage: 'complete', stepsDone: [], flags: [], rewarded: true };
+    state.chapters.ch4 = { stage: 'locked', stepsDone: [], flags: [], rewarded: false };
+    const q = new QuestEngine(CHAPTERS, ITEMS, state);
+    expect(q.progress('ch4').stage).toBe('available');
+    q.apply({ type: 'acceptQuest', chapterId: 'ch4' });
+    expect(q.markerFor('lottie')).toBe('lead');
+    expect(q.markerFor('wendell')).toBe('lead');
+    q.apply({ type: 'grantItem', itemId: 'materials_kit', from: 'wendell' });
+    q.apply({ type: 'completeStep', chapterId: 'ch4', stepId: 'get_kit' });
+    expect(q.nextAction().targetNpcId).toBe('lottie');
+    q.apply({ type: 'grantItem', itemId: 'need_card', from: 'lottie' });
+    q.apply({ type: 'completeStep', chapterId: 'ch4', stepId: 'get_need' });
+    expect(q.nextAction()).toMatchObject({ targetPlaceId: 'workshop' });
+    for (const it of ['need_card', 'materials_kit']) q.apply({ type: 'useItem', itemId: it, usedIn: 'x' });
+    q.apply({ type: 'completeStep', chapterId: 'ch4', stepId: 'invent' });
+    expect(q.conversationFor('carver')).toBe('carver_ch4_closing');
+    q.apply({ type: 'grantItem', itemId: 'invention_card', from: 'carver' });
+    q.apply({ type: 'completeChapter', chapterId: 'ch4' });
+    expect(state.xp).toBe(150);
+    expect(state.seeds).toBe(25);
+    expect(q.progress('ch5').stage).toBe('locked');
+    expect(q.nextAction().text).toMatch(/Chapter 5 is unlocked/);
+    expect(q.conversationFor('carver')).toBe('carver_ch4_after');
   });
 
   it('never duplicates items or one-time rewards', () => {

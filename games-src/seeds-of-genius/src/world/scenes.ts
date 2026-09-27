@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { K, PX } from '../render/pixelRenderer';
 import { paintGround } from '../art/tiles';
-import { paintFurniture, paintProp, paintSchool, paintSprout } from '../art/props';
+import { paintFurniture, paintProp, paintSchool, paintSprout, paintWorkshop } from '../art/props';
 import { PixelBuffer } from '../art/pixel';
 import { paintingCanvas } from '../art/sceneArt';
 import { P } from '../art/palette';
 import { hash2, mulberry32 } from '../core/rng';
 import { CollisionGrid, propFootprint } from './collision';
-import { SCHOOL_EASEL_ART, SCHOOL_EASELS, buildFarmMap, buildHubMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
+import { SCHOOL_EASEL_ART, SCHOOL_EASELS, WORKSHOP, WORKSHOP_DECOR_SPOTS, buildFarmMap, buildHubMap, buildWorkshopMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
 import { Lighting, billboard, buildBuilding, glowSprite, lightPool, pixelTexture } from './sceneKit';
 
 export interface WorldScene {
@@ -20,6 +20,8 @@ export interface WorldScene {
   update(dt: number, time: number, night: number, reducedMotion: boolean): void;
   /** Room only: show or hide the planted seed pot. */
   setPotPlanted?(planted: boolean): void;
+  /** Workshop only: show the decorations the player has bought. */
+  setDecor?(owned: string[]): void;
   /** Interior light differs from outdoors. */
   interior: boolean;
 }
@@ -416,5 +418,95 @@ export function buildFarmScene(): WorldScene {
       bg.set(P.grassDeep).multiplyScalar(1 - night * 0.45);
       (scene.background as THREE.Color).copy(bg);
     },
+  };
+}
+
+// ------------------------------------------------------------ workshop
+
+function paintWorkshopWall(night: boolean): HTMLCanvasElement {
+  const W = 224;
+  const H = 40;
+  const b = new PixelBuffer(W, H);
+  b.rect(0, 0, W, H, P.wood1);
+  for (let x = 0; x < W; x += 8) b.vline(x, 0, H - 13, P.wood2);
+  b.rect(0, H - 12, W, 12, P.wood2);
+  b.hline(0, W - 1, H - 12, P.wood3);
+  b.rect(0, 0, W, 2, P.woodDark);
+  // pegboard with tools
+  const px = 98;
+  b.rect(px, 5, 44, 22, '#c9a878');
+  for (let x = px + 3; x < px + 44; x += 4) for (let y = 7; y < 26; y += 4) b.set(x, y, '#a4815a');
+  b.vline(px + 8, 8, 20, P.metal); // saw
+  b.rect(px + 6, 8, 5, 3, P.wood3);
+  b.rect(px + 18, 9, 3, 12, P.wood3); // hammer
+  b.rect(px + 16, 8, 7, 3, P.metal);
+  b.ellipse(px + 28, 9, 8, 8, P.metalLight); // coil of twine
+  b.set(px + 31, 12, P.metal);
+  b.rect(px + 38, 9, 2, 13, P.metal); // ruler
+  // window
+  const wx = 176;
+  b.rect(wx, 6, 28, 20, P.wood2);
+  b.rect(wx + 2, 8, 24, 16, night ? '#2b3a66' : '#9fd3ee');
+  if (night) b.set(wx + 8, 11, '#fff6c8');
+  else b.ellipse(wx + 4, 16, 12, 8, '#7cb356');
+  b.vline(wx + 13, 8, 23, P.wood2);
+  b.hline(wx + 2, wx + 25, 15, P.wood2);
+  // a chalk sign: WORKSHOP
+  b.rect(20, 8, 40, 12, '#2f3a33');
+  b.hline(24, 55, 13, '#e8f0e8');
+  b.hline(26, 50, 16, '#cfe0cf');
+  return b.toCanvas();
+}
+
+export function buildWorkshopScene(): WorldScene {
+  const map = buildWorkshopMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  scene.background = new THREE.Color('#1e1622');
+  scene.add(groundMesh(lighting, map));
+  const dayTex = pixelTexture(paintWorkshopWall(false));
+  const nightTex = pixelTexture(paintWorkshopWall(true));
+  const wallMat = lighting.add(new THREE.MeshBasicMaterial({ map: dayTex }));
+  const wallGeo = new THREE.PlaneGeometry(14, 2.5 * K);
+  wallGeo.translate(0, (2.5 * K) / 2, 0);
+  const wall = new THREE.Mesh(wallGeo, wallMat);
+  wall.position.set(7, 0, 2 * K);
+  scene.add(wall);
+
+  const [cx, cy] = WORKSHOP.cropShelf;
+  const [bx, by] = WORKSHOP.bench;
+  const [dx, dy] = WORKSHOP.decorShelf;
+  const [rx, ry] = WORKSHOP.rack;
+  scene.add(billboard(lighting, paintWorkshop('cropshelf').toCanvas(), cx + 1, cy + 0.9, { name: 'cropshelf' }));
+  scene.add(billboard(lighting, paintWorkshop('bench').toCanvas(), bx + 1, by + 0.95, { name: 'bench' }));
+  scene.add(billboard(lighting, paintWorkshop('decorshelf').toCanvas(), dx + 1, dy + 0.9, { name: 'decorshelf' }));
+  scene.add(billboard(lighting, paintWorkshop('rack').toCanvas(), rx + 0.5, ry + 0.9, { name: 'rack' }));
+  scene.add(glowSprite(lighting, 48, '#ffd88a', 7, 4.2, 1.6, 0.3));
+
+  // Decorations appear once bought.
+  const decor = new Map<string, THREE.Object3D>();
+  for (const [id, spot] of Object.entries(WORKSHOP_DECOR_SPOTS)) {
+    const m = billboard(lighting, paintWorkshop(id as 'fern').toCanvas(), spot.x, spot.wall ? 2.05 : spot.y, { name: `decor:${id}` });
+    if (spot.wall) m.position.y += 0.7 * K;
+    m.visible = false;
+    decor.set(id, m);
+    scene.add(m);
+  }
+
+  return {
+    id: 'workshop',
+    map,
+    scene,
+    grid: new CollisionGrid(map),
+    lighting,
+    interior: true,
+    update: (_dt, _t, night) => {
+      const want = night > 0.5 ? nightTex : dayTex;
+      if (wallMat.map !== want) {
+        wallMat.map = want;
+        wallMat.needsUpdate = true;
+      }
+    },
+    setDecor: (owned) => decor.forEach((m, id) => (m.visible = owned.includes(id))),
   };
 }

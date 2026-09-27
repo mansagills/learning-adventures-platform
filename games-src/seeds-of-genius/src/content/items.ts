@@ -144,5 +144,43 @@ export const ITEMS: Record<string, ItemDefinition> = {
     purpose: 'An off-screen activity: plan a rotation on paper or with cups of soil (open it from the Journal to print).',
     chapterId: 'ch3',
   },
+  need_card: {
+    id: 'need_card',
+    name: 'Community Need Card',
+    icon: 'needcard',
+    description: "Miss Lottie's card describing what the community kitchen needs.",
+    lookCloser: [
+      'AFTER-SCHOOL SNACK. Must: keep at least 7 days without a fridge. Be filling. Be easy enough for volunteers in about an hour a week. Be safe for every kid to share.',
+      'At the bottom, underlined: "Two of our kids are allergic to peanuts."',
+    ],
+    purpose: 'Test each invention against what the kitchen really needs.',
+    chapterId: 'ch4',
+  },
+  materials_kit: {
+    id: 'materials_kit',
+    name: 'Materials Kit',
+    icon: 'kit',
+    description: "Mr. Brooks's kit: jars with lids, paper bags, a bowl, allergy labels, and the rules of his workshop.",
+    lookCloser: [
+      'Inside: jars with lids, paper bags, an open bowl, a roll of "Contains peanuts" labels.',
+      'A card says: "Workshop rules. No frying: hot oil is too dangerous. No electricity. Keep it to a few steps."',
+      'The drying rack and the hand mill are in the workshop.',
+    ],
+    purpose: 'Build and package your prototypes in the workshop.',
+    chapterId: 'ch4',
+  },
+  invention_card: {
+    id: 'invention_card',
+    name: 'Invention Sketch Card',
+    icon: 'card',
+    description: 'A card from Carver for sketching an invention from things you can find at home.',
+    lookCloser: [
+      'Boxes: "The need", "My idea", "What I will use", "How I will test it", "What I changed".',
+      'At the bottom: "Every good invention starts with someone who needs it."',
+    ],
+    purpose: 'An off-screen activity: sketch an invention from household materials (open it from the Journal to print).',
+    chapterId: 'ch4',
+  },
 };
+
 

@@ -1779,3 +1779,205 @@ mark.mark-guess {
 .chart-wrap figcaption {
   text-align: center;
 }
+
+/* ---------- Chapter 4: inventor's workshop ---------- */
+.shelf-modal {
+  width: min(860px, 100%);
+}
+.crop-tests {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.crop-test-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+}
+.crop-test-card.seen {
+  border-color: #7fb36a;
+}
+.crop-test-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+.test-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.btn.done {
+  background: var(--leaf-bg);
+}
+.test-results {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.4;
+  font-size: var(--text-small);
+}
+.crop-shelf .feedback,
+.decor-body .feedback {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.need-strip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fdecec;
+  border: 2px solid #e4a3a3;
+  line-height: 1.4;
+}
+.improving {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #e6f0fb;
+  font-weight: 700;
+}
+.builder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.opt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.opt-label {
+  width: 80px;
+  font-weight: 700;
+}
+.btn.opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn.opt.on {
+  background: var(--gold);
+  border-color: var(--wood-dark);
+  box-shadow: inset 0 0 0 2px #fff4c9;
+}
+.step-notes {
+  margin: 0;
+  color: var(--ink-soft);
+}
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #fffaf0;
+  border: 3px solid #d9a54a;
+  border-radius: 10px;
+}
+.result-card.pass {
+  border-color: #7fb36a;
+  background: #f1f8ea;
+}
+.result-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.result-head div {
+  display: flex;
+  flex-direction: column;
+}
+.badge.invention {
+  align-self: flex-start;
+  background: #e6ddf5;
+  color: #4b2f7a;
+}
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.35;
+}
+.checks li {
+  display: flex;
+  gap: 8px;
+}
+.checks .mark {
+  flex: none;
+  width: 20px;
+  text-align: center;
+  font-weight: 700;
+}
+.checks li.ok .mark {
+  color: #2f6b2c;
+}
+.checks li.no .mark {
+  color: #b33a2a;
+}
+.verdict {
+  margin: 0;
+  font-weight: 700;
+}
+.row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.decor-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.decor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+}
+.decor-item div {
+  display: flex;
+  flex-direction: column;
+}
+.decor-item.owned {
+  background: var(--leaf-bg);
+}
+@media (max-width: 640px) {
+  .crop-tests {
+    grid-template-columns: 1fr;
+  }
+  .opt-label {
+    width: 100%;
+  }
+  .decor-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+.proto-pic {
+  width: 80px;
+  height: 72px;
+  flex: none;
+  image-rendering: pixelated;
+  background: #f4ead2;
+  border: 2px solid var(--wood-dark);
+  border-radius: 6px;
+}

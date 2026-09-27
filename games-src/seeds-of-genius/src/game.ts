@@ -17,7 +17,7 @@ import { SaveStore, freshSave, type SaveData } from './systems/save';
 import { applySettingsToDocument, isTouchDevice, settings, touchControlsVisible, updateSettings } from './systems/settings';
 import { Actor } from './world/actor';
 import { findPath } from './world/collision';
-import { buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, type WorldScene } from './world/scenes';
+import { buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, buildWorkshopScene, type WorldScene } from './world/scenes';
 import type { SceneId } from './world/map';
 import { openCustomize } from './ui/customize';
 import { DialogueUI } from './ui/dialogue';
@@ -60,6 +60,7 @@ export class Game {
   readonly room: WorldScene;
   readonly school: WorldScene;
   readonly farm: WorldScene;
+  readonly workshop: WorldScene;
   world: WorldScene;
   player!: Actor;
   private npcActors = new Map<string, Actor>();
@@ -91,6 +92,7 @@ export class Game {
     this.room = buildRoomScene();
     this.school = buildSchoolScene();
     this.farm = buildFarmScene();
+    this.workshop = buildWorkshopScene();
     this.world = this.hub;
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
@@ -247,7 +249,7 @@ export class Game {
   }
 
   private sceneById(id: SceneId): WorldScene {
-    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm }[id];
+    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm, workshop: this.workshop }[id];
   }
 
   private setScene(id: SceneId, pos?: { x: number; y: number }, facing: Dir = 'down'): void {
@@ -752,7 +754,14 @@ export class Game {
       case 'room_door':
       case 'school_exit':
       case 'farm_exit':
+      case 'workshop_exit':
         return this.transition('hub');
+      case 'workshop_door': {
+        const st = this.engine.progress('ch4').stage;
+        if (st === 'active' || st === 'complete') return this.transition('workshop');
+        if (st === 'available') return this.say('The workshop is locked. Carver has an idea to share with you first.');
+        return this.say(PLACE_LINES.workshop_door);
+      }
       case 'farm_door': {
         const st = this.engine.progress('ch3').stage;
         if (st === 'active' || st === 'complete') return this.transition('farm');
@@ -851,6 +860,7 @@ export class Game {
     this.hud.setObjective(this.objective().text);
     this.hud.setStats(this.save.progress.xp, this.save.progress.seeds);
     this.touch?.setVisible(touchControlsVisible());
+    this.workshop.setDecor?.(this.save.cosmetics);
   }
 
   private updatePromptAndArrow(): void {
@@ -1194,6 +1204,8 @@ export class Game {
         ch2: this.engine?.progress('ch2'),
         ch2Data: this.save.chapterData.ch2 ?? null,
         ch3Data: this.save.chapterData.ch3 ?? null,
+        ch4Data: this.save.chapterData.ch4 ?? null,
+        cosmetics: this.save.cosmetics,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,
         version: this.save.version,
@@ -1238,6 +1250,7 @@ function sameTarget(a: Target, b: Target): boolean {
 function shortName(n: NpcDefinition): string {
   if (n.id === 'carver') return 'Carver';
   const words = n.name.split(' ');
-  // "Mr. Odell" stays whole; "Ms. Ruth Nelson" becomes "Ms. Nelson".
+  // "Mr. Odell" stays whole; "Ms. Ruth Nelson" becomes "Ms. Nelson"; "Miss Lottie Greene" becomes "Miss Lottie".
+  if (words[0] === 'Miss') return `Miss ${words[1]}`;
   return /^(Mr|Ms|Mrs|Dr)\.$/.test(words[0]) ? `${words[0]} ${words[words.length - 1]}` : words[0];
 }

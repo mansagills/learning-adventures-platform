@@ -591,6 +591,66 @@ function memBulletin(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------------ Chapter 4
+
+/** Carver in his later years: gray hair and mustache, suit and lapel flower. */
+const OLDER_CARVER: CharacterLook = {
+  ...YOUNG_MAN_GEORGE,
+  hair: { style: 'short', base: '#b9b7b4', shade: '#98968f', light: '#dcdad6' },
+  extras: { jacket: { base: '#6b5a4a', shade: '#54463a' }, tie: '#7a2f38', mustache: '#c9c5bf', lapelFlower: '#e0574f' },
+};
+
+/** Memory: Carver's laboratory, with jars of crop products. */
+function memLab(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#d9cfb8', P.wood1);
+  // shelves of jars and bottles
+  for (const y of [8, 22]) {
+    b.rect(4, y + 10, 52, 2, P.wood2);
+    for (let x = 6; x < 54; x += 7) {
+      const c = ['#d9a45a', '#c8643a', '#e8dcc0', '#8a6a3a', '#f0d890', '#b8513a', '#e8e0a0'][(x + y) % 7];
+      b.rect(x, y + 2, 5, 8, '#cfe3ea');
+      b.rect(x + 1, y + 5, 3, 5, c);
+      b.rect(x, y + 1, 5, 2, P.wood2);
+    }
+  }
+  // lab bench with a flask and a burner
+  b.rect(52, 40, 42, 5, P.wood3);
+  b.rect(54, 45, 3, 14, P.wood2);
+  b.rect(89, 45, 3, 14, P.wood2);
+  b.ellipse(66, 30, 9, 10, '#cfe3ea');
+  b.rect(69, 26, 3, 5, '#cfe3ea');
+  b.ellipse(67, 34, 7, 5, '#d9a45a');
+  b.rect(80, 34, 6, 6, P.metal);
+  b.blit(paintCharacter(OLDER_CARVER, 'left', 0), 60, 28);
+  return b;
+}
+
+/** Memory: speaking to a committee of Congress in 1921. */
+function memCongress(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#e8e0cc', '#7a5a3a');
+  // tall columns and windows
+  for (const x of [6, 30, 66, 88]) {
+    b.rect(x, 0, 5, 44, '#f4efe4');
+    b.vline(x + 4, 0, 43, '#d9d2c2');
+  }
+  for (const x of [14, 72]) b.rect(x, 6, 12, 22, '#a8cce0');
+  // committee table in the back
+  b.rect(8, 30, 80, 6, P.woodDark);
+  for (let x = 14; x < 84; x += 12) b.ellipse(x, 24, 6, 7, '#6b5a4a');
+  // Carver at a small table with peanuts and jars of products
+  b.rect(52, 48, 30, 4, P.wood3);
+  b.rect(54, 52, 2, 10, P.wood2);
+  b.rect(78, 52, 2, 10, P.wood2);
+  for (let x = 56; x < 80; x += 6) {
+    b.rect(x, 42, 4, 6, '#cfe3ea');
+    b.rect(x + 1, 44, 2, 4, ['#d9a45a', '#e8dcc0', '#8a6a3a', '#f0d890'][(x / 6) % 4 | 0]);
+  }
+  b.blit(paintCharacter(OLDER_CARVER, 'down', 0), 36, 36);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -613,6 +673,8 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   'soil-east': soilEast,
   'mem-station': memStation,
   'mem-bulletin': memBulletin,
+  'mem-lab': memLab,
+  'mem-congress': memCongress,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();

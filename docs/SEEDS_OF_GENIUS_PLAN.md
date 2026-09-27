@@ -21,8 +21,9 @@ explicit approval**. A passing self-score is not approval.
 | 0: Playable foundation | **COMPLETED ✅** (owner approved 2026-09-27: movement, camera, Carver, art and readability) |
 | 1: A Seed Is Planted / Curiosity Collector | **COMPLETED ✅** (owner approved 2026-09-27: "still feels cozy and fun") |
 | 2: Science Against the Odds / Choose the Path | **COMPLETED ✅** (owner approved 2026-09-27 after reviewing tone and age fit) |
-| 3: The Soil Speaks / Virtual Soil Lab | In progress |
-| 4-8 | Not started |
+| 3: The Soil Speaks / Virtual Soil Lab | **COMPLETED ✅** (owner approved 2026-09-27 after viewing screenshots and testing in the app) |
+| 4: The Peanut Isn't Just a Peanut / Inventor's Workshop | In progress |
+| 5-8 | Not started |
 
 ## Phase 0: playable foundation
 
@@ -104,3 +105,23 @@ explicit approval**. A passing self-score is not approval.
 **Facts used (NPS biography and Tuskegee page; USDA NAL soil exhibit):** at Tuskegee Institute (from 1896) Carver worked with farmers whose soil had been worn out by growing cotton year after year; he used test plots; he taught crop rotation, alternating cotton with nitrogen-adding legumes such as peanuts and peas; he wrote plain-language bulletins for farmers. Legume root nodules hold bacteria that turn nitrogen from the air into a form plants use. Mr. Hill, Hilltop Farm and the numbers in the model are fictional.
 
 **Tests:** 77 unit tests; `node scripts/e2e-phase3.mjs` (58 browser checks), plus the Phase 0, 1 and 2 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase3/`.
+
+## Phase 4: The Peanut Isn't Just a Peanut / Inventor's Workshop
+
+**Deliverables (from the spec):**
+
+- [x] Carver assigns the chapter: the rotation farmers now grow lots of peanuts, sweet potatoes and cowpeas, and a crop only helps a family if they can use or sell it. Two answer branches, one of which is "Did you invent peanut butter?" ("No, I did not. People made peanut pastes long before me.")
+- [x] **Miss Lottie Greene** (new cook, town square) gives the **Community Need Card**: an after-school snack that keeps 7+ days without a fridge, is filling, is easy enough for volunteers, and is safe for every kid (two kids are allergic to peanuts). **Mr. Wendell Brooks** (new craftsperson, by the workshop) gives the **Materials Kit** and explains the constraints (no frying, no electricity, a few steps)
+- [x] The **workshop** opens as a new room: a crop shelf, a workbench (hand mill, jars), a drying rack, and a decoration shelf
+- [x] **Explore crop properties** at the crop shelf (press, cut, tap, soak, read the seed tag): peanuts are oily, filling and an allergen; sweet potatoes are wet inside; dry cowpeas are rock hard until cooked in water
+- [x] **Build and test** at the workbench: a crop, one or two steps (roast, boil, dry, grind) and a container (jar, paper bag, open bowl), plus an optional allergy label. Each prototype gets a pixel picture, a "game invention" label, and a check against every part of the need, each with a reason (ready to eat, keeps, filling, effort, safe)
+- [x] Simple, honest kitchen rules decide the result (wet food spoils without a fridge; dry food keeps; dry beans need cooking in water; flour is not a snack; grinding by hand is a lot of work; an oily spread soaks through paper). **30 designs pass, across all three crops**, so there is no single memorized recipe
+- [x] **Trial log** of every test; **"Improve this idea"** turns the next test into a revision (a failed test starts one automatically). A revision must pass and improve on its base. Only a real revision can go to Carver
+- [x] Hint ladder on failed tests: what the test showed → a narrower suggestion for the failing part → a worked example you can fill in
+- [x] **Seeds buy workshop decorations** (fern, stool, peanut-plant poster, wind chime) that appear in the room; each can be bought once; Seeds never buy answers. Saved in a new `cosmetics` save field (old saves start with none)
+- [x] Carver's debrief names the invention, tells the revision story from the player's own tests ("You started with boiled peanuts... so you changed the steps, used a jar... and added an allergy label"), counts the trials, asks why the final design fits (wrong answers explained), offers a memory, and gives the printable **Invention Sketch Card**
+- [x] Journal: invention log, decorations, reflection and the card. Completion pays +150 XP / +25 Seeds once and unlocks Chapter 5; replay gives no duplicate rewards; mid-workshop save/reload keeps everything
+
+**Facts used (NPS biography and Tuskegee page):** at Tuskegee, Carver looked for many new uses for peanuts, sweet potatoes and other crops so farmers who rotated with them could use or sell them, and shared ideas and recipes in bulletins; in 1921 he spoke to a committee of the U.S. Congress about uses of the peanut; he did not invent peanut butter. Every prototype in the game is labeled as a made-up game invention. Miss Lottie, Mr. Brooks and the kitchen are fictional.
+
+**Tests:** 93 unit tests; `node scripts/e2e-phase4.mjs` (54 browser checks), plus the Phase 0–3 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase4/`.

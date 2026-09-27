@@ -647,6 +647,116 @@ export function paintSchool(kind: 'desk' | 'easel' | 'globe', variant = 0): Pixe
   return b.outline();
 }
 
+export type WorkshopKind = 'cropshelf' | 'bench' | 'decorshelf' | 'rack' | 'fern' | 'stool' | 'poster' | 'chime';
+
+/** Furniture and decorations for Mr. Brooks's workshop (Chapter 4). */
+export function paintWorkshop(kind: WorkshopKind): PixelBuffer {
+  switch (kind) {
+    case 'cropshelf': {
+      // two shelves of jars: peanuts, sweet potatoes, cowpeas
+      const b = new PixelBuffer(32, 30);
+      b.rect(1, 2, 30, 26, P.wood2);
+      b.rect(3, 4, 26, 22, '#6b3f25');
+      for (const y of [14, 25]) b.rect(2, y, 28, 2, P.wood3);
+      const jar = (x: number, y: number, fill: string) => {
+        b.rect(x, y, 6, 8, '#cfe3ea');
+        b.rect(x + 1, y + 3, 4, 5, fill);
+        b.rect(x, y - 1, 6, 2, P.wood1);
+      };
+      jar(4, 6, '#d9a45a');
+      jar(12, 6, '#c8643a');
+      jar(20, 6, '#e8dcc0');
+      jar(8, 17, '#d9a45a');
+      jar(17, 17, '#c8643a');
+      return b.outline();
+    }
+    case 'bench': {
+      // workbench with a hand mill, a jar and a notebook
+      const b = new PixelBuffer(32, 24);
+      b.rect(1, 8, 30, 5, P.wood3);
+      b.hline(1, 30, 8, '#d99a62');
+      b.rect(2, 13, 3, 10, P.wood2);
+      b.rect(27, 13, 3, 10, P.wood2);
+      b.rect(3, 18, 26, 2, P.wood1);
+      b.rect(4, 2, 6, 6, P.metal); // hand mill
+      b.rect(5, 0, 4, 2, P.metalLight);
+      b.hline(10, 13, 3, P.metalLight);
+      b.rect(15, 3, 5, 5, '#cfe3ea'); // jar
+      b.rect(22, 5, 7, 3, P.paper); // notebook
+      b.hline(23, 27, 6, P.ink);
+      return b.outline();
+    }
+    case 'decorshelf': {
+      const b = new PixelBuffer(32, 30);
+      b.rect(1, 2, 30, 26, P.wood1);
+      b.rect(3, 4, 26, 22, '#8a5a36');
+      for (const y of [14, 25]) b.rect(2, y, 28, 2, P.wood3);
+      b.rect(6, 8, 6, 6, '#56a347'); // little plant
+      b.rect(7, 12, 4, 2, '#c0674a');
+      b.rect(16, 7, 8, 7, P.paper); // price tags
+      b.hline(17, 22, 9, P.ink);
+      b.hline(17, 20, 11, P.ink);
+      b.ellipse(9, 18, 6, 6, P.flowerYellow); // a seed coin
+      b.set(12, 21, P.wood2);
+      return b.outline();
+    }
+    case 'rack': {
+      // drying rack with sweet potato slices
+      const b = new PixelBuffer(18, 28);
+      b.vline(2, 2, 27, P.wood2);
+      b.vline(15, 2, 27, P.wood2);
+      for (const y of [6, 13, 20]) {
+        b.hline(2, 15, y, P.wood3);
+        for (let x = 4; x < 14; x += 3) b.rect(x, y - 2, 2, 2, '#e08a4a');
+      }
+      return b.outline();
+    }
+    case 'fern': {
+      const b = new PixelBuffer(18, 22);
+      b.rect(5, 14, 8, 7, '#c0674a');
+      b.hline(4, 13, 14, '#a4553d');
+      for (const [x, y, w] of [[1, 6, 6], [11, 6, 6], [4, 2, 5], [9, 1, 5], [6, 8, 6]] as Array<[number, number, number]>)
+        b.ellipse(x, y, w, 7, P.leaf2);
+      b.set(8, 5, P.leaf3);
+      return b.outline();
+    }
+    case 'stool': {
+      const b = new PixelBuffer(16, 18);
+      b.ellipse(1, 2, 14, 6, '#4b7fcf');
+      b.hline(3, 12, 4, '#6f9be0');
+      b.vline(3, 7, 17, P.wood2);
+      b.vline(12, 7, 17, P.wood2);
+      b.hline(3, 12, 12, P.wood1);
+      return b.outline();
+    }
+    case 'poster': {
+      // a framed peanut-plant drawing
+      const b = new PixelBuffer(22, 26);
+      b.rect(0, 0, 22, 26, P.wood2);
+      b.rect(2, 2, 18, 22, P.paper);
+      b.vline(11, 6, 15, P.leaf1);
+      b.ellipse(6, 5, 6, 4, P.leaf2);
+      b.ellipse(11, 4, 6, 4, P.leaf2);
+      b.hline(4, 18, 15, '#a4815a');
+      b.rect(6, 17, 4, 3, '#d9a45a');
+      b.rect(13, 18, 4, 3, '#d9a45a');
+      b.hline(8, 14, 21, P.ink);
+      return b.outline();
+    }
+    case 'chime': {
+      const b = new PixelBuffer(16, 22);
+      b.hline(2, 13, 2, P.wood2);
+      b.vline(8, 0, 2, P.metal);
+      for (const [x, len] of [[3, 12], [6, 15], [9, 13], [12, 10]] as Array<[number, number]>) {
+        b.vline(x, 3, 3 + 2, P.metal);
+        b.vline(x, 5, 5 + len, P.metalLight);
+      }
+      b.rect(6, 19, 4, 2, P.flowerRed);
+      return b.outline();
+    }
+  }
+}
+
 /** Seedling that appears in the windowsill pot after the practice quest. */
 export function paintSprout(): PixelBuffer {
   const b = new PixelBuffer(12, 16);

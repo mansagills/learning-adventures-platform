@@ -1028,6 +1028,270 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'ea', speaker: 'mae', expression: 'smile', text: 'Peanuts, cowpeas, sweet potatoes... I will be busy if your plan catches on!', next: null },
     ]),
 
+    // ------------------------------------------------ Chapter 4: The Peanut Isn't Just a Peanut
+    convo('carver_ch4_opening', 'Carver: A job for an inventor', [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'The farmers who took turns planting are growing lots of peanuts, sweet potatoes and cowpeas now. That is good for the soil. But a crop only helps a family if they can use it or sell it.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'So here is a job for an inventor: find a useful new purpose for one of these crops.',
+        choices: [
+          { text: 'Did you invent peanut butter?', next: 'o3a' },
+          { text: 'What kind of purpose?', next: 'o3b' },
+        ],
+      },
+      {
+        id: 'o3a',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Ha! People ask me that a lot. No, I did not. People made peanut pastes long before me. My work was looking for many different uses, so farmers had more reasons to grow these crops.',
+        next: 'o4',
+      },
+      {
+        id: 'o3b',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Something people really need. That is the secret: an invention starts with a need, not with a gadget.',
+        next: 'o4',
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch4' }],
+        text: 'Miss Lottie, the cook, has a need from the community kitchen. Mr. Brooks, the craftsperson, has materials and a few workshop rules.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Try at least two ideas in his workshop, pay attention to what the tests show, and improve one. Then bring me your best invention and tell me why it fits.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch4_waiting', 'Carver: How is the invention going?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge4}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: "What if my idea doesn't work?", next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Then you have learned something! A test that fails tells you what to change. That is how every invention gets better.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch4_closing', 'Carver: Your invention', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'Let me see what you made: {protoName}.', next: 'c2' },
+      { id: 'c2', speaker: 'carver', expression: 'thinking', text: '{revisionText}', next: 'c3' },
+      { id: 'c3', speaker: 'carver', expression: 'proud', text: '{trialText}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'invent',
+        text: 'Tell me: why does your final design fit the kitchen\'s need?',
+        options: [
+          {
+            id: 'first',
+            text: 'It was my very first idea.',
+            correct: false,
+            misconception: 'first-idea-best',
+            feedback: 'First ideas are a starting place. What did your tests show about this one?',
+          },
+          {
+            id: 'fits',
+            text: "It keeps a week without a fridge, it's filling, it's easy enough, and it's safe to share.",
+            correct: true,
+            feedback: 'Yes. You checked it against every part of the need, with evidence from your tests.',
+          },
+          {
+            id: 'steps',
+            text: 'It used the most steps, so it must be the best.',
+            correct: false,
+            misconception: 'more-steps-better',
+            feedback: 'More steps meant more work for the volunteers. Simple can be better. What did the need card ask for?',
+          },
+        ],
+        hints: [
+          'Here is a clue: look at the need card again. What four things did Miss Lottie ask for?',
+          'She asked for a snack that keeps, fills kids up, is easy enough, and is safe. Which answer names those?',
+          'Worked example: a design fits when it passes every part of the need. So "It keeps a week without a fridge, it\'s filling, it\'s easy enough, and it\'s safe to share" is the answer.',
+        ],
+        next: 'c4',
+      },
+      {
+        id: 'c4',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'That is how inventors think: the need first, then test, then improve.',
+        textIfRetried: 'You thought again and found it. The need first, then test, then improve: that is how inventors think.',
+        next: 'c5',
+      },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'I spent many hours in my laboratory looking for new uses for crops. Would you like to see a memory?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'c6', effects: [{ type: 'showMemory', memoryId: 'peanut_lab' }] },
+          { text: 'Maybe later.', next: 'c6' },
+        ],
+      },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'invention_card', from: 'carver' }],
+        text: 'This is for you: an Invention Sketch Card. Sketch an invention from things you can find at home, and test it with a grown-up.',
+        next: 'c7',
+      },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'curious',
+        effects: [{ type: 'completeChapter', chapterId: 'ch4' }],
+        text: 'Next time, we take science out to the farms. Two neighbors need help, and they need answers they can really use.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch4_after', 'Carver: Inventions people use', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Miss Lottie says the kids love your {protoName}. Your sketch card is in your bag.',
+        choices: [
+          { text: 'Can I see the laboratory memory?', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'peanut_lab' }] },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'A good invention is one somebody can actually use.', next: null },
+    ]),
+
+    convo('lottie_ch4_give', 'Miss Lottie: The kitchen\'s need', [
+      {
+        id: 'l1',
+        speaker: 'lottie',
+        expression: 'smile',
+        text: "Hello there! I'm Lottie Greene. I cook for the after-school kitchen. Carver says you're an inventor now?",
+        next: 'l2',
+      },
+      {
+        id: 'l2',
+        speaker: 'lottie',
+        expression: 'thinking',
+        text: 'Here is my problem. Some kids go home hungry, and I need a snack I can send home in their backpacks.',
+        choices: [
+          { text: 'Why not use the fridge?', next: 'l3a' },
+          { text: 'What do the kids like?', next: 'l3b' },
+        ],
+      },
+      {
+        id: 'l3a',
+        speaker: 'lottie',
+        expression: 'neutral',
+        text: "My fridge is tiny, and backpacks don't have fridges! The snack has to keep at least a week on a shelf.",
+        next: 'l4',
+      },
+      {
+        id: 'l3b',
+        speaker: 'lottie',
+        expression: 'smile',
+        text: 'Crunchy things, and anything a little sweet. And it has to fill them up until dinner.',
+        next: 'l4',
+      },
+      {
+        id: 'l4',
+        speaker: 'lottie',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'need_card', from: 'lottie' },
+          { type: 'completeStep', chapterId: 'ch4', stepId: 'get_need' },
+        ],
+        text: 'I wrote it all on this card. Please read the last line: two of our kids are allergic to peanuts.',
+        next: 'l5',
+      },
+      {
+        id: 'l5',
+        speaker: 'lottie',
+        expression: 'neutral',
+        text: 'So if you use peanuts, the snack needs a clear label, so those two know to pick something else.',
+        next: null,
+      },
+    ]),
+    convo('lottie_ch4_after', 'Miss Lottie: Taste test', [
+      { id: 'la', speaker: 'lottie', expression: 'smile', text: "I can't wait to taste-test whatever you make!", next: null },
+    ]),
+    convo('lottie_ambient', 'Miss Lottie: Cornbread', [
+      { id: 'lb', speaker: 'lottie', expression: 'smile', text: "Something always smells good at my kitchen. Today it's cornbread!", next: null },
+    ]),
+
+    convo('wendell_ch4_give', 'Mr. Brooks: The workshop', [
+      { id: 'b1', speaker: 'wendell', expression: 'neutral', text: 'Afternoon. Wendell Brooks. Carver told me you need a workshop.', next: 'b2' },
+      {
+        id: 'b2',
+        speaker: 'wendell',
+        expression: 'smile',
+        text: 'You can use mine. There is a hand mill for grinding, a drying rack, and an oven for roasting.',
+        choices: [
+          { text: 'Can I fry things?', next: 'b3a' },
+          { text: 'Are there any rules?', next: 'b3b' },
+        ],
+      },
+      {
+        id: 'b3a',
+        speaker: 'wendell',
+        expression: 'thinking',
+        text: "No frying, I'm afraid. Hot oil is too dangerous for young inventors and busy volunteers. Roasting and drying are safer.",
+        next: 'b4',
+      },
+      {
+        id: 'b3b',
+        speaker: 'wendell',
+        expression: 'thinking',
+        text: 'Three rules. No frying: hot oil is too dangerous. No electricity in the kitchen. And keep it to a few steps: the volunteers have about an hour a week.',
+        next: 'b4',
+      },
+      {
+        id: 'b4',
+        speaker: 'wendell',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'materials_kit', from: 'wendell' },
+          { type: 'completeStep', chapterId: 'ch4', stepId: 'get_kit' },
+        ],
+        text: 'Here is the materials kit: jars with lids, paper bags, a bowl, and allergy labels. The workshop door is open.',
+        next: 'b5',
+      },
+      { id: 'b5', speaker: 'wendell', expression: 'curious', text: 'Test every idea. My best inventions all started as my worst ones.', next: null },
+    ]),
+    convo('wendell_ch4_after', 'Mr. Brooks: Test twice', [
+      { id: 'ba', speaker: 'wendell', expression: 'smile', text: "Measure twice, test twice! That's my rule.", next: null },
+    ]),
+    convo('wendell_ambient', 'Mr. Brooks: Fixing things', [
+      { id: 'bb', speaker: 'wendell', expression: 'smile', text: 'I fix chairs, build shelves and mend fences. Everything can be improved.', next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {
@@ -1092,7 +1356,7 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
 export const PLACE_LINES: Record<string, string> = {
   school_door: 'The schoolhouse is closed for now. It opens in Chapter 2.',
   farm_door: 'The farm gate is latched. Mr. Hill opens the fields for lessons in Chapter 3.',
-  workshop_door: 'The workshop is locked. The craftsperson will open it in Chapter 4.',
+  workshop_door: 'The workshop is locked. Mr. Brooks opens it for lessons in Chapter 4.',
   greenhouse_door: "Carver's greenhouse is full of seedlings and jars. He'll invite you in for later experiments.",
   shop_door: 'The Seed & Mail smells like paper and fresh soil. Mae is working at the stall out front.',
   shelf: 'An empty shelf. Things you earn on your adventures will go here.',

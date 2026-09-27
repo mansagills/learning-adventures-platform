@@ -24,6 +24,7 @@ npm run e2e -- http://localhost:4173/   # Phase 0 browser check-in (Playwright)
 node scripts/e2e-phase1.mjs http://localhost:4173/   # Phase 1 check-in (Chapter 1)
 node scripts/e2e-phase2.mjs http://localhost:4173/   # Phase 2 check-in (Chapter 2)
 node scripts/e2e-phase3.mjs http://localhost:4173/   # Phase 3 check-in (Chapter 3)
+node scripts/e2e-phase4.mjs http://localhost:4173/   # Phase 4 check-in (Chapter 4)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -49,6 +50,9 @@ Phase 8.
 | Mute | M | Toolbar | Toolbar |
 | Settings | Esc | Toolbar | Toolbar |
 
+**Rewards.** XP shows progress. Seeds (earned from quests) only buy cosmetic
+decorations for the workshop; they never buy answers or lessons.
+
 ## How it is built
 
 ```
@@ -61,6 +65,7 @@ src/
   chapters/ch1/           Chapter 1's code: garden spots, close-up inspection, card game (lazy-loaded)
   chapters/ch2/           Chapter 2's code: schoolhouse displays, journey timeline, barrier/support (lazy-loaded)
   chapters/ch3/           Chapter 3's code: soil close-ups, the soil model, the rotation planner (lazy-loaded)
+  chapters/ch4/           Chapter 4's code: crop tests, invention rules, workbench, decorations shop (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -140,12 +145,24 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 0 | Playable foundation | Approved ✅ |
 | 1 | A Seed Is Planted / Curiosity Collector | Approved ✅ |
 | 2 | Science Against the Odds / Choose the Path | Approved ✅ |
-| 3 | The Soil Speaks / Virtual Soil Lab | Built, waiting for approval |
-| 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Not started |
+| 3 | The Soil Speaks / Virtual Soil Lab | Approved ✅ |
+| 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Built, waiting for approval |
 | 5 | Science for the People / Farm Helper | Not started |
 | 6 | A Scientist's Method / Design Your Own Experiment | Not started |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 4)
+
+- The invention rules are simple kitchen science (wet spoils, dry keeps,
+  beans need cooking). They are not a full food-safety guide; real cooking
+  needs a grown-up.
+- If a test fails, the next test automatically counts as improving it (a
+  banner says so, and "Stop improving" starts a fresh idea). Some players
+  may not notice the banner at first.
+- Decorations appear only in the workshop for now (not in your cottage).
+- Printing the Invention Sketch Card works on the website; the Claude
+  artifact preview can't open the print dialog.
 
 ## Known issues (Phase 3)
 

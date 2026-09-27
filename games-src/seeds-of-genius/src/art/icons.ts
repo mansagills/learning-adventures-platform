@@ -87,6 +87,42 @@ const PAINTERS: Record<string, Painter> = {
     b.set(10, 9, P.soil1);
     b.set(12, 9, P.soil1);
   },
+  needcard: (b) => {
+    b.rect(1, 2, 14, 12, P.paper);
+    b.rect(1, 2, 14, 3, '#d95f5f');
+    b.hline(3, 12, 7, P.ink);
+    b.hline(3, 10, 9, P.ink);
+    b.hline(3, 11, 11, P.ink);
+    b.rect(11, 9, 3, 3, P.flowerYellow);
+  },
+  kit: (b) => {
+    b.rect(1, 5, 14, 9, '#5a7a4a');
+    b.rect(1, 5, 14, 2, '#46603a');
+    b.rect(6, 3, 4, 2, P.metal);
+    b.rect(3, 8, 3, 4, '#cfe3ea');
+    b.rect(7, 8, 3, 4, P.paper2);
+    b.rect(11, 8, 2, 4, P.paper);
+  },
+  peanut: (b) => {
+    b.ellipse(3, 2, 7, 6, '#d9a45a');
+    b.ellipse(6, 7, 7, 7, '#d9a45a');
+    b.set(5, 4, '#b8864a');
+    b.set(8, 9, '#b8864a');
+    b.set(9, 11, '#b8864a');
+  },
+  sweetpotato: (b) => {
+    b.ellipse(2, 5, 13, 7, '#c8643a');
+    b.set(4, 7, '#a44e2c');
+    b.set(9, 8, '#a44e2c');
+    b.rect(14, 7, 2, 2, P.leaf2);
+  },
+  cowpea: (b) => {
+    for (const [x, y] of [[2, 3], [8, 2], [5, 8], [10, 8]] as Array<[number, number]>) {
+      b.ellipse(x, y, 5, 4, '#efe6cf');
+      b.set(x + 2, y + 1, P.outline);
+      b.set(x + 1, y + 1, '#3a2a26');
+    }
+  },
   seed: (b) => {
     b.ellipse(4, 3, 8, 11, '#c98c4a');
     b.ellipse(5, 4, 4, 6, '#e0ad6a');

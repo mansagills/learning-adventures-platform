@@ -39,6 +39,8 @@ export interface SaveData {
   chapterData: Record<string, Record<string, unknown>>;
   /** Memories from Carver's life the player has seen. Added in version 2. */
   memories: string[];
+  /** Cosmetic decorations bought with Seeds (the workshop). Added in Phase 4; missing means none. */
+  cosmetics: string[];
 }
 
 export function freshSave(now = Date.now()): SaveData {
@@ -56,6 +58,7 @@ export function freshSave(now = Date.now()): SaveData {
     tips: [],
     chapterData: {},
     memories: [],
+    cosmetics: [],
   };
 }
 
@@ -151,7 +154,7 @@ export function sanitize(raw: Record<string, unknown>, now = Date.now()): SaveDa
     customized: raw.customized === true,
     appearance: cleanAppearance(raw.appearance),
     world: {
-      scene: oneOf(world.scene, ['hub', 'room', 'school', 'farm'] as const, 'hub'),
+      scene: oneOf(world.scene, ['hub', 'room', 'school', 'farm', 'workshop'] as const, 'hub'),
       x: num(world.x, base.world.x, 0, 60),
       y: num(world.y, base.world.y, 0, 60),
       facing: oneOf(world.facing, DIRS, 'down'),
@@ -177,6 +180,7 @@ export function sanitize(raw: Record<string, unknown>, now = Date.now()): SaveDa
     tips: strList(raw.tips, 100),
     chapterData: cleanChapterData(raw.chapterData),
     memories: strList(raw.memories, 50),
+    cosmetics: [...new Set(strList(raw.cosmetics, 50))],
   };
 }
 
