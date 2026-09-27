@@ -25,12 +25,14 @@ The site needs **no other environment variables**: no Supabase, database or secr
 
 Two projects are involved (see `docs/VERCEL_DEPLOY_FAILURE_NOTES.md`):
 
-| Project                             | Builds                | Status                                                                                    |
-| ----------------------------------- | --------------------- | ----------------------------------------------------------------------------------------- |
-| `learning-adventures-platform`      | repo root             | Owns `learningadventures.org`, but every deploy fails with "Resource provisioning failed" |
-| `learning-adventures-platform-2mxb` | `demo/la-campus-demo` | Deploys fine; serves the current public demo link                                         |
+| Project                             | Builds                | Status                                                                               |
+| ----------------------------------- | --------------------- | ------------------------------------------------------------------------------------ |
+| `learning-adventures-platform`      | repo root             | Owns `learningadventures.org`; deploys again since 2026-09-26 (see the Vercel notes) |
+| `learning-adventures-platform-2mxb` | `demo/la-campus-demo` | Deploys fine; serves the current public demo link                                    |
 
-**Option A (preferred, once the failing project is fixed):**
+**Option A (use this; the project is fixed as of 2026-09-26):**
+
+- Before merging: remove the Supabase integration from this project (Settings → Integrations) so a paused Supabase project can't block deploys again.
 
 1. In `learning-adventures-platform`, confirm Root Directory is the repo root and Framework is Next.js.
 2. Remove the Supabase/database/secret env vars from the Production and Preview environments, or

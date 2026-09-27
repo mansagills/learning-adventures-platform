@@ -6,10 +6,10 @@
 
 **Active Development Plan**: docs/V1_WEBSITE_REBUILD_PLAN.md (v1 public site: games by subject, interactive ebooks, Learning Adventures World demo)
 **Last Completed**: v1 Phase 6 - Polish, docs, cutover prep ✅ (all v1 build phases done)
-**Next Phase**: Go-live (user steps in docs/V1_GO_LIVE_CHECKLIST.md), then investigate the Vercel deploy failure on its own branch
+**Next Phase**: UX changes on PR #198, then merge to go live (Option A in docs/V1_GO_LIVE_CHECKLIST.md)
 **Current Focus**: Public site that runs with no backend; accounts are hidden behind `siteConfig.features.accounts`
 **Earlier plan**: COMPREHENSIVE_PLATFORM_PLAN.md (account-based platform, paused for v1)
-**Known issue**: the `learning-adventures-platform` Vercel project fails every deploy ("Resource provisioning failed"); see docs/VERCEL_DEPLOY_FAILURE_NOTES.md. Not caused by code changes; investigate after v1.
+**Vercel**: the `learning-adventures-platform` project deploys again (fixed 2026-09-26: paused Supabase integration + stale `pnpm-lock.yaml`; see docs/VERCEL_DEPLOY_FAILURE_NOTES.md). Use **npm** only (no pnpm/yarn lockfiles), and keep the Supabase integration disconnected from this project while accounts are off.
 
 ### 🌐 v1 Public Site: How It's Organized
 
