@@ -1,0 +1,17 @@
+<!doctype html><html><body style="background:#f6ecd3;margin:0">
+<canvas id="c" width="1200" height="700" style="image-rendering:pixelated"></canvas>
+<script type="module">
+import { paintPortrait } from '../src/art/portraits.ts';
+import { paintProp, paintFacade } from '../src/art/props.ts';
+import { NPCS } from '../src/content/npcs.ts';
+import { HUB_BUILDINGS } from '../src/world/map.ts';
+const ctx = document.getElementById('c').getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const ex = ['neutral','smile','curious','proud','thinking'];
+NPCS.forEach((n,i)=> ex.forEach((e,j)=>{ const p = paintPortrait(n.look, e, {elder: n.id==='carver'||n.id==='odell'}); ctx.drawImage(p.toCanvas(), j*100, i*100, 96, 96);}));
+const kinds=[['tree',0],['tree',1],['tree',2],['pine',0],['bush',1],['lamp',0],['bench',0],['sign',0],['well',0],['stall',0],['mailbox',0],['fence',0],['fence',1],['crop',0],['crop',1],['crop',2],['crop',3],['scarecrow',0],['crate',0],['barrel',0],['reeds',0]];
+let x=520,y=0;
+kinds.forEach(([k,v])=>{const c=paintProp(k,v).toCanvas(); if(x+c.width*2>1200){x=520;y+=90;} ctx.drawImage(c,x,y,c.width*2,c.height*2); x+=c.width*2+6;});
+y=300;x=520;
+HUB_BUILDINGS.forEach(b=>{const f=paintFacade(b); ctx.drawImage(f.roof,x,y); ctx.drawImage(f.wall,x+4,y+f.roof.height); x+=f.roof.width+10; if(x>1050){x=520;y+=150;}});
+</script></body></html>
