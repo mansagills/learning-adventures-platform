@@ -736,6 +736,38 @@ export const art = {
     </>
   ),
 
+  /** Newsletter: an envelope with a star seal. */
+  envelope: (
+    <>
+      <Block
+        x={4}
+        y={11}
+        w={40}
+        h={27}
+        r={3}
+        fill={c.paper}
+        shade={c.paperShade}
+        shine={false}
+      />
+      <path
+        d="M5.5 36.5L19 24.5M42.5 36.5L29 24.5"
+        strokeWidth={2}
+        fill={none}
+      />
+      <path
+        d="M4.8 12.2L24 28.5L43.2 12.2Z"
+        fill={c.yellow}
+        strokeWidth={2.2}
+      />
+      <path d="M10 14.5H14" stroke={c.white} strokeWidth={2} fill={none} />
+      <polygon
+        points={star(24, 27.5, 6, 2.7)}
+        fill={c.pink}
+        strokeWidth={1.8}
+      />
+    </>
+  ),
+
   /** Energy / quick: a lightning bolt. */
   bolt: (
     <>

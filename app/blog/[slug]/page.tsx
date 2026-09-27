@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ContentPage from '@/components/ContentPage';
 import PostBody from '@/components/blog/PostBody';
+import NewsletterCta from '@/components/newsletter/NewsletterCta';
 import { formatPostDate, getPost, publishedPosts } from '@/lib/content/blog';
 import { getPostBody } from '@/lib/blogPostBody';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
@@ -50,6 +51,8 @@ export default function PostPage({ params }: PostPageProps) {
       }
     >
       <PostBody markdown={getPostBody(post.slug)} />
+
+      <NewsletterCta className="!mt-12" />
 
       <aside
         aria-labelledby="keep-exploring"

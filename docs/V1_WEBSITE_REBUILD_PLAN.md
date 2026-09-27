@@ -437,13 +437,13 @@ Why not Supabase right now:
 
 Each phase ends with a check-in; the owner approves before the next starts. One branch and one PR (to `main`) unless the owner prefers a PR per phase.
 
-| Phase | What                                                         | Needs from the owner                               | Status                                      |
-| ----- | ------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------- |
-| 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | In progress: Kit chosen, account setup next |
-| 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | COMPLETED ✅                                |
-| 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | Planned                                     |
-| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned                                     |
-| 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned                                     |
+| Phase | What                                                         | Needs from the owner                               | Status                                                 |
+| ----- | ------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------ |
+| 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | In progress: Kit chosen; team deciding the email setup |
+| 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | COMPLETED ✅                                           |
+| 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | COMPLETED ✅ (copy review pending)                     |
+| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned                                                |
+| 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned                                                |
 
 **Owner decisions (2026-09-27):** use **Kit** for the newsletter, and **publish** the welcome post now (it can be rewritten any time).
 
@@ -456,6 +456,22 @@ Each phase ends with a check-in; the owner approves before the next starts. One 
 - "Blog" is in the header (desktop and phone menu), the footer's About column and the sitemap.
 - Guards: the lint icon rule and the emoji check now cover `components/blog` and `app/blog`. New content tests check that post slugs are unique and URL-safe, every post has its Markdown file, dates are real, icons exist, and the Markdown has no emoji.
 - Checked in the production build with no env vars: `/blog`, the welcome post, and a 404 for an unknown slug, at 1280px and 390px. No sideways scroll and no console errors.
+
+**Phase 2 notes (COMPLETED ✅, 2026-09-27):**
+
+- The owner is deciding the email setup with their team; Kit stays the plan. Phase 2 was built so it's safe to merge before then.
+- `/newsletter` (`app/newsletter/page.tsx`): hero, "What you'll get" (new games, book launches, learning ideas), "Our promises" (parents only and no child details, about one email a month, one-click unsubscribe, never sell your email) and the sign-up form. **The owner should confirm the promises and "about once a month" before sign-ups open.**
+- `lib/newsletter.ts` `getNewsletterStatus()` decides what the page shows (server-only):
+  - `live`: `NEWSLETTER_API_KEY` is set. The form posts to `/api/newsletter` (added in Phase 3).
+  - `preview`: no key, not the live site (laptop or Vercel preview). The form can be tried out and a yellow note says nothing is sent.
+  - `coming-soon`: no key, on the live site (`VERCEL_ENV=production`). The page says "Sign-ups open soon" and links to the blog.
+  - The page is `noindex` and left out of the sitemap until `live`.
+- `components/newsletter/NewsletterForm.tsx` (client): email, optional first name, required "I'm a parent or guardian, 18 or older" checkbox, and a hidden honeypot field (`website`) that bots fill in; those sign-ups see the thank-you message but are never sent. Clear error messages (`role="alert"`) and a "Check your inbox to confirm" message after signing up.
+- `components/newsletter/NewsletterCta.tsx`: a "Get updates for parents" box linking to `/newsletter`, at the end of every blog post. It renders nothing while the status is `coming-soon`. It is server-only; the footer runs in the browser, so the footer link waits for Phase 4.
+- New `envelope` sticker in the icon set (shown on `/dev/icons`).
+- Tests: `tests/newsletter/status.test.ts` covers the three statuses. The lint icon rule and the emoji check cover `components/newsletter` and `app/newsletter`.
+- Checked in production builds: preview mode (a bad email and a missing checkbox show errors; a good sign-up shows "Check your inbox" and makes no network request) and live-site mode (`VERCEL_ENV=production`: "Sign-ups open soon", no blog box, not in the sitemap). 1280px and 390px, no sideways scroll, no console errors.
+- Unchanged until Phase 3: the Privacy page (the form sends nothing yet) and the book pages' optional "Tell me when it's out" link.
 
 **How to add a blog post:** add an entry to `posts` in `lib/content/blog.ts`, write `content/blog/<slug>.md` (plain text; `##` for headings, `**bold**`, `- ` for bullet points, `[text](/games)` for links), then run `npm test`. Use `status: 'draft'` to keep it hidden until it's ready.
 

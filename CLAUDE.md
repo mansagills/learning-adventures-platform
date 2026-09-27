@@ -18,8 +18,8 @@
 - **Add or publish a book**: edit `lib/content/books.ts`. To publish, set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` (images in `public/books/<slug>/`). Visitor-facing text calls them "interactive ebooks" and never names the ebook platform.
 - **Add a blog post**: add an entry to `posts` in `lib/content/blog.ts` and write its text in `content/blog/<slug>.md` (Markdown). `status: 'draft'` keeps it off the site.
 - **Run `npm test` after content changes**: `tests/content/content.test.ts` checks files exist, slugs are unique and cross-links are valid.
-- **Routes**: `/`, `/games`, `/games/[gameId]`, `/subjects/[subject]`, `/books`, `/books/[slug]`, `/demo`, `/demo/play`, `/blog`, `/blog/[slug]`, `/about`, `/privacy`, `/terms`.
-- **Components**: `components/home/`, `components/play/`, `components/books/`, `components/blog/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
+- **Routes**: `/`, `/games`, `/games/[gameId]`, `/subjects/[subject]`, `/books`, `/books/[slug]`, `/demo`, `/demo/play`, `/blog`, `/blog/[slug]`, `/newsletter`, `/about`, `/privacy`, `/terms`.
+- **Components**: `components/home/`, `components/play/`, `components/books/`, `components/blog/`, `components/newsletter/`, `components/demo/` (`CampusDemoExperience` is the playable demo).
 - **Optional env vars** (all `NEXT_PUBLIC_`): `CONTACT_EMAIL` (defaults to info@learningadventures.org), `EBOOK_STORE_URL`, `NEWSLETTER_URL`, `DEMO_TRAILER_URL`, `ENABLE_ACCOUNTS` (`true` restores accounts/dashboards/admin; off in v1). The site builds and runs with none set.
 - **Keep it backend-free**: public pages must not need Supabase, Prisma or secrets. Check with `npm run build` and no env vars.
 - **Icons**: use `SiteIcon` (sticker icons: subjects, sections, big buttons, logo) or `UiIcon` (small controls: arrows, close, search) from `components/icons/`; preview them all at `/dev/icons`. No emoji, Lucide or `components/Icon` on public pages: lint and `npm test` fail if they come back. The icon guide is in `docs/V1_WEBSITE_REBUILD_PLAN.md` (UX-1).
@@ -29,7 +29,7 @@
 ### 🧭 Handoff notes (read first)
 
 - **Where things stand**: the v1 site is live. Production = Vercel project `learning-adventures-platform`, which deploys `main` automatically. Every PR gets a Vercel preview (behind Vercel login).
-- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is in progress**: a newsletter sign-up page for parents (stored in Kit, an email marketing service, not Supabase) and a blog. Phase 1 (the blog, with the first welcome post) is done; Phase 2 (the newsletter page) is next. The phases are in the UX-2 section of `docs/V1_WEBSITE_REBUILD_PLAN.md`; start at the first phase not marked done. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
+- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is in progress**: a newsletter sign-up page for parents (stored in Kit, an email marketing service, not Supabase) and a blog. Phase 1 (the blog, with the first welcome post) and Phase 2 (the `/newsletter` page, a preview until Kit is connected) are done. Phase 3 (connect Kit via `NEWSLETTER_API_KEY` and update the Privacy page) waits on the owner's team setting up the email account. The phases are in the UX-2 section of `docs/V1_WEBSITE_REBUILD_PLAN.md`; start at the first phase not marked done. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
 - **Owner decisions that still hold**:
   - accounts stay off until paid features exist (it's a kids' site)
   - books are placeholders until real ones exist
