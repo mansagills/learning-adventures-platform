@@ -174,6 +174,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openRotationCard(ctx),
 };
 
 export default runtime;

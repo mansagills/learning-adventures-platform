@@ -203,6 +203,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openExperimentCard(ctx),
 };
 
 export default runtime;

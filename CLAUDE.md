@@ -39,7 +39,7 @@
   - the contact email is info@learningadventures.org (pending team confirmation)
 - **Run it locally**: `npm install && npm run dev` (http://localhost:3000). For real speed, use `npm run build && npm start`; dev mode compiles each page on first visit.
 - **Before pushing**: `npx tsc --noEmit`, `npm run lint` (0 errors; 6 known warnings), `npm test`, `npm run build`.
-- **Seeds of Genius (Carver game)**: a separate project in `games-src/seeds-of-genius/` (Vite + Three.js; its README explains how it's built). It is built into `public/games/seeds-of-genius/` and is not listed on the site yet. It is built one phase at a time: see `docs/SEEDS_OF_GENIUS_PLAN.md`, and never start the next phase without the owner's explicit approval. After changing the game, run `npm run game:carver:build` and commit the build.
+- **Seeds of Genius (Carver game)**: a separate project in `games-src/seeds-of-genius/` (Vite + Three.js; its README explains how it's built). It is built into `public/games/seeds-of-genius/` and is not listed on the site yet (listing it is the owner's call). All seven chapters and the Phase 8 release polish are built; Phase 8 awaits the owner's final playtest and approval (see `docs/SEEDS_OF_GENIUS_PLAN.md`; player guide: `docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md`). After changing the game, run `npm run game:carver:build` and commit the build; `node scripts/e2e-phase8.mjs` (in the game folder, with `npx vite preview --port 4173` running) plays the whole game from a new save.
 - **Open follow-ups** (not UX; do only when asked):
   - retire `demo/la-campus-demo` and its Vercel project `learning-adventures-platform-2mxb` in a separate PR
   - the owner will rotate the flagged `GEMINI_API_KEY` in Vercel

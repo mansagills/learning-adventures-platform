@@ -3,7 +3,7 @@ import type { ChapterRuntime, RuntimeContext, RuntimePlace } from '../../quests/
 import { h } from '../../ui/dom';
 import { COMPARES, MEASURES, REPEATS, TRYOUT, upgradeFor } from './data';
 import { ch7State, need, step } from './state';
-import { openJourney, openProjectCard, openProjectTable, projectCard } from './ui';
+import { openBlankProjectCard, openJourney, openProjectCard, openProjectTable, projectCard } from './ui';
 
 /**
  * Chapter 7: Your Turn to Plant the Seeds / My Carver Project.
@@ -140,6 +140,8 @@ const runtime: ChapterRuntime = {
       wrap.append(h('button', { class: 'btn small', type: 'button', 'data-journey': true, text: 'Look back at your journey', onclick: () => void openJourney(ctx) }));
     return wrap;
   },
+
+  printable: (ctx) => openBlankProjectCard(ctx),
 };
 
 export default runtime;

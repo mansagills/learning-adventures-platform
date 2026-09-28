@@ -9,7 +9,7 @@ import { settings } from './settings';
  * sound: every sound has a visible counterpart.
  */
 
-type Mood = 'day' | 'night' | 'title';
+export type Mood = 'day' | 'night' | 'title' | 'indoor' | 'memory';
 
 const NOTE = (n: number) => 440 * Math.pow(2, (n - 69) / 12); // MIDI → Hz
 
@@ -73,6 +73,42 @@ const SONGS: Record<Mood, Song> = {
     ],
     lead: 'sine',
   },
+  // Cozy and a little bouncy: workshop, school, greenhouse and cottage.
+  indoor: {
+    bpm: 100,
+    chords: [
+      [60, 64, 67],
+      [57, 60, 64],
+      [53, 57, 60],
+      [55, 59, 62],
+    ],
+    bass: [36, 33, 29, 31],
+    melody: [
+      72, null, 74, null, 76, null, 79, null,
+      76, null, 72, null, 69, null, null, null,
+      72, null, 69, null, 65, 67, 69, null,
+      71, null, 74, null, 67, null, null, null,
+    ],
+    lead: 'triangle',
+  },
+  // Slow and warm: memories from Carver's life, and the journey at the end.
+  memory: {
+    bpm: 58,
+    chords: [
+      [50, 53, 57],
+      [46, 50, 53],
+      [53, 57, 60],
+      [48, 52, 55],
+    ],
+    bass: [38, 34, 41, 36],
+    melody: [
+      69, null, null, null, 65, null, null, null,
+      70, null, null, 69, 65, null, null, null,
+      72, null, null, null, 69, null, 67, null,
+      64, null, null, null, 65, null, null, null,
+    ],
+    lead: 'sine',
+  },
 };
 
 export class AudioEngine {
@@ -131,7 +167,24 @@ export class AudioEngine {
     this.ambGain.gain.setTargetAtTime(0.5, t, 0.1);
   }
 
+  /** The mood the current place asks for (day, night, indoor or title). */
+  private baseMood: Mood = 'title';
+  /** A mood laid over it for a while (a memory from Carver's life). */
+  private overlay: Mood | null = null;
+
   setMood(mood: Mood): void {
+    this.baseMood = mood;
+    this.applyMood();
+  }
+
+  /** Play the memory tune while a memory or the journey is open; null goes back. */
+  setOverlay(mood: Mood | null): void {
+    this.overlay = mood;
+    this.applyMood();
+  }
+
+  private applyMood(): void {
+    const mood = this.overlay ?? this.baseMood;
     if (mood === this.mood) return;
     this.mood = mood;
     this.stepIndex = 0;
@@ -204,7 +257,7 @@ export class AudioEngine {
         const f = 4200 + Math.random() * 500;
         for (let i = 0; i < 3; i++) this.tone(f, t + i * 0.07, 0.03, 'sine', 0.012, this.ambGain, 0.005, 0.02);
       }
-    } else if (this.mood !== 'title' && Math.random() < 0.3) {
+    } else if ((this.mood === 'day' || this.mood === 'night') && Math.random() < 0.3) {
       // a bird: two quick upward whistles
       const base = 2200 + Math.random() * 900;
       [0, 0.14].forEach((d, i) => {

@@ -7,6 +7,7 @@ townspeople, uses them, and returns to him to talk it through.
 
 - **Spec (source of truth):** [`docs/sorceress-prompts/carver-game/Carver_Adventure_Technical_Spec.md`](../../docs/sorceress-prompts/carver-game/Carver_Adventure_Technical_Spec.md)
 - **Plan and phase status:** [`docs/SEEDS_OF_GENIUS_PLAN.md`](../../docs/SEEDS_OF_GENIUS_PLAN.md)
+- **Player guide (for players, parents and teachers):** [`docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md`](../../docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md)
 - **Where it is served:** the build is copied to `public/games/seeds-of-genius/`,
   so it opens at `/games/seeds-of-genius/index.html` on the site and every Vercel
   preview. It is **not listed** in `lib/content/games.ts` yet.
@@ -28,19 +29,32 @@ node scripts/e2e-phase4.mjs http://localhost:4173/   # Phase 4 check-in (Chapter
 node scripts/e2e-phase5.mjs http://localhost:4173/   # Phase 5 check-in (Chapter 5)
 node scripts/e2e-phase6.mjs http://localhost:4173/   # Phase 6 check-in (Chapter 6)
 node scripts/e2e-phase7.mjs http://localhost:4173/   # Phase 7 check-in (Chapter 7 and the ending)
+node scripts/e2e-phase8.mjs http://localhost:4173/   # Release check: new game to the ending, resume, settings, offline
 ```
 
 From the repo root, the same things are `npm run game:carver`,
 `npm run game:carver:build` and `npm run game:carver:test`.
 
+### Making a release build
+
+1. `npm run game:carver:test` (unit tests) and, with `npx vite preview --port 4173`
+   running in `games-src/seeds-of-genius`, `node scripts/e2e-phase8.mjs`
+   (the whole game from a new save, about 10 minutes).
+2. `npm run game:carver:build` from the repo root. This type-checks and writes
+   the release build to `public/games/seeds-of-genius/` (no debug menu).
+3. Commit `public/games/seeds-of-genius/` together with the source change.
+   Vercel serves the committed files as they are.
+4. To list the game on the site, add an entry to `lib/content/games.ts` with
+   `htmlPath: '/games/seeds-of-genius/index.html'` and make its card picture
+   with `npm run thumbnails -- --only <slug>` (the site owner decides when).
+
 **Always run `npm run build` and commit `public/games/seeds-of-genius/` after
 changing the game.** Vercel only builds the Next.js site; it serves the
 committed game build as static files.
 
-Add `?debug` to the URL to show the debug menu (jump to Carver/Mae/room,
-change the time, finish the practice quest, reset the test save). It is
-always on in `npm run dev`, and will be removed from the release build in
-Phase 8.
+The debug menu (jump to places or chapters, change the time, reset the test
+save) appears only in `npm run dev`. Release builds (`npm run build`) do not
+include it at all.
 
 ## Controls
 
@@ -131,6 +145,7 @@ Historical copy is checked against these; the game does not quote them.
 - National Park Service, [George Washington Carver](https://www.nps.gov/people/george-washington-carver.htm)
 - National Park Service, [Carver at Tuskegee Institute](https://www.nps.gov/tuin/learn/historyculture/george-washington-carver.htm)
 - USDA National Agricultural Library, [Carver and soil productivity](https://www.nal.usda.gov/exhibits/ipd/carver/exhibits/show/soil/soil-productivity)
+- National Park Service, [George Washington Carver National Monument](https://www.nps.gov/gwca/index.htm)
 
 Carver's lines are written for the game (the dialogue box labels him "Real
 scientist · words written for this story"). Sweetgum Hollow and its people
@@ -155,8 +170,8 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Approved ✅ |
 | 5 | Science for the People / Farm Helper | Approved ✅ |
 | 6 | A Scientist's Method / Design Your Own Experiment | Approved ✅ |
-| 7 | Your Turn to Plant the Seeds / My Carver Project | Built, awaiting owner review |
-| 8 | Whole-game polish and release candidate | Not started |
+| 7 | Your Turn to Plant the Seeds / My Carver Project | Approved ✅ |
+| 8 | Whole-game polish and release candidate | Built, awaiting final playtest and approval |
 
 ## Known issues (Phase 7)
 
@@ -255,4 +270,4 @@ holds keys in the browser, and falls back to authored hints on any error.
   speakers during a conversation.
 - Chapters 1-7 show as "coming in a later update" on the journal map. The
   objective line says so after the practice quest.
-- The debug menu (`?debug`) is still available in this phase's build.
+- The debug menu (`?debug`) was still available in this phase's build (removed from release builds in Phase 8).

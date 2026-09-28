@@ -49,4 +49,6 @@ export interface ChapterRuntime {
   objective?(ctx: RuntimeContext): { text: string; x: number; y: number; scene?: SceneId; label?: string } | null;
   /** Extra journal content (e.g. the player's notebook). */
   journal?(ctx: RuntimeContext): HTMLElement | null;
+  /** The chapter's optional off-screen activity card, blank and ready to print (for grown-ups). */
+  printable?(ctx: RuntimeContext): Promise<void>;
 }

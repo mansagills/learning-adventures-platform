@@ -27,7 +27,6 @@ import { openJournal, type JournalTab } from './ui/journal';
 import { onSaveFileChosen, openSettings } from './ui/settingsPanel';
 import { showTitle } from './ui/title';
 import { TouchControls } from './ui/touch';
-import { mountDebug } from './ui/debug';
 import { openMemory } from './ui/memory';
 import { MEMORIES } from './content/memories';
 import type { ChapterRuntime, RuntimeContext, RuntimePlace } from './quests/runtime';
@@ -84,7 +83,6 @@ export class Game {
   private transitioning = false;
   private movedDistance = 0;
   private hubGroundCanvas: HTMLCanvasElement;
-  readonly debug: boolean;
 
   constructor(host: HTMLElement) {
     this.host = host;
@@ -101,7 +99,6 @@ export class Game {
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
     host.append(this.uiLayer);
-    this.debug = new URLSearchParams(location.search).has('debug') || import.meta.env.DEV;
 
     window.addEventListener('resize', () => this.renderer.resize());
     document.addEventListener('visibilitychange', () => {
@@ -208,7 +205,7 @@ export class Game {
       onLearningChanged: () => this.persist('quiet'),
     });
     this.touch ??= new TouchControls(this.uiLayer, this.input, () => this.interact());
-    if (this.debug) mountDebug(this.uiLayer, this);
+    if (import.meta.env.DEV) void import('./ui/debug').then((m) => m.mountDebug(this.uiLayer, this));
     this.hud.setVisible(true);
     this.ensureRuntimes();
     this.refreshHud();
@@ -398,7 +395,7 @@ export class Game {
 
   private updateMood(): void {
     const night = lightAt(this.save.time.minutes).night > 0.5;
-    audio.setMood(night ? 'night' : 'day');
+    audio.setMood(this.world.interior ? 'indoor' : night ? 'night' : 'day');
     audio.setNightAmbience(night && this.world === this.hub);
   }
 
@@ -635,6 +632,21 @@ export class Game {
     const tokens: Record<string, string> = {};
     for (const [chapterId, rt] of this.runtimes) Object.assign(tokens, rt.tokens(this.runtimeContext(chapterId)));
     return text.replace(/\{(\w+)\}/g, (m, k: string) => tokens[k] ?? m);
+  }
+
+  /** A chapter's blank activity card, loading that chapter's code first if needed. */
+  private async openPrintable(chapterId: string): Promise<void> {
+    let rt = this.runtimes.get(chapterId);
+    if (!rt) {
+      const c = this.engine.getChapter(chapterId);
+      try {
+        rt = c?.loadRuntime ? (await c.loadRuntime()).default : undefined;
+      } catch (err) {
+        console.error(`[game] could not load chapter ${chapterId}`, err);
+      }
+    }
+    if (rt?.printable) await rt.printable(this.runtimeContext(chapterId));
+    else bus.emit('toast', { text: 'That card did not load. Please try again.', kind: 'info' });
   }
 
   /** The end-of-story look back at every chapter (Chapter 7's runtime draws it). */
@@ -1069,6 +1081,7 @@ export class Game {
         },
         memories: this.save.memories.filter((id) => MEMORIES[id]).map((id) => ({ id, title: MEMORIES[id].title, setting: MEMORIES[id].setting })),
         openMemory: (id) => void this.showMemory(id),
+        openPrintable: (id) => void this.openPrintable(id),
         onInspect: (itemId) => {
           const e = this.engine.inventoryEntry(itemId);
           if (e && !e.inspected) {
@@ -1261,7 +1274,7 @@ export class Game {
         internal: { w: this.renderer.internalW, h: this.renderer.internalH, scale: this.renderer.scale },
       }),
       project: (x: number, y: number) => this.renderer.project(new THREE.Vector3(x, 0, y * K)),
-      ...(this.debug ? { teleport: (x: number, y: number, s?: SceneId) => this.teleport(x, y, s), setTime: (m: number) => this.setTime(m) } : {}),
+      ...(import.meta.env.DEV ? { teleport: (x: number, y: number, s?: SceneId) => this.teleport(x, y, s), setTime: (m: number) => this.setTime(m) } : {}),
     };
   }
 }

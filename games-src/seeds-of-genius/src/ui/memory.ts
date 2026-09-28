@@ -12,6 +12,7 @@ export function openMemory(host: HTMLElement, memoryId: string): Promise<void> {
   const mem = MEMORIES[memoryId];
   if (!mem) return Promise.resolve();
   audio.open();
+  audio.setOverlay('memory');
   return new Promise((resolve) => {
     let page = 0;
     const view = document.createElement('canvas');
@@ -69,6 +70,7 @@ export function openMemory(host: HTMLElement, memoryId: string): Promise<void> {
     );
     const modal = new Modal(host, root, () => {
       audio.close();
+      audio.setOverlay(null);
       resolve();
     });
     render();

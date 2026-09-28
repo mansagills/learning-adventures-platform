@@ -1,5 +1,6 @@
 import { iconImg } from '../../art/icons';
 import type { ChapterRuntime, RuntimeContext, RuntimePlace } from '../../quests/runtime';
+import { CH2_NOTE } from '../../content/grownups';
 import { h } from '../../ui/dom';
 import { BOARD, STAGES, stageById } from './data';
 import { ch2State } from './state';
@@ -155,12 +156,7 @@ const runtime: ChapterRuntime = {
         'details',
         { class: 'grownups' },
         h('summary', { text: 'For grown-ups: about this chapter' }),
-        h('p', {
-          text: 'This chapter follows George Washington Carver\'s education, from learning to read at home to teaching at Tuskegee Institute. It names racism plainly and at a child\'s level: a school that did not allow Black children, and a college that turned him away when they saw he was Black. The game always says these barriers were unjust and never his fault, and every display about racism can be skipped and read later.',
-        }),
-        h('p', {
-          text: 'Facts are checked against the National Park Service biography. The pictures and the town of Sweetgum Hollow are imagined; Ms. Nelson and Ada are fictional. Talking points: who helped Carver keep learning, and who has helped your child learn something hard?',
-        }),
+        ...CH2_NOTE.map((text) => h('p', { text })),
       ),
     );
     if (ctx.engine.hasItem('journey_card')) {
@@ -176,6 +172,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openJourneyCard(ctx),
 };
 
 export default runtime;

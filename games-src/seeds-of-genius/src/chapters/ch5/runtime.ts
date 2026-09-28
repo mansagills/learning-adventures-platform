@@ -170,6 +170,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openInterviewCard(ctx),
 };
 
 export default runtime;

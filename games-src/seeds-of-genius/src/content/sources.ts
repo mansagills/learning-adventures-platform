@@ -18,4 +18,9 @@ export const SOURCES = [
     publisher: 'USDA National Agricultural Library',
     url: 'https://www.nal.usda.gov/exhibits/ipd/carver/exhibits/show/soil/soil-productivity',
   },
+  {
+    title: 'George Washington Carver National Monument',
+    publisher: 'National Park Service',
+    url: 'https://www.nps.gov/gwca/index.htm',
+  },
 ];

@@ -25,8 +25,8 @@ explicit approval**. A passing self-score is not approval.
 | 4: The Peanut Isn't Just a Peanut / Inventor's Workshop | **COMPLETED ✅** (owner approved 2026-09-27) |
 | 5: Science for the People / Farm Helper | **COMPLETED ✅** (owner approved 2026-09-28) |
 | 6: A Scientist's Method / Design Your Own Experiment | **COMPLETED ✅** (owner approved 2026-09-28 after reviewing screenshots; full playtest planned at the end) |
-| 7: Your Turn to Plant the Seeds / My Carver Project | Built, awaiting owner review |
-| 8 | Not started |
+| 7: Your Turn to Plant the Seeds / My Carver Project | **COMPLETED ✅** (owner approved 2026-09-28) |
+| 8: Whole-game polish and release candidate | Built, awaiting final owner playtest and approval |
 
 ## Phase 0: playable foundation
 
@@ -187,3 +187,35 @@ explicit approval**. A passing self-score is not approval.
 **Facts used (NPS biography and monument pages):** in 1940 Carver gave his life savings to start a foundation at Tuskegee to support agricultural research; he died in January 1943, and that year Congress created the George Washington Carver National Monument near Diamond, Missouri, the first national monument honoring an African American. Theo, Miss Lottie, Mr. Brooks, the fair and the needs are fictional; the project parts and checks are a simple game model.
 
 **Tests:** 146 unit tests; `node scripts/e2e-phase7.mjs` (64 browser checks), plus the Phase 0–6 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase7/`.
+
+## Phase 8: Whole-game polish and release candidate
+
+**Deliverables (from the spec):**
+
+- [x] **All seven chapters link through Carver.** A new automated test starts a brand-new game and plays the practice quest and Chapters 1 to 7 to the ending in one session, using real input. It covers every Carver assignment and debrief, every supporting-NPC item handoff and every required item use. The end state: all 17 required items used, all 7 keepsakes plus the Golden Seed, all 6 memories seen, 1270 XP (every reward paid exactly once, plus the thank-yous for helping), and the HUD reads "You finished every chapter!"
+- [x] **Resume from each chapter:** the real save captured at the start of each chapter is loaded in a fresh browser; Carver offers that chapter, assigns it using the keyboard only, and the Next line points to the first helper (7 of 7)
+- [x] **Debug UI removed from release:** the developer menu is now loaded only in `npm run dev`; the release build does not contain it (checked in the built files). `?debug` no longer does anything for players
+- [x] **Credits and historical sources visible** in the journal's About tab (four sources, now including the George Washington Carver National Monument), plus the asset/license list in the README
+- [x] **Teacher/parent context:** a new **For grown-ups** journal tab, always available. It has what each chapter teaches, a talking point per chapter, the Chapter 2 note about how racism is handled (the same note shown in that chapter's journal section), where the game simplifies, helpful settings, and privacy
+- [x] **Analog packet links work:** every chapter's printable activity card opens from the For grown-ups tab at any time, even before the player reaches that chapter. Chapter 7 gets a blank project poster and test-log card
+- [x] **Settings persist:** sound, reduced motion and large text survive a reload and are applied (checked). They are stored apart from the save, so they survive "Start over"
+- [x] **Save:** versioned schema with migrations from earlier versions, automatic backups, export ("Download a save file" checked), import and a confirmed reset
+- [x] **Optional AI degrades gracefully:** the only AI hook (`src/learning/hints.ts`) is off unless a server endpoint is configured, and falls back to the written hints on any error (unit-tested). No AI is used in the release
+- [x] **Audio consistency:** two new music moods. A cozy **indoor** tune plays in the cottage, school, workshop and greenhouse. A slow **memory** tune plays during Carver's memories and the journey screen. Day, night and title tunes are unchanged
+- [x] **Polish found during the playthrough:** the journal map now moves overlapping name tags apart (Miss Clara was covering Carver and Mr. Hill)
+- [x] **Fact review:** every historical sentence (memories, the Chapter 2 displays, Carver's lines) was checked against the NPS biography, the NPS Tuskegee and monument pages, and the USDA page. No errors found. The peanut-butter and "one legume fixes the soil" myths are both addressed in the game. Every `{placeholder}` in the dialogue has a matching value
+- [x] **Performance:** the first load is about 206 KB of compressed script (three.js included); each chapter's code (20 to 31 KB) loads only when the player reaches it; the whole game is 1.2 MB. The test machine has no graphics card (software rendering) and still measured about 48 to 53 frames per second in town (slowest frames about 33 ms), so an ordinary laptop should reach the 60 fps target
+- [x] **Offline:** the game makes no network requests at all (checked during the full playthrough); fonts, art and music are all built in
+- [x] **Player guide** (`docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md`) and release build instructions (README, "Making a release build")
+
+**Remaining minor issues (none blocking):**
+
+| # | Issue | Severity | Owner |
+|---|---|---|---|
+| 1 | The "Save as a file" and Print buttons may be blocked inside the Claude artifact preview; both work on the website | Low | none (preview limitation) |
+| 2 | On phones, the Chapter 5 table and the Chapter 7 project screen are long scrolling lists | Low | Developer, if playtesting shows it matters |
+| 3 | The Chapter 7 typed-text check is a short word list plus rules; typed text never leaves the device | Low | Site owner to decide if a stricter list is wanted |
+| 4 | Frame rate was measured with software rendering on the test machine, not on a real laptop | Low | Site owner (quick check during the final playtest) |
+| 5 | The game is not yet listed on the site (`lib/content/games.ts`) | Decision | Site owner |
+
+**Tests:** 146 unit tests; `node scripts/e2e-phase8.mjs` (the whole game from a new save, resume from each chapter, settings, export, grown-ups page, offline and phone checks), plus all Phase 0 to 7 check-ins. Screenshots are in `games-src/seeds-of-genius/test-output/phase8/`.

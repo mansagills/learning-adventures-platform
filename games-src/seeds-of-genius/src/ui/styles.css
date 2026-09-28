@@ -2510,3 +2510,19 @@ mark.mark-guess {
     padding: 8px;
   }
 }
+
+/* ---------------------------------------------------------------- journal: for grown-ups */
+.grownup-list {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.grownup-list p {
+  margin: 4px 0 0;
+  line-height: 1.45;
+}
+.grownup-activity .btn {
+  margin-left: 4px;
+}

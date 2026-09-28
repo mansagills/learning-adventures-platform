@@ -3,6 +3,7 @@ import { CHAPTERS } from '../../content/chapters';
 import { ITEMS } from '../../content/items';
 import { npcById } from '../../content/npcs';
 import { escalateHint, recordAttempt } from '../../learning/learnerModel';
+import { audio } from '../../systems/audio';
 import type { RuntimeContext } from '../../quests/runtime';
 import { portraitURL } from '../../ui/dialogue';
 import { h, Modal } from '../../ui/dom';
@@ -583,10 +584,47 @@ export function openProjectCard(ctx: RuntimeContext): Promise<void> {
   });
 }
 
+/** A blank project poster and test log, for grown-ups to print any time. */
+export function openBlankProjectCard(ctx: RuntimeContext): Promise<void> {
+  return whenClosed((done) => {
+    const box = (label: string) => h('div', { class: 'pc-box' }, h('div', { class: 'pc-label', text: label }), h('div', { class: 'pc-lines short' }));
+    const card = h(
+      'div',
+      { class: 'print-card' },
+      h('h2', { text: 'My Carver Project: poster and test log' }),
+      h('p', { text: 'Pick a real need in your school or neighborhood. Plan a project that uses things people already have, and a fair way to test it.' }),
+      h('div', { class: 'pc-grid jc-pair' }, box('The need (who has the problem?)'), box('My idea (draw it)')),
+      h('div', { class: 'pc-grid jc-pair' }, box('Why I think it will work'), box('How I will test it (what I measure, how many times)')),
+      h('div', { class: 'pc-grid jc-pair' }, box('Test log: date and what I measured'), box('What I changed after someone tried it')),
+      h('p', { class: 'pc-tip', text: 'Ask a grown-up to help with tools, and ask permission before building anything in a shared space.' }),
+      h('p', { class: 'pc-foot', text: 'Seeds of Genius · Chapter 7: Your Turn to Plant the Seeds. Doing this card is optional.' }),
+    );
+    const root = h(
+      'div',
+      { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'bp-title', style: 'width:min(720px,100%)' },
+      h(
+        'header',
+        {},
+        h('h2', { id: 'bp-title', text: 'Off-screen activity' }),
+        h(
+          'div',
+          { style: 'display:flex;gap:8px' },
+          h('button', { class: 'btn small primary', type: 'button', text: 'Print', onclick: () => window.print() }),
+          h('button', { class: 'btn small', type: 'button', text: 'Close', onclick: () => modal.close() }),
+        ),
+      ),
+      h('div', { class: 'content' }, card),
+    );
+    const modal = new Modal(ctx.host, root, done);
+    return modal;
+  });
+}
+
 // ================================================================ the journey
 
 export function openJourney(ctx: RuntimeContext): Promise<void> {
   ctx.sound('open');
+  audio.setOverlay('memory');
   return whenClosed((done) => {
     const p = ctx.save.progress;
     const chapters = CHAPTERS.filter((c) => c.number >= 1);
@@ -635,6 +673,7 @@ export function openJourney(ctx: RuntimeContext): Promise<void> {
     );
     const modal = new Modal(ctx.host, root, () => {
       ctx.sound('close');
+      audio.setOverlay(null);
       done();
     });
     return modal;

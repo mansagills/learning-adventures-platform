@@ -145,6 +145,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openActivityCard(ctx),
 };
 
 export default runtime;

@@ -5,8 +5,7 @@ import { h } from './dom';
 
 /**
  * Developer menu: jump around, change time, jump to chapters, reset a test
- * save. Only mounted with ?debug in the URL (or in `npm run dev`); the
- * release build for players will drop it entirely in Phase 8.
+ * save. Only loaded in `npm run dev`; release builds do not include it.
  */
 export function mountDebug(host: HTMLElement, game: Game): void {
   if (host.querySelector('.debug')) return;

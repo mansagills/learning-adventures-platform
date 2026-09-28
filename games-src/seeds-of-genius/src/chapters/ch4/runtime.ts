@@ -175,6 +175,8 @@ const runtime: ChapterRuntime = {
     }
     return wrap;
   },
+
+  printable: (ctx) => openInventionCard(ctx),
 };
 
 export default runtime;

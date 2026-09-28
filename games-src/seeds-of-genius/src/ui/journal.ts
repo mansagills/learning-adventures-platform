@@ -1,12 +1,13 @@
 import { iconImg, iconURL } from '../art/icons';
 import { CONVERSATIONS } from '../content/conversations';
 import { npcById, NPCS, shortName } from '../content/npcs';
+import { CH2_NOTE, GROWNUP_CHAPTERS, HELPFUL_SETTINGS, PRIVACY_NOTE, SIMPLIFICATIONS } from '../content/grownups';
 import { SOURCES } from '../content/sources';
 import type { QuestEngine } from '../quests/engine';
 import type { SaveData } from '../systems/save';
 import { h, Modal } from './dom';
 
-export type JournalTab = 'quest' | 'bag' | 'map' | 'talks' | 'about';
+export type JournalTab = 'quest' | 'bag' | 'map' | 'talks' | 'about' | 'grownups';
 
 export interface JournalContext {
   engine: QuestEngine;
@@ -23,6 +24,8 @@ export interface JournalContext {
   /** Memories the player has seen, to view again. */
   memories: Array<{ id: string; title: string; setting: string }>;
   openMemory(id: string): void;
+  /** Open a chapter's blank off-screen activity card (for grown-ups). */
+  openPrintable(chapterId: string): void;
 }
 
 const TABS: Array<{ id: JournalTab; label: string; icon: string }> = [
@@ -31,6 +34,7 @@ const TABS: Array<{ id: JournalTab; label: string; icon: string }> = [
   { id: 'map', label: 'Map', icon: 'map' },
   { id: 'talks', label: 'Talks', icon: 'talk' },
   { id: 'about', label: 'About', icon: 'journal' },
+  { id: 'grownups', label: 'For grown-ups', icon: 'star' },
 ];
 
 /**
@@ -38,6 +42,25 @@ const TABS: Array<{ id: JournalTab; label: string; icon: string }> = [
  * checklist, the bag (inspect items), the town and chapter map,
  * replayable conversations and the source/credits page.
  */
+/** Move overlapping map name tags apart (Carver's first, then top to bottom). */
+function declutterPins(wrap: HTMLElement): void {
+  const pins = [...wrap.querySelectorAll<HTMLElement>('.map-pin')].sort(
+    (a, b) => Number(b.classList.contains('carver')) - Number(a.classList.contains('carver')) || a.offsetTop - b.offsetTop,
+  );
+  const placed: DOMRect[] = [];
+  const hits = (r: DOMRect) => placed.some((p) => r.left < p.right && r.right > p.left && r.top < p.bottom && r.bottom > p.top);
+  for (const el of pins) {
+    let shift = 0;
+    let r = el.getBoundingClientRect();
+    for (let i = 0; i < 6 && hits(r); i++) {
+      shift += r.height + 2;
+      el.style.marginTop = `${shift}px`;
+      r = el.getBoundingClientRect();
+    }
+    placed.push(r);
+  }
+}
+
 export function openJournal(host: HTMLElement, ctx: JournalContext, start: JournalTab = 'quest', onClose?: () => void): Modal {
   const tabButtons = new Map<JournalTab, HTMLButtonElement>();
   const content = h('div', { class: 'content', role: 'tabpanel', tabindex: '0' });
@@ -110,6 +133,8 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
         return talksTab();
       case 'about':
         return aboutTab();
+      case 'grownups':
+        return grownupsTab();
     }
   }
 
@@ -330,6 +355,8 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
     );
     const px = pos.scene === 'hub' ? pos : { x: 5.5, y: 17.5 };
     pin(px.x, px.y - 0.4, pos.scene === 'hub' ? 'You' : 'You (inside)', 'you');
+    // Once laid out, nudge any name tags that overlap so every name stays readable.
+    requestAnimationFrame(() => declutterPins(pinsWrap));
     const described = ctx.buildings.map((b) => b.label).join(', ');
     cv.setAttribute('aria-label', `Map of Sweetgum Hollow showing ${described}, where you are, and where Carver is.`);
     wrap.append(h('div', { class: 'section' }, h('h3', { text: 'Sweetgum Hollow' }), pinsWrap));
@@ -415,6 +442,56 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
     });
     wrap.append(list);
     return wrap;
+  }
+
+  function grownupsTab(): HTMLElement {
+    const chapter = (id: string) => ctx.engine.allChapters().find((c) => c.id === id)!;
+    return h(
+      'div',
+      { class: 'about grownups-tab' },
+      h('h3', { text: 'For parents and teachers' }),
+      h('p', {
+        text: 'Seeds of Genius is a story game for ages 8 to 13 about George Washington Carver and how scientists work. In each of seven chapters, Carver gives a quest, the player talks to townspeople to collect items, uses them in an activity, and explains what they found. Each chapter takes about 15 to 25 minutes, and progress saves by itself.',
+      }),
+      h('h3', { text: 'What each chapter teaches' }),
+      h(
+        'ol',
+        { class: 'grownup-list' },
+        ...GROWNUP_CHAPTERS.map((g) => {
+          const c = chapter(g.chapterId);
+          return h(
+            'li',
+            {},
+            h('strong', { text: `${c.title}` }),
+            h('span', { class: 'small', text: ` · ${c.subtitle}` }),
+            h('p', {}, h('strong', { text: 'Goal: ' }), g.goal),
+            h('p', {}, h('strong', { text: 'Talk about it: ' }), g.talk),
+            g.chapterId === 'ch2'
+              ? h('details', { class: 'grownups' }, h('summary', { text: 'About this chapter (racism, handled with care)' }), ...CH2_NOTE.map((text) => h('p', { text })))
+              : null,
+            h(
+              'p',
+              { class: 'grownup-activity' },
+              h('strong', { text: 'Off-screen activity: ' }),
+              c.analogActivity ? `${c.analogActivity.title}. ${c.analogActivity.description} ` : '',
+              h('button', {
+                class: 'btn small',
+                type: 'button',
+                'data-printable': g.chapterId,
+                text: 'Open the printable card',
+                onclick: () => ctx.openPrintable(g.chapterId),
+              }),
+            ),
+          );
+        }),
+      ),
+      h('h3', { text: 'Where the game simplifies' }),
+      h('ul', {}, ...SIMPLIFICATIONS.map((t) => h('li', { text: t }))),
+      h('h3', { text: 'Settings that can help' }),
+      h('p', { text: HELPFUL_SETTINGS }),
+      h('h3', { text: 'Privacy' }),
+      h('p', { text: PRIVACY_NOTE }),
+    );
   }
 
   function aboutTab(): HTMLElement {
