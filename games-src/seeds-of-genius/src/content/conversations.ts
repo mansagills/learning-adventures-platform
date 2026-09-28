@@ -1844,6 +1844,287 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'bc', speaker: 'hattie', expression: 'smile', text: "I can't wait to hear what the beans say! Tell me even if Mae turns out to be wrong.", next: null },
     ]),
 
+    // ------------------------------------------------ Chapter 7: Your Turn to Plant the Seeds
+    convo('carver_ch7_opening', 'Carver: Your turn', [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'proud',
+        text: 'Look at all you have done. You observed a garden, followed my path through school, cared for tired soil, invented, helped two farms, and ran a fair test.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Now it is your turn. Sweetgum Hollow is holding a Community Fair, and I would like you to bring a project of your own: science that helps your community.',
+        choices: [
+          { text: 'What should I make?', next: 'o3a' },
+          { text: "What if my idea isn't good enough?", next: 'o3b' },
+        ],
+      },
+      {
+        id: 'o3a',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'That is for you to decide! But start where every good invention starts: with a real need. Theo and Miss Lottie have been collecting need cards from the town.',
+        next: 'o4',
+      },
+      {
+        id: 'o3b',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Every idea starts rough. Mine did too. You build it, you let someone try it, and you make it better. Mr. Brooks has a rule about that.',
+        next: 'o4',
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch7' }],
+        text: 'Get the need cards from Theo and Miss Lottie, and a prototype kit from Mr. Brooks. Then work at the fair table in the square.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Choose a need, design your project, let a neighbor try it, improve it once, and bring me your project card.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch7_waiting', 'Carver: How is your project?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge7}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'Can I make up my own need?', next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Of course! If you notice a need yourself, write it down at the fair table. Looking around and asking what people need is where science begins.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch7_closing', 'Carver: Your project', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'The fair table was busy today! Show me your project: {projName}.', next: 'c2' },
+      { id: 'c2', speaker: 'carver', expression: 'thinking', text: '{projNeed}', next: 'c3' },
+      { id: 'c3', speaker: 'carver', expression: 'proud', text: '{projRevision}', next: 'c4' },
+      { id: 'c4', speaker: 'carver', expression: 'smile', text: '{projTest}', next: 'c5' },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Tell me: which part of your project felt the most like being a scientist?',
+        choices: [
+          { text: 'Noticing the need', next: 'c6a' },
+          { text: 'Planning the test', next: 'c6b' },
+          { text: 'Fixing it after feedback', next: 'c6c' },
+          { text: 'Helping someone', next: 'c6d' },
+        ],
+      },
+      { id: 'c6a', speaker: 'carver', expression: 'smile', text: 'Noticing comes first. You looked at your town with care, and saw what people needed.', next: 'c7' },
+      { id: 'c6b', speaker: 'carver', expression: 'smile', text: 'A plan to measure means you will know if it really works, not just hope it does.', next: 'c7' },
+      { id: 'c6c', speaker: 'carver', expression: 'smile', text: 'Listening to feedback takes courage. Your second version is better because you did.', next: 'c7' },
+      { id: 'c6d', speaker: 'carver', expression: 'smile', text: 'That is the heart of it. Science matters most when it helps people.', next: 'c7' },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'People sometimes call me a genius. But what I practiced, anyone can practice: look closely, ask questions, test your ideas, and share what you learn.',
+        next: 'c8',
+      },
+      {
+        id: 'c8',
+        speaker: 'carver',
+        expression: 'proud',
+        text: 'Your project is not the same as my life\'s work, and it does not need to be. It is yours, and your town needs it.',
+        next: 'c9',
+      },
+      {
+        id: 'c9',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Near the end of my life, I thought a lot about the young scientists who would come after me. Would you like to see one last memory?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'c10', effects: [{ type: 'showMemory', memoryId: 'legacy' }] },
+          { text: 'Maybe later.', next: 'c10' },
+        ],
+      },
+      {
+        id: 'c10',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'golden_seed', from: 'carver' }],
+        text: 'This is for you: a Golden Seed. Observe, ask, test, share, and keep planting.',
+        next: 'c11',
+      },
+      {
+        id: 'c11',
+        speaker: 'carver',
+        expression: 'proud',
+        effects: [{ type: 'completeChapter', chapterId: 'ch7' }, { type: 'showJourney' }],
+        text: 'Now, let us look back at everything you did.',
+        next: 'c12',
+      },
+      {
+        id: 'c12',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'The story is finished, but the seeds you planted will keep growing. Come and visit me any time.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch7_after', 'Carver: Keep planting', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Hello again, scientist! Your journey is on the shelf in your cottage. Is there anything you would like to look at?',
+        choices: [
+          { text: 'Show me my journey', next: 'a2', effects: [{ type: 'showJourney' }] },
+          { text: 'Show me the last memory', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'legacy' }] },
+          { text: 'Just saying hello!', next: 'a2' },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'Keep noticing what people need. That is where the next project begins.', next: null },
+    ]),
+
+    convo('theo_ch7_give', 'Theo: Kids\' need cards', [
+      { id: 't1', speaker: 'theo', expression: 'smile', text: "Hi! My friends and I have been writing need cards for the town's suggestion box!", next: 't2' },
+      {
+        id: 't2',
+        speaker: 'theo',
+        expression: 'curious',
+        text: 'We found two problems that bug kids a lot.',
+        choices: [
+          { text: 'What did you notice?', next: 't3a' },
+          { text: 'How did you find them?', next: 't3b' },
+        ],
+      },
+      {
+        id: 't3a',
+        speaker: 'theo',
+        expression: 'thinking',
+        text: 'The school garden dries out every weekend, so the seedlings wilt by Monday. And there is no shade at the bus stop, so we bake while we wait.',
+        next: 't4',
+      },
+      {
+        id: 't3b',
+        speaker: 'theo',
+        expression: 'smile',
+        text: 'We watched and wrote things down, like with the ladybugs! We checked the garden every Monday, and we timed how long we stood in the sun.',
+        next: 't4',
+      },
+      {
+        id: 't4',
+        speaker: 'theo',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'need_cards', from: 'theo' },
+          { type: 'completeStep', chapterId: 'ch7', stepId: 'get_kids_needs' },
+        ],
+        text: 'Here are our need cards. If you pick one of ours, I will test your project for you!',
+        next: null,
+      },
+    ]),
+    convo('theo_ch7_after', 'Theo: Ready to test', [
+      { id: 'ta', speaker: 'theo', expression: 'curious', text: 'I am a very good tester. I notice everything!', next: null },
+    ]),
+
+    convo('lottie_ch7_give', "Miss Lottie: Neighbors' need cards", [
+      { id: 'l1', speaker: 'lottie', expression: 'smile', text: 'The grown-ups at my kitchen talk about problems all day long. So I wrote two of them down for you.', next: 'l2' },
+      {
+        id: 'l2',
+        speaker: 'lottie',
+        expression: 'thinking',
+        text: 'One is right in my kitchen, and one is out in the gardens.',
+        choices: [
+          { text: 'What are they?', next: 'l3a' },
+          { text: 'Why do bees matter?', next: 'l3b' },
+        ],
+      },
+      {
+        id: 'l3a',
+        speaker: 'lottie',
+        expression: 'neutral',
+        text: 'We throw away buckets of vegetable scraps every week. And the gardeners say fewer bees are visiting, so their beans and squash are not growing much.',
+        next: 'l4',
+      },
+      {
+        id: 'l3b',
+        speaker: 'lottie',
+        expression: 'curious',
+        text: 'Bees carry pollen from flower to flower. Without them, bean and squash flowers do not turn into beans and squash. Fewer bees means less food.',
+        next: 'l4',
+      },
+      {
+        id: 'l4',
+        speaker: 'lottie',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'neighbor_needs', from: 'lottie' },
+          { type: 'completeStep', chapterId: 'ch7', stepId: 'get_neighbor_needs' },
+        ],
+        text: 'Here are the cards. If you choose one of mine, bring your project by, and I will try it out.',
+        next: null,
+      },
+    ]),
+    convo('lottie_ch7_after', 'Miss Lottie: Fair day', [
+      { id: 'lc', speaker: 'lottie', expression: 'smile', text: "Fair day! I'm baking sweet potato pies for everybody who brings a project.", next: null },
+    ]),
+
+    convo('wendell_ch7_give', 'Mr. Brooks: The prototype kit', [
+      { id: 'w1', speaker: 'wendell', expression: 'smile', text: 'A community project? Now you are talking my language.', next: 'w2' },
+      {
+        id: 'w2',
+        speaker: 'wendell',
+        expression: 'neutral',
+        text: 'I packed a prototype kit for the fair. Barrels, canvas, posts, slats, seeds, rope and stakes. All scrap from my shop, so it costs nothing.',
+        choices: [
+          { text: 'Is there a rule for using it?', next: 'w3a' },
+          { text: 'Why let someone try it?', next: 'w3b' },
+        ],
+      },
+      {
+        id: 'w3a',
+        speaker: 'wendell',
+        expression: 'smile',
+        text: 'Just one. It is written in the lid: build it, let someone try it, fix what they find, then build it again.',
+        next: 'w4',
+      },
+      {
+        id: 'w3b',
+        speaker: 'wendell',
+        expression: 'thinking',
+        text: 'Because you will never find every problem yourself. The person who uses it sees what you missed.',
+        next: 'w4',
+      },
+      {
+        id: 'w4',
+        speaker: 'wendell',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'prototype_kit', from: 'wendell' },
+          { type: 'completeStep', chapterId: 'ch7', stepId: 'get_kit' },
+        ],
+        text: 'Here you go. The fair table is set up in the town square, by the benches. Make me proud.',
+        next: null,
+      },
+    ]),
+    convo('wendell_ch7_after', 'Mr. Brooks: Build it again', [
+      { id: 'wa', speaker: 'wendell', expression: 'smile', text: 'Build it, try it, fix it, build it again. You have got this.', next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {

@@ -109,4 +109,21 @@ export const MEMORIES: Record<string, Memory> = {
       },
     ],
   },
+  legacy: {
+    id: 'legacy',
+    title: 'Seeds That Keep Growing',
+    setting: 'Tuskegee, Alabama, and Diamond, Missouri, 1940 to 1943',
+    pages: [
+      {
+        art: 'mem-foundation',
+        caption:
+          'Near the end of his life, in 1940, Carver gave his life savings to start a foundation at Tuskegee, so that young scientists could keep doing research in agriculture after him.',
+      },
+      {
+        art: 'mem-monument',
+        caption:
+          'Carver died in January 1943. That same year, Congress created the George Washington Carver National Monument near Diamond, Missouri, where he grew up. It was the first national monument honoring an African American. Visitors still walk its trails today.',
+      },
+    ],
+  },
 };

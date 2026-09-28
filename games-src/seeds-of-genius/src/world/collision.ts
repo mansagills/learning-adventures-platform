@@ -10,6 +10,7 @@ export function propFootprint(p: PropDef): Array<[number, number]> {
     case 'bench':
     case 'wagon':
     case 'cow':
+    case 'fairtable':
       return [[0, 0], [1, 0]];
     case 'leaves':
       return [];

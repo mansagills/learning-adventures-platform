@@ -199,7 +199,7 @@ export class Game {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const game = this;
     this.dialogue ??= new DialogueUI(this.uiLayer, {
-      apply: (e) => (e.type === 'showMemory' ? this.showMemory(e.memoryId) : this.applyEffect(e)),
+      apply: (e) => (e.type === 'showMemory' ? this.showMemory(e.memoryId) : e.type === 'showJourney' ? this.showJourney() : this.applyEffect(e)),
       resolve: (text) => this.resolveTokens(text),
       // A getter, because loading a save replaces the learner object.
       get learner() {
@@ -637,6 +637,12 @@ export class Game {
     return text.replace(/\{(\w+)\}/g, (m, k: string) => tokens[k] ?? m);
   }
 
+  /** The end-of-story look back at every chapter (Chapter 7's runtime draws it). */
+  private async showJourney(): Promise<void> {
+    const rt = this.runtimes.get('ch7');
+    if (rt) await rt.usePlace('journey', this.runtimeContext('ch7'));
+  }
+
   private async showMemory(id: string): Promise<void> {
     if (!this.save.memories.includes(id)) this.save.memories.push(id);
     await openMemory(this.uiLayer, id);
@@ -800,6 +806,14 @@ export class Game {
         return this.openCustomizer(false);
       case 'windowsill':
         return this.say(this.engine.progress('practice').stage === 'complete' ? PLACE_LINES.windowsill_planted : PLACE_LINES.windowsill_empty);
+      case 'shelf': {
+        // The shelf keeps what you earned; after the last chapter it opens your whole journey.
+        if (this.engine.progress('ch7').stage === 'complete') return this.useRuntimePlace('ch7', 'journey');
+        const kept = ['nature_card', 'journey_card', 'rotation_card', 'invention_card', 'interview_card', 'experiment_card']
+          .filter((i) => this.engine.hasItem(i))
+          .map((i) => ITEMS[i].name);
+        return this.say(kept.length ? `Your shelf holds: ${kept.join(', ')}. Finish your own Carver Project to see your whole journey here.` : PLACE_LINES.shelf);
+      }
       default:
         if (PLACE_LINES[id]) return this.say(PLACE_LINES[id]);
     }
@@ -1233,6 +1247,7 @@ export class Game {
         ch4Data: this.save.chapterData.ch4 ?? null,
         ch5Data: this.save.chapterData.ch5 ?? null,
         ch6Data: this.save.chapterData.ch6 ?? null,
+        ch7Data: this.save.chapterData.ch7 ?? null,
         cosmetics: this.save.cosmetics,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,

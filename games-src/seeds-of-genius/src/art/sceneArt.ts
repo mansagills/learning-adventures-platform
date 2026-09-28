@@ -783,6 +783,60 @@ function memTeaching(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------------ Chapter 7
+
+/** Memory: the older Carver with young researchers in a lab he helped pay for. */
+function memFoundation(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#e4dcc8', P.wood1);
+  // windows and shelves of samples
+  for (const x of [8, 64]) {
+    b.rect(x, 6, 20, 16, '#a8cce0');
+    b.vline(x + 10, 6, 21, P.wood2);
+  }
+  b.rect(34, 10, 24, 2, P.wood2);
+  for (let x = 36; x < 56; x += 5) {
+    b.rect(x, 4, 4, 6, '#cfe3ea');
+    b.rect(x + 1, 6, 2, 4, ['#d9a45a', '#6b4a2a', P.leaf2, '#e8dcc0'][(x / 5) % 4 | 0]);
+  }
+  // a bench with a microscope and seedlings
+  b.rect(30, 42, 40, 4, P.wood3);
+  b.rect(32, 46, 2, 12, P.wood2);
+  b.rect(66, 46, 2, 12, P.wood2);
+  b.rect(40, 34, 4, 8, P.metal);
+  b.rect(38, 40, 8, 2, P.metal);
+  b.rect(44, 32, 3, 3, P.metalLight);
+  for (const x of [54, 60]) {
+    b.rect(x, 38, 4, 4, '#c0643a');
+    b.rect(x + 1, 34, 2, 4, P.leaf2);
+  }
+  b.blit(paintCharacter(OLDER_CARVER, 'right', 0), 12, 34);
+  b.blit(paintCharacter(STUDENT_B, 'left', 0), 70, 36);
+  b.blit(paintCharacter(STUDENT_A, 'left', 0), 82, 38);
+  return b;
+}
+
+/** Memory: visitors at the national monument near Diamond, Missouri. */
+function memMonument(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#9fd3ee', '#fbeec8', 26);
+  hills(b, 26, '#8fbf6a', 9);
+  grassField(b, 26, 33);
+  // a trail through the prairie and woods
+  for (let y = 34; y < 64; y++) b.hline(40 - (y - 34) / 2, 52 + (y - 34) / 2, y, '#d9c090');
+  for (const x of [4, 16, 80]) b.blit(paintProp('tree', x % 3), x, 4);
+  // a statue of young George sitting on a stone, in bronze
+  b.rect(58, 36, 14, 8, '#8a8a88');
+  b.hline(58, 71, 36, '#a8a8a4');
+  const bronze: CharacterLook = { ...YOUNG_GEORGE, skin: { base: '#8a6a3a', shade: '#6b5230' }, hair: { style: 'short', base: '#6b5230', shade: '#54401f', light: '#8a6a3a' }, shirt: { base: '#8a6a3a', shade: '#6b5230' }, pants: '#6b5230', shoes: '#54401f' };
+  b.blit(paintCharacter(bronze, 'down', 0), 58, 18);
+  // a family visiting
+  b.blit(paintCharacter(TUSKEGEE_FARMER, 'right', 0), 24, 38);
+  b.blit(paintCharacter({ ...YOUNG_GEORGE, shirt: { base: '#e0574f', shade: '#b8413b' } }, 'right', 0), 36, 44);
+  for (const [x, y] of [[10, 50], [74, 54], [86, 48], [20, 58]] as Array<[number, number]>) flower(b, x, y, P.flowerYellow);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -811,6 +865,8 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   'mem-muck': memMuck,
   'mem-records': memRecords,
   'mem-teaching': memTeaching,
+  'mem-foundation': memFoundation,
+  'mem-monument': memMonument,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();

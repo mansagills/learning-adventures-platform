@@ -27,6 +27,7 @@ node scripts/e2e-phase3.mjs http://localhost:4173/   # Phase 3 check-in (Chapter
 node scripts/e2e-phase4.mjs http://localhost:4173/   # Phase 4 check-in (Chapter 4)
 node scripts/e2e-phase5.mjs http://localhost:4173/   # Phase 5 check-in (Chapter 5)
 node scripts/e2e-phase6.mjs http://localhost:4173/   # Phase 6 check-in (Chapter 6)
+node scripts/e2e-phase7.mjs http://localhost:4173/   # Phase 7 check-in (Chapter 7 and the ending)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -70,6 +71,7 @@ src/
   chapters/ch4/           Chapter 4's code: crop tests, invention rules, workbench, decorations shop (lazy-loaded)
   chapters/ch5/           Chapter 5's code: farm clues, recommendation rules, demonstration table (lazy-loaded)
   chapters/ch6/           Chapter 6's code: seedling model, fair-test checks, experiment bench, results chart (lazy-loaded)
+  chapters/ch7/           Chapter 7's code: needs, project parts, feedback checks, project card, the journey screen (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -152,16 +154,31 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 3 | The Soil Speaks / Virtual Soil Lab | Approved ✅ |
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Approved ✅ |
 | 5 | Science for the People / Farm Helper | Approved ✅ |
-| 6 | A Scientist's Method / Design Your Own Experiment | Built, awaiting owner review |
-| 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
+| 6 | A Scientist's Method / Design Your Own Experiment | Approved ✅ |
+| 7 | Your Turn to Plant the Seeds / My Carver Project | Built, awaiting owner review |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 7)
+
+- The project parts are a small, fixed kit (four main parts, one per kind
+  of need). A typed need must be matched to one of the four kinds so the
+  feedback can work; needs that fit none of them get less useful feedback.
+- The typed-text check is a short word list plus rules for numbers,
+  emails and links. It keeps obvious problems out but is not a full
+  filter; typed text is only shown back to the player and on their own
+  card, and never leaves the device.
+- There is no AI feedback (the spec made it optional). All feedback is
+  written in advance, so it always works offline.
+- "Save as a file" downloads a plain text card. Printing and downloading
+  may be blocked inside the Claude artifact preview; both work on the
+  website.
 
 ## Known issues (Phase 6)
 
 - The seedling growth numbers are a simple model (two weeks, bean seeds,
   three pots per tray). Real experiments vary more from pot to pot.
 - The hypothesis step offers taller / shorter / about the same; there is
-  no free-text "because" yet (Phase 7 adds optional typing).
+  no free-text "because" (optional typing is only in the Chapter 7 project).
 - Tray A must stay "the usual way" (sunny, ½ cup, plain soil). Some
   players might want to pick their own comparison; the game explains why
   instead.

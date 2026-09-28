@@ -44,7 +44,8 @@ export type PropKind =
   | 'potting'
   | 'wagon'
   | 'cow'
-  | 'leaves';
+  | 'leaves'
+  | 'fairtable';
 
 export interface PropDef {
   kind: PropKind;
@@ -197,6 +198,8 @@ function hubProps(): PropDef[] {
   props.push({ kind: 'scarecrow', x: 35, y: 5 });
   // The demonstration wagon (Chapter 5 rides it to Two Creeks).
   props.push({ kind: 'wagon', x: 25, y: 7 });
+  // The community fair table in the square (Chapter 7's project table).
+  props.push({ kind: 'fairtable', x: 16, y: 15 });
   // Hattie's potting bench, where Chapter 1's card game is played.
   props.push({ kind: 'potting', x: 9, y: 8 });
 

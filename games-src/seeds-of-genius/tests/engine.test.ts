@@ -222,7 +222,7 @@ describe('QuestEngine: practice quest loop', () => {
     expect(q.conversationFor('carver')).toBe('carver_ch6_opening');
   });
 
-  it('runs Chapter 6: Carver → Mr. Reed + Hattie → experiment bench → Carver, then Chapter 7 waits', () => {
+  it('runs Chapter 6: Carver → Mr. Reed + Hattie → experiment bench → Carver', () => {
     const state = fresh();
     for (const id of ['practice', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5']) state.chapters[id] = { stage: 'complete', stepsDone: [], flags: [], rewarded: true };
     state.chapters.ch6 = { stage: 'locked', stepsDone: [], flags: [], rewarded: false };
@@ -246,9 +246,37 @@ describe('QuestEngine: practice quest loop', () => {
     q.apply({ type: 'completeChapter', chapterId: 'ch6' });
     expect(state.xp).toBe(200);
     expect(state.seeds).toBe(30);
-    expect(q.progress('ch7').stage).toBe('locked');
-    expect(q.nextAction().text).toMatch(/Chapter 7 is unlocked/);
-    expect(q.conversationFor('carver')).toBe('carver_ch6_after');
+    // Chapter 7 is playable, so Carver offers it next.
+    expect(q.progress('ch7').stage).toBe('available');
+    expect(q.conversationFor('carver')).toBe('carver_ch7_opening');
+  });
+
+  it('runs Chapter 7: Carver → Theo + Miss Lottie + Mr. Brooks → fair table → Carver, and the story ends', () => {
+    const state = fresh();
+    for (const id of ['practice', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6']) state.chapters[id] = { stage: 'complete', stepsDone: [], flags: [], rewarded: true };
+    state.chapters.ch7 = { stage: 'locked', stepsDone: [], flags: [], rewarded: false };
+    const q = new QuestEngine(CHAPTERS, ITEMS, state);
+    expect(q.progress('ch7').stage).toBe('available');
+    q.apply({ type: 'acceptQuest', chapterId: 'ch7' });
+    for (const id of ['theo', 'lottie', 'wendell']) expect(q.markerFor(id)).toBe('lead');
+    expect(q.nextAction().targetNpcId).toBe('theo');
+    q.apply({ type: 'grantItem', itemId: 'prototype_kit', from: 'wendell' });
+    q.apply({ type: 'completeStep', chapterId: 'ch7', stepId: 'get_kit' });
+    q.apply({ type: 'grantItem', itemId: 'need_cards', from: 'theo' });
+    q.apply({ type: 'completeStep', chapterId: 'ch7', stepId: 'get_kids_needs' });
+    expect(q.nextAction().targetNpcId).toBe('lottie');
+    q.apply({ type: 'grantItem', itemId: 'neighbor_needs', from: 'lottie' });
+    q.apply({ type: 'completeStep', chapterId: 'ch7', stepId: 'get_neighbor_needs' });
+    expect(q.nextAction()).toMatchObject({ targetPlaceId: 'fair' });
+    for (const it of ['need_cards', 'neighbor_needs', 'prototype_kit']) q.apply({ type: 'useItem', itemId: it, usedIn: 'x' });
+    q.apply({ type: 'completeStep', chapterId: 'ch7', stepId: 'project' });
+    expect(q.conversationFor('carver')).toBe('carver_ch7_closing');
+    q.apply({ type: 'grantItem', itemId: 'golden_seed', from: 'carver' });
+    q.apply({ type: 'completeChapter', chapterId: 'ch7' });
+    expect(state.xp).toBe(250);
+    expect(state.seeds).toBe(40);
+    expect(q.nextAction().text).toMatch(/finished every chapter/);
+    expect(q.conversationFor('carver')).toBe('carver_ch7_after');
   });
 
   it('never duplicates items or one-time rewards', () => {

@@ -24,8 +24,9 @@ explicit approval**. A passing self-score is not approval.
 | 3: The Soil Speaks / Virtual Soil Lab | **COMPLETED ✅** (owner approved 2026-09-27 after viewing screenshots and testing in the app) |
 | 4: The Peanut Isn't Just a Peanut / Inventor's Workshop | **COMPLETED ✅** (owner approved 2026-09-27) |
 | 5: Science for the People / Farm Helper | **COMPLETED ✅** (owner approved 2026-09-28) |
-| 6: A Scientist's Method / Design Your Own Experiment | Built, awaiting owner review |
-| 7-8 | Not started |
+| 6: A Scientist's Method / Design Your Own Experiment | **COMPLETED ✅** (owner approved 2026-09-28 after reviewing screenshots; full playtest planned at the end) |
+| 7: Your Turn to Plant the Seeds / My Carver Project | Built, awaiting owner review |
+| 8 | Not started |
 
 ## Phase 0: playable foundation
 
@@ -166,3 +167,23 @@ explicit approval**. A passing self-score is not approval.
 **Facts used (NPS biography and Tuskegee page):** at Tuskegee's agricultural experiment station, Carver and his students tested crops and methods on test plots and recorded the results to share with farmers; Carver was also a teacher who encouraged students to observe nature closely. Mr. Reed, Hattie and the bean puzzle are fictional; the growth numbers are a simple game model based on real bean-seedling behavior (shade makes seedlings stretch and turn pale; too much or too little water stunts them; a young bean lives mostly on the food in its seed).
 
 **Tests:** 129 unit tests; `node scripts/e2e-phase6.mjs` (68 browser checks), plus the Phase 0–5 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase6/`.
+
+## Phase 7: Your Turn to Plant the Seeds / My Carver Project
+
+**Deliverables (from the spec):**
+
+- [x] Carver gives the final quest: he looks back at everything the player has done, then asks for a project of their own for the Sweetgum Hollow Community Fair: science that helps their community. Two answer branches ("What should I make?" / "What if my idea isn't good enough?")
+- [x] **Two neighbors share need cards.** **Theo** gives the **Kids' Need Cards** (the school garden dries out every weekend; no shade at the bus stop), and **Miss Lottie** gives the **Neighbors' Need Cards** (the kitchen throws away vegetable scraps; fewer bees in the gardens). **Mr. Brooks, the maker,** gives the **Prototype Kit** and his rule: "Build it, let someone try it, fix what they find, then build it again." Each conversation has two branches
+- [x] A **Community Fair table** stands in the town square. Its project screen has four steps:
+  - **Choose a need:** one of the four cards, or **type your own** (optional) and pick what kind of problem it is. Blank, too-short, too-long, unkind, or personal-information answers (phone numbers, emails, websites) are turned away gently; stray HTML is stripped.
+  - **Design** from bounded parts: a main part, what it is made from, one extra, one or two things learned on the journey ("evidence"), and a test plan (what to measure, how to compare, how many times). The project name is optional typing.
+  - **Feedback:** the neighbor who raised the need tries the first version and finds a real problem (for example, the barrel overflows in a storm). A fixed four-part checklist says what works and what doesn't, with a reason for each: fits the need; uses what the town has; easy and fair for everyone; a plan to test it.
+  - **Revise once:** pick the fix for what the neighbor found (the two wrong fixes are explained) and fix anything the checklist flagged. Hints go up to a "Fill in a suggested fix" button.
+- [x] **Project card:** the need, the idea, the evidence (prior learning), the test plan, and the revision in the player's own story. It can be printed, **saved as a text file**, and reopened from the journal. The whole chapter can be finished with guided choices only; typing is optional. There is no AI and no network: the feedback is authored rules, so nothing needs a fallback.
+- [x] **Carver's finale** names the project, retells the need, the revision story and the test plan, and asks which part felt most like being a scientist (every answer is welcomed). He says plainly that the project "is not the same as my life's work, and it does not need to be. It is yours." He offers the last memory and gives the **Golden Seed Medal**.
+- [x] **The ending:** a **"Your journey"** screen shows all seven chapters (what the player did and each chapter's keepsake) plus totals (XP, Seeds, items, memories). It opens at the end of the finale, from Carver afterwards, from the journal, and from the **shelf in the player's cottage**, which now lists earned keepsakes before the ending. The HUD then reads "You finished every chapter! Visit Carver any time."; the town stays open for free play and replays.
+- [x] Completion pays +250 XP / +40 Seeds once. The ending and project survive reloads, and mid-project reloads keep the first version and its feedback
+
+**Facts used (NPS biography and monument pages):** in 1940 Carver gave his life savings to start a foundation at Tuskegee to support agricultural research; he died in January 1943, and that year Congress created the George Washington Carver National Monument near Diamond, Missouri, the first national monument honoring an African American. Theo, Miss Lottie, Mr. Brooks, the fair and the needs are fictional; the project parts and checks are a simple game model.
+
+**Tests:** 146 unit tests; `node scripts/e2e-phase7.mjs` (64 browser checks), plus the Phase 0–6 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase7/`.

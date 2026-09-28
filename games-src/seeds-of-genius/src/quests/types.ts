@@ -39,7 +39,9 @@ export type DialogueEffect =
   | { type: 'setFlag'; chapterId: ChapterId; flag: string }
   | { type: 'completeChapter'; chapterId: ChapterId }
   /** Open an illustrated memory from Carver's life (handled by the UI, not the quest engine). */
-  | { type: 'showMemory'; memoryId: string };
+  | { type: 'showMemory'; memoryId: string }
+  /** Open the "Your journey" look-back (handled by the UI, not the quest engine). */
+  | { type: 'showJourney' };
 
 export interface DialogueChoice {
   text: string;

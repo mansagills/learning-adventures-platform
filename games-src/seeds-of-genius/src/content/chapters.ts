@@ -1,20 +1,12 @@
 import type { ChapterDefinition } from '../quests/types';
 
 /**
- * The chapter list. Phase 0 ships the practice quest (chapter 0) as a
- * complete, playable definition, plus the seven lesson chapters as
- * 'coming-soon' outlines so the journal's chapter map, unlock order and
- * save format are real from the start. Each later phase fills in one
- * outline (steps, conversations, items, minigame) and flips it to
- * 'playable'. The hub itself does not change.
+ * The chapter list: the practice quest (chapter 0) and the seven lesson
+ * chapters. Phase 0 started the lessons as 'coming-soon' outlines so the
+ * journal's chapter map, unlock order and save format were real from the
+ * start; each later phase filled one in and flipped it to 'playable'. The
+ * 'coming-soon' status still works for any chapter added later.
  */
-
-const comingSoonCarver = (n: number) => ({
-  opening: `carver_ch${n}_opening`,
-  waiting: `carver_ch${n}_waiting`,
-  closing: `carver_ch${n}_closing`,
-  after: `carver_ch${n}_after`,
-});
 
 export const CHAPTERS: ChapterDefinition[] = [
   {
@@ -411,15 +403,67 @@ export const CHAPTERS: ChapterDefinition[] = [
     number: 7,
     title: 'Your Turn to Plant the Seeds',
     subtitle: 'My Carver Project',
-    status: 'coming-soon',
-    assignment: 'Use what you learned to help your own community.',
-    whyItMatters: 'Now you are the scientist and inventor.',
-    carver: comingSoonCarver(7),
-    steps: [],
-    requiredItems: ['need_cards', 'prototype_kit'],
-    itemUses: [],
-    rewards: { xp: 250, seeds: 40 },
+    status: 'playable',
+    assignment:
+      "Use what you learned to help your own community. Get need cards from Theo and Miss Lottie and a prototype kit from Mr. Brooks, then at the fair table choose a need, design a project, let a neighbor try it, improve it once, and bring your project card to Carver.",
+    whyItMatters: 'Carver spent his life using science to help people. Now you are the scientist and inventor.',
+    carver: {
+      opening: 'carver_ch7_opening',
+      waiting: 'carver_ch7_waiting',
+      closing: 'carver_ch7_closing',
+      after: 'carver_ch7_after',
+    },
+    steps: [
+      {
+        id: 'get_kids_needs',
+        kind: 'talk',
+        npcId: 'theo',
+        text: "Get the kids' need cards from Theo by the pond",
+        lead: 'Theo and his friends wrote need cards for the town. He is by the pond, south of the square.',
+        conversation: 'theo_ch7_give',
+        after: 'theo_ch7_after',
+        grants: ['need_cards'],
+      },
+      {
+        id: 'get_neighbor_needs',
+        kind: 'talk',
+        npcId: 'lottie',
+        text: "Get the neighbors' need cards from Miss Lottie in the square",
+        lead: 'Miss Lottie collected need cards from grown-ups at the community kitchen. She is on the east side of the square.',
+        conversation: 'lottie_ch7_give',
+        after: 'lottie_ch7_after',
+        grants: ['neighbor_needs'],
+      },
+      {
+        id: 'get_kit',
+        kind: 'talk',
+        npcId: 'wendell',
+        text: 'Get the prototype kit from Mr. Brooks by the workshop',
+        lead: 'Mr. Wendell Brooks packed a prototype kit for the fair. He is outside his workshop on the south road.',
+        conversation: 'wendell_ch7_give',
+        after: 'wendell_ch7_after',
+        grants: ['prototype_kit'],
+      },
+      {
+        id: 'project',
+        kind: 'minigame',
+        minigameId: 'carver-project',
+        text: 'Design, try, improve and finish your project at the fair table in the square',
+        placeId: 'fair',
+        uses: ['need_cards', 'neighbor_needs', 'prototype_kit'],
+      },
+    ],
+    requiredItems: ['need_cards', 'neighbor_needs', 'prototype_kit'],
+    itemUses: [
+      { itemId: 'need_cards', usedIn: 'minigame:carver-project', description: 'Real needs from kids in town.' },
+      { itemId: 'neighbor_needs', usedIn: 'minigame:carver-project', description: 'Real needs from grown-ups in town.' },
+      { itemId: 'prototype_kit', usedIn: 'minigame:carver-project', description: 'Parts to build, try and improve a project.' },
+    ],
+    rewards: { xp: 250, seeds: 40, unlock: 'Golden Seed Medal, and your journey on the cottage shelf' },
     objectives: ['capstone'],
-    analogActivity: { title: 'Invention poster and test log', description: 'Make a poster of your invention and how you would test it.' },
+    analogActivity: { title: 'Invention poster and test log', description: 'Make a poster of your project and how you would test it.' },
+    reflection:
+      'You chose a real need in your town, designed a project from what people already had, backed it with what you learned, planned a fair test, listened to feedback, and improved it. That is the whole journey, in one project.',
+    loadRuntime: () => import('../chapters/ch7/runtime'),
   },
 ];

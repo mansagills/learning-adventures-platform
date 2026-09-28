@@ -344,7 +344,7 @@ await sleep(page, 500);
 s = await state(page);
 check('Chapter 6 complete; Carver gave the Fair-Test Plan Card', s.chapters.ch6 === 'complete' && s.inventory.some((e) => e.itemId === 'experiment_card' && e.from === 'carver'));
 check('Rewards: +200 XP and +30 Seeds', s.xp === 830 + 200 && s.seeds === 93 + 30, `xp ${s.xp}, seeds ${s.seeds}`);
-check('Chapter 7 shows as unlocked, arriving next', s.chapters.ch7 === 'locked' && /Chapter 7 is unlocked/.test(s.objective), s.objective);
+check('Chapter 7 is offered next', s.chapters.ch7 === 'available', s.objective);
 check('Learner model records the method objective', !!s.learner.method && s.learner.method.correct >= 5, JSON.stringify(s.learner.method ?? {}).slice(0, 120));
 
 // --- Journal ---

@@ -2348,3 +2348,165 @@ mark.mark-guess {
     padding: 4px 5px;
   }
 }
+
+/* ---------------------------------------------------------------- Chapter 7: the Carver Project */
+.project-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.project-body .feedback {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.proj-group {
+  margin: 0;
+  padding: 6px 10px 10px;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+  background: #fffaf0;
+}
+.proj-group legend {
+  padding: 0 4px;
+  font-weight: 700;
+}
+.proj-group p {
+  margin: 0 0 6px;
+}
+.opt-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.opt-wrap .btn.opt {
+  white-space: normal;
+  text-align: left;
+}
+.mini-portrait {
+  width: 36px;
+  height: 36px;
+  image-rendering: pixelated;
+  border: 2px solid var(--wood-dark);
+  border-radius: 6px;
+  background: linear-gradient(#cfe6c4, #a8d09a);
+}
+.need-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.typed-need {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f4ecd8;
+  border: 2px dashed var(--paper-3);
+}
+.typed-need label {
+  font-weight: 700;
+}
+.typed-need input {
+  font: inherit;
+  padding: 8px 10px;
+  border: 2px solid var(--wood-dark);
+  border-radius: 6px;
+  background: #fffdf6;
+  color: var(--ink);
+  min-width: 0;
+}
+.typed-need input:focus-visible {
+  outline: 3px solid #2f6fb3;
+  outline-offset: 1px;
+}
+.typed-need .btn.primary {
+  align-self: flex-start;
+}
+.feedback-card h4 {
+  margin: 0;
+}
+.project-card .pc-body {
+  line-height: 1.45;
+  padding: 2px 0 4px;
+}
+.project-card .pc-body ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.journey-modal {
+  width: min(760px, 100%);
+}
+.journey-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff1c2;
+  border: 2px solid var(--gold);
+  line-height: 1.4;
+}
+.journey-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.journey-card {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+}
+.journey-card.done {
+  border-color: #7fb36a;
+}
+.journey-card p {
+  margin: 4px 0 0;
+}
+.journey-num {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  font-weight: 700;
+}
+.journey-reward {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+}
+.journey-totals {
+  margin: 10px 0 4px;
+}
+@media (max-width: 640px) {
+  .need-cards {
+    grid-template-columns: 1fr;
+  }
+}
+.project-card .pc-box {
+  min-height: 0;
+}
+@media (max-width: 640px) {
+  .explain-card .warn-portrait,
+  .explain-card .farmer-portrait {
+    width: 48px;
+    height: 48px;
+  }
+  .explain-card {
+    gap: 8px;
+    padding: 8px;
+  }
+}

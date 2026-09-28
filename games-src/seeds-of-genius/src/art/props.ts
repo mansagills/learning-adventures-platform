@@ -379,7 +379,33 @@ export function paintProp(kind: PropKind, variant = 0): PixelBuffer {
       return cow();
     case 'leaves':
       return leafPile();
+    case 'fairtable':
+      return fairTable();
   }
+}
+
+/** A table with a striped cloth and a banner for the community project fair. */
+function fairTable(): PixelBuffer {
+  const b = new PixelBuffer(34, 30);
+  // banner on two poles
+  b.vline(2, 0, 20, P.wood2);
+  b.vline(31, 0, 20, P.wood2);
+  b.rect(3, 1, 28, 7, '#4b7fcf');
+  b.hline(3, 30, 8, '#3a66a8');
+  for (let x = 6; x < 29; x += 4) b.rect(x, 3, 2, 3, x % 8 === 6 ? '#f2b53a' : '#fff4c9');
+  // table with a striped cloth
+  b.rect(1, 17, 32, 5, '#f4efe4');
+  for (let x = 1; x < 33; x += 4) b.rect(x, 17, 2, 5, '#e0574f');
+  b.rect(3, 22, 2, 7, P.wood2);
+  b.rect(29, 22, 2, 7, P.wood2);
+  // a jar, a sketch and a seedling on the table
+  b.rect(7, 12, 5, 5, '#cfe3ea');
+  b.rect(8, 14, 3, 3, '#d9a45a');
+  b.rect(15, 14, 7, 3, P.paper);
+  b.hline(16, 20, 15, P.ink);
+  b.rect(25, 13, 4, 4, '#c0643a');
+  b.rect(26, 10, 2, 3, P.leaf2);
+  return b.outline();
 }
 
 /** A covered farm wagon, like the "movable school" wagons that carried lessons to farms. */
