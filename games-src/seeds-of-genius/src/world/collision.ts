@@ -8,7 +8,11 @@ export function propFootprint(p: PropDef): Array<[number, number]> {
       return [[0, 0], [1, 0], [0, 1], [1, 1]];
     case 'stall':
     case 'bench':
+    case 'wagon':
+    case 'cow':
       return [[0, 0], [1, 0]];
+    case 'leaves':
+      return [];
     case 'crop':
     case 'reeds':
       return [];

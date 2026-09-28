@@ -345,7 +345,7 @@ await sleep(page, 500);
 s = await state(page);
 check('Chapter 4 complete; Carver gave the Invention Sketch Card', s.chapters.ch4 === 'complete' && s.inventory.some((e) => e.itemId === 'invention_card' && e.from === 'carver'));
 check('Rewards: +150 XP and +25 Seeds', s.xp === 510 + 150 && s.seeds === 43 + 25, `xp ${s.xp}, seeds ${s.seeds}`);
-check('Chapter 5 shows as unlocked, arriving next', s.chapters.ch5 === 'locked' && /Chapter 5 is unlocked/.test(s.objective), s.objective);
+check('Chapter 5 is offered next', s.chapters.ch5 === 'available', s.objective);
 check('Learner model records the invent objective', !!s.learner.invent && s.learner.invent.correct >= 3, JSON.stringify(s.learner.invent ?? {}));
 
 // --- Journal ---

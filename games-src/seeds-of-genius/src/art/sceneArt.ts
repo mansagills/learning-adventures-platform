@@ -651,6 +651,71 @@ function memCongress(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------------ Chapter 5
+
+/** Carver around 1906: dark hair, suit and his lapel flower. */
+const MIDDLE_CARVER: CharacterLook = { ...YOUNG_MAN_GEORGE, extras: { ...YOUNG_MAN_GEORGE.extras, lapelFlower: '#e0574f' } };
+
+/** A farm woman at the wagon (an imagined figure). */
+const WAGON_FARMER: CharacterLook = {
+  build: 'adult',
+  skin: { base: '#6e4329', shade: '#573320' },
+  hair: { style: 'bun', base: '#2a1f1d', shade: '#1a1312', light: '#433331' },
+  shirt: { base: '#b8913e', shade: '#96742c' },
+  pants: '#4a4038',
+  shoes: '#2f2521',
+  accessory: 'none',
+  accent: '#e8d49a',
+  extras: { apron: '#e7d9b8' },
+};
+
+/** Memory: the Jesup Wagon, a movable school, at a farm crossroads. */
+function memWagon(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#9fd3ee', '#fbeec8', 24);
+  hills(b, 24, '#8fbf6a', 5);
+  grassField(b, 24, 21);
+  b.rect(0, 44, PAINT_W, 8, '#c9a878'); // a dirt road
+  for (let x = 0; x < PAINT_W; x += 7) b.set(x + 3, 47, '#b08e60');
+  // the wagon, drawn bigger than the map prop
+  b.blit(paintProp('wagon'), 56, 22);
+  // a demonstration: a plow and a basket of seed by the wagon
+  b.rect(12, 42, 12, 2, P.wood2);
+  b.vline(14, 36, 42, P.wood2);
+  b.ellipse(24, 52, 5, 4, '#b8913e');
+  b.blit(paintCharacter(MIDDLE_CARVER, 'right', 0), 4, 38);
+  b.blit(paintCharacter(TUSKEGEE_FARMER, 'left', 0), 30, 38);
+  b.blit(paintCharacter(WAGON_FARMER, 'left', 0), 42, 40);
+  return b;
+}
+
+/** Memory: showing farmers how to make compost from free things. */
+function memMuck(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#a8dcf0', '#f6eecb', 22);
+  grassField(b, 22, 27);
+  // a creek on the right with dark muck on its bank
+  b.rect(74, 22, 22, 42, P.water1);
+  for (let y = 26; y < 64; y += 6) b.hline(78, 90, y, P.water2);
+  b.rect(66, 22, 8, 42, '#3a2a1e');
+  // leaves under the trees
+  const t = paintProp('tree', 1);
+  b.blit(t, 2, 0);
+  b.blit(paintProp('leaves'), 6, 30);
+  // the compost heap in layers: leaves, muck, manure
+  b.ellipse(30, 38, 26, 18, '#4e3222');
+  b.rect(32, 42, 22, 3, '#a86a2a');
+  b.rect(31, 46, 24, 3, '#2e2016');
+  b.rect(30, 50, 26, 3, '#6b4a2a');
+  b.rect(32, 42, 22, 1, '#d98a3a');
+  // a shovel
+  b.vline(58, 34, 50, P.wood2);
+  b.rect(57, 50, 3, 4, P.metal);
+  b.blit(paintCharacter(MIDDLE_CARVER, 'right', 0), 12, 36);
+  b.blit(paintCharacter(TUSKEGEE_FARMER, 'left', 0), 60, 36);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -675,6 +740,8 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   'mem-bulletin': memBulletin,
   'mem-lab': memLab,
   'mem-congress': memCongress,
+  'mem-wagon': memWagon,
+  'mem-muck': memMuck,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();

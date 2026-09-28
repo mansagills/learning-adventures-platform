@@ -25,6 +25,7 @@ node scripts/e2e-phase1.mjs http://localhost:4173/   # Phase 1 check-in (Chapter
 node scripts/e2e-phase2.mjs http://localhost:4173/   # Phase 2 check-in (Chapter 2)
 node scripts/e2e-phase3.mjs http://localhost:4173/   # Phase 3 check-in (Chapter 3)
 node scripts/e2e-phase4.mjs http://localhost:4173/   # Phase 4 check-in (Chapter 4)
+node scripts/e2e-phase5.mjs http://localhost:4173/   # Phase 5 check-in (Chapter 5)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -66,6 +67,7 @@ src/
   chapters/ch2/           Chapter 2's code: schoolhouse displays, journey timeline, barrier/support (lazy-loaded)
   chapters/ch3/           Chapter 3's code: soil close-ups, the soil model, the rotation planner (lazy-loaded)
   chapters/ch4/           Chapter 4's code: crop tests, invention rules, workbench, decorations shop (lazy-loaded)
+  chapters/ch5/           Chapter 5's code: farm clues, recommendation rules, demonstration table (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -146,11 +148,23 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 1 | A Seed Is Planted / Curiosity Collector | Approved ✅ |
 | 2 | Science Against the Odds / Choose the Path | Approved ✅ |
 | 3 | The Soil Speaks / Virtual Soil Lab | Approved ✅ |
-| 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Built, waiting for approval |
-| 5 | Science for the People / Farm Helper | Not started |
+| 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Approved ✅ |
+| 5 | Science for the People / Farm Helper | Built, awaiting owner review |
 | 6 | A Scientist's Method / Design Your Own Experiment | Not started |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 5)
+
+- The farm rules are a simple model for the game (for example, "plow
+  across the slope" stands for contour plowing plus a winter cover crop).
+  They are not real advice for any one farm.
+- Two Creeks is reached only by the wagon; the map pins in the journal
+  show town people only, so Mrs. Watts and Mr. Pryor are not pinned there.
+- The table on a phone is a long scrolling list (the farmer's report, six
+  cards, then the result). It works, but it is a lot of scrolling.
+- Printing the Interview Card works on the website; the Claude artifact
+  preview can't open the print dialog.
 
 ## Known issues (Phase 4)
 

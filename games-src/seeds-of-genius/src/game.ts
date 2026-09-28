@@ -6,7 +6,7 @@ import { bus } from './core/events';
 import { CHAPTERS } from './content/chapters';
 import { CONVERSATIONS, PLACE_LINES } from './content/conversations';
 import { ITEMS } from './content/items';
-import { NPCS, npcById, type NpcDefinition } from './content/npcs';
+import { NPCS, npcById, shortName, type NpcDefinition } from './content/npcs';
 import { QuestEngine } from './quests/engine';
 import type { Conversation, DialogueEffect } from './quests/types';
 import { K, PixelRenderer } from './render/pixelRenderer';
@@ -17,7 +17,7 @@ import { SaveStore, freshSave, type SaveData } from './systems/save';
 import { applySettingsToDocument, isTouchDevice, settings, touchControlsVisible, updateSettings } from './systems/settings';
 import { Actor } from './world/actor';
 import { findPath } from './world/collision';
-import { buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, buildWorkshopScene, type WorldScene } from './world/scenes';
+import { buildCreekScene, buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, buildWorkshopScene, type WorldScene } from './world/scenes';
 import type { SceneId } from './world/map';
 import { openCustomize } from './ui/customize';
 import { DialogueUI } from './ui/dialogue';
@@ -61,6 +61,7 @@ export class Game {
   readonly school: WorldScene;
   readonly farm: WorldScene;
   readonly workshop: WorldScene;
+  readonly creek: WorldScene;
   world: WorldScene;
   player!: Actor;
   private npcActors = new Map<string, Actor>();
@@ -93,6 +94,7 @@ export class Game {
     this.school = buildSchoolScene();
     this.farm = buildFarmScene();
     this.workshop = buildWorkshopScene();
+    this.creek = buildCreekScene();
     this.world = this.hub;
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
@@ -218,10 +220,11 @@ export class Game {
   private spawnNpcs(): void {
     if (this.npcActors.size) return;
     for (const n of NPCS) {
-      const a = new Actor(this.hub.lighting, n.look, n.pos.x, n.pos.y, n.facing);
+      const w = this.sceneById(n.scene);
+      const a = new Actor(w.lighting, n.look, n.pos.x, n.pos.y, n.facing);
       a.group.name = `npc:${n.id}`;
       this.npcActors.set(n.id, a);
-      this.hub.scene.add(a.group);
+      w.scene.add(a.group);
     }
     this.refreshNpcPresence(true);
   }
@@ -231,14 +234,15 @@ export class Game {
   private refreshNpcPresence(force = false): void {
     const minutes = this.save.time.minutes;
     const night = lightAt(minutes).night > 0.5;
-    this.hub.grid.clearDynamic();
+    for (const w of new Set(NPCS.map((n) => this.sceneById(n.scene)))) w.grid.clearDynamic();
     for (const n of NPCS) {
       const a = this.npcActors.get(n.id)!;
       const present = isPresent(n.presence, minutes);
       a.setVisible(present);
       if (present) {
-        this.hub.grid.setDynamic(n.id, [[Math.floor(n.pos.x), Math.floor(n.pos.y)]]);
-        this.hub.grid.setBlocker(n.id, n.pos.x, n.pos.y, NPC_SPACE);
+        const grid = this.sceneById(n.scene).grid;
+        grid.setDynamic(n.id, [[Math.floor(n.pos.x), Math.floor(n.pos.y)]]);
+        grid.setBlocker(n.id, n.pos.x, n.pos.y, NPC_SPACE);
       }
       const lantern = !!n.lanternAtNight && night;
       if (force || this.lanternState.get(n.id) !== lantern) {
@@ -249,7 +253,7 @@ export class Game {
   }
 
   private sceneById(id: SceneId): WorldScene {
-    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm, workshop: this.workshop }[id];
+    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm, workshop: this.workshop, creek: this.creek }[id];
   }
 
   private setScene(id: SceneId, pos?: { x: number; y: number }, facing: Dir = 'down'): void {
@@ -338,8 +342,8 @@ export class Game {
     this.movePlayer(dt);
     this.player.update(dt, rm);
     this.npcActors.forEach((a, id) => {
-      if (this.world !== this.hub) return;
       const n = npcById(id)!;
+      if (n.scene !== this.world.id) return;
       const d = Math.hypot(a.x - this.player.x, a.y - this.player.y);
       a.facing = d < 2.6 ? faceToward(a.x, a.y, this.player.x, this.player.y) : n.facing;
       a.setMarker(this.engine.markerFor(id));
@@ -366,7 +370,7 @@ export class Game {
     const p = this.player;
     const npc = this.talkingTo ? npcById(this.talkingTo) : null;
     const box = this.uiLayer.querySelector('.dialogue') as HTMLElement | null;
-    if (!npc || !box || this.world !== this.hub) return [p.x, p.y];
+    if (!npc || !box || npc.scene !== this.world.id) return [p.x, p.y];
     const dpr = window.devicePixelRatio || 1;
     const pxPerTile = (16 * this.renderer.scale) / dpr;
     const fx = (p.x + npc.pos.x) / 2;
@@ -459,7 +463,7 @@ export class Game {
     const cy = e.clientY - rect.top;
     // Clicked a character? (use their on-screen body box)
     for (const [id, a] of this.npcActors) {
-      if (this.world !== this.hub || !a.group.visible) continue;
+      if (npcById(id)!.scene !== this.world.id || !a.group.visible) continue;
       const feet = this.renderer.project(new THREE.Vector3(a.group.position.x, 0, a.group.position.z));
       const head = this.renderer.project(a.headPoint());
       const half = (this.renderer.scale * 10) / (window.devicePixelRatio || 1);
@@ -493,11 +497,11 @@ export class Game {
 
   private targetsInScene(): Target[] {
     const out: Target[] = [];
+    for (const n of NPCS) {
+      if (n.scene !== this.world.id || !isPresent(n.presence, this.save.time.minutes)) continue;
+      out.push({ kind: 'npc', id: n.id, label: `Talk to ${shortName(n)}`, x: n.pos.x, y: n.pos.y });
+    }
     if (this.world === this.hub) {
-      for (const n of NPCS) {
-        if (!isPresent(n.presence, this.save.time.minutes)) continue;
-        out.push({ kind: 'npc', id: n.id, label: `Talk to ${shortName(n)}`, x: n.pos.x, y: n.pos.y });
-      }
       for (const p of this.hub.map.props)
         if (p.kind === 'sign' && p.text) out.push({ kind: 'sign', text: p.text, label: 'Read the sign', x: p.x + 0.5, y: p.y + 0.5 });
     }
@@ -755,7 +759,14 @@ export class Game {
       case 'school_exit':
       case 'farm_exit':
       case 'workshop_exit':
+      case 'creek_exit':
         return this.transition('hub');
+      case 'creek_door': {
+        const st = this.engine.progress('ch5').stage;
+        if (st === 'active' || st === 'complete') return this.transition('creek');
+        if (st === 'available') return this.say('The wagon is packed with seeds and tools, but Carver has not asked you to ride along yet. Talk to him first.');
+        return this.say(PLACE_LINES.creek_door);
+      }
       case 'workshop_door': {
         const st = this.engine.progress('ch4').stage;
         if (st === 'active' || st === 'complete') return this.transition('workshop');
@@ -890,8 +901,14 @@ export class Game {
     if (this.clock < this.guideUntil) targetNpc = 'carver';
     const from = this.renderer.project(this.player.headPoint());
     const ex = this.world.map.exit;
+    // A person in another scene is pointed at like a place there (door or wagon).
+    const npcDef = targetNpc ? npcById(targetNpc) : undefined;
+    if (npcDef && npcDef.scene !== this.world.id) {
+      obj.point = { x: npcDef.pos.x, y: npcDef.pos.y, label: shortName(npcDef), scene: npcDef.scene };
+      targetNpc = undefined;
+    }
     const pointHere = obj.point && obj.point.scene === this.world.id;
-    if (ex && (targetNpc || (obj.point && !pointHere))) {
+    if (ex && ((targetNpc && npcDef?.scene !== this.world.id) || (obj.point && !pointHere))) {
       // Inside, with the next task outside: point at the door.
       const door = this.renderer.project(new THREE.Vector3((ex.x0 + ex.x1) / 2, 0, (ex.y + 0.5) * K));
       this.hud.setArrow(door.visible ? null : 'Door', from.x, from.y, door.x, door.y);
@@ -903,7 +920,7 @@ export class Game {
       if (doorPlace) obj.point = { x: doorPlace.x, y: doorPlace.y, label: obj.point.label, scene: 'hub' };
     }
     const a = targetNpc ? this.npcActors.get(targetNpc) : null;
-    if (a && this.world === this.hub) {
+    if (a && npcDef?.scene === this.world.id) {
       const s = this.renderer.project(a.headPoint());
       const { w, h: hh } = this.renderer.hostSize;
       const onScreen = s.x > 40 && s.x < w - 40 && s.y > 60 && s.y < hh - 60;
@@ -1205,6 +1222,7 @@ export class Game {
         ch2Data: this.save.chapterData.ch2 ?? null,
         ch3Data: this.save.chapterData.ch3 ?? null,
         ch4Data: this.save.chapterData.ch4 ?? null,
+        ch5Data: this.save.chapterData.ch5 ?? null,
         cosmetics: this.save.cosmetics,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,
@@ -1247,10 +1265,3 @@ function sameTarget(a: Target, b: Target): boolean {
   return (a as { id: string }).id === (b as { id: string }).id;
 }
 
-function shortName(n: NpcDefinition): string {
-  if (n.id === 'carver') return 'Carver';
-  const words = n.name.split(' ');
-  // "Mr. Odell" stays whole; "Ms. Ruth Nelson" becomes "Ms. Nelson"; "Miss Lottie Greene" becomes "Miss Lottie".
-  if (words[0] === 'Miss') return `Miss ${words[1]}`;
-  return /^(Mr|Ms|Mrs|Dr)\.$/.test(words[0]) ? `${words[0]} ${words[words.length - 1]}` : words[0];
-}

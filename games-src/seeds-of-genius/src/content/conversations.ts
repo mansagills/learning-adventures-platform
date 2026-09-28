@@ -1292,6 +1292,304 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'bb', speaker: 'wendell', expression: 'smile', text: 'I fix chairs, build shelves and mend fences. Everything can be improved.', next: null },
     ]),
 
+    // ------------------------------------------------ Chapter 5: Science for the People
+    convo('carver_ch5_opening', 'Carver: Science for the people', [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Science is not only for laboratories and classrooms. It matters most when it helps real families, right where they live.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'neutral',
+        text: 'Two neighbors out at Two Creeks are having a hard year. Mrs. Watts farms a hillside. Mr. Pryor farms a flat field by the creek. Their problems are not the same.',
+        choices: [
+          { text: 'How can I help them?', next: 'o3a' },
+          { text: 'Why not tell them what to buy?', next: 'o3b' },
+        ],
+      },
+      {
+        id: 'o3a',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Listen first. Get each farmer\'s own report, look at their land with your own eyes, then recommend what they can really do.',
+        next: 'o4',
+      },
+      {
+        id: 'o3b',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Most farmers I knew had very little money. Advice that costs money they do not have is no help at all. The best answer uses what a family already has.',
+        next: 'o4',
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch5' }],
+        text: 'Miss Clara drives our demonstration wagon, a school on wheels. She has a map of what is free around Two Creeks, and she will take you there.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'proud',
+        text: 'One more thing: we do not sell advice. We share it. Neighbors help neighbors.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch5_waiting', 'Carver: How are the neighbors?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge5}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'What if the best idea costs money?', next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Then it is not the best idea for them. The best idea is the one a family can really use.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch5_closing', 'Carver: Two neighbors helped', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'Clara tells me both farms are busy already! Tell me what you recommended.', next: 'c2' },
+      { id: 'c2', speaker: 'carver', expression: 'thinking', text: '{wattsPlan}', next: 'c3' },
+      { id: 'c3', speaker: 'carver', expression: 'thinking', text: '{pryorPlan}', next: 'c4' },
+      { id: 'c4', speaker: 'carver', expression: 'proud', text: '{fertilizerNote}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'help',
+        text: 'So tell me: why didn\'t you recommend store fertilizer to them?',
+        options: [
+          {
+            id: 'bad',
+            text: 'Fertilizer is always bad for plants.',
+            correct: false,
+            misconception: 'fertilizer-always-bad',
+            feedback: 'Fertilizer can help plants grow. So why not for these two farmers? Think about what their reports said.',
+          },
+          {
+            id: 'fits',
+            text: 'It costs money they do not have, and it does not stop the washing or build soil for next year.',
+            correct: true,
+            feedback: 'Yes. You judged it by their real lives: their money, their land, and next year too.',
+          },
+          {
+            id: 'poster',
+            text: 'Because the poster was too shiny.',
+            correct: false,
+            misconception: 'judge-by-looks',
+            feedback: 'Ha! The poster was shiny. But what did the farmers\' reports and the resource map say about it?',
+          },
+        ],
+        hints: [
+          'Here is a clue: look at what each farmer has. How much money did they write down?',
+          'Mrs. Watts has $3 and Mr. Pryor owes the store. A sack costs $12. And would it stop rain washing soil away?',
+          'Worked example: a fix only helps if a family can afford it and it solves their real problem. So "It costs money they do not have, and it does not stop the washing or build soil for next year" is the answer.',
+        ],
+        next: 'c5',
+      },
+      {
+        id: 'c5',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'That is science for the people: an answer that fits their land, their money and their lives.',
+        textIfRetried: 'You thought it through again. An answer has to fit a family\'s land, money and life. That is science for the people.',
+        next: 'c6',
+      },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'Long ago, we took a real wagon out to farms, just like Clara\'s. Would you like to see a memory?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'c7', effects: [{ type: 'showMemory', memoryId: 'movable_school' }] },
+          { text: 'Maybe later.', next: 'c7' },
+        ],
+      },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'interview_card', from: 'carver' }],
+        text: 'This is for you: a Growing-Need Interview Card. Ask someone you know about growing food, and listen first, the way you did today.',
+        next: 'c8',
+      },
+      {
+        id: 'c8',
+        speaker: 'carver',
+        expression: 'curious',
+        effects: [{ type: 'completeChapter', chapterId: 'ch5' }],
+        text: 'Next time, you ask a question nobody has answered yet, and design a fair test to find out.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch5_after', 'Carver: Neighbors helping neighbors', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Mrs. Watts sent word: the rain came and her soil stayed put. Mr. Pryor\'s children planted greens. Your interview card is in your bag.',
+        choices: [
+          { text: 'Can I see the wagon memory?', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'movable_school' }] },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'When the farmers could not come to the school, we brought the school to them.', next: null },
+    ]),
+
+    convo('clara_ch5_give', 'Miss Clara: The movable school', [
+      {
+        id: 'k1',
+        speaker: 'clara',
+        expression: 'smile',
+        text: "Hi! I'm Clara Dean. I drive the demonstration wagon out to farms. Carver calls it a movable school.",
+        choices: [
+          { text: 'Why a wagon?', next: 'k2a' },
+          { text: "What's in it?", next: 'k2b' },
+        ],
+      },
+      {
+        id: 'k2a',
+        speaker: 'clara',
+        expression: 'neutral',
+        text: "Farmers can't leave their fields for weeks to come to a school. So the school goes to them.",
+        next: 'k3',
+      },
+      {
+        id: 'k2b',
+        speaker: 'clara',
+        expression: 'curious',
+        text: 'Seed samples, a shovel, a plow, and a table for showing ideas. Everything we show is something a family can do at home.',
+        next: 'k3',
+      },
+      {
+        id: 'k3',
+        speaker: 'clara',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'resource_map', from: 'clara' },
+          { type: 'completeStep', chapterId: 'ch5', stepId: 'get_map' },
+        ],
+        text: 'Here is my resource map of Two Creeks. It shows what is free around there, and what costs money.',
+        next: 'k4',
+      },
+      {
+        id: 'k4',
+        speaker: 'clara',
+        expression: 'curious',
+        text: 'Hop on the wagon when you are ready: just walk up to it. And listen first. Every family knows their own land best.',
+        next: null,
+      },
+    ]),
+    convo('clara_ch5_after', 'Miss Clara: Ready to roll', [
+      { id: 'ka', speaker: 'clara', expression: 'smile', text: 'The wagon is ready whenever you are! Walk up to it to ride to Two Creeks.', next: null },
+    ]),
+    convo('clara_ambient', 'Miss Clara: Every road', [
+      { id: 'kb', speaker: 'clara', expression: 'smile', text: 'I have driven this wagon down every road in the county. Rain or shine, the school rolls on!', next: null },
+    ]),
+
+    convo('watts_ch5_give', 'Mrs. Watts: The hillside', [
+      { id: 'm1', speaker: 'watts', expression: 'smile', text: "Well, look who Clara brought! I'm Estelle Watts. This hill is my farm.", next: 'm2' },
+      {
+        id: 'm2',
+        speaker: 'watts',
+        expression: 'thinking',
+        text: 'Every time it storms, my soil runs down this hill like chocolate milk. My cotton gets thinner every year.',
+        choices: [
+          { text: 'Do you have help on the farm?', next: 'm3a' },
+          { text: 'What do you have to work with?', next: 'm3b' },
+        ],
+      },
+      {
+        id: 'm3a',
+        speaker: 'watts',
+        expression: 'neutral',
+        text: 'Just me and Buttercup, my cow. My children moved up north for work. So whatever it is, I have to be able to do it myself.',
+        next: 'm4',
+      },
+      {
+        id: 'm3b',
+        speaker: 'watts',
+        expression: 'neutral',
+        text: 'Buttercup, a lot of leaves every fall, and three dollars in a jar. That is about it.',
+        next: 'm4',
+      },
+      {
+        id: 'm4',
+        speaker: 'watts',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'farm_report_a', from: 'watts' },
+          { type: 'completeStep', chapterId: 'ch5', stepId: 'get_report_watts' },
+        ],
+        text: 'I wrote it all down for you. Take a look around my hill, too. And please: nothing fancy.',
+        next: null,
+      },
+    ]),
+    convo('watts_ch5_after', 'Mrs. Watts: News from the hill', [{ id: 'ma', speaker: 'watts', expression: 'smile', text: '{wattsAfter}', next: null }]),
+    convo('watts_ambient', 'Mrs. Watts: Buttercup', [
+      { id: 'mb', speaker: 'watts', expression: 'smile', text: 'Buttercup gives the best milk in Two Creeks. Don\'t tell Mr. Pryor I said so.', next: null },
+    ]),
+
+    convo('pryor_ch5_give', 'Mr. Pryor: The creek field', [
+      { id: 'p1', speaker: 'pryor', expression: 'neutral', text: 'Afternoon. Samuel Pryor. Carver said somebody might come by.', next: 'p2' },
+      {
+        id: 'p2',
+        speaker: 'pryor',
+        expression: 'thinking',
+        text: 'My field is worn thin from cotton, and my children eat cornbread most nights. I want better for them.',
+        choices: [
+          { text: 'Have you tried store fertilizer?', next: 'p3a' },
+          { text: 'What do you have plenty of?', next: 'p3b' },
+        ],
+      },
+      {
+        id: 'p3a',
+        speaker: 'pryor',
+        expression: 'neutral',
+        text: 'Once. I borrowed money for a sack. I got a little more cotton, but not enough to pay it back. I still owe the store.',
+        next: 'p4',
+      },
+      {
+        id: 'p3b',
+        speaker: 'pryor',
+        expression: 'smile',
+        text: 'Mud and leaves! The creek bank is full of black muck, and my woods drop leaves every fall.',
+        next: 'p4',
+      },
+      {
+        id: 'p4',
+        speaker: 'pryor',
+        expression: 'neutral',
+        effects: [
+          { type: 'grantItem', itemId: 'farm_report_b', from: 'pryor' },
+          { type: 'completeStep', chapterId: 'ch5', stepId: 'get_report_pryor' },
+        ],
+        text: 'Here are my notes. Look around if you like. Whatever you suggest, it has to cost nothing.',
+        next: null,
+      },
+    ]),
+    convo('pryor_ch5_after', 'Mr. Pryor: News from the creek', [{ id: 'pa', speaker: 'pryor', expression: 'smile', text: '{pryorAfter}', next: null }]),
+    convo('pryor_ambient', 'Mr. Pryor: The creek', [
+      { id: 'pb', speaker: 'pryor', expression: 'smile', text: 'Listen: that creek never stops talking. My children say it sings them to sleep.', next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {
@@ -1355,6 +1653,7 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
 /** One-off lines for objects and places (not replayed in the journal). */
 export const PLACE_LINES: Record<string, string> = {
   school_door: 'The schoolhouse is closed for now. It opens in Chapter 2.',
+  creek_door: 'A covered wagon full of seed sacks, tools and posters. Carver calls it a movable school. It rolls out to the farms in Chapter 5.',
   farm_door: 'The farm gate is latched. Mr. Hill opens the fields for lessons in Chapter 3.',
   workshop_door: 'The workshop is locked. Mr. Brooks opens it for lessons in Chapter 4.',
   greenhouse_door: "Carver's greenhouse is full of seedlings and jars. He'll invite you in for later experiments.",

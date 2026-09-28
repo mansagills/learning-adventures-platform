@@ -181,6 +181,54 @@ export const ITEMS: Record<string, ItemDefinition> = {
     purpose: 'An off-screen activity: sketch an invention from household materials (open it from the Journal to print).',
     chapterId: 'ch4',
   },
+  farm_report_a: {
+    id: 'farm_report_a',
+    name: "Mrs. Watts's Farm Report",
+    icon: 'report',
+    description: "Mrs. Watts's own notes about her hillside farm.",
+    lookCloser: [
+      'Problems: "Hard rain washes my soil down the hill. Cotton thinner every year."',
+      'What I have: "One cow. Leaves every fall. $3 saved. I work alone. My little garden feeds me fine."',
+      'At the bottom: "Nothing fancy, please."',
+    ],
+    purpose: 'Recommend what fits her real problems and what she can do.',
+    chapterId: 'ch5',
+  },
+  farm_report_b: {
+    id: 'farm_report_b',
+    name: "Mr. Pryor's Farm Report",
+    icon: 'report',
+    description: "Mr. Pryor's own notes about his flat field by the creek.",
+    lookCloser: [
+      'Problems: "Worn-out soil, thin cotton. Family eats mostly cornbread."',
+      'What I have: "Creek muck. Leaves in my woods. A strong back. No money: I still owe the store."',
+      'In the margin: "Tried store fertilizer once. Cost more than it paid."',
+    ],
+    purpose: 'Recommend what fits his real problems and what he can do.',
+    chapterId: 'ch5',
+  },
+  resource_map: {
+    id: 'resource_map',
+    name: 'Resource Map',
+    icon: 'map',
+    description: "Miss Clara's hand-drawn map of what is free, and what costs money, around Two Creeks.",
+    lookCloser: [
+      'FREE: creek muck, leaf piles in the woods, the Saturday seed swap at the Seed & Mail (cowpea seeds), the community canning day at Miss Lottie\'s kitchen.',
+      'COSTS MONEY: store fertilizer ($12 a sack). Stone from the quarry (far away, heavy).',
+    ],
+    purpose: 'Find free resources that each farmer can really use.',
+    chapterId: 'ch5',
+  },
+  interview_card: {
+    id: 'interview_card',
+    name: 'Growing-Need Interview Card',
+    icon: 'card',
+    description: 'A card from Carver with questions to ask someone about growing food or plants.',
+    lookCloser: ['"What do you grow, or wish you could grow?" "What makes it hard?" "What do you already have that could help?"'],
+    purpose: 'An off-screen activity: interview someone about a growing problem (open it from the Journal to print).',
+    chapterId: 'ch5',
+  },
 };
+
 
 

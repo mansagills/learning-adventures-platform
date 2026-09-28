@@ -8,7 +8,7 @@
 
 export const TILE_PX = 16;
 
-export type GroundKind = 'grass' | 'path' | 'cobble' | 'water' | 'soil' | 'field' | 'dryfield' | 'flowers' | 'floor' | 'rug' | 'wall';
+export type GroundKind = 'grass' | 'path' | 'cobble' | 'water' | 'soil' | 'field' | 'dryfield' | 'gully' | 'flowers' | 'floor' | 'rug' | 'wall';
 
 export interface BuildingDef {
   id: string;
@@ -41,7 +41,10 @@ export type PropKind =
   | 'crate'
   | 'reeds'
   | 'barrel'
-  | 'potting';
+  | 'potting'
+  | 'wagon'
+  | 'cow'
+  | 'leaves';
 
 export interface PropDef {
   kind: PropKind;
@@ -65,7 +68,7 @@ export interface PlaceDef {
 }
 
 /** Every place the player can be. Interiors share the scene kit. */
-export type SceneId = 'hub' | 'room' | 'school' | 'farm' | 'workshop';
+export type SceneId = 'hub' | 'room' | 'school' | 'farm' | 'workshop' | 'creek';
 
 export interface MapDef {
   id: SceneId;
@@ -192,6 +195,8 @@ function hubProps(): PropDef[] {
   }
   for (let x = 31; x <= 36; x++) for (const y of [4, 6]) if (x !== 35) props.push({ kind: 'crop', x, y, variant: 3, solid: false });
   props.push({ kind: 'scarecrow', x: 35, y: 5 });
+  // The demonstration wagon (Chapter 5 rides it to Two Creeks).
+  props.push({ kind: 'wagon', x: 25, y: 7 });
   // Hattie's potting bench, where Chapter 1's card game is played.
   props.push({ kind: 'potting', x: 9, y: 8 });
 
@@ -247,6 +252,7 @@ export function buildHubMap(): MapDef {
       { id: 'greenhouse_door', label: 'Greenhouse door', x: 19.9, y: 6.4, radius: 1.1 },
       { id: 'shop_door', label: 'Seed & Mail door', x: 33.5, y: 17.4, radius: 0.8 },
       { id: 'farm_door', label: 'Hilltop Farm gate', x: 33.9, y: 7.6, radius: 1.0 },
+      { id: 'creek_door', label: 'Demonstration wagon to Two Creeks', x: 26, y: 8.4, radius: 1.0 },
     ],
     spawn: { x: 5.5, y: 18.5 },
     blocked: new Set(),
@@ -456,5 +462,64 @@ export function buildWorkshopMap(): MapDef {
     blocked,
     entry: { x: 7, y: 7.3 },
     exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 33.5, y: 26.4 } },
+  };
+}
+
+// ------------------------------------------------------------------ Two Creeks (Chapter 5)
+
+/**
+ * Two Creeks: two small neighboring farms a wagon ride from town. Mrs.
+ * Watts farms a washed-out hillside (west); Mr. Pryor farms a flat, worn
+ * field by the creek (east). The wagon waits at the bottom of the lane.
+ */
+export function buildCreekMap(): MapDef {
+  const W = 18;
+  const H = 12;
+  const g: GroundKind[][] = Array.from({ length: H }, () => Array<GroundKind>(W).fill('grass'));
+  const fill = (k: GroundKind, x0: number, y0: number, x1: number, y1: number) => {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) g[y][x] = k;
+  };
+  fill('water', 16, 1, 17, 11); // the creek
+  fill('dryfield', 1, 5, 6, 8); // Mrs. Watts's hillside
+  fill('gully', 2, 5, 2, 8); // rain has cut channels down the slope
+  fill('gully', 5, 6, 5, 8);
+  fill('soil', 5, 3, 6, 3); // her little garden
+  fill('field', 11, 4, 15, 7); // Mr. Pryor's flat field
+  fill('soil', 15, 8, 15, 10); // dark creek-bank muck
+  fill('path', 8, 2, 9, 11); // the lane
+  fill('path', 1, 9, 15, 9); // the cross path
+
+  const props: PropDef[] = [];
+  for (let x = 0; x < 16; x++) props.push({ kind: x % 3 === 0 ? 'pine' : 'tree', x, y: 0, variant: x % 3 });
+  for (let y = 1; y < H; y++) props.push({ kind: y % 3 === 0 ? 'pine' : 'tree', x: 0, y, variant: y % 3 });
+  // Low bushes along the south edge, so trees never hide the farmers or the wagon.
+  for (let x = 1; x < 16; x++) if (x < 8 || x > 9) props.push({ kind: 'bush', x, y: H - 1, variant: x % 2 });
+  for (let x = 1; x <= 6; x++) for (const y of [6, 8]) if (g[y][x] === 'dryfield') props.push({ kind: 'crop', x, y, variant: 4, solid: false });
+  for (let x = 11; x <= 15; x++) for (const y of [5, 7]) props.push({ kind: 'crop', x, y, variant: 4, solid: false });
+  props.push({ kind: 'crop', x: 5, y: 3, variant: 0, solid: false });
+  props.push({ kind: 'crop', x: 6, y: 3, variant: 1, solid: false });
+  props.push({ kind: 'cow', x: 6, y: 1 });
+  for (const x of [11, 13, 15]) props.push({ kind: 'tree', x, y: 1, variant: x % 3 });
+  props.push({ kind: 'leaves', x: 12, y: 2, solid: false });
+  props.push({ kind: 'leaves', x: 14, y: 2, solid: false });
+  props.push({ kind: 'reeds', x: 16, y: 4, solid: false });
+  props.push({ kind: 'reeds', x: 17, y: 8, solid: false });
+  props.push({ kind: 'crate', x: 11, y: 10 });
+  props.push({ kind: 'barrel', x: 12, y: 10 });
+  props.push({ kind: 'wagon', x: 6, y: 10 });
+  props.push({ kind: 'sign', x: 7, y: 4, text: "Watts farm. Mrs. Estelle Watts's hillside field and garden." });
+  props.push({ kind: 'sign', x: 10, y: 4, text: "Pryor farm. Mr. Samuel Pryor's field by the creek." });
+  return {
+    id: 'creek',
+    w: W,
+    h: H,
+    ground: g,
+    buildings: [{ id: 'watts_cabin', label: "Mrs. Watts's cabin", x: 1, y: 1, w: 4, d: 2, h: 2, style: 'cottage', roof: 'brown', doorX: 2 }],
+    props,
+    places: [{ id: 'creek_exit', label: 'Ride the wagon back to town', x: 8.9, y: 11.3, radius: 1.1 }],
+    spawn: { x: 8.9, y: 10.3 },
+    blocked: new Set(),
+    entry: { x: 8.9, y: 10.3 },
+    exit: { x0: 8, x1: 10, y: 11.05, to: 'hub', at: { x: 26, y: 9.3 } },
   };
 }

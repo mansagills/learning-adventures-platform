@@ -7,7 +7,7 @@ import { paintingCanvas } from '../art/sceneArt';
 import { P } from '../art/palette';
 import { hash2, mulberry32 } from '../core/rng';
 import { CollisionGrid, propFootprint } from './collision';
-import { SCHOOL_EASEL_ART, SCHOOL_EASELS, WORKSHOP, WORKSHOP_DECOR_SPOTS, buildFarmMap, buildHubMap, buildWorkshopMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
+import { SCHOOL_EASEL_ART, SCHOOL_EASELS, WORKSHOP, WORKSHOP_DECOR_SPOTS, buildCreekMap, buildFarmMap, buildHubMap, buildWorkshopMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
 import { Lighting, billboard, buildBuilding, glowSprite, lightPool, pixelTexture } from './sceneKit';
 
 export interface WorldScene {
@@ -508,5 +508,34 @@ export function buildWorkshopScene(): WorldScene {
       }
     },
     setDecor: (owned) => decor.forEach((m, id) => (m.visible = owned.includes(id))),
+  };
+}
+
+// ------------------------------------------------------------ Two Creeks
+
+export function buildCreekScene(): WorldScene {
+  const map = buildCreekMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  const bg = new THREE.Color(P.grassDeep);
+  scene.background = bg.clone();
+  scene.add(groundMesh(lighting, map));
+  map.buildings.forEach((b) => {
+    scene.add(buildBuilding(lighting, b));
+    scene.add(lightPool(lighting, b.doorX + 0.5, b.y + b.d + 0.5, 1.4, '#ffcf73', 0.22));
+  });
+  addProps(scene, lighting, map);
+  scene.add(glowSprite(lighting, 30, '#ffd98a', 7, 10.4, 1.3, 0.45)); // lantern on the wagon
+  return {
+    id: 'creek',
+    map,
+    scene,
+    grid: new CollisionGrid(map),
+    lighting,
+    interior: false,
+    update: (_dt, _time, night) => {
+      bg.set(P.grassDeep).multiplyScalar(1 - night * 0.45);
+      (scene.background as THREE.Color).copy(bg);
+    },
   };
 }

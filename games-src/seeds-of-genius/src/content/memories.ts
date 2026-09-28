@@ -75,6 +75,21 @@ export const MEMORIES: Record<string, Memory> = {
       },
     ],
   },
+  movable_school: {
+    id: 'movable_school',
+    title: 'The Movable School',
+    setting: 'Around Tuskegee, Alabama, from 1906',
+    pages: [
+      {
+        art: 'mem-wagon',
+        caption:
+          "Many farmers could not leave their fields to come to school, so Carver helped design a school that went to them. In 1906 the Jesup Wagon rolled out from Tuskegee, carrying tools, seeds and lessons to farms. Thomas Monroe Campbell drove it from farm to farm.",
+      },
+      {
+        art: 'mem-muck',
+        caption:
+          'Carver knew most farmers had little money. So he taught ways that cost almost nothing: pile up leaves, creek muck and manure to make compost, and plant peas that feed both the soil and the family.',
+      },
+    ],
+  },
 };
-
-

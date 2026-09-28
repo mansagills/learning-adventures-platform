@@ -123,6 +123,12 @@ const PAINTERS: Record<string, Painter> = {
       b.set(x + 1, y + 1, '#3a2a26');
     }
   },
+  report: (b) => {
+    b.rect(2, 1, 12, 14, P.paper);
+    b.rect(2, 1, 12, 3, '#8a5cc4');
+    for (const y of [6, 8, 10, 12]) b.hline(4, 11, y, P.ink);
+    b.rect(10, 11, 3, 3, P.leaf2);
+  },
   seed: (b) => {
     b.ellipse(4, 3, 8, 11, '#c98c4a');
     b.ellipse(5, 4, 4, 6, '#e0ad6a');

@@ -1,6 +1,6 @@
 import { iconImg, iconURL } from '../art/icons';
 import { CONVERSATIONS } from '../content/conversations';
-import { npcById, NPCS } from '../content/npcs';
+import { npcById, NPCS, shortName } from '../content/npcs';
 import { SOURCES } from '../content/sources';
 import type { QuestEngine } from '../quests/engine';
 import type { SaveData } from '../systems/save';
@@ -325,8 +325,8 @@ export function openJournal(host: HTMLElement, ctx: JournalContext, start: Journ
       );
     };
     const next = ctx.engine.nextAction();
-    NPCS.filter((n) => n.required).forEach((n) =>
-      pin(n.pos.x, n.pos.y - 0.4, n.id === 'carver' ? 'Carver' : n.name.split(' ')[0], n.id === 'carver' ? 'carver' : '', next.targetNpcId === n.id ? 'leaf' : undefined),
+    NPCS.filter((n) => n.required && n.scene === 'hub').forEach((n) =>
+      pin(n.pos.x, n.pos.y - 0.4, shortName(n), n.id === 'carver' ? 'carver' : '', next.targetNpcId === n.id ? 'leaf' : undefined),
     );
     const px = pos.scene === 'hub' ? pos : { x: 5.5, y: 17.5 };
     pin(px.x, px.y - 0.4, pos.scene === 'hub' ? 'You' : 'You (inside)', 'you');

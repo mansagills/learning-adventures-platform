@@ -22,8 +22,9 @@ explicit approval**. A passing self-score is not approval.
 | 1: A Seed Is Planted / Curiosity Collector | **COMPLETED ✅** (owner approved 2026-09-27: "still feels cozy and fun") |
 | 2: Science Against the Odds / Choose the Path | **COMPLETED ✅** (owner approved 2026-09-27 after reviewing tone and age fit) |
 | 3: The Soil Speaks / Virtual Soil Lab | **COMPLETED ✅** (owner approved 2026-09-27 after viewing screenshots and testing in the app) |
-| 4: The Peanut Isn't Just a Peanut / Inventor's Workshop | In progress |
-| 5-8 | Not started |
+| 4: The Peanut Isn't Just a Peanut / Inventor's Workshop | **COMPLETED ✅** (owner approved 2026-09-27) |
+| 5: Science for the People / Farm Helper | Built, awaiting owner review |
+| 6-8 | Not started |
 
 ## Phase 0: playable foundation
 
@@ -125,3 +126,23 @@ explicit approval**. A passing self-score is not approval.
 **Facts used (NPS biography and Tuskegee page):** at Tuskegee, Carver looked for many new uses for peanuts, sweet potatoes and other crops so farmers who rotated with them could use or sell them, and shared ideas and recipes in bulletins; in 1921 he spoke to a committee of the U.S. Congress about uses of the peanut; he did not invent peanut butter. Every prototype in the game is labeled as a made-up game invention. Miss Lottie, Mr. Brooks and the kitchen are fictional.
 
 **Tests:** 93 unit tests; `node scripts/e2e-phase4.mjs` (54 browser checks), plus the Phase 0–3 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase4/`.
+
+## Phase 5: Science for the People / Farm Helper
+
+**Deliverables (from the spec):**
+
+- [x] Carver assigns the chapter: science matters most when it helps real families. Two neighbors at Two Creeks have different problems. "We do not sell advice. We share it." Two answer branches ("How can I help them?" / "Why not tell them what to buy?")
+- [x] **Miss Clara Dean** (new outreach helper, beside a demonstration wagon at the north end of the town square) gives the **Resource Map**: what is free around Two Creeks (creek muck, leaf piles, cowpea seeds at the seed swap, the canning day at Miss Lottie's kitchen) and what costs money (store fertilizer, $12 a sack)
+- [x] NPCs can now stand in any scene, not only in town. Riding the **demonstration wagon** takes you to **Two Creeks**, a new compact map: Mrs. Watts's hillside field (with rain gullies), her cabin, garden and cow; Mr. Pryor's flat cotton field; the creek, its muck bank, and leaf piles. Walking back to the wagon returns to town
+- [x] **Mrs. Estelle Watts** (hillside, works alone, has a cow, leaves and $3) and **Mr. Samuel Pryor** (flat worn field, family short of food, has muck and leaves, no money, still owes the store) each give their own **Farm Report**, with branches (she works alone; his one try at store fertilizer)
+- [x] **Look around both farms**: six spots to inspect (gully, hillside soil, cow; cotton, creek muck, leaf piles). Two looks per farm open the table; each clue goes in the journal
+- [x] **Demonstration table**: each farmer's report, your clues and the resource map on screen; six idea cards (compost, cowpeas, plow across the slope, garden + canning day, store fertilizer, stone wall); pick two per farmer and check. Every card gets a reason for that farmer (fits / not their problem / not practical), and missing problems are named. Mrs. Watts has 2 fitting plans, Mr. Pryor 3, and no plan fits both
+- [x] The **tempting** options are explained, not just marked wrong: store fertilizer costs $12 (she has $3; he owes the store), would wash down the hill, and does not build soil for next year; a stone wall is months of hauling for one person
+- [x] Hint ladder on a plan that does not fit: back to the report → a narrower hint → a worked example you can fill in
+- [x] **Explain the plan to the farmer**: pick the reason (one right answer; two weak ones get a gentle correction). The farmer reacts (with their portrait), a **"Who benefits"** note explains who is helped and why, and the farmer offers to pay; you help for free. Helping gives a small +10 XP thank-you per farmer (no Seeds)
+- [x] Carver's debrief repeats both plans, notices whether you tried fertilizer first, asks why you did not recommend it (wrong answers explained), offers the **Movable School** memory, and gives the printable **Growing-Need Interview Card**
+- [x] The farmers say what they are doing with your plan afterwards. Journal: clues, both plans with reasons and who benefits, "why not store fertilizer", reflection and the card. Completion pays +150 XP / +25 Seeds once and shows Chapter 6 as arriving next; mid-chapter save/reload keeps everything
+
+**Facts used (NPS biography and Tuskegee page):** many farmers could not leave their fields to attend school, so Carver helped design a "movable school"; the Jesup Wagon went out from Tuskegee in 1906, driven by Thomas Monroe Campbell, carrying tools, seeds and demonstrations; Carver taught low-cost methods such as composting leaves, muck and manure and planting legumes, because most farmers had very little money. Two Creeks, Miss Clara, Mrs. Watts, Mr. Pryor and their farms are fictional, and the game's farm rules are a simple model, not real farm advice.
+
+**Tests:** 109 unit tests; `node scripts/e2e-phase5.mjs` (70 browser checks), plus the Phase 0–4 check-ins still passing. Screenshots in `games-src/seeds-of-genius/test-output/phase5/`.

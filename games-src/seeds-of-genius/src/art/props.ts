@@ -373,7 +373,57 @@ export function paintProp(kind: PropKind, variant = 0): PixelBuffer {
       return barrel();
     case 'reeds':
       return reeds();
+    case 'wagon':
+      return wagon();
+    case 'cow':
+      return cow();
+    case 'leaves':
+      return leafPile();
   }
+}
+
+/** A covered farm wagon, like the "movable school" wagons that carried lessons to farms. */
+function wagon(): PixelBuffer {
+  const b = new PixelBuffer(34, 28);
+  b.rect(2, 12, 30, 8, P.wood1);
+  b.hline(2, 31, 12, P.wood3);
+  for (let x = 6; x < 30; x += 6) b.vline(x, 13, 19, P.wood2);
+  // canvas cover
+  b.rect(4, 2, 26, 10, '#efe6cf');
+  b.hline(4, 29, 2, '#dcd0b0');
+  for (let x = 8; x < 28; x += 6) b.vline(x, 3, 11, '#dcd0b0');
+  b.rect(10, 5, 14, 4, '#2f6b2c'); // a painted sign board
+  b.hline(12, 21, 7, '#e8f0e8');
+  // wheels
+  for (const cx of [4, 22]) {
+    b.ellipse(cx, 16, 10, 10, P.woodDark);
+    b.ellipse(cx + 2, 18, 6, 6, P.wood2);
+    b.set(cx + 4, 20, P.woodDark);
+  }
+  b.hline(30, 33, 16, P.wood2); // tongue
+  return b.outline();
+}
+
+function cow(): PixelBuffer {
+  const b = new PixelBuffer(30, 22);
+  b.rect(4, 6, 20, 10, '#f2ede2');
+  b.ellipse(8, 7, 7, 6, '#6b4a33');
+  b.ellipse(16, 10, 6, 5, '#6b4a33');
+  b.rect(22, 3, 7, 8, '#f2ede2'); // head
+  b.rect(24, 8, 5, 3, '#e8a5a0'); // nose
+  b.set(25, 5, P.outline);
+  b.hline(22, 23, 2, '#d9c9a0'); // horn
+  for (const x of [6, 10, 18, 21]) b.vline(x, 16, 20, '#e8e0d0');
+  b.vline(3, 7, 12, '#6b4a33'); // tail
+  return b.outline();
+}
+
+function leafPile(): PixelBuffer {
+  const b = new PixelBuffer(18, 10);
+  b.ellipse(1, 2, 16, 8, '#a86a2a');
+  for (const [x, y, c] of [[4, 3, '#d98a3a'], [9, 2, '#c9a02a'], [12, 5, '#8a4a22'], [6, 6, '#e0a040']] as Array<[number, number, string]>)
+    b.rect(x, y, 2, 2, c);
+  return b.outline();
 }
 
 // ------------------------------------------------------------ buildings

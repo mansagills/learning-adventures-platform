@@ -1,6 +1,7 @@
 import type { CharacterLook, Dir } from '../art/characters';
 import { HAIR_COLORS, P } from '../art/palette';
 import type { ConversationId, NpcId, TimeOfDay } from '../quests/types';
+import type { SceneId } from '../world/map';
 
 export interface NpcDefinition {
   id: NpcId;
@@ -10,7 +11,8 @@ export interface NpcDefinition {
   look: CharacterLook;
   /** Portrait painter key (art/portraits.ts). */
   portrait: string;
-  scene: 'hub';
+  /** Where this person stands (most live in the town hub). */
+  scene: SceneId;
   /** Tile position (x, y); fractional values are fine. */
   pos: { x: number; y: number };
   facing: Dir;
@@ -318,6 +320,89 @@ NPCS.push(
   },
 );
 
+/** Chapter 5: the wagon driver in town, and two farmers out at Two Creeks. */
+NPCS.push(
+  {
+    id: 'clara',
+    name: 'Miss Clara Dean',
+    role: 'Outreach helper on the demonstration wagon',
+    look: {
+      build: 'adult',
+      skin: { base: '#6e4329', shade: '#573320' },
+      hair: { style: 'puffs', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#4b7fcf', shade: '#3a66a8' },
+      pants: '#5a4a3a',
+      shoes: '#3a2a22',
+      accessory: 'sunhat',
+      accent: '#e8d49a',
+    },
+    portrait: 'clara',
+    scene: 'hub',
+    pos: { x: 28.4, y: 7.6 },
+    facing: 'left',
+    presence: 'always',
+    ambient: { default: 'clara_ambient' },
+    voice: 350,
+    required: true,
+  },
+  {
+    id: 'watts',
+    name: 'Mrs. Estelle Watts',
+    role: 'Farmer on the hillside at Two Creeks',
+    look: {
+      build: 'adult',
+      skin: { base: '#5a3825', shade: '#462a1b' },
+      hair: { style: 'bun', base: gray.base, shade: gray.shade, light: gray.light },
+      shirt: { base: '#8a5cc4', shade: '#6d469e' },
+      pants: '#4a4038',
+      shoes: '#2f2521',
+      accessory: 'none',
+      accent: '#e8d49a',
+      extras: { apron: '#e7d9b8' },
+    },
+    portrait: 'watts',
+    scene: 'creek',
+    pos: { x: 4.5, y: 10.4 },
+    facing: 'up',
+    presence: 'always',
+    ambient: { default: 'watts_ambient' },
+    voice: 240,
+    required: true,
+  },
+  {
+    id: 'pryor',
+    name: 'Mr. Samuel Pryor',
+    role: 'Farmer by the creek at Two Creeks',
+    look: {
+      build: 'adult',
+      skin: { base: '#7a4a2e', shade: '#633b23' },
+      hair: { style: 'short', base: black.base, shade: black.shade, light: black.light },
+      shirt: { base: '#d9b25a', shade: '#b8913e' },
+      pants: '#3e5a88',
+      shoes: '#3a2a22',
+      accessory: 'cap',
+      accent: '#b8513a',
+    },
+    portrait: 'pryor',
+    scene: 'creek',
+    pos: { x: 13.5, y: 10.4 },
+    facing: 'up',
+    presence: 'always',
+    ambient: { default: 'pryor_ambient' },
+    voice: 190,
+    required: true,
+  },
+);
+
 export function npcById(id: NpcId): NpcDefinition | undefined {
   return NPCS.find((n) => n.id === id);
+}
+
+/** How prompts and pins name someone: "Carver", "Ms. Nelson", "Miss Lottie", "Ada". */
+export function shortName(n: NpcDefinition): string {
+  if (n.id === 'carver') return 'Carver';
+  const words = n.name.split(' ');
+  if (words[0] === 'Miss') return `Miss ${words[1]}`;
+  // "Mr. Odell" stays whole; "Ms. Ruth Nelson" becomes "Ms. Nelson".
+  return /^(Mr|Ms|Mrs|Dr)\.$/.test(words[0]) ? `${words[0]} ${words[words.length - 1]}` : words[0];
 }
