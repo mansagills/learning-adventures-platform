@@ -215,6 +215,7 @@ check('Next task: the crop shelf in the workshop (0/3)', /0\/3/.test(s.objective
 
 // --- Into the workshop ---
 await toWorkshopRoad(page, 33.5);
+await walkPath(page, [[33.5, 26.1]]);
 check('The workshop door offers to open', await waitTarget(page, /Workshop door/), (await state(page)).target?.label);
 await page.keyboard.press('e');
 await sleep(page, 1200);
@@ -364,6 +365,7 @@ await closeModal(page);
 
 // --- Replay and reload: no duplicate rewards; decorations persist ---
 await toWorkshopRoad(page, 33.5);
+await walkPath(page, [[33.5, 26.1]]);
 await waitTarget(page, /Workshop door/);
 await page.keyboard.press('e');
 await sleep(page, 1200);

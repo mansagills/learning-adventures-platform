@@ -17,7 +17,7 @@ import { SaveStore, freshSave, type SaveData } from './systems/save';
 import { applySettingsToDocument, isTouchDevice, settings, touchControlsVisible, updateSettings } from './systems/settings';
 import { Actor } from './world/actor';
 import { findPath } from './world/collision';
-import { buildCreekScene, buildFarmScene, buildHubScene, buildRoomScene, buildSchoolScene, buildWorkshopScene, type WorldScene } from './world/scenes';
+import { buildCreekScene, buildFarmScene, buildGreenhouseScene, buildHubScene, buildRoomScene, buildSchoolScene, buildWorkshopScene, type WorldScene } from './world/scenes';
 import type { SceneId } from './world/map';
 import { openCustomize } from './ui/customize';
 import { DialogueUI } from './ui/dialogue';
@@ -62,6 +62,7 @@ export class Game {
   readonly farm: WorldScene;
   readonly workshop: WorldScene;
   readonly creek: WorldScene;
+  readonly greenhouse: WorldScene;
   world: WorldScene;
   player!: Actor;
   private npcActors = new Map<string, Actor>();
@@ -95,6 +96,7 @@ export class Game {
     this.farm = buildFarmScene();
     this.workshop = buildWorkshopScene();
     this.creek = buildCreekScene();
+    this.greenhouse = buildGreenhouseScene();
     this.world = this.hub;
     this.hubGroundCanvas = paintGround(this.hub.map);
     this.uiLayer = h('div', { class: 'ui-layer' });
@@ -253,7 +255,7 @@ export class Game {
   }
 
   private sceneById(id: SceneId): WorldScene {
-    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm, workshop: this.workshop, creek: this.creek }[id];
+    return { hub: this.hub, room: this.room, school: this.school, farm: this.farm, workshop: this.workshop, creek: this.creek, greenhouse: this.greenhouse }[id];
   }
 
   private setScene(id: SceneId, pos?: { x: number; y: number }, facing: Dir = 'down'): void {
@@ -760,7 +762,14 @@ export class Game {
       case 'farm_exit':
       case 'workshop_exit':
       case 'creek_exit':
+      case 'greenhouse_exit':
         return this.transition('hub');
+      case 'greenhouse_door': {
+        const st = this.engine.progress('ch6').stage;
+        if (st === 'active' || st === 'complete') return this.transition('greenhouse');
+        if (st === 'available') return this.say('The greenhouse door is shut. Carver has a question he wants to test with you first.');
+        return this.say(PLACE_LINES.greenhouse_door);
+      }
       case 'creek_door': {
         const st = this.engine.progress('ch5').stage;
         if (st === 'active' || st === 'complete') return this.transition('creek');
@@ -1223,6 +1232,7 @@ export class Game {
         ch3Data: this.save.chapterData.ch3 ?? null,
         ch4Data: this.save.chapterData.ch4 ?? null,
         ch5Data: this.save.chapterData.ch5 ?? null,
+        ch6Data: this.save.chapterData.ch6 ?? null,
         cosmetics: this.save.cosmetics,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,

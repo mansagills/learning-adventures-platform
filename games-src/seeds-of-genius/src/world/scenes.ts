@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { K, PX } from '../render/pixelRenderer';
 import { paintGround } from '../art/tiles';
-import { paintFurniture, paintProp, paintSchool, paintSprout, paintWorkshop } from '../art/props';
+import { paintFurniture, paintGreenhouse, paintProp, paintSchool, paintSprout, paintWorkshop } from '../art/props';
 import { PixelBuffer } from '../art/pixel';
 import { paintingCanvas } from '../art/sceneArt';
 import { P } from '../art/palette';
 import { hash2, mulberry32 } from '../core/rng';
 import { CollisionGrid, propFootprint } from './collision';
-import { SCHOOL_EASEL_ART, SCHOOL_EASELS, WORKSHOP, WORKSHOP_DECOR_SPOTS, buildCreekMap, buildFarmMap, buildHubMap, buildWorkshopMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
+import { GREENHOUSE, SCHOOL_EASEL_ART, SCHOOL_EASELS, WORKSHOP, WORKSHOP_DECOR_SPOTS, buildCreekMap, buildGreenhouseMap, buildFarmMap, buildHubMap, buildWorkshopMap, buildRoomMap, buildSchoolMap, type MapDef, type PropDef, type SceneId } from './map';
 import { Lighting, billboard, buildBuilding, glowSprite, lightPool, pixelTexture } from './sceneKit';
 
 export interface WorldScene {
@@ -536,6 +536,73 @@ export function buildCreekScene(): WorldScene {
     update: (_dt, _time, night) => {
       bg.set(P.grassDeep).multiplyScalar(1 - night * 0.45);
       (scene.background as THREE.Color).copy(bg);
+    },
+  };
+}
+
+// ------------------------------------------------------------ greenhouse
+
+/** The glass back wall: bright sky on the sunny side, a shade cloth on the right. */
+function paintGreenhouseWall(night: boolean): HTMLCanvasElement {
+  const W = 224;
+  const H = 40;
+  const b = new PixelBuffer(W, H);
+  b.rect(0, 0, W, H, '#e8efe6');
+  const glass = night ? '#2b3a66' : '#bfe6f4';
+  for (let x = 2; x < W; x += 16) b.rect(x, 2, 14, H - 14, glass);
+  if (!night) for (let x = 6; x < 120; x += 16) b.hline(x, x + 6, 6, '#eef9fd'); // glints on the sunny side
+  else b.set(40, 9, '#fff6c8');
+  // shade cloth over the right-hand panes
+  b.rect(150, 0, 74, H - 14, '#8a7450');
+  for (let x = 151; x < W; x += 3) b.vline(x, 0, H - 15, '#76623f');
+  b.rect(0, H - 12, W, 12, '#b8a888');
+  b.hline(0, W - 1, H - 12, '#9a8a6a');
+  // a chalk slate: FAIR TEST
+  b.rect(96, 8, 32, 12, '#2f3a33');
+  b.hline(100, 123, 12, '#e8f0e8');
+  b.hline(100, 118, 15, '#cfe0cf');
+  return b.toCanvas();
+}
+
+export function buildGreenhouseScene(): WorldScene {
+  const map = buildGreenhouseMap();
+  const scene = new THREE.Scene();
+  const lighting = new Lighting();
+  scene.background = new THREE.Color('#1e1622');
+  scene.add(groundMesh(lighting, map));
+  const dayTex = pixelTexture(paintGreenhouseWall(false));
+  const nightTex = pixelTexture(paintGreenhouseWall(true));
+  const wallMat = lighting.add(new THREE.MeshBasicMaterial({ map: dayTex }));
+  const wallGeo = new THREE.PlaneGeometry(14, 2.5 * K);
+  wallGeo.translate(0, (2.5 * K) / 2, 0);
+  const wall = new THREE.Mesh(wallGeo, wallMat);
+  wall.position.set(7, 0, 2 * K);
+  scene.add(wall);
+
+  const [sx, sy] = GREENHOUSE.sunnyBench;
+  const [hx, hy] = GREENHOUSE.shadyShelf;
+  const [lx, ly] = GREENHOUSE.labBench;
+  scene.add(billboard(lighting, paintGreenhouse('sunnybench').toCanvas(), sx + 1, sy + 0.95, { name: 'sunnybench' }));
+  scene.add(billboard(lighting, paintGreenhouse('shadyshelf').toCanvas(), hx + 1, hy + 0.9, { name: 'shadyshelf' }));
+  scene.add(billboard(lighting, paintGreenhouse('labbench').toCanvas(), lx + 1, ly + 0.95, { name: 'labbench' }));
+  // Sunlight falls on the left side only.
+  const sun = lightPool(lighting, 3.5, 4, 3, '#fff2a8', 0.28);
+  scene.add(sun);
+  addProps(scene, lighting, map);
+  return {
+    id: 'greenhouse',
+    map,
+    scene,
+    grid: new CollisionGrid(map),
+    lighting,
+    interior: true,
+    update: (_dt, _t, night) => {
+      const want = night > 0.5 ? nightTex : dayTex;
+      if (wallMat.map !== want) {
+        wallMat.map = want;
+        wallMat.needsUpdate = true;
+      }
+      sun.visible = night < 0.5;
     },
   };
 }

@@ -129,6 +129,13 @@ const PAINTERS: Record<string, Painter> = {
     for (const y of [6, 8, 10, 12]) b.hline(4, 11, y, P.ink);
     b.rect(10, 11, 3, 3, P.leaf2);
   },
+  ruler: (b) => {
+    for (let i = 0; i < 12; i++) b.rect(1 + i, 12 - i, 3, 3, '#e8d49a');
+    for (let i = 1; i < 12; i += 2) b.set(2 + i, 12 - i, P.ink);
+    b.ellipse(9, 9, 6, 6, '#cfe3ea');
+    b.rect(10, 11, 4, 3, '#9fd3ee');
+    b.hline(9, 14, 9, P.metal);
+  },
   seed: (b) => {
     b.ellipse(4, 3, 8, 11, '#c98c4a');
     b.ellipse(5, 4, 4, 6, '#e0ad6a');

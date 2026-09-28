@@ -228,7 +228,38 @@ export const ITEMS: Record<string, ItemDefinition> = {
     purpose: 'An off-screen activity: interview someone about a growing problem (open it from the Journal to print).',
     chapterId: 'ch5',
   },
+  measuring_tool: {
+    id: 'measuring_tool',
+    name: 'Measuring Kit',
+    icon: 'ruler',
+    description: 'A wooden ruler marked in centimeters, and a measuring cup, from Mr. Reed.',
+    lookCloser: [
+      'Measure a seedling from the top of the soil to the top of its highest leaf. Do it the same way every time.',
+      'The cup has lines for ¼ cup, ½ cup and 1 cup, so every pot can get exactly the water you plan.',
+    ],
+    purpose: 'Measure seedlings the same way every time, so your data is fair.',
+    chapterId: 'ch6',
+  },
+  trial_seeds: {
+    id: 'trial_seeds',
+    name: 'Trial Notes and Bean Seeds',
+    icon: 'seed',
+    description: "Hattie's notes about her bean seedlings, and a pouch of bean seeds from the same batch.",
+    lookCloser: [
+      'Notes: "Sunny porch rail: short, bushy, dark green. Shady fig tree: tall and pale! Mae says compost makes beans grow taller. Mr. Hill says water them a lot."',
+      'At the bottom, underlined: "Nobody has tested any of it fairly."',
+      'The seeds all came from one plant, so they start out alike.',
+    ],
+    purpose: 'Seeds that start out alike, and an open question to test.',
+    chapterId: 'ch6',
+  },
+  experiment_card: {
+    id: 'experiment_card',
+    name: 'Fair-Test Plan Card',
+    icon: 'card',
+    description: 'A card from Carver for planning a safe seed experiment at home.',
+    lookCloser: ['"My question. My guess. The ONE thing I will change. What stays the same. How I will measure."'],
+    purpose: 'An off-screen activity: plan a one-variable seed experiment (open it from the Journal to print).',
+    chapterId: 'ch6',
+  },
 };
-
-
-

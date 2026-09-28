@@ -2161,3 +2161,190 @@ mark.mark-guess {
     height: 64px;
   }
 }
+
+/* ---------------------------------------------------------------- Chapter 6: experiment bench */
+.lab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lab-body .feedback {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.stepper li {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #efe3c4;
+  color: var(--ink-soft);
+}
+.stepper li.done {
+  background: var(--leaf-bg);
+  color: #2f6b2c;
+}
+.stepper li.now {
+  background: var(--gold);
+  color: var(--ink);
+}
+.obs-strip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #e9f3fb;
+  border: 2px solid #9cc3e0;
+  line-height: 1.4;
+  font-size: var(--text-small);
+}
+.lab-step {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lab-step h3,
+.lab-step h4,
+.lab-step p {
+  margin: 0;
+}
+.trays {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.tray-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+}
+.tray-col.tray-a {
+  border-color: #d9a54a;
+}
+.tray-col.tray-b {
+  border-color: #7fb36a;
+}
+.tray-col .opt-label {
+  width: 56px;
+}
+.opt-row.changed {
+  background: #fff1c2;
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px #fff1c2;
+}
+.carver-warn {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fdecec;
+  border: 3px solid #e4a3a3;
+  line-height: 1.4;
+}
+.carver-warn p {
+  margin: 0 0 8px;
+}
+.warn-portrait {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: linear-gradient(#cfe6c4, #a8d09a);
+}
+.pots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: space-around;
+}
+.pot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.pot-pic {
+  width: 48px;
+  height: 80px;
+  image-rendering: pixelated;
+}
+.pot-value {
+  font-weight: 700;
+}
+.chart-fig {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.results-chart {
+  width: min(360px, 100%);
+  height: auto;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+  border-radius: 8px;
+}
+.conclude-q {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fffaf0;
+  border: 2px solid var(--paper-3);
+}
+.conclude-q .answer {
+  margin: 0;
+  font-weight: 700;
+  color: #2f6b2c;
+}
+.btn.hinted {
+  box-shadow: 0 0 0 3px var(--gold);
+}
+.restart-row {
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .trays {
+    grid-template-columns: 1fr;
+  }
+}
+.btn.reason {
+  justify-content: flex-start;
+}
+.results-block p {
+  margin: 0 0 4px;
+}
+.tray-setup {
+  display: block;
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+@media (max-width: 640px) {
+  .results-table th,
+  .results-table td {
+    padding: 4px 5px;
+  }
+}

@@ -394,6 +394,32 @@ NPCS.push(
   },
 );
 
+/** Chapter 6: Carver's lab assistant, inside the greenhouse. */
+NPCS.push({
+  id: 'isaac',
+  name: 'Mr. Isaac Reed',
+  role: "Carver's lab assistant in the greenhouse",
+  look: {
+    build: 'adult',
+    skin: { base: '#5a3825', shade: '#462a1b' },
+    hair: { style: 'short', base: black.base, shade: black.shade, light: black.light },
+    shirt: { base: '#e9eef2', shade: '#c9d2d8' },
+    pants: '#3a3a44',
+    shoes: '#2f2521',
+    accessory: 'glasses',
+    accent: '#4b7fcf',
+    extras: { apron: '#dfe6ea' },
+  },
+  portrait: 'isaac',
+  scene: 'greenhouse',
+  pos: { x: 9.5, y: 5.6 },
+  facing: 'down',
+  presence: 'always',
+  ambient: { default: 'isaac_ambient' },
+  voice: 300,
+  required: true,
+});
+
 export function npcById(id: NpcId): NpcDefinition | undefined {
   return NPCS.find((n) => n.id === id);
 }

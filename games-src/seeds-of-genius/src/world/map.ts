@@ -68,7 +68,7 @@ export interface PlaceDef {
 }
 
 /** Every place the player can be. Interiors share the scene kit. */
-export type SceneId = 'hub' | 'room' | 'school' | 'farm' | 'workshop' | 'creek';
+export type SceneId = 'hub' | 'room' | 'school' | 'farm' | 'workshop' | 'creek' | 'greenhouse';
 
 export interface MapDef {
   id: SceneId;
@@ -462,6 +462,52 @@ export function buildWorkshopMap(): MapDef {
     blocked,
     entry: { x: 7, y: 7.3 },
     exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 33.5, y: 26.4 } },
+  };
+}
+
+// ------------------------------------------------------------------ greenhouse (Chapter 6)
+
+const GREENHOUSE_ROWS = [
+  '##############',
+  '##############',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '#oooooooooooo#',
+  '######oo######',
+];
+
+/** Where the greenhouse furniture stands (tile x, y; each piece is 2 tiles wide). */
+export const GREENHOUSE = {
+  /** Under the glass on the sunny side. */
+  sunnyBench: [2, 2] as [number, number],
+  /** In the corner under a shade cloth. */
+  shadyShelf: [10, 2] as [number, number],
+  /** The experiment bench in the middle. */
+  labBench: [6, 4] as [number, number],
+};
+
+/** Carver's greenhouse: a sunny bench, a shady shelf and an experiment bench. */
+export function buildGreenhouseMap(): MapDef {
+  const blocked = new Set<string>();
+  for (const [x, y] of Object.values(GREENHOUSE)) [`${x},${y}`, `${x + 1},${y}`].forEach((k) => blocked.add(k));
+  return {
+    id: 'greenhouse',
+    w: 14,
+    h: 9,
+    ground: parseGround(GREENHOUSE_ROWS),
+    buildings: [],
+    props: [
+      { kind: 'bush', x: 12, y: 7, variant: 1 },
+      { kind: 'crop', x: 1, y: 7, variant: 1, solid: false },
+    ],
+    places: [{ id: 'greenhouse_exit', label: 'Go outside', x: 7, y: 8.3, radius: 1.1 }],
+    spawn: { x: 7, y: 7.3 },
+    blocked,
+    entry: { x: 7, y: 7.3 },
+    exit: { x0: 6, x1: 8, y: 8.05, to: 'hub', at: { x: 19.9, y: 7.2 } },
   };
 }
 

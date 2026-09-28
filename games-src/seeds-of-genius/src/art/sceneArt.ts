@@ -716,6 +716,73 @@ function memMuck(): PixelBuffer {
   return b;
 }
 
+// ------------------------------------------------------------------ Chapter 6
+
+const STUDENT_A: CharacterLook = {
+  build: 'adult',
+  skin: { base: '#7a4a2e', shade: '#633b23' },
+  hair: { style: 'short', base: '#2a1f1d', shade: '#1a1312', light: '#433331' },
+  shirt: { base: '#f4efe4', shade: '#d9d2c2' },
+  pants: '#3e3a44',
+  shoes: '#2f2521',
+  accessory: 'none',
+  accent: '#8a6a48',
+};
+const STUDENT_B: CharacterLook = { ...STUDENT_A, skin: { base: '#5a3825', shade: '#462a1b' }, hair: { style: 'bun', base: '#2a1f1d', shade: '#1a1312', light: '#433331' }, shirt: { base: '#9ab0d8', shade: '#7a90b8' } };
+
+/** Memory: side-by-side test plots and a record book at the experiment station. */
+function memRecords(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  sky(b, '#9fd3ee', '#fbeec8', 20);
+  hills(b, 20, '#8fbf6a', 7);
+  b.rect(0, 20, PAINT_W, 44, '#b89468');
+  // two plots side by side with stakes and labels: A and B
+  const plot = (x: number, rows: number, tall: number, color: string) => {
+    b.rect(x, 26, 30, 16, '#6b4a2a');
+    for (let i = 0; i < rows; i++) b.rect(x + 3 + i * 6, 38 - tall, 3, tall, color);
+    b.vline(x + 1, 20, 27, P.wood2);
+    b.rect(x - 1, 18, 6, 4, P.paper);
+  };
+  plot(6, 5, 8, P.leaf2);
+  plot(44, 5, 4, '#b8b060');
+  // Carver with a record book, and a student with a measuring stick
+  b.blit(paintCharacter(MIDDLE_CARVER, 'right', 0), 74, 32);
+  b.rect(86, 44, 6, 5, P.paper);
+  b.hline(87, 90, 46, P.ink);
+  b.blit(paintCharacter(STUDENT_A, 'left', 0), 24, 40);
+  b.vline(22, 42, 58, '#e8d49a');
+  return b;
+}
+
+/** Memory: Carver teaching students to look closely at plants. */
+function memTeaching(): PixelBuffer {
+  const b = new PixelBuffer(PAINT_W, PAINT_H);
+  room(b, '#e8e0cc', P.wood1);
+  // blackboard with a sketch of a plant
+  b.rect(8, 6, 40, 24, '#2f3a33');
+  b.vline(28, 12, 26, '#e8f0e8');
+  b.hline(22, 27, 14, '#e8f0e8');
+  b.hline(29, 34, 17, '#e8f0e8');
+  b.hline(24, 32, 26, '#cfe0cf');
+  // a window
+  b.rect(62, 8, 20, 18, '#a8cce0');
+  b.vline(72, 8, 25, P.wood2);
+  // table with potted plants and a jar of soil
+  b.rect(30, 40, 36, 4, P.wood3);
+  b.rect(32, 44, 2, 12, P.wood2);
+  b.rect(62, 44, 2, 12, P.wood2);
+  for (const x of [34, 44]) {
+    b.rect(x, 34, 6, 6, '#c0643a');
+    b.rect(x + 1, 28, 4, 6, P.leaf2);
+  }
+  b.rect(54, 33, 6, 7, '#cfe3ea');
+  b.rect(55, 36, 4, 4, '#6b4a2a');
+  b.blit(paintCharacter(MIDDLE_CARVER, 'right', 0), 12, 34);
+  b.blit(paintCharacter(STUDENT_A, 'left', 0), 68, 38);
+  b.blit(paintCharacter(STUDENT_B, 'left', 0), 80, 40);
+  return b;
+}
+
 const PAINTERS: Record<string, () => PixelBuffer> = {
   farm: memoryFarm,
   woods: memoryWoods,
@@ -742,6 +809,8 @@ const PAINTERS: Record<string, () => PixelBuffer> = {
   'mem-congress': memCongress,
   'mem-wagon': memWagon,
   'mem-muck': memMuck,
+  'mem-records': memRecords,
+  'mem-teaching': memTeaching,
 };
 
 const cache = new Map<string, HTMLCanvasElement>();

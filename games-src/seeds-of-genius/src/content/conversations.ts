@@ -1590,6 +1590,260 @@ export const CONVERSATIONS: Record<string, Conversation> = Object.fromEntries(
       { id: 'pb', speaker: 'pryor', expression: 'smile', text: 'Listen: that creek never stops talking. My children say it sings them to sleep.', next: null },
     ]),
 
+    // ------------------------------------------------ Chapter 6: A Scientist's Method
+    convo('carver_ch6_opening', "Carver: A question nobody has answered", [
+      {
+        id: 'o1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Hattie has a puzzle. Her bean seedlings grow differently in different spots, and everyone in town has a different explanation.',
+        next: 'o2',
+      },
+      {
+        id: 'o2',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'When people disagree about how nature works, a scientist does not argue. A scientist designs a fair test.',
+        choices: [
+          { text: 'What makes a test fair?', next: 'o3a' },
+          { text: "Can't we just ask an expert?", next: 'o3b' },
+        ],
+      },
+      {
+        id: 'o3a',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'You change only ONE thing and keep everything else the same. Then, if something is different, you know what caused it.',
+        next: 'o4',
+      },
+      {
+        id: 'o3b',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Experts are a fine place to start, but even experts test their ideas. The plants will tell us the truth, if we ask them fairly.',
+        next: 'o4',
+      },
+      {
+        id: 'o4',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'acceptQuest', chapterId: 'ch6' }],
+        text: 'My greenhouse is open for you. Mr. Reed, my lab assistant, has a measuring kit inside, and Hattie has trial notes and seeds.',
+        next: 'o5',
+      },
+      {
+        id: 'o5',
+        speaker: 'carver',
+        expression: 'curious',
+        text: 'Observe first, ask a question you can test, make a prediction, run a fair test, and bring me your conclusion, whatever the data says.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch6_waiting', 'Carver: How is the experiment?', [
+      {
+        id: 'w1',
+        speaker: 'carver',
+        expression: 'curious',
+        text: '{carverNudge6}',
+        choices: [
+          { text: "I'm on it!", next: null },
+          { text: 'What if my hypothesis is wrong?', next: 'w2' },
+        ],
+      },
+      {
+        id: 'w2',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Then you have learned something true! A hypothesis is a guess you test, not a promise you have to keep.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch6_closing', 'Carver: Your conclusion', [
+      { id: 'c1', speaker: 'carver', expression: 'smile', text: 'A real experiment! Let me hear it. {expQuestion}', next: 'c2' },
+      { id: 'c2', speaker: 'carver', expression: 'thinking', text: '{expData}', next: 'c3' },
+      { id: 'c3', speaker: 'carver', expression: 'proud', text: '{expHypo}', next: 'q' },
+      {
+        id: 'q',
+        kind: 'question',
+        speaker: 'carver',
+        expression: 'curious',
+        objectiveId: 'method',
+        text: 'Tell me: why did you change only the {expChanged} between your two trays?',
+        options: [
+          {
+            id: 'faster',
+            text: 'Because it was faster to set up.',
+            correct: false,
+            misconception: 'control-for-speed',
+            feedback: 'It is quicker, but that is not the reason. Think about what happens if two things are different.',
+          },
+          {
+            id: 'cause',
+            text: 'So if the trays grew differently, I would know that one change caused it.',
+            correct: true,
+            feedback: 'Exactly. With only one difference, the data can point to the cause.',
+          },
+          {
+            id: 'match',
+            text: 'So the results would match my hypothesis.',
+            correct: false,
+            misconception: 'test-to-confirm',
+            feedback: 'A fair test is not built to prove you right. It is built to find out what is true. Why keep everything else the same?',
+          },
+        ],
+        hints: [
+          'Here is a clue: think about what would happen if tray B had more light AND more water.',
+          'If two things change, and tray B grows taller, which change did it? Which answer solves that problem?',
+          'Worked example: with only one difference between the trays, any change in growth must come from it. So "So if the trays grew differently, I would know that one change caused it" is the answer.',
+        ],
+        next: 'c4',
+      },
+      {
+        id: 'c4',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'That is the heart of the scientific method: one change, careful measuring, and honest conclusions.',
+        textIfRetried: 'You worked it out. One change, careful measuring, honest conclusions: that is the heart of the scientific method.',
+        next: 'c5',
+      },
+      { id: 'c5', speaker: 'carver', expression: 'thinking', text: '{expExtra}', next: 'c6' },
+      {
+        id: 'c6',
+        speaker: 'carver',
+        expression: 'thinking',
+        text: 'At Tuskegee, my students and I tested ideas on plots side by side. Would you like to see a memory?',
+        choices: [
+          { text: 'Yes, show me the memory.', next: 'c7', effects: [{ type: 'showMemory', memoryId: 'experiment_station' }] },
+          { text: 'Maybe later.', next: 'c7' },
+        ],
+      },
+      {
+        id: 'c7',
+        speaker: 'carver',
+        expression: 'smile',
+        effects: [{ type: 'grantItem', itemId: 'experiment_card', from: 'carver' }],
+        text: 'This is for you: a Fair-Test Plan Card. With a grown-up, you can plant a few bean seeds at home and test one thing.',
+        next: 'c8',
+      },
+      {
+        id: 'c8',
+        speaker: 'carver',
+        expression: 'proud',
+        effects: [{ type: 'completeChapter', chapterId: 'ch6' }],
+        text: 'You observe, you question, you test, and you tell the truth about what you find. Next time, it is your turn to use all of it to help your own community.',
+        next: null,
+      },
+    ]),
+
+    convo('carver_ch6_after', 'Carver: Keep asking', [
+      {
+        id: 'a1',
+        speaker: 'carver',
+        expression: 'smile',
+        text: 'Hattie is telling everyone about your experiment. Your fair-test card is in your bag.',
+        choices: [
+          { text: 'Can I see the experiment station memory?', next: 'a2', effects: [{ type: 'showMemory', memoryId: 'experiment_station' }] },
+          { text: 'See you soon!', next: null },
+        ],
+      },
+      { id: 'a2', speaker: 'carver', expression: 'smile', text: 'Every answer grows a new question. That is what keeps science alive.', next: null },
+    ]),
+
+    convo('isaac_ch6_give', 'Mr. Reed: The measuring kit', [
+      {
+        id: 'i1',
+        speaker: 'isaac',
+        expression: 'smile',
+        text: "Welcome to the greenhouse! I'm Isaac Reed, Carver's lab assistant. I keep the plants watered and the measurements honest.",
+        choices: [
+          { text: 'Why do measurements need to be honest?', next: 'i2a' },
+          { text: 'Why measure at all?', next: 'i2b' },
+        ],
+      },
+      {
+        id: 'i2a',
+        speaker: 'isaac',
+        expression: 'thinking',
+        text: 'If you measure one plant to the top leaf and the next one to the tip of a stem, your numbers are not fair. Same way, every time.',
+        next: 'i3',
+      },
+      {
+        id: 'i2b',
+        speaker: 'isaac',
+        expression: 'thinking',
+        text: '"It looks taller" is a guess. "Fourteen centimeters" is data. Data is something other people can check.',
+        next: 'i3',
+      },
+      {
+        id: 'i3',
+        speaker: 'isaac',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'measuring_tool', from: 'isaac' },
+          { type: 'completeStep', chapterId: 'ch6', stepId: 'get_tool' },
+        ],
+        text: 'Here is the measuring kit: a ruler in centimeters, and a cup marked for water. Measure from the soil to the top leaf.',
+        next: 'i4',
+      },
+      {
+        id: 'i4',
+        speaker: 'isaac',
+        expression: 'curious',
+        text: "Hattie's seedlings are on the sunny bench and the shady shelf. Measuring them is a good first observation.",
+        next: null,
+      },
+    ]),
+    convo('isaac_ch6_after', 'Mr. Reed: Same way every time', [
+      { id: 'ia', speaker: 'isaac', expression: 'smile', text: 'Remember: soil to top leaf, same way every time. And write it down right away!', next: null },
+    ]),
+    convo('isaac_ambient', 'Mr. Reed: Greenhouse chores', [
+      { id: 'ib', speaker: 'isaac', expression: 'smile', text: 'Seedlings, labels, watering cans. A greenhouse is a lab where the experiments are alive.', next: null },
+    ]),
+
+    convo('hattie_ch6_give', 'Hattie: The bean puzzle', [
+      { id: 'b1', speaker: 'hattie', expression: 'smile', text: "There's my garden helper! Carver says you're a scientist now. Good, because I have a puzzle.", next: 'b2' },
+      {
+        id: 'b2',
+        speaker: 'hattie',
+        expression: 'thinking',
+        text: "My bean seedlings on the sunny porch rail are short and bushy. The ones under the shady fig tree shot up tall! Mae swears compost makes beans taller. Mr. Hill says water them a lot.",
+        choices: [
+          { text: 'So who is right?', next: 'b3a' },
+          { text: 'How could we find out?', next: 'b3b' },
+        ],
+      },
+      {
+        id: 'b3a',
+        speaker: 'hattie',
+        expression: 'neutral',
+        text: "That's the thing: nobody knows! Everybody has an opinion, and nobody has tested it fairly. It's an open question.",
+        next: 'b4',
+      },
+      {
+        id: 'b3b',
+        speaker: 'hattie',
+        expression: 'curious',
+        text: 'Carver would say: test it. Grow some seedlings two different ways and measure them. But only change one thing, or you will never know which thing mattered.',
+        next: 'b4',
+      },
+      {
+        id: 'b4',
+        speaker: 'hattie',
+        expression: 'smile',
+        effects: [
+          { type: 'grantItem', itemId: 'trial_seeds', from: 'hattie' },
+          { type: 'completeStep', chapterId: 'ch6', stepId: 'get_seeds' },
+        ],
+        text: 'Here are my notes and a pouch of bean seeds. They all came from one plant, so they start out alike. That keeps your test fair.',
+        next: null,
+      },
+    ]),
+    convo('hattie_ch6_after', 'Hattie: Waiting for the results', [
+      { id: 'bc', speaker: 'hattie', expression: 'smile', text: "I can't wait to hear what the beans say! Tell me even if Mae turns out to be wrong.", next: null },
+    ]),
+
     // ------------------------------------------------ small talk (optional)
     convo('mae_ambient', 'Mae: Seeds and letters', [
       {
@@ -1656,7 +1910,7 @@ export const PLACE_LINES: Record<string, string> = {
   creek_door: 'A covered wagon full of seed sacks, tools and posters. Carver calls it a movable school. It rolls out to the farms in Chapter 5.',
   farm_door: 'The farm gate is latched. Mr. Hill opens the fields for lessons in Chapter 3.',
   workshop_door: 'The workshop is locked. Mr. Brooks opens it for lessons in Chapter 4.',
-  greenhouse_door: "Carver's greenhouse is full of seedlings and jars. He'll invite you in for later experiments.",
+  greenhouse_door: "Carver's greenhouse is full of seedlings and jars. He will invite you in for an experiment in Chapter 6.",
   shop_door: 'The Seed & Mail smells like paper and fresh soil. Mae is working at the stall out front.',
   shelf: 'An empty shelf. Things you earn on your adventures will go here.',
   windowsill_empty: 'A sunny windowsill. It would be a good spot for a plant.',

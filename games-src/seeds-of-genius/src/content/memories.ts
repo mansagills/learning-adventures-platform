@@ -92,4 +92,21 @@ export const MEMORIES: Record<string, Memory> = {
       },
     ],
   },
+  experiment_station: {
+    id: 'experiment_station',
+    title: 'Test It and Write It Down',
+    setting: 'Tuskegee Institute, Alabama, early 1900s',
+    pages: [
+      {
+        art: 'mem-records',
+        caption:
+          "At Tuskegee's agricultural experiment station, Carver and his students grew crops on test plots side by side and wrote down what happened. Not every idea worked. Keeping careful records, good results and bad, showed them what was worth sharing with farmers.",
+      },
+      {
+        art: 'mem-teaching',
+        caption:
+          'Carver was also a teacher. He brought plants, soil and insects into class and asked his students to look closely, ask questions, and find out for themselves.',
+      },
+    ],
+  },
 };

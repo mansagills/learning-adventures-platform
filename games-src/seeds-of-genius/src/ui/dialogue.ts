@@ -17,7 +17,7 @@ export interface DialogueHooks {
 }
 
 const portraitCache = new Map<string, string>();
-function portraitURL(npc: NpcDefinition, expression: Expression): string {
+export function portraitURL(npc: NpcDefinition, expression: Expression): string {
   const key = `${npc.id}:${expression}`;
   let url = portraitCache.get(key);
   if (!url) {

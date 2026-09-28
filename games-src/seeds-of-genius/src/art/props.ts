@@ -817,3 +817,65 @@ export function paintSprout(): PixelBuffer {
   b.set(5, 7, P.soil3);
   return b.outline();
 }
+
+// ------------------------------------------------------------------ greenhouse (Chapter 6)
+
+export type GreenhouseKind = 'sunnybench' | 'shadyshelf' | 'labbench';
+
+/** A clay pot with a bean seedling: `tall` in pixels, `leaf` color. */
+function seedlingPot(b: PixelBuffer, x: number, baseY: number, tall: number, leaf: string, thin = false): void {
+  b.rect(x, baseY - 5, 7, 5, '#c0643a');
+  b.hline(x - 1, x + 7, baseY - 6, '#d97a4a');
+  b.hline(x, x + 6, baseY - 5, '#5a3a26');
+  const top = baseY - 6 - tall;
+  b.vline(x + 3, top, baseY - 6, thin ? '#b8c77a' : '#4f8a3a');
+  if (!thin) b.vline(x + 4, top + 2, baseY - 6, '#3f7030');
+  b.rect(x, top, 3, 2, leaf);
+  b.rect(x + 4, top - 1, 3, 2, leaf);
+}
+
+export function paintGreenhouse(kind: GreenhouseKind): PixelBuffer {
+  switch (kind) {
+    case 'sunnybench': {
+      // a slatted bench in the sun, with short, bushy, dark green seedlings
+      const b = new PixelBuffer(32, 24);
+      b.rect(1, 13, 30, 3, P.wood3);
+      b.hline(1, 30, 13, '#d99a62');
+      b.rect(2, 16, 3, 7, P.wood2);
+      b.rect(27, 16, 3, 7, P.wood2);
+      for (const x of [3, 12, 21]) seedlingPot(b, x, 13, 5, '#3f8a3a');
+      b.rect(8, 2, 2, 2, '#fff2a8'); // a glint of sun
+      return b.outline();
+    }
+    case 'shadyshelf': {
+      // a shelf under a burlap shade cloth, with tall, pale, floppy seedlings
+      const b = new PixelBuffer(32, 30);
+      b.rect(0, 0, 32, 5, '#8a7450');
+      for (let x = 1; x < 32; x += 3) b.vline(x, 0, 4, '#76623f');
+      b.rect(1, 5, 2, 24, P.wood2);
+      b.rect(29, 5, 2, 24, P.wood2);
+      b.rect(1, 21, 30, 3, P.wood3);
+      for (const x of [4, 13, 21]) seedlingPot(b, x, 21, 11, '#b8cf6a', true);
+      return b.outline();
+    }
+    case 'labbench': {
+      // the experiment bench: two seed trays, a ruler, a notebook and a watering can
+      const b = new PixelBuffer(32, 24);
+      b.rect(1, 9, 30, 4, P.wood3);
+      b.hline(1, 30, 9, '#d99a62');
+      b.rect(2, 13, 3, 10, P.wood2);
+      b.rect(27, 13, 3, 10, P.wood2);
+      b.rect(3, 18, 26, 2, P.wood1);
+      b.rect(3, 5, 9, 4, '#8a5a36'); // tray A
+      b.rect(14, 5, 9, 4, '#8a5a36'); // tray B
+      for (const x of [4, 7, 10, 15, 18, 21]) b.set(x, 5, P.leaf2);
+      b.rect(3, 3, 3, 2, P.paper); // tray labels
+      b.rect(14, 3, 3, 2, P.paper);
+      b.rect(24, 7, 7, 2, '#e8d49a'); // ruler
+      for (let x = 25; x < 31; x += 2) b.set(x, 7, P.ink);
+      b.rect(25, 2, 5, 5, P.metalLight); // watering can
+      b.hline(22, 24, 3, P.metalLight);
+      return b.outline();
+    }
+  }
+}

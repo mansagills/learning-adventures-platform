@@ -26,6 +26,7 @@ node scripts/e2e-phase2.mjs http://localhost:4173/   # Phase 2 check-in (Chapter
 node scripts/e2e-phase3.mjs http://localhost:4173/   # Phase 3 check-in (Chapter 3)
 node scripts/e2e-phase4.mjs http://localhost:4173/   # Phase 4 check-in (Chapter 4)
 node scripts/e2e-phase5.mjs http://localhost:4173/   # Phase 5 check-in (Chapter 5)
+node scripts/e2e-phase6.mjs http://localhost:4173/   # Phase 6 check-in (Chapter 6)
 ```
 
 From the repo root, the same things are `npm run game:carver`,
@@ -68,6 +69,7 @@ src/
   chapters/ch3/           Chapter 3's code: soil close-ups, the soil model, the rotation planner (lazy-loaded)
   chapters/ch4/           Chapter 4's code: crop tests, invention rules, workbench, decorations shop (lazy-loaded)
   chapters/ch5/           Chapter 5's code: farm clues, recommendation rules, demonstration table (lazy-loaded)
+  chapters/ch6/           Chapter 6's code: seedling model, fair-test checks, experiment bench, results chart (lazy-loaded)
   content/                chapters, conversations, items, NPCs, sources (data only)
   learning/               learner model (per objective) + hint providers
   systems/                save (versioned), settings, audio, day/night, input
@@ -149,10 +151,22 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 2 | Science Against the Odds / Choose the Path | Approved ✅ |
 | 3 | The Soil Speaks / Virtual Soil Lab | Approved ✅ |
 | 4 | The Peanut Isn't Just a Peanut / Inventor's Workshop | Approved ✅ |
-| 5 | Science for the People / Farm Helper | Built, awaiting owner review |
-| 6 | A Scientist's Method / Design Your Own Experiment | Not started |
+| 5 | Science for the People / Farm Helper | Approved ✅ |
+| 6 | A Scientist's Method / Design Your Own Experiment | Built, awaiting owner review |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Not started |
 | 8 | Whole-game polish and release candidate | Not started |
+
+## Known issues (Phase 6)
+
+- The seedling growth numbers are a simple model (two weeks, bean seeds,
+  three pots per tray). Real experiments vary more from pot to pot.
+- The hypothesis step offers taller / shorter / about the same; there is
+  no free-text "because" yet (Phase 7 adds optional typing).
+- Tray A must stay "the usual way" (sunny, ½ cup, plain soil). Some
+  players might want to pick their own comparison; the game explains why
+  instead.
+- Printing the Fair-Test Plan Card works on the website; the Claude
+  artifact preview can't open the print dialog.
 
 ## Known issues (Phase 5)
 
