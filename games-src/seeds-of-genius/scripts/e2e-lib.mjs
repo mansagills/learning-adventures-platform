@@ -51,9 +51,9 @@ export async function walkTo(page, x, y, tol = 0.2) {
       } else stuck = 0;
       last = cur;
       const key = axis === 'x' ? (d > 0 ? 'ArrowRight' : 'ArrowLeft') : d > 0 ? 'ArrowDown' : 'ArrowUp';
+      await frames(page); // never press during a stalled frame
       await page.keyboard.down(key);
       await sleep(page, Math.min(260, Math.max(25, (Math.abs(d) / 4.2) * 700)));
-      await frames(page);
       await page.keyboard.up(key);
     }
   }
