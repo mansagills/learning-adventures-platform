@@ -1,4 +1,12 @@
-import { lookFromAppearance, paintCharacter, type Appearance, type Dir } from '../art/characters';
+import {
+  BODIES,
+  BODY_DEFAULT_HAIR,
+  lookFromAppearance,
+  paintCharacter,
+  type Appearance,
+  type BodyId,
+  type Dir,
+} from '../art/characters';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../art/palette';
 import { audio } from '../systems/audio';
 import { settings } from '../systems/settings';
@@ -13,6 +21,7 @@ interface Group {
 }
 
 const GROUPS: Group[] = [
+  { key: 'body', legend: "I'm a", options: BODIES.map((s) => ({ id: s.id, name: s.name })) },
   { key: 'skin', legend: 'Skin tone', options: SKIN_TONES.map((s) => ({ id: s.id, name: s.name, color: s.base })) },
   { key: 'hairStyle', legend: 'Hair style', options: HAIR_STYLES.map((s) => ({ id: s.id, name: s.name })) },
   { key: 'hairColor', legend: 'Hair color', options: HAIR_COLORS.map((s) => ({ id: s.id, name: s.name, color: s.base })) },
@@ -22,7 +31,8 @@ const GROUPS: Group[] = [
 
 /**
  * Character creator. Every choice is purely how the explorer looks; none of
- * them changes gameplay. No name is asked for.
+ * them changes gameplay. No name is asked for. Picking Boy or Girl also
+ * switches to a matching starting hair style; every style stays available.
  */
 export function openCustomize(
   host: HTMLElement,
@@ -59,6 +69,11 @@ export function openCustomize(
 
   const groupsEl = h('div', { style: 'flex:1;min-width:0' });
   const radios = new Map<Key, HTMLButtonElement[]>();
+  const choose = (key: Key, id: string) => {
+    if (key === 'body' && id !== a.body) a.hairStyle = BODY_DEFAULT_HAIR[id as BodyId];
+    a[key] = id as never;
+    refresh();
+  };
   const refresh = () => {
     radios.forEach((btns, key) =>
       btns.forEach((b) => {
@@ -86,17 +101,15 @@ export function openCustomize(
           title: o.name,
           style: o.color ? `background:${o.color}` : undefined,
           onclick: () => {
-            a[g.key] = o.id as never;
+            choose(g.key, o.id);
             audio.click();
-            refresh();
           },
           onkeydown: (e: Event) => {
             const k = (e as KeyboardEvent).key;
             if (!['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(k)) return;
             e.preventDefault();
             const n = (i + (k === 'ArrowRight' || k === 'ArrowDown' ? 1 : g.options.length - 1)) % g.options.length;
-            a[g.key] = g.options[n].id as never;
-            refresh();
+            choose(g.key, g.options[n].id);
             btns[n].focus();
           },
         },
@@ -111,6 +124,7 @@ export function openCustomize(
 
   const randomize = () => {
     const pick = <T>(arr: readonly T[]) => arr[Math.floor(Math.random() * arr.length)];
+    a.body = pick(BODIES).id;
     a.skin = pick(SKIN_TONES).id;
     a.hairStyle = pick(HAIR_STYLES).id;
     a.hairColor = pick(HAIR_COLORS.slice(0, 5)).id;

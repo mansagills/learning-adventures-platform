@@ -47,6 +47,7 @@ check('Title screen loads with no save', await page.getByRole('button', { name: 
 // --- customize (mouse) ---
 await page.getByRole('button', { name: /start a new game/i }).click();
 await sleep(page, 500);
+await page.getByRole('radio', { name: 'Boy', exact: true }).click();
 await page.getByRole('radio', { name: 'Brown', exact: true }).first().click();
 await page.getByRole('radio', { name: 'Braids' }).click();
 await page.locator('[aria-labelledby="leg-hairColor"]').getByRole('radio', { name: 'Dark brown' }).click();
@@ -56,7 +57,7 @@ await page.getByRole('radio', { name: 'None' }).focus();
 await page.keyboard.press('ArrowRight');
 await sleep(page, 300);
 await page.screenshot({ path: `${OUT}/01-customization.png` });
-const chosen = { skin: 'skin3', hairStyle: 'braids', hairColor: 'darkbrown', outfit: 'yellow', accessory: 'glasses' };
+const chosen = { body: 'boy', skin: 'skin3', hairStyle: 'braids', hairColor: 'darkbrown', outfit: 'yellow', accessory: 'glasses' };
 await page.getByRole('button', { name: /i'm ready/i }).click();
 await sleep(page, 600);
 let s = await state(page);

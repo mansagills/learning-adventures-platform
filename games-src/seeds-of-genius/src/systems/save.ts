@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE, DIRS, type Appearance, type Dir } from '../art/characters';
+import { BODIES, DEFAULT_APPEARANCE, DIRS, type Appearance, type BodyId, type Dir } from '../art/characters';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../art/palette';
 import type { ProgressState } from '../quests/engine';
 import type { ChapterProgress, InventoryEntry } from '../quests/types';
@@ -74,7 +74,10 @@ const strList = (v: unknown, max = 500) => (Array.isArray(v) ? v.filter((x): x i
 function cleanAppearance(v: unknown): Appearance {
   const a = isObj(v) ? v : {};
   const d = DEFAULT_APPEARANCE;
+  // Saves made before Boy/Girl existed: guess from the hair so the explorer looks the same.
+  const guess: BodyId = ['short', 'curly', 'locs'].includes(a.hairStyle as string) ? 'boy' : 'girl';
   return {
+    body: oneOf(a.body, BODIES.map((s) => s.id), isObj(v) ? guess : d.body),
     skin: oneOf(a.skin, SKIN_TONES.map((s) => s.id), d.skin),
     hairStyle: oneOf(a.hairStyle, HAIR_STYLES.map((s) => s.id), d.hairStyle),
     hairColor: oneOf(a.hairColor, HAIR_COLORS.map((s) => s.id), d.hairColor),

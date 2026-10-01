@@ -13,7 +13,7 @@ describe('save system', () => {
     const mem = new MemStorage();
     const store = new SaveStore(mem);
     const d = freshSave();
-    d.appearance = { skin: 'skin4', hairStyle: 'locs', hairColor: 'auburn', outfit: 'purple', accessory: 'glasses' };
+    d.appearance = { body: 'boy', skin: 'skin4', hairStyle: 'locs', hairColor: 'auburn', outfit: 'purple', accessory: 'glasses' };
     d.progress.inventory.push({ itemId: 'seed_packet', from: 'mae', obtainedAt: 1, used: false, inspected: true });
     d.time = { minutes: 21 * 60, day: 3, paused: true };
     d.world = { scene: 'room', x: 5, y: 6, facing: 'up' };
@@ -103,6 +103,17 @@ describe('save system', () => {
     expect(d.progress.chapters.practice.stage).toBe('complete');
     expect(d.chapterData).toEqual({});
     expect(d.memories).toEqual([]);
+  });
+
+  it('gives older saves a Boy or Girl that matches their hair', () => {
+    const app = (hairStyle: string) => migrate({ version: 2, appearance: { skin: 'skin3', hairStyle } }).data!.appearance;
+    expect(app('locs').body).toBe('boy');
+    expect(app('short').body).toBe('boy');
+    expect(app('braids').body).toBe('girl');
+    expect(app('puffs').body).toBe('girl');
+    // A saved choice is kept, and junk falls back to the guess.
+    expect(migrate({ version: 2, appearance: { body: 'girl', hairStyle: 'short' } }).data!.appearance.body).toBe('girl');
+    expect(migrate({ version: 2, appearance: { body: 'robot', hairStyle: 'short' } }).data!.appearance.body).toBe('boy');
   });
 
   it('keeps chapter state and drops junk', () => {

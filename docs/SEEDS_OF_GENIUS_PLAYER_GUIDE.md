@@ -11,7 +11,7 @@ Adventures site. A laptop or desktop works best; tablets and phones work too.
 
 ## Getting started
 
-1. Press **Start a new game** and choose how you look (skin tone, hair,
+1. Press **Start a new game** and choose how you look (boy or girl, skin tone, hair,
    outfit, an accessory). You can change it later.
 2. The **Next** box in the top-left corner always says what to do.
 3. Walk to **Carver** (the man in the suit with a flower on his lapel, next

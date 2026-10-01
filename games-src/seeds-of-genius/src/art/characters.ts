@@ -40,11 +40,23 @@ export interface CharacterLook {
     lapelFlower?: string;
     apron?: string;
     lantern?: boolean;
+    /** A skirt over the legs (the player's "Girl" choice); legs show as leggings below it. */
+    skirt?: Tone;
   };
 }
 
+export const BODIES = [
+  { id: 'boy', name: 'Boy' },
+  { id: 'girl', name: 'Girl' },
+] as const;
+export type BodyId = (typeof BODIES)[number]['id'];
+
+/** The hair style picked for you when you switch between Boy and Girl (any style can still be chosen). */
+export const BODY_DEFAULT_HAIR: Record<BodyId, HairStyleId> = { boy: 'short', girl: 'puffs' };
+
 /** What the player picks on the customization screen (ids only, no names). */
 export interface Appearance {
+  body: BodyId;
   skin: string;
   hairStyle: HairStyleId;
   hairColor: string;
@@ -53,6 +65,7 @@ export interface Appearance {
 }
 
 export const DEFAULT_APPEARANCE: Appearance = {
+  body: 'girl',
   skin: 'skin2',
   hairStyle: 'puffs',
   hairColor: 'black',
@@ -74,7 +87,16 @@ export function lookFromAppearance(a: Appearance): CharacterLook {
     shoes: '#5a3a2a',
     accessory: a.accessory,
     accent,
+    extras: a.body === 'girl' ? { skirt: { base: outfit.base, shade: outfit.shade } } : undefined,
   };
+}
+
+/** Paint a skirt over the waist and upper legs (front/back view or side view). */
+function skirt(b: PixelBuffer, tone: Tone, L: Layout, side: boolean): void {
+  const [x0, x1] = side ? [5, 10] : [4, 11];
+  b.rect(x0, L.pantsTop, x1 - x0 + 1, 2, tone.base);
+  b.hline(x0 - 1, x1 + 1, L.pantsTop + 2, tone.shade);
+  b.hline(x0, x1, L.pantsTop, tone.shade);
 }
 
 interface Layout {
@@ -135,6 +157,7 @@ function paintBodyFront(b: PixelBuffer, look: CharacterLook, L: Layout, frame: n
   b.rect(4, L.torsoTop, 8, L.torsoBot - L.torsoTop + 1, top.base);
   b.vline(11, L.torsoTop + 1, L.torsoBot, top.shade);
   b.hline(4, 11, L.torsoBot, top.shade);
+  if (look.extras?.skirt) skirt(b, look.extras.skirt, L, false);
 
   // Arms: sleeve, then hand.
   [3, 12].forEach((x, i) => {
@@ -188,6 +211,7 @@ function paintBodySide(b: PixelBuffer, look: CharacterLook, L: Layout, frame: nu
   b.rect(5, L.pantsTop, 6, 1, look.pants);
   b.rect(5, L.torsoTop, 6, L.torsoBot - L.torsoTop + 1, top.base);
   b.vline(5, L.torsoTop, L.torsoBot, top.shade);
+  if (look.extras?.skirt) skirt(b, look.extras.skirt, L, true);
 
   const ex = look.extras;
   if (ex?.jacket) {

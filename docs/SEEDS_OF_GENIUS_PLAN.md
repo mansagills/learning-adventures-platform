@@ -34,7 +34,7 @@ explicit approval**. A passing self-score is not approval.
 
 - [x] Project set up: Vite + TypeScript + Three.js, integer-scaled pixel rendering
 - [x] Compact hub (Sweetgum Hollow) with a full road loop, camera bounds and collision
-- [x] Avatar creation: skin tone, hair style, hair color, outfit, optional accessory (also from the wardrobe and Settings)
+- [x] Avatar creation: Boy or Girl (added 2026-10-01 at the owner's request), skin tone, hair style, hair color, outfit, optional accessory (also from the wardrobe and Settings)
 - [x] Controls: keyboard, mouse click-to-move and click-to-talk, touch pad and Talk button
 - [x] Dialogue shell: portraits with expressions, choices, fast text and skip, replay from the journal
 - [x] Carver as the central quest giver: sprite, portrait, quest markers, map pin, "find Carver" shortcut
@@ -219,3 +219,13 @@ explicit approval**. A passing self-score is not approval.
 | 5 | ~~The game is not yet listed on the site~~ Resolved 2026-10-01: the owner approved listing it (History, featured) | Done | Site owner |
 
 **Tests:** 146 unit tests; `node scripts/e2e-phase8.mjs` (the whole game from a new save, resume from each chapter, settings, export, grown-ups page, offline and phone checks), plus all Phase 0 to 7 check-ins. Screenshots are in `games-src/seeds-of-genius/test-output/phase8/`.
+
+## Post-release changes
+
+- **2026-10-01: Boy or Girl choice (owner request).** The character screen starts with "I'm a: Boy / Girl".
+  - Girl adds a skirt in the outfit color over leggings; Boy wears pants. At 16×24 pixels, hair alone didn't read clearly.
+  - Switching sets a matching starting hair style (Boy: Short, Girl: Puffs). Every hair style stays available to both.
+  - "Surprise me" picks Boy or Girl too.
+  - Saves made before this guess from the hair (Short, Curly or Locs → Boy, otherwise Girl), so existing explorers keep their look.
+  - Code: `BODIES` and `body` in `src/art/characters.ts`, `cleanAppearance` in `src/systems/save.ts`, `src/ui/customize.ts`.
+  - Tests: `tests/characters.test.ts`, the save test, and the Phase 0 e2e picks Boy.
