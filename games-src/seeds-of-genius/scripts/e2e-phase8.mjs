@@ -99,6 +99,8 @@ async function toRoad(page) {
   if ((player.y > 25 && player.x < 11) || (player.y > 17.5 && player.x < 12)) await walkPath(page, [[11.5, player.y]]);
   else if (player.y > 17.5) await walkPath(page, [[27.5, player.y]]);
   else if (player.y > 10.5 && player.x >= 16 && player.x < 26) await walkPath(page, [[22.4, player.y]]);
+  // Standing beside Carver (where a debrief leaves you): leave by the column we arrive on.
+  else if (player.y < 9 && player.x > 19 && player.x < 21.5) await walkPath(page, [[19.5, player.y]]);
   player = (await state(page)).player;
   if (Math.abs(player.y - 9.6) > 0.3) await walkPath(page, [[player.x, 9.6]]);
 }
