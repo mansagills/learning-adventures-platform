@@ -657,6 +657,19 @@ export const games: PlayableGame[] = [
   },
 ];
 
+/**
+ * The homepage "Featured games" section, in order. The first game gets the
+ * big spotlight card; the rest show as regular cards under it. To feature a
+ * game, add its slug here (the content test checks that it exists).
+ */
+export const homeFeaturedSlugs: string[] = ['seeds-of-genius'];
+
+export function getHomeFeaturedGames(): PlayableGame[] {
+  return homeFeaturedSlugs
+    .map((slug) => getGame(slug))
+    .filter((game): game is PlayableGame => Boolean(game));
+}
+
 export function getGame(slug: string): PlayableGame | undefined {
   return games.find((game) => game.slug === slug);
 }

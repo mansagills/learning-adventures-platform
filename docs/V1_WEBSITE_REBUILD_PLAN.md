@@ -527,3 +527,16 @@ Follows the same pattern as games and books, so it stays backend-free:
 **Checks for every phase:** `npx tsc --noEmit`, `npm run lint` (0 errors), `npm test`, `npm run build` with no env vars, then the pages in the production build at 1280px and 390px (no sideways scroll, no console errors, axe clean).
 
 **Out of scope for UX-2:** a blog admin/editor (posts are Markdown files in the repo for now), comments on posts, RSS (easy to add later), and syncing subscribers with Supabase accounts.
+
+#### UX-3: Featured games section on the homepage: COMPLETED ✅ (in PR #205, with the Seeds of Genius listing)
+
+- **Page:** homepage (`/`).
+- **Request (owner, 2026-10-01):** a "Featured games" section directly under "Pick a subject". Seeds of Genius goes first; more games will be added later.
+- **Built:**
+  - `homeFeaturedSlugs` in `lib/content/games.ts` is the ordered list for this section, with `getHomeFeaturedGames()` to read it. It is separate from the `featured: true` flag, which only moves a game to the front of its subject row.
+  - In `components/home/HomePage.tsx`, the first game gets a large spotlight card: screenshot, "Featured" sticker, subject, description, skills, grades, time and a "Play now" button. Any other featured games show as regular cards in a grid under it. The section hides itself if the list is empty.
+  - A content test checks that every featured slug is a real game and that none is listed twice.
+- **To feature another game:** add its slug to `homeFeaturedSlugs`. The first slug gets the spotlight.
+- **Checked:**
+  - On the production build at 1280px and 390px: the section sits right after "Pick a subject", there is no sideways scroll, there are no console errors, and "Play now" opens `/games/seeds-of-genius`.
+  - tsc, lint (0 errors), `npm test` (88), `npm run build`.

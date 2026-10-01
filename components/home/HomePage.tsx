@@ -3,9 +3,15 @@ import Link from 'next/link';
 import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
 import { cn } from '@/lib/utils';
-import { games, getFeaturedGames, getGame } from '@/lib/content/games';
+import {
+  games,
+  getFeaturedGames,
+  getGame,
+  getHomeFeaturedGames,
+} from '@/lib/content/games';
+import PlayableGameCard from '@/components/play/PlayableGameCard';
 import { books } from '@/lib/content/books';
-import { subjects } from '@/lib/content/subjects';
+import { getSubject, subjects } from '@/lib/content/subjects';
 import GameRow from './GameRow';
 import HomeFaq from './HomeFaq';
 import SiteIcon from '@/components/icons/SiteIcon';
@@ -23,6 +29,8 @@ export default function HomePage() {
   const otherGames = games.filter((g) =>
     subjects.some((s) => s.id === g.subject && countFor(s.id) < ROW_MIN_GAMES)
   );
+  const [spotlight, ...moreFeatured] = getHomeFeaturedGames();
+  const spotlightSubject = spotlight && getSubject(spotlight.subject);
 
   return (
     <>
@@ -162,6 +170,99 @@ export default function HomePage() {
           </div>
         </Container>
       </section>
+
+      {/* ── Featured games (order: homeFeaturedSlugs in games.ts) ──── */}
+      {spotlight && (
+        <section className="pb-16 md:pb-20" aria-labelledby="featured-heading">
+          <Container>
+            <h2
+              id="featured-heading"
+              className="flex items-center justify-center gap-2 text-center font-display text-3xl font-extrabold text-ink-900 md:text-4xl"
+            >
+              <SiteIcon name="sparkle" size={36} /> Featured games
+            </h2>
+            <p className="mt-2 text-center text-lg text-ink-600">
+              Our newest and biggest adventures, picked for you.
+            </p>
+
+            <article className="mt-10 grid overflow-hidden rounded-[2rem] border-2 border-pg-border bg-white shadow-pop lg:grid-cols-[3fr_2fr]">
+              <Link
+                href={`/games/${spotlight.slug}`}
+                className="group relative block border-b-2 border-pg-border lg:border-b-0 lg:border-r-2"
+                aria-label={`Play ${spotlight.title}`}
+              >
+                <Image
+                  src={spotlight.thumbnail}
+                  alt=""
+                  width={640}
+                  height={400}
+                  sizes="(min-width: 1024px) 60vw, 100vw"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+                <span className="absolute left-4 top-4 inline-flex rotate-[-3deg] items-center gap-1.5 rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-1.5 text-sm font-extrabold text-ink-900 shadow-pop">
+                  <SiteIcon name="sparkle" size={20} /> Featured
+                </span>
+              </Link>
+              <div className="flex flex-col p-6 md:p-8">
+                {spotlightSubject && (
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-1.5 self-start rounded-full py-1 pl-1 pr-3 text-sm font-bold',
+                      spotlightSubject.theme.soft,
+                      spotlightSubject.theme.text
+                    )}
+                  >
+                    <SiteIcon name={spotlightSubject.icon} size={22} />
+                    {spotlightSubject.name}
+                  </span>
+                )}
+                <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight text-ink-900 md:text-3xl">
+                  {spotlight.title}
+                </h3>
+                <p className="mt-3 text-lg text-ink-700">
+                  {spotlight.description}
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-2" aria-label="Skills">
+                  {spotlight.skills.map((skill) => (
+                    <li
+                      key={skill}
+                      className="rounded-full border-2 border-pg-border bg-brand-50 px-3 py-0.5 text-sm font-semibold text-ink-800"
+                    >
+                      {skill}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-sm font-medium text-ink-600">
+                  <span className="inline-flex items-center gap-1">
+                    <UiIcon name="grad-cap" size={16} />
+                    Grades {spotlight.grades}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <UiIcon name="clock" size={16} />
+                    {spotlight.estimatedTime}
+                  </span>
+                </div>
+                <div className="mt-auto pt-6">
+                  <Link
+                    href={`/games/${spotlight.slug}`}
+                    className={cn(primaryButton, 'bg-pg-violet text-white')}
+                  >
+                    <SiteIcon name="controller" size={30} /> Play now
+                  </Link>
+                </div>
+              </div>
+            </article>
+
+            {moreFeatured.length > 0 && (
+              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {moreFeatured.map((game) => (
+                  <PlayableGameCard key={game.slug} game={game} showSubject />
+                ))}
+              </div>
+            )}
+          </Container>
+        </section>
+      )}
 
       {/* ── Featured game rows ───────────────────────────────────────── */}
       <section
