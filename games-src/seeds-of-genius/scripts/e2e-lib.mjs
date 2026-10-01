@@ -19,6 +19,22 @@ export function watch(page, label) {
 export const state = (page) => page.evaluate(() => window.__sog.state());
 export const sleep = (page, ms) => page.waitForTimeout(ms);
 
+/**
+ * Wait until the game has drawn `n` more frames. A frame can stall for a
+ * second or more with software rendering (right after Continue, or a new
+ * scene); a key pressed and released inside that stall is never seen.
+ */
+export const frames = (page, n = 2) =>
+  page.evaluate(
+    (count) =>
+      new Promise((done) => {
+        let k = 0;
+        const tick = () => (++k >= count ? done() : requestAnimationFrame(tick));
+        requestAnimationFrame(tick);
+      }),
+    n,
+  );
+
 /** Walk with the keyboard, one axis at a time, like a player would. */
 export async function walkTo(page, x, y, tol = 0.2) {
   for (const axis of ['x', 'y']) {
@@ -37,6 +53,7 @@ export async function walkTo(page, x, y, tol = 0.2) {
       const key = axis === 'x' ? (d > 0 ? 'ArrowRight' : 'ArrowLeft') : d > 0 ? 'ArrowDown' : 'ArrowUp';
       await page.keyboard.down(key);
       await sleep(page, Math.min(260, Math.max(25, (Math.abs(d) / 4.2) * 700)));
+      await frames(page);
       await page.keyboard.up(key);
     }
   }
@@ -62,6 +79,7 @@ export async function walkPath(page, pts) {
 export async function tapKey(page, key, ms = 40) {
   await page.keyboard.down(key);
   await sleep(page, ms);
+  await frames(page);
   await page.keyboard.up(key);
 }
 
