@@ -540,3 +540,10 @@ Follows the same pattern as games and books, so it stays backend-free:
 - **Checked:**
   - On the production build at 1280px and 390px: the section sits right after "Pick a subject", there is no sideways scroll, there are no console errors, and "Play now" opens `/games/seeds-of-genius`.
   - tsc, lint (0 errors), `npm test` (88), `npm run build`.
+
+#### UX-4: Rebuild every game in Three.js to the Seeds of Genius standard: PLANNED (plan on branch `claude/elegant-clarke-hlzflj`)
+
+- **Pages:** every game at `/games/[slug]` (43 games and activities; Seeds of Genius is the quality bar).
+- **Problem (owner, 2026-10-01):** the games all work, but they are basic and use the same free icons (emoji).
+- **Change:** rebuild each game with Three.js and original art, and make its learning challenges fit its grade level. One subject at a time (Math, then Science, then English and History). Each game must score 8.5/10 or higher on the Seeds of Genius rubric, and each batch needs the owner's approval.
+- **Plan and status:** `docs/GAMES_3D_UPGRADE_PLAN.md`.
