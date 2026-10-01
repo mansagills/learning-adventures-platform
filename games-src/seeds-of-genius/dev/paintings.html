@@ -1,0 +1,9 @@
+<!doctype html><html><body style="background:#f6ecd3;margin:0">
+<canvas id="c" width="1200" height="560" style="image-rendering:pixelated"></canvas>
+<script type="module">
+import { paintingCanvas } from '../src/art/sceneArt.ts';
+const ctx = document.getElementById('c').getContext('2d'); ctx.imageSmoothingEnabled = false;
+['farm','woods','doctor','beans','soil','ladybug','carrots','bee','snail','mushrooms'].forEach((k,i)=>{
+  ctx.drawImage(paintingCanvas(k), (i%4)*296+4, Math.floor(i/4)*196+4, 288, 192);
+});
+</script></body></html>

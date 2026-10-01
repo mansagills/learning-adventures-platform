@@ -11,7 +11,10 @@ export default defineConfig({
     // exclusion vitest collects BOTH copies of every duplicated suite, so each
     // failure is reported twice and the demo's own tests (which deliberately
     // ship without the backend deps) fail here as well.
-    exclude: ['**/node_modules/**', '**/dist/**', 'demo/**'],
+    //
+    // games-src/ holds standalone game projects (e.g. Seeds of Genius) with
+    // their own package.json and test runner, for the same reason.
+    exclude: ['**/node_modules/**', '**/dist/**', 'demo/**', 'games-src/**'],
   },
   resolve: {
     alias: {

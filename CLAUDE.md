@@ -14,7 +14,7 @@
 ### 🌐 v1 Public Site: How It's Organized
 
 - **Content lives in `lib/content/`**: `subjects.ts` (5 subjects and their colors), `games.ts` (every playable game/activity), `books.ts` (interactive ebooks). Pages are built from these files, including the sitemap.
-- **Add a game**: save the HTML to `public/games/` (or `public/lessons/`), add an entry to `games` in `lib/content/games.ts`, then run `npm run thumbnails -- --only <slug>` to screenshot it for its card. `lib/catalogData.ts` is the old catalog, used only by the hidden account features.
+- **Add a game**: save the HTML to `public/games/` (or `public/lessons/`), add an entry to `games` in `lib/content/games.ts`, then run `npm run thumbnails -- --only <slug>` to screenshot it for its card. To show it in the homepage "Featured games" section, add its slug to `homeFeaturedSlugs` in the same file (the first slug gets the big spotlight card). `lib/catalogData.ts` is the old catalog, used only by the hidden account features.
 - **Add or publish a book**: edit `lib/content/books.ts`. To publish, set `status: 'available'`, `ebookUrl`, `coverImage` and `samplePages` (images in `public/books/<slug>/`). Visitor-facing text calls them "interactive ebooks" and never names the ebook platform.
 - **Add a blog post**: add an entry to `posts` in `lib/content/blog.ts` and write its text in `content/blog/<slug>.md` (Markdown). `status: 'draft'` keeps it off the site.
 - **Run `npm test` after content changes**: `tests/content/content.test.ts` checks files exist, slugs are unique and cross-links are valid.
@@ -29,7 +29,7 @@
 ### 🧭 Handoff notes (read first)
 
 - **Where things stand**: the v1 site is live. Production = Vercel project `learning-adventures-platform`, which deploys `main` automatically. Every PR gets a Vercel preview (behind Vercel login).
-- **UX changes so far**: UX-1 (icons + game screenshots, #200) and the World Demo name-box fix (#201) are done. **UX-2 is in progress**: a newsletter sign-up page for parents (stored in Kit, an email marketing service, not Supabase) and a blog. Phase 1 (the blog, with the first welcome post) and Phase 2 (the `/newsletter` page, a preview until Kit is connected) are done. Phase 3 (connect Kit via `NEWSLETTER_API_KEY` and update the Privacy page) waits on the owner's team setting up the email account. The phases are in the UX-2 section of `docs/V1_WEBSITE_REBUILD_PLAN.md`; start at the first phase not marked done. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
+- **UX changes so far**: UX-1 (icons + game screenshots, #200), the World Demo name-box fix (#201) and UX-3 (homepage "Featured games" section, in #205) are done. **UX-2 is in progress**: a newsletter sign-up page for parents (stored in Kit, an email marketing service, not Supabase) and a blog. Phase 1 (the blog, with the first welcome post) and Phase 2 (the `/newsletter` page, a preview until Kit is connected) are done. Phase 3 (connect Kit via `NEWSLETTER_API_KEY` and update the Privacy page) waits on the owner's team setting up the email account. The phases are in the UX-2 section of `docs/V1_WEBSITE_REBUILD_PLAN.md`; start at the first phase not marked done. UX-1 left three tools: `npm run thumbnails`, the `/dev/icons` preview page, and lint + `npm test` guards against emoji or stock icons on public pages.
 - **Owner decisions that still hold**:
   - accounts stay off until paid features exist (it's a kids' site)
   - books are placeholders until real ones exist
@@ -39,6 +39,7 @@
   - the contact email is info@learningadventures.org (pending team confirmation)
 - **Run it locally**: `npm install && npm run dev` (http://localhost:3000). For real speed, use `npm run build && npm start`; dev mode compiles each page on first visit.
 - **Before pushing**: `npx tsc --noEmit`, `npm run lint` (0 errors; 6 known warnings), `npm test`, `npm run build`.
+- **Seeds of Genius (Carver game)**: a separate project in `games-src/seeds-of-genius/` (Vite + Three.js; its README explains how it's built). It is built into `public/games/seeds-of-genius/` and listed on the site (`lib/content/games.ts`, slug `seeds-of-genius`, History). All phases (0–8) are complete and owner-approved; further changes are post-release fixes (see `docs/SEEDS_OF_GENIUS_PLAN.md`; player guide: `docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md`). After changing the game, run `npm run game:carver:build` and commit the build; `node scripts/e2e-phase8.mjs` (in the game folder, with `npx vite preview --port 4173` running) plays the whole game from a new save.
 - **Open follow-ups** (not UX; do only when asked):
   - retire `demo/la-campus-demo` and its Vercel project `learning-adventures-platform-2mxb` in a separate PR
   - the owner will rotate the flagged `GEMINI_API_KEY` in Vercel

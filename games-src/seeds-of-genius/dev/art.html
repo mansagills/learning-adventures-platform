@@ -1,0 +1,17 @@
+<!doctype html><html><body style="background:#7cb356;margin:0">
+<canvas id="c" width="1200" height="700" style="image-rendering:pixelated"></canvas>
+<script type="module">
+import { paintSheet, lookFromAppearance } from '../src/art/characters.ts';
+import { NPC_LOOKS } from './looks.ts';
+const ctx = document.getElementById('c').getContext('2d');
+ctx.imageSmoothingEnabled = false;
+const styles = ['short','curly','puffs','braids','long','locs'];
+const acc = ['none','glasses','sunhat','cap','headband','scarf'];
+const S=5;
+styles.forEach((s,i)=>{
+  const sheet = paintSheet(lookFromAppearance({skin:'skin'+(i+1),hairStyle:s,hairColor:['black','darkbrown','brown','auburn','blonde','black'][i],outfit:['red','teal','purple','yellow','green','blue'][i],accessory:acc[i]}));
+  // down idle, right idle, up idle, right walk1
+  [[0,0],[0,2],[0,3],[1,2],[1,0]].forEach(([f,r],k)=>ctx.drawImage(sheet, f*16, r*24,16,24, i*200+ (k%3)*64, (k>2?140:0)+4, 16*S*0.8, 24*S*0.8));
+});
+NPC_LOOKS.forEach((l,i)=>{ const sheet = paintSheet(l); const H=sheet.height/4; [[0,0],[0,2],[0,3],[1,0]].forEach(([f,r],k)=>ctx.drawImage(sheet,f*16,r*H,16,H, i*300+k*70, 300, 16*S*0.9, H*S*0.9));});
+</script></body></html>

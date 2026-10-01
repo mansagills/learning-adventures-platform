@@ -621,6 +621,26 @@ export const games: PlayableGame[] = [
 
   // ── History ─────────────────────────────────────────────────────────────
   {
+    slug: 'seeds-of-genius',
+    title: 'Seeds of Genius: George Washington Carver',
+    subject: 'history',
+    kind: 'game',
+    grades: '3–7',
+    difficulty: 'medium',
+    description:
+      'Explore a cozy town with George Washington Carver: observe, test soil, invent, help farmers and plan your own project.',
+    skills: [
+      'Black History',
+      'Scientific Method',
+      'Agriculture',
+      'Problem Solving',
+    ],
+    estimatedTime: '45–60 min',
+    htmlPath: '/games/seeds-of-genius/index.html',
+    thumbnail: '/games/thumbnails/seeds-of-genius.jpg',
+    featured: true,
+  },
+  {
     slug: 'ancient-egypt-explorer',
     title: 'Ancient Egypt Explorer',
     subject: 'history',
@@ -636,6 +656,19 @@ export const games: PlayableGame[] = [
     featured: true,
   },
 ];
+
+/**
+ * The homepage "Featured games" section, in order. The first game gets the
+ * big spotlight card; the rest show as regular cards under it. To feature a
+ * game, add its slug here (the content test checks that it exists).
+ */
+export const homeFeaturedSlugs: string[] = ['seeds-of-genius'];
+
+export function getHomeFeaturedGames(): PlayableGame[] {
+  return homeFeaturedSlugs
+    .map((slug) => getGame(slug))
+    .filter((game): game is PlayableGame => Boolean(game));
+}
 
 export function getGame(slug: string): PlayableGame | undefined {
   return games.find((game) => game.slug === slug);

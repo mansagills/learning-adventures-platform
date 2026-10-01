@@ -18,7 +18,10 @@
     "db:seed:quests": "tsx prisma/seed-quests.ts",
     "db:reset": "npx prisma db push --force-reset && npm run db:seed",
     "db:studio": "npx prisma studio",
-    "vercel:deploy": "vercel --prod"
+    "vercel:deploy": "vercel --prod",
+    "game:carver": "npm --prefix games-src/seeds-of-genius run dev",
+    "game:carver:build": "npm --prefix games-src/seeds-of-genius run build",
+    "game:carver:test": "npm --prefix games-src/seeds-of-genius test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.1",

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { basename, join, resolve } from 'path';
 import { describe, expect, it } from 'vitest';
-import { games } from '@/lib/content/games';
+import { games, homeFeaturedSlugs } from '@/lib/content/games';
 import { books } from '@/lib/content/books';
 import { posts } from '@/lib/content/blog';
 import { subjects } from '@/lib/content/subjects';
@@ -48,6 +48,14 @@ describe('public content data', () => {
     for (const item of [...games, ...books]) {
       expect(subjectIds.has(item.subject)).toBe(true);
     }
+  });
+
+  it('every homepage featured game exists', () => {
+    const slugs = new Set(games.map((game) => game.slug));
+    for (const slug of homeFeaturedSlugs) {
+      expect(slugs.has(slug), `featured game "${slug}"`).toBe(true);
+    }
+    expect(new Set(homeFeaturedSlugs).size).toBe(homeFeaturedSlugs.length);
   });
 
   it('every book companion game exists', () => {

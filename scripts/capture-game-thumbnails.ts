@@ -32,7 +32,16 @@ const scale = 0.64;
  * skipped), then the script waits `delay` ms before the screenshot.
  */
 const startButton = /^\W*(start|begin|launch|enter|play|let's go)\b/i;
-const overrides: Record<string, { clicks?: string[]; delay?: number }> = {};
+const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
+  // A 3D game: start a new game, accept the starting look, then wait for the town.
+  'seeds-of-genius': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+    ],
+    delay: 4000,
+  },
+};
 
 const contentTypes: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',

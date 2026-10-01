@@ -19,9 +19,15 @@ const eslintConfig = [
     //
     // .agents/ and .claude/ hold agent tooling and skill scripts, not
     // application source.
+    //
+    // games-src/ holds standalone game projects with their own toolchain;
+    // their built bundles land in public/games/<name>/ and are minified
+    // output, not source.
     ignores: [
       'demo/**',
       'demos/**',
+      'games-src/**',
+      'public/games/seeds-of-genius/**',
       '.agents/**',
       '.claude/**',
       '.next/**',
