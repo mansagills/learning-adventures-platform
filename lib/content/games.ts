@@ -621,6 +621,26 @@ export const games: PlayableGame[] = [
 
   // ── History ─────────────────────────────────────────────────────────────
   {
+    slug: 'seeds-of-genius',
+    title: 'Seeds of Genius: George Washington Carver',
+    subject: 'history',
+    kind: 'game',
+    grades: '3–7',
+    difficulty: 'medium',
+    description:
+      'Explore a cozy town with George Washington Carver: observe, test soil, invent, help farmers and plan your own project.',
+    skills: [
+      'Black History',
+      'Scientific Method',
+      'Agriculture',
+      'Problem Solving',
+    ],
+    estimatedTime: '45–60 min',
+    htmlPath: '/games/seeds-of-genius/index.html',
+    thumbnail: '/games/thumbnails/seeds-of-genius.jpg',
+    featured: true,
+  },
+  {
     slug: 'ancient-egypt-explorer',
     title: 'Ancient Egypt Explorer',
     subject: 'history',

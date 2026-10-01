@@ -3,7 +3,7 @@
 **Game:** Seeds of Genius: George Washington Carver and the Power of Science
 **Spec (source of truth):** `docs/sorceress-prompts/carver-game/Carver_Adventure_Technical_Spec.md` (v1.1)
 **Code:** `games-src/seeds-of-genius/` (Vite + TypeScript + Three.js). See its README.
-**Build output:** `public/games/seeds-of-genius/`, served unlisted at `/games/seeds-of-genius/index.html` (the `index.html` is needed: Next.js does not serve folder index files from `public/`).
+**Build output:** `public/games/seeds-of-genius/`, served at `/games/seeds-of-genius/index.html` and listed on the site as `/games/seeds-of-genius` (History) (the `index.html` is needed: Next.js does not serve folder index files from `public/`).
 
 ## How we work
 
@@ -26,7 +26,7 @@ explicit approval**. A passing self-score is not approval.
 | 5: Science for the People / Farm Helper | **COMPLETED ✅** (owner approved 2026-09-28) |
 | 6: A Scientist's Method / Design Your Own Experiment | **COMPLETED ✅** (owner approved 2026-09-28 after reviewing screenshots; full playtest planned at the end) |
 | 7: Your Turn to Plant the Seeds / My Carver Project | **COMPLETED ✅** (owner approved 2026-09-28) |
-| 8: Whole-game polish and release candidate | Built, awaiting final owner playtest and approval |
+| 8: Whole-game polish and release candidate | **COMPLETED ✅** (owner playtested and approved 2026-10-01; listed on the site under History) |
 
 ## Phase 0: playable foundation
 
@@ -216,6 +216,6 @@ explicit approval**. A passing self-score is not approval.
 | 2 | On phones, the Chapter 5 table and the Chapter 7 project screen are long scrolling lists | Low | Developer, if playtesting shows it matters |
 | 3 | The Chapter 7 typed-text check is a short word list plus rules; typed text never leaves the device | Low | Site owner to decide if a stricter list is wanted |
 | 4 | Frame rate was measured with software rendering on the test machine, not on a real laptop | Low | Site owner (quick check during the final playtest) |
-| 5 | The game is not yet listed on the site (`lib/content/games.ts`) | Decision | Site owner |
+| 5 | ~~The game is not yet listed on the site~~ Resolved 2026-10-01: the owner approved listing it (History, featured) | Done | Site owner |
 
 **Tests:** 146 unit tests; `node scripts/e2e-phase8.mjs` (the whole game from a new save, resume from each chapter, settings, export, grown-ups page, offline and phone checks), plus all Phase 0 to 7 check-ins. Screenshots are in `games-src/seeds-of-genius/test-output/phase8/`.

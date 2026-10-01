@@ -10,7 +10,8 @@ townspeople, uses them, and returns to him to talk it through.
 - **Player guide (for players, parents and teachers):** [`docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md`](../../docs/SEEDS_OF_GENIUS_PLAYER_GUIDE.md)
 - **Where it is served:** the build is copied to `public/games/seeds-of-genius/`,
   so it opens at `/games/seeds-of-genius/index.html` on the site and every Vercel
-  preview. It is **not listed** in `lib/content/games.ts` yet.
+  preview. It is listed in `lib/content/games.ts` (slug `seeds-of-genius`, History), so it
+  also plays in the site player at `/games/seeds-of-genius`.
 
 ## Run and build
 
@@ -171,7 +172,7 @@ holds keys in the browser, and falls back to authored hints on any error.
 | 5 | Science for the People / Farm Helper | Approved ✅ |
 | 6 | A Scientist's Method / Design Your Own Experiment | Approved ✅ |
 | 7 | Your Turn to Plant the Seeds / My Carver Project | Approved ✅ |
-| 8 | Whole-game polish and release candidate | Built, awaiting final playtest and approval |
+| 8 | Whole-game polish and release candidate | Approved |
 
 ## Known issues (Phase 7)
 
