@@ -1264,6 +1264,8 @@ export class Game {
         cosmetics: this.save.cosmetics,
         memories: this.save.memories,
         runtimesReady: this.runtimesReady,
+        /** False while a title, conversation, pop-up or scene fade is holding the keyboard. */
+        inputReady: !this.blocked,
         version: this.save.version,
         inventory: this.save.progress.inventory,
         xp: this.save.progress.xp,
