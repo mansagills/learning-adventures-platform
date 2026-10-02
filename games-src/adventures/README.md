@@ -27,6 +27,9 @@ node scripts/e2e-number-line-ninja.mjs   # plays the game in a real browser (29 
 node scripts/e2e-counting-carnival.mjs   # a whole Counting Carnival game, title to finale (28 checks)
 node scripts/cc-tour.mjs <url> <outDir> [w] [h]    # screenshots of every booth, a miss and hints
 node scripts/cc-tiers.mjs <url> <outDir> [w] [h]   # every booth at levels 2 and 3
+node scripts/e2e-math-dash.mjs           # a Library Rush shift from the title to the summary (34 checks)
+node scripts/md-tour.mjs <url> <outDir> [w] [h]     # Library Rush screenshots: start, shelving, level-up, rush, summary
+node scripts/md-stages.mjs <url> <outDir> [w] [h]   # each stage's signs, a wrong shelf, the hint, a late shift
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -120,4 +123,44 @@ the booth screens, `world.ts` the fairground).
 | Leave a booth | Esc | Leave |
 | Booth list | B | Booths |
 | Grown-ups | G | Settings → For grown-ups |
+| Mute | M | Sound |
+
+## Math Dash: Library Rush (Math batch M2, grades 1–3)
+
+A survivors-style action game (an owner redesign of Math Dash: Library Sorter).
+You are a library helper. Walk over books to pick them up. The number of the
+book in your hands shows above your head. Walk into the shelf whose sign fits
+that number:
+
+- Shelves go by tens at first (Picture Books, 0–59).
+- Then by hundreds (Chapter Books, 100–599).
+- Then by ranges with < and > (Reference, up to 999).
+
+A wrong shelf bounces the book back with a reason. After two misses on the same
+book, the right sign glows and an arrow points to it.
+
+Chatty classmates drift toward you, and a bump costs Focus. Every few books you
+pick one of three library powers, each with five levels:
+
+- Shush Bell (you start with it)
+- Paper Notes
+- Story Rug
+- Bookmark Magnet
+- Book Cart
+- Quiet Sneakers
+- Reading Glasses (colors the digits by place value)
+- Cocoa Break
+- Library Card
+
+Calmed students sit down and read. Runs are endless: the shift ends when Focus
+runs out. The best score and stage are saved, and the next run starts at the
+stage you reached. Code: `src/games/math-dash/`. The slug stays `math-dash`.
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Move | Arrow keys or WASD | Drag anywhere (a joystick appears) |
+| Swap the book in your hands | Q or Tab | Swap |
+| Pick a power | 1, 2, 3 | Tap a card |
+| Pause / settings | Esc | Pause |
+| Grown-ups | G | Pause → For grown-ups |
 | Mute | M | Sound |

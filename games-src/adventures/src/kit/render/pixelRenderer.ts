@@ -26,6 +26,8 @@ export class PixelRenderer {
   readonly camera: THREE.OrthographicCamera;
   readonly canvas: HTMLCanvasElement;
   internalW = 320;
+  /** Bigger than 1 shows fewer, larger pixels (a closer camera for action games). */
+  zoom = 1;
   internalH = 180;
   scale = 1;
   private cssW = 0;
@@ -65,7 +67,7 @@ export class PixelRenderer {
     this.cssH = this.host.clientHeight || window.innerHeight;
     const devW = Math.round(this.cssW * dpr);
     const devH = Math.round(this.cssH * dpr);
-    const s = Math.max(1, Math.round(Math.min(devW / 220, devH / 250)));
+    const s = Math.max(1, Math.round(Math.min(devW / 220, devH / 250) * this.zoom));
     this.scale = s;
     // Even sizes keep the camera's center on a whole pixel. With an odd size
     // every texel sits half a pixel off and nearest-neighbor sampling drops

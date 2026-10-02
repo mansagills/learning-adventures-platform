@@ -53,6 +53,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
     ],
     delay: 1800,
   },
+  // Library Rush: start a shift, read the librarian's welcome, then let the first students in.
+  'math-dash': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(14).fill('.dialogue'),
+    ],
+    delay: 6000,
+  },
   'counting-carnival': {
     clicks: [
       'button:has-text("Start a new game")',
