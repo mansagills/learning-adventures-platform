@@ -147,3 +147,8 @@ export function choose<T extends string>(
     const modal = new Modal(host, body, () => resolve(picked));
   });
 }
+
+/** The modal on top (the one that gets keyboard input), if any. */
+export function stackTop(): Modal | null {
+  return stack[stack.length - 1] ?? null;
+}

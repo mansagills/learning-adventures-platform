@@ -53,7 +53,7 @@ export const books: Book[] = [
     companionGameSlugs: [
       'number-line-ninja',
       'pizza-fraction-frenzy',
-      'number-monster-feeding',
+      'counting-carnival',
     ],
     characters: ['Jaylen', 'SPARK', 'Null'],
   },

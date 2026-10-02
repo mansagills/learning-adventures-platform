@@ -53,6 +53,14 @@ const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
     ],
     delay: 1800,
   },
+  'counting-carnival': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(12).fill('.dialogue'),
+    ],
+    delay: 1500,
+  },
 };
 
 const contentTypes: Record<string, string> = {

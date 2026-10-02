@@ -1,5 +1,6 @@
 import { settings, updateSettings, type Settings } from '../systems/settings';
 import { audio } from '../systems/audio';
+import { readAloudOn, speechAvailable } from '../systems/speech';
 import { h, Modal } from './dom';
 
 export interface SettingsActions {
@@ -90,7 +91,10 @@ export function openSettings(host: HTMLElement, act: SettingsActions, onClose?: 
       () => settings.textSize,
       (v) => updateSettings({ textSize: v }),
     ),
-    h('p', { class: 'small-note', text: 'Sound, comfort and reading settings apply to every Learning Adventures game in this browser.' }),
+    speechAvailable()
+      ? seg('Read aloud', 'set-read', onOff, () => (readAloudOn() ? 'on' : 'off'), (v) => updateSettings({ readAloud: v }))
+      : null,
+    h('p', { class: 'small-note', text: 'Sound, comfort and reading settings apply to every Learning Adventures game in this browser. Read aloud uses a voice on this device; nothing is sent online.' }),
   );
 
   const row = (label: string, btn: HTMLElement) => h('div', { class: 'setting-row' }, h('span', { class: 'lbl', text: label }), btn);
