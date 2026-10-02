@@ -41,6 +41,18 @@ const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
     ],
     delay: 4000,
   },
+  // Adventure Kit game: start, accept the look, read Sensei's welcome, then hop.
+  'number-line-ninja': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(14).fill('.dialogue'),
+      '.pad-btn.one >> nth=1',
+      '.pad-btn.one >> nth=1',
+      '.pad-btn.one >> nth=1',
+    ],
+    delay: 1800,
+  },
 };
 
 const contentTypes: Record<string, string> = {

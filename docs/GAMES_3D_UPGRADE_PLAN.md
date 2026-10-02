@@ -34,7 +34,8 @@ Screenshots of the "before" state are in the PR for this plan (every game's card
 Seeds of Genius is a ~24,000-line, nine-chapter adventure. The other games are shorter (10 to 30 minutes), so the bar is **quality, not length**. Every rebuilt game must have all of the following:
 
 **Look and feel**
-- A real **Three.js** scene in the Learning Adventures pixel-art style: the same crisp, integer-scaled pixels, warm palette, readable fonts (Pixelify Sans for titles, Atkinson Hyperlegible for reading) and wood-and-parchment panels as Seeds of Genius. Each game gets its own setting (a carnival, a space station, a reef, a pyramid).
+- A real **Three.js** scene in the **2D retro pixel-art style** of Seeds of Genius (owner decision, 2026-10-01): the same crisp, integer-scaled pixels, warm palette, readable fonts (Pixelify Sans for titles, Atkinson Hyperlegible for reading) and wood-and-parchment panels. Each game gets its own setting (a carnival, a space station, a reef, a pyramid).
+- **Each game has its own host character** (owner decision). Jaylen and S.P.A.R.K. stay the site-wide theme, not the game hosts.
 - **No emoji, no stock icons.** All art is drawn for the game in code (sprites, props, item icons, portraits), like Seeds of Genius's `src/art/`.
 - Sound effects and a short music loop, with music and effects volume controls and mute (M).
 - Animation with game feel: things squash, bounce and sparkle when you are right, and react gently (never harshly) when you are wrong. Reduced motion turns this down.
@@ -61,13 +62,18 @@ Seeds of Genius is a ~24,000-line, nine-chapter adventure. The other games are s
 
 Copying Seeds of Genius 43 times would be slow and hard to maintain. Instead:
 
-- **`games-src/adventure-kit/`**: a shared engine built from the proven parts of Seeds of Genius: the pixel renderer and camera, the art helpers (sprites, palettes, icons), panels and dialogue, the hint ladder, the mastery model, audio, settings, saving, the For grown-ups page, and the browser-test helpers. Seeds of Genius itself is **not changed**; the kit starts as a copy, so the finished game can't break.
-- **`games-src/adventures/`**: one Vite + TypeScript project holding every rebuilt game, one folder per game (`src/games/<slug>/`). One build writes each game to `public/games/<slug>/index.html`. Shared code (three.js and the kit) is split into shared files, so a player who has opened one game loads the next one faster.
+- **`games-src/adventures/`**: one Vite + TypeScript project holding every rebuilt game.
+  - **The Adventure Kit** (`src/kit/`) is the shared engine, built from the proven parts of Seeds of Genius: the pixel renderer and camera, the art helpers (sprites, characters, portraits, pixel digits), panels and talk boxes, the hint ladder, the mastery model, audio, settings, saving, the For grown-ups page, and the browser-test helpers.
+  - Seeds of Genius itself is **not changed**. The kit starts as a copy, so the finished game can't break.
+  - Each game has its own folder (`src/games/<slug>/` plus `<slug>/index.html`).
+  - One build writes every game to `public/games/play/<slug>/index.html`. It has to live under `/games/`, because the site only lets `/games/` and `/lessons/` pages be embedded in its game player.
+  - Shared code (three.js and the kit) is split into shared files under `public/games/play/assets/`, so a player who has opened one game loads the next one faster.
 - **Shared question generators** per skill family (for example comparing numbers, money, fractions, multiplication facts). Each one has unit tests showing every question is correct, at the right level, and offers only plausible wrong answers.
 
 ### 3.2 Site changes when a game ships
 
-- Its entry in `lib/content/games.ts` points `htmlPath` to `/games/<slug>/index.html`. The slug and URL stay the same, so links, the sitemap and search results keep working.
+- Its entry in `lib/content/games.ts` points `htmlPath` to `/games/play/<slug>/index.html`. The slug and URL stay the same, so links, the sitemap and search results keep working.
+- When games are merged, the merged game keeps one of the old slugs. The other old addresses (`/games/<old-slug>`) redirect to it permanently (in `next.config.js`), so bookmarks and search results still land on a game.
 - New card picture with `npm run thumbnails -- --only <slug>`.
 - The old single-file HTML is deleted in the same PR, once the new game is approved.
 - A new content test checks that rebuilt games contain no emoji and load nothing from the internet.
@@ -95,16 +101,113 @@ Each batch ends with screenshots in chat (title screen, gameplay, a hint, a wron
 
 Order: **engine and pilot → Math → Science → English and History.** Math goes first because it has the most games and the most reusable question generators. Science reuses the art and engine built for Math.
 
-### Phase 0: Adventure Kit and a pilot game: NOT STARTED
+### Phase 0: Adventure Kit and a pilot game: BUILT, WAITING FOR THE OWNER'S CHECK-IN
 
-- Build `games-src/adventure-kit/` and `games-src/adventures/` (section 3.1), with the build writing to `public/games/<slug>/`.
+- Build `games-src/adventures/` with the Adventure Kit (section 3.1), with the build writing to `public/games/play/<slug>/`.
 - Rebuild **one pilot game, Number Line Ninja** (grades 1–3). It is small but uses most of the kit: a 3D scene, a character, a number line the player moves along, levels, hints, misconception feedback and a debrief.
 - Publish it on its existing slug and add the content tests (no emoji, no network).
 - **Owner check:** the look, the feel and the level of challenge. Every later game copies what is approved here, so this is the most important check-in.
 
-### Phase 1: Math (20): NOT STARTED
+**Built (2026-10-02):**
 
-Batches group games that share skills, so each batch also builds a question generator that the next batch reuses. Each game keeps its slug. The "Upgrade" column is a starting idea, to be refined in the game's learning spec.
+- [x] **Adventure Kit** in `games-src/adventures/src/kit/`, mostly copied from Seeds of Genius (Seeds itself is unchanged):
+  - the pixel renderer, now with a fix for a half-pixel offset that could drop a column of pixels (a 9 could read as a 3)
+  - pixel buffers (now much faster for big pictures), the palette, characters (with a new belt), portraits, a 3x5 number font
+  - pixel UI icons: no emoji, no stock icons
+  - the talk box with questions that never fail (feedback, then the next hint, then the answer outlined)
+  - the learner model: up a level after two clean answers, down after two misses, and a count of which mistakes come up
+  - sound made in code (each game adds its own songs), settings shared by every game, a versioned save with a backup
+  - title screen, character creator, settings, the For grown-ups page (with a "How it is going" progress tab), toolbar and toasts
+- [x] **One project for every game** (`games-src/adventures/`). It builds to `public/games/play/<slug>/index.html`, with shared code in `public/games/play/assets/`. Root scripts: `npm run games`, `npm run games:build`, `npm run games:test`. See its README.
+- [x] **Number Line Ninja rebuilt** (grades 1–3, host: Sensei Rio):
+  - five belts in five riverside places (Blossom Pond, Bamboo Creek, Maple Falls, Long River to 100, and Lantern River at night)
+  - each belt has three levels chosen by the learner model:
+    - White: find numbers using landmarks
+    - Yellow: add by counting on, up to making ten
+    - Orange: subtract by counting back, across 10
+    - Green: tens and ones to 100, including crossing a ten
+    - Black: the missing gap, as in 27 + ? = 45
+  - every hop is drawn as an arc with its size (the classroom number-line model)
+  - eight common mistakes are recognized and explained, for example counting the starting stone or treating tens as ones
+  - hints: a nudge, then Sensei draws the first hops, then the whole path with the landing stone glowing
+  - stars for clean first landings, a talk-it-through question before each belt is tied on, and the belt shows on the ninja
+  - Standards: 1.OA.5, 1.OA.6, 1.OA.8, 1.NBT.1, 2.NBT.5, 2.MD.6, 2.OA.1
+- [x] **Listed on the site** at its old slug (`/games/number-line-ninja`), with a new card picture and description. The old `public/games/number-line-ninja.html` stays for now, because the hidden account features (`lib/catalogData.ts`) and the test-game seed still point at it; Phase 4 removes it.
+- [x] **Site guards:** the content test checks that rebuilt games contain no emoji and load nothing from other websites. Lint ignores the built `public/games/play/`.
+
+**Tests:**
+
+- Game unit tests: 22 in total, including every challenge generator at every level (600 seeds each), the mistake diagnosis, the "how far?" choices, the learner model and the save cleaner.
+- Browser test `scripts/e2e-number-line-ninja.mjs`: 27 of 27 pass. It plays a new game with real keyboard, mouse and touch input:
+  - character creator, Sensei's welcome, a wrong landing, all three hints
+  - earning the White Belt, moving on to Bamboo Creek, then a reload
+  - settings that persist, mute, the grown-ups page, the belt scroll
+  - clicking and tapping stones, the phone layout
+  - no console errors and no requests to other websites
+- Site checks: `npx tsc --noEmit`, `npm run lint` (0 errors, the 6 known warnings), `npm test` (91), `npm run build` with no environment variables.
+
+**Size and speed:**
+
+- 157 KB of compressed script (three.js included), plus fonts. Nothing is loaded from the internet.
+- 41–43 frames per second on the test machine. It has no graphics card (software rendering): a worst case. Seeds of Genius measured 48–53 there. A normal laptop should reach 60.
+
+**Score (Seeds of Genius rubric):**
+
+| Category | First build | After fixes |
+|---|---|---|
+| Gameplay and feel (2.5) | 1.7 | 2.0 |
+| Learning accuracy and clarity (2.0) | 1.8 | 1.85 |
+| Visual and audio polish (1.5) | 1.0 | 1.3 |
+| Usability and accessibility (1.5) | 1.0 | 1.35 |
+| Technical reliability (1.5) | 1.2 | 1.3 |
+| Completeness (1.0) | 0.9 | 0.95 |
+| **Total** | **7.6** | **8.75** |
+
+The first build had these problems, all fixed:
+
+- a 5 looked like an S in the pixel font
+- the ninja's feet covered the stone numbers
+- some digits lost a column of pixels
+- the hop labels were too small to read
+- the character creator lost its layout
+- the phone toolbar covered the "Next" button
+- pressing Space twice right after Sensei spoke counted as a miss
+
+Known issues (none blocking):
+
+| # | Issue | Severity |
+|---|---|---|
+| 1 | On a phone the stones are small to tap (about 26 px). The big hop buttons are the main control there | Low |
+| 2 | Frame rate measured with software rendering only; the owner should check on a real device | Low |
+| 3 | The hint's dotted arcs are busy when there are many single hops | Low |
+| 4 | The old HTML file stays until Phase 4 (hidden account features still use it) | Low |
+
+### Merge map (owner decision: fewer, deeper games)
+
+43 games and activities become **27 games** (Math 11, Science 14, English 1, History 1). Each merged game has levels that cover the full grade range of the games it replaces. Final titles are chosen when each batch starts; the slug that survives is in bold.
+
+| Subject | Merged game (surviving slug in bold) | Replaces |
+|---|---|---|
+| Math | **counting-carnival** (K–2) | counting-carnival, number-monster-feeding |
+| Math | **math-race-rally** (1–5): fact strategies and fluency | math-race-rally, math-memory-match |
+| Math | **math-adventure-island** (2–5): word problems, estimation, a game-show finale | math-adventure-island, treasure-hunt-calculator, math-jeopardy-junior |
+| Math | **money-market-madness** (1–4): coins, bills, then a cafeteria shift making change | money-market-madness, cafeteria-cashier |
+| Math | **geometry-builder-challenge** (K–4): sort shapes, then build, perimeter and area | shape-sorting-arcade, geometry-builder-challenge |
+| Math | **pizza-fraction-frenzy** (2–4) | pizza-fraction-frenzy, fraction-pizza-party |
+| Math | **multiplication-space-quest** (3–5): multiplication, division, fact families | multiplication-space-quest, multiplication-bingo-bonanza, multiplication-tables-adventure |
+| Science | **solar-system-explorer** | solar-system-explorer, planet-explorer-quest |
+| Science | **rock-cycle-racing** (rocks, volcanoes, the rock cycle) | rock-cycle-racing, volcano-explorer-lab |
+| Science | **weather-wizard-battle** (weather and the water cycle) | weather-wizard-battle, water-cycle-journey |
+| Science | **pollution-solution-squad** (pollution and ocean conservation) | pollution-solution-squad, ocean-conservation-heroes |
+| Science | **states-of-matter-mixer** (matter, mixtures, crystals) | states-of-matter-mixer, crystal-cave-chemistry |
+| Science | **simple-machines-construction** | simple-machines-construction, simple-machines-lab |
+| Science | **light-laboratory-escape** (light and sound waves) | light-laboratory-escape, sound-wave-surfer |
+
+Not merged (each is distinct): Number Line Ninja, Math Dash, Time Attack Clock, Equation Balance Scale, Fossil Dig Adventure, Animal Kingdom Match, Plant Growing Championship, Body System Heroes, Ecosystem Building Tycoon, Ocean Depth Diver, Magnet Power Puzzle, Spelling Bee Challenge, Ancient Egypt Explorer.
+
+### Phase 1: Math (11 games, from 20): NOT STARTED
+
+Batches group games that share skills, so each batch also builds a question generator that the next batch reuses. Where the table lists two or three old games in one batch, they become the single merged game from the merge map. The "Upgrade" column is a starting idea, to be refined in the game's learning spec.
 
 | Batch | Game (grades) | Today | Upgrade (grade-level focus) |
 |---|---|---|---|
@@ -129,9 +232,9 @@ Batches group games that share skills, so each batch also builds a question gene
 | | Multiplication Tables Adventure (activity, 3–5) | Step through tables | Structured practice with the mastery model choosing the facts that need work; a fact-family map (3.OA.7) |
 | | Equation Balance Scale (3–5) | Balance a scale | A 3D balance with weights: the equals sign as "same as", missing numbers, then two-step (1.OA.7, 3.OA.4, 4.OA.3) |
 
-### Phase 2: Science (21): NOT STARTED
+### Phase 2: Science (14 games, from 21): NOT STARTED
 
-Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches:
+Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
 | Batch | Games |
 |---|---|
@@ -149,17 +252,15 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 
 ### Phase 4: Wrap-up: NOT STARTED
 
-Final pass over all 43: new card pictures, homepage featured games, the player guide, the speed and size report, and the cleanup of the old HTML files and the old Google Fonts links.
+Final pass over all 27: new card pictures, homepage featured games, the player guide, the speed and size report, and the cleanup of the old HTML files and the old Google Fonts links.
 
-## 5. Decisions for the owner
+## 5. Owner decisions (answered 2026-10-01)
 
-These are recommended defaults. The plan follows them unless the owner says otherwise.
-
-1. **Art style:** the same pixel-art Three.js look as Seeds of Genius for every game, so the site feels like one family. *(The alternative is smooth low-poly 3D, which is more work per game.)*
-2. **Overlapping games:** keep all 43, but make the overlapping ones clearly different (for example, Fraction Pizza Party becomes the "compare and equivalent fractions" activity). *(The alternative is merging them into fewer, deeper games, which would change some links.)*
+1. **Art style:** keep the Seeds of Genius look, **2D retro pixel art** rendered with Three.js.
+2. **Overlapping games:** **merge them into fewer, deeper games** (see the merge map in section 4).
 3. **Subject order:** Math → Science → English and History.
-4. **Batch size and approvals:** one PR per batch (2 to 5 games), with an owner check-in after each.
-5. **Characters:** use the Learning Adventures characters (Jaylen and S.P.A.R.K.) as hosts where it fits, or give each game its own host. *(Needs the owner's call; it affects the art.)*
+4. **Characters:** **each game has its own host character.** Jaylen and S.P.A.R.K. are the overarching theme of the site.
+5. **Batches and approvals:** one PR per batch, with an owner check-in after each (recommended default; not changed).
 
 ## 6. Risks and how we handle them
 
@@ -173,4 +274,6 @@ These are recommended defaults. The plan follows them unless the owner says othe
 
 ## 7. Progress log
 
-- **2026-10-01:** Plan written. Games audited (43 to rebuild, emoji counts, no Three.js, Google Fonts loaded at play time). "Before" screenshots captured. Waiting for the owner's answers to section 5, then Phase 0.
+- **2026-10-01:** Plan written. Games audited (43 to rebuild, emoji counts, no Three.js, Google Fonts loaded at play time). "Before" screenshots captured.
+- **2026-10-01:** Owner answered section 5 (pixel art, merge into 27 games, Math first, a host per game). Phase 0 started.
+- **2026-10-02:** Phase 0 built: Adventure Kit and Number Line Ninja (8.75/10 self-score; 22 unit tests, 27 browser checks). Waiting for the owner's check-in on look, feel and challenge level before Math batch M1.

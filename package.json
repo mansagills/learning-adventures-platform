@@ -21,7 +21,10 @@
     "vercel:deploy": "vercel --prod",
     "game:carver": "npm --prefix games-src/seeds-of-genius run dev",
     "game:carver:build": "npm --prefix games-src/seeds-of-genius run build",
-    "game:carver:test": "npm --prefix games-src/seeds-of-genius test"
+    "game:carver:test": "npm --prefix games-src/seeds-of-genius test",
+    "games": "npm --prefix games-src/adventures run dev",
+    "games:build": "npm --prefix games-src/adventures run build",
+    "games:test": "npm --prefix games-src/adventures test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.63.1",

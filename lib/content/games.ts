@@ -214,10 +214,11 @@ export const games: PlayableGame[] = [
     grades: '1–3',
     difficulty: 'medium',
     description:
-      'Leap along the number line like a ninja to land on the right spot.',
-    skills: ['Number Line', 'Addition', 'Subtraction'],
-    estimatedTime: '5–10 min',
-    htmlPath: '/games/number-line-ninja.html',
+      'Hop a ninja across a river of stepping stones to find numbers, add, subtract and take big hops of ten. Earn five belts with Sensei Rio.',
+    skills: ['Number Line', 'Addition', 'Subtraction', 'Place Value'],
+    estimatedTime: '15–30 min',
+    // Rebuilt with the Adventure Kit (games-src/adventures); see docs/GAMES_3D_UPGRADE_PLAN.md
+    htmlPath: '/games/play/number-line-ninja/index.html',
     thumbnail: '/games/thumbnails/number-line-ninja.jpg',
   },
   {

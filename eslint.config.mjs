@@ -28,6 +28,7 @@ const eslintConfig = [
       'demos/**',
       'games-src/**',
       'public/games/seeds-of-genius/**',
+      'public/games/play/**',
       '.agents/**',
       '.claude/**',
       '.next/**',
