@@ -79,6 +79,47 @@ describe('public content data', () => {
   });
 });
 
+describe('rebuilt games (Adventure Kit)', () => {
+  const rebuilt = games.filter((game) =>
+    game.htmlPath.startsWith('/games/play/')
+  );
+  const emoji = /(?![©®])\p{Extended_Pictographic}/u;
+
+  function filesOf(htmlPath: string): string[] {
+    const html = resolve(publicDir, `.${htmlPath}`);
+    const text = readFileSync(html, 'utf8');
+    const refs = [...text.matchAll(/(?:src|href)="(\.\.\/assets\/[^"]+)"/g)].map(
+      (m) => resolve(html, '..', m[1])
+    );
+    return [html, ...refs];
+  }
+
+  it('there is at least one rebuilt game', () => {
+    expect(rebuilt.length).toBeGreaterThan(0);
+  });
+
+  it('use original art, not emoji', () => {
+    const found = rebuilt.flatMap((game) =>
+      filesOf(game.htmlPath)
+        .filter((file) => emoji.test(readFileSync(file, 'utf8')))
+        .map((file) => `${game.slug}: ${basename(file)}`)
+    );
+    expect(found).toEqual([]);
+  });
+
+  it('load nothing from other websites (no fonts, trackers or CDNs)', () => {
+    const found = rebuilt.flatMap((game) =>
+      filesOf(game.htmlPath).flatMap((file) =>
+        [...readFileSync(file, 'utf8').matchAll(/https?:\/\/[^\s"'`)]+/g)]
+          .map((m) => m[0])
+          .filter((url) => !url.startsWith('http://www.w3.org/'))
+          .map((url) => `${game.slug}: ${basename(file)} -> ${url}`)
+      )
+    );
+    expect(found).toEqual([]);
+  });
+});
+
 describe('blog posts', () => {
   const blogDir = resolve(__dirname, '../../content/blog');
 
