@@ -44,6 +44,12 @@ export interface CharacterLook {
     skirt?: Tone;
     /** A cloth belt tied at the waist (martial-arts belts, sashes). */
     belt?: string;
+    /** A martial-arts gi: crossed collar lines in this trim color (the gi color is the shirt and pants). */
+    gi?: { trim: string };
+    /** A ninja mask over the nose and mouth, or a full hood that leaves only the eyes showing. */
+    mask?: { style: 'face' | 'hood'; base: string; shade: string };
+    /** A cloth headband tied at the back, with two tails. */
+    headband?: { base: string; shade: string };
   };
 }
 
@@ -129,10 +135,14 @@ export function paintCharacter(look: CharacterLook, dir: Dir, frame: number): Pi
   if (side) paintBodySide(b, look, L, frame);
   else paintBodyFront(b, look, L, frame, dir === 'up');
 
-  hairBack(b, look, dir);
+  // A hood covers all the hair, so none is painted under it.
+  const hooded = look.extras?.mask?.style === 'hood';
+  if (!hooded) hairBack(b, look, dir);
   paintHead(b, look, dir);
-  hairFront(b, look, dir);
+  if (!hooded) hairFront(b, look, dir);
   accessory(b, look, dir);
+  if (look.extras?.mask) mask(b, look.extras.mask, look, dir);
+  if (look.extras?.headband) headband(b, look.extras.headband, dir);
   if (look.extras?.lantern) lantern(b, dir, L, frame);
 
   b.outline();
@@ -169,6 +179,15 @@ function paintBodyFront(b: PixelBuffer, look: CharacterLook, L: Layout, frame: n
       b.set(9, L.torsoBot + 1, belt);
       b.set(9, L.torsoBot + 2, mix(belt, P.outline, 0.25));
     }
+  }
+  if (look.extras?.gi && !back) {
+    // The gi's crossed collar: left side over right, with a small V of skin at the neck.
+    const t = look.extras.gi.trim;
+    [[5, 0], [6, 1], [7, 2], [8, 3]].forEach(([x, y]) => b.set(x, L.torsoTop + y, t));
+    [[10, 0], [9, 1]].forEach(([x, y]) => b.set(x, L.torsoTop + y, t));
+    b.set(7, L.torsoTop, look.skin.shade);
+    b.set(8, L.torsoTop, look.skin.shade);
+    b.set(8, L.torsoTop + 1, look.skin.shade);
   }
 
   // Arms: sleeve, then hand.
@@ -227,6 +246,12 @@ function paintBodySide(b: PixelBuffer, look: CharacterLook, L: Layout, frame: nu
   if (look.extras?.belt) {
     b.hline(5, 10, L.torsoBot, look.extras.belt);
     b.set(4, L.torsoBot + 1, look.extras.belt);
+  }
+  if (look.extras?.gi) {
+    const t = look.extras.gi.trim;
+    b.set(10, L.torsoTop, t);
+    b.set(9, L.torsoTop + 1, t);
+    b.set(9, L.torsoTop + 2, t);
   }
 
   const ex = look.extras;
@@ -519,6 +544,75 @@ function accessory(b: PixelBuffer, look: CharacterLook, dir: Dir): void {
       break;
     default:
       break;
+  }
+}
+
+// ------------------------------------------------------------------ ninja gear
+
+function mask(b: PixelBuffer, m: NonNullable<NonNullable<CharacterLook['extras']>['mask']>, look: CharacterLook, dir: Dir): void {
+  const side = dir === 'right';
+  if (m.style === 'face') {
+    // cloth over the nose and mouth; the eyes stay clear
+    if (dir === 'down') {
+      b.rect(3, 10, 10, 3, m.base);
+      b.hline(4, 11, 10, mix(m.base, '#ffffff', 0.15));
+      b.vline(12, 10, 12, m.shade);
+      b.set(3, 12, null);
+      b.set(12, 12, null);
+    } else if (side) {
+      b.rect(6, 10, 8, 3, m.base);
+      b.hline(7, 13, 10, mix(m.base, '#ffffff', 0.15));
+      b.set(13, 12, null);
+    } else {
+      // the knot at the back
+      b.hline(3, 12, 10, m.shade);
+      b.rect(7, 10, 2, 2, m.base);
+    }
+    return;
+  }
+  // A full hood: the head is covered except a slit for the eyes.
+  b.rect(2, 2, 12, 11, m.base);
+  b.set(2, 2, null);
+  b.set(13, 2, null);
+  b.set(2, 12, null);
+  b.set(13, 12, null);
+  b.hline(4, 11, 2, mix(m.base, '#ffffff', 0.15));
+  b.hline(3, 12, 12, m.shade);
+  const skin = look.skin;
+  if (dir === 'down') {
+    b.vline(13, 4, 11, m.shade);
+    b.rect(4, 7, 8, 3, skin.base);
+    b.hline(4, 11, 9, skin.shade);
+    b.vline(5, 8, 9, P.outline);
+    b.vline(10, 8, 9, P.outline);
+  } else if (side) {
+    b.vline(2, 4, 11, m.shade);
+    b.rect(8, 7, 6, 3, skin.base);
+    b.hline(8, 13, 9, skin.shade);
+    b.vline(10, 8, 9, P.outline);
+  } else {
+    b.vline(7, 3, 11, m.shade);
+  }
+}
+
+function headband(b: PixelBuffer, hb: { base: string; shade: string }, dir: Dir): void {
+  const side = dir === 'right';
+  if (side) {
+    b.hline(3, 13, 5, hb.base);
+    b.hline(3, 12, 6, hb.shade);
+    // the tails stream out behind the head
+    [[2, 6], [1, 7], [2, 7], [0, 8], [1, 9], [0, 10]].forEach(([x, y]) => b.set(x, y, y % 2 ? hb.shade : hb.base));
+    return;
+  }
+  b.hline(2, 13, 5, hb.base);
+  b.hline(2, 13, 6, hb.shade);
+  if (dir === 'down') {
+    // the tails peek out at the side
+    [[14, 6], [14, 7], [15, 8], [14, 9]].forEach(([x, y]) => b.set(x, y, hb.base));
+  } else {
+    // the knot and tails at the back
+    b.rect(7, 5, 2, 2, hb.shade);
+    [[6, 7], [6, 8], [5, 9], [9, 7], [9, 8], [10, 9], [10, 10]].forEach(([x, y]) => b.set(x, y, hb.base));
   }
 }
 

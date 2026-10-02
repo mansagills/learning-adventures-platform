@@ -3,10 +3,13 @@ import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from
 import { cleanLearner, type LearnerState } from '../../kit/learning/mastery';
 import { SaveStore } from '../../kit/systems/save';
 import { BELTS, type BeltId } from './problems';
+import { DEFAULT_GEAR, cleanGear, type Gear } from './gear';
 
 export interface NinjaSave {
   version: 1;
   appearance: Appearance;
+  /** Ninja gear: gi color, mask and headband. */
+  gear: Gear;
   /** Belts earned, in order. */
   earned: BeltId[];
   /** Stars toward each belt (0..5; kept after the belt is earned). */
@@ -26,7 +29,8 @@ const zeroes = (): Record<BeltId, number> => ({ white: 0, yellow: 0, orange: 0, 
 export function freshSave(): NinjaSave {
   return {
     version: 1,
-    appearance: { ...DEFAULT_APPEARANCE, outfit: 'blue', accessory: 'headband' },
+    appearance: { ...DEFAULT_APPEARANCE, outfit: 'blue', accessory: 'none' },
+    gear: { ...DEFAULT_GEAR },
     earned: [],
     stars: zeroes(),
     played: zeroes(),
@@ -72,6 +76,7 @@ export function cleanSave(raw: unknown): NinjaSave {
   return {
     version: 1,
     appearance,
+    gear: cleanGear(r.gear),
     earned,
     stars: nums(r.stars, 5),
     played: nums(r.played, 100000),

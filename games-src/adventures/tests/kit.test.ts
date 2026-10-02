@@ -69,3 +69,27 @@ describe('Number Line Ninja save', () => {
     expect(cleanSave(null).earned).toEqual([]);
   });
 });
+
+describe('ninja gear', () => {
+  it('a fresh save has gear, and unknown gear falls back to the defaults', async () => {
+    const { DEFAULT_GEAR, cleanGear } = await import('../src/games/number-line-ninja/gear');
+    expect(freshSave().gear).toEqual(DEFAULT_GEAR);
+    expect(cleanGear({ gi: 'crimson', mask: 'helmet', headband: 7 })).toEqual({ gi: 'crimson', mask: DEFAULT_GEAR.mask, headband: DEFAULT_GEAR.headband });
+    expect(cleanSave({ gear: { gi: 'white', mask: 'hood', headband: 'none' } }).gear).toEqual({ gi: 'white', mask: 'hood', headband: 'none' });
+  });
+
+  it('dressing puts on the gi, mask, headband and belt', async () => {
+    const { dressNinja } = await import('../src/games/number-line-ninja/gear');
+    const { lookFromAppearance, DEFAULT_APPEARANCE } = await import('../src/kit/art/characters');
+    const look = dressNinja(lookFromAppearance(DEFAULT_APPEARANCE), { gi: 'crimson', mask: 'hood', headband: 'gold' }, '#f2c94c');
+    expect(look.shirt.base).toBe('#a8302c');
+    expect(look.extras?.gi).toBeTruthy();
+    expect(look.extras?.mask?.style).toBe('hood');
+    expect(look.extras?.headband?.base).toBe('#f0b83a');
+    expect(look.extras?.belt).toBe('#f2c94c');
+    expect(look.accessory).toBe('none');
+    const bare = dressNinja(lookFromAppearance(DEFAULT_APPEARANCE), { gi: 'navy', mask: 'none', headband: 'none' }, '#f2c94c');
+    expect(bare.extras?.mask).toBeUndefined();
+    expect(bare.extras?.headband).toBeUndefined();
+  });
+});

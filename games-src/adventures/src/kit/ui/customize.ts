@@ -16,9 +16,15 @@ import { h, Modal } from './dom';
 type Key = keyof Appearance;
 
 interface Group {
-  key: Key;
+  key: string;
   legend: string;
   options: Array<{ id: string; name: string; color?: string }>;
+}
+
+/** A game's own clothing choices (a ninja's gi, mask and headband), stored apart from the shared look. */
+export interface GearGroup extends Group {
+  /** Used by "Surprise me"; defaults to every option. */
+  random?: string[];
 }
 
 const GROUPS: Group[] = [
@@ -43,13 +49,21 @@ export function openCustomize(
     firstTime: boolean;
     /** What the player is called in this game ("explorer", "ninja", "chef"). */
     noun?: string;
-    /** Extra pieces painted on top of the chosen look (a belt, a uniform). */
-    dress?: (look: CharacterLook) => CharacterLook;
+    /** Shared choices this game does not use (for example its own gear replaces the outfit). */
+    hide?: Key[];
+    /** The game's own clothing choices and their current values. */
+    gear?: { groups: GearGroup[]; values: Record<string, string> };
+    /** Paints the game's pieces on top of the chosen look (a belt, a uniform, the gear). */
+    dress?: (look: CharacterLook, gear: Record<string, string>) => CharacterLook;
   },
-  onDone: (a: Appearance) => void,
+  onDone: (a: Appearance, gear: Record<string, string>) => void,
 ): Modal {
   const a: Appearance = { ...initial };
+  const gear: Record<string, string> = { ...(opts.gear?.values ?? {}) };
   const noun = opts.noun ?? 'explorer';
+  const groups: Group[] = [...GROUPS.filter((g) => !opts.hide?.includes(g.key as Key)), ...(opts.gear?.groups ?? [])];
+  const isGear = (key: string) => !!opts.gear?.groups.some((g) => g.key === key);
+  const value = (key: string) => (isGear(key) ? gear[key] : (a[key as Key] as string));
   const canvas = document.createElement('canvas');
   canvas.width = 16;
   canvas.height = 24;
@@ -61,8 +75,8 @@ export function openCustomize(
     const ctx = canvas.getContext('2d')!;
     ctx.clearRect(0, 0, 16, 24);
     const look = lookFromAppearance(a);
-    paintCharacter(opts.dress ? opts.dress(look) : look, dir, frame).drawTo(ctx, 0, 0);
-    const names = GROUPS.map((g) => g.options.find((o) => o.id === a[g.key])?.name).join(', ');
+    paintCharacter(opts.dress ? opts.dress(look, gear) : look, dir, frame).drawTo(ctx, 0, 0);
+    const names = groups.map((g) => g.options.find((o) => o.id === value(g.key))?.name).join(', ');
     canvas.setAttribute('aria-label', `Your ${noun}, facing ${dir}: ${names}`);
   };
   const turn = (step: number) => {
@@ -78,16 +92,19 @@ export function openCustomize(
   }, 380);
 
   const groupsEl = h('div', { style: 'flex:1;min-width:0' });
-  const radios = new Map<Key, HTMLButtonElement[]>();
-  const choose = (key: Key, id: string) => {
-    if (key === 'body' && id !== a.body) a.hairStyle = BODY_DEFAULT_HAIR[id as BodyId];
-    a[key] = id as never;
+  const radios = new Map<string, HTMLButtonElement[]>();
+  const choose = (key: string, id: string) => {
+    if (isGear(key)) gear[key] = id;
+    else {
+      if (key === 'body' && id !== a.body) a.hairStyle = BODY_DEFAULT_HAIR[id as BodyId];
+      a[key as Key] = id as never;
+    }
     refresh();
   };
   const refresh = () => {
     radios.forEach((btns, key) =>
       btns.forEach((b) => {
-        const on = b.dataset.id === a[key];
+        const on = b.dataset.id === value(key);
         b.setAttribute('aria-checked', String(on));
         b.tabIndex = on ? 0 : -1;
       }),
@@ -95,7 +112,7 @@ export function openCustomize(
     draw();
   };
 
-  GROUPS.forEach((g) => {
+  groups.forEach((g) => {
     const legendId = `leg-${g.key}`;
     const row = h('div', { class: 'swatches', role: 'radiogroup', 'aria-labelledby': legendId });
     const btns: HTMLButtonElement[] = [];
@@ -140,6 +157,7 @@ export function openCustomize(
     a.hairColor = pick(HAIR_COLORS.slice(0, 5)).id;
     a.outfit = pick(OUTFIT_COLORS).id;
     a.accessory = Math.random() < 0.5 ? 'none' : pick(ACCESSORIES).id;
+    for (const g of opts.gear?.groups ?? []) gear[g.key] = pick(g.random ?? g.options.map((o) => o.id));
     refresh();
   };
 
@@ -186,7 +204,7 @@ export function openCustomize(
     () => {
       window.clearInterval(timer);
       // Closing with Escape keeps the current choices (nothing is lost).
-      onDone({ ...a });
+      onDone({ ...a }, { ...gear });
     },
     { closeOnBackdrop: false, escapeCloses: !opts.firstTime },
   );

@@ -74,7 +74,11 @@ await page.keyboard.press('Enter'); // the first button has focus
 await wait(page, 500);
 check('Character creator opens', await page.getByRole('heading', { name: /create your ninja/i }).isVisible());
 await page.getByRole('radio', { name: 'Boy', exact: true }).click();
-await page.getByRole('radio', { name: 'Pumpkin' }).click();
+const gearPick = (key, name) => page.locator(`[aria-labelledby="leg-${key}"]`).getByRole('radio', { name, exact: true }).click();
+check('Ninja gear choices replace the general outfit', (await page.locator('[aria-labelledby="leg-gi"] [role=radio]').count()) === 8 && (await page.locator('[aria-labelledby="leg-outfit"]').count()) === 0);
+await gearPick('gi', 'Crimson');
+await gearPick('mask', 'Ninja hood');
+await gearPick('headband', 'Gold');
 await page.screenshot({ path: `${OUT}/02-customize.png` });
 await page.getByRole('button', { name: /i'm ready/i }).click();
 await wait(page, 600);
@@ -154,6 +158,10 @@ await wait(page, 900);
 await talkThrough(page);
 s = await st(page);
 check('Reload keeps belts and the current belt', s.earned.includes('white') && s.belt === 'yellow');
+check('Reload keeps the ninja gear', await page.evaluate(() => {
+  const g = JSON.parse(localStorage.getItem('numberLineNinja.save')).gear;
+  return g.gi === 'crimson' && g.mask === 'hood' && g.headband === 'gold';
+}));
 
 // Settings persist and reduced motion applies
 await page.keyboard.press('Escape');

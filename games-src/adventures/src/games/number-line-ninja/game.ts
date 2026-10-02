@@ -16,6 +16,7 @@ import { showTitle } from '../../kit/ui/title';
 import { BELT_INFO, CONTROLS_TIP, GROWNUPS, OPENING, STARS_PER_BELT, cleanPraise, hintText, mistakeLine } from './content';
 import { DOJO_SONG, NIGHT_SONG } from './music';
 import { BELTS, checkLanding, gapOptions, makeProblem, workedHops, type BeltId, type Misconception, type Problem } from './problems';
+import { GEAR_GROUPS, cleanGear, dressNinja } from './gear';
 import { freshSave, store, type NinjaSave } from './save';
 import { NinjaScene } from './scene';
 
@@ -132,14 +133,24 @@ export class Game {
   // ------------------------------------------------------------ looks
 
   private ninjaLook(): CharacterLook {
-    return this.dress(lookFromAppearance(this.save.appearance));
+    return this.dress(lookFromAppearance(this.save.appearance), this.save.gear);
   }
 
-  /** The player's look plus the belt they have earned. */
-  private dress = (look: CharacterLook): CharacterLook => {
+  /** The player's look in their ninja gear (gi, mask, headband), with the belt they have earned. */
+  private dress = (look: CharacterLook, gear: Record<string, string>): CharacterLook => {
     const top = this.save.earned[this.save.earned.length - 1];
-    return { ...look, extras: { ...(look.extras ?? {}), belt: top ? BELT_INFO[top].color : PRACTICE_SASH } };
+    return dressNinja(look, gear, top ? BELT_INFO[top].color : PRACTICE_SASH);
   };
+
+  private customizeOptions(firstTime: boolean) {
+    return {
+      firstTime,
+      noun: 'ninja',
+      hide: ['outfit', 'accessory'] as Array<'outfit' | 'accessory'>,
+      gear: { groups: GEAR_GROUPS, values: { ...this.save.gear } },
+      dress: this.dress,
+    };
+  }
 
   // ------------------------------------------------------------ title
 
@@ -186,8 +197,9 @@ export class Game {
     }
     this.closeTitle();
     this.hud.hidden = true;
-    openCustomize(this.host, this.save.appearance, { firstTime: true, noun: 'ninja', dress: this.dress }, (a) => {
+    openCustomize(this.host, this.save.appearance, this.customizeOptions(true), (a, gear) => {
       this.save.appearance = a;
+      this.save.gear = cleanGear(gear);
       this.persist();
       this.world.ninja.setLook(this.ninjaLook());
       this.hud.hidden = false;
@@ -643,8 +655,9 @@ export class Game {
       this.host,
       {
         changeLook: () =>
-          openCustomize(this.host, this.save.appearance, { firstTime: false, noun: 'ninja', dress: this.dress }, (a) => {
+          openCustomize(this.host, this.save.appearance, this.customizeOptions(false), (a, gear) => {
             this.save.appearance = a;
+            this.save.gear = cleanGear(gear);
             this.persist();
             this.world.ninja.setLook(this.ninjaLook());
           }),

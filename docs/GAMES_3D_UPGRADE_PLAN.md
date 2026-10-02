@@ -173,6 +173,17 @@ The first build had these problems, all fixed:
 - the phone toolbar covered the "Next" button
 - pressing Space twice right after Sensei spoke counted as a miss
 
+**Owner check-in (2026-10-02):** "Number Line Ninja looks great, and the learning is appropriate." One change was requested: make the outfits fit the ninja theme. Done:
+
+- The character creator now offers ninja gear in place of the general outfit color and accessory:
+  - **Gi color** (8): a top and trousers in one color, with a crossed collar
+  - **Ninja mask**: none, a face mask over the nose and mouth, or a full hood that shows only the eyes
+  - **Headband** (7 colors, or none): tied at the back, with tails
+- The earned belt is worn over the gi. A light belt on the white gi gets a darker edge so it still shows.
+- The kit's characters can now wear a gi, a mask and a headband. The creator can swap in each game's own clothing choices, so later games (a chef, an astronaut) can do the same.
+- Saves keep the gear; older saves get the default gear.
+- Tests: 24 unit tests and 29 browser checks pass, including that the gear choices appear and survive a reload.
+
 Known issues (none blocking):
 
 | # | Issue | Severity |
@@ -277,3 +288,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-01:** Plan written. Games audited (43 to rebuild, emoji counts, no Three.js, Google Fonts loaded at play time). "Before" screenshots captured.
 - **2026-10-01:** Owner answered section 5 (pixel art, merge into 27 games, Math first, a host per game). Phase 0 started.
 - **2026-10-02:** Phase 0 built: Adventure Kit and Number Line Ninja (8.75/10 self-score; 22 unit tests, 27 browser checks). Waiting for the owner's check-in on look, feel and challenge level before Math batch M1.
+- **2026-10-02:** Owner check-in: look and learning approved; asked for ninja outfits. Added gi colors, ninja masks (face mask or hood) and headbands. Waiting for the owner to confirm the gear, then Math batch M1.

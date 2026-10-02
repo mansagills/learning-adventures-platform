@@ -23,7 +23,8 @@ npm run dev          # http://localhost:5173/number-line-ninja/
 npm test             # unit tests (vitest)
 npm run build        # typecheck + build into ../../public/games/play
 npx vite preview --port 4174 &
-node scripts/e2e-number-line-ninja.mjs   # plays the game in a real browser (27 checks)
+node scripts/e2e-number-line-ninja.mjs   # plays the game in a real browser (29 checks)
+node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
 
@@ -77,7 +78,8 @@ numbers (Black). Every hop is drawn as an arc with its size, so the screen
 shows the number-line model used in class. Hints go from a nudge, to Sensei
 drawing the first hops, to the whole path; wrong landings are explained by
 the mistake behind them (counting the starting stone, hopping the wrong way,
-treating tens as ones). Code: `src/games/number-line-ninja/`.
+treating tens as ones). Players dress their ninja in a gi (8 colors), a face mask or hood, and a headband
+(`gear.ts`); the earned belt is worn over the gi. Code: `src/games/number-line-ninja/`.
 
 | Action | Keyboard | Mouse / touch |
 |---|---|---|
