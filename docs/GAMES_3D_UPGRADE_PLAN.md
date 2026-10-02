@@ -216,7 +216,7 @@ Known issues (none blocking):
 
 Not merged (each is distinct): Number Line Ninja, Math Dash, Time Attack Clock, Equation Balance Scale, Fossil Dig Adventure, Animal Kingdom Match, Plant Growing Championship, Body System Heroes, Ecosystem Building Tycoon, Ocean Depth Diver, Magnet Power Puzzle, Spelling Bee Challenge, Ancient Egypt Explorer.
 
-### Phase 1: Math (11 games, from 20): NOT STARTED
+### Phase 1: Math (11 games, from 20): IN PROGRESS
 
 Batches group games that share skills, so each batch also builds a question generator that the next batch reuses. Where the table lists two or three old games in one batch, they become the single merged game from the merge map. The "Upgrade" column is a starting idea, to be refined in the game's learning spec.
 
@@ -242,6 +242,61 @@ Batches group games that share skills, so each batch also builds a question gene
 | | Multiplication Bingo Bonanza (3–5) | Bingo | Bingo with the inverse: division facts and missing factors (3.OA.4, 3.OA.6) |
 | | Multiplication Tables Adventure (activity, 3–5) | Step through tables | Structured practice with the mastery model choosing the facts that need work; a fact-family map (3.OA.7) |
 | | Equation Balance Scale (3–5) | Balance a scale | A 3D balance with weights: the equals sign as "same as", missing numbers, then two-step (1.OA.7, 3.OA.4, 4.OA.3) |
+
+#### M1 Counting Carnival: BUILT, waiting for the owner's check-in
+
+Counting Carnival and Number Monster Feeding are now one game, **Counting Carnival** (K–2), slug `counting-carnival`. The old `/games/number-monster-feeding` link redirects to it (`next.config.js`), and the ebook *Jaylen and the Frozen Numbers* now lists it as a companion game in place of Number Monster Feeding.
+
+**How it plays.** The player makes a "carnival kid" and walks around a fairground (arrow keys, WASD, tap-to-walk or the touch pad). Ringmaster Rosa runs the carnival; Munch, a purple snack monster from the old game, runs one booth. Each booth has three levels. The game moves a player up after two clean answers and back down after two misses.
+
+| Booth (host) | Level 1 | Level 2 | Level 3 |
+|---|---|---|---|
+| Duck Pond (Rosa) | Count 2–5 ducks in a row; tapping a duck says its number | 6–10 scattered ducks; the number tags fade | 11–20: a full row of ten plus more; count on from 10 |
+| Ring Toss (Rosa) | How many rings on a ten-frame (1–5) | Quick look: the frame is covered after 2 seconds (6–10) | How many more rings make 10 |
+| Munch's Snack Stand (Munch) | Which plate has more or fewer, with a trap: big cookies that look like more | 1 more or 1 less within 20 | 10 more or 10 less |
+| Prize Counter (Rosa) | Count strips of ten | Tens and ones | Build a price (21–120) with strips and single tickets, then pay |
+
+- **Mistakes get a reason.** Each wrong answer is matched to a likely mistake (skipped one, counted one twice, said the count instead of how many more, swapped the digits, picked the bigger cookies, and others), and the game explains it in one sentence. Wrong answers are crossed out so the next try is a real choice.
+- **Hint ladder** (H or the Hint button): 1 = a tip, 2 = a picture helper (numbers on the rings, a counting line, the row of ten boxed), 3 = the answer is outlined. A second miss gives a hint automatically.
+- **Stars and tickets:** a star only for a first-try answer with no picture hint; tickets for every answer. Five stars light a booth after a short question about the idea (for example "Pip said five last. How many ducks?"). Each lit booth brings evening closer. All four bring night, glowing booths and a finale.
+- **Tickets buy balloons** from Rosa (just for fun) and the player carries one around.
+- **Read-aloud is on by default** (it's a K–2 game): questions, feedback, hints and the numbers as ducks are tapped. It uses only voices on the device; nothing is sent online. It can be turned off in Settings.
+- **Grown-ups report**: what each booth teaches, standards (K.CC.4–7, K.OA.3–4, 1.NBT.1–3, 1.NBT.5), progress per booth and the most common mistake.
+
+**Kit additions (reused by later games):** walking with collision and A* paths (`kit/world/walk.ts`), keyboard actions (`kit/systems/input.ts`), an on-screen touch pad (`kit/ui/touch.ts`), read-aloud (`kit/systems/speech.ts`, with a Settings row), and `stackTop()` for modal keyboard handling.
+
+**Checks:** 7 unit tests for the question generator (every level, every booth, answers always among the choices, the cookie trap appears), 28 browser checks (`scripts/e2e-counting-carnival.mjs`: a full game from the title screen to the finale, plus saving, the grown-ups report and the phone layout), about 41 fps with software rendering. Site checks: type-check, lint (0 errors), `npm test`, `npm run build` with no env vars.
+
+**Self-score**
+
+| Category | First build | After fixes |
+|---|---|---|
+| Gameplay and fun (2.5) | 1.7 | 2.0 |
+| Learning quality (2.0) | 1.7 | 1.9 |
+| Visual and audio polish (1.5) | 1.0 | 1.3 |
+| Usability and accessibility (1.5) | 1.0 | 1.4 |
+| Technical reliability (1.5) | 1.0 | 1.4 |
+| Completeness (1.0) | 0.8 | 0.9 |
+| **Total** | **7.2** | **8.9** |
+
+Problems found in the first build, all fixed:
+
+- the player started hidden under the entrance arch
+- keyboard shortcuts stopped working after a wrong answer (focus fell off the panel)
+- the rings looked like bug faces; they now sit around the peg
+- every button looked crossed out after a right answer
+- the "fewer cookies" trap gave the wrong explanation
+- the duck sparkle hint was too faint to see
+- walking up to Munch could stop one step short without opening his booth
+- the night finale looked grey; finished booths now glow
+
+Known issues (none blocking):
+
+| # | Issue | Severity |
+|---|---|---|
+| 1 | The booths are mostly "pick the number" with a picture; a later polish pass could add more hands-on moves (dragging rings or cookies) | Low |
+| 2 | On a laptop the camera follows the player, so the Ferris wheel and big top show only near the top of the fair | Low |
+| 3 | The old `number-monster-feeding.html` and `counting-carnival.html` files stay until Phase 4 (the World demo and the hidden account features still use them) | Low |
 
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
@@ -289,3 +344,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-01:** Owner answered section 5 (pixel art, merge into 27 games, Math first, a host per game). Phase 0 started.
 - **2026-10-02:** Phase 0 built: Adventure Kit and Number Line Ninja (8.75/10 self-score; 22 unit tests, 27 browser checks). Waiting for the owner's check-in on look, feel and challenge level before Math batch M1.
 - **2026-10-02:** Owner check-in: look and learning approved; asked for ninja outfits. Added gi colors, ninja masks (face mask or hood) and headbands. Owner approved Phase 0 (look, learning and ninja gear). Next: Math batch M1 on a fresh branch off `main` once this PR is merged.
+- **2026-10-02:** Math batch M1 built: Counting Carnival (with Number Monster Feeding merged in), 8.9/10 self-score, 7 unit tests and 28 browser checks. Waiting for the owner's check-in before M2.

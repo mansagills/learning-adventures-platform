@@ -1,6 +1,7 @@
 import type { Expression } from '../art/portraits';
 import { audio } from '../systems/audio';
 import { charsPerSecond } from '../systems/settings';
+import { speak, stopSpeaking } from '../systems/speech';
 import { h } from './dom';
 
 /** A character who can talk in the talk box. */
@@ -111,6 +112,7 @@ export class Talk {
         this.feedbackEl.className = 'feedback good';
         this.feedbackEl.textContent = opt.feedback;
         this.live.textContent = opt.feedback;
+        speak(opt.feedback);
         await this.waitAdvance();
         this.feedbackEl.hidden = true;
         return { tries, misconceptions };
@@ -122,6 +124,7 @@ export class Talk {
       this.feedbackEl.className = 'feedback try';
       this.feedbackEl.textContent = `${opt.feedback} ${q.hints[rung - 1]}`;
       this.live.textContent = this.feedbackEl.textContent;
+      speak(this.feedbackEl.textContent);
       disabled.add(pick);
       if (rung >= 3) highlight = correctIdx;
     }
@@ -130,6 +133,7 @@ export class Talk {
   /** Close the box (safe to call when it is already closed). */
   end(): void {
     if (!this.el) return;
+    stopSpeaking();
     window.removeEventListener('keydown', this.keyHandler, true);
     this.el.remove();
     this.el = null;
@@ -191,6 +195,7 @@ export class Talk {
     this.feedbackEl.hidden = true;
     this.live.textContent = `${this.nameEl.textContent}: ${text}`;
     this.footerHint.textContent = '';
+    speak(text);
     const cps = charsPerSecond();
     if (cps === 0) {
       this.textEl.textContent = text;

@@ -108,6 +108,23 @@ const PAINTERS: Record<string, Painter> = {
     b.rect(2, 6, 8, 4, P.white);
     for (let i = 0; i < 6; i++) b.vline(14 - i, 7 - i, 8 + i, P.white);
   },
+  arrowUp: (b) => {
+    b.rect(6, 6, 4, 8, P.white);
+    for (let i = 0; i < 6; i++) b.hline(7 - i, 8 + i, 1 + i, P.white);
+  },
+  arrowDown: (b) => {
+    b.rect(6, 2, 4, 8, P.white);
+    for (let i = 0; i < 6; i++) b.hline(7 - i, 8 + i, 14 - i, P.white);
+  },
+  /** A speaker with sound waves: read this aloud. */
+  speak: (b) => {
+    b.rect(2, 6, 3, 4, P.ink);
+    b.rect(5, 4, 2, 8, P.ink);
+    b.rect(7, 2, 1, 12, P.ink);
+    b.vline(10, 6, 9, '#1f5fbf');
+    b.vline(12, 4, 11, '#1f5fbf');
+    b.vline(14, 2, 13, '#1f5fbf');
+  },
   arrowLeft2: (b) => {
     for (let i = 0; i < 6; i++) {
       b.vline(1 + i, 7 - i, 8 + i, P.white);

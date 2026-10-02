@@ -13,6 +13,8 @@ export interface Settings {
   textSpeed: 'slow' | 'normal' | 'fast' | 'instant';
   textSize: 'normal' | 'large';
   touchControls: 'auto' | 'on' | 'off';
+  /** Read text aloud: 'auto' lets each game decide (on for games for young readers). */
+  readAloud: 'auto' | 'on' | 'off';
 }
 
 const KEY = 'learningAdventures.settings';
@@ -34,6 +36,7 @@ export function defaultSettings(): Settings {
     textSpeed: 'normal',
     textSize: 'normal',
     touchControls: 'auto',
+    readAloud: 'auto',
   };
 }
 
@@ -51,6 +54,7 @@ function clean(raw: unknown): Settings {
     textSpeed: pick(r.textSpeed, ['slow', 'normal', 'fast', 'instant'] as const, d.textSpeed),
     textSize: pick(r.textSize, ['normal', 'large'] as const, d.textSize),
     touchControls: pick(r.touchControls, ['auto', 'on', 'off'] as const, d.touchControls),
+    readAloud: pick(r.readAloud, ['auto', 'on', 'off'] as const, d.readAloud),
   };
 }
 

@@ -24,6 +24,9 @@ npm test             # unit tests (vitest)
 npm run build        # typecheck + build into ../../public/games/play
 npx vite preview --port 4174 &
 node scripts/e2e-number-line-ninja.mjs   # plays the game in a real browser (29 checks)
+node scripts/e2e-counting-carnival.mjs   # a whole Counting Carnival game, title to finale (28 checks)
+node scripts/cc-tour.mjs <url> <outDir> [w] [h]    # screenshots of every booth, a miss and hints
+node scripts/cc-tiers.mjs <url> <outDir> [w] [h]   # every booth at levels 2 and 3
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -42,10 +45,10 @@ as static files.
 src/kit/                   the Adventure Kit, shared by every game
   render/pixelRenderer.ts  45-degree orthographic camera, whole-number pixel scaling
   art/                     pixel buffers, palette, characters, portraits, icons, a 3x5 number font
-  world/                   pixel textures, billboards, glows, walking characters
+  world/                   pixel textures, billboards, glows, walking characters, walk.ts (collision + paths)
   learning/mastery.ts      the learner model: tiers, streaks, mastery, misconceptions
-  systems/                 sound (made in code), settings (shared by all games), saving
-  ui/                      talk box, title, character creator, settings, grown-ups page, toolbar, toasts
+  systems/                 sound (made in code), settings (shared by all games), saving, keyboard input, read-aloud
+  ui/                      talk box, title, character creator, settings, grown-ups page, toolbar, toasts, touch pad
 src/games/<slug>/          one folder per game
 tests/                     unit tests
 scripts/                   browser tests and screenshot tours
@@ -92,3 +95,29 @@ treating tens as ones). Players dress their ninja in a gi (8 colors), a face mas
 | Grown-ups | G | Settings → For grown-ups |
 | Mute | M | Sound |
 | Settings | Esc | Settings |
+
+## Counting Carnival (Math batch M1, grades K–2)
+
+Walk around a carnival with Ringmaster Rosa and Munch the snack monster (from
+the old Number Monster Feeding game, which is merged in). Four booths, three
+levels each: **Duck Pond** (one-to-one counting to 20, counting on from a row
+of ten), **Ring Toss** (ten-frames: how many, a quick look, how many more make
+10), **Munch's Snack Stand** (more and fewer with a big-cookie trap, 1 more/less,
+10 more/less) and the **Prize Counter** (strips of ten and single tickets, then
+building a price to 120). Five first-try stars light a booth; all four bring
+night and a finale. Tickets buy balloons to carry. Read-aloud is on by default
+and uses only voices on the device. Code: `src/games/counting-carnival/`
+(`problems.ts` is the question generator, `content.ts` the words, `booths.ts`
+the booth screens, `world.ts` the fairground).
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Walk | Arrow keys or WASD | Tap the ground, or the touch pad |
+| Play a booth / talk | Space or Enter | Tap the booth or person |
+| Pick an answer | 1, 2, 3 | Tap it |
+| Hint | H | Hint |
+| Next challenge | Space | Next |
+| Leave a booth | Esc | Leave |
+| Booth list | B | Booths |
+| Grown-ups | G | Settings → For grown-ups |
+| Mute | M | Sound |
