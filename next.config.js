@@ -18,6 +18,11 @@ const nextConfig = {
         destination: '/games/counting-carnival',
         permanent: true,
       },
+      {
+        source: '/games/cafeteria-cashier',
+        destination: '/games/money-market-madness',
+        permanent: true,
+      },
     ];
   },
   async headers() {

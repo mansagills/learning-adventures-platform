@@ -29,10 +29,12 @@ const scale = 0.64;
  * Most games open on a "How to play" box, so by default the script presses the
  * first visible start-style button to show real gameplay. Overrides replace
  * that: `clicks` are CSS selectors clicked in order (a missing one is
- * skipped), then the script waits `delay` ms before the screenshot.
+ * skipped), then the script waits `delay` ms before the screenshot. `after`
+ * selectors are clicked once that wait is over (for something that only
+ * appears later, like a customer at the counter).
  */
 const startButton = /^\W*(start|begin|launch|enter|play|let's go)\b/i;
-const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
+const overrides: Record<string, { clicks?: string[]; delay?: number; after?: string[] }> = {
   // A 3D game: start a new game, accept the starting look, then wait for the town.
   'seeds-of-genius': {
     clicks: [
@@ -67,6 +69,25 @@ const overrides: Record<string, { clicks?: string[]; delay?: number }> = {
       'button:has-text("Start a new game")',
       'button:has-text("I\'m ready!")',
       ...Array(12).fill('.dialogue'),
+    ],
+    delay: 1500,
+  },
+  // Money Market: open the stand, read Chef Amara's welcome, wait for the first customer.
+  'money-market-madness': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(14).fill('.dialogue'),
+    ],
+    delay: 6000,
+    after: ['.mm-serve'],
+  },
+  // Time Attack Clock: start, read Mr. Tock's welcome, then the town and its stopped tower.
+  'time-attack-clock': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(16).fill('.dialogue'),
     ],
     delay: 1500,
   },
@@ -119,7 +140,7 @@ async function capture(
   await page.goto(baseUrl + htmlPath, { waitUntil: 'load' });
 
   const override = overrides[slug];
-  const { clicks = [], delay = 1500 } = override ?? {};
+  const { clicks = [], delay = 1500, after = [] } = override ?? {};
   if (!override) {
     const start = page.getByRole('button', { name: startButton }).first();
     if (await start.isVisible().catch(() => false)) {
@@ -135,6 +156,13 @@ async function capture(
     }
   }
   await page.waitForTimeout(delay);
+  for (const selector of after) {
+    const target = page.locator(selector).first();
+    if (await target.isVisible().catch(() => false)) {
+      await target.click({ timeout: 3000 }).catch(() => {});
+      await page.waitForTimeout(800);
+    }
+  }
   // Pressing a button can scroll the page; the card should show its top.
   await page.evaluate(() => window.scrollTo(0, 0));
 

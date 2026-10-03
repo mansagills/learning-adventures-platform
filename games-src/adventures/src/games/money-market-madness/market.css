@@ -1,0 +1,609 @@
+/* Money Market Madness: HUD, the till panel (right on wide screens, bottom on phones), the shop. */
+:root {
+  --mm-green: #2f6b48;
+  --mm-money: #2e7d3a;
+}
+.title-card .logo {
+  color: #b8452e;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- top bar ---------- */
+.mm-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  max-width: calc(100% - 24px - min(460px, 42%) - 12px);
+  padding: 8px 14px;
+  font-weight: 700;
+}
+.mm-day {
+  font-family: var(--font-pixel);
+  font-size: calc(var(--text) + 2px);
+}
+.mm-till-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mm-till-label img {
+  width: 22px;
+  height: 22px;
+}
+.mm-money {
+  font-family: var(--font-body);
+  font-size: calc(var(--text) + 4px);
+  color: var(--mm-money);
+  font-variant-numeric: tabular-nums;
+}
+.mm-linecount {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.mm-tier {
+  padding: 1px 10px;
+  border: 2px solid var(--wood-dark);
+  border-radius: 999px;
+  background: #f6d9a8;
+  font-size: var(--text-small);
+}
+.mm-hud .toolbar {
+  top: auto;
+  bottom: 12px;
+  left: 12px;
+  right: auto;
+}
+
+/* ---------- the till panel ---------- */
+.mm-tillpanel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: min(460px, 42%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.mm-tillpanel[hidden] {
+  display: none;
+}
+.mm-till-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  -webkit-overflow-scrolling: touch;
+}
+.mm-till-title {
+  margin: 0 0 4px;
+  font-size: calc(var(--text) + 4px);
+}
+.mm-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.mm-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 4px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.mm-till-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-top: 3px dashed var(--paper-3);
+}
+.mm-till-foot .btn[hidden] {
+  display: none;
+}
+.mm-serve {
+  flex: 1;
+  justify-content: center;
+  min-height: 56px;
+  font-size: calc(var(--text) + 2px);
+}
+.mm-serve:not([disabled]) {
+  animation: serve-pulse 1.2s ease-in-out infinite;
+}
+@keyframes serve-pulse {
+  50% {
+    box-shadow: 0 0 0 5px rgba(242, 181, 58, 0.45);
+  }
+}
+.mm-till-foot .kbd,
+.mm-give .kbd {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* the order */
+.mm-order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.mm-order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border: 3px solid var(--wood-dark);
+  border-radius: 10px;
+  background: #fffaf0;
+  font-weight: 700;
+}
+.mm-tag {
+  padding: 0 8px;
+  border-radius: 6px;
+  background: #fff4c9;
+  border: 2px dashed var(--gold-dark);
+  font-family: var(--font-body);
+  font-size: calc(var(--text) + 2px);
+  font-variant-numeric: tabular-nums;
+}
+.mm-prompt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 6px;
+}
+.mm-prompt p {
+  flex: 1;
+  margin: 0;
+  font-weight: 700;
+  font-size: calc(var(--text) + 2px);
+}
+.mm-stepno {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #d6f0ec;
+  color: #1e5c57;
+  font-size: var(--text-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.mm-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mm-label {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+
+/* coins in the customer's hand */
+.mm-hand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #e9dcc0;
+  box-shadow: inset 0 0 0 3px #d6c49f;
+}
+.mm-coin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.mm-coin-val,
+.mm-coin-run {
+  display: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.mm-coin-run {
+  padding: 0 6px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--mm-money);
+}
+.mm-hand.show-values .mm-coin-val,
+.mm-hand.show-values .mm-coin-run {
+  display: block;
+}
+
+/* answers */
+.mm-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mm-choice {
+  flex: 1 1 100px;
+  min-height: 56px;
+  justify-content: center;
+}
+.mm-num {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) + 4px);
+  font-variant-numeric: tabular-nums;
+}
+.mm-choice.nope {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.mm-choice.right {
+  background: #d6f0c2;
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--leaf);
+  outline-offset: 3px;
+  animation: worked-pulse 1s ease-in-out infinite;
+}
+@keyframes worked-pulse {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+.mm-compare,
+.mm-sum {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--paper-2);
+}
+.mm-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 700;
+}
+.mm-amount strong,
+.mm-sum strong {
+  font-family: var(--font-body);
+  font-size: calc(var(--text) * 1.6);
+  font-variant-numeric: tabular-nums;
+}
+.mm-vs,
+.mm-sum span {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) * 1.6);
+  color: var(--ink-soft);
+}
+.mm-helper {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #e3ecfb;
+  color: #1c3a6e;
+  font-weight: 700;
+}
+
+/* making change */
+.mm-paidwith {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+.mm-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #e3ecfb;
+  color: #1c3a6e;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+.mm-path-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.mm-path-step::before {
+  content: '→';
+  margin-right: 2px;
+  color: #6a86b8;
+}
+.mm-tray {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 72px;
+  padding: 8px;
+  border: 4px dashed #8a6a32;
+  border-radius: 10px;
+  background: #f3e4bf;
+}
+.mm-tray:empty::before {
+  content: 'Change goes here';
+  margin: auto;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.mm-tray-coin {
+  padding: 2px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+.mm-tray-coin:focus-visible {
+  outline: 3px solid var(--focus);
+}
+.mm-sofar {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--mm-money);
+}
+.mm-coinbtns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 6px;
+}
+.mm-coinbtn {
+  flex-direction: column;
+  gap: 2px;
+  min-height: 64px;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+.mm-give {
+  justify-content: center;
+  min-height: 52px;
+}
+
+/* feedback */
+.mm-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 14px 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.mm-feedback[hidden] {
+  display: none;
+}
+.mm-feedback.good {
+  background: var(--leaf-bg);
+  color: #1d4a1b;
+}
+.mm-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.mm-feedback.hint {
+  background: #e3ecfb;
+  color: #1c3a6e;
+}
+
+/* ---------- in the world ---------- */
+.mm-bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 3px solid var(--wood-dark);
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 700;
+  pointer-events: none !important;
+}
+.mm-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--wood-dark);
+}
+.mm-float {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) + 2px);
+  pointer-events: none !important;
+  text-shadow:
+    0 2px 0 #2b1d1e,
+    2px 0 0 #2b1d1e,
+    -2px 0 0 #2b1d1e,
+    0 -2px 0 #2b1d1e;
+}
+.mm-float.good {
+  color: #fff;
+}
+.mm-float.money {
+  color: #9cf09a;
+  font-size: calc(var(--text) + 6px);
+}
+.mm-float.sad {
+  color: #ffb3a8;
+}
+
+/* ---------- end of day and the shop ---------- */
+.mm-summary,
+.mm-shopmodal {
+  width: min(640px, 100%);
+}
+.mm-host-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.mm-host-line img {
+  flex: none;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #fff3d6;
+}
+.mm-host-line p {
+  margin: 0;
+}
+.mm-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.mm-stat {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.mm-stat span {
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.mm-stat strong {
+  font-family: var(--font-body);
+  font-size: calc(var(--text) * 1.4);
+  font-variant-numeric: tabular-nums;
+}
+.mm-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px 14px;
+}
+.mm-wallet {
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+.mm-wallet strong {
+  font-family: var(--font-body);
+  font-size: calc(var(--text) + 4px);
+  color: var(--mm-money);
+}
+.mm-line {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--paper-2);
+}
+.mm-line h3 {
+  margin: 0 0 6px;
+  font-size: var(--text);
+}
+.mm-owned {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+.mm-owned-item {
+  padding: 2px;
+  border-radius: 6px;
+  background: #fffaf0;
+}
+.mm-offer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 3px solid var(--wood-dark);
+  border-radius: 10px;
+  background: #fffaf0;
+}
+.mm-offer.cant {
+  opacity: 0.85;
+}
+.mm-offer-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.mm-offer-info strong {
+  font-size: var(--text);
+}
+.mm-after {
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--mm-money);
+}
+.mm-offer.cant .mm-after {
+  color: #8a4a1c;
+}
+
+/* ---------- phones: the till becomes a bottom sheet ---------- */
+@media (max-width: 760px) {
+  .mm-top {
+    top: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
+    gap: 4px 10px;
+    padding: 6px 10px;
+  }
+  .mm-tillpanel {
+    top: auto;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    height: 52%;
+  }
+  .mm-hud .toolbar {
+    top: 8px;
+    right: 8px;
+    left: auto;
+    bottom: auto;
+  }
+  .mm-top {
+    max-width: calc(100% - 16px - 124px);
+  }
+  .mm-till-body {
+    padding: 8px 10px;
+  }
+  .mm-coinbtns {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .mm-coinbtn span {
+    font-size: 13px;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .mm-till-foot .kbd {
+    display: none;
+  }
+}

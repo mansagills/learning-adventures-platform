@@ -1,0 +1,482 @@
+/* Time Attack Clock: the activity panel, the clock face, Time Attack and the HUD. */
+:root {
+  --tac-hour: #2b3a67;
+  --tac-minute: #d2453a;
+  --tac-brass: #c9a227;
+  --tac-leaf: #2f6b2c;
+  --tac-leaf-bg: #dcebc9;
+}
+.title-card .logo {
+  color: #2b3a67;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD bar (top left) ---------- */
+.tac-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+}
+.tac-parts {
+  display: flex;
+  gap: 4px;
+}
+.tac-part {
+  display: inline-flex;
+  opacity: 0.75;
+}
+.tac-part.on {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(255, 216, 74, 0.9));
+}
+.tac-sep {
+  width: 2px;
+  height: 24px;
+  background: var(--paper-3);
+}
+.tac-best {
+  font-variant-numeric: tabular-nums;
+}
+
+/* the job list reuses the row layout from Number Line Ninja */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- the activity panel ---------- */
+.tac-panel {
+  width: min(760px, 100%);
+}
+.tac-panel header {
+  background: linear-gradient(90deg, #cfdcf3, var(--paper-2));
+}
+.tac-bakery header {
+  background: linear-gradient(90deg, #f7d3e2, var(--paper-2));
+}
+.tac-bus header {
+  background: linear-gradient(90deg, #cdebe8, var(--paper-2));
+}
+.tac-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.tac-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.tac-stars {
+  display: flex;
+  gap: 2px;
+}
+.tac-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.tac-host {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #fff3d6;
+}
+.tac-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 3px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.tac-speak {
+  flex: none;
+}
+.tac-body {
+  padding: 12px 16px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+.tac-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.tac-feedback[hidden] {
+  display: none;
+}
+.tac-feedback img {
+  flex: none;
+}
+.tac-feedback.good {
+  background: var(--tac-leaf-bg);
+  color: #1d4a1b;
+}
+.tac-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.tac-feedback.hint {
+  background: #e3ecfb;
+  color: #1c3a6e;
+}
+.tac-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.tac-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.tac-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.tac-stage[hidden] {
+  display: none;
+}
+
+/* ---------- the clock ---------- */
+.tac-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.tac-clock-canvas {
+  image-rendering: pixelated;
+  border-radius: 50%;
+  touch-action: none;
+  user-select: none;
+}
+.tac-clock-canvas.interactive {
+  cursor: grab;
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.35);
+}
+.tac-clock-canvas.interactive:focus-visible {
+  outline: 4px solid var(--focus, #2f6fb0);
+  outline-offset: 4px;
+}
+.tac-clock.drag-minute .tac-clock-canvas,
+.tac-clock.drag-hour .tac-clock-canvas {
+  cursor: grabbing;
+}
+.tac-clock.right .tac-clock-canvas {
+  box-shadow: 0 0 0 6px #7fbf5a;
+}
+.tac-clock-caption {
+  font-weight: 700;
+  font-size: var(--text-small);
+  background: var(--paper-2);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.tac-hand-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+}
+.tac-hand-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.tac-hand-row.minute span {
+  color: #a3302a;
+}
+.tac-hand-row.hour span {
+  color: var(--tac-hour);
+}
+.tac-hand-btn {
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+.tac-legend {
+  display: flex;
+  gap: 14px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.tac-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tac-key i {
+  display: inline-block;
+  height: 6px;
+  border-radius: 3px;
+}
+.tac-key.hour i {
+  width: 16px;
+  height: 8px;
+  background: var(--tac-hour);
+}
+.tac-key.minute i {
+  width: 28px;
+  height: 4px;
+  background: var(--tac-minute);
+}
+.tac-target {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 700;
+}
+.tac-target-time {
+  font-size: calc(var(--text) * 1.6);
+  font-variant-numeric: tabular-nums;
+  color: var(--tac-hour);
+}
+.tac-check {
+  min-height: 52px;
+}
+
+/* elapsed time: two clocks side by side */
+.tac-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tac-arrow {
+  display: inline-flex;
+}
+.tac-mystery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 4px dashed var(--tac-brass);
+  border-radius: 50%;
+  background: #fffaf0;
+  margin-top: 26px;
+}
+.tac-plus {
+  font-weight: 700;
+  color: #8a2f5a;
+}
+.tac-q {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--tac-hour);
+}
+.tac-mystery-note {
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+}
+.tac-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #e3ecfb;
+  font-weight: 700;
+}
+.tac-path[hidden] {
+  display: none;
+}
+.tac-path-time {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.tac-path-add {
+  color: #1c3a6e;
+}
+
+/* answers */
+.tac-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.tac-choice {
+  min-width: 108px;
+  min-height: 60px;
+  justify-content: center;
+  gap: 8px;
+}
+.tac-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.tac-choice-text {
+  /* times use the reading font: the pixel font's 5 can look like an S */
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) * 1.35);
+  font-variant-numeric: tabular-nums;
+}
+.tac-choice.nope {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.tac-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  border-color: var(--tac-leaf);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--tac-leaf);
+  outline-offset: 3px;
+  animation: tac-worked 1s ease-in-out infinite;
+}
+@keyframes tac-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+
+/* ---------- Time Attack ---------- */
+.tac-attack header {
+  background: linear-gradient(90deg, #f8d58a, var(--paper-2));
+}
+.tac-attack-score {
+  font-size: calc(var(--text) + 6px);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+}
+.tac-timer {
+  height: 12px;
+  background: var(--paper-3);
+}
+.tac-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: #4f9a4a;
+  transition: background 0.3s;
+}
+.tac-timer-fill.low {
+  background: #d2453a;
+}
+.tac-attack-intro,
+.tac-attack-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 10px 0;
+}
+.tac-attack-intro p,
+.tac-attack-result p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: calc(var(--text) + 1px);
+}
+.tac-result-line {
+  font-weight: 700;
+  font-size: calc(var(--text) + 4px) !important;
+}
+.tac-result-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .tac-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+  }
+  .tac-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .tac-host {
+    width: 52px;
+    height: 52px;
+  }
+  .tac-prompt {
+    font-size: var(--text);
+  }
+  .tac-body {
+    padding: 10px;
+  }
+  .tac-head-right .tac-level {
+    display: none;
+  }
+  .tac-choice {
+    min-width: 92px;
+  }
+  .tac-legend {
+    gap: 8px;
+  }
+  .tac-arrow {
+    display: none;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .tac-foot .kbd,
+  .tac-choice .kbd {
+    display: none;
+  }
+}
