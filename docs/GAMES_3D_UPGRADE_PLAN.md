@@ -402,7 +402,7 @@ Known issues (none blocking):
 | 3 | Tips appear as text at the top during action. Read-aloud is off by default for this grade band (it can be turned on in Settings) | Low |
 | 4 | Frame rate measured with software rendering only; check on a real device | Low |
 
-#### M3 Money and time: BUILT, waiting for the owner's test (PR #210)
+#### M3 Money and time: COMPLETED ✅ (owner tested, approved and merged 2026-10-03 in PR #210)
 
 **Owner decisions (2026-10-03):**
 
@@ -518,3 +518,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** Owner tested Library Rush ("it plays really well"), approved it and merged PR #209. M2 COMPLETED ✅. Next: M3, Money and time (Money Market Madness with Cafeteria Cashier merged in, then Time Attack Clock).
 - **2026-10-03:** Owner decisions for M3: Money Market gets an upgrade shop (food, drinks, condiments) paid for with the money earned; Time Attack Clock is built as proposed. M3 started.
 - **2026-10-03:** M3 built: Money Market Madness (Cafeteria Cashier merged in; the old link redirects), 8.9/10, 11 unit tests and 20 browser checks; Time Attack Clock, 9.0/10, 11 unit tests and 37 browser checks. Waiting for the owner's check-in.
+- **2026-10-03:** Owner tested both games ("they play well"), approved them and merged PR #210. M3 COMPLETED ✅. Next: M4, addition, subtraction and mixed operations (Math Race Rally with Math Memory Match merged in, Math Adventure Island, Treasure Hunt Calculator, Math Jeopardy Junior; merges follow the merge map).
