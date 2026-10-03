@@ -11,6 +11,8 @@ export function mountToasts(host: HTMLElement): HTMLElement {
   const box = h('div', { class: 'toasts', 'aria-live': 'polite' });
   host.append(box);
   bus.on('toast', ({ text, kind }) => {
+    // the same message twice in a row: keep the one showing instead of stacking copies
+    if ([...box.children].some((c) => c.textContent === text)) return;
     const t = h('div', { class: `panel toast ${kind ?? 'info'}` });
     if (kind === 'reward') t.append(iconImg('star', '', 22));
     if (kind === 'hint') t.append(iconImg('bulb', '', 22));

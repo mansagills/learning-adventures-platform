@@ -224,9 +224,9 @@ Batches group games that share skills, so each batch also builds a question gene
 |---|---|---|---|
 | **M1 Counting and early number (K–2)** | Counting Carnival (K–1) | Count items | Carnival booths in 3D: count to 20, one-to-one counting, "how many more to make 10", subitizing dots (K.CC, K.OA) |
 | | Number Monster Feeding (K–2) | Feed matching numbers | Monsters ask for "more than / less than / 1 more / 10 more"; ten-frame food trays (K.CC, 1.NBT) |
-| **M2 Place value and ordering (1–3)** | Math Dash: Library Sorter (1–3) | Sort 5 numbers | A 3D library: order by tens and hundreds, place-value blocks as hints, compare with < > = (1.NBT, 2.NBT) |
-| | Number Line Ninja (1–3) | Number line jumps | Built in Phase 0 |
-| | Math Memory Match (1–3) | Match facts | Match a fact to a model (ten frame, array, number line), so it's not just memory; fact strategies (1.OA, 2.OA) |
+| **M2 Place value and ordering (1–3)** | Math Dash: Library Sorter (1–3) | Sort 5 numbers | **Changed by the owner (2026-10-02):** "Library Rush", a Vampire Survivors-style action game. See the M2 section below |
+| | Number Line Ninja (1–3) | Number line jumps | Done in Phase 0 |
+| | Math Memory Match (1–3) | Match facts | Moved to M4: the merge map folds it into Math Race Rally (fact strategies and fluency) |
 | **M3 Money and time (1–4)** | Money Market Madness (1–3) | Pay with coins | A 3D market: count coins and bills, fewest coins, "can I afford it?" (2.MD.8) |
 | | Cafeteria Cashier (2–4) | Make change | Make change by counting up, with multi-item orders and a two-step word problem (2.MD.8, 3.OA.8) |
 | | Time Attack Clock (1–3) | Read a clock | A 3D clock tower: half hours, then 5 minutes, then to the minute, plus elapsed time ("the bus leaves in 15 minutes") (1.MD.3, 2.MD.7, 3.MD.1) |
@@ -243,7 +243,7 @@ Batches group games that share skills, so each batch also builds a question gene
 | | Multiplication Tables Adventure (activity, 3–5) | Step through tables | Structured practice with the mastery model choosing the facts that need work; a fact-family map (3.OA.7) |
 | | Equation Balance Scale (3–5) | Balance a scale | A 3D balance with weights: the equals sign as "same as", missing numbers, then two-step (1.OA.7, 3.OA.4, 4.OA.3) |
 
-#### M1 Counting Carnival: BUILT, waiting for the owner's check-in
+#### M1 Counting Carnival: COMPLETED ✅ (owner approved and merged 2026-10-02 in PR #208)
 
 Counting Carnival and Number Monster Feeding are now one game, **Counting Carnival** (K–2), slug `counting-carnival`. The old `/games/number-monster-feeding` link redirects to it (`next.config.js`), and the ebook *Jaylen and the Frozen Numbers* now lists it as a companion game in place of Number Monster Feeding.
 
@@ -298,6 +298,110 @@ Known issues (none blocking):
 | 2 | On a laptop the camera follows the player, so the Ferris wheel and big top show only near the top of the fair | Low |
 | 3 | The old `number-monster-feeding.html` and `counting-carnival.html` files stay until Phase 4 (the World demo and the hidden account features still use them) | Low |
 
+#### M2 Math Dash: Library Rush: BUILT, waiting for the owner's check-in
+
+**Owner request (2026-10-02):** turn Math Dash into a game like Vampire Survivors. You are a student working in the library who collects and sorts books while avoiding other students, who drain you when you run into them. Power-ups work like the ones in Vampire Survivors but are library-themed. It must still use Three.js; the style may change a little.
+
+**Owner decisions (2026-10-02):**
+
+- Same pixel art, with more action: a closer camera, lamp lighting, particles and screen shake
+- Books are sorted by number range: carry each book to the shelf whose range fits
+- The "other students" are friendly, chatty students. Bumping into one drains Focus. Power-ups calm them; there is no fighting.
+- Runs are endless: play until Focus runs out and try to beat your best score
+
+**Design (slug stays `math-dash`; title "Math Dash: Library Rush", grades 1–3):**
+
+- **Moving:** walk anywhere in a big library that scrolls with you (arrow keys, WASD, or drag anywhere on a touch screen). Books appear on the floor, carts and tables. Walking over a book picks it up, up to what your cart can hold.
+- **Sorting (the math):** the book in your hands shows its call number above your head and on the HUD. Walk into a shelf to shelve it:
+  - Right shelf: points, a combo, and the Sorting meter fills.
+  - Wrong shelf: the book bounces back with a one-line reason (for example, "247 has 2 hundreds, so it goes on 200–299"). Q or the Swap button changes which book is in your hands.
+  - Two misses on the same book make the right shelf sign glow.
+- **Stages grow during a run:**
+  - Picture Books: 0–59, one shelf per ten
+  - Chapter Books: 100–599, one shelf per hundred
+  - Reference: 0–999 with shelves such as "< 250", "250 to 399", "> 399" (comparing three-digit numbers and the < > symbols)
+  - Each stage moves on after 12 right answers. A run starts at the highest stage you have mastered.
+- **Focus:** this is your health bar. A bump costs Focus, gives a short break with no bumps, and the student says something chatty. When Focus runs out, the shift is over and the game shows a summary (books shelved, best combo, score, best score, the mistake to practice).
+- **Students:** they get more numerous and faster as the run goes on:
+  - chatty walkers who drift toward you
+  - runners who cross the room in a straight line
+  - friend groups
+  - Calmed students sit down at a table and read, so the room fills with readers.
+- **Power-ups:** a full Sorting meter lets you pick 1 of 3. Each has 5 levels.
+  - **Shush Bell** (you start with it): a calming wave around you every few seconds
+  - **Paper Notes:** a note flies to the nearest student and calms them
+  - **Story Rug:** students near you slow down to listen
+  - **Bookmark Magnet:** picks up books from farther away
+  - **Book Cart:** carry more books
+  - **Sneakers:** move faster
+  - **Reading Glasses:** book labels show hundreds, tens and ones in color
+  - **Cocoa Break:** Focus comes back slowly
+  - **Library Card:** blocks one bump now and then
+- **Host:** Librarian Mx. Okafor gives a 20-second calm start with a short tutorial on the first run.
+- **Learning model:** one skill per stage. Each book's first shelving attempt is recorded. Mistakes that are diagnosed:
+  - reading the last digit
+  - the middle digit
+  - reading a 2-digit number as hundreds
+  - the next shelf over, or a range boundary
+  - flipping < and >
+- **Standards:** 1.NBT.2, 1.NBT.3, 2.NBT.1, 2.NBT.4.
+
+**Build notes (2026-10-02):**
+
+- **Code:** `games-src/adventures/src/games/math-dash/`:
+  - `problems.ts`: shelves, book numbers, mistake diagnosis
+  - `powers.ts`: power-up levels to numbers
+  - `world.ts`: the library and everything that moves
+  - `game.ts`: rules, HUD, level-ups, the end-of-shift summary
+  - `content.ts`: all the words
+- **Kit additions:**
+  - a camera zoom option
+  - `<`, `>` and `s` in the pixel font
+  - repeated toasts no longer stack
+- **Site:**
+  - the listing points to `/games/play/math-dash/index.html` (same slug, so old links still work)
+  - new card picture
+  - the old `public/games/math-dash.html` stays until Phase 4 (the World demo still uses it)
+- **Checks:**
+  - 12 unit tests: every book has exactly one shelf, the traps appear, the mistakes are diagnosed, the power-up rules hold
+  - 34 browser checks (`scripts/e2e-math-dash.mjs`): a full shift from the title screen, a wrong and a right shelf, the hint arrow, a level-up, the stage change, students and bumps, the Shush Bell, pause, the grown-ups page, the end of the shift, saving, and the phone joystick and layout
+  - about 46 fps with 36 students on screen (software rendering)
+
+**Self-score**
+
+| Category | First build | After fixes |
+|---|---|---|
+| Gameplay and fun (2.5) | 1.7 | 2.1 |
+| Learning quality (2.0) | 1.6 | 1.8 |
+| Visual and audio polish (1.5) | 0.9 | 1.3 |
+| Usability and accessibility (1.5) | 0.9 | 1.3 |
+| Technical reliability (1.5) | 1.0 | 1.4 |
+| Completeness (1.0) | 0.9 | 0.95 |
+| **Total** | **7.0** | **8.85** |
+
+Problems found in the first build, all fixed:
+
+- the shelf signs were blank
+- the camera was too close to plan a route
+- the front-row bookcases hid the player and the readers behind them
+- "30–39" and "250 to 399" could not be drawn in the pixel font
+- "500s" looked like "5005"
+- holding a key after a wrong shelf counted two misses
+- the front-row shelves could be "touched" from behind
+- the glowing hint sign could be off screen (an arrow now points to it)
+- the same tip stacked three times
+- books appeared behind the librarian's desk
+- on phones, the stage banner and the tips covered the top of the screen
+
+Known issues (none blocking):
+
+| # | Issue | Severity |
+|---|---|---|
+| 1 | When a right book is shelved, any next books in hand that belong on the same shelf are shelved too (and count as right). This keeps the game fast but gives a little less practice per book | Low |
+| 2 | Students walk straight at you and can bunch up behind tables. That is fine for a survivors game, but they could path around furniture | Low |
+| 3 | Tips appear as text at the top during action. Read-aloud is off by default for this grade band (it can be turned on in Settings) | Low |
+| 4 | Frame rate measured with software rendering only; check on a real device | Low |
+
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
@@ -345,3 +449,6 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-02:** Phase 0 built: Adventure Kit and Number Line Ninja (8.75/10 self-score; 22 unit tests, 27 browser checks). Waiting for the owner's check-in on look, feel and challenge level before Math batch M1.
 - **2026-10-02:** Owner check-in: look and learning approved; asked for ninja outfits. Added gi colors, ninja masks (face mask or hood) and headbands. Owner approved Phase 0 (look, learning and ninja gear). Next: Math batch M1 on a fresh branch off `main` once this PR is merged.
 - **2026-10-02:** Math batch M1 built: Counting Carnival (with Number Monster Feeding merged in), 8.9/10 self-score, 7 unit tests and 28 browser checks. Waiting for the owner's check-in before M2.
+- **2026-10-02:** Owner tested Counting Carnival, approved it and merged PR #208. M1 COMPLETED ✅. Next: M2 (Math Dash: Library Sorter; Math Memory Match moves to M4 with Math Race Rally, as the merge map says).
+- **2026-10-02:** The owner redesigned M2: Math Dash becomes "Library Rush", a Vampire Survivors-style game: pixel art with more action, books sorted by number range, chatty students, endless runs. The design is in the M2 section.
+- **2026-10-02:** M2 built: Math Dash: Library Rush, 8.85/10 self-score, 12 unit tests and 34 browser checks. Waiting for the owner's check-in.

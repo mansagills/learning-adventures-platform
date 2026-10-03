@@ -126,16 +126,17 @@ export const games: PlayableGame[] = [
   },
   {
     slug: 'math-dash',
-    title: 'Math Dash: Library Sorter',
+    title: 'Math Dash: Library Rush',
     subject: 'math',
     kind: 'game',
     grades: '1–3',
-    difficulty: 'easy',
+    difficulty: 'medium',
     description:
-      'Sort scrambled numbers on book spines from smallest to largest before time runs out.',
-    skills: ['Comparing Numbers', 'Ordering'],
-    estimatedTime: '5–10 min',
-    htmlPath: '/games/math-dash.html',
+      'A fast library action game: grab books and shelve each one by its number while you dodge chatty classmates. Pick library powers as you go. Tens, hundreds and comparing with < and >.',
+    skills: ['Place Value', 'Comparing Numbers', 'Tens and Hundreds'],
+    estimatedTime: '10–20 min',
+    // Rebuilt with the Adventure Kit as a survivors-style action game (owner redesign, UX-4 M2)
+    htmlPath: '/games/play/math-dash/index.html',
     thumbnail: '/games/thumbnails/math-dash.jpg',
   },
   {
