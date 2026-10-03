@@ -34,6 +34,8 @@ node scripts/e2e-money-market.mjs        # a Money Market day: serving, change, 
 node scripts/mm-tour.mjs <url> <outDir> [w] [h]     # Money Market screenshots: every level, hints, the shop, the upgraded stand
 node scripts/e2e-time-attack-clock.mjs   # a whole Time Attack Clock game, title to finale and a Time Attack (37 checks)
 node scripts/tac-tour.mjs <url> <outDir> [w] [h]    # every job at levels 1-3 with a miss and hints, then a Time Attack
+node scripts/e2e-math-race-rally.mjs     # Math Race Rally: a race with right and wrong gates, the pit stop, the garage, a second race (27 checks)
+node scripts/rr-tour.mjs <url> <outDir> [w] [h]     # Math Race Rally screenshots: race, results, pit stop, garage, tracks
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -223,3 +225,32 @@ Code: `src/games/time-attack-clock/` (`problems.ts` is the clock math,
 | Hint | H | Hint |
 | Town jobs list | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |
+
+
+## Math Race Rally (Math batch M4, grades 1–5)
+
+An arcade racer seen from behind the car (Math Memory Match is merged in as
+the pit stop, and `/games/math-memory-match` redirects here). The car never
+stops. A question appears with three answer gates ahead, one per lane. Steer
+through the right one to boost up a speed level; the wrong one slows the car
+a level (never to a stop) and explains the likely mistake. After two misses
+in a row the next question shows a strategy hint. Dash, the CPU rival, keeps
+a steady pace, so getting most answers right is how you win.
+
+Levels: facts to 10, facts to 20 (make a ten, doubles), tens and ones,
+two-digit with regrouping, three-digit. After each race: results with pit
+notes (the strategy for each missed question), then the pit stop, where
+matching facts to answers earns bolts. Bolts buy car types, paint, styles,
+wheels and spoilers in the garage; they never change speed. Wins open new
+tracks (Sunny Hills, Desert Canyon, Seaside, Neon City).
+
+The road is real Three.js geometry drawn into a small canvas (`race.ts`,
+built from `track.ts`), not the kit's 45-degree renderer. Code:
+`src/games/math-race-rally/`.
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Steer | Left/right arrows or A/D | Hold the arrow buttons |
+| Drive to a lane | 1, 2, 3 | Tap an answer at the top |
+| Pause / settings | Esc | Pause |
+| Mute | M | Sound |

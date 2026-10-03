@@ -82,6 +82,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     delay: 6000,
     after: ['.mm-serve'],
   },
+  // Math Race Rally: start, read Kofi's welcome, then race toward the first answer gate.
+  'math-race-rally': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      ...Array(12).fill('.dialogue'),
+    ],
+    delay: 4500,
+    after: ['.rr-answer >> nth=1'],
+  },
   // Time Attack Clock: start, read Mr. Tock's welcome, then the town and its stopped tower.
   'time-attack-clock': {
     clicks: [

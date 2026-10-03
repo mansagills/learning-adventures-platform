@@ -23,6 +23,11 @@ const nextConfig = {
         destination: '/games/money-market-madness',
         permanent: true,
       },
+      {
+        source: '/games/math-memory-match',
+        destination: '/games/math-race-rally',
+        permanent: true,
+      },
     ];
   },
   async headers() {
