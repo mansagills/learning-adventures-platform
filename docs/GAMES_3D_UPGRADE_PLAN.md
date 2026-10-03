@@ -402,7 +402,7 @@ Known issues (none blocking):
 | 3 | Tips appear as text at the top during action. Read-aloud is off by default for this grade band (it can be turned on in Settings) | Low |
 | 4 | Frame rate measured with software rendering only; check on a real device | Low |
 
-#### M3 Money and time: BUILT, waiting for the owner's test (PR #210)
+#### M3 Money and time: COMPLETED ✅ (owner tested, approved and merged 2026-10-03 in PR #210)
 
 **Owner decisions (2026-10-03):**
 
@@ -465,6 +465,65 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 - **Standards:** 1.MD.3, 2.MD.7, 3.MD.1.
 - Code: `games-src/adventures/src/games/time-attack-clock/`. Self-score 9.0/10 (11 unit tests, 37 browser checks).
 
+#### M4 Addition, subtraction and mixed operations: IN PROGRESS
+
+**Owner decisions (2026-10-03):**
+
+- The plans for both M4 games are approved. The owner especially likes Math Adventure Island (Treasure Hunt Calculator and Math Jeopardy Junior merged in).
+- **Math Race Rally should feel like a real racing game:**
+  - You steer the car all the time and it never stops moving.
+  - Questions appear, and you race toward the answer on the track.
+  - A right answer speeds you up; a wrong one slows you down.
+  - You race a CPU car.
+- **Math Memory Match is the pit stop at the end of every race.** Correct matches earn cosmetic upgrades for the car (paint color, style, type of car and more).
+- **View:** behind the car (classic arcade racer), picked over a top-down track.
+- The games are built one at a time: Math Race Rally first, then Math Adventure Island.
+
+**Math Race Rally (slug `math-race-rally`, grades 1–5; Math Memory Match merged in, and its old link redirects):**
+
+- **The race:**
+  - A pixel-art road seen from behind the car, with curves and hills, drawn with Three.js at low resolution and scaled up into crisp pixels.
+  - The car always drives forward. The player steers left and right with the arrow keys, A/D, or on-screen buttons. Number keys 1–3 (or tapping an answer) steer to that lane for players who find steering hard.
+- **The questions:**
+  - Each question appears at the top with three answer gates ahead, one per lane. Driving through the right gate gives a boost and raises the speed level; the wrong gate slows the car one level, never to a stop.
+  - The gates are placed far enough ahead to give real thinking time at any speed.
+  - After two misses in a row, the next question shows a strategy hint.
+- **The rival:**
+  - A CPU car drives the same road at a steady pace.
+  - Getting most answers right is how you pass it.
+  - Winning races unlocks new tracks: Sunny Hills, Desert Canyon, Seaside and Neon City at night.
+- **The math, by level (one learner skill, five tiers):**
+  1. Add and subtract within 10.
+  2. Within 20, with make-a-ten and doubles.
+  3. Two-digit and one-digit numbers, and adding or subtracting tens.
+  4. Two-digit numbers with regrouping.
+  5. Three-digit numbers.
+- **Mistakes that are diagnosed:**
+  - counting on from the first number (off by one)
+  - forgetting to regroup
+  - taking the smaller digit from the bigger (52 − 27 = 35)
+  - adding instead of subtracting
+  - mixing up tens and ones
+- **After the finish:**
+  - A results card with your place and your answers.
+  - A review of missed questions, each with the strategy that solves it.
+- **The pit stop (Math Memory Match):**
+  - Flip cards to match each fact with its answer. The facts come from the race, with missed ones first.
+  - Each match earns bolts. The garage spends bolts on cosmetics:
+    - paint colors
+    - stripes and decals
+    - wheels
+    - spoilers
+    - car types (kart, roadster, pickup truck, bubble car, rocket)
+- **Standards:** 1.OA.6, 2.OA.2, 2.NBT.5, 2.NBT.7, 3.NBT.2.
+- **Status: BUILT; owner feedback applied, waiting for the owner's check.** Code: `games-src/adventures/src/games/math-race-rally/`. Self-score 9.0/10 (15 unit tests, 29 browser checks).
+- **Owner feedback (2026-10-03):** "This actually plays really well." One change: after you pass Dash, a couple of wrong answers should let Dash pass you again.
+  - **Done:** Dash now follows your momentum. It goes up 1 for each right answer and down 2 for each wrong one, and stays between −3 and +3.
+  - After a run of right answers he sits well behind. One miss lets him close right in, two misses in a row and he passes, and a few right answers in a row put you back in front.
+  - A message says when Dash passes you.
+  - Races now stay close to the finish: 5–6 right answers out of 10 loses, and 8 or more wins.
+- **Math Adventure Island** (with Treasure Hunt Calculator and Math Jeopardy Junior) comes next, after the owner's check-in on Math Race Rally.
+
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
@@ -518,3 +577,6 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** Owner tested Library Rush ("it plays really well"), approved it and merged PR #209. M2 COMPLETED ✅. Next: M3, Money and time (Money Market Madness with Cafeteria Cashier merged in, then Time Attack Clock).
 - **2026-10-03:** Owner decisions for M3: Money Market gets an upgrade shop (food, drinks, condiments) paid for with the money earned; Time Attack Clock is built as proposed. M3 started.
 - **2026-10-03:** M3 built: Money Market Madness (Cafeteria Cashier merged in; the old link redirects), 8.9/10, 11 unit tests and 20 browser checks; Time Attack Clock, 9.0/10, 11 unit tests and 37 browser checks. Waiting for the owner's check-in.
+- **2026-10-03:** Owner tested both games ("they play well"), approved them and merged PR #210. M3 COMPLETED ✅. Next: M4, addition, subtraction and mixed operations (Math Race Rally with Math Memory Match merged in, Math Adventure Island, Treasure Hunt Calculator, Math Jeopardy Junior; merges follow the merge map).
+- **2026-10-03:** M4 started. Owner decisions: Math Race Rally becomes a behind-the-car arcade racer (always moving, steer into the answer gate, boost or slow down, race a CPU car), with Math Memory Match as the pit stop after each race that earns cosmetic car upgrades. Math Race Rally built: 9.0/10, 12 unit tests and 27 browser checks. Waiting for the owner's check-in.
+- **2026-10-03:** Owner tested Math Race Rally ("plays really well") and asked that a couple of wrong answers let Dash pass you again. Done with a momentum rule (see the M4 section); 15 unit tests and 29 browser checks.

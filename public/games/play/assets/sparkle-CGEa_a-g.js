@@ -1,1 +1,0 @@
-import{Z as e}from"./actor-BqPPfQLp.js";function t(t){let n=new e(11,11),r=`#ffd35e`,i=`#fffbe8`,a=t===0?4:3;for(let e=-a;e<=a;e++)n.set(5+e,5,Math.abs(e)<2?i:r),n.set(5,5+e,Math.abs(e)<2?i:r);return t===1&&(n.set(3,3,r),n.set(7,3,r),n.set(3,7,r),n.set(7,7,r)),n.set(5,5,i),n.outline(`#8a5a0e`)}export{t};
