@@ -28,6 +28,16 @@ const nextConfig = {
         destination: '/games/math-race-rally',
         permanent: true,
       },
+      {
+        source: '/games/treasure-hunt-calculator',
+        destination: '/games/math-adventure-island',
+        permanent: true,
+      },
+      {
+        source: '/games/math-jeopardy-junior',
+        destination: '/games/math-adventure-island',
+        permanent: true,
+      },
     ];
   },
   async headers() {

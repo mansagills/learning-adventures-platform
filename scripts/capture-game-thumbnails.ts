@@ -100,6 +100,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     ],
     delay: 1500,
   },
+  // Math Adventure Island: start, read Captain Zuri's welcome, then the island, its zones and the Quiz Show stage.
+  'math-adventure-island': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(18).fill('.dialogue'),
+    ],
+    delay: 1500,
+  },
 };
 
 const contentTypes: Record<string, string> = {
