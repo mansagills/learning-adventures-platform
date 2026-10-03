@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
-import { boltsFor, distractors, makeProblem, memoryBoard, needsRegroup, nextLevel, noRegroup, solve, speedFor, strategyFor, TIERS } from '../src/games/math-race-rally/problems';
+import { boltsFor, LEAD_PER_MOMENTUM, nextMomentum, rivalPace, distractors, makeProblem, memoryBoard, needsRegroup, nextLevel, noRegroup, solve, speedFor, strategyFor, TIERS } from '../src/games/math-race-rally/problems';
 import { buy, cleanLook, PARTS, SLOTS, STARTING_LOOK, STARTING_OWNED, TRACKS } from '../src/games/math-race-rally/cosmetics';
 
 describe('race math helpers', () => {
@@ -93,6 +93,32 @@ describe('speed', () => {
     expect(nextLevel(1, false)).toBe(1);
     expect(speedFor(1)).toBeGreaterThan(0);
     expect(speedFor(6)).toBeGreaterThan(speedFor(1));
+  });
+});
+
+describe('the rival', () => {
+  const base = speedFor(3.6);
+  it('momentum: +1 for a right answer, -2 for a wrong one, between -3 and 3', () => {
+    expect(nextMomentum(0, true)).toBe(1);
+    expect(nextMomentum(3, true)).toBe(3);
+    expect(nextMomentum(3, false)).toBe(1);
+    expect(nextMomentum(-2, false)).toBe(-3);
+  });
+  it('after a run of right answers Dash aims well behind you; two misses put him ahead', () => {
+    let m = 0;
+    for (let i = 0; i < 4; i++) m = nextMomentum(m, true);
+    expect(-LEAD_PER_MOMENTUM * m).toBeLessThan(-10);
+    m = nextMomentum(m, false);
+    expect(-LEAD_PER_MOMENTUM * m).toBeLessThan(0); // one miss: close behind you
+    m = nextMomentum(m, false);
+    expect(-LEAD_PER_MOMENTUM * m).toBeGreaterThan(0); // two misses: he passes
+  });
+  it('speeds up to reach his spot and eases off when past it, within limits', () => {
+    const v = speedFor(5);
+    expect(rivalPace(-20, v, base, 0)).toBeGreaterThan(v); // behind where he wants: faster than you
+    expect(rivalPace(20, v, base, 0)).toBeLessThan(v); // ahead of where he wants: slower than you
+    expect(rivalPace(-200, v, base, 0)).toBeLessThanOrEqual(speedFor(6) * 1.3);
+    expect(rivalPace(200, speedFor(1), base, 0)).toBe(base * 0.8);
   });
 });
 

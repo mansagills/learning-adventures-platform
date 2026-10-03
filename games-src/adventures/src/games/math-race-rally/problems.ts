@@ -283,3 +283,26 @@ export function nextLevel(level: number, correct: boolean): number {
 export function speedFor(level: number): number {
   return 9 + level * 2.2;
 }
+
+/** Momentum: +1 for a right gate, -2 for a wrong one, kept between -3 and 3. */
+export const MOMENTUM_MAX = 3;
+export function nextMomentum(m: number, correct: boolean): number {
+  return Math.max(-MOMENTUM_MAX, Math.min(MOMENTUM_MAX, m + (correct ? 1 : -2)));
+}
+
+/** Segments per point of momentum: where Dash aims to be relative to you. */
+export const LEAD_PER_MOMENTUM = 6;
+
+/**
+ * Dash's target speed. `gap` is how far Dash is ahead of you (negative when
+ * you lead). Dash aims for a spot that follows your momentum: after a run of
+ * right answers he sits well behind you; one miss lets him close right in; two
+ * misses and he passes you; a few right answers in a row and you pass him
+ * again. He moves toward that spot smoothly, from your current speed, and
+ * never drives slower than most of his own pace or faster than a boosting car.
+ */
+export function rivalPace(gap: number, playerSpeed: number, base: number, momentum: number): number {
+  const want = -LEAD_PER_MOMENTUM * momentum;
+  const target = playerSpeed + (want - gap) * 0.6;
+  return Math.min(speedFor(SPEED_LEVELS) * 1.3, Math.max(base * 0.8, target));
+}

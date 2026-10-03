@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { mulberry32 } from '../../kit/core/rng';
 import { paintCar, paintFinish, paintGate, paintScenery, paintSky, THEMES, type Theme } from './art';
 import type { CarLook } from './cosmetics';
-import { speedFor } from './problems';
+import { rivalPace, speedFor } from './problems';
 import { EDGE, LANES, ROAD_W, Track, laneOf } from './track';
 
 /**
@@ -50,6 +50,8 @@ export class RaceScene {
   readonly player: Car & { level: number; boostT: number; slowT: number; lean: number; targetLane: number | null; bumpT: number } = { s: 0, x: 0, speed: 0, level: 2, boostT: 0, slowT: 0, lean: 0, targetLane: null, bumpT: 0 };
   readonly rival: Car & { finished: boolean } = { s: 0, x: 0.5, speed: 0, finished: false };
   rivalSpeed = speedFor(3.6);
+  /** Your recent form (see nextMomentum); set by the game after each gate. */
+  momentum = 0;
   finishS = 0;
   running = false;
   finished = false;
@@ -126,6 +128,7 @@ export class RaceScene {
     this.world.add(this.playerSprite, this.rivalSprite);
     Object.assign(this.player, { s: 2, x: LANES[1], speed: 0, level: 2, boostT: 0, slowT: 0, lean: 0, targetLane: null, bumpT: 0 });
     Object.assign(this.rival, { s: 2.6, x: LANES[2], speed: 0, finished: false });
+    this.momentum = 0;
     this.running = false;
     this.finished = false;
     this.wasAhead = false;
@@ -351,10 +354,9 @@ export class RaceScene {
         this.finished = true;
         ev.push({ type: 'finish' });
       }
-      // the rival: a steady pace, easing up a little when far ahead (so races stay close)
+      // the rival follows your momentum: right answers leave him behind, a couple of misses let him pass (see rivalPace)
       const r = this.rival;
-      const gapAhead = r.s - p.s;
-      const rTarget = this.rivalSpeed * (gapAhead > 45 ? 0.9 : gapAhead < -45 ? 1.08 : 1) * (r.finished ? 0.6 : 1);
+      const rTarget = r.finished ? this.rivalSpeed * 0.6 : rivalPace(r.s - p.s, p.speed, this.rivalSpeed, this.momentum);
       r.speed += (rTarget - r.speed) * Math.min(1, dt * 1.2);
       const rs0 = r.s;
       r.s += r.speed * dt;

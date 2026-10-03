@@ -55,6 +55,7 @@ async function driveRace(page, wrongAt = new Set()) {
   for (let i = 0; i < 3000; i++) {
     const s = await st(page);
     if (s.race.playerDone) break;
+    if (log.length) log[log.length - 1].dashAhead ||= s.rival.s > s.player.s;
     if (s.race.problem && s.race.q !== last) {
       last = s.race.q;
       const lane = s.race.problem.choices.findIndex((c) => (wrongAt.has(s.race.q) ? !c.correct : c.correct));
@@ -186,8 +187,11 @@ try {
   await page.evaluate(() => window.__rr.setTimeScale(3));
   await wait(page, 300);
   await page.screenshot({ path: `${OUT}/05-race2.png` });
-  await driveRace(page);
+  // six right in a row puts you in front; then two misses in a row let Dash pass you
+  const log2 = await driveRace(page, new Set([6, 7]));
   s = await st(page);
+  check('a run of right answers puts you ahead of Dash', log2[5] && !log2[5].dashAhead);
+  check('two misses in a row let Dash pass you again', log2.slice(7).some((l) => l.dashAhead), log2.map((l) => (l.dashAhead ? 'D' : 'Y')).join(''));
   check('a second race finishes', s.race.playerDone && s.races === 2, `races ${s.races}`);
   await page.evaluate(() => window.__rr.setTimeScale(1));
 

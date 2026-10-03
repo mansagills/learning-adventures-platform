@@ -18,7 +18,7 @@ import { BOOST_WORDS, CONTROLS_KEYS, CONTROLS_TOUCH, GROWNUPS, hintFor, INTRO, K
 import { buy, PARTS, partById, RIVAL_LOOK, SLOT_NAME, SLOTS, TRACKS, type CarLook, type Slot } from './cosmetics';
 import { GARAGE_SONG, RACE_SONG } from './music';
 import { pix } from './pix';
-import { boltsFor, makeProblem, memoryBoard, nextLevel, speedFor, type MemoryCard, type Problem, type Tier } from './problems';
+import { boltsFor, makeProblem, memoryBoard, nextLevel, nextMomentum, speedFor, type MemoryCard, type Problem, type Tier } from './problems';
 import { RaceScene, type Gate, type RaceEvent } from './race';
 import { freshSave, store, type RaceSave } from './save';
 
@@ -369,6 +369,7 @@ export class Game {
     else if (ev.type === 'bump') audio.fx([[45, 0, 0.12]], 'square', 0.08);
     else if (ev.type === 'pass') {
       if (ev.ahead) this.flash(`You passed ${RIVAL_NAME}!`, 'good');
+      else toast(`${RIVAL_NAME} passed you! Right answers will catch him.`, 'hint');
     }
   }
 
@@ -381,6 +382,7 @@ export class Game {
     this.scene.paintGateState(r.gate!, { picked: lane, correct: rightLane });
     const o = recordAnswer(this.save.learner, SKILL, { correct, hintRung: r.hinted ? 2 : 0, misconception: correct ? null : choice.misconception ?? 'other' }, RULES);
     r.seen.push(p);
+    this.scene.momentum = nextMomentum(this.scene.momentum, correct);
     if (correct) {
       r.correct++;
       r.streak++;
@@ -800,6 +802,7 @@ export class Game {
       talking: this.talk.isOpen,
       race: r ? { q: r.q, problem: r.problem, correct: r.correct, missed: r.missed.length, place: r.place, playerDone: r.playerDone, rivalDone: r.rivalDone, hinted: r.hinted, theme: r.theme, gateS: r.gate?.s ?? null } : null,
       player: { s: s.player.s, x: s.player.x, level: s.player.level, speed: s.player.speed },
+      momentum: s.momentum,
       rival: { s: s.rival.s, x: s.rival.x },
       finishS: s.finishS,
     };

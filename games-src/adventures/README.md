@@ -34,7 +34,7 @@ node scripts/e2e-money-market.mjs        # a Money Market day: serving, change, 
 node scripts/mm-tour.mjs <url> <outDir> [w] [h]     # Money Market screenshots: every level, hints, the shop, the upgraded stand
 node scripts/e2e-time-attack-clock.mjs   # a whole Time Attack Clock game, title to finale and a Time Attack (37 checks)
 node scripts/tac-tour.mjs <url> <outDir> [w] [h]    # every job at levels 1-3 with a miss and hints, then a Time Attack
-node scripts/e2e-math-race-rally.mjs     # Math Race Rally: a race with right and wrong gates, the pit stop, the garage, a second race (27 checks)
+node scripts/e2e-math-race-rally.mjs     # Math Race Rally: a race with right and wrong gates, the pit stop, the garage, a second race where two misses let Dash pass (29 checks)
 node scripts/rr-tour.mjs <url> <outDir> [w] [h]     # Math Race Rally screenshots: race, results, pit stop, garage, tracks
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
@@ -234,8 +234,9 @@ the pit stop, and `/games/math-memory-match` redirects here). The car never
 stops. A question appears with three answer gates ahead, one per lane. Steer
 through the right one to boost up a speed level; the wrong one slows the car
 a level (never to a stop) and explains the likely mistake. After two misses
-in a row the next question shows a strategy hint. Dash, the CPU rival, keeps
-a steady pace, so getting most answers right is how you win.
+in a row the next question shows a strategy hint. Dash, the CPU rival, follows
+your momentum (+1 for a right answer, -2 for a wrong one): a run of right answers
+leaves him behind, and a couple of misses in a row let him pass you again.
 
 Levels: facts to 10, facts to 20 (make a ten, doubles), tens and ones,
 two-digit with regrouping, three-digit. After each race: results with pit

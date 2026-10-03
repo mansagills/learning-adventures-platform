@@ -516,7 +516,12 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
     - spoilers
     - car types (kart, roadster, pickup truck, bubble car, rocket)
 - **Standards:** 1.OA.6, 2.OA.2, 2.NBT.5, 2.NBT.7, 3.NBT.2.
-- **Status: BUILT, waiting for the owner's test.** Code: `games-src/adventures/src/games/math-race-rally/`. Self-score 9.0/10 (12 unit tests, 27 browser checks). Balance check: 5–6 right answers out of 10 loses narrowly, 7 wins, and a perfect race wins comfortably; Dash gets a little quicker with each win.
+- **Status: BUILT; owner feedback applied, waiting for the owner's check.** Code: `games-src/adventures/src/games/math-race-rally/`. Self-score 9.0/10 (15 unit tests, 29 browser checks).
+- **Owner feedback (2026-10-03):** "This actually plays really well." One change: after you pass Dash, a couple of wrong answers should let Dash pass you again.
+  - **Done:** Dash now follows your momentum. It goes up 1 for each right answer and down 2 for each wrong one, and stays between −3 and +3.
+  - After a run of right answers he sits well behind. One miss lets him close right in, two misses in a row and he passes, and a few right answers in a row put you back in front.
+  - A message says when Dash passes you.
+  - Races now stay close to the finish: 5–6 right answers out of 10 loses, and 8 or more wins.
 - **Math Adventure Island** (with Treasure Hunt Calculator and Math Jeopardy Junior) comes next, after the owner's check-in on Math Race Rally.
 
 ### Phase 2: Science (14 games, from 21): NOT STARTED
@@ -574,3 +579,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** M3 built: Money Market Madness (Cafeteria Cashier merged in; the old link redirects), 8.9/10, 11 unit tests and 20 browser checks; Time Attack Clock, 9.0/10, 11 unit tests and 37 browser checks. Waiting for the owner's check-in.
 - **2026-10-03:** Owner tested both games ("they play well"), approved them and merged PR #210. M3 COMPLETED ✅. Next: M4, addition, subtraction and mixed operations (Math Race Rally with Math Memory Match merged in, Math Adventure Island, Treasure Hunt Calculator, Math Jeopardy Junior; merges follow the merge map).
 - **2026-10-03:** M4 started. Owner decisions: Math Race Rally becomes a behind-the-car arcade racer (always moving, steer into the answer gate, boost or slow down, race a CPU car), with Math Memory Match as the pit stop after each race that earns cosmetic car upgrades. Math Race Rally built: 9.0/10, 12 unit tests and 27 browser checks. Waiting for the owner's check-in.
+- **2026-10-03:** Owner tested Math Race Rally ("plays really well") and asked that a couple of wrong answers let Dash pass you again. Done with a momentum rule (see the M4 section); 15 unit tests and 29 browser checks.
