@@ -140,30 +140,18 @@ export const games: PlayableGame[] = [
     thumbnail: '/games/thumbnails/math-dash.jpg',
   },
   {
-    slug: 'cafeteria-cashier',
-    title: 'Cafeteria Cashier',
-    subject: 'math',
-    kind: 'game',
-    grades: '2–4',
-    difficulty: 'medium',
-    description:
-      'Run the school cafeteria register: add up orders and count out the right change.',
-    skills: ['Money', 'Addition', 'Making Change'],
-    estimatedTime: '10–15 min',
-    htmlPath: '/games/cafeteria-cashier.html',
-    thumbnail: '/games/thumbnails/cafeteria-cashier.jpg',
-  },
-  {
     slug: 'money-market-madness',
     title: 'Money Market Madness',
     subject: 'math',
     kind: 'game',
-    grades: '1–3',
-    difficulty: 'easy',
-    description: 'Go shopping and pay with the right coins and bills.',
-    skills: ['Money', 'Counting Coins'],
-    estimatedTime: '5–10 min',
-    htmlPath: '/games/money-market-madness.html',
+    grades: '1–4',
+    difficulty: 'medium',
+    description:
+      'Run a snack stand at the market with Chef Amara. Count the coins customers pay with, check if it is enough and make change. Spend what you earn on new food, drinks, toppings and a fancier stand.',
+    skills: ['Counting Coins', 'Making Change', 'Adding Money'],
+    estimatedTime: '15–30 min',
+    // Rebuilt with the Adventure Kit; replaces Cafeteria Cashier (merged in, UX-4 M3)
+    htmlPath: '/games/play/money-market-madness/index.html',
     thumbnail: '/games/thumbnails/money-market-madness.jpg',
   },
   {
@@ -173,10 +161,12 @@ export const games: PlayableGame[] = [
     kind: 'game',
     grades: '1–3',
     difficulty: 'easy',
-    description: 'Read the clock as fast as you can and beat the timer.',
-    skills: ['Telling Time', 'Clocks'],
-    estimatedTime: '5–10 min',
-    htmlPath: '/games/time-attack-clock.html',
+    description:
+      'The town clock tower has stopped! Read clocks for the school, drag the hands at the bus stop and work out baking times at the bakery to fix it. Then race Mr. Tock in a 60-second Time Attack.',
+    skills: ['Telling Time', 'Setting a Clock', 'Elapsed Time'],
+    estimatedTime: '15–30 min',
+    // Rebuilt with the Adventure Kit (UX-4 M3)
+    htmlPath: '/games/play/time-attack-clock/index.html',
     thumbnail: '/games/thumbnails/time-attack-clock.jpg',
   },
   {

@@ -30,6 +30,10 @@ node scripts/cc-tiers.mjs <url> <outDir> [w] [h]   # every booth at levels 2 and
 node scripts/e2e-math-dash.mjs           # a Library Rush shift from the title to the summary (34 checks)
 node scripts/md-tour.mjs <url> <outDir> [w] [h]     # Library Rush screenshots: start, shelving, level-up, rush, summary
 node scripts/md-stages.mjs <url> <outDir> [w] [h]   # each stage's signs, a wrong shelf, the hint, a late shift
+node scripts/e2e-money-market.mjs        # a Money Market day: serving, change, the shop, day 2, saving (20 checks)
+node scripts/mm-tour.mjs <url> <outDir> [w] [h]     # Money Market screenshots: every level, hints, the shop, the upgraded stand
+node scripts/e2e-time-attack-clock.mjs   # a whole Time Attack Clock game, title to finale and a Time Attack (37 checks)
+node scripts/tac-tour.mjs <url> <outDir> [w] [h]    # every job at levels 1-3 with a miss and hints, then a Time Attack
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -164,3 +168,58 @@ stage you reached. Code: `src/games/math-dash/`. The slug stays `math-dash`.
 | Pause / settings | Esc | Pause |
 | Grown-ups | G | Pause → For grown-ups |
 | Mute | M | Sound |
+
+## Money Market Madness (Math batch M3, grades 1–4)
+
+Run a snack stand at the market for Chef Amara (Cafeteria Cashier is merged
+in, and `/games/cafeteria-cashier` redirects here). Customers line up, order
+from the menu and pay. The till panel on the right (a bottom sheet on phones)
+asks for the math at the player's level:
+
+1. Count the coins (pennies, nickels, dimes, up to 50¢).
+2. Count coins with quarters, then: is it enough for the price?
+3. They pay with $1: tap coins into the change tray (count up from the price).
+4. Two items: add the total, then make change from $5.
+
+Money and tips (for first-try answers) go in the till. After each day, the
+upgrade shop sells new food, drinks, toppings and stand decorations, and each
+one shows on the stand. Customers only lose patience while waiting in line,
+never while being served. Code: `src/games/money-market-madness/`
+(`problems.ts` is the money math, `upgrades.ts` the shop).
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Serve the next customer | Space or Enter | Serve |
+| Pick an answer | 1, 2, 3 (Y / N for "enough?") | Tap |
+| Hint | H | Hint |
+| Pause / settings | Esc | Pause |
+| Mute | M | Sound |
+
+## Time Attack Clock (Math batch M3, grades 1–3)
+
+The town clock tower has stopped. Walk around the square (like Counting
+Carnival) and help three people; 5 stars at a job fixes one part of the tower:
+
+- **School Bell** (Ms. Rivera): read a clock. Hours and half hours, then five
+  minutes ("quarter past", "quarter to"), then to the minute.
+- **Bus Stop** (Driver Dee): set a clock by dragging the hands. The hour hand
+  moves with the minute hand, like a real clock. Arrow buttons and arrow keys
+  work too.
+- **Bakery** (Baker Bo): elapsed time by counting on. Whole hours, then inside
+  one hour, then across the hour.
+
+Mr. Tock runs a 60-second Time Attack (read as many clocks as you can) with a
+best score and medals. Fixing all three parts brings the evening finale.
+Code: `src/games/time-attack-clock/` (`problems.ts` is the clock math,
+`clockface.ts` the clock you can drag).
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Walk | Arrow keys or WASD | Tap where to go, or the pad |
+| Talk | Space | Tap a person |
+| Move the clock hands | Left/right (long hand), up/down (short hand) | Drag a hand, or the arrow buttons |
+| Check the clock | Enter | Check my clock |
+| Pick an answer | 1, 2, 3 | Tap |
+| Hint | H | Hint |
+| Town jobs list | J | Jobs |
+| Grown-ups | G | Settings → For grown-ups |

@@ -298,7 +298,7 @@ Known issues (none blocking):
 | 2 | On a laptop the camera follows the player, so the Ferris wheel and big top show only near the top of the fair | Low |
 | 3 | The old `number-monster-feeding.html` and `counting-carnival.html` files stay until Phase 4 (the World demo and the hidden account features still use them) | Low |
 
-#### M2 Math Dash: Library Rush: BUILT, waiting for the owner's check-in
+#### M2 Math Dash: Library Rush: COMPLETED ✅ (owner tested, approved and merged 2026-10-03 in PR #209)
 
 **Owner request (2026-10-02):** turn Math Dash into a game like Vampire Survivors. You are a student working in the library who collects and sorts books while avoiding other students, who drain you when you run into them. Power-ups work like the ones in Vampire Survivors but are library-themed. It must still use Three.js; the style may change a little.
 
@@ -402,6 +402,69 @@ Known issues (none blocking):
 | 3 | Tips appear as text at the top during action. Read-aloud is off by default for this grade band (it can be turned on in Settings) | Low |
 | 4 | Frame rate measured with software rendering only; check on a real device | Low |
 
+#### M3 Money and time: BUILT, waiting for the owner's test (PR #210)
+
+**Owner decisions (2026-10-03):**
+
+- **Money Market:** the player earns coins by getting the money math right and spends them to upgrade what the stand serves: food, drinks and condiments. The more math they get right, the more coins they have for upgrades.
+- **Time Attack Clock:** build the proposed design (a town clock tower that keeps the town on schedule). The owner will test it and suggest changes.
+
+**Money Market Madness (slug `money-market-madness`, grades 1–4; Cafeteria Cashier merged in, and its old link redirects):**
+
+- **Running the stand:**
+  - Each market day has a line of customers.
+  - Each customer orders from your menu. You take their money, and at higher levels you make change.
+  - A customer's patience only runs down while they wait in line, never while you are serving them.
+- **The math, by level (one learner skill, 4 tiers):**
+  1. Count the coins a customer hands over (pennies, nickels, dimes; up to 50¢).
+  2. Count coins with quarters up to $1, and answer "Is it enough?" for the price.
+  3. The customer pays with a $1 bill: make change by tapping coins into the change tray (counting up).
+  4. Two items: add the total, then make change from $5 with bills and coins.
+- **Mistakes that are diagnosed:**
+  - counting coins instead of their value
+  - a nickel/dime mix-up (the bigger coin is worth less)
+  - a quarter counted as 20¢
+  - giving the price instead of the change
+  - change off by 10¢ or by $1
+- **Earning and upgrades:**
+  - Every sale's money goes into the till, with a tip for a first-try answer.
+  - Between days you spend it in the upgrade shop:
+    - **Food** (popcorn, then pretzels, hot dogs, tacos, pizza)
+    - **Drinks** (water, then lemonade, fruit punch, smoothies, hot cocoa)
+    - **Condiments and toppings** (salt, ketchup, mustard, cheese, sprinkles), which customers can add to orders
+    - **Stall looks** (awning, lights, sign, plants)
+  - New items bring more customers and bigger tips, and the stand looks fancier. Prices on the menu follow the learner's level, so the math stays at the right grade.
+- **Standards:** 1.MD (counting coins), 2.MD.8, 3.OA.8 (two-step), 4.MD.2 (money with decimals).
+
+**Money Market as built:** Chef Amara hands the player the stand. A market day has 6 to 14 customers (more with upgrades). Each one orders from the menu, and the till panel walks through the steps for the player's level. Money and tips go in the till, and between days the upgrade shop sells 19 upgrades on four lines:
+
+| Line | Items, in order |
+|---|---|
+| Food | popcorn (free), pretzels, hot dogs, tacos, pizza |
+| Drinks | water (free), lemonade, fruit punch, smoothies, hot cocoa |
+| Toppings | salt, ketchup, mustard, cheese, sprinkles |
+| Stall | awning, sign, flower pots, string lights |
+
+Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 − $1.50 = $23.50 left"). Hints: a tip, then coin values and running totals (or the count-up path for change), then the answer filled in. Code: `games-src/adventures/src/games/money-market-madness/`. Self-score 8.9/10 (11 unit tests, 20 browser checks).
+
+**Time Attack Clock (slug `time-attack-clock`, grades 1–3), as built:**
+
+- **The story:** the town clock tower has stopped. Mr. Tock the clockmaker asks the player (a "time keeper") to help three people in the square. Each job finished with 5 stars brings back one part of the tower, and the day moves toward evening:
+
+  | Place (person) | Skill | Level 1 | Level 2 | Level 3 | Fixes |
+  |---|---|---|---|---|---|
+  | School Bell (Ms. Rivera) | Read a clock | hours and half hours | five-minute steps, "quarter past/to" | to the minute | the hands |
+  | Bus Stop (Driver Dee) | Set a clock by dragging the hands | hours and half hours | five-minute steps | to the minute | the bell |
+  | Bakery (Baker Bo) | How long? (elapsed time) | whole hours | minutes inside one hour | across the hour (2:50 to 3:15) | the lights |
+
+- **The clock:** pixel art with a short navy hour hand and a long red minute hand. Dragging the minute hand moves the hour hand too, like a real clock, so going past 12 changes the hour. Arrow buttons and arrow keys do the same.
+- **Mistakes that are diagnosed:** hands swapped; the hour hand read as the next hour (2:45 as 3:45); the number the minute hand points to read as minutes (on the 4 = 4 minutes); counting backwards; "past" and "to" mixed up; "quarter to 2" for 2:45; subtracting times like ordinary numbers (3:15 − 2:50 = 65); 2:75; keeping the old hour.
+- **Hints:** a tip, then a picture helper (the hour shaded yellow, the minutes counted by fives round the clock, or the count-on jumps), then the answer (or green "ghost" hands to copy).
+- **Time Attack:** Mr. Tock's 60-second round of reading clocks near the player's level, with a best score and bronze, silver and gold medals. It is the only timer in the game.
+- **Finale:** all three parts back, Mr. Tock rings the bell, and the town lights up for the evening.
+- **Standards:** 1.MD.3, 2.MD.7, 3.MD.1.
+- Code: `games-src/adventures/src/games/time-attack-clock/`. Self-score 9.0/10 (11 unit tests, 37 browser checks).
+
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
@@ -452,3 +515,6 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-02:** Owner tested Counting Carnival, approved it and merged PR #208. M1 COMPLETED ✅. Next: M2 (Math Dash: Library Sorter; Math Memory Match moves to M4 with Math Race Rally, as the merge map says).
 - **2026-10-02:** The owner redesigned M2: Math Dash becomes "Library Rush", a Vampire Survivors-style game: pixel art with more action, books sorted by number range, chatty students, endless runs. The design is in the M2 section.
 - **2026-10-02:** M2 built: Math Dash: Library Rush, 8.85/10 self-score, 12 unit tests and 34 browser checks. Waiting for the owner's check-in.
+- **2026-10-03:** Owner tested Library Rush ("it plays really well"), approved it and merged PR #209. M2 COMPLETED ✅. Next: M3, Money and time (Money Market Madness with Cafeteria Cashier merged in, then Time Attack Clock).
+- **2026-10-03:** Owner decisions for M3: Money Market gets an upgrade shop (food, drinks, condiments) paid for with the money earned; Time Attack Clock is built as proposed. M3 started.
+- **2026-10-03:** M3 built: Money Market Madness (Cafeteria Cashier merged in; the old link redirects), 8.9/10, 11 unit tests and 20 browser checks; Time Attack Clock, 9.0/10, 11 unit tests and 37 browser checks. Waiting for the owner's check-in.
