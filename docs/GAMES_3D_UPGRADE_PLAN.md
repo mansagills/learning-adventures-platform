@@ -465,7 +465,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 - **Standards:** 1.MD.3, 2.MD.7, 3.MD.1.
 - Code: `games-src/adventures/src/games/time-attack-clock/`. Self-score 9.0/10 (11 unit tests, 37 browser checks).
 
-#### M4 Addition, subtraction and mixed operations: IN PROGRESS
+#### M4 Addition, subtraction and mixed operations: COMPLETED ✅
 
 **Owner decisions (2026-10-03):**
 
@@ -523,7 +523,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   - A message says when Dash passes you.
   - Races now stay close to the finish: 5–6 right answers out of 10 loses, and 8 or more wins.
 
-**Math Adventure Island (slug `math-adventure-island`, grades 2–5; Treasure Hunt Calculator and Math Jeopardy Junior merged in, and their old links redirect). BUILT, waiting for the owner's test:**
+**Math Adventure Island (slug `math-adventure-island`, grades 2–5; Treasure Hunt Calculator and Math Jeopardy Junior merged in, and their old links redirect). COMPLETED ✅ (owner tested, approved and merged 2026-10-05 in PR #212):**
 
 - **The story:**
   - The player is an explorer on an island with Captain Zuri.
@@ -560,7 +560,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   - Digging all four map pieces shows the pirate's chest next to Pip, with the golden coconut inside. Pip offers new hunts afterwards for practice.
   - The Quiz Show gives one try per question. A wrong answer gives Pip the points and shows the explanation. Winning the first time plays the finale: night falls and the torches blaze. Rematches are always open.
   - The picture hints: a bar model for joining, missing parts and comparing; equal groups or an array of dots for multiplying; sharing boxes (with a "left over?" box) for dividing. When a problem is solved, the "?" in the picture fills in with the answer.
-- **Status: BUILT, waiting for the owner's test.** Code: `games-src/adventures/src/games/math-adventure-island/`. 12 unit tests, 49 browser checks (`scripts/e2e-math-adventure-island.mjs` plays a new game through all four torches, a whole treasure hunt with a wrong dig, and a winning Quiz Show to the finale).
+- **Status: COMPLETED ✅** (merged 2026-10-05 in PR #212). Code: `games-src/adventures/src/games/math-adventure-island/`. 12 unit tests, 49 browser checks (`scripts/e2e-math-adventure-island.mjs` plays a new game through all four torches, a whole treasure hunt with a wrong dig, and a winning Quiz Show to the finale).
 - **Score (Seeds of Genius rubric): 9.0/10.**
 
   | Category | Score | Evidence |
@@ -571,6 +571,108 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   | Usability and accessibility (1.5) | 1.35 | Number keys, H for hints, read-aloud on every line, tap to walk, all four operation buttons in one row on a phone, 0 sideways scrolling at 390 px. |
   | Technical reliability (1.5) | 1.35 | 12 unit tests (every zone and tier for 300 seeds), 49 browser checks, no console errors, nothing loaded from the internet. |
   | Completeness (1.0) | 0.95 | Own characters (Captain Zuri, Mo, Ana, Tavi, Bao, Pip), grown-ups page with standards and a progress table, save and continue, old links redirect. |
+
+#### M5 Geometry: PLAN, waiting for the owner's approval
+
+**Shape Town Builders (slug `geometry-builder-challenge`, grades K–4; Shape Sorting Arcade merged in, and its old link redirects)**
+
+> Source: the old site games `public/games/shape-sorting-arcade.html` (K–2) and `public/games/geometry-builder-challenge.html` (2–4).
+> Merge (from the merge map in section 4): **geometry-builder-challenge** survives; `/games/shape-sorting-arcade` redirects to it. Shape Sorting Arcade lives on as the arcade machine inside the game. The working title "Shape Town Builders" is a suggestion; the owner picks the final name (see Choices).
+
+##### What the originals do
+
+- **Shape Sorting Arcade teaches:** naming 2D shapes and counting their sides (K.G.2, 1.G.1). One screen, endless random questions of two kinds: "What shape is this?" (4 name bins) and "How many sides?" (4 number bins). Score, streak, and a "Level" that goes up every 100 points but changes nothing.
+- **Geometry Builder Challenge teaches (in intent):** composing pictures from shapes. Five fixed challenges (house: 1 triangle roof, robot: 2 squares for the body, car: 4 circle wheels, castle: 4 rectangle towers, tree: 3 circle leaves), each answered by typing a number.
+- **Keeps (the learning content):**
+  - the five shapes and the two question types from Shape Sorting Arcade (name it, count its sides) as level 1–2 of the sorting station
+  - the "drop the shape in the right bin" action, now on a conveyor in an arcade machine
+  - score, streak and a reason to beat your best, as the arcade machine's high score
+  - the five blueprints (house, robot, car, castle, tree) and their shape counts, as the first blueprints in the workshop
+- **Missing against the standard (checked 2026-10-05):**
+  - **Geometry Builder Challenge shows no picture.** "How many circles for leaves?" can only be guessed (the answer is 3, but nothing on screen says so). Every question needs a drawn blueprint.
+  - Shape Sorting Arcade draws only regular shapes pointing up, all the same size. There are no circles, rectangles, irregular or turned shapes, so the classic mistakes ("a turned square is a diamond", "a skinny triangle isn't a triangle") are never tested. (Its square is always drawn standing on a corner, so a child who calls it a "diamond" is marked wrong with no explanation of why it is still a square.)
+  - Wrong "how many sides" choices are random numbers from 3 to 10 (for a triangle: 3, 6, 4, 7), not real mistakes. Feedback is "Wrong! Correct: pentagon".
+  - Neither game ends (the Game Over screen is never reached), and neither covers the top of the K–4 band: no 3D shapes, composing, area or perimeter.
+  - No levels that adapt, hints, debrief, grown-ups page, saves, sound, keyboard shortcuts or read-aloud. Emoji are the art (9 and 8 emoji); the bins are 📦 emoji.
+  - Good: no console errors, no network requests, no sideways scrolling at 390 px.
+
+##### The game
+
+- **Setting:** Shape Town, a sunny building yard where the town is putting up a new clubhouse, with an arcade, a block shop, a carpenter's workshop and a garden yard around the empty building site.
+- **Characters:**
+  - **Host: Master Builder Odette**, the town's chief builder: older, dark brown skin, grey locs under a yellow hard hat, orange safety vest, a rolled-up blueprint under one arm. She explains the clubhouse, hands out jobs and cuts the ribbon at the end.
+  - **Kofi** runs the Shape Sorting Arcade (teen, red cap, arcade-token apron).
+  - **Lupe** runs the Block Shop of solid shapes (young woman, curly black hair, green apron).
+  - **Mr. Haruto** runs the Blueprint Workshop (older man, glasses, grey beard, tool belt).
+  - **Priya** runs the Garden Yard, where fences and tiles are measured (sun hat, measuring tape, overalls).
+  - **Chip the beaver**, the cheeky sidekick, "helps" by chewing blocks into the wrong shapes and offering wrong ideas the player corrects ("That one's turned, so it's a diamond, not a square!"). Chip is the rival in the arcade's Rush mode. Own 48×48 portrait.
+  - The story text uses names, not "he" or "she".
+- **How it plays:**
+  - The player walks the yard (arrow keys, WASD, tap to walk). A sign over a person marks a job. Talking opens that station's panel of challenges.
+  - Each station has 3 levels picked by the learner model. Five stars at a station delivers a part of the clubhouse, which appears on the building site in the middle: walls (Kofi), pillars and blocks (Lupe), roof and windows (Mr. Haruto), garden and fence (Priya).
+  - **The arcade machine (Shape Sorting Arcade):** shapes ride a conveyor towards bins with labels ("3 sides", "4 sides", "curved"). The player sends each shape to a bin with 1–3, the arrow keys or a tap. In the normal mode the belt waits for you. An optional 60-second **Rush** mode against Chip keeps a best score (nothing on the main path is timed).
+  - **Finale, "The Big Build":** when all four parts are in, Odette lays out the final blueprint. The player fits the last pieces: each piece is one mixed challenge from the four stations at the player's current level. Then the clubhouse opens at sunset: lanterns light up, the townsfolk gather, Odette cuts the ribbon and the finale song plays.
+  - **Replay:** Arcade Rush best score, new blueprints in the workshop, new garden plans from Priya, and cosmetic hard hat and vest colors earned from stars.
+- **Modeled on:** `time-attack-clock` (a walking world where each job delivers a part of one big building, then a finale at the tower), with the station panels and multi-step `StepDef` from `math-adventure-island` and the 60-second challenge mode from Time Attack. The conveyor is a small new scene inside the arcade panel.
+
+##### Learning design
+
+| Station (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Shape Sorting Arcade (Kofi) | 2D shapes and their attributes | Name triangle, square, rectangle, circle, hexagon, drawn in **different sizes, colors and turns**, plus skinny and upside-down triangles | Count sides and corners, including irregular pentagons and hexagons and the original's octagon. "Is it a shape?" sorts with a gap or a curved side | Sort by rules: "4 sides" vs "4 equal sides" vs "4 square corners"; a square belongs in the rectangle bin too; spot the odd one out | K.G.2, K.G.4, 1.G.1, 2.G.1, 3.G.1 |
+| Block Shop (Lupe) | 3D solid shapes | Flat or solid? Name cube, sphere, cone, cylinder, box (rectangular prism) | Roll, stack or slide? Match everyday things (a can, a ball, an ice cream cone, a dice) | Faces: how many flat faces, and which flat shape is each face (a cube's faces are squares; a cylinder's are circles), counting the faces you can't see | K.G.1, K.G.2, K.G.3, K.G.4, 1.G.2 |
+| Blueprint Workshop (Mr. Haruto) | Composing and partitioning | Count the shapes in a drawn blueprint (the original five: house, robot, car with all 4 wheels shown, castle, tree, plus new ones) | Compose: which pieces fill the outline (2 triangles make a square, 3 triangles make a trapezoid, 6 triangles make a hexagon) | Partition a rectangle into rows and columns of same-size squares and count them | K.G.6, 1.G.2, 2.G.1, 2.G.2 |
+| Garden Yard (Priya) | Area and perimeter on a grid | Area by counting unit squares; perimeter by counting the fence pieces around a garden on a grid | Area of a rectangle as rows × columns; perimeter of a rectangle with labeled sides | L-shaped gardens split into two rectangles (area), a missing side length, and "same area, different fence" (3 × 4 and 2 × 6 both make 12, but the fences are 14 and 16) | 3.MD.5, 3.MD.6, 3.MD.7, 3.MD.8, 4.MD.3 |
+
+(Level 3 of the arcade is the top of grade 2 and the start of 3.G.1: no parallel-sides wording, only sides, equal sides and square corners.)
+
+- **Mistakes the wrong answers come from** (each wrong choice carries one tag, and each tag has a sentence in `content.ts`):
+  1. **turned-not-same**: a square on its corner is called a "diamond", not a square. "Turning a shape doesn't change it. Count: still 4 equal sides and 4 square corners."
+  2. **only-the-usual-one**: a skinny or upside-down triangle is "not a triangle". "Any closed shape with 3 straight sides is a triangle, even a skinny one."
+  3. **size-or-color**: a big shape is picked as a different shape from a small one. "Size and color don't change a shape's name."
+  4. **sides-vs-corners**: counts corners when asked for sides, or the other way (they differ for open shapes and for a circle, which has no corners). "Sides are the straight edges. Corners are where two sides meet."
+  5. **count-slip**: one side counted twice or skipped (the answer is one off). "Start at the dot and touch each side once."
+  6. **open-or-curved**: a shape with a gap or a curved side sorted as a triangle or square. "A triangle needs its sides closed up and straight."
+  7. **square-not-rectangle**: "a square can't be a rectangle". "A rectangle needs 4 square corners. A square has them too!"
+  8. **flat-name-for-solid**: a cube called a "square", a sphere a "circle". "Square is flat. This one is solid, so it's a cube."
+  9. **visible-faces-only**: counts the 3 faces you can see on a cube. "Some faces hide at the back and bottom."
+  10. **roll-stack**: thinks a cone can't roll, or a sphere can stack.
+  11. **missed-hidden-or-double**: in a blueprint, counts the same piece twice or misses the back wheels.
+  12. **pieces-make-bigger**: thinks two triangles that make a square make a bigger square.
+  13. **area-perimeter-swap**: gives the area when asked for the fence, or the other way.
+  14. **perimeter-counts-squares**: counts the squares along the edge (corners twice or missed) instead of the edges.
+  15. **two-sides-only**: adds length + width once (7 instead of 14).
+  16. **add-for-area**: adds the sides for area (3 + 4 = 7 instead of 12).
+  17. **missing-side / overlap-double**: in an L-shape, forgets an unlabeled side, or counts the overlap twice.
+- **Steps** (multi-step, Garden Yard level 3 only): which rectangles make the L? → area of each part → add them. A star needs all three right first time.
+- **Hint ladder** (H or the Hint button; a second miss opens the next rung):
+  - nudge: "Count the corners. Does turning it change them?" · "Is the fence around the garden, or the ground inside it?"
+  - picture: the shape's corners light up one by one with numbers; a cube unfolds into its net of 6 squares; the blueprint pieces are outlined in color; the garden's fence pieces are numbered around the edge, or the rows are shaded one at a time (the last count is left to the child)
+  - answer: the right choice is outlined with its explanation
+- **Debriefs** (`talk.ask`, one per station, recorded as `<skill>-talk`):
+  - Kofi: "Chip turned this square on its corner. Is it still a square?" → yes, the sides and corners didn't change / no, it's a diamond now (turned-not-same) / only if it's big (size-or-color)
+  - Lupe: "Why can a cylinder roll AND stack?" → it has a curved side and flat faces / it's light / it's round all over (roll-stack)
+  - Mr. Haruto: "Two triangles made this square. Is the square bigger than the two triangles together?" → no, same space / yes (pieces-make-bigger) / depends on the color
+  - Priya: "Two gardens both cover 12 squares. Do they need the same fence?" → not always (3 × 4 needs 14, 2 × 6 needs 16) / yes, same area means same fence (area-perimeter-swap) / the bigger number always needs less
+- **Progress and finale:** 5 stars per station (a star is a clean first try with at most the first hint), plus level 2 or 12 questions played, unlocks that station's clubhouse part, shown on the building site and in the top-left HUD. All four parts open The Big Build. The arcade, new blueprints and garden plans stay open afterwards.
+- **Where to start:** all four stations are open from the start. The job list suggests a path by grade (K–1: Kofi and Lupe, 2: Mr. Haruto, 3–4: Priya), and each station's level adapts, so a kindergartner and a fourth grader both finish.
+- **Difficulty change from the originals:** from one question type at the bottom of K–2 (and five unanswerable questions for 2–4) to the full K–4 band: turned and irregular shapes, rule-based sorting and the square-is-a-rectangle idea, 3D solids and hidden faces, composing and partitioning, and area and perimeter up to L-shapes and "same area, different perimeter". Harder by structure (rules, steps, hidden parts), never by speed; only the optional Rush mode has a timer.
+
+##### Choices for the owner
+
+1. **The kind of game.**
+   - **A. Walking world with an arcade inside (recommended):** the building yard with four stations and the clubhouse, as above. The conveyor arcade is one station plus an optional Rush mode. Fits the K–4 mix of skills best and gives the youngest players time to think.
+   - **B. Arcade-first factory:** a Library Rush-style action game. The player runs around a toy factory catching shapes off conveyors and carrying them to the right bins while dodging Chip, with blueprint and garden rounds between stages. More action, but it suits the older half of the band better than kindergartners, and area and perimeter fit awkwardly into a run.
+   - **C. Don't merge:** rebuild Shape Sorting Arcade on its own (K–2, arcade only) now, and Geometry Builder Challenge (2–4) as a separate game later. That changes the merge map (Math would end with 12 games instead of 11).
+2. **The name.** "Shape Town Builders" (new), "Geometry Builder Challenge" (keep the old title), or "Shape Sorting Arcade" (the name you used). The address stays `/games/geometry-builder-challenge` either way, and `/games/shape-sorting-arcade` redirects.
+3. **Top of the band.** Stop at grade 3 area and perimeter (3.MD.5–8), or also include 4.MD.3 (the area and perimeter formulas with bigger numbers) at level 3 of the Garden Yard, as planned above.
+
+4. **Build in two halves?** It's a big game (four stations, K–4). Recommended: build the yard, the Shape Sorting Arcade and the Block Shop first (the K–2 half) for a quick look from you, then the Blueprint Workshop, the Garden Yard and The Big Build.
+5. **Setting.** The building yard and clubhouse above, or a toy factory getting ready for a Toy Parade (Foreman Tess and Cubby the robot), with the same four stations.
+
+##### Checks it will ship with
+
+Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
@@ -629,3 +731,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** M4 started. Owner decisions: Math Race Rally becomes a behind-the-car arcade racer (always moving, steer into the answer gate, boost or slow down, race a CPU car), with Math Memory Match as the pit stop after each race that earns cosmetic car upgrades. Math Race Rally built: 9.0/10, 12 unit tests and 27 browser checks. Waiting for the owner's check-in.
 - **2026-10-03:** Owner tested Math Race Rally ("plays really well") and asked that a couple of wrong answers let Dash pass you again. Done with a momentum rule (see the M4 section); 15 unit tests and 29 browser checks.
 - **2026-10-03:** Owner tested Math Race Rally again, approved it and merged PR #211. Math Adventure Island built (Treasure Hunt Calculator and Math Jeopardy Junior merged in): 9.0/10, 12 unit tests and 49 browser checks. Waiting for the owner's check-in.
+- **2026-10-05:** Owner tested Math Adventure Island, approved it and merged PR #212 (with the new `remaster-game` skill). M4 COMPLETED ✅. M5 Geometry plan written with the skill (Shape Sorting Arcade merged into Geometry Builder Challenge); waiting for the owner's approval.
