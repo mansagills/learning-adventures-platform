@@ -15,7 +15,8 @@ const urls = [...new Set((s.match(/https?:\/\/[^\s"'<>)]+/g) ?? []).map((u) => u
 const title = (s.match(/<title>([^<]*)<\/title>/i) ?? [])[1] ?? '(none)';
 const questions = (s.match(/["'`][^"'`\n]{8,160}\?["'`]/g) ?? []).slice(0, 25);
 const arrays = (s.match(/\b(questions|problems|levels|words|facts|items|cards)\s*[:=]\s*\[/gi) ?? []).length;
-const feedback = (s.match(/["'`](?:Correct|Great|Nice|Try again|Wrong|Oops|Not quite|Well done)[^"'`\n]{0,80}["'`]/gi) ?? []).slice(0, 10);
+// feedback shown to the child: strings written into the page, not CSS class names
+const feedback = (s.match(/(?:textContent|innerText|innerHTML)\s*[+]?=\s*["'`][^"'`\n]{3,120}["'`]/g) ?? []).map((m) => m.replace(/^[^"'`]*/, '')).slice(0, 12);
 const out = {
   file,
   title,
@@ -31,7 +32,8 @@ const out = {
   questionArrays: arrays,
   sampleQuestions: questions,
   sampleFeedback: feedback,
-  hasLevels: /level|difficulty|tier/i.test(s),
+  // a level counter that actually changes something (not just the word "level")
+  levelLogic: /(level|difficulty|tier)\s*(\+\+|\+=|=\s*\w+\s*\+)/i.test(s),
   hasHints: /hint/i.test(s),
 };
 console.log(JSON.stringify(out, null, 2));

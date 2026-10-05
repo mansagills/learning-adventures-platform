@@ -18,7 +18,9 @@ Serve `public/` and open the old file:
 cd /home/user/learning-adventures-platform   # repo root
 (nohup python3 -m http.server 8811 --directory public >/dev/null 2>&1 &)
 # old game:      http://localhost:8811/games/<slug>.html
-# submission:    copy it into public/games/_submission-<slug>.html first, or serve games-src/submissions on another port
+# submission:    serve its own folder on another port instead of copying it into public/:
+(nohup python3 -m http.server 8812 --directory games-src/submissions >/dev/null 2>&1 &)
+#                http://localhost:8812/<file>.html
 ```
 
 This little server sometimes dies between commands. If a page won't load,
@@ -33,7 +35,10 @@ chromium.launch({ executablePath: '/opt/pw-browsers/chromium',
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 ```
 
-The swiftshader flags give WebGL without a graphics card. Never run
+The swiftshader flags give WebGL without a graphics card. From a script
+outside `games-src/adventures`, import it by path:
+`import { chromium } from '/home/user/learning-adventures-platform/games-src/adventures/node_modules/playwright-core/index.mjs'`
+(or put the script in `games-src/adventures/scripts/`). Never run
 `playwright install`. Take a few screenshots of the original for the plan,
 and log any console errors.
 
