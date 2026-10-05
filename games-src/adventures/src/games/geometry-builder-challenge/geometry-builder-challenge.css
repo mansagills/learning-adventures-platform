@@ -1,0 +1,565 @@
+/* Shape Town Builders: the station panel, the conveyor belt and bins, Rush mode and the HUD. */
+:root {
+  --st-sea: #2f8fb8;
+  --st-leaf: #2f6b2c;
+  --st-leaf-bg: #dcebc9;
+  --st-sand: #f3e2b4;
+  --st-sun: #e8832e;
+}
+.title-card .logo {
+  color: #8a4a12;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD bar (top left) ---------- */
+.st-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+}
+.st-torches,
+.st-pieces {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.st-torches .px-icon {
+  height: 30px;
+  width: auto;
+}
+.st-sep {
+  width: 2px;
+  height: 24px;
+  background: var(--paper-3);
+}
+.st-trophy[hidden] {
+  display: none;
+}
+.st-trophy .px-icon {
+  height: 26px;
+  width: auto;
+}
+
+/* the job list rows (same layout as the other adventures) */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-row > .px-icon {
+  width: 32px;
+  height: auto;
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.belt-stars .px-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- the step panel ---------- */
+.st-panel {
+  width: min(780px, 100%);
+}
+.st-panel header {
+  background: linear-gradient(90deg, #f8dcc0, var(--paper-2));
+}
+.st-sub header {
+  background: linear-gradient(90deg, #cfe6f5, var(--paper-2));
+}
+.st-mul header {
+  background: linear-gradient(90deg, #d6ecc9, var(--paper-2));
+}
+.st-div header {
+  background: linear-gradient(90deg, #fbeab0, var(--paper-2));
+}
+.st-pip header {
+  background: linear-gradient(90deg, #f6cfc9, var(--paper-2));
+}
+.st-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.st-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.st-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.st-stars .px-icon {
+  width: 20px;
+  height: 20px;
+}
+.st-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.st-host {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #e4f4fb;
+}
+.st-story {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.st-speak {
+  flex: none;
+}
+.st-body {
+  padding: 10px 16px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.st-chips:empty {
+  display: none;
+}
+.st-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 6px;
+  border-radius: 999px;
+  background: var(--st-leaf-bg);
+  color: #1d4a1b;
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.st-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.st-step-title {
+  margin: 0;
+  font-size: calc(var(--text) + 1px);
+  text-align: center;
+}
+.st-step-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.st-step-note[hidden] {
+  display: none;
+}
+.st-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.st-feedback[hidden] {
+  display: none;
+}
+.st-feedback img {
+  flex: none;
+}
+.st-feedback.good {
+  background: var(--st-leaf-bg);
+  color: #1d4a1b;
+}
+.st-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.st-feedback.hint {
+  background: #e3ecfb;
+  color: #1c3a6e;
+}
+.st-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.st-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ---------- the station panel extras ---------- */
+.st-panel header {
+  background: linear-gradient(90deg, #f8dcc0, var(--paper-2));
+}
+.st-arcade header {
+  background: linear-gradient(90deg, #cfdcf3, var(--paper-2));
+}
+.st-blocks header {
+  background: linear-gradient(90deg, #d6ecc9, var(--paper-2));
+}
+.st-rush header {
+  background: linear-gradient(90deg, #f8d58a, var(--paper-2));
+}
+.st-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.st-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.st-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.st-parts,
+.st-best {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.st-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.st-stage[hidden] {
+  display: none;
+}
+.st-pic {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* the conveyor belt: the shape slides in, then drops into its bin */
+.st-belt {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px;
+  width: min(520px, 100%);
+  padding: 6px 0 22px;
+}
+.st-belt-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+  animation: st-slide-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+}
+.st-belt-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 18px;
+  border-radius: 9px;
+  border: 3px solid #2b2b33;
+  background: repeating-linear-gradient(90deg, #4a4a52 0 14px, #6a6a74 14px 20px);
+  background-size: 40px 100%;
+  animation: st-belt 0.8s linear infinite;
+}
+.st-letter {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  font-weight: 600;
+  color: #1c3a6e;
+}
+.st-pic.done .st-belt-item,
+.st-pic.done .st-block {
+  animation: st-drop 0.5s ease-in forwards;
+}
+.st-pic.wobble .st-belt-item,
+.st-pic.wobble .st-block {
+  animation: st-wobble 0.4s ease-in-out;
+}
+@keyframes st-slide-in {
+  from {
+    transform: translateX(-160px);
+    opacity: 0;
+  }
+}
+@keyframes st-belt {
+  to {
+    background-position: 40px 0;
+  }
+}
+@keyframes st-drop {
+  60% {
+    transform: translateY(24px) scale(0.9);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(70px) scale(0.5);
+    opacity: 0;
+  }
+}
+@keyframes st-wobble {
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(7deg);
+  }
+}
+.st-counter {
+  display: flex;
+  justify-content: center;
+  padding: 8px 40px 4px;
+  border-bottom: 10px solid #a0643c;
+  border-radius: 6px;
+  background: radial-gradient(circle at 50% 70%, #fff6dc, transparent 70%);
+}
+
+/* bins */
+.st-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+.st-choices.wide:not(.bins) {
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 520px;
+}
+.st-choice {
+  min-width: 120px;
+  min-height: 56px;
+  justify-content: center;
+  gap: 8px;
+}
+.st-choices.bins .st-choice {
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  padding-top: 8px;
+}
+.st-choices.bins .kbd {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+}
+.st-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.st-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) * 1.15);
+}
+.st-choice.nope {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.st-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  border-color: #2f6b2c;
+  box-shadow: 0 0 0 4px #7fbf5a;
+  animation: st-bounce 0.4s ease-out;
+}
+@keyframes st-bounce {
+  40% {
+    transform: translateY(-6px);
+  }
+}
+.worked {
+  outline: 4px dashed #2f6b2c;
+  outline-offset: 3px;
+  animation: st-worked 1s ease-in-out infinite;
+}
+@keyframes st-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+.belt-row.soon {
+  opacity: 0.7;
+}
+
+/* ---------- Rush mode ---------- */
+.st-scorebox {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+}
+.st-score {
+  font-size: calc(var(--text) + 4px);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+.st-score.you {
+  color: #1f6b3a;
+}
+.st-score.chip {
+  color: #8a4a12;
+}
+.st-timer {
+  height: 12px;
+  background: var(--paper-3);
+}
+.st-timer-fill {
+  height: 100%;
+  width: 100%;
+  background: #4f9a4a;
+  transition: background 0.3s;
+}
+.st-timer-fill.low {
+  background: #d2453a;
+}
+.st-rush-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 10px 0;
+}
+.st-rush-intro p {
+  margin: 0;
+  max-width: 46ch;
+}
+.st-chip-face {
+  image-rendering: pixelated;
+  border-radius: 8px;
+  border: 3px solid #8a4a12;
+  background: #e4f4fb;
+}
+.st-result-line {
+  font-weight: 700;
+  font-size: calc(var(--text) + 4px);
+}
+.st-result-buttons {
+  display: flex;
+  gap: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-belt-item,
+  .st-belt-rail,
+  .st-pic.done .st-belt-item,
+  .st-pic.done .st-block,
+  .st-pic.wobble .st-belt-item,
+  .st-choice.right {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .st-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .st-torches .px-icon {
+    height: 24px;
+  }
+  .st-pieces .px-icon {
+    width: 22px;
+    height: 22px;
+  }
+  .st-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .st-host {
+    width: 52px;
+    height: 52px;
+  }
+  .st-story {
+    font-size: var(--text);
+  }
+  .st-body {
+    padding: 8px 10px;
+  }
+  .st-head-right .st-level {
+    display: none;
+  }
+  .st-choice {
+    min-width: 96px;
+  }
+  .st-prompt {
+    font-size: var(--text);
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .st-foot .kbd,
+  .st-choice .kbd {
+    display: none;
+  }
+}

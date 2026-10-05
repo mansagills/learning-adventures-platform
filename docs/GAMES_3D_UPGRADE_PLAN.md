@@ -572,7 +572,9 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   | Technical reliability (1.5) | 1.35 | 12 unit tests (every zone and tier for 300 seeds), 49 browser checks, no console errors, nothing loaded from the internet. |
   | Completeness (1.0) | 0.95 | Own characters (Captain Zuri, Mo, Ana, Tavi, Bao, Pip), grown-ups page with standards and a progress table, save and continue, old links redirect. |
 
-#### M5 Geometry: PLAN, waiting for the owner's approval
+#### M5 Geometry: IN PROGRESS (plan approved 2026-10-05)
+
+**Owner decisions (2026-10-05):** a walking world (A); the building yard and clubhouse setting; built in two halves (first the yard, the Shape Sorting Arcade and the Block Shop for a quick look, then the Blueprint Workshop, the Garden Yard and The Big Build); the Garden Yard's top level includes grade 4 (4.MD.3). Working title "Shape Town Builders" (the owner can rename it).
 
 **Shape Town Builders (slug `geometry-builder-challenge`, grades K–4; Shape Sorting Arcade merged in, and its old link redirects)**
 
@@ -670,6 +672,15 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 4. **Build in two halves?** It's a big game (four stations, K–4). Recommended: build the yard, the Shape Sorting Arcade and the Block Shop first (the K–2 half) for a quick look from you, then the Blueprint Workshop, the Garden Yard and The Big Build.
 5. **Setting.** The building yard and clubhouse above, or a toy factory getting ready for a Toy Parade (Foreman Tess and Cubby the robot), with the same four stations.
 
+##### Half 1 built (2026-10-05): the yard, the Shape Sorting Arcade and the Block Shop
+
+- **The yard:** a walking world with the clubhouse on its site in the middle, scaffolding at first. Each finished job adds a part: walls from the arcade, pillars and steps from the block shop (the roof and the garden come in half 2). Odette in a hard hat, Kofi, Lupe, Mr. Haruto and Priya (the last two say their places open soon), and Chip the beaver (two frames, his own portrait).
+- **Kofi's Shape Sorting Arcade:** each shape slides in on a moving conveyor belt; the player sends it to one of three bins (number keys, click or tap). Right: it drops into the bin. Wrong: it wobbles and the reason appears. Level 1 naming (squares on a corner, skinny and upside-down triangles, long rectangles, circles); level 2 counting sides and corners, and "is it a real triangle?" (gaps, curved sides, slanted corners); level 3 rule bins ("4 square corners": the square goes in too) and odd-one-out from three shapes. Hint 2 numbers every corner on the shape.
+- **Lupe's Block Shop:** a block on her counter. Level 1 flat or solid and naming solids (a cube is not "a square"); level 2 roll, stack or both, and everyday things (a soup can is a cylinder); level 3 flat faces, including the hidden ones (dashed edges in hint 2), and the shape of a face (a cone's face is a circle, not a triangle).
+- **Rush mode with Chip:** 60 seconds of quick naming and counting against Chip's steady score; best score saved, a gold hard hat for a win. The only timer in the game.
+- **Tests:** 9 unit tests (every level over 400 seeds: one right bin, every wrong bin tagged with its mistake, a turned square is always a square, a square fits "4 square corners"); browser test `scripts/e2e-geometry-builder-challenge.mjs` 28/28 (title → Kofi by walking → wrong bin, hints, star rules → walls → pillars → a coming-soon helper → Chip → Rush → reload → grown-ups → phone layout); screenshot tour `scripts/stb-tour.mjs`.
+- **Not yet:** the site still lists the old Geometry Builder Challenge; the new game replaces it (and Shape Sorting Arcade's link redirects) when half 2 ships. Try it at `/games/play/geometry-builder-challenge/index.html` on the PR's preview.
+
 ##### Checks it will ship with
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
@@ -731,4 +742,5 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** M4 started. Owner decisions: Math Race Rally becomes a behind-the-car arcade racer (always moving, steer into the answer gate, boost or slow down, race a CPU car), with Math Memory Match as the pit stop after each race that earns cosmetic car upgrades. Math Race Rally built: 9.0/10, 12 unit tests and 27 browser checks. Waiting for the owner's check-in.
 - **2026-10-03:** Owner tested Math Race Rally ("plays really well") and asked that a couple of wrong answers let Dash pass you again. Done with a momentum rule (see the M4 section); 15 unit tests and 29 browser checks.
 - **2026-10-03:** Owner tested Math Race Rally again, approved it and merged PR #211. Math Adventure Island built (Treasure Hunt Calculator and Math Jeopardy Junior merged in): 9.0/10, 12 unit tests and 49 browser checks. Waiting for the owner's check-in.
-- **2026-10-05:** Owner tested Math Adventure Island, approved it and merged PR #212 (with the new `remaster-game` skill). M4 COMPLETED ✅. M5 Geometry plan written with the skill (Shape Sorting Arcade merged into Geometry Builder Challenge); waiting for the owner's approval.
+- **2026-10-05:** Owner tested Math Adventure Island, approved it and merged PR #212 (with the new `remaster-game` skill). M4 COMPLETED ✅. M5 Geometry plan written with the skill (Shape Sorting Arcade merged into Geometry Builder Challenge). Owner approved: walking world, building yard, two halves, up to grade 4. Half 1 started.
+- **2026-10-05:** M5 half 1 built (yard, Shape Sorting Arcade with a conveyor belt, Block Shop, Rush mode with Chip): 9 unit tests, 28 browser checks. Waiting for the owner's quick look before half 2.
