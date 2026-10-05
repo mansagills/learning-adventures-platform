@@ -516,13 +516,61 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
     - spoilers
     - car types (kart, roadster, pickup truck, bubble car, rocket)
 - **Standards:** 1.OA.6, 2.OA.2, 2.NBT.5, 2.NBT.7, 3.NBT.2.
-- **Status: BUILT; owner feedback applied, waiting for the owner's check.** Code: `games-src/adventures/src/games/math-race-rally/`. Self-score 9.0/10 (15 unit tests, 29 browser checks).
+- **Status: COMPLETED ✅** (owner tested, approved and merged 2026-10-03 in PR #211). Code: `games-src/adventures/src/games/math-race-rally/`. Self-score 9.0/10 (15 unit tests, 29 browser checks).
 - **Owner feedback (2026-10-03):** "This actually plays really well." One change: after you pass Dash, a couple of wrong answers should let Dash pass you again.
   - **Done:** Dash now follows your momentum. It goes up 1 for each right answer and down 2 for each wrong one, and stays between −3 and +3.
   - After a run of right answers he sits well behind. One miss lets him close right in, two misses in a row and he passes, and a few right answers in a row put you back in front.
   - A message says when Dash passes you.
   - Races now stay close to the finish: 5–6 right answers out of 10 loses, and 8 or more wins.
-- **Math Adventure Island** (with Treasure Hunt Calculator and Math Jeopardy Junior) comes next, after the owner's check-in on Math Race Rally.
+
+**Math Adventure Island (slug `math-adventure-island`, grades 2–5; Treasure Hunt Calculator and Math Jeopardy Junior merged in, and their old links redirect). BUILT, waiting for the owner's test:**
+
+- **The story:**
+  - The player is an explorer on an island with Captain Zuri.
+  - Four zones each have a helper with word problems for one operation.
+  - The Treasure Hunt beach hides four map pieces.
+  - The Quiz Show stage opens once all four zone torches are lit.
+- **Word problems, in three steps:**
+  1. **What is the question asking?** Pick the right restatement ("How many more shells does Mia have than Leo?").
+  2. **Which operation?** Pick +, −, × or ÷. Some problems are built so the key word is a trap (they "got more" but you subtract to find what they started with).
+  3. **Solve**, with wrong answers made from real mistakes.
+  - The hints are a tip, then a picture model (a bar model or an array), then the answer.
+  - A star needs every step right the first time. Five stars light the zone's torch.
+- **The zones** (one learner skill each, three tiers):
+
+  | Zone (helper) | Tier 1 | Tier 2 | Tier 3 |
+  |---|---|---|---|
+  | Shell Hut, + (Mo) | join within 100 | missing part: start + ? = end | three-digit, start unknown |
+  | Fishing Boat, − (Ana) | take away within 100 | compare: how many more or fewer | bigger numbers, how many more needed |
+  | Coconut Grove, × (Tavi) | equal groups of 2, 5 and 10 | arrays and facts to 10 × 10 | two-digit × one-digit, "times as many" |
+  | Mango Stall, ÷ (Bao) | share equally (facts) | how many groups | remainders: how many boats (round up) or full bags (drop the rest) |
+
+- **Treasure Hunt (Treasure Hunt Calculator):**
+  - Each clue is estimate first, then calculate, then a reasonableness check ("Pip got 1,699. Is that reasonable?").
+  - The clue then gives a grid square (B3, or (3, 4) at the top level). The player walks to that square on the beach grid and digs.
+  - Four dig sites give four map pieces, which lead to the island's hidden treasure.
+- **The Quiz Show finale (Math Jeopardy Junior):**
+  - A board of 4 categories × 3 point values, against Pip the parrot. Pip scores on the questions you miss.
+  - After a right answer on a 200- or 300-point tile comes a **"Show your strategy"** bonus: which strategy works for this problem?
+  - Beating Pip wins the island trophy.
+- **Standards:** 2.OA.1, 2.NBT.5, 2.NBT.7, 3.OA.3, 3.OA.8, 3.NBT.1, 3.NBT.2, 4.OA.2, 4.OA.3, 4.NBT.5, 5.G.1.
+- **How it was built:**
+  - The island is a walking world like Time Attack Clock: Captain Zuri in the middle, the four zones around her, Pip the parrot on a perch by the beach grid, and the Quiz Show stage at the top with a tiki torch for each zone.
+  - The beach grid has letters A–E along the bottom (with 1–5 under them for the (across, up) clues) and 1–4 up the side. The player walks onto a square and presses Dig; a wrong square says why (swapped across and up, or just the wrong square).
+  - Digging all four map pieces shows the pirate's chest next to Pip, with the golden coconut inside. Pip offers new hunts afterwards for practice.
+  - The Quiz Show gives one try per question. A wrong answer gives Pip the points and shows the explanation. Winning the first time plays the finale: night falls and the torches blaze. Rematches are always open.
+  - The picture hints: a bar model for joining, missing parts and comparing; equal groups or an array of dots for multiplying; sharing boxes (with a "left over?" box) for dividing. When a problem is solved, the "?" in the picture fills in with the answer.
+- **Status: BUILT, waiting for the owner's test.** Code: `games-src/adventures/src/games/math-adventure-island/`. 12 unit tests, 49 browser checks (`scripts/e2e-math-adventure-island.mjs` plays a new game through all four torches, a whole treasure hunt with a wrong dig, and a winning Quiz Show to the finale).
+- **Score (Seeds of Genius rubric): 9.0/10.**
+
+  | Category | Score | Evidence |
+  |---|---|---|
+  | Gameplay and feel (2.5) | 2.15 | Three different kinds of play (helping islanders, a treasure hunt where you walk to the square and dig, a game show against a cheeky parrot), and the torches and map pieces show progress on screen. Nothing is timed. |
+  | Learning accuracy and clarity (2.0) | 1.9 | Every word problem is split into "what is it asking", "which operation", "solve", so a slip shows where it happened. Key-word traps, regrouping, remainders and place value each get their own sentence. |
+  | Visual and audio polish (1.5) | 1.3 | Pixel-art island with a hut, boat, grove, mango stall, game-show stage with curtains, lit tiki torches and Pip in two frames; three songs. The finale is a night scene, not an animation. |
+  | Usability and accessibility (1.5) | 1.35 | Number keys, H for hints, read-aloud on every line, tap to walk, all four operation buttons in one row on a phone, 0 sideways scrolling at 390 px. |
+  | Technical reliability (1.5) | 1.35 | 12 unit tests (every zone and tier for 300 seeds), 49 browser checks, no console errors, nothing loaded from the internet. |
+  | Completeness (1.0) | 0.95 | Own characters (Captain Zuri, Mo, Ana, Tavi, Bao, Pip), grown-ups page with standards and a progress table, save and continue, old links redirect. |
 
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
@@ -580,3 +628,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** Owner tested both games ("they play well"), approved them and merged PR #210. M3 COMPLETED ✅. Next: M4, addition, subtraction and mixed operations (Math Race Rally with Math Memory Match merged in, Math Adventure Island, Treasure Hunt Calculator, Math Jeopardy Junior; merges follow the merge map).
 - **2026-10-03:** M4 started. Owner decisions: Math Race Rally becomes a behind-the-car arcade racer (always moving, steer into the answer gate, boost or slow down, race a CPU car), with Math Memory Match as the pit stop after each race that earns cosmetic car upgrades. Math Race Rally built: 9.0/10, 12 unit tests and 27 browser checks. Waiting for the owner's check-in.
 - **2026-10-03:** Owner tested Math Race Rally ("plays really well") and asked that a couple of wrong answers let Dash pass you again. Done with a momentum rule (see the M4 section); 15 unit tests and 29 browser checks.
+- **2026-10-03:** Owner tested Math Race Rally again, approved it and merged PR #211. Math Adventure Island built (Treasure Hunt Calculator and Math Jeopardy Junior merged in): 9.0/10, 12 unit tests and 49 browser checks. Waiting for the owner's check-in.

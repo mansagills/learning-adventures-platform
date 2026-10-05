@@ -1,0 +1,674 @@
+/* Math Adventure Island: the step panel, picture hints, the quiz show and the HUD. */
+:root {
+  --mai-sea: #2f8fb8;
+  --mai-leaf: #2f6b2c;
+  --mai-leaf-bg: #dcebc9;
+  --mai-sand: #f3e2b4;
+  --mai-sun: #e8832e;
+}
+.title-card .logo {
+  color: #1f5f7f;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD bar (top left) ---------- */
+.mai-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+}
+.mai-torches,
+.mai-pieces {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.mai-torches .px-icon {
+  height: 30px;
+  width: auto;
+}
+.mai-sep {
+  width: 2px;
+  height: 24px;
+  background: var(--paper-3);
+}
+.mai-trophy[hidden] {
+  display: none;
+}
+.mai-trophy .px-icon {
+  height: 26px;
+  width: auto;
+}
+
+/* the job list rows (same layout as the other adventures) */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-row > .px-icon {
+  width: 32px;
+  height: auto;
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.belt-stars .px-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- the step panel ---------- */
+.mai-panel {
+  width: min(780px, 100%);
+}
+.mai-panel header {
+  background: linear-gradient(90deg, #f8dcc0, var(--paper-2));
+}
+.mai-sub header {
+  background: linear-gradient(90deg, #cfe6f5, var(--paper-2));
+}
+.mai-mul header {
+  background: linear-gradient(90deg, #d6ecc9, var(--paper-2));
+}
+.mai-div header {
+  background: linear-gradient(90deg, #fbeab0, var(--paper-2));
+}
+.mai-pip header {
+  background: linear-gradient(90deg, #f6cfc9, var(--paper-2));
+}
+.mai-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.mai-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.mai-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mai-stars .px-icon {
+  width: 20px;
+  height: 20px;
+}
+.mai-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.mai-host {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #e4f4fb;
+}
+.mai-story {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.mai-speak {
+  flex: none;
+}
+.mai-body {
+  padding: 10px 16px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mai-chips:empty {
+  display: none;
+}
+.mai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 6px;
+  border-radius: 999px;
+  background: var(--mai-leaf-bg);
+  color: #1d4a1b;
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.mai-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.mai-step-title {
+  margin: 0;
+  font-size: calc(var(--text) + 1px);
+  text-align: center;
+}
+.mai-step-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.mai-step-note[hidden] {
+  display: none;
+}
+.mai-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.mai-feedback[hidden] {
+  display: none;
+}
+.mai-feedback img {
+  flex: none;
+}
+.mai-feedback.good {
+  background: var(--mai-leaf-bg);
+  color: #1d4a1b;
+}
+.mai-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.mai-feedback.hint {
+  background: #e3ecfb;
+  color: #1c3a6e;
+}
+.mai-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.mai-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* answers */
+.mai-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+.mai-choices.wide {
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 520px;
+}
+.mai-choice {
+  min-height: 56px;
+  justify-content: center;
+  gap: 8px;
+}
+.mai-choices.nums .mai-choice {
+  min-width: 112px;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.mai-choices.ops {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: 440px;
+}
+.mai-choices.ops .mai-choice {
+  min-width: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+.mai-choices.wide .mai-choice {
+  justify-content: flex-start;
+  text-align: left;
+}
+.mai-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.mai-choices.nums .kbd,
+.mai-choices.ops .kbd {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+}
+.mai-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) * 1.25);
+  font-variant-numeric: tabular-nums;
+}
+.mai-choices.wide .mai-choice-text {
+  font-size: var(--text);
+}
+.mai-choices.ops .mai-choice-text {
+  font-size: 32px;
+  line-height: 1.1;
+}
+.mai-choice-sub {
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.mai-choice.nope {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.mai-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  border-color: var(--mai-leaf);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--mai-leaf);
+  outline-offset: 3px;
+  animation: mai-worked 1s ease-in-out infinite;
+}
+@keyframes mai-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+
+/* ---------- picture hints ---------- */
+.mai-picture {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eef6fb;
+  border: 2px solid #c6dfee;
+}
+.mai-picture[hidden] {
+  display: none;
+}
+.mai-model {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.mai-bars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: min(460px, 100%);
+}
+.mai-bar-label {
+  flex: none;
+  width: 58px;
+  font-weight: 700;
+  font-size: var(--text-small);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mai-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  border: 3px solid #3a6f8f;
+  background: #9fd0ea;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mai-bar.whole {
+  background: #f8d58a;
+  border-color: #a8762a;
+}
+.mai-bar.alt {
+  background: #f6b9a8;
+  border-color: #a2362f;
+}
+.mai-bar.unknown {
+  background: #fff;
+  border-style: dashed;
+  color: #a2362f;
+  font-size: calc(var(--text) + 4px);
+}
+.mai-model-note {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--text-small);
+  color: #1c3a6e;
+}
+.mai-groups {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.mai-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 52px;
+  min-height: 52px;
+  padding: 5px;
+  border-radius: 50%;
+  border: 3px solid #4f9a4a;
+  background: #e5f3dc;
+  font-weight: 700;
+}
+.mai-dot {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #84502f;
+}
+.mai-array {
+  display: grid;
+  gap: 4px;
+}
+.mai-array .mai-dot {
+  width: 12px;
+  height: 12px;
+  background: #4f9a4a;
+}
+.mai-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.mai-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 44px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 3px solid #a8762a;
+  background: #fbeab0;
+  font-weight: 700;
+}
+.mai-box.unknown {
+  background: #fff;
+  border-style: dashed;
+  color: #a2362f;
+}
+.mai-box.left {
+  background: #f3f0ea;
+  border-color: #8a8378;
+  border-style: dotted;
+  font-size: var(--text-small);
+}
+
+/* ---------- the quiz show ---------- */
+.mai-quiz header {
+  background: linear-gradient(90deg, #c9b8ef, var(--paper-2));
+}
+.mai-scorebox {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+}
+.mai-score {
+  font-size: calc(var(--text) + 4px);
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+  text-align: right;
+}
+.mai-score.you {
+  color: #1f6b3a;
+}
+.mai-score.pip {
+  color: #a2362f;
+}
+.mai-pip-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: #fbe9e5;
+}
+.mai-pip-strip img {
+  image-rendering: pixelated;
+  border-radius: 8px;
+  border: 3px solid #a2362f;
+  background: #e4f4fb;
+}
+.mai-pip-line {
+  margin: 0;
+  font-weight: 700;
+}
+.mai-quiz-body {
+  padding: 12px 16px 16px;
+  overflow: auto;
+  min-height: 0;
+}
+.mai-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.mai-cat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #3b2d6b;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  font-size: var(--text-small);
+  line-height: 1.2;
+}
+.mai-tile {
+  min-height: 64px;
+  justify-content: center;
+  background: #5a46a8;
+  border-color: #2e2260;
+  color: #ffe08a;
+  font-family: var(--font-pixel);
+  font-size: 26px;
+}
+.mai-tile:hover:not([disabled]),
+.mai-tile:focus-visible {
+  background: #6d58c4;
+}
+.mai-tile.used {
+  background: #d9d3e8;
+  border-color: #b8afcf;
+  box-shadow: none;
+}
+.mai-question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.mai-q-head {
+  margin: 0;
+  font-weight: 700;
+  color: #5a46a8;
+}
+.mai-q-text {
+  margin: 0;
+  font-size: calc(var(--text) + 4px);
+  font-weight: 700;
+  max-width: 40ch;
+  line-height: 1.35;
+}
+.mai-q-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.mai-q-result[hidden] {
+  display: none;
+}
+.mai-q-result p {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  max-width: 52ch;
+}
+.mai-q-good {
+  background: var(--mai-leaf-bg);
+  color: #1d4a1b;
+}
+.mai-q-try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.mai-q-bonus {
+  background: #ece6fb;
+  color: #3b2d6b;
+}
+.mai-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 10px 0;
+}
+.mai-result p {
+  margin: 0;
+  max-width: 46ch;
+}
+.mai-result-line {
+  font-weight: 700;
+  font-size: calc(var(--text) + 4px);
+}
+.mai-result-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .mai-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .mai-torches .px-icon {
+    height: 24px;
+  }
+  .mai-pieces .px-icon {
+    width: 22px;
+    height: 22px;
+  }
+  .mai-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .mai-host {
+    width: 52px;
+    height: 52px;
+  }
+  .mai-story {
+    font-size: var(--text);
+  }
+  .mai-body {
+    padding: 8px 10px;
+  }
+  .mai-head-right .mai-level {
+    display: none;
+  }
+  .mai-choices.nums .mai-choice {
+    min-width: 92px;
+  }
+  .mai-choices.ops .mai-choice-sub {
+    font-size: 12px;
+  }
+  .mai-board {
+    gap: 5px;
+  }
+  .mai-tile {
+    min-height: 54px;
+    font-size: 20px;
+  }
+  .mai-cat {
+    font-size: 12px;
+  }
+  .mai-q-text {
+    font-size: calc(var(--text) + 1px);
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .mai-foot .kbd,
+  .mai-choice .kbd {
+    display: none;
+  }
+}

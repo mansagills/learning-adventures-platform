@@ -36,6 +36,8 @@ node scripts/e2e-time-attack-clock.mjs   # a whole Time Attack Clock game, title
 node scripts/tac-tour.mjs <url> <outDir> [w] [h]    # every job at levels 1-3 with a miss and hints, then a Time Attack
 node scripts/e2e-math-race-rally.mjs     # Math Race Rally: a race with right and wrong gates, the pit stop, the garage, a second race where two misses let Dash pass (29 checks)
 node scripts/rr-tour.mjs <url> <outDir> [w] [h]     # Math Race Rally screenshots: race, results, pit stop, garage, tracks
+node scripts/e2e-math-adventure-island.mjs   # a whole Math Adventure Island game: four torches, a treasure hunt with a wrong dig, the Quiz Show and the finale (49 checks)
+node scripts/mai-tour.mjs <url> <outDir> [w] [h]    # Math Adventure Island screenshots: every zone at levels 1-3 with a miss and hints, a clue and dig, the Quiz Show
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -255,3 +257,38 @@ built from `track.ts`), not the kit's 45-degree renderer. Code:
 | Drive to a lane | 1, 2, 3 | Tap an answer at the top |
 | Pause / settings | Esc | Pause |
 | Mute | M | Sound |
+
+## Math Adventure Island (Math batch M4, grades 2–5)
+
+An island to walk around (Treasure Hunt Calculator and Math Jeopardy Junior
+are merged in, and both old links redirect here). Captain Zuri explains that
+the four torches on the Quiz Show stage blew out. Each zone lights one torch:
+
+| Zone (helper) | Operation | Top level |
+|---|---|---|
+| Shell Hut (Mo) | adding, including missing parts ("found some more, now has 50") | three-digit, start unknown |
+| Fishing Boat (Ana) | subtracting, take away and "how many more" | how many more fit in the boat |
+| Coconut Grove (Tavi) | equal groups and arrays | two-digit × one-digit, "times as many" |
+| Mango Stall (Bao) | sharing and grouping | remainders: boats round up, full bags drop the rest |
+
+Every word problem has three steps: what is the question asking, which
+operation (+ − × ÷), then solve. A star needs all three right the first time;
+five stars and a last talk question light the torch. Hint 2 shows a picture
+(bar model, equal groups, an array, or sharing boxes).
+
+Pip the parrot sets treasure clues: estimate (round first), work it out, then
+decide whether Pip's answer is reasonable. The clue names a square on the beach
+grid (B3, or (2, 3) at the top level); walk onto it and press Dig. Four pieces
+open the pirate's chest. With all four torches lit, the Quiz Show opens: a
+4 × 3 board against Pip, one try per question, a wrong answer gives Pip the
+points, and 200/300 tiles in two categories have a "which way also works?"
+strategy bonus. Winning plays the finale. Code: `src/games/math-adventure-island/`.
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Walk | Arrow keys or WASD | Tap the ground, or the pad |
+| Talk / dig | Space | Tap a person, or the Dig button |
+| Answer | 1–4 | Tap an answer |
+| Hint | H | Hint |
+| Island jobs list | J | Jobs |
+| Grown-ups | G | Settings → For grown-ups |

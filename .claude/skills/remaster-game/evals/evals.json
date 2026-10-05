@@ -1,0 +1,17 @@
+{
+  "skill_name": "remaster-game",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "My partner Keisha just sent in her game, Fraction Bakery. I put it at games-src/submissions/fraction-bakery.html. Can you remaster it into our style like we did with the other games?",
+      "expected_output": "A design plan for the owner (setting, named characters, stations with 3 levels each, misconception-based wrong answers, hint ladder, debriefs, standards, finale, what is kept from Keisha's version, choices for the owner), then a stop for approval without building.",
+      "files": ["inputs/fraction-bakery.html"]
+    },
+    {
+      "id": 2,
+      "prompt": "Let's move on to the next game: Shape Sorting Arcade.",
+      "expected_output": "Finds the game (public/games/shape-sorting-arcade.html) and its place in the plan (M5 Geometry), studies it, and writes a design plan that raises difficulty to the grade band, with misconceptions, hints, levels, characters and a choice for the owner; stops for approval.",
+      "files": []
+    }
+  ]
+}
