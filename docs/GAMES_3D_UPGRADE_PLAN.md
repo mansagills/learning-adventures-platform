@@ -572,7 +572,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   | Technical reliability (1.5) | 1.35 | 12 unit tests (every zone and tier for 300 seeds), 49 browser checks, no console errors, nothing loaded from the internet. |
   | Completeness (1.0) | 0.95 | Own characters (Captain Zuri, Mo, Ana, Tavi, Bao, Pip), grown-ups page with standards and a progress table, save and continue, old links redirect. |
 
-#### M5 Geometry: BUILT, waiting for the owner's check-in (plan approved 2026-10-05; half 1 merged in PR #213)
+#### M5 Geometry: COMPLETED ✅ (owner-approved and merged: half 1 in PR #213, half 2 in PR #214, 2026-10-06)
 
 **Owner decisions (2026-10-05):** a walking world (A); the building yard and clubhouse setting; built in two halves (first the yard, the Shape Sorting Arcade and the Block Shop for a quick look, then the Blueprint Workshop, the Garden Yard and The Big Build); the Garden Yard's top level includes grade 4 (4.MD.3). Working title "Shape Town Builders" (the owner can rename it).
 
@@ -771,3 +771,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-05:** Owner tested Math Adventure Island, approved it and merged PR #212 (with the new `remaster-game` skill). M4 COMPLETED ✅. M5 Geometry plan written with the skill (Shape Sorting Arcade merged into Geometry Builder Challenge). Owner approved: walking world, building yard, two halves, up to grade 4. Half 1 started.
 - **2026-10-05:** M5 half 1 built (yard, Shape Sorting Arcade with a conveyor belt, Block Shop, Rush mode with Chip): 9 unit tests, 28 browser checks. Waiting for the owner's quick look before half 2.
 - **2026-10-06:** Owner merged half 1 (PR #213) and asked to carry on; full team QA feedback on all the remastered games comes later. M5 half 2 built (Blueprint Workshop, Garden Yard up to 4.MD.3 with three-step L-shapes, The Big Build and the clubhouse opening), and the site now lists Shape Town Builders (Shape Sorting Arcade redirects). 9.1/10, 16 unit tests and 46 browser checks. Waiting for the owner's check-in.
+- **2026-10-06:** Owner merged half 2 (PR #214). M5 COMPLETED ✅: 8 of the 11 Math games are done, and M6 (Fractions) and M7 (Multiplication and equations) remain. The team is doing QA on the finished games. The owner decided to add **game worlds** (a sci-fi world, an ancient world and more, chosen by children), with the owner and team placing each game in a world. Order: design the worlds, then build M6, M7 and the other subjects inside them, then the Echo narrative and an interactive world map on the site. Details and the handoff: `docs/GAME_WORLDS_PROPOSAL.md`.
