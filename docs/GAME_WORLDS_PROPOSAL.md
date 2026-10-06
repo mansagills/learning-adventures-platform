@@ -21,7 +21,8 @@ Group games into a small number of **themed worlds chosen by story fit, not by s
       - Math: M6 Fractions (Pizza Fraction Frenzy, with Fraction Pizza Party merged in). M7 Multiplication and equations (Multiplication Space Quest, with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in; and Equation Balance Scale).
       - Then Science (14 games), English (Spelling Bee Challenge) and History (Ancient Egypt Explorer).
    3. **Then the site:** bring the Season 1 "Echo" narrative onto the site and redesign it so that **choosing a world feels interactive** (a world map with doors, Jaylen and S.P.A.R.K. as guides).
-4. **Same branch, new session.** The next session continues on `claude/elegant-clarke-hlzflj`, with a fresh draft PR to `main` for each piece of work.
+4. **A richer 16-bit look for the new worlds** (added 2026-10-06). The new worlds keep pixel art, but **characters (and their worlds) are more refined and colorful, in a 16-bit console style**. **Sunny Town and the games already in it stay exactly as they are.** See section 4a.
+5. **Same branch, new session.** The next session continues on `claude/elegant-clarke-hlzflj`, with a fresh draft PR to `main` for each piece of work.
 
 ## 3. Options compared
 
@@ -44,6 +45,23 @@ The Season 1 lore already has a hook for this: children enter **"Echo" pocket wo
 | *(optional)* **Storybook Realm** | Paper-cut fairy-tale forest, ink and letters | English and reading | Spelling Bee Challenge, future reading games |
 
 Number Line Ninja (a dojo) could join Ancient Kingdoms or stay in Sunny Town; that's an owner call.
+
+## 4a. Art direction for the new worlds (owner, 2026-10-06)
+
+**The goal:** still pixel art, but a step up from today's look, closer to 16-bit console games. That means more refined, more colorful characters and richer scenes. Sunny Town is not changed.
+
+**Where we start from:** today's Adventure Kit characters are small and simple. Children are 16×24 pixels and adults 16×28, with three walk frames. Dialogue portraits are 48×48. The world uses 16 pixels per tile (`PX = 16` in `src/kit/render/pixelRenderer.ts`). Each color has about 2 or 3 shades, with a dark outline.
+
+**What "more refined and 16-bit" should mean** (to try out in W0, then pick with the owner):
+- **More detail per character:** larger sprites (for example about 24×36 to 32×48), with clear faces, hands, clothing folds, hair shapes and accessories, plus a few more walk and idle frames (blinking, breathing).
+- **Richer color:** 4–5 shades per material, warm highlights, cool shadows, and colored outlines (a darker shade of each part) instead of one flat dark outline. Bolder, more saturated palettes for each world. Careful dithering on large surfaces.
+- **Richer scenes to match:** more detailed tiles and props, backgrounds with several layers (parallax), glow and light effects (neon in Star Station, torchlight in Ancient Kingdoms), and small ambient animations (steam, sparks, banners, water).
+- **Bigger portraits:** for example 64×64 or 72×72, with more expressions.
+- **Keep it consistent within a world:** a world must not mix pixel sizes. If characters get more detail, the tiles and props of that world are drawn at the same finer pixel scale, for example 24 or 32 pixels per tile in that world's theme. The kit then needs a per-world pixel scale; Sunny Town keeps 16.
+
+**How to decide:** in W0, paint the same character (for example a host or the player) in three versions and show them side by side with today's Sunny Town character: (a) today's size with richer color and shading only, (b) about 24×36, (c) about 32×48. Show each standing in a slice of the new world, day and evening, at desktop and phone size. The owner picks one, and that becomes the standard for every new world.
+
+**What stays the same:** pixel art painted in code (no photos or AI images in the games), the house fonts and panels, the camera feel, readable text, and the learning design. Characters stay friendly and kid-appropriate, with diverse skin tones and hair, as in today's games.
 
 ## 5. How it would work
 
@@ -79,8 +97,8 @@ Decided already (see section 2a): worlds rather than subject areas; the owner an
 
 | Phase | What | Done when |
 |---|---|---|
-| **W0 Look development** | For each new world, paint a test scene in the kit (ground, props, skyline, a character standing in it, a panel open), day and evening. Send screenshots to the owner. | The owner approves the look of each world |
-| **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
+| **W0 Look development** | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
+| **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes. That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
 | **W2 Games in their worlds** | Build the remaining games with the `remaster-game` skill (updated with a "World" step), each in the world the owner and team chose: Math M6 and M7 first, then Science, English and History. Aim for at least a few games per world. | Each game scores 8.5+ on the rubric and is owner-approved, one PR per batch as before |
 | **W3 The site: Echoes and the world map** | `lib/content/worlds.ts` and a `world` field on games. An interactive world map where children pick a world (doors that open, Jaylen and S.P.A.R.K. as guides, the Echo story from `docs/lore/`). `/worlds/[world]` pages, world badges on cards and a homepage entrance. The subject pages stay. | `npm test`, lint, build with no env vars; phone layout and keyboard checked; owner-approved |
 
@@ -88,7 +106,7 @@ Each phase is one or more PRs to `main`, approved by the owner, like the UX-4 ba
 
 ## 8. Things that must not change
 
-- **One family look:** the Seeds of Genius pixel style, PixelRenderer scale and camera, Pixelify Sans and Atkinson Hyperlegible fonts, `kit.css` panels, art painted in code, no emoji.
+- **One family look:** pixel art painted in code (no emoji), the camera feel, Pixelify Sans and Atkinson Hyperlegible fonts and `kit.css` panels. The new worlds use the richer 16-bit character and scene style from section 4a; Sunny Town and its games keep today's look unchanged.
 - **Learning design:** the standard stays the same in every world: levels, misconception-based wrong answers, the three-step hint ladder, debriefs and the grown-ups page.
 - **Accessibility:** read-aloud, keyboard and touch, reduced motion, and text contrast (WCAG AA) in every palette. Dark sci-fi and evening scenes need extra contrast checks.
 - **Content and characters:** worlds are friendly and never scary (the lore's rule: the "threat" is boredom and grayness, not danger). Each game keeps its own host character.
@@ -103,4 +121,4 @@ Each phase is one or more PRs to `main`, approved by the owner, like the UX-4 ba
 
 **Prompt to start the next session:**
 
-> We're continuing on the branch `claude/elegant-clarke-hlzflj`. Read `docs/GAME_WORLDS_PROPOSAL.md` (especially sections 2a, 6 and 7), `docs/GAMES_3D_UPGRADE_PLAN.md` (rubric, merge map and status) and `games-src/adventures/README.md`. Ask me the open questions in section 6 of the proposal. Then start phase W0: design the new worlds as test scenes in the Adventure Kit, send screenshots, and wait for my approval before W1. My team and I decide which games go in which world. Work on the branch with a draft PR to `main`, and explain things in plain language (I'm new to coding).
+> We're continuing on the branch `claude/elegant-clarke-hlzflj`. Read `docs/GAME_WORLDS_PROPOSAL.md` (especially sections 2a, 6 and 7), `docs/GAMES_3D_UPGRADE_PLAN.md` (rubric, merge map and status) and `games-src/adventures/README.md`. Ask me the open questions in section 6 of the proposal. Then start phase W0: first the 16-bit character test from section 4a (the new worlds get more refined, colorful 16-bit-style characters and scenes; Sunny Town stays as it is), then design the new worlds as test scenes in the Adventure Kit, send screenshots, and wait for my approval before W1. My team and I decide which games go in which world. Work on the branch with a draft PR to `main`, and explain things in plain language (I'm new to coding).
