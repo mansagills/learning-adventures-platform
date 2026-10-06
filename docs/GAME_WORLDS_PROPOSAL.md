@@ -1,6 +1,6 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is IN PROGRESS**: the character test and the two test scenes are built and wait for the owner's pick (section 7).
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅**: the owner picked character level (b) and approved both worlds (section 7a). Next: W1.
 > Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)
@@ -22,6 +22,8 @@ Group games into a small number of **themed worlds chosen by story fit, not by s
       - Then Science (14 games), English (Spelling Bee Challenge) and History (Ancient Egypt Explorer).
    3. **Then the site:** bring the Season 1 "Echo" narrative onto the site and redesign it so that **choosing a world feels interactive** (a world map with doors, Jaylen and S.P.A.R.K. as guides).
 4. **A richer 16-bit look for the new worlds** (added 2026-10-06). The new worlds keep pixel art, but **characters (and their worlds) are more refined and colorful, in a 16-bit console style**. **Sunny Town and the games already in it stay exactly as they are.** See section 4a.
+6. **One style per world, many settings** (added 2026-10-06). Each world has one fixed *style*, but each game can have its own *setting* inside that world. For example, an Ancient Kingdoms game could be set in ancient Rome, Egypt or a Malian river market; a Star Station game could be on the station or outdoors on an alien planet. The style stays the same across every setting in a world: the 24-pixel tile, the character standard, the 5-shade hue-shifted coloring and colored outlines, the light and glow treatment, the panel accent and the music style. The setting (buildings, ground, sky, props, palette accents) changes to suit the game. See 4b.
+7. **Character standard: level (b), 24 x 36** (decided 2026-10-06), at 24 pixels per tile in every new world. The owner preferred the look of (c) but chose (b) after weighing how much of the world shows on screen; switching later would mean re-checking each game's layout.
 5. **Same branch, new session.** The next session continues on `claude/elegant-clarke-hlzflj`, with a fresh draft PR to `main` for each piece of work.
 
 ## 3. Options compared
@@ -63,6 +65,17 @@ Number Line Ninja (a dojo) could join Ancient Kingdoms or stay in Sunny Town; th
 
 **What stays the same:** pixel art painted in code (no photos or AI images in the games), the house fonts and panels, the camera feel, readable text, and the learning design. Characters stay friendly and kid-appropriate, with diverse skin tones and hair, as in today's games.
 
+## 4b. Style and setting (owner, 2026-10-06)
+
+A **world** is a style. A **setting** is a place inside it. A game picks one world and one setting.
+
+| | Star Station | Ancient Kingdoms |
+|---|---|---|
+| **Style (fixed for the whole world)** | 24 px tiles; 16-bit characters at level (b); cool hue-shifted shadows; neon glows (cyan, magenta, amber); night-shift lighting; panel accent cyan | 24 px tiles; 16-bit characters at level (b); warm sunlit palette; torchlight and dusk skies; panel accent indigo |
+| **Settings (examples, chosen per game)** | the station deck (the W0 test scene), a cargo bay, an outdoor alien planet, a moon base | a Malian river market (the W0 test scene), a Nile-side village in Egypt, Kushite Meroë, a Roman forum, a Greek agora |
+
+In the kit (W1), each world provides its style rules and shared pieces (shading, characters, lighting, glow, UI accent, music), and a library of **setting packs** (ground, backdrop and props). New settings are added as games need them, always painted with the world's style. Historical settings are checked against reliable sources, as the learning standard requires.
+
 ## 5. How it would work
 
 **For children (the site)**
@@ -95,8 +108,8 @@ Number Line Ninja (a dojo) could join Ancient Kingdoms or stay in Sunny Town; th
 
 | Phase | What | Done when |
 |---|---|---|
-| **W0 Look development: IN PROGRESS** (see 7a) | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
-| **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes. That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
+| **W0 Look development: COMPLETED ✅** (see 7a) | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
+| **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes, each as a world style with setting packs (4b). That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
 | **W2 Games in their worlds** | Build the remaining games with the `remaster-game` skill (updated with a "World" step), each in the world the owner and team chose: Math M6 and M7 first, then Science, English and History. Aim for at least a few games per world. | Each game scores 8.5+ on the rubric and is owner-approved, one PR per batch as before |
 | **W3 The site: Echoes and the world map** | `lib/content/worlds.ts` and a `world` field on games. An interactive world map where children pick a world (doors that open, Jaylen and S.P.A.R.K. as guides, the Echo story from `docs/lore/`). `/worlds/[world]` pages, world badges on cards and a homepage entrance. The subject pages stay. | `npm test`, lint, build with no env vars; phone layout and keyboard checked; owner-approved |
 
@@ -117,7 +130,7 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). Nothing players se
 - Two **test hosts** with names that are placeholders only: Engineer Kemi (Star Station) and Storyteller Awa (Ancient Kingdoms). Each game will still have its own host.
 - The **talk box** keeps the house parchment panel. Each world only changes the portrait backdrop and a colored stripe.
 
-**Waiting on the owner:** (1) pick the character level, (a), (b) or (c) (recommended: (b)); (2) approve or change the look of each world. After that, W1 builds the theme layer in the kit.
+**Owner decision (2026-10-06): COMPLETED ✅.** Character level **(b)** is the standard for the new worlds, and the Star Station and Ancient Kingdoms looks are approved. The owner added the "one style per world, many settings" rule (2a point 6 and 4b). W1 builds the theme layer in the kit on that basis.
 
 
 ## 8. Things that must not change
@@ -130,7 +143,7 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). Nothing players se
 
 ## 9. Handoff for the next session
 
-**Update (2026-10-06, later):** the section 6 questions are answered and W0 is built (section 7a). The next session starts by asking the owner for the character pick and the world approvals, if they have not given them yet, then begins W1.
+**Update (2026-10-06, later):** the section 6 questions are answered and W0 is COMPLETED ✅ (level (b), both worlds approved, "one style per world, many settings"; sections 2a, 4b and 7a). Next: W1.
 
 **Where things stood at the start of W0 (2026-10-06):**
 - **8 of the 11 Math games are rebuilt and live:** Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island and Shape Town Builders. All are in today's "Sunny Town" look. Their status and scores are in `docs/GAMES_3D_UPGRADE_PLAN.md`.
