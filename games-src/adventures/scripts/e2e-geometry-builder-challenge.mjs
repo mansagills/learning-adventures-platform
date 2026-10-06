@@ -1,7 +1,9 @@
-// Browser check for Shape Town Builders (half 1): plays a new game from the
-// title screen through Kofi's arcade and Lupe's block shop (two clubhouse
-// parts), a coming-soon helper, Chip and a Rush round, with real clicks,
-// walking and keys. Then saving, the grown-ups report and the phone layout.
+// Browser check for Shape Town Builders: plays a new game from the title
+// screen through all four jobs (Kofi's arcade, Lupe's block shop, Mr.
+// Haruto's blueprints and Priya's gardens, including a three-step L-shaped
+// garden), Chip and a Rush round, then The Big Build and the clubhouse
+// opening, with real clicks, walking and keys. Then saving, the grown-ups
+// report and the phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-geometry-builder-challenge.mjs [url]
@@ -76,7 +78,7 @@ async function pickRight(page) {
 }
 /** Keep solving until the panel closes (the job is done). */
 async function finishJob(page, station) {
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 40; i++) {
     const s = await st(page);
     if (!s.panel) break;
     await pickRight(page);
@@ -142,13 +144,57 @@ try {
   s = await st(page);
   check('two clubhouse parts are built', s.done.length === 2);
 
-  // a helper whose place opens in half 2
-  await page.evaluate(() => window.__stb.teleport(23.5, 13.5));
-  await wait(page, 400);
-  await page.keyboard.press('Space');
-  await wait(page, 500);
-  check('Mr. Haruto says his workshop opens soon', (await page.locator('.dialogue').textContent()).includes('soon'));
+  // Mr. Haruto's Blueprint Workshop, reached with a real click
+  await tapTarget(page, 'blueprint');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 80);
+  check('Mr. Haruto explains blueprints', (await page.locator('.dialogue').textContent()).toLowerCase().includes('blueprint'));
   await talkThrough(page);
+  s = await st(page);
+  check('the workshop shows a blueprint', s.panel && s.panel.station === 'blueprint' && (await page.locator('.st-paper img').count()) === 1);
+  const bw = s.panel.problem.choices.find((c) => !c.correct);
+  await page.locator(`.st-choice[data-value="${bw.value}"]`).click();
+  await wait(page, 300);
+  check('a wrong blueprint count gets a reason', await page.locator('.st-feedback.try').isVisible(), (await page.locator('.st-feedback').textContent()).slice(0, 80));
+  await pickRight(page);
+  await page.keyboard.press('Space');
+  await wait(page, 400);
+  check('the workshop job delivers the roof and windows', await finishJob(page, 'blueprint'));
+
+  // Priya's Garden Yard at the top level: find an L-shaped garden (three steps)
+  await page.evaluate(() => window.__stb.setTier('garden', 3));
+  let gotL = false;
+  for (let i = 0; i < 15 && !gotL; i++) {
+    await page.evaluate(() => window.__stb.open('garden'));
+    await wait(page, 450);
+    await talkThrough(page);
+    s = await st(page);
+    gotL = s.panel && s.panel.steps === 3;
+    if (!gotL) {
+      await page.keyboard.press('Escape');
+      await wait(page, 250);
+      await page.evaluate(() => window.__stb.setTier('garden', 3));
+    }
+  }
+  check('Priya gives an L-shaped garden in three steps', gotL);
+  check('step 1 of 3 is shown', (await page.locator('.st-prompt').textContent()).startsWith('Step 1 of 3'));
+  await page.screenshot({ path: `${OUT}/04-garden-L.png` });
+  await pickRight(page);
+  check('a right step leads to the next step, not a star yet', (await st(page)).stars.garden === 0 && (await page.locator('.st-panel .st-foot .btn.primary').textContent()).includes('Next step'));
+  await page.keyboard.press('Space');
+  await wait(page, 350);
+  s = await st(page);
+  check('step 2 of 3 follows', s.panel.step === 1 && (await page.locator('.st-prompt').textContent()).startsWith('Step 2 of 3'));
+  await pickRight(page);
+  await page.keyboard.press('Space');
+  await wait(page, 350);
+  await pickRight(page);
+  s = await st(page);
+  check('three clean steps win one star', s.stars.garden === 1);
+  await page.keyboard.press('Space');
+  await wait(page, 400);
+  check('the garden job delivers the garden and fence', await finishJob(page, 'garden'));
+  s = await st(page);
+  check('all four clubhouse parts are built', s.done.length === 4);
 
   // Chip and a Rush round
   await page.evaluate(() => window.__stb.teleport(15.5, 15.5));
@@ -188,13 +234,45 @@ try {
   s = await st(page);
   check('the Rush best is saved', s.rushBest === 6);
 
+  // The Big Build: Odette offers it once all four parts are in
+  await page.evaluate(() => window.__stb.teleport(20.5, 14.6));
+  await wait(page, 400);
+  await page.keyboard.press('Space');
+  await wait(page, 500);
+  check('Odette offers The Big Build', (await page.locator('.dialogue').textContent()).includes('Big Build'));
+  await talkThrough(page, 0);
+  s = await st(page);
+  check('The Big Build opens with piece 1 from the arcade', s.panel && s.panel.finale === 0 && s.panel.station === 'arcade');
+  const order = [];
+  for (let i = 0; i < 40; i++) {
+    s = await st(page);
+    if (!s.panel) break;
+    if (!order.includes(s.panel.station)) order.push(s.panel.station);
+    await pickRight(page);
+    await page.keyboard.press('Space');
+    await wait(page, 400);
+  }
+  check('one piece from every job, in order', order.join() === 'arcade,blocks,blueprint,garden', order.join());
+  // the opening: talk, the sun sets, then more talk
+  await waitFor(
+    page,
+    async () => {
+      if (await page.locator('.dialogue').count()) await page.keyboard.press('Space');
+      return (await st(page)).finaleSeen && (await st(page)).mode === 'world';
+    },
+    150,
+  );
+  s = await st(page);
+  check('the clubhouse opens at sunset', s.finaleSeen && s.night > 0.5, `night ${s.night}`);
+  await page.screenshot({ path: `${OUT}/05-opened.png` });
+
   // saving
   await page.reload();
   await wait(page, 1500);
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 600);
   s = await st(page);
-  check('progress is saved', s.done.length === 2 && s.rushBest === 6);
+  check('progress is saved', s.done.length === 4 && s.rushBest === 6 && s.finaleSeen && s.night > 0.5);
 
   // grown-ups report
   await page.keyboard.press('g');
@@ -202,7 +280,7 @@ try {
   await page.getByRole('tab', { name: /how it is going/i }).or(page.getByRole('button', { name: /how it is going/i })).first().click();
   await wait(page, 300);
   const rows = await page.locator('.progress-table tbody tr').count();
-  check('the grown-ups report lists both jobs', rows === 2, `${rows} rows`);
+  check('the grown-ups report lists all four jobs', rows === 4, `${rows} rows`);
 
   // phone layout
   const { page: ph } = await newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -213,7 +291,7 @@ try {
   await ph.getByRole('button', { name: /i'm ready/i }).tap();
   await wait(ph, 800);
   await talkThrough(ph);
-  for (const station of ['arcade', 'blocks']) {
+  for (const station of ['arcade', 'blocks', 'blueprint', 'garden']) {
     await ph.evaluate((x) => window.__stb.open(x), station);
     await wait(ph, 600);
     await talkThrough(ph);
@@ -221,7 +299,7 @@ try {
     check(`phone ${station}: no sideways scrolling`, sw <= 390, `scrollWidth ${sw}`);
     const boxes = await ph.locator('.st-panel .st-choice').evaluateAll((bs) => bs.map((b) => b.getBoundingClientRect()).map((r) => ({ l: r.left, r: r.right, b: r.bottom })));
     check(`phone ${station}: every bin fits on screen`, boxes.length >= 2 && boxes.every((o) => o.l >= 0 && o.r <= 390 && o.b <= 844), JSON.stringify(boxes));
-    await ph.screenshot({ path: `${OUT}/05-phone-${station}.png` });
+    await ph.screenshot({ path: `${OUT}/06-phone-${station}.png` });
     await ph.keyboard.press('Escape');
     await wait(ph, 300);
   }

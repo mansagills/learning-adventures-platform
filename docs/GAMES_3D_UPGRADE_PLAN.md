@@ -572,7 +572,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
   | Technical reliability (1.5) | 1.35 | 12 unit tests (every zone and tier for 300 seeds), 49 browser checks, no console errors, nothing loaded from the internet. |
   | Completeness (1.0) | 0.95 | Own characters (Captain Zuri, Mo, Ana, Tavi, Bao, Pip), grown-ups page with standards and a progress table, save and continue, old links redirect. |
 
-#### M5 Geometry: IN PROGRESS (plan approved 2026-10-05)
+#### M5 Geometry: BUILT, waiting for the owner's check-in (plan approved 2026-10-05; half 1 merged in PR #213)
 
 **Owner decisions (2026-10-05):** a walking world (A); the building yard and clubhouse setting; built in two halves (first the yard, the Shape Sorting Arcade and the Block Shop for a quick look, then the Blueprint Workshop, the Garden Yard and The Big Build); the Garden Yard's top level includes grade 4 (4.MD.3). Working title "Shape Town Builders" (the owner can rename it).
 
@@ -680,6 +680,32 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 - **Rush mode with Chip:** 60 seconds of quick naming and counting against Chip's steady score; best score saved, a gold hard hat for a win. The only timer in the game.
 - **Tests:** 9 unit tests (every level over 400 seeds: one right bin, every wrong bin tagged with its mistake, a turned square is always a square, a square fits "4 square corners"); browser test `scripts/e2e-geometry-builder-challenge.mjs` 28/28 (title → Kofi by walking → wrong bin, hints, star rules → walls → pillars → a coming-soon helper → Chip → Rush → reload → grown-ups → phone layout); screenshot tour `scripts/stb-tour.mjs`.
 - **Not yet:** the site still lists the old Geometry Builder Challenge; the new game replaces it (and Shape Sorting Arcade's link redirects) when half 2 ships. Try it at `/games/play/geometry-builder-challenge/index.html` on the PR's preview.
+- Half 1 merged by the owner in PR #213 (2026-10-06). The owner is collecting full team QA feedback on all the remastered games and asked to carry on with half 2 meanwhile.
+
+##### Half 2 built (2026-10-06): the Blueprint Workshop, the Garden Yard and The Big Build
+
+- **Mr. Haruto's Blueprint Workshop** (blueprints on blue paper):
+  - Level 1: count one kind of shape in a blueprint. The original five builds are kept (house, robot, car with all 4 wheels, castle with 4 rectangle towers, tree with 3 circle leaves) and three are new (rocket, train, flower). The car's two back wheels peek out from behind the body. The game never asks for rectangles when squares are in the picture, because a square is a rectangle too.
+  - Level 2: how many pieces fill a shape (2 triangles make a square, 3 make a trapezoid, 6 make a hexagon, 2 trapezoids make a hexagon, 4 small triangles make a big one), with the piece drawn beside the shape at the same size.
+  - Level 3: rows and columns of window panes, and a floor with only its first row and column of tiles drawn.
+  - Wrong answers come from real mistakes: missing a hidden piece, counting one twice, counting every piece, counting a square door as a square, counting the big shape's corners, adding rows and columns, counting only the drawn tiles.
+  - Hint 2 colors in and numbers the asked shapes (with dashed outlines for hidden ones), draws dashed lines where the pieces meet, or shades the rows.
+- **Priya's Garden Yard** (garden plans):
+  - Level 1: count the grass squares (area), or the fence pieces all the way round (perimeter), on a grid with a fence and posts.
+  - Level 2: a garden with labelled sides. Multiply for area; add all four sides for the fence.
+  - Level 3:
+    - L-shaped gardens in three steps: which two rectangles, the area of the tall part, then the whole L. A star needs all three steps right.
+    - Missing side lengths from the area or the fence (4.MD.3, sides up to 12).
+    - "Same area, different fence": two gardens of 12 to 24 squares.
+  - Wrong answers: area and perimeter swapped, edge squares counted instead of fence pieces, only two sides added, sides added for area, the notch left out, the overlap counted twice, and "same area means same fence".
+  - Hint 2 numbers the squares or fence pieces, draws the grid inside, labels all four sides, or colors the two parts of the L.
+- **The Big Build:** once all four parts are in, Odette offers the finale: four pieces of the final blueprint, one question from each job at the player's level (no stars, nothing timed). Then the sun sets, the four helpers and Odette gather in front of the clubhouse, bunting and lanterns appear and Odette cuts the ribbon (Chip "helped" by chewing it). After that the yard stays in the evening and every job stays open.
+- **Debriefs:** Mr. Haruto ("Is the square bigger than the two triangles put together?") and Priya ("Two gardens both cover 12 squares. Same fence?").
+- **Site:** listed as "Shape Town Builders" (grades K–4) at `/games/geometry-builder-challenge`, with a new card picture. `/games/shape-sorting-arcade` redirects there, and the old Shape Sorting Arcade listing is gone. The old HTML files stay until the Phase 4 cleanup.
+- **Tests:**
+  - 16 unit tests (7 new): blueprint counts match the drawing; every composition's pieces cover the shape exactly (checked by area); every level over 400 seeds has one right answer, and every wrong answer is tagged with its mistake; the L's answer equals the whole rectangle minus the notch; same-area pairs really have the same area and different fences.
+  - Browser test `scripts/e2e-geometry-builder-challenge.mjs`: 46/46. It covers title → all four jobs (Mr. Haruto reached by walking, a three-step L-shaped garden) → Chip and Rush → The Big Build → the opening at sunset → reload → grown-ups (four jobs) → phone layout for all four panels.
+- **Score: 9.1/10** (gameplay 2.2, learning 1.9, look and sound 1.25, ease of use 1.4, reliability 1.4, completeness 0.95). It loses points on: a lot of the play is answering in panels (but with four kinds of pictures and a finale), the evening tint is gentle, and the card picture shows the yard before building starts.
 
 ##### Checks it will ship with
 
@@ -744,3 +770,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-03:** Owner tested Math Race Rally again, approved it and merged PR #211. Math Adventure Island built (Treasure Hunt Calculator and Math Jeopardy Junior merged in): 9.0/10, 12 unit tests and 49 browser checks. Waiting for the owner's check-in.
 - **2026-10-05:** Owner tested Math Adventure Island, approved it and merged PR #212 (with the new `remaster-game` skill). M4 COMPLETED ✅. M5 Geometry plan written with the skill (Shape Sorting Arcade merged into Geometry Builder Challenge). Owner approved: walking world, building yard, two halves, up to grade 4. Half 1 started.
 - **2026-10-05:** M5 half 1 built (yard, Shape Sorting Arcade with a conveyor belt, Block Shop, Rush mode with Chip): 9 unit tests, 28 browser checks. Waiting for the owner's quick look before half 2.
+- **2026-10-06:** Owner merged half 1 (PR #213) and asked to carry on; full team QA feedback on all the remastered games comes later. M5 half 2 built (Blueprint Workshop, Garden Yard up to 4.MD.3 with three-step L-shapes, The Big Build and the clubhouse opening), and the site now lists Shape Town Builders (Shape Sorting Arcade redirects). 9.1/10, 16 unit tests and 46 browser checks. Waiting for the owner's check-in.
