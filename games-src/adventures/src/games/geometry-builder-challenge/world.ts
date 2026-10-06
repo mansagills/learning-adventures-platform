@@ -189,6 +189,33 @@ export class YardWorld {
     this.lanterns.forEach((l) => (l.visible = open));
   }
 
+  /** The townsfolk gather in front of the clubhouse for the opening (and stay there afterwards). */
+  gather(): void {
+    const spots: Record<Who, { x: number; y: number }> = {
+      arcade: { x: 13.5, y: 14.2 },
+      blocks: { x: 15.2, y: 15.2 },
+      blueprint: { x: 19.8, y: 15.2 },
+      garden: { x: 21.5, y: 14.2 },
+      odette: { x: 17.5, y: 13.6 },
+    };
+    this.grid.clearDynamic();
+    this.grid.setBlocker('chip', CHIP.x, CHIP.y, 0.4);
+    this.grid.setDynamic('chip', [[Math.floor(CHIP.x), Math.floor(CHIP.y)]]);
+    for (const [id, a] of this.people) {
+      const s = spots[id];
+      a.x = s.x;
+      a.y = s.y;
+      a.sync();
+      this.grid.setBlocker(id, s.x, s.y, 0.45);
+      this.grid.setDynamic(id, [[Math.floor(s.x), Math.floor(s.y)]]);
+      const t = this.targets.find((x) => x.id === id);
+      if (t) {
+        t.x = s.x;
+        t.y = s.y;
+      }
+    }
+  }
+
   setNight(n: number): void {
     this.night = n;
     const tint: [number, number, number] = [1 - n * 0.42, 1 - n * 0.38, 1 - n * 0.12];

@@ -18,13 +18,13 @@ import { openSettings } from '../../kit/ui/settingsPanel';
 import { Talk, type Speaker } from '../../kit/ui/talk';
 import { TouchControls } from '../../kit/ui/touch';
 import { showTitle } from '../../kit/ui/title';
-import { paintBin, paintChipPortrait, paintHardHat, paintPartIcon, paintShapePic, paintSolid, paintThing, type ClubParts } from './art';
-import { ALL_OPEN_DONE, CHIP, CHIP_JOKES, COMING_SOON, CONTROLS_TIP_KEYS, CONTROLS_TIP_TOUCH, GROWNUPS, hintText, mistakeLine, ODETTE, OPENING, praise, RUSH_INTRO, STARS_PER_STATION, STATION_INFO } from './content';
+import { paintBin, paintBlueprint, paintChipPortrait, paintComposition, paintGarden, paintHardHat, paintPartIcon, paintShapePic, paintSolid, paintThing, paintTiles, type ClubParts } from './art';
+import { AFTER_FINALE, ALL_PARTS_IN, CHIP, CHIP_JOKES, CONTROLS_TIP_KEYS, CONTROLS_TIP_TOUCH, FINALE_INTRO, FINALE_OPENING, FINALE_PIECES, FINALE_RIBBON, GROWNUPS, hintText, mistakeLine, ODETTE, OPENING, praise, RUSH_INTRO, STARS_PER_STATION, STATION_INFO } from './content';
 import { EVENING_SONG, RUSH_SONG, YARD_SONG } from './music';
 import { pix } from './pix';
-import { chipScore, makeProblem, makeRush, OPEN_STATIONS, RUSH_SECONDS, STATIONS, type ArcadeProblem, type Choice, type Misconception, type Problem, type Station, type Tier } from './problems';
+import { chipScore, makeProblem, makeRush, OPEN_STATIONS, RUSH_SECONDS, STATIONS, stepsOf, type ArcadeProblem, type Choice, type Misconception, type Problem, type Station, type Tier } from './problems';
 import { freshSave, store, type YardSave } from './save';
-import { YardWorld, type Target, type Who } from './world';
+import { START, YardWorld, type Target, type Who } from './world';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_STATION = 12;
@@ -93,8 +93,14 @@ interface Panel {
   modal: Modal;
   station: Station;
   problem: Problem;
+  /** Which step of a multi-step question (the L-shaped gardens). */
+  step: number;
   rung: number;
+  /** The highest hint used on any step (a star needs at most the first hint). */
+  maxRung: number;
   tries: number;
+  /** The Big Build: one question from each job, in order (null in a normal panel). */
+  finale: { index: number } | null;
   recorded: boolean;
   answered: boolean;
   feedback: HTMLElement;
@@ -205,6 +211,18 @@ export class Game {
       },
       /** test helpers */
       open: (s: Station) => this.mode === 'world' && void this.openStation(s),
+      finale: () => this.mode === 'world' && this.openPanel('arcade', true),
+      finishJobs: () => {
+        for (const s of STATIONS) {
+          if (!this.save.done.includes(s)) this.save.done.push(s);
+          this.save.stars[s] = STARS_PER_STATION;
+          if (!this.save.introduced.includes(s)) this.save.introduced.push(s);
+        }
+        this.persist();
+        this.world.setParts(this.parts());
+        this.updateMarkers();
+        this.renderHud();
+      },
       rush: () => this.mode === 'world' && this.openRush(),
       endRush: () => this.rush && (this.rush.endsAt = performance.now()),
       setTier: (s: Station, t: Tier) => {
@@ -224,6 +242,7 @@ export class Game {
     if (this.save.finaleSeen) {
       this.world.setNight(0.7);
       this.world.setParts(this.parts(), true);
+      this.world.gather();
     }
     this.updateMarkers();
     this.showTitleScreen();
@@ -261,8 +280,8 @@ export class Game {
     audio.play('title');
     this.titleEl = showTitle(this.host, {
       title: 'Shape Town Builders',
-      subtitle: 'Sort shapes, pick blocks, build the clubhouse',
-      intro: ['Shape Town is building a clubhouse! Help the builders with flat shapes and solid blocks, and each job adds a part to the building.', 'For grades K to 4. Every line can be read aloud.'],
+      subtitle: 'Shapes, blocks, blueprints and gardens: build the clubhouse',
+      intro: ['Shape Town is building a clubhouse! Help four builders with flat shapes, solid blocks, blueprints and gardens, and each job adds a part to the building.', 'For grades K to 4. Every line can be read aloud.'],
       hasSave: store.exists(),
       continueGame: () => {
         audio.unlock();
@@ -324,8 +343,8 @@ export class Game {
     this.world.setMarkers({
       arcade: this.save.done.includes('arcade') ? null : 'new',
       blocks: this.save.done.includes('blocks') ? null : 'new',
-      blueprint: null,
-      garden: null,
+      blueprint: this.save.done.includes('blueprint') ? null : 'new',
+      garden: this.save.done.includes('garden') ? null : 'new',
       odette: all && !this.save.finaleSeen ? 'turnin' : null,
     });
   }
@@ -385,27 +404,29 @@ export class Game {
     this.world.stopWalking();
     if (t.kind === 'chip') void this.talkToChip();
     else if (t.id === 'odette') void this.talkToOdette();
-    else {
-      const s = t.id as Station;
-      if (OPEN_STATIONS.includes(s)) void this.openStation(s);
-      else void this.comingSoon(s);
-    }
-  }
-
-  private async comingSoon(s: Station): Promise<void> {
-    this.mode = 'busy';
-    await this.talk.say(this.speakers[s], COMING_SOON[s] ?? 'Coming soon!');
-    this.talk.end();
-    this.mode = 'world';
+    else void this.openStation(t.id as Station);
   }
 
   private async talkToOdette(): Promise<void> {
     this.mode = 'busy';
+    const odette = this.speakers.odette;
     const openLeft = OPEN_STATIONS.filter((s) => !this.save.done.includes(s));
-    const text = openLeft.length
-      ? `${this.save.done.length ? `${this.save.done.length} part${this.save.done.length === 1 ? '' : 's'} of the clubhouse done!` : 'The clubhouse is just a slab so far.'} ${STATION_INFO[openLeft[0]].person.name} at the ${STATION_INFO[openLeft[0]].name} needs help.`
-      : ALL_OPEN_DONE;
-    const pick = await this.talk.offer(this.speakers.odette, text, ['Change how I look', 'Bye, Odette!']);
+    if (!openLeft.length && !this.save.finaleSeen) {
+      const go = await this.talk.offer(odette, ALL_PARTS_IN.replace(' Come and see me at the clubhouse for The Big Build.', ' Ready for The Big Build?'), ['Start The Big Build!', 'Not yet'], 'proud');
+      if (go === 0) {
+        await this.talk.say(odette, FINALE_INTRO);
+        this.talk.end();
+        this.openPanel('arcade', true);
+        return;
+      }
+      this.talk.end();
+      this.mode = 'world';
+      return;
+    }
+    const text = this.save.finaleSeen
+      ? AFTER_FINALE
+      : `${this.save.done.length ? `${this.save.done.length} part${this.save.done.length === 1 ? '' : 's'} of the clubhouse done!` : 'The clubhouse is just a slab so far.'} ${STATION_INFO[openLeft[0]].person.name} at the ${STATION_INFO[openLeft[0]].name} needs help.`;
+    const pick = await this.talk.offer(odette, text, ['Change how I look', 'Bye, Odette!']);
     this.talk.end();
     this.mode = 'world';
     if (pick === 0) this.changeLook();
@@ -447,6 +468,13 @@ export class Game {
       this.save.introduced.push(station);
       this.persist();
     }
+    this.openPanel(station, false);
+  }
+
+  /** The question panel for one job, or for The Big Build (`finale`: one question from each job in turn). */
+  private openPanel(station: Station, finale: boolean): void {
+    const info = STATION_INFO[station];
+    const who = finale ? this.speakers.odette : this.speakers[station];
     this.mode = 'panel';
     this.touch?.setVisible(false);
     const level = h('span', { class: 'st-level' });
@@ -461,8 +489,8 @@ export class Game {
     const face = h('img', { class: 'st-host', src: who.portrait('smile'), alt: who.name, width: 96, height: 96 });
     const root = h(
       'div',
-      { class: `panel modal st-panel st-${station}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'st-title' },
-      h('header', {}, h('h2', { id: 'st-title', text: info.name }), h('div', { class: 'st-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
+      { class: `panel modal st-panel st-${station}${finale ? ' st-finale' : ''}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'st-title' },
+      h('header', {}, h('h2', { id: 'st-title', text: finale ? 'The Big Build' : info.name }), h('div', { class: 'st-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
       h('div', { class: 'st-ask' }, face, prompt, speakBtn),
       body,
       feedback,
@@ -471,7 +499,7 @@ export class Game {
     const modal = new Modal(this.host, root, () => this.closePanel(), { closeOnBackdrop: false });
     hintBtn.addEventListener('click', () => this.hint());
     next.addEventListener('click', () => this.afterAnswer());
-    this.panel = { modal, station, problem: null as unknown as Problem, rung: 0, tries: 0, recorded: false, answered: false, feedback, hintBtn, next, body, stars, level, prompt };
+    this.panel = { modal, station, problem: null as unknown as Problem, step: 0, rung: 0, maxRung: 0, tries: 0, finale: finale ? { index: 0 } : null, recorded: false, answered: false, feedback, hintBtn, next, body, stars, level, prompt };
     this.nextChallenge();
   }
 
@@ -480,21 +508,37 @@ export class Game {
     if (!pnl) return;
     const seed = this.save.seed++;
     this.persist();
+    if (pnl.finale) pnl.station = STATIONS[pnl.finale.index];
     const tier = skill(this.save.learner, pnl.station).tier as Tier;
     const p = makeProblem(pnl.station, tier, mulberry32(seed));
     pnl.problem = p;
+    pnl.step = 0;
     pnl.rung = 0;
+    pnl.maxRung = 0;
     pnl.tries = 0;
     pnl.recorded = false;
     pnl.answered = false;
-    pnl.prompt.textContent = p.prompt;
-    pnl.level.textContent = `Level ${tier} of 3`;
+    pnl.level.textContent = pnl.finale ? FINALE_PIECES[pnl.station] : `Level ${tier} of 3`;
+    pnl.body.replaceChildren(this.renderProblem(p));
+    this.renderStars();
+    this.showStep();
+  }
+
+  /** Show the current step's question and answers (one step for most questions). */
+  private showStep(): void {
+    const pnl = this.panel;
+    if (!pnl) return;
+    const steps = stepsOf(pnl.problem);
+    const st = steps[pnl.step];
+    pnl.rung = 0;
+    pnl.answered = false;
+    const lead = steps.length > 1 ? `Step ${pnl.step + 1} of ${steps.length}: ` : '';
+    pnl.prompt.textContent = lead + st.prompt;
     pnl.feedback.hidden = true;
     pnl.next.hidden = true;
     pnl.hintBtn.disabled = false;
-    pnl.body.replaceChildren(this.renderProblem(p, seed));
-    this.renderStars();
-    speak(p.prompt);
+    pnl.body.querySelector('.st-choices')?.replaceWith(this.renderChoices(st.choices, pnl.problem.station === 'arcade'));
+    speak(pnl.prompt.textContent);
     requestAnimationFrame(() => pnl.body.querySelector<HTMLButtonElement>('.st-choice:not([disabled])')?.focus());
   }
 
@@ -519,18 +563,30 @@ export class Game {
         h('div', { class: 'st-belt-rail', 'aria-hidden': 'true' }),
       );
     }
+    if (p.station === 'blueprint') {
+      const pic = p.picture;
+      const buf = pic.blueprint ? paintBlueprint(pic.blueprint, withHint ? pic.ask : undefined) : pic.comp ? paintComposition(pic.comp, withHint) : paintTiles(pic.grid!.rows, pic.grid!.cols, p.kind === 'edge' ? 'edge' : 'grid', withHint);
+      return h('div', { class: 'st-paper' }, picImg(buf, phone ? (buf.w > 80 ? 2 : 3) : buf.w > 80 ? 3 : 4, 'st-blueprint', 'The blueprint'));
+    }
+    if (p.station === 'garden') {
+      const hint = !withHint ? null : p.kind === 'grid-fence' || p.kind === 'rect-fence' || p.kind === 'same-area' ? 'fence' : p.kind === 'missing' ? null : 'area';
+      return h('div', { class: 'st-paper garden' }, picImg(paintGarden(p.picture, hint), phone ? 2 : 3, 'st-garden', 'The garden plan'));
+    }
     const color = BLOCK_COLORS[(p.prompt.length + p.choices.length) % BLOCK_COLORS.length];
     const pic = p.picture;
     const buf = pic.thing ? paintThing(pic.thing) : pic.solid ? paintSolid(pic.solid, color, 48, withHint && (p.kind === 'faces' || p.kind === 'face-shape')) : paintShapePic(pic.flat!, 48);
     return h('div', { class: 'st-counter' }, picImg(buf, phone ? 3 : 4, 'st-block', 'The block on the counter'));
   }
 
-  private renderProblem(p: Problem, seed: number): HTMLElement {
-    const bins = p.station === 'arcade';
-    const choices = h(
+  private renderProblem(p: Problem): HTMLElement {
+    return h('div', { class: 'st-stage' }, h('div', { class: 'st-pic' }, this.picture(p)), this.renderChoices(stepsOf(p)[0].choices, p.station === 'arcade'));
+  }
+
+  private renderChoices(list: Choice[], bins: boolean): HTMLElement {
+    return h(
       'div',
-      { class: `st-choices${bins ? ' bins' : ''}${p.choices.some((c) => c.label.length > 14) ? ' wide' : ''}` },
-      ...p.choices.map((c, i) =>
+      { class: `st-choices${bins ? ' bins' : ''}${list.some((c) => c.label.length > 18) ? ' wide' : ''}` },
+      ...list.map((c, i) =>
         h(
           'button',
           { class: 'btn st-choice', type: 'button', 'data-value': c.value, 'aria-keyshortcuts': String(i + 1), onclick: () => this.onAnswer(c) },
@@ -540,13 +596,17 @@ export class Game {
         ),
       ),
     );
-    void seed;
-    return h('div', { class: 'st-stage' }, h('div', { class: 'st-pic' }, this.picture(p)), choices);
   }
 
   private renderStars(): void {
     const pnl = this.panel;
     if (!pnl) return;
+    if (pnl.finale) {
+      // the four pieces of the final blueprint
+      pnl.stars.replaceChildren(...STATIONS.map((s, i) => pix(`part-${STATION_INFO[s].part}-${i < pnl.finale!.index}`, () => paintPartIcon(STATION_INFO[s].part, i < pnl.finale!.index), 2)));
+      pnl.stars.setAttribute('aria-label', `${pnl.finale.index} of 4 pieces fitted`);
+      return;
+    }
     const n = this.save.stars[pnl.station];
     pnl.stars.replaceChildren(...Array.from({ length: STARS_PER_STATION }, (_, i) => iconImg(i < n ? 'star' : 'starEmpty', '', 20)));
     pnl.stars.setAttribute('aria-label', `${n} of ${STARS_PER_STATION} stars`);
@@ -556,30 +616,52 @@ export class Game {
     const pnl = this.panel;
     if (!pnl || pnl.answered) return;
     const p = pnl.problem;
+    const steps = stepsOf(p);
+    const st = steps[pnl.step];
+    const last = pnl.step === steps.length - 1;
     const btn = pnl.body.querySelector<HTMLButtonElement>(`.st-choice[data-value="${CSS.escape(c.value)}"]`);
+    const pic = pnl.body.querySelector('.st-pic');
     if (c.correct) {
       pnl.answered = true;
-      const clean = pnl.tries === 0 && pnl.rung <= 1;
+      btn?.classList.add('right');
+      pnl.body.querySelectorAll('.st-choice').forEach((b) => ((b as HTMLButtonElement).disabled = true));
+      pnl.hintBtn.disabled = true;
+      pnl.next.hidden = false;
+      if (!last) {
+        // a step of a multi-step question: on to the next step
+        audio.correct();
+        pnl.next.textContent = isTouchDevice() ? 'Next step' : 'Next step (Space)';
+        this.showFeedback(`Right! ${st.explain}`, 'good');
+        requestAnimationFrame(() => pnl.next.focus());
+        return;
+      }
+      pnl.next.textContent = isTouchDevice() ? 'Next' : 'Next (Space)';
+      const clean = pnl.tries === 0 && pnl.maxRung <= 1;
       let tierChange = 0;
       if (!pnl.recorded) {
         pnl.recorded = true;
-        tierChange = recordAnswer(this.save.learner, pnl.station, { correct: true, hintRung: pnl.rung }, RULES).tierChange;
+        tierChange = recordAnswer(this.save.learner, pnl.station, { correct: true, hintRung: pnl.maxRung }, RULES).tierChange;
+      }
+      pic?.classList.remove('wobble');
+      pic?.classList.add('done');
+      if (pnl.finale) {
+        audio.itemGet();
+        pnl.finale.index++;
+        this.persist();
+        this.renderStars();
+        this.showFeedback(`${praise(this.praiseCount++)} The piece fits. ${st.explain}`, 'good');
+        if (pnl.finale.index >= STATIONS.length) pnl.next.textContent = 'Open the clubhouse!';
+        requestAnimationFrame(() => pnl.next.focus());
+        return;
       }
       this.save.played[pnl.station]++;
       if (clean && this.save.stars[pnl.station] < STARS_PER_STATION) this.save.stars[pnl.station]++;
       this.persist();
       if (clean) audio.itemGet();
       else audio.correct();
-      btn?.classList.add('right');
-      // the shape drops into its bin (or the block hops)
-      pnl.body.querySelector('.st-pic')?.classList.remove('wobble');
-      pnl.body.querySelector('.st-pic')?.classList.add('done');
-      pnl.body.querySelectorAll('.st-choice').forEach((b) => ((b as HTMLButtonElement).disabled = true));
-      this.showFeedback(clean ? `${praise(this.praiseCount++)} You win a star. ${p.explain}` : `You got it! ${p.explain} Stars are for getting it right the first time.`, 'good');
-      pnl.next.hidden = false;
-      pnl.hintBtn.disabled = true;
+      this.showFeedback(clean ? `${praise(this.praiseCount++)} You win a star. ${st.explain}` : `You got it! ${st.explain} Stars are for getting it right the first time.`, 'good');
       this.renderStars();
-      if (tierChange > 0) toast('Level up! Trickier shapes.', 'reward');
+      if (tierChange > 0) toast('Level up! Trickier questions.', 'reward');
       requestAnimationFrame(() => pnl.next.focus());
       return;
     }
@@ -589,7 +671,7 @@ export class Game {
       pnl.recorded = true;
       const o = recordAnswer(this.save.learner, pnl.station, { correct: false, hintRung: pnl.rung, misconception: mis }, RULES);
       this.persist();
-      if (o.tierChange < 0) toast('Let us practise a little more at an easier level.', 'hint');
+      if (o.tierChange < 0 && !pnl.finale) toast('Let us practise a little more at an easier level.', 'hint');
     }
     audio.retry();
     this.showFeedback(mistakeLine(p, mis), 'try');
@@ -597,11 +679,12 @@ export class Game {
       btn.disabled = true;
       btn.classList.add('nope');
     }
-    pnl.body.querySelector('.st-pic')?.classList.remove('wobble');
-    void (pnl.body.querySelector('.st-pic') as HTMLElement | null)?.offsetWidth;
-    pnl.body.querySelector('.st-pic')?.classList.add('wobble');
+    pic?.classList.remove('wobble');
+    void (pic as HTMLElement | null)?.offsetWidth;
+    pic?.classList.add('wobble');
     pnl.body.querySelector<HTMLButtonElement>('.st-choice:not([disabled])')?.focus();
-    if (pnl.tries >= 2) this.hint(Math.min(3, pnl.tries));
+    const missesThisStep = pnl.body.querySelectorAll('.st-choice.nope').length;
+    if (missesThisStep >= 2) this.hint(Math.min(3, missesThisStep));
   }
 
   private showFeedback(text: string, kind: 'good' | 'try' | 'hint'): void {
@@ -622,19 +705,33 @@ export class Game {
       return;
     }
     pnl.rung = Math.max(pnl.rung, nextRung);
+    pnl.maxRung = Math.max(pnl.maxRung, pnl.rung);
     audio.hint();
     const p = pnl.problem;
     if (pnl.rung >= 2) pnl.body.querySelector('.st-pic')?.replaceChildren(this.picture(p, true));
     if (pnl.rung >= 3) {
-      const right = p.choices.find((c) => c.correct)!;
+      const right = stepsOf(p)[pnl.step].choices.find((c) => c.correct)!;
       pnl.body.querySelector(`.st-choice[data-value="${CSS.escape(right.value)}"]`)?.classList.add('worked');
     }
-    this.showFeedback(`Hint ${pnl.rung} of 3: ${hintText(p, pnl.rung)}`, 'hint');
+    this.showFeedback(`Hint ${pnl.rung} of 3: ${hintText(p, pnl.rung, pnl.step)}`, 'hint');
   }
 
   private afterAnswer(): void {
     const pnl = this.panel;
     if (!pnl || !pnl.answered) return;
+    if (pnl.step < stepsOf(pnl.problem).length - 1) {
+      pnl.step++;
+      this.showStep();
+      return;
+    }
+    if (pnl.finale) {
+      if (pnl.finale.index >= STATIONS.length) {
+        pnl.finale = null;
+        pnl.modal.close();
+        void this.openClubhouse();
+      } else this.nextChallenge();
+      return;
+    }
     const s = pnl.station;
     const rec = skill(this.save.learner, s);
     const ready = this.save.stars[s] >= STARS_PER_STATION && (rec.tier >= 2 || this.save.played[s] >= MAX_PER_STATION);
@@ -689,7 +786,51 @@ export class Game {
     await this.talk.say(who, info.done, 'proud');
     const openLeft = OPEN_STATIONS.filter((x) => !this.save.done.includes(x));
     const allDone = STATIONS.every((x) => this.save.done.includes(x));
-    await this.talk.say(this.speakers.odette, allDone ? 'The last part is in! Come and see me at the clubhouse.' : openLeft.length ? `Look! ${info.partName[0].toUpperCase()}${info.partName.slice(1)} went up. ${STATION_INFO[openLeft[0]].person.name} needs you next.` : ALL_OPEN_DONE, 'proud');
+    await this.talk.say(this.speakers.odette, allDone ? (this.save.finaleSeen ? AFTER_FINALE : ALL_PARTS_IN) : `Look! ${info.partName[0].toUpperCase()}${info.partName.slice(1)} went up. ${STATION_INFO[openLeft[0]].person.name} needs you next.`, 'proud');
+    this.talk.end();
+    this.renderHud();
+    this.mode = 'world';
+  }
+
+  // ------------------------------------------------------------ The Big Build: the clubhouse opens
+
+  private async openClubhouse(): Promise<void> {
+    this.mode = 'busy';
+    const odette = this.speakers.odette;
+    // stand in front of the clubhouse so the camera sees the opening
+    this.world.stopWalking();
+    this.world.player.x = START.x;
+    this.world.player.y = START.y;
+    this.world.player.facing = 'up';
+    await this.talk.say(odette, FINALE_OPENING[0], 'proud');
+    this.talk.end();
+    // the sun sets
+    await new Promise<void>((done) => {
+      if (settings.reducedMotion) {
+        this.world.setNight(0.7);
+        return done();
+      }
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / 2200);
+        this.world.setNight(0.7 * k);
+        if (k < 1) requestAnimationFrame(step);
+        else done();
+      };
+      requestAnimationFrame(step);
+    });
+    this.world.gather();
+    this.world.setParts(this.parts(), true);
+    audio.play('evening');
+    await this.talk.say(odette, FINALE_OPENING.slice(1), 'proud');
+    await this.talk.say(odette, FINALE_RIBBON, 'proud');
+    audio.levelUp();
+    toast('The clubhouse is open!', 'reward');
+    this.save.finaleSeen = true;
+    this.persist();
+    this.updateMarkers();
+    await this.talk.say(this.speakers.chip, 'I helped too! I chewed the ribbon. ...Was that not the plan?', 'proud');
+    await this.talk.say(odette, AFTER_FINALE);
     this.talk.end();
     this.renderHud();
     this.mode = 'world';
@@ -883,21 +1024,30 @@ export class Game {
       const info = STATION_INFO[s];
       const n = this.save.stars[s];
       const on = this.save.done.includes(s);
-      const open = OPEN_STATIONS.includes(s);
       return h(
         'li',
-        { class: `belt-row${open ? '' : ' soon'}` },
+        { class: 'belt-row' },
         pix(`part-${info.part}-${on}`, () => paintPartIcon(info.part, on), 2),
         h(
           'div',
           { class: 'belt-info' },
           h('strong', { text: `${info.name}: ${info.skill} (grades ${info.grades})` }),
-          h('span', { text: !open ? 'Opening soon.' : on ? `Done! ${info.partName[0].toUpperCase()}${info.partName.slice(1)} went up.` : `Help ${info.person.name} to build ${info.partName}.` }),
-          ...(open ? [h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18)))] : []),
+          h('span', { text: on ? `Done! ${info.partName[0].toUpperCase()}${info.partName.slice(1)} went up.` : `Help ${info.person.name} to build ${info.partName}.` }),
+          h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18))),
         ),
         h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walk(s) }),
       );
     });
+    if (STATIONS.every((x) => this.save.done.includes(x)))
+      rows.push(
+        h(
+          'li',
+          { class: 'belt-row' },
+          pix('part-roof-true', () => paintPartIcon('roof', true), 2),
+          h('div', { class: 'belt-info' }, h('strong', { text: 'The Big Build' }), h('span', { text: this.save.finaleSeen ? 'Done! The clubhouse is open.' : 'Talk to Odette to fit the last four pieces.' })),
+          h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walk('odette') }),
+        ),
+      );
     rows.push(
       h(
         'li',
@@ -961,8 +1111,24 @@ export class Game {
       'roll-stack': 'mixing up what rolls and what stacks',
       'visible-faces-only': 'counting only the faces you can see',
       'side-view': 'naming a face from the side view (a cone face "a triangle")',
+      'missed-piece': 'missing a piece in a blueprint (often one hiding at the back)',
+      'double-count': 'counting a piece twice',
+      'counted-all': 'counting every piece instead of the asked shape',
+      'compose-gap': 'choosing too few pieces to fill a shape',
+      'compose-overlap': 'choosing too many pieces to fill a shape',
+      'counted-corners': 'counting corners instead of pieces',
+      'rows-plus-cols': 'adding rows and columns instead of counting every square',
+      'rows-only': 'counting only one row',
+      'drawn-only': 'counting only the tiles that are drawn',
+      'area-perimeter-swap': 'mixing up area (inside) and perimeter (fence)',
+      'perimeter-counts-squares': 'counting edge squares instead of fence pieces',
+      'two-sides-only': 'adding only two sides for the perimeter',
+      'add-for-area': 'adding the sides to find the area',
+      'missing-side': 'leaving out a side or part of a garden',
+      'overlap-double': 'counting the overlap of an L-shape twice',
+      'shape-of-garden': 'thinking same area means same fence',
     };
-    const rows = STATIONS.filter((s) => OPEN_STATIONS.includes(s)).map((s) => {
+    const rows = STATIONS.map((s) => {
       const rec = this.save.learner[s];
       const mis = topMisconception(rec);
       return h(
@@ -978,7 +1144,7 @@ export class Game {
     return h(
       'div',
       {},
-      h('p', { text: `This summary is kept only in this browser. Best Rush score: ${this.save.rushBest} shapes in ${RUSH_SECONDS} seconds.` }),
+      h('p', { text: `This summary is kept only in this browser. ${this.save.finaleSeen ? 'The clubhouse is finished and open.' : `${this.save.done.length} of 4 clubhouse parts built.`} Best Rush score: ${this.save.rushBest} shapes in ${RUSH_SECONDS} seconds.` }),
       h('div', { class: 'table-wrap' }, h('table', { class: 'progress-table' }, h('thead', {}, h('tr', {}, ...['Job', 'Status', 'Answers', 'Level now', 'Most common slip'].map((t) => h('th', { scope: 'col', text: t })))), h('tbody', {}, ...rows))),
     );
   }
@@ -998,7 +1164,8 @@ export class Game {
       done: [...this.save.done],
       rushBest: this.save.rushBest,
       talking: this.talk.isOpen,
-      panel: pnl ? { station: pnl.station, problem: pnl.problem, rung: pnl.rung, answered: pnl.answered, tier: skill(this.save.learner, pnl.station).tier, right: pnl.problem.choices.find((c) => c.correct)!.value } : null,
+      panel: pnl ? { station: pnl.station, problem: pnl.problem, step: pnl.step, steps: stepsOf(pnl.problem).length, finale: pnl.finale?.index ?? null, rung: pnl.rung, answered: pnl.answered, tier: skill(this.save.learner, pnl.station).tier, right: stepsOf(pnl.problem)[pnl.step].choices.find((c) => c.correct)!.value } : null,
+      finaleSeen: this.save.finaleSeen,
       rush: r ? { score: r.score, done: r.done, running: r.endsAt !== Infinity, right: r.problem?.choices.find((c) => c.correct)?.value ?? null } : null,
       night: this.world.night,
     };

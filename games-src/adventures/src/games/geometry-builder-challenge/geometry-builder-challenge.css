@@ -378,6 +378,42 @@
   background: radial-gradient(circle at 50% 70%, #fff6dc, transparent 70%);
 }
 
+/* Mr. Haruto's blueprints and Priya's garden plans: pinned paper that pops when right */
+.st-paper {
+  display: flex;
+  padding: 6px;
+  border: 3px solid #163a6e;
+  border-radius: 4px;
+  background: #e8f0ff;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+  animation: st-unroll 0.35s ease-out;
+}
+.st-paper.garden {
+  border-color: #6b4a2e;
+  background: #f4ecdc;
+}
+.st-pic.done .st-paper {
+  animation: st-pop 0.45s ease-out;
+  border-color: #2f8a3a;
+}
+.st-pic.wobble .st-paper {
+  animation: st-wobble 0.4s ease-in-out;
+}
+@keyframes st-unroll {
+  from {
+    transform: scaleY(0.2);
+    opacity: 0;
+  }
+}
+@keyframes st-pop {
+  50% {
+    transform: scale(1.06);
+  }
+}
+.st-finale header h2 {
+  color: #b5481e;
+}
+
 /* bins */
 .st-choices {
   display: flex;
@@ -514,6 +550,9 @@
   .st-pic.done .st-belt-item,
   .st-pic.done .st-block,
   .st-pic.wobble .st-belt-item,
+  .st-paper,
+  .st-pic.done .st-paper,
+  .st-pic.wobble .st-paper,
   .st-choice.right {
     animation: none !important;
   }

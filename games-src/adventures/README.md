@@ -38,8 +38,8 @@ node scripts/e2e-math-race-rally.mjs     # Math Race Rally: a race with right an
 node scripts/rr-tour.mjs <url> <outDir> [w] [h]     # Math Race Rally screenshots: race, results, pit stop, garage, tracks
 node scripts/e2e-math-adventure-island.mjs   # a whole Math Adventure Island game: four torches, a treasure hunt with a wrong dig, the Quiz Show and the finale (49 checks)
 node scripts/mai-tour.mjs <url> <outDir> [w] [h]    # Math Adventure Island screenshots: every zone at levels 1-3 with a miss and hints, a clue and dig, the Quiz Show
-node scripts/e2e-geometry-builder-challenge.mjs   # Shape Town Builders (half 1): the arcade and block shop jobs, a coming-soon helper, Chip and Rush, saving, phone (28 checks)
-node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screenshots: arcade and block shop at levels 1-3 with a miss and hints, Rush
+node scripts/e2e-geometry-builder-challenge.mjs   # Shape Town Builders: all four jobs (incl. a 3-step L-shaped garden), Chip and Rush, The Big Build and the opening, saving, phone (46 checks)
+node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screenshots: all four jobs at levels 1-3 with a miss and hints, Rush, The Big Build and the opening
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -295,23 +295,37 @@ strategy bonus. Winning plays the finale. Code: `src/games/math-adventure-island
 | Island jobs list | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |
 
-## Shape Town Builders (Math batch M5, grades K–4; in progress)
+## Shape Town Builders (Math batch M5, grades K–4)
 
 The geometry game (slug `geometry-builder-challenge`; Shape Sorting Arcade is
-merged in). A building yard puts up a clubhouse, and each helper's job adds a
-part. Built so far (half 1): **Kofi's Shape Sorting Arcade** (flat shapes ride
-a conveyor belt into bins: naming in any size and turn, sides and corners,
-real vs. not-quite shapes, rule bins), **Lupe's Block Shop** (solid shapes:
-flat or solid, names, roll or stack, everyday things, faces you can't see)
-and **Rush mode** against Chip the beaver (60 seconds). Mr. Haruto's
-Blueprint Workshop and Priya's Garden Yard (area and perimeter, up to grade 4)
-come in half 2. Code: `src/games/geometry-builder-challenge/`.
+merged in and its old link redirects). A building yard puts up a clubhouse,
+and each helper's job adds a part:
+
+- **Kofi's Shape Sorting Arcade:** flat shapes ride a conveyor belt into
+  bins (naming in any size and turn, sides and corners, real vs. not-quite
+  shapes, rule bins).
+- **Lupe's Block Shop:** solid shapes (flat or solid, names, roll or stack,
+  everyday things, faces you can't see).
+- **Mr. Haruto's Blueprint Workshop:** count the shapes in a blueprint (the
+  original five plus three new, with the car's back wheels hiding), how many
+  pieces fill a shape, and rows and columns of squares.
+- **Priya's Garden Yard:** area and perimeter on a grid, then with labelled
+  sides, then L-shaped gardens in three steps, missing sides and "same area,
+  different fence" (up to 4.MD.3).
+
+Other features:
+
+- **Rush mode** against Chip the beaver (60 seconds).
+- **The Big Build** finale: one question from each job, then the clubhouse
+  opens at sunset.
+
+Code: `src/games/geometry-builder-challenge/`.
 
 | Action | Keyboard | Mouse / touch |
 |---|---|---|
 | Walk | Arrow keys or WASD | Tap the ground, or the pad |
 | Talk | Space | Tap a person |
-| Pick a bin | 1–3 | Tap a bin |
+| Pick an answer (bin) | 1–3 | Tap it |
 | Hint | H | Hint |
 | Jobs list | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |

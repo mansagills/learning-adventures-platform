@@ -38,6 +38,11 @@ const nextConfig = {
         destination: '/games/math-adventure-island',
         permanent: true,
       },
+      {
+        source: '/games/shape-sorting-arcade',
+        destination: '/games/geometry-builder-challenge',
+        permanent: true,
+      },
     ];
   },
   async headers() {
