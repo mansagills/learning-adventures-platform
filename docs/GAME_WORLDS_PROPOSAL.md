@@ -1,7 +1,7 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction and the order of work are decided (section 2a). The world designs, their names and which games go in each are still open (section 6).
-> **Next session: start with section 9 (the handoff).** Work continues on the branch `claude/elegant-clarke-hlzflj` in a new session.
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is IN PROGRESS**: the character test and the two test scenes are built and wait for the owner's pick (section 7).
+> Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)
 
@@ -83,26 +83,42 @@ Number Line Ninja (a dojo) could join Ancient Kingdoms or stay in Sunny Town; th
 
 **Later (optional):** skins for arcade modes that don't depend on a story, such as the Rush modes or Math Race Rally tracks. A child could race on a town road, a space track or a desert road. This is the small, affordable part of option C.
 
-## 6. Still open (ask the owner at the start of the next session)
+## 6. Questions for the owner: answered 2026-10-06
 
-Decided already (see section 2a): worlds rather than subject areas; the owner and team place the games; no re-skinning of every game; the order of work.
-
-1. **Which new worlds to design first, and their names?** Suggested: Star Station (sci-fi) and Ancient Kingdoms, since those are the two the owner named. Then Wild Lands (nature) once the life and Earth science games are near. Storybook Realm is optional. Sunny Town (today's look) already exists.
-2. **Where do the remaining Math games go?** The owner and team decide. Possibilities: M6 Fractions (a pizzeria) in Sunny Town or Ancient Kingdoms (a market bakery), and M7 Multiplication Space Quest in Star Station (it is already a space theme). Equation Balance Scale could go anywhere: a space cargo scale, or an ancient market scale.
-3. **Do any finished games move to a new world?** For example, Math Race Rally or Math Adventure Island. Suggested: only if the owner wants it, and only by changing the backdrop, never by rewriting an approved game.
-4. **Skins for arcade modes** (a space track for Math Race Rally, say): later, or never?
-5. **The team's QA feedback** on the finished games: fold it in before or alongside the world work?
+1. **Which new worlds first, and their names?** **Star Station** (sci-fi) and **Ancient Kingdoms**, with these names. Wild Lands (nature) comes later, when the life and Earth science games are close. Storybook Realm stays optional.
+2. **Where do the remaining Math games go?** **M6 Fractions (Pizza Fraction Frenzy) goes to Ancient Kingdoms** (for example a market bakery). **M7 (Multiplication Space Quest and Equation Balance Scale) goes to Star Station.**
+3. **Do any finished games move to a new world?** **No.** The eight finished Math games stay in Sunny Town exactly as they are.
+4. **Skins for arcade modes?** **Never.** Skins are dropped from the plan (section 5, "Later", no longer applies).
+5. **The team's QA feedback?** The owner runs QA as a **separate process**. For now games are published first and the team QAs them in batches; from now on the process will put **QA before publishing**. QA fixes are not part of the world work.
 
 ## 7. Phases (in the owner's order)
 
 | Phase | What | Done when |
 |---|---|---|
-| **W0 Look development** | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
+| **W0 Look development: IN PROGRESS** (see 7a) | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
 | **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes. That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
 | **W2 Games in their worlds** | Build the remaining games with the `remaster-game` skill (updated with a "World" step), each in the world the owner and team chose: Math M6 and M7 first, then Science, English and History. Aim for at least a few games per world. | Each game scores 8.5+ on the rubric and is owner-approved, one PR per batch as before |
 | **W3 The site: Echoes and the world map** | `lib/content/worlds.ts` and a `world` field on games. An interactive world map where children pick a world (doors that open, Jaylen and S.P.A.R.K. as guides, the Echo story from `docs/lore/`). `/worlds/[world]` pages, world badges on cards and a homepage entrance. The subject pages stay. | `npm test`, lint, build with no env vars; phone layout and keyboard checked; owner-approved |
 
 Each phase is one or more PRs to `main`, approved by the owner, like the UX-4 batches.
+
+### 7a. W0 progress (2026-10-06)
+
+Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). Nothing players see changes: the test pages live in `games-src/adventures/lookdev/` and `src/lookdev/`, which the site build leaves out.
+
+**How to look at it:** `cd games-src/adventures && npm run dev`, then open `/lookdev/` (the character test) or `/lookdev/?view=scene&world=star|ancient&level=a|b|c&time=day|evening` (add `&talk=1` for an open talk box). `node scripts/lookdev-shots.mjs` saves every screenshot to `test-output/lookdev/`.
+
+**What was built:**
+- **A 16-bit shading painter** (`src/lookdev/shade.ts`): every color becomes 5 shades (cool shadows, warm highlights), shapes are shaded from a light in the top left, parts get soft seams where they overlap, and outlines take a dark shade of the color they wrap. Designs are written once and painted at 16, 24 or 32 pixels per tile.
+- **The character test** (`src/lookdev/hero.ts`, `characters.ts`, `sheet.ts`): the default player (the same child as Sunny Town's default) at today's look and three levels: (a) 16 x 24 with richer color, (b) 24 x 36, (c) 32 x 48. Front, side and back; a 4-frame walk and a blink for (b) and (c); new 72 x 72 portraits with four moods; and each version standing in a slice of each new world, day and evening, at in-game size.
+- **A camera with a per-world pixel size** (`src/lookdev/stage.ts`): the kit's 45-degree camera with pixels per tile as a setting. With 24 pixels per tile a laptop shows the same number of tiles as Sunny Town does today, so the characters are the same height on screen but have more detail. With 32, characters come out larger and fewer tiles fit.
+- **Star Station test scene** (`worlds/star.ts`, `starScene.ts`): an observation deck. Steel-lavender deck plates with colored light tiles, two teal walkways with light strips, a docking ring, a giant window onto a wispy nebula, a ringed planet and a moon (it drifts slower than the deck: parallax), consoles with blinking buttons, a hologram table, a telescope, an info kiosk, growing domes, crates, benches and a hovering helper drone. Day shift, and a night shift with neon glows.
+- **Ancient Kingdoms test scene** (`worlds/ancient.ts`, `ancientScene.ts`): a river market. Mud-brick houses in the Djenne style (rounded pillars, toron beams), the Great Mosque of Djenne and steep Kushite pyramids on the horizon, a sandstone plaza with a sun mosaic, a striped market stall with mud-cloth, baskets and pots, an obelisk with pattern bands (not writing), a well, palms, a cat, torches, and a river with lotus flowers, papyrus and a reed boat. Day, and dusk with torchlight.
+- Two **test hosts** with names that are placeholders only: Engineer Kemi (Star Station) and Storyteller Awa (Ancient Kingdoms). Each game will still have its own host.
+- The **talk box** keeps the house parchment panel. Each world only changes the portrait backdrop and a colored stripe.
+
+**Waiting on the owner:** (1) pick the character level, (a), (b) or (c) (recommended: (b)); (2) approve or change the look of each world. After that, W1 builds the theme layer in the kit.
+
 
 ## 8. Things that must not change
 
@@ -114,7 +130,9 @@ Each phase is one or more PRs to `main`, approved by the owner, like the UX-4 ba
 
 ## 9. Handoff for the next session
 
-**Where things stand (2026-10-06):**
+**Update (2026-10-06, later):** the section 6 questions are answered and W0 is built (section 7a). The next session starts by asking the owner for the character pick and the world approvals, if they have not given them yet, then begins W1.
+
+**Where things stood at the start of W0 (2026-10-06):**
 - **8 of the 11 Math games are rebuilt and live:** Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island and Shape Town Builders. All are in today's "Sunny Town" look. Their status and scores are in `docs/GAMES_3D_UPGRADE_PLAN.md`.
 - **Still to build:** Math M6 Fractions and M7 Multiplication and equations, then Science (14), English (1) and History (1). The learning specs for each batch are in the same plan.
 - The owner's team is doing QA on the finished games. Feedback may arrive at any time; handle it as normal fixes.
