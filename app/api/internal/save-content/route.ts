@@ -5,6 +5,8 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join, resolve, sep, basename } from 'path';
 import { existsSync } from 'fs';
 import AdmZip from 'adm-zip';
+import { assertArchiveWithinLimits } from '@/lib/zip-limits';
+
 import { validateIdentifier } from '@/lib/security';
 import { extractZipSafely } from '@/lib/safe-zip';
 
@@ -126,6 +128,7 @@ export async function POST(request: NextRequest) {
       }
 
       const zip = new AdmZip(zipFullPath);
+      assertArchiveWithinLimits(zip);
       await extractZipSafely(zip, gameDir);
 
       return NextResponse.json({

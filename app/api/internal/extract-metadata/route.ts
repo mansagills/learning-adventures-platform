@@ -3,6 +3,8 @@ import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { resolve, sep } from 'path';
 import AdmZip from 'adm-zip';
+import { readZipEntry, MAX_MANIFEST_BYTES, assertArchiveWithinLimits } from '@/lib/zip-limits';
+
 
 interface ExtractedMetadata {
   title?: string;
@@ -51,6 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Read the zip file
     const zip = new AdmZip(fullPath);
+    assertArchiveWithinLimits(zip);
     const zipEntries = zip.getEntries();
 
     // Look for metadata.json in the root or common locations
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const metadataContent = metadataEntry.getData().toString('utf8');
+      const metadataContent = readZipEntry(metadataEntry, MAX_MANIFEST_BYTES, metadataEntry.entryName).toString('utf8');
       extractedMetadata = JSON.parse(metadataContent);
     }
 

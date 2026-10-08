@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import AdmZip from 'adm-zip';
+import { assertArchiveWithinLimits } from '@/lib/zip-limits';
+
 import {
   processCoursePackage,
   isCoursePackage,
@@ -30,6 +32,7 @@ export async function POST(request: NextRequest) {
     // Read ZIP to determine package type
     const buffer = Buffer.from(await zipFile.arrayBuffer());
     const zip = new AdmZip(buffer);
+    assertArchiveWithinLimits(zip);
 
     // Determine if this is a game or course package
     const isGame = isGamePackage(zip);
