@@ -8,6 +8,7 @@ import { Stage, shadow } from './stage';
 import { buildStar } from './worlds/starScene';
 import { buildAncient } from './worlds/ancientScene';
 import { castFor, type Level } from './cast';
+import { currentToken, pageNav } from './nav';
 
 export type TimeOfDay = 'day' | 'evening';
 
@@ -101,6 +102,7 @@ export function showScene(host: HTMLElement, q: URLSearchParams): void {
     h('strong', { text: `${world.name} test scene` }),
     h('span', { text: `Level (${level}): ${px} pixels per tile · ${time === 'day' ? (worldId === 'star' ? 'day shift' : 'day') : worldId === 'star' ? 'night shift' : 'dusk'}` }),
   );
+  label.append(pageNav(currentToken()));
   host.appendChild(label);
 
   if (q.get('talk')) {

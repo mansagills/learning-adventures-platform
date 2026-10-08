@@ -6,6 +6,7 @@ const H = <K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, 
 import { MOODS, VERSIONS, newPortrait, todayPortrait, type Version } from './characters';
 import type { Dir16 } from './hero';
 import { SLICE_WORLDS, paintSlice } from './slices';
+import { currentToken, pageNav } from './nav';
 
 /** Zoom that brings every version to the same 144 px height for comparing detail. */
 const SAME_HEIGHT: Record<Version['id'], number> = { today: 6, a: 6, b: 4, c: 3 };
@@ -22,6 +23,7 @@ export function showSheet(host: HTMLElement, q: URLSearchParams): void {
   document.body.classList.add('lookdev');
   const only = q.get('part');
   const page = H('main', { class: 'sheet' });
+  if (!only) page.append(H('h1', {}, ['Game worlds: look development']), pageNav(currentToken()));
   host.appendChild(page);
   const dirs: Dir16[] = ['down', 'right', 'up', 'left'];
 

@@ -130,3 +130,39 @@ body.lookdev #app {
 .world-ancient .dialogue {
   box-shadow: inset 0 5px 0 #2f4f9e, inset 0 0 0 2px var(--paper-3), var(--shadow);
 }
+
+/* links between the test pages */
+.sheet h1 {
+  font-family: var(--font-pixel);
+  font-weight: 600;
+  font-size: 28px;
+  margin: 4px 0 10px;
+}
+.ld-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.ld-label .ld-nav {
+  margin: 6px 0 0;
+  max-width: 560px;
+}
+.ld-nav a {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid #4f2f1c;
+  background: #efe0bf;
+  color: #2f2320;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ld-nav a.on {
+  background: #2f2320;
+  color: #f6ecd3;
+}
+.ld-nav a:focus-visible {
+  outline: 3px solid #1d4fd8;
+  outline-offset: 2px;
+}
