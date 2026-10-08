@@ -44,6 +44,14 @@ node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinatio
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
 
+**World look development (W0, not shipped):** with `npx vite --port 5180` running,
+open `/lookdev/` for the 16-bit character test, or
+`/lookdev/?view=scene&world=star|ancient&level=a|b|c&time=day|evening[&talk=1]`
+for the Star Station and Ancient Kingdoms test scenes.
+`node scripts/lookdev-shots.mjs` saves screenshots of all of them to
+`test-output/lookdev/`. The `lookdev/` folder is left out of the build. See
+`docs/GAME_WORLDS_PROPOSAL.md` section 7a.
+
 From the repo root, the same things are `npm run games`, `npm run games:build`
 and `npm run games:test`.
 
@@ -63,6 +71,7 @@ src/kit/                   the Adventure Kit, shared by every game
   systems/                 sound (made in code), settings (shared by all games), saving, keyboard input, read-aloud
   ui/                      talk box, title, character creator, settings, grown-ups page, toolbar, toasts, touch pad
 src/games/<slug>/          one folder per game
+src/lookdev/               W0 look development for the new worlds (16-bit painter, test scenes; not shipped)
 tests/                     unit tests
 scripts/                   browser tests and screenshot tours
 ```

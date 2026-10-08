@@ -8,11 +8,12 @@ import { defineConfig } from 'vite';
 // public/games/play/<slug>/ in the Next.js site, with shared code (three.js
 // and the Adventure Kit) in public/games/play/assets/. It must stay under
 // /games/: the site only lets /games/ and /lessons/ pages be embedded in its
-// game player. base: './' keeps every path relative.
+// game player. base: './' keeps every path relative. The lookdev/ folder (the
+// W0 world look development pages) is for the dev server only and is not built.
 const root = process.cwd();
 const games = Object.fromEntries(
   readdirSync(root, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && !['node_modules', 'src', 'tests', 'scripts', 'test-output'].includes(d.name) && existsSync(resolve(root, d.name, 'index.html')))
+    .filter((d) => d.isDirectory() && !['node_modules', 'src', 'tests', 'scripts', 'test-output', 'lookdev'].includes(d.name) && existsSync(resolve(root, d.name, 'index.html')))
     .map((d) => [d.name, resolve(root, d.name, 'index.html')]),
 );
 
