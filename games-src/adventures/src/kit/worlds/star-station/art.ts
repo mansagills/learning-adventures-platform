@@ -1,4 +1,4 @@
-import { PixelBuffer } from '../../kit/art/pixel';
+import { PixelBuffer } from '../../art/pixel';
 import { Paint, hash, mixHex, ramp, type Ramp } from '../shade';
 
 /**

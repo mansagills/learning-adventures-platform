@@ -1,5 +1,5 @@
-import { PixelBuffer } from '../kit/art/pixel';
-import { P } from '../kit/art/palette';
+import { PixelBuffer } from '../art/pixel';
+import { P } from '../art/palette';
 import { Paint, mixHex, ramp, selout, toHsl, fromHsl, type Ramp } from './shade';
 
 /**
@@ -26,6 +26,8 @@ export interface Look16 {
   badge?: string;
   /** Bogolan (Malian mud cloth) marks on a robe. */
   mudcloth?: string;
+  /** Two stripes down the front of a tunic (Roman clavi). */
+  clavi?: string;
   /** A headset with a little microphone (Star Station crew). */
   headset?: string;
   /** A bead necklace. */
@@ -56,6 +58,17 @@ export const STATION_HOST: Look16 = {
   belt: '#4a5266',
   badge: '#4fd6ff',
   headset: '#4a5266',
+};
+
+/** Test host for the Roman forum (a merchant in a tunic with clavi). */
+export const FORUM_HOST: Look16 = {
+  build: 'adult',
+  skin: '#c08a5c',
+  hair: { style: 'short', color: '#3a2a24' },
+  top: { color: '#efe6d2', trim: '#b8483e', kind: 'robe' },
+  legs: '#efe6d2',
+  shoes: '#8a5a3a',
+  clavi: '#b8483e',
 };
 
 /** Test host for Ancient Kingdoms (a market storyteller). */
@@ -189,6 +202,7 @@ function frontBack(p: Paint, l: Look16, u: number, f: Frame16, back: boolean): v
   if (l.top.kind === 'robe') {
     p.shape((_x, y) => y >= hem - S(0.8), [0, hem - S(1), p.w, S(1)], R.trim, { form: 'cylV', onlyOver: true, box: [cx - S(L.hemW), tt, S(L.hemW * 2), hem - tt] });
     if (l.mudcloth) mudcloth(p, l.mudcloth, cx, tt + S(2.4), hem - S(1.0), u);
+    if (l.clavi && !back) clavi(p, l.clavi, cx, tt, hem, u, [-1, 1]);
   }
   if (l.top.kind === 'jumpsuit') {
     // legs of the jumpsuit and its orange panels
@@ -313,6 +327,12 @@ function mudcloth(p: Paint, ink: string, cx: number, y0: number, y1: number, u: 
       } else if (p.filled(x, y)) p.dot(x, y, r, 1);
     }
   }
+}
+
+function clavi(p: Paint, color: string, cx: number, tt: number, hem: number, u: number, sides: number[]): void {
+  const r = ramp(color);
+  for (const k of sides)
+    for (let w = 0; w < Math.max(1, Math.round(u * 0.8)); w++) p.line(cx + k * 1.6 * u + w, tt + 0.4 * u, cx + k * 2.1 * u + w, hem - u, r, 2, { onlyOver: true });
 }
 
 function beads(p: Paint, colors: [string, string], cx: number, tt: number, u: number): void {
@@ -580,6 +600,7 @@ function side(p: Paint, l: Look16, u: number, f: Frame16): void {
   const tbox: [number, number, number, number] = [cx - S(L.hemW), tt, S(L.hemW * 2), hem - tt];
   if (l.top.kind === 'dress' || l.top.kind === 'robe') p.shape((_x, y) => y >= hem - S(0.85) && y < hem, [0, hem - S(1), p.w, S(1)], R.trim, { form: 'cylV', onlyOver: true, box: tbox });
   if (l.mudcloth) mudcloth(p, l.mudcloth, cx, tt + S(2.4), hem - S(1), u);
+  if (l.clavi) clavi(p, l.clavi, cx, tt, hem, u, [1]);
   if (l.belt) {
     const by = Y(l.build === 'adult' ? 15.8 : 16.4);
     p.shape((_x, y) => y >= by && y < by + S(0.9), [0, by, p.w, S(1)], R.belt, { form: 'cylV', onlyOver: true, box: tbox });
@@ -772,6 +793,7 @@ export function paintPortrait16(l: Look16, mood: Mood): PixelBuffer {
     star(p, cx + 13, 66, 2, R.badge);
   }
   if (l.mudcloth) mudcloth(p, l.mudcloth, cx, 62, 72, 2.4);
+  if (l.clavi) clavi(p, l.clavi, cx, 60, 72, 5, [-1, 1]);
   // neck and collar
   p.rect(cx - 6, cy + ry - 8, 12, 14, R.skin, { level: 1 });
   if (l.top.kind === 'jumpsuit') p.rect(cx - 9, 58, 18, 3, R.trim, { level: 2 });

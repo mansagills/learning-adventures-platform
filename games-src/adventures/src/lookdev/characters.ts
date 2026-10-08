@@ -1,7 +1,7 @@
 import { DEFAULT_APPEARANCE, lookFromAppearance, paintCharacter, type Dir } from '../kit/art/characters';
 import type { PixelBuffer } from '../kit/art/pixel';
 import { paintPortrait } from '../kit/art/portraits';
-import { PLAYER16, paintHero, paintPortrait16, richen, type Dir16, type Mood } from './hero';
+import { PLAYER16, paintHero, paintPortrait16, richen, type Dir16, type Mood } from '../kit/worlds/hero16';
 
 /**
  * The character test sheet (W0 step 1): the same child at today's Sunny Town

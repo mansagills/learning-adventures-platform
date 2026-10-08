@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { K } from '../kit/render/pixelRenderer';
-import { glowCanvas, pixelTexture, type Lighting } from '../kit/world/sceneKit';
+import { K } from '../render/pixelRenderer';
+import { glowCanvas, pixelTexture, type Lighting } from '../world/sceneKit';
 
 /**
  * The kit's 45-degree pixel camera with one change for the new worlds: the

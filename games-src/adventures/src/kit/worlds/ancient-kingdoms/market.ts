@@ -1,16 +1,26 @@
-import type * as THREE from 'three';
-import { K } from '../../kit/render/pixelRenderer';
-import { pixelTexture } from '../../kit/world/sceneKit';
-import type { Cast } from '../cast';
-import { Figure, type SceneParts, type WorldScene } from '../scene';
-import { billboard, glow, groundPiece, lightPool, shadow } from '../stage';
-import { ANC_LAYOUT as L, paintAncientGround, paintAncientSky, paintBoat, paintCat, paintHouses, paintMat, paintObelisk, paintPalm, paintPots, paintReeds, paintRiver, paintStall, paintTorch, paintWell } from './ancient';
-import { wallSwap } from './starScene';
+import { pixelTexture } from '../../world/sceneKit';
+import { swapFrame as wallSwap } from '../figure';
+import { placer } from '../place';
+import { billboard, glow, groundPiece, lightPool } from '../stage';
+import type { SceneCtx, Setting, SettingScene } from '../types';
+import { ANC_LAYOUT as L, paintAncientGround, paintAncientSky, paintBoat, paintCat, paintHouses, paintMat, paintObelisk, paintPalm, paintPots, paintReeds, paintRiver, paintStall, paintTorch, paintWell } from './art';
 
-/** Ancient Kingdoms' river market, the W0 test scene. */
-export function buildAncient(parts: SceneParts, cast: Cast): WorldScene {
-  const { scene, lighting, px: T, time } = parts;
-  const add = (o: THREE.Object3D) => scene.add(o);
+/** Ancient Kingdoms setting: a river market (the W0 test scene). */
+export const RIVER_MARKET: Setting = {
+  id: 'river-market',
+  world: 'ancient-kingdoms',
+  name: 'River market',
+  inspiredBy: 'Market towns on the Niger in old Mali (the Great Mosque of Djenné) and the pyramids of Meroë in Kush.',
+  sources: [
+    'UNESCO World Heritage: Old Towns of Djenné (whc.unesco.org/en/list/116)',
+    'UNESCO World Heritage: Archaeological Sites of the Island of Meroe (whc.unesco.org/en/list/1336)',
+  ],
+  build: buildMarket,
+};
+
+function buildMarket(ctx: SceneCtx): SettingScene {
+  const { lighting, px: T, time } = ctx;
+  const { add, prop } = placer(ctx);
 
   add(groundPiece(lighting, T, paintAncientGround(T).toCanvas(), 0, 0));
   const riverTex = [0, 1, 2].map((f) => pixelTexture(paintRiver(T, f).toCanvas()));
@@ -23,16 +33,6 @@ export function buildAncient(parts: SceneParts, cast: Cast): WorldScene {
   add(sky);
   add(billboard(lighting, T, paintHouses(T).toCanvas(), L.w / 2, L.floorTop));
 
-  const prop = (canvas: HTMLCanvasElement, x: number, y: number, shadowW = 0) => {
-    const m = billboard(lighting, T, canvas, x, y);
-    add(m);
-    if (shadowW) {
-      const sh = shadow(T, shadowW);
-      sh.position.set(x, 0.015, y * K);
-      add(sh);
-    }
-    return m;
-  };
 
   prop(paintPalm(T, 0).toCanvas(), 1.8, 6.2, 1.4);
   prop(paintPalm(T, 2).toCanvas(), 24.4, 6.6, 1.4);
@@ -76,25 +76,16 @@ export function buildAncient(parts: SceneParts, cast: Cast): WorldScene {
   const catTex = [false, true].map((b) => pixelTexture(paintCat(T, b).toCanvas()));
   const cat = prop(paintCat(T).toCanvas(), 11.2, 11.6, 0.7);
 
-  const player = new Figure(parts, cast.player, 12.4, 10.9);
-  const host = new Figure(parts, cast.host, 14.1, 10.5);
-
   return {
-    name: 'Ancient Kingdoms',
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 11.2, top: -3.2 },
     clear: '#d9a462',
-    tint: { day: [1, 1, 1], evening: [0.92, 0.66, 0.66] },
-    line: 'Welcome to the river market! Traders bring salt, gold and stories from all along the river. Shall we see what is for sale?',
-    speakerName: 'Storyteller Awa',
-    speakerRole: 'Test host · Ancient Kingdoms',
+    spots: { player: { x: 12.4, y: 10.9 }, host: { x: 14.1, y: 10.5 } },
     update(t, camX) {
       wallSwap(river, riverTex[Math.floor(t * 2.5) % 3]);
       torches.forEach((m, i) => wallSwap(m, torchTex[(Math.floor(t * 7) + i) % 3]));
       wallSwap(cat, catTex[t % 5 > 4.8 ? 1 : 0]);
       sky.position.x = L.w / 2 + (camX - L.w / 2) * 0.5;
-      player.frame(t % 3.6 > 3.45 ? 1 : 0);
-      host.frame(t % 4.3 > 4.15 ? 1 : 0);
     },
   };
 }

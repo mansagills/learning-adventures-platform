@@ -1,8 +1,8 @@
 import { PixelBuffer } from '../kit/art/pixel';
 import type { Version } from './characters';
-import { mixHex } from './shade';
-import { paintConsole, paintStarFloor, paintAlienPlant } from './worlds/star';
-import { paintAncientGround, paintPots, paintTorch } from './worlds/ancient';
+import { mixHex } from '../kit/worlds/shade';
+import { paintConsole, paintStarFloor, paintAlienPlant } from '../kit/worlds/star-station/art';
+import { paintAncientGround, paintPots, paintTorch } from '../kit/worlds/ancient-kingdoms/art';
 
 /**
  * Small 2D slices of each new world (6 x 4 tiles) with one version of the

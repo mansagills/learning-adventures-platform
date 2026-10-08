@@ -1,4 +1,4 @@
-import { PixelBuffer } from '../kit/art/pixel';
+import { PixelBuffer } from '../art/pixel';
 
 /**
  * The 16-bit shading painter (look development for the new worlds).
@@ -82,7 +82,9 @@ export function ramp(base: string, opts: { spread?: number; warm?: number; cool?
       out.push(fromHsl(hh, Math.min(1, s + 0.05 * k), l - (0.105 * k + 0.01 * k * k) * spread));
     } else {
       const hh = s < 0.06 && opts.hiHue === undefined ? h : hueToward(h, opts.hiHue ?? 52, 7 * i * warm);
-      out.push(fromHsl(hh, s - 0.02 * i, l + (0.085 * i - 0.005 * i * i) * spread));
+      // near-white colors get smaller steps, so the two highlights never both turn pure white
+      const up = Math.min((0.085 * i - 0.005 * i * i) * spread, ((0.985 - l) * i) / 2);
+      out.push(fromHsl(hh, s - 0.02 * i, l + up));
     }
   }
   return out;

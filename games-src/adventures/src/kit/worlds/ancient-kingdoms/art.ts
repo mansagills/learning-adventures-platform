@@ -1,4 +1,4 @@
-import { PixelBuffer } from '../../kit/art/pixel';
+import { PixelBuffer } from '../../art/pixel';
 import { Paint, hash, mixHex, ramp, type Ramp } from '../shade';
 
 /**
@@ -154,7 +154,27 @@ export function paintRiver(T: number, frame: number, L: AncientLayout = ANC_LAYO
 
 // ------------------------------------------------------------------ the sky and the far horizon
 
-export function paintAncientSky(T: number, wTiles: number, hTiles: number, time: 'day' | 'evening'): PixelBuffer {
+/** What a horizon painter gets: the sky being painted and a few measurements. */
+export interface HorizonCtx {
+  p: Paint;
+  T: number;
+  u: number;
+  W: number;
+  H: number;
+  /** The y of the horizon line. */
+  horizon: number;
+  dusk: boolean;
+  /** A ramp for something far away: faded toward the sky color. */
+  far(c: string, k: number): Ramp;
+}
+export type HorizonPainter = (h: HorizonCtx) => void;
+
+/**
+ * The Ancient Kingdoms sky (shared by every setting in the world): a warm day
+ * or a dusk sky with a low sun, clouds and the first stars. Each setting adds
+ * its own horizon (the Mali one by default).
+ */
+export function paintAncientSky(T: number, wTiles: number, hTiles: number, time: 'day' | 'evening', horizonPainter: HorizonPainter = maliHorizon): PixelBuffer {
   const u = U(T);
   const W = Math.round(wTiles * T);
   const H = Math.round(hTiles * T);
@@ -200,6 +220,12 @@ export function paintAncientSky(T: number, wTiles: number, hTiles: number, time:
   }
   // far things fade toward the sky color (atmospheric perspective)
   const far = (c: string, k: number) => ramp(mixHex(c, dusk ? '#7a4a8a' : '#cfe3e6', k), { spread: 0.7 });
+  horizonPainter({ p, T, u, W, H, horizon, dusk, far });
+  return p.toBuffer({ outline: false });
+}
+
+/** Mali and Kush: dunes, the steep pyramids of Meroë, the Great Mosque of Djenné and palms. */
+export function maliHorizon({ p, T, u, W, H, horizon, dusk, far }: HorizonCtx): void {
   // low dunes
   const dune = far('#d8a868', 0.35);
   for (let x = 0; x < W; x++) {
@@ -255,7 +281,6 @@ export function paintAncientSky(T: number, wTiles: number, hTiles: number, time:
       p.capsule((bx + 0.2 * T + ex) / 2, top + Math.sin(ang) * 0.3 * T, ex, ey, Math.max(0.6, 0.05 * T), palm, { form: 'flat', level: 2 });
     }
   }
-  return p.toBuffer({ outline: false });
 }
 
 // ------------------------------------------------------------------ the row of mud-brick buildings

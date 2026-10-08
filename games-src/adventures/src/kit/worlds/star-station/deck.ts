@@ -1,9 +1,9 @@
-import * as THREE from 'three';
-import { K } from '../../kit/render/pixelRenderer';
-import { pixelTexture } from '../../kit/world/sceneKit';
-import type { Cast } from '../cast';
-import { Figure, type SceneParts, type WorldScene } from '../scene';
+import { K } from '../../render/pixelRenderer';
+import { pixelTexture } from '../../world/sceneKit';
+import { swapFrame as wallSwap } from '../figure';
+import { placer } from '../place';
 import { billboard, glow, groundPiece, lightPool, shadow } from '../stage';
+import type { SceneCtx, Setting, SettingScene } from '../types';
 import {
   STAR_LAYOUT as L,
   WALL_TILES,
@@ -21,12 +21,20 @@ import {
   paintSpace,
   paintStarFloor,
   paintStarWall,
-} from './star';
+} from './art';
 
-/** Star Station's observation deck, the W0 test scene. */
-export function buildStar(parts: SceneParts, cast: Cast): WorldScene {
-  const { scene, lighting, px: T } = parts;
-  const add = (o: THREE.Object3D) => scene.add(o);
+/** Star Station setting: the observation deck (the W0 test scene). */
+export const STATION_DECK: Setting = {
+  id: 'station-deck',
+  world: 'star-station',
+  name: 'Observation deck',
+  inspiredBy: 'Space stations and science fiction; the ringed planet is made up.',
+  build: buildDeck,
+};
+
+function buildDeck(ctx: SceneCtx): SettingScene {
+  const { lighting, px: T } = ctx;
+  const { add, prop } = placer(ctx);
 
   add(groundPiece(lighting, T, paintStarFloor(T).toCanvas(), 0, 0));
 
@@ -50,16 +58,6 @@ export function buildStar(parts: SceneParts, cast: Cast): WorldScene {
       add(lightPool(lighting, T, x, r1 + 0.9, 0.8, '#5fe3ff', 0.3));
     }
 
-  const prop = (canvas: HTMLCanvasElement, x: number, y: number, shadowW = 0, lift = 0) => {
-    const m = billboard(lighting, T, canvas, x, y, lift);
-    add(m);
-    if (shadowW) {
-      const sh = shadow(T, shadowW);
-      sh.position.set(x, 0.015, y * K);
-      add(sh);
-    }
-    return m;
-  };
 
   // consoles by the wall, and a hologram table
   const consoles = [prop(paintConsole(T, 0).toCanvas(), 3.6, 6.4), prop(paintConsole(T, 1).toCanvas(), 6.4, 6.4)];
@@ -107,19 +105,11 @@ export function buildStar(parts: SceneParts, cast: Cast): WorldScene {
   add(droneShadow);
   add(glow(lighting, T, Math.round(T * 1.1), '#5fe3ff', 15.9, 12.2, 0.85, 0.7));
 
-  // the people
-  const player = new Figure(parts, cast.player, 12.2, 11.4);
-  const host = new Figure(parts, cast.host, 14.0, 10.9);
-
   return {
-    name: 'Star Station',
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 12.2, top: -1.2 },
     clear: '#141729',
-    tint: { day: [1, 1, 1], evening: [0.6, 0.64, 0.92] },
-    line: 'Welcome aboard Star Station! This is the observation deck. That ringed planet out the window is where our next mission goes.',
-    speakerName: 'Engineer Kemi',
-    speakerRole: 'Test host · Star Station crew',
+    spots: { player: { x: 12.2, y: 11.4 }, host: { x: 14.0, y: 10.9 } },
     update(t, camX) {
       const f = Math.floor(t * 2);
       wallSwap(wall, wallFrames[f % 2]);
@@ -131,18 +121,6 @@ export function buildStar(parts: SceneParts, cast: Cast): WorldScene {
       drone.position.y = (0.9 + Math.round(Math.sin(t * 2.4) * 2) / T) * K;
       // the far scene drifts slower than the deck: a sense of depth
       space.position.x = L.w / 2 + (camX - L.w / 2) * 0.55;
-      const blink = t % 3.6 > 3.45;
-      player.frame(blink ? 1 : 0);
-      host.frame(t % 4.3 > 4.15 ? 1 : 0);
     },
   };
-}
-
-/** Show another animation frame on a billboard. */
-export function wallSwap(m: THREE.Mesh, tex: THREE.Texture): void {
-  const mat = m.material as THREE.MeshBasicMaterial;
-  if (mat.map !== tex) {
-    mat.map = tex;
-    mat.needsUpdate = true;
-  }
 }
