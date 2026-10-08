@@ -711,6 +711,80 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
+#### M6 Fractions: DESIGN PLAN, awaiting owner approval (2026-10-08)
+
+The first game built in a new world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). The owner placed M6 in **Ancient Kingdoms**, and approved the **Roman forum** setting from the kit (`src/kit/worlds/ancient-kingdoms/forum.ts`), so this game is set there: 24 pixels per tile, 16-bit characters, the forum's day and dusk light.
+
+##### Working title "Forum Fraction Feast" (slug `pizza-fraction-frenzy`, grades 2–4)
+
+> Source: the old site game `public/games/pizza-fraction-frenzy.html`; merges the activity `public/lessons/fraction-pizza-party.html` (its link will redirect). The final name is an owner choice (below); the slug stays so the old link keeps working.
+
+##### What the originals do
+
+- **Pizza Fraction Frenzy (game, 2–4) teaches:** matching a fraction (1/2, 1/3, 2/3, 1/4, 3/4, 1/8, 3/8, 5/8, 7/8) to a pizza drawing, against a 60-second timer, for points.
+- **Fraction Pizza Party (activity, 2–4) teaches:** naming the fraction eaten or left of a pizza cut into 3, 4, 6 or 8 slices (10 fixed word problems), plus a pizza you tap to eat slice by slice while the fraction counts down from 8/8.
+- **Answers checked:** all 10 Fraction Pizza Party answers and all 9 Frenzy fractions are correct.
+- **Kept:** the nine Frenzy fractions as the level 1–2 set, every Pizza Party word problem (eaten vs left, "three friends share", "the whole is 4/4"), the tap-to-eat demo (it becomes the opening with the goose), the serving loop and the 60-second race (it becomes the optional Frenzy mode).
+- **Missing against the standard:**
+  - Both games print the fraction under or on the picture, so a child can match symbols without reading the picture at all.
+  - One level, no equal-shares, number line, comparing or equivalence work, although the merge map gives this game all of them.
+  - Wrong answers are random fractions, with "Oops" or "The correct answer is…" as the only feedback.
+  - No hints, debrief, grown-ups page, saves, pixel art or music; emoji throughout; the main game is timed.
+
+##### The game
+
+- **Setting:** a Roman forum on a festival day. The bakery has to feed the whole festival, and every job in the forum is about sharing fairly. The Romans really did this: loaves found at Pompeii are scored into eight equal wedges before baking (a fact for the grown-ups page, checked against museum sources when built).
+- **Characters** (all new, all in the 16-bit style, varied skin tones and ages):
+  - **Host: Baker Livia**, who runs the forum bakery (flour-dusted apron, headscarf). Explains the festival and opens and closes the game.
+  - **Marcus the road surveyor** at the milestone road (Roman surveyors measured roads with a pole and markers).
+  - **Cornelia** at the market stall (fruit, cheese, loaves).
+  - **Tullia the mosaic maker** in the middle of the forum, laying tile strips.
+  - **Anser the goose** (Latin for goose; Rome's geese were famous for honking the alarm). A cheeky sidekick who steals slices, which is where the "how much is left?" questions come from.
+- **How it plays:** the player walks around the forum (arrow keys, WASD, tap-to-walk or the touch pad). A sign over a person marks a job. Talking opens a panel with a picture to read: a loaf to cut, a road to mark, two shares to compare, two tile strips to match. Each job has 3 levels that adapt to the player. Five stars at a job lights one of the forum's four bronze braziers. With all four lit, dusk falls and the **Festival Feast** finale starts: a line of customers, each with an order from one job at the player's level (nothing timed). Then the braziers blaze, everyone gathers at the bakery, and Anser steals the last slice.
+- **Replay:** **Frenzy mode** (the original game's name and race): 60 seconds of quick orders for a personal best. Optional and kept separate, because the main path is never timed.
+- **Modeled on:** `time-attack-clock` and `geometry-builder-challenge` (a walking world with jobs, a finale, the grown-ups page and saves), with the scene, characters and camera from the new world kit (`src/kit/worlds/`). This is the first game at 24 pixels per tile, so the walking, tap-to-walk and the "talk to this person" sign get adapted to the world kit's camera in this game.
+
+##### Learning design
+
+Each job covers its own part of the grade band, and the grown-ups page says which grades each job is for.
+
+| Job (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Bakery (Livia), grades 2–3 | Equal shares and naming fractions | Which loaf is cut fairly? Halves, thirds and fourths (equal vs unequal cuts) | Name the part: "Anser ate 2 of the 8 pieces. What fraction did Anser eat? What is left?" (the Pizza Party problems, plus 6ths) | The whole: "4/4 is how much loaf?"; build the whole from one piece ("this piece is 1/3; how many make a loaf?"); 1/b vs a/b | 2.G.3, 3.NF.1 |
+| Milestone road (Marcus), grade 3 | Fractions on a number line | Put a marker at 1/2, 1/3 or 1/4 of the way to the next milestone | Put a/b (3/4, 5/8, 2/6) on the road; the road is cut into equal stretches | Past 1 (5/4, 3/2, 6/4) and the classic trap: count the stretches, not the posts | 3.NF.2 |
+| Market stall (Cornelia), grades 3–4 | Comparing fractions | Same bottom number: 3/8 or 5/8 of a loaf? | Same top number: 1/4 or 1/8? ("bigger number, smaller piece") | Different tops and bottoms against 1/2 (3/8 vs 4/6), and "only fair if the wholes are the same size" | 3.NF.3d, 4.NF.2 |
+| Mosaic (Tullia), grades 3–4 | Equivalent fractions | Match tile strips: 1/2 = 2/4, 1/3 = 2/6 | Find the missing number: 3/4 = ?/8; whole numbers as fractions (4/4 = 1, 3/1 = 3) | Make equivalents by multiplying top and bottom (2/3 = 8/12), and spot the false one | 3.NF.3a–c, 4.NF.1 |
+
+- **Mistakes the wrong answers come from:**
+  - *Unequal parts:* calls 4 pieces "fourths" when the pieces are different sizes.
+  - *Part over part:* writes eaten over left (2/6) instead of eaten over all pieces (2/8).
+  - *Eaten vs left swap:* gives 6/8 when the question asks what Anser ate.
+  - *Upside down:* 8/2 for 2/8.
+  - *Counting posts, not stretches:* puts 1/4 at the first of four posts, as if the road had five parts.
+  - *Starting at the wrong place:* counts from the first post instead of from 0.
+  - *Bigger bottom, bigger piece:* thinks 1/8 is more than 1/4.
+  - *Top number only:* thinks 3/8 is more than 2/3 because 3 is more than 2.
+  - *Adding to top and bottom:* thinks 1/2 = 2/3 (added 1 to each).
+  - *A whole isn't a fraction:* doesn't see 4/4 as one whole loaf.
+- **Hint ladder:** a nudge question ("Are all the pieces the same size?", "Count the stretches between the posts") → a picture with a worked step (the cuts numbered, the road's stretches colored, the two shares stacked side by side, the tile strips lined up) → the answer outlined with its explanation.
+- **Debriefs** (one "why" question per helper):
+  - Livia: "This loaf is cut into 4 pieces of different sizes. Is each piece a fourth?"
+  - Marcus: "Where does 4/4 go on the road?"
+  - Cornelia: "Why is 1/8 smaller than 1/4 when 8 is bigger than 4?"
+  - Tullia: "1/2 and 2/4 cover the same tiles. Why?"
+- **Progress and finale:** five stars per job lights its brazier; a job is done after 5 stars and level 2 (or 12 questions played), so a child who struggles still finishes. The Festival Feast mixes all four jobs, then the forum stays at dusk with every job open. Frenzy mode gives a reason to come back.
+- **Difficulty change from the originals:** from one level of picture matching up to the top of grade 4 (comparing unlike fractions with 1/2, and equivalence by multiplying); the fraction is never printed on the picture, so the child has to read the picture; the timer moves to an optional mode.
+
+##### Choices for the owner
+
+1. **The name.** Pizza did not exist in ancient Rome, so the game uses Roman loaves and flatbreads. Options: a new name such as "Forum Fraction Feast" (recommended, same link), or keep "Pizza Fraction Frenzy" with the bakery making flatbread "pizzas" (the ancestors of pizza).
+2. **The kind of game.** A walking forum with four jobs and a finale (recommended: it uses the new world, and it gives each fraction skill its own picture), or a bakery shop where customers order fractions and the player earns coins for bakery upgrades (closer to the original Frenzy, but much like Money Market Madness).
+3. **Build in two halves** (recommended for four jobs): the forum, Livia's bakery and Marcus's road first, for a quick look; then Cornelia, Tullia, the finale and Frenzy mode.
+
+##### Checks it will ship with
+
+Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
+
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
