@@ -711,11 +711,11 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M6 Fractions: DESIGN PLAN, awaiting owner approval (2026-10-08)
+#### M6 Fractions: DESIGN PLAN, choices made, awaiting owner approval of the plan (2026-10-08)
 
 The first game built in a new world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). The owner placed M6 in **Ancient Kingdoms**, and approved the **Roman forum** setting from the kit (`src/kit/worlds/ancient-kingdoms/forum.ts`), so this game is set there: 24 pixels per tile, 16-bit characters, the forum's day and dusk light.
 
-##### Working title "Forum Fraction Feast" (slug `pizza-fraction-frenzy`, grades 2–4)
+##### "Forum Fraction Feast" (slug `pizza-fraction-frenzy`, grades 2–4)
 
 > Source: the old site game `public/games/pizza-fraction-frenzy.html`; merges the activity `public/lessons/fraction-pizza-party.html` (its link will redirect). The final name is an owner choice (below); the slug stays so the old link keeps working.
 
@@ -776,6 +776,8 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 - **Difficulty change from the originals:** from one level of picture matching up to the top of grade 4 (comparing unlike fractions with 1/2, and equivalence by multiplying); the fraction is never printed on the picture, so the child has to read the picture; the timer moves to an optional mode.
 
 ##### Choices for the owner
+
+**Owner answers (2026-10-08):** the name is **Forum Fraction Feast**; a **walking forum with four jobs**; built in **two halves** (bakery and road first).
 
 1. **The name.** Pizza did not exist in ancient Rome, so the game uses Roman loaves and flatbreads. Options: a new name such as "Forum Fraction Feast" (recommended, same link), or keep "Pizza Fraction Frenzy" with the bakery making flatbread "pizzas" (the ancestors of pizza).
 2. **The kind of game.** A walking forum with four jobs and a finale (recommended: it uses the new world, and it gives each fraction skill its own picture), or a bakery shop where customers order fractions and the player earns coins for bakery upgrades (closer to the original Frenzy, but much like Money Market Madness).
