@@ -7,11 +7,17 @@ import { h } from '../kit/ui/dom';
  */
 export const PAGES: Array<[string, string]> = [
   ['sheet', 'Character test'],
-  ['star-day', 'Star Station: day'],
-  ['star-evening-talk', 'Star Station: night + talk box'],
-  ['ancient-day', 'Ancient Kingdoms: day'],
-  ['ancient-evening-talk', 'Ancient Kingdoms: dusk + talk box'],
+  ['station-deck-day', 'Station deck'],
+  ['station-deck-evening-talk', 'Deck at night'],
+  ['alien-planet-day', 'Alien planet'],
+  ['alien-planet-evening-talk', 'Planet at night'],
+  ['river-market-day', 'River market'],
+  ['river-market-evening-talk', 'Market at dusk'],
+  ['roman-forum-day', 'Roman forum'],
+  ['roman-forum-evening-talk', 'Forum at dusk'],
 ];
+
+const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
 
 /** Read the page settings from ?query, or else from a #token. */
 export function pageParams(): URLSearchParams {
@@ -19,10 +25,11 @@ export function pageParams(): URLSearchParams {
   const q = new URLSearchParams();
   const token = location.hash.slice(1);
   if (!token || token === 'sheet') return q;
-  const [world, time, ...rest] = token.split('-');
+  const id = SETTING_IDS.find((sid) => token.startsWith(sid)) ?? 'station-deck';
+  const [time, ...rest] = token.slice(id.length + 1).split('-');
   q.set('view', 'scene');
-  q.set('world', world);
-  q.set('time', time ?? 'day');
+  q.set('setting', id);
+  q.set('time', time || 'day');
   for (const r of rest) {
     if (r === 'talk') q.set('talk', '1');
     if (r === 'a' || r === 'b' || r === 'c') q.set('level', r);
@@ -30,7 +37,15 @@ export function pageParams(): URLSearchParams {
   return q;
 }
 
-export function pageNav(current: string): HTMLElement {
+/** Links to every page (a row of buttons on the character test; a compact menu on scenes). */
+export function pageNav(current: string, compact = false): HTMLElement {
+  if (compact) {
+    const sel = h('select', { id: 'ld-page', 'aria-label': 'Show another test page' });
+    for (const [token, label] of PAGES) sel.append(h('option', { value: token, text: label }));
+    sel.value = current;
+    sel.addEventListener('change', () => (location.hash = sel.value));
+    return h('label', { class: 'ld-pick', for: 'ld-page' }, h('span', { text: 'Show:' }), sel);
+  }
   const nav = h('nav', { class: 'ld-nav', 'aria-label': 'Test pages' });
   for (const [token, label] of PAGES) nav.append(h('a', { href: `#${token}`, class: token === current ? 'on' : '', text: label }));
   return nav;

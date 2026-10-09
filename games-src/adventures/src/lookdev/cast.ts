@@ -2,7 +2,7 @@ import { DEFAULT_APPEARANCE, lookFromAppearance, paintCharacter, type CharacterL
 import type { PixelBuffer } from '../kit/art/pixel';
 import { SKIN_TONES } from '../kit/art/palette';
 import { paintPortrait, type Expression } from '../kit/art/portraits';
-import { ANCIENT_HOST, PLAYER16, STATION_HOST, paintHero, paintPortrait16, richen, type Look16, type Mood } from './hero';
+import { ANCIENT_HOST, FORUM_HOST, PLAYER16, STATION_HOST, paintHero, paintPortrait16, richen, type Look16, type Mood } from '../kit/worlds/hero16';
 
 export type Level = 'a' | 'b' | 'c';
 
@@ -41,8 +41,37 @@ const KIT_HOSTS: Record<'star' | 'ancient', CharacterLook> = {
 
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 
-export function castFor(world: 'star' | 'ancient', level: Level): Cast {
-  const host16: Look16 = world === 'star' ? STATION_HOST : ANCIENT_HOST;
+/** The test host for each setting (placeholders: each game has its own host). */
+export const TEST_HOSTS: Record<string, { look: Look16; name: string; role: string; line: string }> = {
+  'station-deck': {
+    look: STATION_HOST,
+    name: 'Engineer Kemi',
+    role: 'Test host · Star Station crew',
+    line: 'Welcome aboard Star Station! This is the observation deck. That ringed planet out the window is where our next mission goes.',
+  },
+  'alien-planet': {
+    look: STATION_HOST,
+    name: 'Engineer Kemi',
+    role: 'Test host · Star Station crew',
+    line: 'We made it to the moon outpost! Mind the steam vent, and say hello to the little fuzzy one. It loves the glowing crystals.',
+  },
+  'river-market': {
+    look: ANCIENT_HOST,
+    name: 'Storyteller Awa',
+    role: 'Test host · Ancient Kingdoms',
+    line: 'Welcome to the river market! Traders bring salt, gold and stories from all along the river. Shall we see what is for sale?',
+  },
+  'roman-forum': {
+    look: FORUM_HOST,
+    name: 'Merchant Felix',
+    role: 'Test host · Ancient Kingdoms',
+    line: 'Salve! Welcome to the Forum. Fresh bread, olives and figs here. Later we can walk the Via Sacra to the great arch.',
+  },
+};
+
+export function castFor(settingId: string, level: Level): Cast {
+  const host16: Look16 = TEST_HOSTS[settingId].look;
+  const world = settingId === 'station-deck' || settingId === 'alien-planet' ? 'star' : 'ancient';
   if (level === 'a') {
     const kidLook = lookFromAppearance(DEFAULT_APPEARANCE);
     const still = (l: CharacterLook): HTMLCanvasElement[] => [richen(paintCharacter(l, 'down', 0)).toCanvas()];

@@ -4,7 +4,7 @@ import { h } from '../kit/ui/dom';
 type Kid = Node | string;
 const H = <K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, kids: Kid[] = []) => h(tag, attrs, ...kids);
 import { MOODS, VERSIONS, newPortrait, todayPortrait, type Version } from './characters';
-import type { Dir16 } from './hero';
+import type { Dir16 } from '../kit/worlds/hero16';
 import { SLICE_WORLDS, paintSlice } from './slices';
 import { currentToken, pageNav } from './nav';
 

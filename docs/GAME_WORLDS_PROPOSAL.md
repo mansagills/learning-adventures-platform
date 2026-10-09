@@ -1,6 +1,6 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅**: the owner picked character level (b) and approved both worlds (section 7a). Next: W1.
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **Next: W2**, the M6 and M7 games in their worlds.
 > Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)
@@ -109,7 +109,7 @@ In the kit (W1), each world provides its style rules and shared pieces (shading,
 | Phase | What | Done when |
 |---|---|---|
 | **W0 Look development: COMPLETED ✅** (see 7a) | First the 16-bit character test from section 4a: the same character at three detail levels next to today's Sunny Town character, so the owner picks the standard. Then, for each new world, paint a test scene in the kit at that standard (ground, props, skyline, characters standing in it, a panel open), day and evening, desktop and phone. Send screenshots to the owner. | The owner picks the character standard and approves the look of each world |
-| **W1 Theme layer in the kit** | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes, each as a world style with setting packs (4b). That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
+| **W1 Theme layer in the kit: COMPLETED ✅** (PR #220, see 7b) | `src/kit/worlds/`: the Sunny Town theme pulled out of the existing games, plus the approved new themes, each as a world style with setting packs (4b). That includes a per-world pixel scale and the refined 16-bit characters and portraits for the new worlds. Existing games keep looking exactly the same (check with their e2e scripts and screenshots). | All existing e2e scripts still pass; no visual change to shipped games |
 | **W2 Games in their worlds** | Build the remaining games with the `remaster-game` skill (updated with a "World" step), each in the world the owner and team chose: Math M6 and M7 first, then Science, English and History. Aim for at least a few games per world. | Each game scores 8.5+ on the rubric and is owner-approved, one PR per batch as before |
 | **W3 The site: Echoes and the world map** | `lib/content/worlds.ts` and a `world` field on games. An interactive world map where children pick a world (doors that open, Jaylen and S.P.A.R.K. as guides, the Echo story from `docs/lore/`). `/worlds/[world]` pages, world badges on cards and a homepage entrance. The subject pages stay. | `npm test`, lint, build with no env vars; phone layout and keyboard checked; owner-approved |
 
@@ -133,6 +133,23 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). Nothing players se
 **Owner decision (2026-10-06): COMPLETED ✅.** Character level **(b)** is the standard for the new worlds, and the Star Station and Ancient Kingdoms looks are approved. The owner added the "one style per world, many settings" rule (2a point 6 and 4b). W1 builds the theme layer in the kit on that basis.
 
 
+### 7b. W1 progress (2026-10-08)
+
+Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings for "one style per world, many settings" were the owner's choice: a **Roman forum** for Ancient Kingdoms and an **outdoor alien planet** for Star Station.
+
+**What was built** (in `games-src/adventures/src/kit/worlds/`, see its README):
+- **World styles** (`styles.ts`): Sunny Town (16 px, classic characters), Star Station and Ancient Kingdoms (24 px, 16-bit characters). Each style sets the day and evening light, the glow colors, the talk-box accent and a short theme song.
+- **Settings**, each a reusable place painted in its world's style:
+  - Star Station: `station-deck` (the W0 observation deck) and **`alien-planet`** (new). The planet has purple dust and teal moss, glowing crystals, mushroom trees, banded rock spires, a landing pad, a habitat dome, a rover, a beacon, a steam vent and a friendly critter. The sky shows two moons and the ringed planet by day, and stars and an aurora at night.
+  - Ancient Kingdoms: `river-market` (the W0 Mali river market) and **`roman-forum`** (new). The forum has travertine paving, a black-and-white mosaic, a basalt road like the Via Sacra, a temple with six columns, a basilica arcade, a triumphal arch, a fountain, a statue (not of any real person), bronze braziers, a bread-and-olive stall and amphorae. The hills of Rome, an aqueduct and the Colosseum are on the horizon. Its details were checked against the sources listed in the setting.
+- **The 16-bit painter, characters and portraits** moved from the W0 test code into the kit (`shade.ts`, `hero16.ts`), plus the per-world pixel size camera (`stage.ts`).
+- **The look development pages** now show what the kit builds: a "Show" menu for every setting by day and evening, and a button to hear each world's music.
+- **Tests:** 10 new unit tests (`tests/worlds.test.ts`): the approved standard (24 px, 16-bit), settings and sources, the painter's shades, characters in every direction, and every new prop. They found and fixed one flaw: near-white colors lost a highlight shade.
+
+**Sunny Town:** the plan said to pull Sunny Town's art out of the existing games. That was not done, because the owner decided the eight finished games stay exactly as they are; moving their code would risk changing them for no visible gain. Sunny Town is recorded as a style (16 px, classic characters) so the site can name it, and its games keep their own scene code. The game build is byte-for-byte unchanged, so no shipped game changed.
+
+**Owner decision (2026-10-08): COMPLETED ✅.** The owner approved the Roman forum and the alien planet and said to go ahead with the proposed games in those worlds. W2 builds Math M6 (Fractions) in Ancient Kingdoms and M7 (Multiplication Space Quest, Equation Balance Scale) in Star Station, each with the `remaster-game` skill; each game's design plan goes to the owner before it is built.
+
 ## 8. Things that must not change
 
 - **One family look:** pixel art painted in code (no emoji), the camera feel, Pixelify Sans and Atkinson Hyperlegible fonts and `kit.css` panels. The new worlds use the richer 16-bit character and scene style from section 4a; Sunny Town and its games keep today's look unchanged.
@@ -142,6 +159,10 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). Nothing players se
 - **The site:** no backend, no accounts, `npm` only. Old links keep working.
 
 ## 9. Handoff for the next session
+
+**Update (2026-10-09):** W2 started. M6 is Forum Fraction Feast in the Roman forum (plan approved); its first half is built and waits for the owner (see the M6 section of `docs/GAMES_3D_UPGRADE_PLAN.md`). The kit gained what a walking 16-bit game needs (`Walker16`, solid footprints in settings, tap-to-walk on the world camera).
+
+**Update (2026-10-08):** W1 is COMPLETED ✅ (PR #220; owner approved both proof settings). Next: W2, starting with M6 Fractions in Ancient Kingdoms (design plan first, for owner approval).
 
 **Update (2026-10-06, later):** the section 6 questions are answered and W0 is COMPLETED ✅ (level (b), both worlds approved, "one style per world, many settings"; sections 2a, 4b and 7a). Next: W1.
 

@@ -8,6 +8,7 @@ import {
   type CharacterLook,
   type Dir,
 } from '../art/characters';
+import type { PixelBuffer } from '../art/pixel';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../art/palette';
 import { audio } from '../systems/audio';
 import { settings } from '../systems/settings';
@@ -55,27 +56,43 @@ export function openCustomize(
     gear?: { groups: GearGroup[]; values: Record<string, string> };
     /** Paints the game's pieces on top of the chosen look (a belt, a uniform, the gear). */
     dress?: (look: CharacterLook, gear: Record<string, string>) => CharacterLook;
+    /** Only offer these options for a choice (for example the hair styles a 16-bit world can draw). */
+    only?: Partial<Record<Key, readonly string[]>>;
+    /** Paints the preview instead of the kit's character (a 16-bit world's own characters). Frames: 0 standing, 1 and 2 walking. */
+    paint?: (a: Appearance, dir: Dir, frame: number) => PixelBuffer;
   },
   onDone: (a: Appearance, gear: Record<string, string>) => void,
 ): Modal {
   const a: Appearance = { ...initial };
   const gear: Record<string, string> = { ...(opts.gear?.values ?? {}) };
   const noun = opts.noun ?? 'explorer';
-  const groups: Group[] = [...GROUPS.filter((g) => !opts.hide?.includes(g.key as Key)), ...(opts.gear?.groups ?? [])];
+  const groups: Group[] = [
+    ...GROUPS.filter((g) => !opts.hide?.includes(g.key as Key)).map((g) => {
+      const only = opts.only?.[g.key as Key];
+      return only ? { ...g, options: g.options.filter((o) => only.includes(o.id)) } : g;
+    }),
+    ...(opts.gear?.groups ?? []),
+  ];
+  const allowed = (key: Key, id: string) => !opts.only?.[key] || opts.only[key]!.includes(id);
+  if (!allowed('hairStyle', a.hairStyle)) a.hairStyle = opts.only!.hairStyle![0] as Appearance['hairStyle'];
   const isGear = (key: string) => !!opts.gear?.groups.some((g) => g.key === key);
   const value = (key: string) => (isGear(key) ? gear[key] : (a[key as Key] as string));
   const canvas = document.createElement('canvas');
-  canvas.width = 16;
-  canvas.height = 24;
+  const size = opts.paint ? opts.paint(a, 'down', 0) : null;
+  canvas.width = size?.w ?? 16;
+  canvas.height = size?.h ?? 24;
   canvas.setAttribute('role', 'img');
   let dir: Dir = 'down';
   let frame = 0;
   let tick = 0;
   const draw = () => {
     const ctx = canvas.getContext('2d')!;
-    ctx.clearRect(0, 0, 16, 24);
-    const look = lookFromAppearance(a);
-    paintCharacter(opts.dress ? opts.dress(look, gear) : look, dir, frame).drawTo(ctx, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (opts.paint) opts.paint(a, dir, frame).drawTo(ctx, 0, 0);
+    else {
+      const look = lookFromAppearance(a);
+      paintCharacter(opts.dress ? opts.dress(look, gear) : look, dir, frame).drawTo(ctx, 0, 0);
+    }
     const names = groups.map((g) => g.options.find((o) => o.id === value(g.key))?.name).join(', ');
     canvas.setAttribute('aria-label', `Your ${noun}, facing ${dir}: ${names}`);
   };
@@ -96,7 +113,7 @@ export function openCustomize(
   const choose = (key: string, id: string) => {
     if (isGear(key)) gear[key] = id;
     else {
-      if (key === 'body' && id !== a.body) a.hairStyle = BODY_DEFAULT_HAIR[id as BodyId];
+      if (key === 'body' && id !== a.body && allowed('hairStyle', BODY_DEFAULT_HAIR[id as BodyId])) a.hairStyle = BODY_DEFAULT_HAIR[id as BodyId];
       a[key as Key] = id as never;
     }
     refresh();
@@ -153,10 +170,10 @@ export function openCustomize(
     const pick = <T>(arr: readonly T[]) => arr[Math.floor(Math.random() * arr.length)];
     a.body = pick(BODIES).id;
     a.skin = pick(SKIN_TONES).id;
-    a.hairStyle = pick(HAIR_STYLES).id;
+    a.hairStyle = pick(HAIR_STYLES.filter((x) => allowed('hairStyle', x.id))).id;
     a.hairColor = pick(HAIR_COLORS.slice(0, 5)).id;
     a.outfit = pick(OUTFIT_COLORS).id;
-    a.accessory = Math.random() < 0.5 ? 'none' : pick(ACCESSORIES).id;
+    a.accessory = Math.random() < 0.5 || opts.hide?.includes('accessory') ? 'none' : pick(ACCESSORIES).id;
     for (const g of opts.gear?.groups ?? []) gear[g.key] = pick(g.random ?? g.options.map((o) => o.id));
     refresh();
   };

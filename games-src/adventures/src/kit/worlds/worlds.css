@@ -1,0 +1,17 @@
+/*
+ * World accents for the kit's panels. The parchment panel stays the same in
+ * every world (the house style); a world only changes the talk-box portrait
+ * backdrop and a colored stripe. Put the world's panelClass on <body>.
+ */
+.world-star .portrait {
+  background: linear-gradient(#20306a, #3f5fb0);
+}
+.world-star .dialogue {
+  box-shadow: inset 0 5px 0 #4fd6ff, inset 0 0 0 2px var(--paper-3), var(--shadow);
+}
+.world-ancient .portrait {
+  background: linear-gradient(#f6c46a, #e0874a);
+}
+.world-ancient .dialogue {
+  box-shadow: inset 0 5px 0 #2f4f9e, inset 0 0 0 2px var(--paper-3), var(--shadow);
+}
