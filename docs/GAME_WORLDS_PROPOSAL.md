@@ -1,6 +1,6 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **Next: W2**, the M6 and M7 games in their worlds.
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **W2 (games in their worlds) is in progress:** M6, Forum Fraction Feast, is COMPLETED ✅ (PR #220). **Next: M7 in Star Station** (`docs/M7_STAR_STATION_HANDOFF.md`).
 > Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)
@@ -159,6 +159,8 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings 
 - **The site:** no backend, no accounts, `npm` only. Old links keep working.
 
 ## 9. Handoff for the next session
+
+**Update (2026-10-09, later):** M6 is COMPLETED ✅: the owner approved Forum Fraction Feast and merged PR #220. Next: M7 in Star Station, plan first. **Start with `docs/M7_STAR_STATION_HANDOFF.md`**; it has the steps, the open questions for the owner and the prompt for the next session.
 
 **Update (2026-10-09):** W2 started. M6 is Forum Fraction Feast in the Roman forum (plan approved); its first half is built and waits for the owner (see the M6 section of `docs/GAMES_3D_UPGRADE_PLAN.md`). The kit gained what a walking 16-bit game needs (`Walker16`, solid footprints in settings, tap-to-walk on the world camera).
 

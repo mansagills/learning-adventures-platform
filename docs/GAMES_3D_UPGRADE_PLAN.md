@@ -711,7 +711,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M6 Fractions: Forum Fraction Feast BUILT (both halves), waiting for the owner's approval (2026-10-09)
+#### M6 Fractions: Forum Fraction Feast COMPLETED ✅ (owner approved and merged 2026-10-09 in PR #220)
 
 The first game built in a new world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). The owner placed M6 in **Ancient Kingdoms**, and approved the **Roman forum** setting from the kit (`src/kit/worlds/ancient-kingdoms/forum.ts`), so this game is set there: 24 pixels per tile, 16-bit characters, the forum's day and dusk light.
 
@@ -783,7 +783,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 2. **The kind of game.** A walking forum with four jobs and a finale (recommended: it uses the new world, and it gives each fraction skill its own picture), or a bakery shop where customers order fractions and the player earns coins for bakery upgrades (closer to the original Frenzy, but much like Money Market Madness).
 3. **Build in two halves** (recommended for four jobs): the forum, Livia's bakery and Marcus's road first, for a quick look; then Cornelia, Tullia, the finale and Frenzy mode.
 
-##### Half 1: BUILT (2026-10-09; the owner looked and said to go ahead with half 2)
+##### Half 1: COMPLETED ✅ (the owner looked and said to go ahead with half 2; merged 2026-10-09 in PR #220)
 
 - **What is playable:** the title, the character creator (now showing the 16-bit player), Livia's opening, walking the forum (keys, tap-to-walk, the touch pad), **the Bakery** and **Milestone Road** at all three levels with hints, debriefs and stars, two of the four braziers lighting up, Anser the goose, the job list, saving and the grown-ups page. Cornelia's stall, Tullia's mosaic, the Festival Feast and Frenzy mode are half 2.
 - **Not listed on the site yet:** the old Pizza Fraction Frenzy stays on `/games` until the whole game is done. The new one plays at `/games/play/pizza-fraction-frenzy/index.html` (also on the PR's Vercel preview).
@@ -792,7 +792,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 - **Tests:** 15 unit tests for the fraction logic (every job and level over 400 seeds, all ten Fraction Pizza Party answers checked again, the classic road mistakes), 3 new kit tests, and the browser test `scripts/e2e-pizza-fraction-frenzy.mjs` (35/35).
 - **Score:** given at the end of half 2 (below).
 
-##### Half 2: BUILT, waiting for the owner's approval (2026-10-09)
+##### Half 2: COMPLETED ✅ (merged 2026-10-09 in PR #220)
 
 - **The Market Stall** (Cornelia, grades 3–4): which share of the same size loaf is bigger (or, now and then, smaller). Level 1 has the same bottom number (3/8 or 5/8), level 2 the same top number (1/4 or 1/8), level 3 different tops and bottoms compared with one half (3/8 or 2/3, 3/10 or 2/3) and pairs that are equal (2/4 and 3/6). "They are the same" is always a choice. The hint picture puts a same-length strip under each share. Mistakes named: "bigger bottom number, bigger piece", comparing only the top numbers, picking the share with fewer same-size pieces, and calling different shares the same.
 - **The Mosaic** (Tullia, grades 3–4): tile strips that are always the same length. Level 1: which strip covers the same as 1/2 (or 1/3, 2/3, 3/4); level 2: the missing number (3/4 = ?/8) and whole numbers as fractions (4/4 = 1, 6/3 = 2); level 3: multiply top and bottom (2/3 = 8/12, 2/5 = 4/?) and spot the one that is not equal. The hint lines every strip up under the first one. Mistakes named: adding the same number to the top and bottom (1/2 = 2/3), changing only the bottom number, multiplying the top and bottom by different numbers, reading 6/3 as 3 or 4/4 as 4, and not seeing 2/4 and 1/2 as equal.
@@ -875,3 +875,5 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-05:** M5 half 1 built (yard, Shape Sorting Arcade with a conveyor belt, Block Shop, Rush mode with Chip): 9 unit tests, 28 browser checks. Waiting for the owner's quick look before half 2.
 - **2026-10-06:** Owner merged half 1 (PR #213) and asked to carry on; full team QA feedback on all the remastered games comes later. M5 half 2 built (Blueprint Workshop, Garden Yard up to 4.MD.3 with three-step L-shapes, The Big Build and the clubhouse opening), and the site now lists Shape Town Builders (Shape Sorting Arcade redirects). 9.1/10, 16 unit tests and 46 browser checks. Waiting for the owner's check-in.
 - **2026-10-06:** Owner merged half 2 (PR #214). M5 COMPLETED ✅: 8 of the 11 Math games are done, and M6 (Fractions) and M7 (Multiplication and equations) remain. The team is doing QA on the finished games. The owner decided to add **game worlds** (a sci-fi world, an ancient world and more, chosen by children), with the owner and team placing each game in a world. Order: design the worlds, then build M6, M7 and the other subjects inside them, then the Echo narrative and an interactive world map on the site. Details and the handoff: `docs/GAME_WORLDS_PROPOSAL.md`.
+- **2026-10-08:** Game worlds W1 approved. M6 plan written with the `remaster-game` skill; owner chose the name Forum Fraction Feast, a walking Roman forum with four jobs, built in two halves. Half 1 (the Bakery and Milestone Road) built.
+- **2026-10-09:** Half 2 built (the Market Stall, the Mosaic, the Festival Feast and Frenzy mode); the site lists Forum Fraction Feast and `/games/fraction-pizza-party` redirects. 9.1/10, 27 unit tests and 51 browser checks. Owner approved and merged PR #220. **M6 COMPLETED ✅: 9 of the 11 Math games are done.** Next: M7 (Multiplication Space Quest with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in, and Equation Balance Scale) in the Star Station world, plan first. Handoff: `docs/M7_STAR_STATION_HANDOFF.md`.
