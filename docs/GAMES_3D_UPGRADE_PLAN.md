@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: PLAN, waiting for the owner's approval (2026-10-09)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; building Space Quest half 1)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -980,7 +980,7 @@ The names, settings and kind of game are owner choices (see "Choices for the own
 - **Kind of game:** "Station + flying cockpit", with the main game played as a **space shooter** built around multiplication, so the fleet launches as spaceships and the station and planet are involved too.
 - **Names:** keep both names.
 
-Game 1 above was rewritten to match. Still open (asked 2026-10-09):
+Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical shooter, the friendly Static rocks, and the two halves below. The owner approved the revised plan and asked for half 1.** The questions were:
 
 1. **The shooter's direction:** vertical, with the ship at the bottom (recommended: it fits a phone held upright and leaves room for the question banner), or side-scrolling, with the ship on the left.
 2. **What the player fires at:** gray Static rocks that burst into sparkles while stranded ships are rescued (recommended, friendly like Library Rush), or classic asteroids and alien drones.
@@ -1074,3 +1074,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-09:** Half 2 built (the Market Stall, the Mosaic, the Festival Feast and Frenzy mode); the site lists Forum Fraction Feast and `/games/fraction-pizza-party` redirects. 9.1/10, 27 unit tests and 51 browser checks. Owner approved and merged PR #220. **M6 COMPLETED ✅: 9 of the 11 Math games are done.** Next: M7 (Multiplication Space Quest with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in, and Equation Balance Scale) in the Star Station world, plan first. Handoff: `docs/M7_STAR_STATION_HANDOFF.md`.
 - **2026-10-09:** M7 plan written (the M7 section above), after studying and playing the four originals. Found two problems in the live games: about 55% of Bingo Bonanza's calls have no answer on the card, and the Balance Scale freezes on subtraction with a negative answer. Waiting for the owner's choices and approval.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
+- **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
