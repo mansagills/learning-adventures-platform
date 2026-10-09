@@ -814,6 +814,157 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
+#### M7 Multiplication and equations: PLAN, waiting for the owner's approval (2026-10-09)
+
+The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
+
+- **Multiplication Space Quest**, with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged into it
+- **Equation Balance Scale**
+
+The names, settings and kind of game are owner choices (see "Choices for the owner" below).
+
+##### What the originals do (studied and played 2026-10-09)
+
+| Original (grades) | What it teaches | Answers checked |
+|---|---|---|
+| **Multiplication Space Quest** (game, 3–5) | Random times-table facts typed into a box: Easy 2–5, Medium 2–10, Hard 2–12. A timer (90/60/45 s) and a rocket that moves toward a planet with each right answer. Three hints ("4 groups of 2", "count by 2s, 4 times", "between 3 and 13") | **Correct.** Every answer is `a × b`. |
+| **Multiplication Bingo Bonanza** (game, 3–5) | A 5x5 card of products from 2–12 times 2–12 and a FREE middle. A random fact is called, and the child clicks its product. Up to 3 Bingos | **Correct, but the game often can't be won.** The card holds 24 of the 53 possible products, but the called fact is drawn from all of them. **About 55% of calls have no right square on the card** (23 of 40 in a browser test), and there is no skip. The child can only click squares that are all "wrong". |
+| **Multiplication Tables Adventure** (activity, 3–5) | Pick a table from 1 to 12 and type answers. Ten right answers "masters" a table. | **Correct.** One flaw: after a wrong answer it shows the answer and keeps the same question. The child can type the answer just shown and have it count toward mastering the table. |
+| **Equation Balance Scale** (game, 3–5) | `a + b = ?` or `a − b = ?` with a and b from 1 to 10, picked from 6 buttons. "Level" goes up every 10, but nothing else changes. | **Correct, but out of the grade band, and it freezes.** About 1 in 4 questions is a subtraction with a negative answer (`3 − 8 = −5`), and grades 3–5 don't do negative numbers. On those questions the wrong-answer maker can never find 6 different choices, so **the page freezes** (it froze on question 8 in a browser test). It also never asks about a balance: every question is "a + b = ?", the "= means the answer comes next" habit the merge map wants this game to fix. |
+
+**Flagged for the owner:** the Bingo and Balance Scale problems are in the live games today. They go away when the new games replace them, so this plan doesn't fix the old files separately (say if you'd like a quick fix sooner).
+
+- **Kept:**
+  - the space story, the rocket's journey and the three-step hint idea from Space Quest
+  - **Bingo**, as the finale and a replay mode, now fair: every call has its answer on the card
+  - the table-by-table practice and the "mastered" table from Tables Adventure, as the Star Map, where the game picks the facts that need work
+  - the balance and the missing number from the Balance Scale
+  - the 60-second race, as one optional timed mode
+- **Missing against the standard:**
+  - one level of random facts; no arrays, strategies, division, fact families or remainders, although the merge map gives this game all of them
+  - wrong answers are the child's typing, with "Not quite! The answer is…" as the only feedback
+  - no debrief, grown-ups page, saves, pixel art or music; emoji throughout
+  - the main path is timed
+
+##### Game 1: "Multiplication Space Quest" (slug `multiplication-space-quest`, grades 3–5)
+
+- **Setting:** the Star Station's **observation deck** (`station-deck`, approved in W0), on the day a new fleet of little ships gets ready for its first voyage. The giant window shows the ringed planet the fleet will fly to.
+- **Characters** (all new, 16-bit, varied skin tones and ages; names are drafts):
+  - **Host: Commander Ayo**, who runs the station. Opens the game, explains the voyage and gives the launch order at the end.
+  - **Pilot Mei** in the **Hangar**: parks ships in equal groups and formations.
+  - **Engineer Rafi** in the **Engine Room**: power cells that charge by doubling and by 5s and 10s.
+  - **Quartermaster Dot** in the **Cargo Bay**: shares crates of supplies fairly between ships.
+  - **Navigator Sol** at the **Star Map**: a 10x10 star chart where every fact is a star.
+  - **Blip**, a friendly little floating alien who mixes up numbers and calls the Bingo numbers (a cheeky sidekick, like Anser the goose).
+- **How it plays:**
+  - The player walks the deck (arrow keys, WASD, tap-to-walk or the touch pad). A sign over a person marks a job.
+  - Talking opens a panel with a picture to read: ships to count in groups, a formation to split, crates to share, a fact-family triangle.
+  - Each job has 3 levels that adapt to the player. Five stars at a job powers one of the station's four systems: lights, engines, cargo doors and the navigation beacon.
+  - With all four powered, the **night shift** starts (the station's neon glows come on), and Blip calls the **Launch Bingo** finale.
+  - **Launch Bingo:** the card holds the answers, and Blip's calls mix ×, ÷ and missing factors at the player's level. **Every call has its answer on the card.** Nothing is timed. One Bingo launches the fleet through the window toward the ringed planet.
+- **Replay:**
+  - **Bingo** with a new card, any time after the finale. Best: fewest calls to a Bingo.
+  - **Meteor Run** (the old Space Quest race), from Rafi once the engine room is done: 60 seconds of facts, chosen from the ones the player finds hardest, for a personal best. Optional and separate, because the main path is never timed.
+- **Modeled on:** `pizza-fraction-frenzy` (the walking 16-bit world, jobs, braziers lighting one by one, the evening change, Frenzy mode). The Bingo board and the per-fact Star Map are new.
+
+**Learning design** (each job covers its own part of the band, and the grown-ups page says which grades each job is for):
+
+| Job (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Hangar (Mei), grade 3 | Equal groups and arrays | Ships in equal groups: "4 docks with 3 ships each. How many ships?" and "Which times sentence matches?" | Formations (arrays): rows × columns, and turning a formation on its side (6 × 4 = 4 × 6) | Split a big formation into two smaller ones: 7 × 8 = 7 × 5 + 7 × 3. Which split matches the picture? | 3.OA.1, 3.OA.3, 3.OA.5 |
+| Engine Room (Rafi), grades 3–4 | Fact strategies | ×2 (doubles), ×5 (half of ×10), ×10, ×1 and ×0 | ×4 (double, then double again), ×9 (ten groups take away one), ×3 (double plus one more group). Pick the shortcut, then the answer | ×6, ×7, ×8 from a fact you know (6 × 7 = 5 × 7 + 7), and the 11s and 12s as a stretch | 3.OA.5, 3.OA.7, 3.OA.9 |
+| Cargo Bay (Dot), grades 3–4 | Division and the missing factor | Share crates equally: "24 crates, 4 ships. How many on each ship?" | The missing factor: ? × 6 = 42, so 42 ÷ 6 = 7. Plus "how many groups?" stories next to "how many in each?" stories | Leftovers: "29 crew, 4 seats per shuttle. How many shuttles?" (one more for the leftover crew), "How many full crates?", "How many left over?" | 3.OA.2, 3.OA.4, 3.OA.6, 4.OA.3 |
+| Star Map (Sol), grades 3–5 | Fact families and factors | Finish the family: 3, 4 and 12 make 3 × 4, 4 × 3, 12 ÷ 3, 12 ÷ 4 | Which fact doesn't belong? (3 ÷ 12 = 4 sneaks in) | Every way to park 24 ships in a rectangle (factor pairs), "Is 7 a factor of 42?", prime or not | 3.OA.6, 3.OA.7, 4.OA.4 |
+
+- **The Star Map** (Tables Adventure merged in): a 10x10 chart where each fact is a star. A star lights up when the player answers that fact cleanly anywhere in the game. Sol's practice and Meteor Run pick the facts the player has missed or not seen yet. A row of the chart lights up fully when that table is mastered. The grown-ups page shows the map.
+- **Mistakes the wrong answers come from** (each wrong choice is built from one of these):
+  - *Added instead:* 4 groups of 3 → 7.
+  - *Group size or group count only:* 4 groups of 3 → 3, or 4.
+  - *One group off:* 7 × 8 → 49 or 63 (a neighboring fact).
+  - *Times zero keeps the number:* 6 × 0 → 6.
+  - *Times one makes one:* 9 × 1 → 1.
+  - *Nines flipped:* 9 × 7 → 36 instead of 63.
+  - *Doubled only once for ×4:* 4 × 7 → 14.
+  - *Split both numbers:* 7 × 8 = 7 × 5 + 8 × 3.
+  - *Multiplied or subtracted instead of dividing:* 42 ÷ 6 → 252, or 36.
+  - *Leftovers:* gives the leftover as the answer, or forgets that the leftover crew still need a shuttle.
+  - *Backwards division:* 3 ÷ 12 = 4.
+  - *Odd means prime:* thinks 9 is prime; forgets that 1 × 24 is a factor pair.
+- **Hint ladder:** a nudge question ("How many groups? How many in each?") → a picture with a worked step (the ships grouped or in rows with the rows numbered, the formation split in two colors, crates dealt into ships one by one, the fact-family triangle) → the answer outlined with its explanation.
+- **Debriefs** (one "why" question per helper):
+  - Mei: "I turned a 3-by-5 formation on its side. Is it still 15 ships? Why?"
+  - Rafi: "Why is 9 × 6 the same as 10 × 6 take away 6?"
+  - Dot: "29 crew, 4 seats per shuttle. Seven shuttles leave 1 crew member behind. What do we do?"
+  - Sol: "If you know 6 × 8 = 48, which division facts do you know for free?"
+- **Progress and finale:** five stars per job powers its system. A job is done after 5 stars and level 2 (or 12 questions played), so a child who struggles still finishes. The night shift and Launch Bingo, then the launch. Bingo and Meteor Run give a reason to come back, and the Star Map shows what's left to learn.
+- **Difficulty change from the originals:** from one level of random facts to all of grade 3's multiplication and division (equal groups, arrays, strategies, the inverse, fact families), up to grade 4's leftovers and factor pairs. The timer moves to an optional mode.
+
+##### Game 2: "Equation Balance Scale" (slug `equation-balance-scale`, grades 3–5)
+
+- **Setting:** the **alien planet** outpost (`alien-planet`, approved in W1). The outpost weighs its glowing crystals on a big balance scale before they go up to the station. A smaller game than Space Quest: 3 jobs, 15–25 minutes.
+- **Characters** (drafts):
+  - **Host: Ranger Kiri**, who runs the outpost's weigh station.
+  - **Mechanic Juno** at the rover, loading crystal crates.
+  - **Botanist Pax** at the habitat dome, packing seed pods.
+  - **Gloop**, the planet's friendly critter (already in the setting), who loves to sit on the scale.
+- **How it plays:** the player walks the outpost. At each job, the player **drags crystal weights onto the pans and watches the scale tip** (keyboard and tap also work), or picks the number that balances it. The scale is the picture for every question: the two sides of an equation are the two pans. Five stars per job lights one part of the outpost's beacon. With all three lit, evening falls (the aurora comes out) and **The Big Weigh-in** finale starts: Gloop sits on the scale, and the player balances one problem from each job. Then the beacon shines up to the station.
+- **Modeled on:** `pizza-fraction-frenzy` (walking world, jobs and finale), with a new balance-scale model that can be dragged.
+
+| Job (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Weigh Station (Kiri), grades 3–4 | The equals sign means "the same as" | Is it balanced? Crystals on each pan (5 + 3 and 8). Which pan is heavier? | True or false with numbers on both sides: 7 + 2 = 4 + 5, 9 = 9, 6 + 4 = 10 + 1 | With × and ÷: 3 × 4 = 2 × 6? 20 ÷ 4 = 10 − 5? | 1.OA.7 (warm-up), 3.OA.7 |
+| Rover (Juno), grades 3–4 | The missing number, anywhere | 7 + ? = 12, ? − 6 = 9 | ? × 4 = 24, 36 ÷ ? = 9 | Unknowns with something on both sides: 8 + 4 = ? + 5, 3 × 8 = 6 × ?, 15 − 7 = ? − 10 | 1.OA.8, 3.OA.4 |
+| Dome (Pax), grades 4–5 | Two-step problems with a letter for the unknown | Two steps of + and −: pick the equation, then solve | × then + or −: "3 bags of 6 pods and 4 more" → 3 × 6 + 4 = p | Pick the equation that matches the story, check if an answer is reasonable, and balance boxes: "2 boxes and 3 crystals balance 11 crystals. What does one box weigh?" (take the same off both pans) | 3.OA.8, 4.OA.3, 5.OA.2 |
+
+- **Mistakes the wrong answers come from:**
+  - *"=" means "the answer comes next":* 8 + 4 = ? + 5 → 12.
+  - *Added everything:* 8 + 4 = ? + 5 → 17.
+  - *Wrong operation for a missing number:* ? − 6 = 9 → 3.
+  - *A number alone can't be on the left:* thinks 9 = 4 + 5 is "backwards" and false.
+  - *Looked at one pan only:* calls 6 + 4 = 10 + 1 true because 6 + 4 is 10.
+  - *Did one step only:* 3 × 6 + 4 → 18.
+  - *The letter in the wrong place:* picks 3 + 6 × 4 = p for "3 bags of 6 and 4 more".
+  - *Took weight off one pan only:* 2 boxes + 3 = 11 → each box is 7.
+- **Hint ladder:** a nudge ("Both pans must weigh the same. What does the left pan weigh?") → a picture (the crystals on each pan counted and grouped, or a bar model under the scale) → the answer outlined with its explanation.
+- **Debriefs:**
+  - Kiri: "What does the = sign tell us?"
+  - Juno: "Why isn't 12 the answer to 8 + 4 = ? + 5?"
+  - Pax: "Why did we need two steps?"
+- **Progress and finale:** five stars per job lights a part of the beacon (done after 5 stars and level 2, or 12 questions). The Big Weigh-in, then the outpost stays in the evening with every job open. No timed mode (the old game had none, and this skill is about care, not speed).
+- **Difficulty change from the original:** from "a + b = ?" (one level, negative answers by accident) to the equals sign as balance, unknowns in every position, × and ÷, and two-step problems with a letter for the unknown, with no negative numbers anywhere.
+
+##### Choices for the owner
+
+1. **Order.** Recommended: Multiplication Space Quest first, built in two halves with a quick look in between (half 1: walking on the deck, the Hangar and the Engine Room; half 2: the Cargo Bay, the Star Map, Launch Bingo and Meteor Run), then Equation Balance Scale in its own PR. Or both games in one PR, or the smaller Balance Scale first.
+2. **Settings.** Recommended: Space Quest on the station deck and the Balance Scale on the alien planet, so both approved settings get used. Or both on the deck, or a new Star Station place for Space Quest (a ship hangar or docking bay).
+3. **The kind of game for Space Quest.** Recommended: a walking station with four jobs (above). Other real directions:
+   - **A voyage arcade:** the player pilots a ship from planet to planet, steering into the right answers on the way (like Math Race Rally, but in space), and lands at each planet for a picture puzzle. More action, but less room for pictures and hints, and close to Race Rally.
+   - **Station plus cockpit:** the walking station as above, but Meteor Run becomes a real flying arcade mode (steer the ship, catch the right answers) instead of a quick-answer race.
+4. **Names.** Keep "Multiplication Space Quest" and "Equation Balance Scale" (the links stay the same either way), or new names. The host names are drafts too.
+
+##### Kit work for half 2 (after approval)
+
+Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`). The station deck and the alien planet need the same, following `ancient-kingdoms/forum.ts`. The Sunny Town games' build output must not change; it is checked after the kit work.
+
+##### Site changes when it ships
+
+- `/games/multiplication-space-quest` plays the new game.
+- `/games/multiplication-bingo-bonanza` and `/games/multiplication-tables-adventure` redirect to it, and their listings are removed.
+- `/games/equation-balance-scale` plays the new Balance Scale.
+- New card pictures. The old HTML files stay until the Phase 4 cleanup, as for M6.
+
+##### Checks it will ship with
+
+- Unit tests for every job and level over 300+ random seeds:
+  - one correct choice
+  - every wrong choice tagged with its mistake and computed from it
+  - every Bingo call's answer on the card
+  - no negative numbers anywhere in the Balance Scale
+  - every equation's two sides checked
+- A browser test for each game, playing from the title through every job, the finale and (for Space Quest) Bingo and Meteor Run, then a reload and the grown-ups page.
+- Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
+- A score against the rubric (8.5 to pass).
+
 ### Phase 2: Science (14 games, from 21): NOT STARTED
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
@@ -877,3 +1028,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-06:** Owner merged half 2 (PR #214). M5 COMPLETED ✅: 8 of the 11 Math games are done, and M6 (Fractions) and M7 (Multiplication and equations) remain. The team is doing QA on the finished games. The owner decided to add **game worlds** (a sci-fi world, an ancient world and more, chosen by children), with the owner and team placing each game in a world. Order: design the worlds, then build M6, M7 and the other subjects inside them, then the Echo narrative and an interactive world map on the site. Details and the handoff: `docs/GAME_WORLDS_PROPOSAL.md`.
 - **2026-10-08:** Game worlds W1 approved. M6 plan written with the `remaster-game` skill; owner chose the name Forum Fraction Feast, a walking Roman forum with four jobs, built in two halves. Half 1 (the Bakery and Milestone Road) built.
 - **2026-10-09:** Half 2 built (the Market Stall, the Mosaic, the Festival Feast and Frenzy mode); the site lists Forum Fraction Feast and `/games/fraction-pizza-party` redirects. 9.1/10, 27 unit tests and 51 browser checks. Owner approved and merged PR #220. **M6 COMPLETED ✅: 9 of the 11 Math games are done.** Next: M7 (Multiplication Space Quest with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in, and Equation Balance Scale) in the Star Station world, plan first. Handoff: `docs/M7_STAR_STATION_HANDOFF.md`.
+- **2026-10-09:** M7 plan written (the M7 section above), after studying and playing the four originals. Found two problems in the live games: about 55% of Bingo Bonanza's calls have no answer on the card, and the Balance Scale freezes on subtraction with a negative answer. Waiting for the owner's choices and approval.
