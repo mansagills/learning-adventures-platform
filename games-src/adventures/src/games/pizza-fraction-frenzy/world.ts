@@ -8,8 +8,8 @@ import { paintBrazier } from '../../kit/worlds/ancient-kingdoms/forum';
 import type { Look16 } from '../../kit/worlds/hero16';
 import { mixHex } from '../../kit/worlds/shade';
 import { Walker16, type Marker16 } from '../../kit/worlds/walker';
-import { paintGoose, paintGroma, paintMilestone, paintOven } from './art';
-import type { Station } from './problems';
+import { paintGoose, paintGroma, paintMilestone, paintOven, paintTileBasket } from './art';
+import { STATIONS, type Station } from './problems';
 
 /** Everyone the player can talk to (Livia runs the bakery and hosts the festival). */
 export type PersonId = Station | 'anser';
@@ -22,10 +22,12 @@ const SKY_TOP = { day: '#5fb6e4', evening: '#2c2a62' };
 export const PEOPLE_SPOTS: Record<Station, { x: number; y: number }> = {
   bakery: { x: 5.5, y: 14.5 },
   road: { x: 13.5, y: 18.5 },
+  market: { x: 19.5, y: 14.7 },
+  mosaic: { x: 12.5, y: 6.9 },
 };
 
-/** The four braziers round the mosaic: each job lights one. (The market stall and the mosaic come in half 2.) */
-export const BRAZIERS: Array<{ x: number; y: number; job: Station | 'market' | 'mosaic' }> = [
+/** The four braziers round the mosaic: each job lights one. */
+export const BRAZIERS: Array<{ x: number; y: number; job: Station }> = [
   { x: 8.7, y: 11.9, job: 'bakery' },
   { x: 8.7, y: 7.7, job: 'road' },
   { x: 17.3, y: 7.7, job: 'mosaic' },
@@ -161,7 +163,9 @@ export class ForumWorld {
     // people
     this.player = new Walker16(ctx, playerLook, START.x, START.y, 'down');
     this.scene.add(this.player.group);
-    for (const id of ['bakery', 'road'] as const) {
+    // Tullia's basket of tiles by the mosaic
+    prop(paintTileBasket(T).toCanvas(), 14.0, 7.0);
+    for (const id of STATIONS) {
       const s = PEOPLE_SPOTS[id];
       const w = new Walker16(ctx, looks[id], s.x, s.y, 'down');
       this.people.set(id, w);
@@ -175,12 +179,13 @@ export class ForumWorld {
   }
 
   /** Light the braziers for the finished jobs, and move the day a little toward dusk. */
-  setLit(done: Array<Station | 'market' | 'mosaic'>, dusk = false): void {
+  setLit(done: Station[], dusk = false): void {
     this.braziers.forEach((b, i) => {
       b.lit = done.includes(BRAZIERS[i].job);
       swapFrame(b.mesh, b.lit ? this.brazierLit[0] : this.brazierCold);
       b.glowMeshes.forEach((m) => (m.visible = b.lit));
     });
+    this.setting.setTime?.(dusk ? 'evening' : 'day');
     this.setNight(dusk ? 1 : Math.min(0.36, done.length * 0.09));
   }
 

@@ -14,15 +14,19 @@ export interface FeastSave {
   /** Jobs whose person has explained them. */
   introduced: Station[];
   openingSeen: boolean;
-  /** Livia's thank-you after the first two jobs. */
-  halfOneSeen: boolean;
+  /** Livia's "all four braziers" call to the feast. */
+  feastCalled: boolean;
+  /** The Festival Feast finale has been played. */
+  feastSeen: boolean;
+  /** Best Frenzy score (loaves served in 60 seconds). */
+  best: number;
   /** How many of the ten Fraction Pizza Party problems have been asked (they come first at level 2). */
   party: number;
   learner: LearnerState;
   seed: number;
 }
 
-const zeroes = (): Record<Station, number> => ({ bakery: 0, road: 0 });
+const zeroes = (): Record<Station, number> => ({ bakery: 0, road: 0, market: 0, mosaic: 0 });
 
 export function freshSave(): FeastSave {
   return {
@@ -33,7 +37,9 @@ export function freshSave(): FeastSave {
     done: [],
     introduced: [],
     openingSeen: false,
-    halfOneSeen: false,
+    feastCalled: false,
+    feastSeen: false,
+    best: 0,
     party: 0,
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
@@ -73,7 +79,9 @@ export function cleanSave(raw: unknown): FeastSave {
     done: Array.isArray(r.done) ? STATIONS.filter((s) => (r.done as unknown[]).includes(s)) : [],
     introduced: Array.isArray(r.introduced) ? STATIONS.filter((s) => (r.introduced as unknown[]).filter(isStation).includes(s)) : [],
     openingSeen: r.openingSeen === true,
-    halfOneSeen: r.halfOneSeen === true,
+    feastCalled: r.feastCalled === true,
+    feastSeen: r.feastSeen === true,
+    best: int(r.best, 999, 0),
     party: int(r.party, 1000, 0),
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,

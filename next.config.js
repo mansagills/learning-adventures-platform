@@ -43,6 +43,11 @@ const nextConfig = {
         destination: '/games/geometry-builder-challenge',
         permanent: true,
       },
+      {
+        source: '/games/fraction-pizza-party',
+        destination: '/games/pizza-fraction-frenzy',
+        permanent: true,
+      },
     ];
   },
   async headers() {

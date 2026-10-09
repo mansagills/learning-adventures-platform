@@ -67,6 +67,8 @@ export interface SettingScene {
   spots: Record<string, Spot>;
   /** Animate the setting; `t` is seconds since the start, `camX` the camera's tile x (for parallax). */
   update(t: number, camX: number): void;
+  /** Change the painted sky to another time of day (the game sets the light itself with `Lighting.set`). */
+  setTime?(time: TimeOfDay): void;
 }
 
 export interface Setting {

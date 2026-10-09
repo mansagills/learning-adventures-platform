@@ -1,6 +1,8 @@
-// Browser check for Forum Fraction Feast (half 1): plays a new game from the
-// title screen through the bakery and the milestone road with real clicks and
-// keys, then Anser, the grown-ups report, saving and the phone layout.
+// Browser check for Forum Fraction Feast: plays a new game from the title
+// screen through all four jobs (the bakery, the milestone road, the market
+// stall and the mosaic) with real clicks and keys, then the Festival Feast and
+// its finale, a Frenzy round, Anser, the grown-ups report, saving and the
+// phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-pizza-fraction-frenzy.mjs [url]
@@ -204,7 +206,107 @@ try {
   s = await st(page);
   check('the road is done: two braziers lit', s.done.includes('road') && s.lit === 2);
   check('the day moves toward dusk', s.night > 0.1, `night ${s.night}`);
-  await page.screenshot({ path: `${OUT}/05-two-braziers.png` });
+
+  // the market stall, reached by clicking Cornelia
+  await tapPerson(page, 'market');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) || (await page.locator('.fff-panel').count()), 140);
+  await talkThrough(page);
+  check('the market stall opens with two shares', (await page.locator('.fff-share').count()) === 2);
+  s = await st(page);
+  await page.locator(`[data-value="${s.panel.wrong[0].value}"]`).click();
+  await wait(page, 200);
+  check('a wrong share gets a reason', (await page.locator('.fff-feedback.try').count()) === 1, (await page.locator('.fff-feedback').textContent())?.slice(0, 80));
+  await page.keyboard.press('h');
+  await page.keyboard.press('h');
+  await wait(page, 250);
+  check('hint 2 puts a strip under each share', (await page.locator('.fff-share .px-icon').count()) >= 4);
+  await page.screenshot({ path: `${OUT}/05-market-hint.png` });
+  await playJob(page, 'market');
+  check('Cornelia asks the debrief question', (await page.locator('.dialogue').textContent())?.includes('1/8'));
+  await talkThrough(page);
+  s = await st(page);
+  check('the market is done: three braziers lit', s.done.includes('market') && s.lit === 3);
+
+  // the mosaic (Tullia), opened from the job list's "Walk there"
+  await page.keyboard.press('j');
+  await wait(page, 300);
+  await page.locator('.belt-row').nth(3).getByRole('button', { name: /walk there/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) || (await page.locator('.fff-panel').count()), 160);
+  check('the job list walks to Tullia', (await page.locator('.dialogue').count()) || (await page.locator('.fff-panel').count()));
+  await talkThrough(page);
+  for (let i = 0; i < 8; i++) {
+    s = await st(page);
+    if (s.panel.kind === 'match') break;
+    await solve(page);
+    await wait(page, 150);
+    await page.keyboard.press('Space');
+    await wait(page, 250);
+  }
+  s = await st(page);
+  if (s.panel.kind === 'match') {
+    await page.locator(`[data-value="${s.panel.wrong[0].value}"]`).click();
+    await page.keyboard.press('h');
+    await page.keyboard.press('h');
+    await wait(page, 250);
+    check('the mosaic hint lines the strips up', (await page.locator('.fff-lineup-row').count()) === 4);
+    await page.screenshot({ path: `${OUT}/06-mosaic-hint.png` });
+  }
+  await playJob(page, 'mosaic');
+  check('Tullia asks the debrief question', (await page.locator('.dialogue').textContent())?.includes('2/4'));
+  await talkThrough(page);
+  s = await st(page);
+  check('all four braziers are lit', s.done.length === 4 && s.lit === 4);
+
+  // the Festival Feast
+  await tapPerson(page, 'bakery');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) || (await page.locator('.fff-feast').count()), 160);
+  await talkThrough(page);
+  await waitFor(page, async () => page.locator('.fff-feast').count());
+  check('Livia starts the Festival Feast', await page.locator('.fff-feast').count());
+  const stations = [];
+  for (let i = 0; i < 6; i++) {
+    s = await st(page);
+    if (!s.panel) break;
+    stations.push(s.panel.station);
+    await solve(page);
+    await wait(page, 200);
+    await page.keyboard.press('Space');
+    await wait(page, 350);
+  }
+  check('the feast has one order from each job', new Set(stations).size === 4, stations.join(','));
+  await waitFor(page, async () => page.locator('.dialogue').count());
+  await page.screenshot({ path: `${OUT}/07-finale.png` });
+  await talkThrough(page);
+  s = await st(page);
+  check('the finale is saved and dusk falls', s.feastSeen && s.night >= 0.9, `night ${s.night}`);
+  await page.screenshot({ path: `${OUT}/08-dusk.png` });
+
+  // Frenzy, from Livia's menu
+  await tapPerson(page, 'bakery');
+  await waitFor(page, async () => page.locator('.dialogue .choices button').count(), 160);
+  await page.locator('.dialogue .choices button', { hasText: 'Frenzy' }).click();
+  await wait(page, 400);
+  check('Frenzy opens', await page.getByRole('button', { name: 'Go!' }).isVisible());
+  await page.getByRole('button', { name: 'Go!' }).click();
+  await wait(page, 300);
+  for (let i = 0; i < 5; i++) {
+    s = await st(page);
+    await page.keyboard.press(String(s.frenzy.right + 1));
+    await wait(page, 400);
+  }
+  s = await st(page);
+  check('Frenzy counts the loaves served', s.frenzy.score === 5, `score ${s.frenzy.score}`);
+  const wrongIdx = [0, 1, 2].find((k) => k !== s.frenzy.right);
+  await page.keyboard.press(String(wrongIdx + 1));
+  await wait(page, 200);
+  check('a wrong loaf shows the right one', await page.locator('.fff-frenzy .fff-choice.right').count());
+  await page.screenshot({ path: `${OUT}/09-frenzy.png` });
+  await page.evaluate(() => window.__fff.endFrenzy());
+  await wait(page, 500);
+  s = await st(page);
+  check('the round ends with a best score', s.best === 5, `best ${s.best}`);
+  await page.getByRole('button', { name: 'Done' }).click();
+  await wait(page, 300);
 
   // Anser
   await tapPerson(page, 'anser');
@@ -216,7 +318,7 @@ try {
   await page.keyboard.press('g');
   await wait(page, 400);
   const report = (await page.locator('.modal').last().textContent()) ?? '';
-  check('grown-ups page lists the jobs and standards', report.includes('The Bakery') && report.includes('3.NF.2'), report.slice(0, 80));
+  check('grown-ups page lists the jobs and standards', report.includes('The Bakery') && report.includes('The Mosaic') && report.includes('4.NF.2'), report.slice(0, 80));
   await page.getByRole('tab', { name: /credits/i }).click();
   await wait(page, 200);
   const credits = (await page.locator('.modal').last().textContent()) ?? '';
@@ -225,7 +327,7 @@ try {
   if (await tab.count()) {
     await tab.click();
     await wait(page, 200);
-    check('the progress table has a row per job', (await page.locator('.progress-table tbody tr').count()) === 2);
+    check('the progress table has a row per job', (await page.locator('.progress-table tbody tr').count()) === 4);
   }
   await page.screenshot({ path: `${OUT}/06-grownups.png` });
   await page.keyboard.press('Escape');
@@ -237,7 +339,7 @@ try {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 500);
   s = await st(page);
-  check('saved game continues with both braziers lit', s.done.length === 2 && s.lit === 2);
+  check('saved game continues at dusk with all four braziers lit', s.done.length === 4 && s.lit === 4 && s.feastSeen && s.best === 5);
 
   // phone layout
   const { page: ph } = await newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });

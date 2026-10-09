@@ -17,11 +17,11 @@ import { TouchControls } from '../../kit/ui/touch';
 import { showTitle } from '../../kit/ui/title';
 import { HAIR16, look16FromAppearance, paintHero, paintPortrait16, type Look16, type Mood } from '../../kit/worlds';
 import '../../kit/worlds/worlds.css';
-import { PICTURE_BG, paintBrazierIcon, paintGoosePortrait, paintLoaf, paintLoafIcon, paintMilestoneIcon, paintRoad, postAt } from './art';
-import { ANSER, ANSER_LINES, CONTROLS_TIP_KEYS, CONTROLS_TIP_TOUCH, GROWNUPS, HALF_ONE_DONE, HOST, hintText, mistakeLine, OPENING, PARTY_COUNT, praise, promptFor, STARS_PER_STATION, STATION_INFO } from './content';
-import { FORUM_SONG, WORK_SONG } from './music';
+import { PICTURE_BG, paintBrazierIcon, paintCompareIcon, paintGoosePortrait, paintLoaf, paintLoafIcon, paintMilestoneIcon, paintRoad, paintStrip, paintStripIcon, postAt } from './art';
+import { ANSER, ANSER_LINES, CONTROLS_TIP_KEYS, CONTROLS_TIP_TOUCH, FEAST_INTRO, FEAST_READY, FINALE, FINALE_AFTER, FRENZY_INTRO, FRENZY_SECONDS, GROWNUPS, HOST, hintText, mistakeLine, OPENING, PARTY_COUNT, praise, promptFor, STARS_PER_STATION, STATION_INFO } from './content';
+import { FEAST_SONG, FORUM_SONG, FRENZY_SONG, WORK_SONG } from './music';
 import { pix } from './pix';
-import { makeProblem, partyProblem, STATIONS, type Choice, type Loaf, type Misconception, type Problem, type Station, type Tier } from './problems';
+import { fstr, makeProblem, makeServe, partyProblem, STATIONS, type Choice, type Frac, type Loaf, type Misconception, type Problem, type ServeProblem, type Station, type Tier } from './problems';
 import { freshSave, store, type FeastSave } from './save';
 import { BRAZIERS, ForumWorld, type PersonId, type Target } from './world';
 
@@ -50,11 +50,30 @@ const LOOKS: Record<Station, Look16> = {
     clavi: '#2f4f9e',
     belt: '#7a4a2e',
   },
+  market: {
+    build: 'adult',
+    skin: '#dcaa7e',
+    hair: { style: 'locs', color: '#4a2f22', tie: '#c45a44' },
+    top: { color: '#4f9a4a', trim: '#f2c94c', kind: 'robe' },
+    legs: '#4f9a4a',
+    shoes: '#8a5a3a',
+    clavi: '#f2c94c',
+    beads: ['#c45a44', '#f2c94c'],
+  },
+  mosaic: {
+    build: 'adult',
+    skin: '#c08a5c',
+    hair: { style: 'puffs', color: '#2a1f1d', tie: '#2f4f9e' },
+    top: { color: '#8a5cc4', trim: '#f1e3c2', kind: 'robe' },
+    legs: '#8a5cc4',
+    shoes: '#6a4a32',
+    belt: '#2f4f9e',
+  },
 };
 
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 
-type Mode = 'title' | 'world' | 'busy' | 'station';
+type Mode = 'title' | 'world' | 'busy' | 'station' | 'frenzy';
 
 interface Panel {
   modal: Modal;
@@ -72,6 +91,22 @@ interface Panel {
   stars: HTMLElement;
   level: HTMLElement;
   prompt: HTMLElement;
+  /** The Festival Feast: one order from each job, in this order (no stars, nothing timed). */
+  feast?: { index: number };
+}
+
+interface Frenzy {
+  modal: Modal;
+  score: number;
+  endsAt: number;
+  order: ServeProblem;
+  target: HTMLElement;
+  choices: HTMLElement;
+  bar: HTMLElement;
+  scoreEl: HTMLElement;
+  locked: boolean;
+  done: boolean;
+  seed: number;
 }
 
 export class Game {
@@ -90,6 +125,7 @@ export class Game {
   private titleEl: HTMLElement | null = null;
   private readonly speakers: Record<Station | 'anser', Speaker>;
   private panel: Panel | null = null;
+  private frenzy: Frenzy | null = null;
   private praiseCount = 0;
   private anserCount = 0;
 
@@ -115,6 +151,8 @@ export class Game {
     this.speakers = {
       bakery: speaker('bakery', HOST.name, HOST.role, 210),
       road: speaker('road', STATION_INFO.road.person.name, STATION_INFO.road.person.role, 140),
+      market: speaker('market', STATION_INFO.market.person.name, STATION_INFO.market.person.role, 230),
+      mosaic: speaker('mosaic', STATION_INFO.mosaic.person.name, STATION_INFO.mosaic.person.role, 190),
       anser: {
         name: ANSER.name,
         role: ANSER.role,
@@ -129,6 +167,8 @@ export class Game {
     };
     audio.addSong('forum', FORUM_SONG);
     audio.addSong('work', WORK_SONG);
+    audio.addSong('feast', FEAST_SONG);
+    audio.addSong('frenzy', FRENZY_SONG);
     this.world.onArrive = (t) => this.use(t);
     window.addEventListener('resize', () => this.world.resize());
     this.world.stage.canvas.addEventListener('pointerdown', (e) => this.onPointer(e));
@@ -143,6 +183,7 @@ export class Game {
     mountToasts(host);
     window.addEventListener('keydown', (e) => {
       if (this.panel && !this.talk.isOpen && stackTop() === this.panel.modal) this.onStationKey(e);
+      else if (this.frenzy && stackTop() === this.frenzy.modal) this.onFrenzyKey(e);
     });
     (window as unknown as { __fff: unknown }).__fff = {
       state: () => this.debugState(),
@@ -154,6 +195,17 @@ export class Game {
       open: (s: Station) => this.mode === 'world' && void this.openStation(s),
       setTier: (s: Station, t: Tier) => {
         skill(this.save.learner, s).tier = t;
+      },
+      feast: () => this.mode === 'world' && this.openFeast(),
+      frenzy: () => this.mode === 'world' && this.openFrenzy(),
+      endFrenzy: () => this.frenzy && (this.frenzy.endsAt = performance.now()),
+      finishAll: () => {
+        for (const s of STATIONS) if (!this.save.done.includes(s)) this.save.done.push(s);
+        this.save.feastCalled = true;
+        this.persist();
+        this.world.setLit(this.save.done);
+        this.updateMarkers();
+        this.renderHud();
       },
       skipParty: () => {
         this.save.party = PARTY_COUNT;
@@ -167,8 +219,9 @@ export class Game {
   }
 
   start(): void {
-    const names = { bakery: HOST.name, road: STATION_INFO.road.person.name };
+    const names = { bakery: HOST.name, road: STATION_INFO.road.person.name, market: STATION_INFO.market.person.name, mosaic: STATION_INFO.mosaic.person.name };
     this.world.build(this.playerLook(), LOOKS, names, this.save.done);
+    if (this.save.feastSeen) this.world.setLit(this.save.done, true);
     this.updateMarkers();
     this.world.establishing = true;
     this.world.follow();
@@ -199,7 +252,7 @@ export class Game {
     this.titleEl = showTitle(this.host, {
       title: 'Forum Fraction Feast',
       subtitle: 'Fair shares for the festival',
-      intro: ['Help Baker Livia and friends get the Roman forum ready for the festival. Cut fair shares, mark the milestone road, and light the bronze braziers.', 'For grades 2 to 4. Every line can be read aloud.'],
+      intro: ['Help Baker Livia and friends get the Roman forum ready for the festival. Cut fair shares, mark the milestone road, compare shares and match the mosaic tiles to light the four bronze braziers.', 'For grades 2 to 4. Every line can be read aloud.'],
       hasSave: store.exists(),
       continueGame: () => {
         audio.unlock();
@@ -255,7 +308,7 @@ export class Game {
     this.titleEl = null;
     this.hud.hidden = false;
     this.mode = 'world';
-    audio.play('forum');
+    audio.play(this.save.feastSeen ? 'feast' : 'forum');
     this.renderHud();
     if (!this.save.openingSeen) void this.opening();
   }
@@ -273,10 +326,18 @@ export class Game {
     this.mode = 'world';
   }
 
+  private get allDone(): boolean {
+    return STATIONS.every((s) => this.save.done.includes(s));
+  }
+
   private updateMarkers(): void {
+    const mark = (s: Station) => (this.save.done.includes(s) ? null : 'new');
     this.world.setMarkers({
-      bakery: this.save.done.includes('bakery') ? null : 'new',
-      road: this.save.done.includes('road') ? null : 'new',
+      // Livia calls everyone to the feast once all four braziers burn
+      bakery: !this.save.done.includes('bakery') ? 'new' : this.allDone && !this.save.feastSeen ? 'turnin' : null,
+      road: mark('road'),
+      market: mark('market'),
+      mosaic: mark('mosaic'),
     });
   }
 
@@ -303,7 +364,7 @@ export class Game {
   }
 
   private onAction(a: string): void {
-    if (this.mode === 'station') return;
+    if (this.mode === 'station' || this.mode === 'frenzy') return;
     if (a === 'interact' && this.mode === 'world' && this.target) this.use(this.target);
     else if (a === 'mute') this.toggleMute();
     else if (a === 'menu' && this.mode === 'world') this.openSettingsPanel();
@@ -364,20 +425,43 @@ export class Game {
     this.mode = 'busy';
     const info = STATION_INFO[station];
     const who = this.speakers[station];
+    if (station === 'bakery' && this.allDone && !this.save.feastSeen) {
+      await this.talk.say(who, FEAST_INTRO, 'proud');
+      this.talk.end();
+      this.openFeast();
+      return;
+    }
     if (!this.save.introduced.includes(station)) {
       await this.talk.say(who, info.intro);
       this.talk.end();
       this.save.introduced.push(station);
       this.persist();
     } else if (this.save.done.includes(station)) {
-      const pick = await this.talk.offer(who, `The brazier is lit, thanks to you! Want to keep practising ${info.skill.toLowerCase()}?`, ['Yes, more please!', 'Change how I look', 'Not now']);
+      const frenzy = station === 'bakery';
+      const options = ['Yes, more please!', ...(frenzy ? ['Frenzy race!'] : []), 'Change how I look', 'Not now'];
+      const text = frenzy
+        ? `The brazier is lit, thanks to you! More fair shares, or a Frenzy race? Your best Frenzy is ${this.save.best}.`
+        : `The brazier is lit, thanks to you! Want to keep practising ${info.skill.toLowerCase()}?`;
+      const pick = options[await this.talk.offer(who, text, options)];
       this.talk.end();
-      if (pick === 1) this.changeLook();
-      if (pick !== 0) {
+      if (pick === 'Change how I look') this.changeLook();
+      if (pick === 'Frenzy race!') {
+        this.mode = 'world';
+        this.openFrenzy();
+        return;
+      }
+      if (pick !== 'Yes, more please!') {
         this.mode = 'world';
         return;
       }
     }
+    this.openPanel(station);
+  }
+
+  /** The job panel (used by every job and by the Festival Feast). */
+  private openPanel(station: Station, feast = false): void {
+    const info = STATION_INFO[station];
+    const who = this.speakers[feast ? 'bakery' : station];
     this.mode = 'station';
     this.touch?.setVisible(false);
     audio.play('work');
@@ -394,7 +478,7 @@ export class Game {
     const root = h(
       'div',
       { class: `panel modal fff-panel fff-job-${station}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'fff-title' },
-      h('header', {}, h('h2', { id: 'fff-title', text: info.name }), h('div', { class: 'fff-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
+      h('header', {}, h('h2', { id: 'fff-title', text: feast ? 'The Festival Feast' : info.name }), h('div', { class: 'fff-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
       h('div', { class: 'fff-ask' }, face, prompt, speakBtn),
       body,
       feedback,
@@ -403,17 +487,25 @@ export class Game {
     const modal = new Modal(this.host, root, () => this.closeStation(), { closeOnBackdrop: false });
     hintBtn.addEventListener('click', () => this.hint());
     next.addEventListener('click', () => this.afterAnswer());
-    this.panel = { modal, station, problem: null as unknown as Problem, promptText: '', hintRung: 0, tries: 0, recorded: false, answered: false, feedback, hintBtn, next, body, stars, level, prompt };
+    this.panel = { modal, station, problem: null as unknown as Problem, promptText: '', hintRung: 0, tries: 0, recorded: false, answered: false, feedback, hintBtn, next, body, stars, level, prompt, feast: feast ? { index: 0 } : undefined };
+    if (feast) root.classList.add('fff-feast');
     this.nextChallenge();
+  }
+
+  private openFeast(): void {
+    this.mode = 'busy';
+    audio.play('feast');
+    this.openPanel(STATIONS[0], true);
   }
 
   private nextChallenge(): void {
     const pnl = this.panel;
     if (!pnl) return;
     const seed = this.save.seed++;
+    if (pnl.feast) pnl.station = STATIONS[pnl.feast.index];
     const tier = skill(this.save.learner, pnl.station).tier as Tier;
     // the ten Fraction Pizza Party problems come first at level 2 (with loaves instead of pizzas)
-    const p: Problem = pnl.station === 'bakery' && tier === 2 && this.save.party < PARTY_COUNT ? partyProblem(this.save.party++, mulberry32(seed)) : makeProblem(pnl.station, tier, mulberry32(seed));
+    const p: Problem = pnl.station === 'bakery' && tier === 2 && this.save.party < PARTY_COUNT && !pnl.feast ? partyProblem(this.save.party++, mulberry32(seed)) : makeProblem(pnl.station, tier, mulberry32(seed));
     this.persist();
     pnl.problem = p;
     pnl.hintRung = 0;
@@ -422,7 +514,7 @@ export class Game {
     pnl.answered = false;
     pnl.promptText = promptFor(p, seed);
     pnl.prompt.textContent = pnl.promptText;
-    pnl.level.textContent = `Level ${p.tier} of 3`;
+    pnl.level.textContent = pnl.feast ? `Order ${pnl.feast.index + 1} of ${STATIONS.length}` : `Level ${p.tier} of 3`;
     pnl.feedback.hidden = true;
     pnl.next.hidden = true;
     pnl.hintBtn.disabled = false;
@@ -460,10 +552,28 @@ export class Game {
       if (p.kind === 'fair') return h('div', { class: 'fff-stage' }, this.choiceButtons(p.choices, pick, true));
       return h('div', { class: 'fff-stage' }, h('div', { class: 'fff-picture', style: `background:${PICTURE_BG}` }, this.loafImg(p.loaf)), this.choiceButtons(p.choices, pick));
     }
+    if (p.station === 'market') {
+      const share = (f: Frac, i: number) => h('div', { class: 'fff-share', 'data-share': String(i) }, pix('loaf-whole', () => paintLoaf({ shape: 'round', sizes: [1], gone: [], shaded: [] }, 32), 2, 'A whole loaf, the same size for both customers'), h('strong', { class: 'fff-frac', text: fstr(f) }));
+      return h('div', { class: 'fff-stage' }, h('div', { class: 'fff-shares' }, share(p.a, 0), h('span', { class: 'fff-or', text: 'or' }), share(p.b, 1)), this.choiceButtons(p.choices, pick));
+    }
+    if (p.station === 'mosaic') {
+      if (p.kind === 'match') return h('div', { class: 'fff-stage' }, this.stripEl(p.target, 'indigo', 'fff-target-strip'), this.choiceButtons(p.choices, pick));
+      if (p.kind === 'odd-one') return h('div', { class: 'fff-stage' }, this.stripEl(p.target, 'indigo', 'fff-target-strip'), this.choiceButtons(p.choices, pick));
+      if (p.kind === 'whole-number') return h('div', { class: 'fff-stage' }, h('p', { class: 'fff-equation', text: `${fstr(p.given)} = ? whole strips` }), h('div', { class: 'fff-picture fff-strips' }), this.choiceButtons(p.choices, pick));
+      const eq = p.want.n === null ? `${fstr(p.given)} = ?/${p.want.d}` : `${fstr(p.given)} = ${p.want.n}/?`;
+      return h('div', { class: 'fff-stage' }, h('p', { class: 'fff-equation', text: eq }), h('div', { class: 'fff-picture fff-strips' }, this.stripEl(p.given, 'indigo')), this.choiceButtons(p.choices, pick));
+    }
     // the milestone road
     const road = this.roadEl(p);
     if (p.kind === 'place') return h('div', { class: 'fff-stage' }, road, h('p', { class: 'fff-note', text: isTouchDevice() ? 'Tap a post to put the flag there.' : 'Click a post to put the flag there (or Tab to a post and press Enter).' }));
     return h('div', { class: 'fff-stage' }, road, this.choiceButtons(p.choices, pick));
+  }
+
+  /** A tile strip picture (one whole strip, or several for fractions above 1). */
+  private stripEl(f: Frac, color: 'terra' | 'indigo' | 'gold' = 'terra', cls = ''): HTMLElement {
+    const img = pix(`strip-${f.n}-${f.d}-${color}`, () => paintStrip(f.n, f.d, { color }), 3, `A strip of ${f.d} equal tiles with ${f.n} colored`);
+    if (cls) img.classList.add(cls);
+    return img;
   }
 
   /** The road picture, the 0 / 1 / 2 labels under the milestones, and (when placing) a button on every post. */
@@ -506,6 +616,11 @@ export class Game {
   private renderStars(): void {
     const pnl = this.panel;
     if (!pnl) return;
+    if (pnl.feast) {
+      pnl.stars.replaceChildren(...STATIONS.map((_, i) => pix(`brazier-${i < pnl.feast!.index + (pnl.answered ? 1 : 0)}`, () => paintBrazierIcon(i < pnl.feast!.index + (pnl.answered ? 1 : 0)), 2)));
+      pnl.stars.setAttribute('aria-label', `${pnl.feast.index + (pnl.answered ? 1 : 0)} of ${STATIONS.length} guests served`);
+      return;
+    }
     const n = this.save.stars[pnl.station];
     pnl.stars.replaceChildren(...Array.from({ length: STARS_PER_STATION }, (_, i) => iconImg(i < n ? 'star' : 'starEmpty', '', 20)));
     pnl.stars.setAttribute('aria-label', `${n} of ${STARS_PER_STATION} stars`);
@@ -520,16 +635,18 @@ export class Game {
       pnl.answered = true;
       const clean = pnl.tries === 0 && pnl.hintRung <= 1;
       let tierChange = 0;
-      if (!pnl.recorded) {
+      if (!pnl.recorded && !pnl.feast) {
         pnl.recorded = true;
         tierChange = recordAnswer(this.save.learner, p.station, { correct: true, hintRung: pnl.hintRung }, RULES).tierChange;
       }
-      this.save.played[p.station]++;
-      if (clean && this.save.stars[p.station] < STARS_PER_STATION) this.save.stars[p.station]++;
+      if (!pnl.feast) {
+        this.save.played[p.station]++;
+        if (clean && this.save.stars[p.station] < STARS_PER_STATION) this.save.stars[p.station]++;
+      }
       this.persist();
       if (clean) audio.itemGet();
       else audio.correct();
-      const msg = clean ? `${praise(this.praiseCount++)} You win a star.` : 'You got it! Stars are for getting it right the first time.';
+      const msg = pnl.feast ? `${praise(this.praiseCount++)} The guest is served.` : clean ? `${praise(this.praiseCount++)} You win a star.` : 'You got it! Stars are for getting it right the first time.';
       this.showFeedback(msg, 'good');
       pnl.next.hidden = false;
       pnl.hintBtn.disabled = true;
@@ -541,7 +658,7 @@ export class Game {
       return;
     }
     pnl.tries++;
-    if (!pnl.recorded) {
+    if (!pnl.recorded && !pnl.feast) {
       pnl.recorded = true;
       const o = recordAnswer(this.save.learner, p.station, { correct: false, hintRung: pnl.hintRung, misconception: mis }, RULES);
       this.persist();
@@ -599,6 +716,21 @@ export class Game {
       old?.replaceWith(fresh);
       return;
     }
+    if (p.station === 'market') {
+      [p.a, p.b].forEach((f, i) => pnl.body.querySelector(`[data-share="${i}"]`)?.append(this.stripEl(f, 'gold')));
+      return;
+    }
+    if (p.station === 'mosaic') {
+      if (p.kind === 'match' || p.kind === 'odd-one') {
+        // line every choice's strip up under the first strip, all the same length
+        const row = (label: string, f: Frac, color: 'indigo' | 'terra') => h('div', { class: 'fff-lineup-row' }, h('span', { class: 'fff-lineup-label', text: label }), this.stripEl(f, color));
+        const lineup = h('div', { class: 'fff-lineup' }, row(fstr(p.target), p.target, 'indigo'), ...p.choices.map((c) => row(c.label, { n: Number(c.value.split('/')[0]), d: Number(c.value.split('/')[1]) }, 'terra')));
+        pnl.body.querySelector('.fff-target-strip')?.replaceWith(lineup);
+      }
+      else if (p.kind === 'whole-number') pnl.body.querySelector('.fff-strips')?.append(this.stripEl(p.given, 'indigo'));
+      else if (p.want.n === null) pnl.body.querySelector('.fff-strips')?.append(this.stripEl({ n: 0, d: p.want.d! }, 'terra'));
+      return;
+    }
     if (p.kind === 'fair') return;
     const loaf = p.kind === 'build' ? { ...p.loaf, gone: [], shaded: [0] } : p.loaf;
     pnl.body.querySelector('.fff-picture')?.replaceChildren(this.loafImg(loaf, p.kind !== 'build'));
@@ -607,6 +739,17 @@ export class Game {
   private afterAnswer(): void {
     const pnl = this.panel;
     if (!pnl || !pnl.answered) return;
+    delete pnl.body.dataset.hinted;
+    if (pnl.feast) {
+      pnl.feast.index++;
+      if (pnl.feast.index < STATIONS.length) this.nextChallenge();
+      else {
+        pnl.feast = undefined;
+        pnl.modal.close();
+        void this.finale();
+      }
+      return;
+    }
     const s = pnl.station;
     const rec = skill(this.save.learner, s);
     const ready = this.save.stars[s] >= STARS_PER_STATION && (rec.tier >= 2 || this.save.played[s] >= MAX_PER_STATION);
@@ -627,7 +770,7 @@ export class Game {
     } else if ((k === ' ' || k === 'enter') && pnl.answered && document.activeElement !== pnl.next) {
       e.preventDefault();
       this.afterAnswer();
-    } else if (/^[1-4]$/.test(k)) {
+    } else if (/^[1-4]$/.test(k) && !e.repeat) {
       const b = pnl.body.querySelectorAll<HTMLButtonElement>('.fff-choice')[Number(k) - 1];
       if (b && !b.disabled) {
         e.preventDefault();
@@ -641,7 +784,7 @@ export class Game {
     this.panel = null;
     if (this.mode === 'station') {
       this.mode = 'world';
-      audio.play('forum');
+      audio.play(this.save.feastSeen ? 'feast' : 'forum');
     }
     this.touch?.setVisible(touchControlsVisible());
     this.renderHud();
@@ -662,17 +805,181 @@ export class Game {
     audio.levelUp();
     toast(`A brazier is lit! ${this.save.done.length} of 4`, 'reward');
     await this.talk.say(who, info.done, 'proud');
-    if (STATIONS.every((x) => this.save.done.includes(x)) && !this.save.halfOneSeen) {
-      await this.talk.say(this.speakers.bakery, HALF_ONE_DONE, 'proud');
-      this.save.halfOneSeen = true;
+    if (this.allDone && !this.save.feastCalled) {
+      this.world.setNight(0.55);
+      await this.talk.say(this.speakers.bakery, FEAST_READY, 'proud');
+      this.save.feastCalled = true;
       this.persist();
-    } else if (s !== 'bakery') {
+    } else if (!this.allDone) {
       const left = STATIONS.filter((x) => !this.save.done.includes(x));
-      if (left.length) await this.talk.say(this.speakers.bakery, `Look at it burn! Now go and see ${STATION_INFO[left[0]].person.name}.`, 'proud');
+      await this.talk.say(this.speakers.bakery, `Look at it burn! ${left.length} more to go. ${STATION_INFO[left[0]].person.name} could use your help next.`, 'proud');
     }
     this.talk.end();
     this.renderHud();
     this.mode = 'world';
+  }
+
+  // ------------------------------------------------------------ the Festival Feast finale
+
+  private async finale(): Promise<void> {
+    this.mode = 'busy';
+    this.world.setLit(this.save.done, true);
+    audio.play('feast');
+    audio.levelUp();
+    await this.talk.say(this.speakers.bakery, FINALE, 'proud');
+    this.world.honk();
+    audio.fx(
+      [
+        [71, 0, 0.12],
+        [67, 0.14, 0.18],
+        [71, 0.34, 0.12],
+      ],
+      'square',
+      0.08,
+    );
+    await this.talk.say(this.speakers.anser, FINALE_AFTER[0], 'curious');
+    await this.talk.say(this.speakers.bakery, FINALE_AFTER[1], 'smile');
+    this.talk.end();
+    this.save.feastSeen = true;
+    this.persist();
+    this.updateMarkers();
+    toast('The Festival Feast! Every brazier is blazing.', 'reward');
+    window.parent?.postMessage({ type: 'game-complete', score: this.save.done.length }, '*');
+    this.renderHud();
+    this.mode = 'world';
+  }
+
+  // ------------------------------------------------------------ Frenzy mode (the old Pizza Fraction Frenzy race)
+
+  private openFrenzy(): void {
+    if (this.mode !== 'world') return;
+    this.mode = 'frenzy';
+    this.touch?.setVisible(false);
+    const bar = h('div', { class: 'fff-timer-fill' });
+    const scoreEl = h('strong', { class: 'fff-frenzy-score', text: '0' });
+    const target = h('p', { class: 'fff-order' });
+    const choices = h('div', { class: 'fff-choices pictures' });
+    const startBtn = h('button', { class: 'btn primary big', type: 'button', text: 'Go!', 'data-autofocus': true });
+    const intro = h('div', { class: 'fff-frenzy-intro' }, h('p', { text: FRENZY_INTRO }), h('p', { class: 'small-note', text: `Your best: ${this.save.best}` }), startBtn);
+    const play = h('div', { class: 'fff-stage', hidden: true }, target, choices);
+    const root = h(
+      'div',
+      { class: 'panel modal fff-panel fff-frenzy', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'fff-frenzy-title' },
+      h('header', {}, h('h2', { id: 'fff-frenzy-title', text: 'Frenzy!' }), h('div', { class: 'fff-head-right' }, h('span', { text: 'Served: ' }), scoreEl, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Stop' : 'Stop (Esc)', onclick: () => modal.close() }))),
+      h('div', { class: 'fff-timer', role: 'progressbar', 'aria-label': 'Time left' }, bar),
+      h('div', { class: 'fff-body' }, intro, play),
+    );
+    const modal = new Modal(this.host, root, () => this.closeFrenzy(), { closeOnBackdrop: false });
+    this.frenzy = { modal, score: 0, endsAt: Infinity, order: null as unknown as ServeProblem, target, choices, bar, scoreEl, locked: true, done: false, seed: this.save.seed };
+    speak(FRENZY_INTRO);
+    startBtn.addEventListener('click', () => {
+      const f = this.frenzy;
+      if (!f) return;
+      stopSpeaking();
+      intro.hidden = true;
+      play.hidden = false;
+      f.endsAt = performance.now() + FRENZY_SECONDS * 1000;
+      audio.play('frenzy');
+      this.nextOrder();
+      const tick = () => {
+        if (!this.frenzy || this.frenzy.done) return;
+        this.tickFrenzy(performance.now());
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  private nextOrder(): void {
+    const f = this.frenzy;
+    if (!f || f.done) return;
+    const tier = Math.max(1, Math.min(3, skill(this.save.learner, 'bakery').tier)) as Tier;
+    f.order = makeServe(tier, mulberry32(f.seed++));
+    f.target.textContent = `Order: ${fstr(f.order.target)} of a loaf`;
+    f.choices.replaceChildren(
+      ...f.order.choices.map((c, i) =>
+        h('button', { class: 'btn fff-choice picture', type: 'button', 'data-value': c.value, 'aria-label': `${i + 1}: ${c.label}`, onclick: () => this.serve(c) }, h('span', { class: 'kbd', 'aria-hidden': 'true', text: String(i + 1) }), this.loafImg(c.loaf!)),
+      ),
+    );
+    f.locked = false;
+    f.choices.querySelector<HTMLButtonElement>('button')?.focus();
+  }
+
+  private serve(c: Choice): void {
+    const f = this.frenzy;
+    if (!f || f.locked || f.done) return;
+    f.locked = true;
+    const btn = f.choices.querySelector(`[data-value="${CSS.escape(c.value)}"]`);
+    if (c.correct) {
+      f.score++;
+      f.scoreEl.textContent = String(f.score);
+      audio.correct();
+      btn?.classList.add('right');
+      setTimeout(() => this.nextOrder(), 260);
+    } else {
+      audio.retry();
+      btn?.classList.add('nope');
+      // show the right loaf for a moment, so a miss still teaches
+      f.choices.querySelector(`[data-value="${CSS.escape(f.order.choices.find((x) => x.correct)!.value)}"]`)?.classList.add('right');
+      setTimeout(() => this.nextOrder(), 1100);
+    }
+  }
+
+  private tickFrenzy(now: number): void {
+    const f = this.frenzy;
+    if (!f || f.done || f.endsAt === Infinity) return;
+    const left = Math.max(0, f.endsAt - now);
+    f.bar.style.width = `${(left / (FRENZY_SECONDS * 1000)) * 100}%`;
+    f.bar.classList.toggle('low', left < 10000);
+    if (left <= 0) this.finishFrenzy();
+  }
+
+  private finishFrenzy(): void {
+    const f = this.frenzy;
+    if (!f || f.done) return;
+    f.done = true;
+    f.locked = true;
+    const score = f.score;
+    const isBest = score > this.save.best;
+    if (isBest) this.save.best = score;
+    this.save.seed = f.seed;
+    this.persist();
+    audio.play(this.save.feastSeen ? 'feast' : 'forum');
+    if (isBest && score > 0) audio.levelUp();
+    else audio.correct();
+    const again = h('button', { class: 'btn primary', type: 'button', text: 'Play again', 'data-autofocus': true });
+    const done = h('button', { class: 'btn', type: 'button', text: 'Done' });
+    const line = `Time! You served ${score} loa${score === 1 ? 'f' : 'ves'}.${isBest && score > 0 ? ' That is your new best!' : ` Your best is ${this.save.best}.`}`;
+    const body = f.modal.root.querySelector('.fff-body')!;
+    body.replaceChildren(h('div', { class: 'fff-frenzy-result' }, pix('loaf-icon-big', () => paintLoafIcon(), 5), h('p', { class: 'fff-result-line', text: line }), h('div', { class: 'fff-result-buttons' }, again, done)));
+    speak(line);
+    again.addEventListener('click', () => {
+      f.modal.close();
+      requestAnimationFrame(() => this.openFrenzy());
+    });
+    done.addEventListener('click', () => f.modal.close());
+    again.focus();
+  }
+
+  private onFrenzyKey(e: KeyboardEvent): void {
+    const f = this.frenzy;
+    if (!f || f.done || e.repeat) return;
+    if (/^[1-3]$/.test(e.key)) {
+      const b = f.choices.querySelectorAll<HTMLButtonElement>('.fff-choice')[Number(e.key) - 1];
+      if (b) {
+        e.preventDefault();
+        b.click();
+      }
+    }
+  }
+
+  private closeFrenzy(): void {
+    stopSpeaking();
+    if (this.frenzy && !this.frenzy.done) audio.play(this.save.feastSeen ? 'feast' : 'forum');
+    this.frenzy = null;
+    if (this.mode === 'frenzy') this.mode = 'world';
+    this.touch?.setVisible(touchControlsVisible());
+    this.renderHud();
   }
 
   // ------------------------------------------------------------ HUD
@@ -704,7 +1011,12 @@ export class Game {
 
   private openJobList(): void {
     if (this.mode !== 'world') return;
-    const icon: Record<Station, () => HTMLElement> = { bakery: () => pix('icon-loaf', () => paintLoafIcon(), 2), road: () => pix('icon-milestone', () => paintMilestoneIcon(), 2) };
+    const icon: Record<Station, () => HTMLElement> = {
+      bakery: () => pix('icon-loaf', () => paintLoafIcon(), 2),
+      road: () => pix('icon-milestone', () => paintMilestoneIcon(), 2),
+      market: () => pix('icon-compare', () => paintCompareIcon(), 2),
+      mosaic: () => pix('icon-strip', () => paintStripIcon(), 2),
+    };
     const rows = STATIONS.map((s) => {
       const info = STATION_INFO[s];
       const n = this.save.stars[s];
@@ -726,11 +1038,27 @@ export class Game {
         }),
       );
     });
-    for (const [name, skillName] of [
-      ['The Market Stall', 'comparing fractions'],
-      ['The Mosaic', 'equal fractions'],
-    ])
-      rows.push(h('li', { class: 'belt-row soon' }, pix('brazier-false', () => paintBrazierIcon(false), 2), h('div', { class: 'belt-info' }, h('strong', { text: `${name}: ${skillName}` }), h('span', { text: 'Coming soon' }))));
+    const walkTo = (id: Station) => () => {
+      modal.close();
+      const t = this.world.targets.find((x) => x.id === id);
+      if (t) this.world.walkTo(t);
+    };
+    rows.push(
+      h(
+        'li',
+        { class: `belt-row${this.allDone ? '' : ' soon'}` },
+        pix(`brazier-${this.save.feastSeen}`, () => paintBrazierIcon(this.save.feastSeen), 2),
+        h('div', { class: 'belt-info' }, h('strong', { text: 'The Festival Feast' }), h('span', { text: this.save.feastSeen ? 'Done! The whole forum is celebrating.' : this.allDone ? 'All four braziers burn. Go and see Livia!' : 'Light all four braziers first.' })),
+        ...(this.allDone ? [h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo('bakery') })] : []),
+      ),
+      h(
+        'li',
+        { class: `belt-row${this.save.done.includes('bakery') ? '' : ' soon'}` },
+        pix('icon-loaf', () => paintLoafIcon(), 2),
+        h('div', { class: 'belt-info' }, h('strong', { text: 'Frenzy race with Livia' }), h('span', { text: this.save.done.includes('bakery') ? `Serve loaves for ${FRENZY_SECONDS} seconds. Best: ${this.save.best}` : 'Finish the bakery to unlock it.' })),
+        ...(this.save.done.includes('bakery') ? [h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo('bakery') })] : []),
+      ),
+    );
     const root = h(
       'div',
       { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'jobs-title', style: 'width:min(620px,100%)' },
@@ -787,6 +1115,15 @@ export class Game {
       'whole-at-end': 'putting 1 whole at the end of the line',
       'whole-road': 'using the whole line (0 to 2) as one whole',
       'past-one-only': 'counting only the part past 1',
+      'counted-missing': 'picking the share with fewer pieces of the same size',
+      'bigger-denominator': 'thinking a bigger bottom number means a bigger piece (1/8 more than 1/4)',
+      'top-only': 'comparing only the top numbers, or reading 4/4 as 4',
+      'thinks-equal': 'calling two different shares the same',
+      'looks-different': 'not seeing that 2/4 and 1/2 are equal',
+      'add-same': 'adding the same number to the top and bottom (1/2 = 2/3)',
+      'same-top': 'changing the bottom number but not the top',
+      'half-multiply': 'multiplying the top and bottom by different numbers',
+      'bottom-number': 'reading 6/3 as 3',
     };
     const rows = STATIONS.map((s) => {
       const rec = this.save.learner[s];
@@ -804,7 +1141,7 @@ export class Game {
     return h(
       'div',
       {},
-      h('p', { text: `This summary is kept only in this browser. Braziers lit: ${this.save.done.length} of 4.` }),
+      h('p', { text: `This summary is kept only in this browser. Braziers lit: ${this.save.done.length} of 4.${this.save.feastSeen ? ' The Festival Feast is done.' : ''} Best Frenzy: ${this.save.best} loaves in ${FRENZY_SECONDS} seconds.` }),
       h('div', { class: 'table-wrap' }, h('table', { class: 'progress-table' }, h('thead', {}, h('tr', {}, ...['Job', 'Status', 'Answers', 'Level now', 'Most common slip'].map((t) => h('th', { scope: 'col', text: t })))), h('tbody', {}, ...rows))),
     );
   }
@@ -836,8 +1173,12 @@ export class Game {
             right: right?.value ?? null,
             rightIndex: pnl.problem.choices.findIndex((c) => c.correct),
             wrong: pnl.problem.choices.filter((c) => !c.correct).map((c) => ({ value: c.value, misconception: c.misconception })),
+            feast: pnl.feast ? pnl.feast.index : null,
           }
         : null,
+      frenzy: this.frenzy ? { score: this.frenzy.score, done: this.frenzy.done, running: this.frenzy.endsAt !== Infinity, right: this.frenzy.order?.choices.findIndex((c) => c.correct) ?? -1 } : null,
+      feastSeen: this.save.feastSeen,
+      best: this.save.best,
       night: this.world.night,
     };
   }

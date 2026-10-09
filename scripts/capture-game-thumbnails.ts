@@ -110,6 +110,14 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     delay: 1500,
   },
   // Shape Town Builders: start, read Odette's welcome, then the building yard with the clubhouse site.
+  'pizza-fraction-frenzy': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(18).fill('.dialogue'),
+    ],
+    delay: 2500,
+  },
   'geometry-builder-challenge': {
     clicks: [
       'button:has-text("Start a new game")',

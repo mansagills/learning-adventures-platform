@@ -12,9 +12,9 @@ import type { Loaf, Road } from './problems';
  */
 
 const C = {
-  crust: ramp('#c98a46'),
+  crust: ramp('#b5733a'),
   crumb: ramp('#f0d29a'),
-  glaze: ramp('#e8b04a', { spread: 0.9 }),
+  glaze: ramp('#ffd23f', { spread: 0.6 }),
   plate: ramp('#dfe6ea', { spread: 0.7 }),
   rim: ramp('#5f86a8'),
   board: ramp('#9a6a3e'),
@@ -277,8 +277,16 @@ export function paintLoaf(loaf: Loaf, size = 64, opts: { count?: boolean } = {})
       },
       [c - R, c - R, R * 2, R * 2],
       r,
-      { box: [c - R, c - R, R * 2, R * 2], sep: true },
+      // golden pieces are one flat bright color, plain crust is softly shaded, so they are easy to tell apart
+      loaf.shaded.includes(i) ? { form: 'flat', level: 3, sep: true } : { box: [c - R, c - R, R * 2, R * 2], sep: true, soft: true },
     );
+    // sesame seeds on the golden pieces
+    if (loaf.shaded.includes(i))
+      for (let k = 0; k < 4; k++) {
+        const a = (a0 + (a1 - a0) * (0.25 + 0.17 * k)) * Math.PI * 2;
+        const dd = R * (0.35 + 0.18 * (k % 3));
+        p.pix(c + Math.sin(a) * dd, c - Math.cos(a) * dd, '#fff6dc');
+      }
   });
   // crumbs where pieces are gone
   spans.forEach(([a0, a1], i) => {
@@ -325,7 +333,7 @@ function paintLongLoaf(loaf: Loaf, spans: Array<[number, number]>, size: number,
       },
       [s0, y0, s1 - s0, y1 - y0],
       tone,
-      { box: [x0, y0, x1 - x0, y1 - y0], sep: true },
+      { box: [x0, y0, x1 - x0, y1 - y0], sep: true, soft: true },
     );
     if (opts.count) countDots(p, (s0 + s1) / 2, cy, i + 1, false);
   });
@@ -404,6 +412,53 @@ export function postAt(road: Road, k: number): number {
   return (12 + ((200 - 24) * k) / posts) / 200;
 }
 
+/**
+ * A strip of mosaic tiles: one whole strip is always the same length, cut
+ * into `d` equal tiles, `n` of them colored. Strips longer than one whole
+ * (6/3) continue onto more strips, stacked. With `count`, each colored tile
+ * gets a small dot so it can be counted.
+ */
+export function paintStrip(n: number, d: number, opts: { width?: number; color?: 'terra' | 'indigo' | 'gold'; count?: boolean } = {}): PixelBuffer {
+  const W = opts.width ?? 96;
+  const H = 12;
+  const wholes = Math.max(1, Math.ceil(n / d));
+  const p = new Paint(W + 2, wholes * (H + 4) - 2);
+  const fill = opts.color === 'indigo' ? ramp('#3f5fae') : opts.color === 'gold' ? C.gold : ramp('#c45a44');
+  const blank = ramp('#efe6d2');
+  const grout = ramp('#3a2a24');
+  for (let row = 0; row < wholes; row++) {
+    const y = row * (H + 4);
+    // dark grout behind, then each tile flat with a light top edge, so every tile reads as one tile
+    p.rect(0, y, W + 2, H, grout, { level: 1 });
+    for (let k = 0; k < d; k++) {
+      const x0 = 1 + Math.round((W * k) / d);
+      const x1 = 1 + Math.round((W * (k + 1)) / d);
+      const on = row * d + k < n;
+      const tone = on ? fill : blank;
+      p.rect(x0 + (k ? 1 : 0), y + 1, x1 - x0 - (k ? 1 : 0), H - 2, tone, { level: 2 });
+      p.rect(x0 + (k ? 1 : 0), y + 1, x1 - x0 - (k ? 1 : 0), 1, tone, { level: 3 });
+      p.rect(x0 + (k ? 1 : 0), y + H - 2, x1 - x0 - (k ? 1 : 0), 1, tone, { level: 1 });
+      if (opts.count && on) p.fillPix(Math.round((x0 + x1) / 2) - 1, y + H / 2 - 1, 2, 2, '#fff6dc');
+    }
+  }
+  return p.toBuffer();
+}
+
+/** A basket of mosaic tiles (tesserae) for Tullia's corner of the mosaic. */
+export function paintTileBasket(T: number): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(16 * u), Math.round(12 * u));
+  p.ellipse(S(8), S(8), S(7), S(3.6), C.board, { sep: true });
+  const tones = [ramp('#c45a44'), ramp('#efe6d2'), ramp('#3f5fae'), ramp('#2e2a2a'), C.gold];
+  for (let i = 0; i < 14; i++) {
+    const x = 3 + ((i * 5) % 10);
+    const y = 4.6 + ((i * 3) % 4) * 0.8;
+    p.rect(S(x), S(y), Math.max(2, S(1.6)), Math.max(2, S(1.2)), tones[i % tones.length], { level: 3 });
+  }
+  return p.toBuffer();
+}
+
 // ------------------------------------------------------------------ HUD and icons
 
 /** A small brazier for the HUD: cold (ash) or lit (a flame). */
@@ -421,6 +476,18 @@ export function paintBrazierIcon(lit: boolean): PixelBuffer {
 /** A round loaf icon (for the job list and grown-ups). */
 export function paintLoafIcon(): PixelBuffer {
   return paintLoaf({ shape: 'round', sizes: [1, 1, 1, 1, 1, 1, 1, 1], gone: [], shaded: [] }, 20);
+}
+
+/** Icons for the job list: a strip of tiles and a pair of shares. */
+export function paintStripIcon(): PixelBuffer {
+  return paintStrip(2, 4, { width: 28, color: 'indigo' });
+}
+
+export function paintCompareIcon(): PixelBuffer {
+  const p = new Paint(32, 32);
+  p.ellipse(10, 18, 8, 8, C.crust, { sep: true });
+  p.ellipse(23, 15, 7, 7, C.glaze, { sep: true });
+  return p.toBuffer();
 }
 
 /** A milestone icon for the job list. */

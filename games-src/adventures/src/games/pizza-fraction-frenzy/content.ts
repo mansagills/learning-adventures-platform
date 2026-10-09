@@ -69,7 +69,49 @@ export const STATION_INFO: Record<Station, StationInfo> = {
       ],
       hints: ['How many stretches of 1/4 make the whole way from 0 to 1?', 'Walk 1/4, 2/4, 3/4, 4/4 from the golden milestone. Where are you?', 'The answer is outlined: on milestone I.'],
     },
-    done: 'All my flags are right! The second brazier is burning.',
+    done: 'All my flags are right! Another brazier is burning.',
+  },
+  market: {
+    id: 'market',
+    name: 'The Market Stall',
+    skill: 'Comparing shares',
+    person: { name: 'Cornelia', role: 'Sells bread, figs and cheese' },
+    grades: 'grades 3–4',
+    intro: [
+      'Salve, helper! My customers always ask: which share is bigger? All my loaves are the same size, so we can compare.',
+      'Look at the numbers carefully. A bigger number is not always a bigger share!',
+    ],
+    debrief: {
+      text: 'Why is 1/8 of a loaf smaller than 1/4 of a loaf, when 8 is bigger than 4?',
+      options: [
+        { text: 'Cutting a loaf into 8 pieces makes smaller pieces than cutting it into 4.', correct: true, feedback: 'Yes! More pieces from the same loaf means each piece is smaller.' },
+        { text: 'It is not. 1/8 is bigger because 8 is bigger.', feedback: 'The bottom number is how many pieces the loaf is cut into. More pieces, smaller pieces.', misconception: 'bigger-denominator' },
+        { text: 'Because the 1s are the same.', feedback: 'The top numbers match, so each share is one piece. The question is how big each piece is.', misconception: 'thinks-equal' },
+      ],
+      hints: ['Picture one loaf cut into 4 pieces and one cut into 8.', 'Which loaf has more pieces? Are those pieces bigger or smaller?', 'The answer is outlined: more pieces means smaller pieces.'],
+    },
+    done: 'My customers are happy! Another brazier is lit.',
+  },
+  mosaic: {
+    id: 'mosaic',
+    name: 'The Mosaic',
+    skill: 'Equal fractions',
+    person: { name: 'Tullia', role: 'Mosaic maker' },
+    grades: 'grades 3–4',
+    intro: [
+      'Salve! I make mosaics from little tiles. Every strip of my border is the same length.',
+      'Some strips have big tiles, some have small tiles. Help me find strips that cover the same amount.',
+    ],
+    debrief: {
+      text: '1/2 of a strip and 2/4 of a strip cover the same amount. Why?',
+      options: [
+        { text: 'Each half is cut into 2 smaller tiles, so 1 half is the same as 2 fourths.', correct: true, feedback: 'Yes! Twice as many tiles, each half as big. The colored part stays the same.' },
+        { text: 'They are not the same, because 2 and 4 are bigger than 1 and 2.', feedback: 'The numbers are bigger, but the tiles are smaller. Line the strips up and they end at the same place.', misconception: 'looks-different' },
+        { text: 'Because you add 1 to the top and 2 to the bottom.', feedback: 'Adding does not keep fractions equal. Multiplying the top and bottom by the same number does.', misconception: 'add-same' },
+      ],
+      hints: ['Line up a strip of 2 tiles and a strip of 4 tiles.', 'Each big tile matches 2 small tiles. How many small tiles match 1 big tile?', 'The answer is outlined: each half is 2 fourths.'],
+    },
+    done: 'My mosaic border is finished! Another brazier is burning.',
   },
 };
 
@@ -83,11 +125,21 @@ export const OPENING: string[] = [
 export const CONTROLS_TIP_KEYS = 'Walk with the arrow keys or WASD, or click where you want to go. Press Space to talk to someone. J shows your jobs.';
 export const CONTROLS_TIP_TOUCH = 'Tap where you want to go, or use the pad. Tap a person to talk to them.';
 
-/** Said by Livia after both jobs of the first half are done. */
-export const HALF_ONE_DONE = [
-  'Two braziers are burning! Thank you!',
-  'Cornelia’s market stall and Tullia’s mosaic open soon. When all four braziers burn, we have the Festival Feast!',
+/** Said by Livia when all four braziers burn. */
+export const FEAST_READY = ['All four braziers are burning! The sun is going down.', 'Come and see me at the bakery when you are ready. It is time for the Festival Feast!'];
+
+export const FEAST_INTRO = ['The guests are here! Four orders, one from each job. Take your time: nothing is timed at the feast.'];
+
+export const FINALE = [
+  'Look at the forum! Every brazier is blazing, and every guest has a fair share.',
+  'You cut fair loaves, marked the road, compared shares and matched the tiles. Bene!',
+  'Wait... where is the last slice?',
 ];
+
+export const FINALE_AFTER = ['HONK! (Anser has the last slice.)', 'Ha! Even Anser gets a fair share tonight. Come back any time to play, or try my Frenzy race!'];
+
+export const FRENZY_SECONDS = 60;
+export const FRENZY_INTRO = 'Frenzy time! Customers want loaves with the right golden pieces. Serve as many as you can in 60 seconds. Look at each loaf carefully: the pieces must be equal!';
 
 export const ANSER_LINES = ['HONK! Anser looks at your hands. Any bread?', 'HONK HONK! Anser waddles in a circle.', 'Anser tilts its head. It is counting the loaves, maybe.', 'HONK! Romans said geese once woke the city by honking. Anser is proud of that.'];
 
@@ -120,6 +172,16 @@ export function promptFor(p: Problem & { text?: string }, seed: number): string 
       return p.road.end === 2 ? `Put the flag at ${fstr(p.target)}.` : `Put the flag at ${fstr(p.target)} of the way from the golden milestone to milestone I.`;
     case 'name':
       return 'I put a flag on the road. What fraction is the flag at?';
+    case 'compare':
+      return p.ask === 'bigger' ? `Two customers each want a share of the same size loaf. Which share is bigger: ${fstr(p.a)} or ${fstr(p.b)}?` : `One customer wants the smaller share. Which is less of a loaf: ${fstr(p.a)} or ${fstr(p.b)}?`;
+    case 'match':
+      return `Here is ${fstr(p.target)} of a strip. Which strip covers the same amount?`;
+    case 'missing':
+      return p.want.n === null ? `${fstr(p.given)} = ?/${p.want.d}. What is the missing top number?` : `${fstr(p.given)} = ${p.want.n}/?. What is the missing bottom number?`;
+    case 'whole-number':
+      return `${fstr(p.given)} of a strip: how many whole strips is that?`;
+    case 'odd-one':
+      return `Three of these are equal to ${fstr(p.target)}. Which one is NOT equal?`;
   }
 }
 
@@ -162,6 +224,24 @@ export function mistakeLine(p: Problem, mis: Misconception): string {
       return 'The whole is from 0 to 1, not the whole road to milestone II. The bottom number counts the stretches from 0 to 1.';
     case 'past-one-only':
       return `${fstrOf(p)} is more than 1. Start at 0 and count all the stretches, right past milestone I.`;
+    case 'counted-missing':
+      return 'The bottom numbers match, so the pieces are the same size. The share with more pieces is bigger.';
+    case 'bigger-denominator':
+      return 'A bigger bottom number means the loaf is cut into more pieces, so each piece is smaller.';
+    case 'top-only':
+      return p.kind === 'whole-number' ? `That is the top number. The bottom number says how many tiles make one whole strip.` : 'Only the top numbers were compared, but the pieces are different sizes. Is each share more or less than half a loaf?';
+    case 'thinks-equal':
+      return p.kind === 'compare' && p.a.n === p.b.n ? 'Same top number, but the pieces are different sizes, so the shares are not the same.' : 'They are not the same. Is each share more or less than half a loaf?';
+    case 'looks-different':
+      return 'That one is equal: its top and bottom are the same number of times bigger. Find the one that is not.';
+    case 'add-same':
+      return 'Adding the same number to the top and bottom changes the size. Equal fractions come from multiplying both by the same number.';
+    case 'same-top':
+      return 'The tiles got smaller, so you need more of them. The top number must change too.';
+    case 'half-multiply':
+      return 'Multiply the top and the bottom by the same number. How many times bigger did the other number get?';
+    case 'bottom-number':
+      return 'That is the bottom number. It says how many tiles make one whole strip. How many whole strips is that?';
     default:
       return 'Not quite. Try a hint!';
   }
@@ -199,6 +279,23 @@ export function hintText(p: Problem, rung: number): string {
         ? 'How many equal stretches are there from 0 to milestone I? That is the bottom number.'
         : `There are ${p.road.d} stretches from 0 to 1 (and ${posts} posts, so do not count posts). Now count the colored stretches from 0 to the flag.`;
     }
+    case 'compare':
+      if (rung === 1) return p.tier === 1 ? 'Same bottom number means same size pieces. Which share has more pieces?' : p.tier === 2 ? 'More pieces from one loaf means smaller pieces.' : 'Is each share more than half a loaf, or less?';
+      return 'Each share now has a strip under it, the same length for both. Which colored part is longer?';
+    case 'match':
+      return rung === 1 ? 'An equal strip covers the same length, even if its tiles are smaller.' : 'The strips are lined up under the first one now. Which colored part ends at the same place?';
+    case 'missing': {
+      const k = p.answer.d / p.given.d;
+      return rung === 1
+        ? 'The new strip has more, smaller tiles. How many times bigger did the known number get?'
+        : p.want.n === null
+          ? `${p.given.d} × ${k} = ${p.want.d}. Multiply the top by ${k} too.`
+          : `${p.given.n} × ${k} = ${p.want.n}. Multiply the bottom by ${k} too.`;
+    }
+    case 'whole-number':
+      return rung === 1 ? `How many tiles make one whole strip? The bottom number, ${p.given.d}, tells you.` : 'The tiles are laid out in whole strips now. Count the full strips.';
+    case 'odd-one':
+      return rung === 1 ? 'Equal fractions come from multiplying the top and bottom by the same number.' : `Each choice now has a strip under ${fstr(p.target)}. Which strip does not end at the same place?`;
   }
 }
 
@@ -217,31 +314,37 @@ export const GROWNUPS: GrownupsContent = {
   game: 'Forum Fraction Feast',
   grades: '2–4',
   summary:
-    'Your child walks around a Roman forum on festival day and helps the people there get ready. Every job is about sharing fairly: cutting loaves into equal pieces, naming the fraction eaten or left, and marking fractions on a road between milestones. Each finished job lights a bronze brazier. The pictures never print the answer as a number, so your child has to read the picture.',
+    'Your child walks around a Roman forum on festival day and helps the people there get ready. Every job is about sharing fairly: cutting loaves into equal pieces, naming the fraction eaten or left, marking fractions on a road between milestones, comparing shares at a market stall, and matching equal fractions with mosaic tiles. Each finished job lights a bronze brazier; with all four lit, the Festival Feast begins. The pictures never print the answer as a number, so your child has to read the picture. Frenzy mode, a 60-second race to serve the right loaves, is there for practice and a personal best.',
   teaches: [
     { title: 'The Bakery (grades 2–3): fair shares and naming fractions', text: 'Which loaf is cut into fair halves, thirds or fourths; what equal pieces are called; the fraction eaten or left (Anser the goose steals pieces); sharing a loaf among friends; 4/4 as one whole loaf; and a/b as a pieces of size 1/b.' },
     { title: 'Milestone Road (grade 3): fractions on a number line', text: 'The road from the golden milestone (0) to milestone I (1) is cut into equal stretches. Your child puts a flag at a fraction or names where a flag is: unit fractions, then fractions like 3/4 and 5/8, then fractions past 1 (5/4, 3/2) on a road to milestone II.' },
-    { title: 'Mistakes get a reason', text: 'The game looks for unequal pieces called fourths, eaten over left (2/6) instead of eaten over all the pieces (2/8), fractions written upside down, counting the cut lines instead of the pieces, and on the road counting posts instead of stretches. Each gets one sentence of explanation.' },
-    { title: 'Help built in', text: 'Three hints for every question: a tip, then a picture helper (dots to count the pieces, or the road’s stretches colored in), then the answer outlined.' },
-    { title: 'Coming in the next part', text: 'Cornelia’s market stall (comparing fractions) and Tullia’s mosaic (equivalent fractions), the Festival Feast finale and the 60-second Frenzy mode.' },
+    { title: 'The Market Stall (grades 3–4): comparing fractions', text: 'Which share of the same size loaf is bigger (or smaller): same bottom number (3/8 or 5/8), same top number (1/4 or 1/8, more pieces means smaller pieces), then different tops and bottoms compared with one half (3/8 or 2/3), and shares that are equal.' },
+    { title: 'The Mosaic (grades 3–4): equal fractions', text: 'Tile strips of the same length: which strip covers the same as 1/2; the missing number (3/4 = ?/8); whole numbers as fractions (4/4 = 1, 6/3 = 2); making equal fractions by multiplying (2/3 = 8/12); and spotting the one that is not equal.' },
+    { title: 'Mistakes get a reason', text: 'The game looks for unequal pieces called fourths, eaten over left (2/6) instead of over all the pieces (2/8), fractions upside down, counting cuts instead of pieces, counting posts instead of stretches, "bigger bottom number, bigger piece", comparing only the top numbers, and adding the same number to the top and bottom (1/2 = 2/3). Each gets one sentence of explanation.' },
+    { title: 'Help built in', text: 'Three hints for every question: a tip, then a picture helper (dots to count the pieces, the road’s stretches colored in, or tile strips lined up), then the answer outlined.' },
   ],
   standards: [
     { code: '2.G.3', text: 'Partition circles and rectangles into two, three, or four equal shares; describe the shares using halves, thirds, fourths; recognize that equal shares need not have the same shape.' },
     { code: '3.NF.1', text: 'Understand a fraction 1/b as one part when a whole is partitioned into b equal parts, and a/b as a parts of size 1/b.' },
     { code: '3.NF.2', text: 'Understand a fraction as a number on the number line; represent fractions on a number line diagram.' },
+    { code: '3.NF.3', text: 'Explain equivalence of fractions in special cases, express whole numbers as fractions, and compare two fractions with the same numerator or the same denominator by reasoning about their size.' },
+    { code: '4.NF.1', text: 'Explain why a fraction a/b is equivalent to a fraction (n × a)/(n × b); use this to recognize and generate equivalent fractions.' },
+    { code: '4.NF.2', text: 'Compare two fractions with different numerators and different denominators, for example by comparing to a benchmark fraction such as 1/2. Comparisons are valid only when the two fractions refer to the same whole.' },
   ],
   talk: [
     'At a meal, cut something into 4 pieces, one of them much bigger. Ask: is each piece a fourth?',
     'If someone eats 3 of 8 slices, ask what fraction is gone and what fraction is left. Do they add up to the whole?',
     'On a walk, count the stretches between lampposts. If there are 4 stretches to the corner, where is 3/4 of the way?',
+    'Ask which is more: 1/3 or 1/5 of a pizza? Then ask why the bigger number gives the smaller piece.',
   ],
   help: [
     'The level goes up after two clean answers in a row and down after two misses, so it stays at the right difficulty.',
-    'Nothing in the main game is timed. A wrong answer never loses progress; it only costs that question’s star.',
+    'Nothing in the main game is timed (only the optional Frenzy race is). A wrong answer never loses progress; it only costs that question’s star.',
     'Every question can be read aloud (the speaker button), and every answer can be picked with the number keys.',
   ],
   simplifies: [
     'Loaves are shown from above so the pieces are easy to compare. Real Roman loaves were domed.',
+    'All shares at the market stall come from the same size loaf, so the fractions can be compared. Fractions of different-size wholes cannot.',
     'The road diagram is not to scale: a real Roman mile was about 1,480 meters (about 4,850 feet).',
     'The forum is a friendly mix of buildings from the time of the emperors, not a map of one exact year.',
   ],

@@ -12,15 +12,23 @@
  *     1. unit fractions (1/2, 1/3, 1/4) between milestone 0 and milestone 1
  *     2. other fractions (3/4, 5/8, 2/6)
  *     3. a road to milestone 2: fractions past 1 (5/4, 3/2) and 4/4 at milestone 1
+ *   Market stall (Cornelia), grades 3-4, comparing fractions (3.NF.3d, 4.NF.2)
+ *     1. same bottom number (3/8 or 5/8)
+ *     2. same top number (1/4 or 1/8: more pieces means smaller pieces)
+ *     3. different tops and bottoms, compared with 1/2, and pairs that are equal
+ *   Mosaic (Tullia), grades 3-4, equivalent fractions (3.NF.3a-c, 4.NF.1)
+ *     1. which tile strip covers the same as 1/2 (2/4, 3/6, 2/6 for 1/3 ...)
+ *     2. the missing number (3/4 = ?/8) and whole numbers as fractions (4/4 = 1, 6/3 = 2)
+ *     3. multiply top and bottom (2/3 = ?/12), and spot the one that is not equal
+ *   Frenzy mode (the old Pizza Fraction Frenzy race): serve the loaf that shows the order
  *
  * Wrong answers are made from real mistakes (eaten over left instead of over
  * all the pieces, counting posts instead of stretches, the fraction upside
  * down), so a wrong pick tells the game which idea to explain.
  */
 
-export type Station = 'bakery' | 'road';
-/** The jobs built so far (half 1). The market stall and the mosaic join in half 2. */
-export const STATIONS: Station[] = ['bakery', 'road'];
+export type Station = 'bakery' | 'road' | 'market' | 'mosaic';
+export const STATIONS: Station[] = ['bakery', 'road', 'market', 'mosaic'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -42,6 +50,15 @@ export type Misconception =
   | 'whole-at-end' // put 4/4 at the end of the road instead of at milestone 1
   | 'whole-road' // used the whole road (0 to 2) as the whole (named 5/4 as 5/8)
   | 'past-one-only' // counted only the part past milestone 1 (5/4 put at 1/4)
+  | 'counted-missing' // same bottom number, but picked the one with fewer pieces (thought of the pieces missing)
+  | 'bigger-denominator' // thinks a bigger bottom number means a bigger piece (1/8 > 1/4)
+  | 'top-only' // compared only the top numbers (3/8 > 2/3 because 3 > 2), or read 4/4 as 4
+  | 'thinks-equal' // said two different fractions are the same (same top number, or both one piece short)
+  | 'looks-different' // thinks equal fractions are different because the numbers differ (2/4 and 3/6)
+  | 'add-same' // added the same number to the top and bottom (1/2 = 2/3)
+  | 'same-top' // changed the bottom number but kept the top (3/4 = 3/8)
+  | 'half-multiply' // multiplied the bottom but not the top by the same number (2/3 = 4/12)
+  | 'bottom-number' // read a whole-number fraction as its bottom number (6/3 as 3)
   | 'other';
 
 export interface Frac {
@@ -100,7 +117,21 @@ export type RoadProblem =
   | { kind: 'place'; station: 'road'; tier: Tier; target: Frac; road: Road; choices: Choice[] }
   | { kind: 'name'; station: 'road'; tier: Tier; target: Frac; road: Road; choices: Choice[] };
 
-export type Problem = BakeryProblem | RoadProblem;
+/** Cornelia's shares: two fractions of the same-size loaf to compare. */
+export type MarketProblem = { kind: 'compare'; station: 'market'; tier: Tier; a: Frac; b: Frac; ask: 'bigger' | 'smaller'; choices: Choice[] };
+
+/** Tullia's tile strips: a strip of `d` tiles with `n` colored. */
+export type MosaicProblem =
+  | { kind: 'match'; station: 'mosaic'; tier: Tier; target: Frac; choices: Choice[] }
+  | { kind: 'missing'; station: 'mosaic'; tier: Tier; given: Frac; want: { n: number | null; d: number | null }; answer: Frac; choices: Choice[] }
+  | { kind: 'whole-number'; station: 'mosaic'; tier: Tier; given: Frac; choices: Choice[] }
+  | { kind: 'odd-one'; station: 'mosaic'; tier: Tier; target: Frac; choices: Choice[] };
+
+export type Problem = BakeryProblem | RoadProblem | MarketProblem | MosaicProblem;
+
+/** Exact comparison of two fractions: negative, zero or positive. */
+export const cmp = (a: Frac, b: Frac) => a.n * b.d - b.n * a.d;
+export const sameValue = (a: Frac, b: Frac) => cmp(a, b) === 0;
 
 type Rand = () => number;
 const pick = <T>(r: Rand, list: readonly T[]): T => list[Math.floor(r() * list.length) % list.length];
@@ -313,8 +344,174 @@ export function makeRoad(tier: Tier, r: Rand): RoadProblem {
   return { kind: 'name', station: 'road', tier, target, road: { ...road, marker: n }, choices };
 }
 
+// ------------------------------------------------------------ the market stall
+
+/** The mistake behind believing `x` is bigger than `y` (when it is not). */
+export function biggerBelief(x: Frac, y: Frac): Misconception {
+  if (x.d === y.d && x.n < y.n) return 'counted-missing';
+  if (x.n === y.n && x.d > y.d) return 'bigger-denominator';
+  if (x.n > y.n) return 'top-only';
+  if (x.d > y.d) return 'bigger-denominator';
+  return 'other';
+}
+
+
+const marketPairs: Record<Tier, Array<[Frac, Frac]>> = {
+  1: [
+    [{ n: 3, d: 8 }, { n: 5, d: 8 }],
+    [{ n: 1, d: 4 }, { n: 3, d: 4 }],
+    [{ n: 2, d: 6 }, { n: 5, d: 6 }],
+    [{ n: 2, d: 3 }, { n: 1, d: 3 }],
+    [{ n: 7, d: 8 }, { n: 4, d: 8 }],
+    [{ n: 1, d: 2 }, { n: 2, d: 2 }],
+  ],
+  2: [
+    [{ n: 1, d: 4 }, { n: 1, d: 8 }],
+    [{ n: 1, d: 2 }, { n: 1, d: 3 }],
+    [{ n: 1, d: 6 }, { n: 1, d: 3 }],
+    [{ n: 3, d: 4 }, { n: 3, d: 8 }],
+    [{ n: 2, d: 3 }, { n: 2, d: 6 }],
+    [{ n: 1, d: 8 }, { n: 1, d: 2 }],
+  ],
+  3: [
+    [{ n: 3, d: 8 }, { n: 2, d: 3 }],
+    [{ n: 4, d: 6 }, { n: 3, d: 8 }],
+    [{ n: 2, d: 5 }, { n: 3, d: 4 }],
+    [{ n: 5, d: 8 }, { n: 1, d: 3 }],
+    [{ n: 3, d: 10 }, { n: 2, d: 3 }],
+    [{ n: 2, d: 4 }, { n: 3, d: 6 }],
+    [{ n: 1, d: 4 }, { n: 2, d: 8 }],
+    [{ n: 4, d: 8 }, { n: 1, d: 2 }],
+  ],
+};
+
+export function makeMarket(tier: Tier, r: Rand): MarketProblem {
+  const [p, q] = pick(r, marketPairs[tier]);
+  const [a, b] = r() < 0.5 ? [p, q] : [q, p];
+  const equal = sameValue(a, b);
+  // "which is smaller?" now and then (not for equal pairs: "the same" is the answer either way)
+  const ask: 'bigger' | 'smaller' = !equal && r() < 0.3 ? 'smaller' : 'bigger';
+  const big = cmp(a, b) > 0 ? a : b;
+  const small = big === a ? b : a;
+  const choiceOf = (f: Frac): Choice => {
+    if (equal) return fracChoice(f.n, f.d, false, biggerBelief(f, f === a ? b : a));
+    const right = ask === 'bigger' ? big : small;
+    if (f === right) return fracChoice(f.n, f.d, true);
+    // picking the wrong one means believing it is the bigger (or smaller) one
+    const mis = ask === 'bigger' ? biggerBelief(f, f === a ? b : a) : biggerBelief(f === a ? b : a, f);
+    return fracChoice(f.n, f.d, false, mis);
+  };
+  const same: Choice = { value: 'same', label: 'They are the same', correct: equal, misconception: equal ? undefined : 'thinks-equal' };
+  // keep the two shares in the order they are shown, with "the same" last
+  return { kind: 'compare', station: 'market', tier, a, b, ask, choices: [choiceOf(a), choiceOf(b), same] };
+}
+
+// ------------------------------------------------------------ the mosaic
+
+const EQUIV: Array<[Frac, number]> = [
+  [{ n: 1, d: 2 }, 2],
+  [{ n: 1, d: 2 }, 3],
+  [{ n: 1, d: 2 }, 4],
+  [{ n: 1, d: 3 }, 2],
+  [{ n: 2, d: 3 }, 2],
+  [{ n: 1, d: 4 }, 2],
+  [{ n: 3, d: 4 }, 2],
+];
+
+export function makeMosaic(tier: Tier, r: Rand): MosaicProblem {
+  if (tier === 1) {
+    const [t, k] = pick(r, EQUIV);
+    const eq = { n: t.n * k, d: t.d * k };
+    const list: Choice[] = [
+      fracChoice(eq.n, eq.d, true),
+      fracChoice(t.n + 1, t.d + 1, false, 'add-same'),
+      fracChoice(t.n, eq.d, false, 'same-top'),
+      fracChoice(eq.n + 1, eq.d, false, 'other'),
+    ];
+    return { kind: 'match', station: 'mosaic', tier, target: t, choices: finish(r, list, 3) };
+  }
+  if (tier === 2) {
+    if (r() < 0.3) {
+      // whole numbers as fractions: 4/4 = 1, 6/3 = 2, 3/1 = 3
+      const given = pick(r, [
+        { n: 4, d: 4 },
+        { n: 6, d: 6 },
+        { n: 6, d: 3 },
+        { n: 8, d: 4 },
+        { n: 3, d: 1 },
+        { n: 4, d: 2 },
+      ]);
+      const w = given.n / given.d;
+      const list: Choice[] = [numChoice(w, true), numChoice(given.n, false, 'top-only'), numChoice(given.d, false, 'bottom-number'), numChoice(given.n + given.d, false, 'other'), numChoice(w + 1, false, 'other')];
+      return { kind: 'whole-number', station: 'mosaic', tier, given, choices: finish(r, list, 3) };
+    }
+    const [t, k] = pick(r, EQUIV);
+    const answer = { n: t.n * k, d: t.d * k };
+    // 3/4 = ?/8 : the top is missing
+    const list: Choice[] = [
+      numChoice(answer.n, true),
+      numChoice(t.n + (answer.d - t.d), false, 'add-same'),
+      numChoice(t.n, false, 'same-top'),
+      numChoice(answer.n + 1, false, 'other'),
+    ];
+    return { kind: 'missing', station: 'mosaic', tier, given: t, want: { n: null, d: answer.d }, answer, choices: finish(r, list, 3) };
+  }
+  // level 3: multiply by 2, 3 or 4, sometimes the bottom is missing; or spot the one that is not equal
+  const t = pick(r, [
+    { n: 2, d: 3 },
+    { n: 3, d: 4 },
+    { n: 1, d: 3 },
+    { n: 2, d: 5 },
+    { n: 3, d: 5 },
+    { n: 5, d: 6 },
+  ]);
+  const k = pick(r, [2, 3, 4]);
+  const answer = { n: t.n * k, d: t.d * k };
+  if (r() < 0.35) {
+    const fakes: Choice[] = [
+      { ...fracChoice(t.n + 1, t.d + 1, true), misconception: undefined },
+      { ...fracChoice(t.n + 2, t.d + 2, true), misconception: undefined },
+    ];
+    const fake = pick(r, fakes);
+    const trues = [2, 3, 4].map((m) => fracChoice(t.n * m, t.d * m, false, 'looks-different'));
+    const list = shuffle(r, [fake, ...trues]);
+    return { kind: 'odd-one', station: 'mosaic', tier, target: t, choices: list };
+  }
+  if (r() < 0.5) {
+    const list: Choice[] = [numChoice(answer.n, true), numChoice(t.n + (answer.d - t.d), false, 'add-same'), numChoice(t.n * 2 === answer.n ? t.n * 3 : t.n * 2, false, 'half-multiply'), numChoice(t.n, false, 'same-top')];
+    return { kind: 'missing', station: 'mosaic', tier, given: t, want: { n: null, d: answer.d }, answer, choices: finish(r, list, 4) };
+  }
+  // 2/3 = 8/? : the bottom is missing
+  const list: Choice[] = [numChoice(answer.d, true), numChoice(t.d + (answer.n - t.n), false, 'add-same'), numChoice(t.d * 2 === answer.d ? t.d * 3 : t.d * 2, false, 'half-multiply'), numChoice(t.d, false, 'same-top')];
+  return { kind: 'missing', station: 'mosaic', tier, given: t, want: { n: answer.n, d: null }, answer, choices: finish(r, list, 4) };
+}
+
+// ------------------------------------------------------------ Frenzy mode
+
+/** A quick order: pick the loaf whose golden pieces show the fraction. */
+export interface ServeProblem {
+  target: Frac;
+  choices: Choice[];
+}
+
+export function makeServe(tier: Tier, r: Rand): ServeProblem {
+  const d = pick(r, tier === 1 ? [2, 3, 4] : tier === 2 ? [3, 4, 6, 8] : [5, 6, 8]);
+  const n = 1 + Math.floor(r() * (d - 1));
+  const gold = (k: number, sizes: number[]): Loaf => ({ shape: 'round', sizes, gone: [], shaded: range(0, k - 1) });
+  const list: Choice[] = [{ value: `${n}/${d}`, label: `${n} of ${d} equal pieces golden`, correct: true, loaf: gold(n, ones(d)) }];
+  if (d - n !== n) list.push({ value: `${d - n}/${d}`, label: `${d - n} of ${d} pieces golden`, correct: false, misconception: 'eaten-left-swap', loaf: gold(d - n, ones(d)) });
+  const other = d + (d <= 4 ? 2 : -2);
+  if (n < other) list.push({ value: `${n}/${other}`, label: `${n} of ${other} pieces golden`, correct: false, misconception: 'wrong-count', loaf: gold(n, ones(other)) });
+  if (d <= 4) list.push({ value: 'unfair', label: `${n} of ${d} pieces, not the same size`, correct: false, misconception: 'unequal-parts', loaf: gold(n, unequalSizes(r, d)) });
+  if (list.length < 3) list.push({ value: `${n}/${d + 1}`, label: `${n} of ${d + 1} pieces golden`, correct: false, misconception: 'wrong-count', loaf: gold(n, ones(d + 1)) });
+  return { target: { n, d }, choices: finish(r, list, 3) };
+}
+
 export function makeProblem(station: Station, tier: Tier, r: Rand): Problem {
-  return station === 'bakery' ? makeBakery(tier, r) : makeRoad(tier, r);
+  if (station === 'bakery') return makeBakery(tier, r);
+  if (station === 'road') return makeRoad(tier, r);
+  if (station === 'market') return makeMarket(tier, r);
+  return makeMosaic(tier, r);
 }
 
 /** The correct choice of a problem. */

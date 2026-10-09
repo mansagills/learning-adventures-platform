@@ -236,7 +236,7 @@ Batches group games that share skills, so each batch also builds a question gene
 | | Math Jeopardy Junior (2–5) | Quiz board | A 3D game show with categories by strand and a "show your strategy" bonus round (mixed) |
 | **M5 Geometry (K–4)** | Shape Sorting Arcade (K–2) | Sort shapes | 3D shapes on a conveyor: sort by sides, corners, and flat vs solid shapes (K.G, 1.G.1, 2.G.1) |
 | | Geometry Builder Challenge (2–4) | Build with shapes | Build blueprints from shapes, then perimeter and area on a grid; right angles and quadrilaterals (3.MD.7, 3.MD.8, 3.G.1) |
-| **M6 Fractions (2–4)** | Pizza Fraction Frenzy (2–4) | Pizza fractions | A 3D pizzeria: equal shares, unit fractions, fractions on a number line (2.G.3, 3.NF.1, 3.NF.2) |
+| **M6 Fractions (2–4)** | Pizza Fraction Frenzy (2–4) | Pizza fractions | Built as **Forum Fraction Feast** in the Ancient Kingdoms world (Roman forum): equal shares, unit fractions, fractions on a number line (2.G.3, 3.NF.1, 3.NF.2) |
 | | Fraction Pizza Party (activity, 2–4) | Slice and compare | Compare and find equivalent fractions with the "bigger denominator, smaller piece" misconception (3.NF.3, 4.NF.1, 4.NF.2) |
 | **M7 Multiplication and equations (3–5)** | Multiplication Space Quest (3–5) | Times tables | Arrays and equal groups as a space fleet, then strategies (doubles, ×9 patterns) (3.OA.1, 3.OA.7) |
 | | Multiplication Bingo Bonanza (3–5) | Bingo | Bingo with the inverse: division facts and missing factors (3.OA.4, 3.OA.6) |
@@ -711,7 +711,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M6 Fractions: PLAN APPROVED (2026-10-08), half 1 IN PROGRESS
+#### M6 Fractions: Forum Fraction Feast BUILT (both halves), waiting for the owner's approval (2026-10-09)
 
 The first game built in a new world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). The owner placed M6 in **Ancient Kingdoms**, and approved the **Roman forum** setting from the kit (`src/kit/worlds/ancient-kingdoms/forum.ts`), so this game is set there: 24 pixels per tile, 16-bit characters, the forum's day and dusk light.
 
@@ -783,14 +783,32 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 2. **The kind of game.** A walking forum with four jobs and a finale (recommended: it uses the new world, and it gives each fraction skill its own picture), or a bakery shop where customers order fractions and the player earns coins for bakery upgrades (closer to the original Frenzy, but much like Money Market Madness).
 3. **Build in two halves** (recommended for four jobs): the forum, Livia's bakery and Marcus's road first, for a quick look; then Cornelia, Tullia, the finale and Frenzy mode.
 
-##### Half 1: BUILT, waiting for the owner's look (2026-10-09)
+##### Half 1: BUILT (2026-10-09; the owner looked and said to go ahead with half 2)
 
 - **What is playable:** the title, the character creator (now showing the 16-bit player), Livia's opening, walking the forum (keys, tap-to-walk, the touch pad), **the Bakery** and **Milestone Road** at all three levels with hints, debriefs and stars, two of the four braziers lighting up, Anser the goose, the job list, saving and the grown-ups page. Cornelia's stall, Tullia's mosaic, the Festival Feast and Frenzy mode are half 2.
 - **Not listed on the site yet:** the old Pizza Fraction Frenzy stays on `/games` until the whole game is done. The new one plays at `/games/play/pizza-fraction-frenzy/index.html` (also on the PR's Vercel preview).
 - **New in the kit** (used by this game, available to every 16-bit world): `Walker16` (a walking 16-bit character with markers), `look16FromAppearance`, `Stage.project` / `screenToTile` / smooth follow, the setting's `walk` and `blocks` (what is solid) and `omit`, an unlit brazier, and the customize screen's `paint` and `only` options. Sunny Town games are unaffected (their code paths did not change; all their browser tests were re-run).
 - **Fixed after looking at the screenshots:** the plate under eaten pieces was the same color as the crust (now pale glazed clay with a blue rim and faint lines where each piece was); the counting dots were too small; Livia's white headscarf looked like a chef's hat (now indigo); a phone could see past the top of the sky; the game now opens on a wide shot of the temple and basilica, then pans down to the player.
 - **Tests:** 15 unit tests for the fraction logic (every job and level over 400 seeds, all ten Fraction Pizza Party answers checked again, the classic road mistakes), 3 new kit tests, and the browser test `scripts/e2e-pizza-fraction-frenzy.mjs` (35/35).
-- **Score:** given at the end of half 2, when the finale and Frenzy mode exist.
+- **Score:** given at the end of half 2 (below).
+
+##### Half 2: BUILT, waiting for the owner's approval (2026-10-09)
+
+- **The Market Stall** (Cornelia, grades 3–4): which share of the same size loaf is bigger (or, now and then, smaller). Level 1 has the same bottom number (3/8 or 5/8), level 2 the same top number (1/4 or 1/8), level 3 different tops and bottoms compared with one half (3/8 or 2/3, 3/10 or 2/3) and pairs that are equal (2/4 and 3/6). "They are the same" is always a choice. The hint picture puts a same-length strip under each share. Mistakes named: "bigger bottom number, bigger piece", comparing only the top numbers, picking the share with fewer same-size pieces, and calling different shares the same.
+- **The Mosaic** (Tullia, grades 3–4): tile strips that are always the same length. Level 1: which strip covers the same as 1/2 (or 1/3, 2/3, 3/4); level 2: the missing number (3/4 = ?/8) and whole numbers as fractions (4/4 = 1, 6/3 = 2); level 3: multiply top and bottom (2/3 = 8/12, 2/5 = 4/?) and spot the one that is not equal. The hint lines every strip up under the first one. Mistakes named: adding the same number to the top and bottom (1/2 = 2/3), changing only the bottom number, multiplying the top and bottom by different numbers, reading 6/3 as 3 or 4/4 as 4, and not seeing 2/4 and 1/2 as equal.
+- **The Festival Feast:** once all four braziers burn, the day turns to dusk and Livia calls the player back. The feast is four orders, one from each job at the player's level, with no stars and nothing timed. Then the braziers blaze, the sky turns to evening, and Anser steals the last slice. The forum stays at dusk afterwards, with every job still open.
+- **Frenzy mode** (the old Pizza Fraction Frenzy race), from Livia once the bakery is done: 60 seconds of orders ("2/5 of a loaf"). The player picks the loaf with the right golden pieces from three. The wrong loaves are real mistakes: the pieces left instead of the golden ones, the right count of a differently cut loaf, or unequal pieces. A miss shows the right loaf for a moment. The best score is saved.
+- **Site:** listed as "Forum Fraction Feast" (grades 2–4) at `/games/pizza-fraction-frenzy` with a new card picture. `/games/fraction-pizza-party` redirects there, and the old Fraction Pizza Party listing is gone. The ebook *Jaylen and the Frozen Numbers* keeps the game as a companion (same slug). The old HTML files stay until the Phase 4 cleanup.
+- **New in the kit:** a setting can switch its painted sky (`setTime('evening')`), used for the feast at dusk.
+- **Fixed after looking at the screenshots:** the golden loaf pieces were hard to tell from the plain crust in Frenzy (now flat honey-yellow with sesame seeds against darker crust); the tile strips' shading made one tile look like three (now flat tiles with clear grout); the mosaic hint now really lines the strips up at the same length; on a phone at dusk the sky stayed daytime blue.
+- **Tests:**
+  - 27 unit tests for the fraction logic (12 new): every comparison checked with exact fractions, level 1 and 2 pairs share a bottom or top number, every mosaic answer truly equal and every trap not, the "add the same number" trap really adds, and every Frenzy order has exactly one fair loaf with the right golden pieces.
+  - Browser test `scripts/e2e-pizza-fraction-frenzy.mjs`: 51/51. It covers title → the bakery (reached by walking) → the road → the market stall → the mosaic (reached from the job list) → the Festival Feast with one order from each job → the finale at dusk → a Frenzy round with a miss → Anser → grown-ups (four rows) → reload → phone layout.
+- **Score: 9.1/10** (gameplay 2.2, learning 1.9, look and sound 1.35, ease of use 1.35, reliability 1.4, completeness 0.9). It loses points on:
+  - most of the play is answering in panels (but with four kinds of pictures and a walking world)
+  - the finale is a dusk scene with dialogue, not an animation
+  - the debrief questions have no picture
+  - the road's posts are small targets on a phone (22 px wide)
 
 ##### Checks it will ship with
 

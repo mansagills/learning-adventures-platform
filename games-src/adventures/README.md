@@ -40,8 +40,8 @@ node scripts/e2e-math-adventure-island.mjs   # a whole Math Adventure Island gam
 node scripts/mai-tour.mjs <url> <outDir> [w] [h]    # Math Adventure Island screenshots: every zone at levels 1-3 with a miss and hints, a clue and dig, the Quiz Show
 node scripts/e2e-geometry-builder-challenge.mjs   # Shape Town Builders: all four jobs (incl. a 3-step L-shaped garden), Chip and Rush, The Big Build and the opening, saving, phone (46 checks)
 node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screenshots: all four jobs at levels 1-3 with a miss and hints, Rush, The Big Build and the opening
-node scripts/e2e-pizza-fraction-frenzy.mjs   # Forum Fraction Feast (half 1): the bakery and the milestone road reached by walking, a miss, hints, debriefs, two braziers, Anser, saving, phone (35 checks)
-node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast screenshots: the forum, both jobs at levels 1-3 with a miss and hints
+node scripts/e2e-pizza-fraction-frenzy.mjs   # Forum Fraction Feast: all four jobs (walking, the job list), misses, hints, debriefs, the Festival Feast and finale, a Frenzy round, Anser, saving, phone (51 checks)
+node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast screenshots: the forum, all four jobs at levels 1-3 with a miss and hints, the feast and Frenzy
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -344,14 +344,14 @@ Code: `src/games/geometry-builder-challenge/`.
 | Jobs list | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |
 
-## Forum Fraction Feast (Math batch M6, grades 2–4): first half
+## Forum Fraction Feast (Math batch M6, grades 2–4)
 
-The fractions game (slug `pizza-fraction-frenzy`; Fraction Pizza Party will
-be merged in, and its link will redirect when the game is listed). It is the
-**first game in a new world**: Ancient Kingdoms, in the kit's `roman-forum`
-setting (24 pixels per tile, 16-bit characters; see `src/kit/worlds/`). Baker
-Livia's festival needs four jobs done; each one lights a bronze brazier round
-the mosaic. Anser the goose steals bread.
+The fractions game (slug `pizza-fraction-frenzy`; Fraction Pizza Party is
+merged in and its old link redirects). It is the **first game in a new
+world**: Ancient Kingdoms, in the kit's `roman-forum` setting (24 pixels per
+tile, 16-bit characters; see `src/kit/worlds/`). Baker Livia's festival needs
+four jobs done; each one lights a bronze brazier round the mosaic. Anser the
+goose steals bread.
 
 - **The Bakery** (Baker Livia, grades 2–3): fair shares (which loaf is cut
   into fair fourths, what equal slices are called), the fraction eaten or left
@@ -360,10 +360,14 @@ the mosaic. Anser the goose steals bread.
 - **Milestone Road** (Marcus the surveyor, grade 3): put a flag at a fraction
   between the golden milestone (0) and milestone I (1), or name where a flag
   is; level 3 goes past 1 on a road to milestone II.
-- **Coming in the second half:** Cornelia's market stall (comparing),
-  Tullia's mosaic (equivalent fractions), the Festival Feast finale and the
-  60-second Frenzy mode. Until then the old Pizza Fraction Frenzy stays listed
-  on the site; this one is reachable at `/games/play/pizza-fraction-frenzy/`.
+- **The Market Stall** (Cornelia, grades 3–4): which share of the same size
+  loaf is bigger or smaller, from the same bottom number to comparing with 1/2.
+- **The Mosaic** (Tullia, grades 3–4): equal fractions with tile strips, the
+  missing number, whole numbers as fractions, and the one that is not equal.
+- **The Festival Feast** finale: one order from each job, then dusk, blazing
+  braziers and Anser with the last slice.
+- **Frenzy mode** (the old Pizza Fraction Frenzy race): 60 seconds of serving
+  the loaf with the right golden pieces, with a best score.
 
 Code: `src/games/pizza-fraction-frenzy/`. It uses the world kit's walking
 16-bit character (`Walker16`), the camera's tap-to-walk (`Stage.screenToTile`)

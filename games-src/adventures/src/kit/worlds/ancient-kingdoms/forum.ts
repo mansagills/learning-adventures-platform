@@ -1,3 +1,4 @@
+import type * as THREE from 'three';
 import { PixelBuffer } from '../../art/pixel';
 import { pixelTexture } from '../../world/sceneKit';
 import { swapFrame } from '../figure';
@@ -570,7 +571,9 @@ function buildForum(ctx: SceneCtx): SettingScene {
   const { add, prop } = placer(ctx);
 
   add(groundPiece(lighting, T, paintForumGround(T).toCanvas(), 0, 0));
+  const skyTex: Partial<Record<typeof time, THREE.Texture>> = {};
   const sky = add(billboard(null, T, paintAncientSky(T, L.w + 12, 9, time, romeHorizon).toCanvas(), L.w / 2, L.floorTop - 0.4));
+  skyTex[time] = (sky.material as THREE.MeshBasicMaterial).map!;
   add(billboard(lighting, T, paintForumBuildings(T).toCanvas(), L.w / 2, L.floorTop));
 
   prop(paintLaurel(T).toCanvas(), 2.0, 4.8, 0.8);
@@ -643,6 +646,10 @@ function buildForum(ctx: SceneCtx): SettingScene {
       braziers.forEach((m, i) => swapFrame(m, brazierTex[(Math.floor(t * 7) + i) % 3]));
       swapFrame(cat, catTex[t % 5 > 4.8 ? 1 : 0]);
       sky.position.x = L.w / 2 + (camX - L.w / 2) * 0.5;
+    },
+    setTime(t) {
+      skyTex[t] ??= pixelTexture(paintAncientSky(T, L.w + 12, 9, t, romeHorizon).toCanvas());
+      swapFrame(sky, skyTex[t]!);
     },
   };
 }

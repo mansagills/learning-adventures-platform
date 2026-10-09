@@ -1,4 +1,4 @@
-// Dev helper: screenshot tour of Forum Fraction Feast (half 1: the bakery and the milestone road).
+// Dev helper: screenshot tour of Forum Fraction Feast: the forum, all four jobs at levels 1-3 with a miss and hints, the feast and Frenzy.
 //   node scripts/fff-tour.mjs <url> <outDir> [w] [h]
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -37,7 +37,7 @@ await page.evaluate(() => window.__fff.teleport(13, 17));
 await wait(600);
 await shot('06-road-area');
 await page.evaluate(() => window.__fff.skipParty());
-for (const station of ['bakery', 'road']) {
+for (const station of ['bakery', 'road', 'market', 'mosaic']) {
   for (const tier of [1, 2, 3]) {
     for (let rep = 0; rep < (station === 'bakery' ? 2 : 2); rep++) {
       await page.evaluate(([s, t]) => window.__fff.setTier(s, t), [station, tier]);
@@ -68,5 +68,40 @@ for (const station of ['bakery', 'road']) {
     }
   }
 }
+// the feast and the finale
+await page.evaluate(() => window.__fff.finishAll());
+await wait(400);
+await shot('30-all-lit');
+await page.evaluate(() => window.__fff.feast());
+await wait(600);
+for (let i = 0; i < 4; i++) {
+  const s = await st();
+  if (!s.panel) break;
+  if (i === 0) await shot('31-feast-order');
+  await page.locator(`[data-value="${s.panel.right}"]`).click();
+  await wait(300);
+  await page.keyboard.press('Space');
+  await wait(400);
+}
+await wait(400);
+await shot('32-finale');
+await skipTalk();
+await wait(600);
+await shot('33-dusk');
+// Frenzy
+await page.evaluate(() => window.__fff.frenzy());
+await wait(400);
+await shot('40-frenzy-intro');
+await page.getByRole('button', { name: 'Go!' }).click();
+await wait(300);
+for (let i = 0; i < 4; i++) {
+  const s = await st();
+  await page.keyboard.press(String(s.frenzy.right + 1));
+  await wait(400);
+}
+await shot('41-frenzy-play');
+await page.evaluate(() => window.__fff.endFrenzy());
+await wait(500);
+await shot('42-frenzy-result');
 console.log(JSON.stringify(await st()).slice(0, 400));
 await browser.close();

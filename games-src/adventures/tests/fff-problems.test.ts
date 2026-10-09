@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
-import { PARTY_PROBLEMS, STATIONS, TIERS, fstr, makeProblem, partName, partyProblem, postCount, postMistake, rightChoice, type Problem } from '../src/games/pizza-fraction-frenzy/problems';
+import { PARTY_PROBLEMS, STATIONS, TIERS, biggerBelief, cmp, fstr, makeProblem, makeServe, partName, partyProblem, postCount, postMistake, rightChoice, sameValue, type Problem } from '../src/games/pizza-fraction-frenzy/problems';
 
 const SEEDS = 400;
 const val = (s: string) => {
@@ -31,8 +31,28 @@ function expected(p: Problem): string {
       return `post-${p.target.n}`;
     case 'name':
       return fstr(p.target);
+    case 'compare': {
+      const c = cmp(p.a, p.b);
+      if (c === 0) return 'same';
+      const big = c > 0 ? p.a : p.b;
+      const small = c > 0 ? p.b : p.a;
+      return fstr(p.ask === 'bigger' ? big : small);
+    }
+    case 'match':
+      return p.choices.find((ch) => sameValue(frac(ch.value), p.target))!.value;
+    case 'missing':
+      return String(p.want.n === null ? (p.given.n * p.want.d!) / p.given.d : (p.given.d * p.want.n) / p.given.n);
+    case 'whole-number':
+      return String(p.given.n / p.given.d);
+    case 'odd-one':
+      return p.choices.find((ch) => !sameValue(frac(ch.value), p.target))!.value;
   }
 }
+
+const frac = (v: string) => {
+  const [n, d] = v.split('/').map(Number);
+  return { n, d };
+};
 
 describe('every job, every level', () => {
   for (const station of STATIONS)
@@ -50,7 +70,7 @@ describe('every job, every level', () => {
           for (const c of p.choices) if (!c.correct) expect(c.misconception).toBeTruthy();
           expect(rightChoice(p).value).toBe(expected(p));
         }
-        expect(kinds.size).toBeGreaterThanOrEqual(2);
+        expect(kinds.size).toBeGreaterThanOrEqual(station === 'bakery' || station === 'road' || (station === 'mosaic' && tier > 1) ? 2 : 1);
       });
 });
 
@@ -156,3 +176,83 @@ describe('the milestone road', () => {
     expect(seen).toBeGreaterThan(20);
   });
 });
+
+describe('the market stall', () => {
+  it('compares exactly: the right share is really bigger (or smaller), and "the same" only for equal shares', () => {
+    for (const tier of TIERS)
+      for (let s = 1; s <= SEEDS; s++) {
+        const p = makeProblem('market', tier, mulberry32(s * 13 + tier));
+        if (p.kind !== 'compare') throw new Error('not a compare problem');
+        const right = rightChoice(p);
+        if (right.value === 'same') expect(sameValue(p.a, p.b)).toBe(true);
+        else {
+          const other = right.value === fstr(p.a) ? p.b : p.a;
+          const c = cmp(frac(right.value), other);
+          expect(p.ask === 'bigger' ? c > 0 : c < 0).toBe(true);
+        }
+      }
+  });
+
+  it('level 1 shares a bottom number, level 2 shares a top number', () => {
+    for (let s = 1; s <= SEEDS; s++) {
+      const p1 = makeProblem('market', 1, mulberry32(s));
+      const p2 = makeProblem('market', 2, mulberry32(s));
+      if (p1.kind !== 'compare' || p2.kind !== 'compare') throw new Error('not compare');
+      expect(p1.a.d).toBe(p1.b.d);
+      expect(p2.a.n).toBe(p2.b.n);
+    }
+  });
+
+  it('names the classic comparing mistakes', () => {
+    expect(biggerBelief({ n: 1, d: 8 }, { n: 1, d: 4 })).toBe('bigger-denominator');
+    expect(biggerBelief({ n: 3, d: 8 }, { n: 2, d: 3 })).toBe('top-only');
+    expect(biggerBelief({ n: 3, d: 8 }, { n: 5, d: 8 })).toBe('counted-missing');
+  });
+});
+
+describe('the mosaic', () => {
+  it('every "match" and "missing" answer is truly equal, and the traps are not', () => {
+    for (const tier of TIERS)
+      for (let s = 1; s <= SEEDS; s++) {
+        const p = makeProblem('mosaic', tier, mulberry32(s * 17 + tier));
+        if (p.kind === 'match') for (const c of p.choices) expect(sameValue(frac(c.value), p.target)).toBe(c.correct);
+        if (p.kind === 'missing') expect(sameValue(p.answer, p.given)).toBe(true);
+        if (p.kind === 'odd-one') {
+          const notEqual = p.choices.filter((c) => !sameValue(frac(c.value), p.target));
+          expect(notEqual).toHaveLength(1);
+          expect(notEqual[0].correct).toBe(true);
+        }
+        if (p.kind === 'whole-number') expect(Number.isInteger(p.given.n / p.given.d)).toBe(true);
+      }
+  });
+
+  it('the "add the same number" trap really adds the same number to top and bottom', () => {
+    for (let s = 1; s <= SEEDS; s++) {
+      const p = makeProblem('mosaic', 1, mulberry32(s));
+      if (p.kind !== 'match') continue;
+      const trap = p.choices.find((c) => c.misconception === 'add-same');
+      if (trap) {
+        const f = frac(trap.value);
+        expect(f.n - p.target.n).toBe(f.d - p.target.d);
+      }
+    }
+  });
+});
+
+describe('Frenzy orders', () => {
+  it('exactly one loaf shows the order with equal pieces, and every other loaf is a tagged mistake', () => {
+    for (const tier of TIERS)
+      for (let s = 1; s <= SEEDS; s++) {
+        const o = makeServe(tier, mulberry32(s * 19 + tier));
+        expect(o.choices.filter((c) => c.correct)).toHaveLength(1);
+        expect(o.choices.length).toBeGreaterThanOrEqual(3);
+        const right = o.choices.find((c) => c.correct)!.loaf!;
+        expect(right.sizes).toHaveLength(o.target.d);
+        expect(right.shaded).toHaveLength(o.target.n);
+        expect(new Set(right.sizes).size).toBe(1);
+        for (const c of o.choices) if (!c.correct) expect(c.misconception).toBeTruthy();
+        expect(new Set(o.choices.map((c) => c.value)).size).toBe(o.choices.length);
+      }
+  });
+});
+
