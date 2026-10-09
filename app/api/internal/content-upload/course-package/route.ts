@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { getApiUser } from '@/lib/api-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import AdmZip from 'adm-zip';
+import { assertArchiveWithinLimits, ZipLimitError } from '@/lib/zip-limits';
 import {
   processCoursePackage,
   isCoursePackage,
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
     // Read ZIP to determine package type
     const buffer = Buffer.from(await zipFile.arrayBuffer());
     const zip = new AdmZip(buffer);
+    assertArchiveWithinLimits(zip);
 
     // Determine if this is a game or course package
     const isGame = isGamePackage(zip);
@@ -83,6 +85,12 @@ export async function POST(request: NextRequest) {
       });
     }
   } catch (error) {
+    if (error instanceof ZipLimitError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 400 }
+      );
+    }
     console.error('Package upload error:', error);
     return NextResponse.json(
       {
