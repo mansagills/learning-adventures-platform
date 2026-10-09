@@ -1,6 +1,6 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **W2 (games in their worlds) is in progress:** M6, Forum Fraction Feast, is COMPLETED ✅ (PR #220). **Next: M7 in Star Station** (`docs/M7_STAR_STATION_HANDOFF.md`).
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **W2 (games in their worlds) is in progress:** M6, Forum Fraction Feast, is COMPLETED ✅ (PR #220). **M7 in Star Station is in progress:** the plan is approved (the owner made Multiplication Space Quest a vertical space shooter, with the station deck as home base), and Space Quest half 1 is built (PR #224; the M7 section of `docs/GAMES_3D_UPGRADE_PLAN.md`).
 > Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)

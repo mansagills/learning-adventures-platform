@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; building Space Quest half 1)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Space Quest half 1 built, waiting for the owner's look)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -986,6 +986,56 @@ Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical s
 2. **What the player fires at:** gray Static rocks that burst into sparkles while stranded ships are rescued (recommended, friendly like Library Rush), or classic asteroids and alien drones.
 3. **Halves:** half 1 is the deck (home base), the flight scene, the Formations and Engines sectors, upgrades and saving; half 2 is Cargo, Constellations, Bingo Boss, the landing on the planet and Meteor Run. Equation Balance Scale follows in its own PR, still on the alien planet.
 
+##### Space Quest half 1: BUILT (2026-10-09), waiting for the owner's look
+
+- **What is playable:**
+  - the title and the character creator (16-bit player)
+  - Commander Ayo's opening with Blip
+  - walking the station deck (keys, tap-to-walk, the touch pad) to the five crew members
+  - **the Formations and Engines missions**, flown as a vertical shooter:
+    - steer with the arrow keys or A and D, or drag
+    - the blaster fires by itself at the gray Static pebbles
+    - answer with the charge beam: Space under a rock, keys 1–3, or a click or tap on the rock
+    - the stranded ships fly in as the picture (equal groups in docking rings, a formation, a formation split by a line) and join the fleet when the answer is right
+    - a mistake sentence for every wrong rock
+    - hints that pause the flight, with a dot picture at rung 2
+    - two-step questions (pick the split or the shortcut, then the answer)
+    - the Static core as the 8th question
+    - a shield; the tow beam brings the ship home with everything earned
+  - each sector's debrief when it is cleared
+  - Rafi's upgrade bay (twin blaster, rapid fire, two extra shields, thrusters, four paint jobs, paid with stardust)
+  - Sol's Star Map (55 facts)
+  - the mission list (J), saving and the grown-ups page with its progress table
+- **Half 2:** Quartermaster Dot (Cargo), the Constellations sector, Bingo Boss, the landing on the alien planet and Meteor Run. Dot and Sol already stand on the deck: Dot says the crates are still being loaded, and Sol shows the Star Map.
+- **Not listed on the site yet:** the old Multiplication Space Quest stays on `/games` until the whole game is done. The new one plays at `/games/play/multiplication-space-quest/index.html` (also on the PR's Vercel preview).
+- **New in the kit:**
+  - the station deck now has `walk` and `blocks` (each prop's footprint, worked out from its picture) and can leave out its drone (`omit: ['drone']`)
+  - the world camera can cap how many rows show top to bottom (`Stage.maxTilesTall`, off unless a game sets it), so a tall phone never sees past the deck
+  - **The eight Sunny Town games' built files are byte-for-byte unchanged.** Forum Fraction Feast's files were renamed (its world code now sits in a file shared with this game), so its browser test was re-run.
+- **Fixed after looking at the screenshots:**
+  - the stranded ships sat under the question banner and the status row (now measured, with the banner kept at a fixed height)
+  - big formations were drawn by shrinking the ships, which smeared them into gray bars; there is now a small ship painted at its own size, and the powered-down gray is lighter
+  - a crossed-out rock was hard to see (now a red X)
+  - pop-up messages covered the status row
+  - on a phone the flight was drawn at 1 screen pixel per art pixel (tiny rocks), and the deck showed black space above the wall
+- **Tests:**
+  - 10 unit tests over 3,000 questions. They found and fixed two traps that turned into right answers: "split both numbers" on a square formation, and "a double plus 3" for 3 × 3.
+  - The browser test `scripts/e2e-multiplication-space-quest.mjs` (41/41) covers title → deck → Mei (by walking) → a whole Formations flight with keys, Space, clicks and hints → the sector cleared with its debrief → an Engines two-step question → towed home → upgrades and paint → missions → the Star Map → grown-ups → reload → phone (rocks on screen and tappable, no sideways scrolling).
+  - The flight runs at 44 frames a second on the test machine's software rendering.
+- **Score so far: 8.7/10, provisional** (the final score comes at the end of half 2):
+  - gameplay 2.1
+  - learning 1.85
+  - look and sound 1.3
+  - ease of use 1.35
+  - reliability 1.4
+  - completeness 0.7 (half the sectors, no finale yet)
+
+  It loses points on:
+  - the Engines questions have no picture in flight (only in the hint), so the top of the screen is empty
+  - the small gray ships in a 9-row formation are only 12 pixels wide
+  - steering by dragging on a phone was checked by hand in the code, not by the browser test (the test taps the rocks)
+  - the debrief questions have no picture
+
 ##### Kit work for half 2 (after approval)
 
 Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`). The station deck (Space Quest's home base) and the alien planet (the landing, and later the Balance Scale) need the same, following `ancient-kingdoms/forum.ts`. Space Quest also needs a new flight scene: top-down scrolling space at 24 pixels per tile, with the Star Station palette and glows. The Sunny Town games' build output must not change; it is checked after the kit work.
@@ -1075,3 +1125,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-09:** M7 plan written (the M7 section above), after studying and playing the four originals. Found two problems in the live games: about 55% of Bingo Bonanza's calls have no answer on the card, and the Balance Scale freezes on subtraction with a negative answer. Waiting for the owner's choices and approval.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
+- **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.

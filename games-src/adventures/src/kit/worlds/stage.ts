@@ -16,6 +16,8 @@ export class Stage {
   internalW = 320;
   internalH = 180;
   scale = 1;
+  /** If above 0, the most rows the view shows top to bottom (the scale goes up to fit). Off by default. */
+  maxTilesTall = 0;
   private offsetX = 0;
   private offsetY = 0;
   private cssW = 0;
@@ -59,6 +61,8 @@ export class Stage {
     // Never show more than 28 tiles across: with fine pixels a laptop would
     // otherwise get a tiny, far-away view.
     while (devW / s / this.px > 28) s++;
+    // A game can also cap how many rows show top to bottom, so a tall phone never sees past a small map.
+    while (this.maxTilesTall > 0 && devH / s / this.px > this.maxTilesTall) s++;
     this.scale = s;
     const even = (n: number) => n + (n % 2);
     this.internalW = even(Math.ceil(devW / s));
