@@ -846,38 +846,73 @@ The names, settings and kind of game are owner choices (see "Choices for the own
   - no debrief, grown-ups page, saves, pixel art or music; emoji throughout
   - the main path is timed
 
-##### Game 1: "Multiplication Space Quest" (slug `multiplication-space-quest`, grades 3–5)
+##### Game 1: "Multiplication Space Quest" (slug `multiplication-space-quest`, grades 3–5): a space shooter
 
-- **Setting:** the Star Station's **observation deck** (`station-deck`, approved in W0), on the day a new fleet of little ships gets ready for its first voyage. The giant window shows the ringed planet the fleet will fly to.
+> **Revised 2026-10-09 after the owner's first answers:** the main game is a **space shooter** built around multiplication. The station deck and the alien planet are where it starts and ends. Name kept. The first draft (a walking station with four jobs) is replaced.
+
+- **Setting:** three places, in the Star Station style.
+  - **Home base:** the **observation deck** (`station-deck`).
+  - **The main game:** **space flight**, a new scrolling space scene with the nebula and the ringed planet from the deck's window.
+  - **The goal:** the **alien planet** (`alien-planet`).
+
+  The story: a cloud of gray space rocks called **the Static** has drifted across the route to the alien planet's outpost. The rocks drain the color and power out of everything they touch, and a fleet of little supply ships is stranded inside the cloud. The player's ship flies out to clear the way and bring the stranded ships home. Nothing is hurt: rocks break into sparkles, and stranded ships light up and join the player's fleet. This is the same "friendly, no fighting" rule as Library Rush.
 - **Characters** (all new, 16-bit, varied skin tones and ages; names are drafts):
-  - **Host: Commander Ayo**, who runs the station. Opens the game, explains the voyage and gives the launch order at the end.
-  - **Pilot Mei** in the **Hangar**: parks ships in equal groups and formations.
-  - **Engineer Rafi** in the **Engine Room**: power cells that charge by doubling and by 5s and 10s.
-  - **Quartermaster Dot** in the **Cargo Bay**: shares crates of supplies fairly between ships.
-  - **Navigator Sol** at the **Star Map**: a 10x10 star chart where every fact is a star.
-  - **Blip**, a friendly little floating alien who mixes up numbers and calls the Bingo numbers (a cheeky sidekick, like Anser the goose).
+  - **Host: Commander Ayo**, who runs the station. Gives the mission and the launch order.
+  - Four mission chiefs on the deck, one per sector:
+    - **Pilot Mei** (formations)
+    - **Engineer Rafi** (engines and power-ups)
+    - **Quartermaster Dot** (cargo)
+    - **Navigator Sol** (the Star Map)
+  - **Blip**, a friendly little floating alien who rides along, chats during flights and calls the Bingo numbers in the finale.
 - **How it plays:**
-  - The player walks the deck (arrow keys, WASD, tap-to-walk or the touch pad). A sign over a person marks a job.
-  - Talking opens a panel with a picture to read: ships to count in groups, a formation to split, crates to share, a fact-family triangle.
-  - Each job has 3 levels that adapt to the player. Five stars at a job powers one of the station's four systems: lights, engines, cargo doors and the navigation beacon.
-  - With all four powered, the **night shift** starts (the station's neon glows come on), and Blip calls the **Launch Bingo** finale.
-  - **Launch Bingo:** the card holds the answers, and Blip's calls mix ×, ÷ and missing factors at the player's level. **Every call has its answer on the card.** Nothing is timed. One Bingo launches the fleet through the window toward the ringed planet.
+  - **On the deck (home base):** the player walks the deck and talks to a chief to start that chief's mission.
+    - Chiefs give the short briefing before a flight and the debrief question after it.
+    - Rafi's **upgrade bay** spends stars on ship upgrades.
+    - Sol's **Star Map** shows every fact learned.
+    - The player launches from the hangar.
+  - **In flight (the main game):** a vertical shooter, with the player's ship at the bottom of the screen.
+    - **Moving:** arrow keys or WASD, or drag a finger. The ship fires on its own, so a child only steers.
+    - **Dodging:** small gray rocks drift down. Bumping one costs a bit of **shield**.
+    - **Each question:** a question appears in a banner at the top (it is read aloud), and a row of big **answer rocks** floats in. Each rock carries a number.
+      - **Right rock:** it bursts into sparkles, a stranded ship lights up and joins the fleet behind the player, and the star meter fills.
+      - **Wrong rock:** the ship bounces back and a one-line reason appears ("4 groups of 3 isn't 7: that adds the numbers").
+    - **No time pressure on answers:** answer rocks wait for the player and never fly off. Only the small rocks move, so there is action but **no time limit on answers**.
+    - **Phone:** tapping a rock also fires at it, so a phone player can aim without fine steering.
+  - **Pictures come from the game itself.** In the formations sector, the stranded ships drift in **as the array or equal groups the question asks about** (4 rows of 6 ships), so the child reads the picture to answer. Cargo questions show crates dropping into ships. The fact-family questions are constellations.
+  - **A flight** is about 8 questions, ending with a mini-boss: a big Static rock with one two-step question. Then the ship docks for the debrief on the deck.
+  - **Five stars in a sector** (a star is a right first try without the picture hint) clears that sector of the route. With all four cleared, the route to the planet is open for the finale.
+  - **The finale, Bingo Boss:**
+    - The heart of the Static cloud is a huge rock with a 5x5 **Bingo shield** of numbers.
+    - Blip calls facts (×, ÷ and missing factors at the player's level), and the player shoots the matching shield tile. **Every call has its answer on the shield.**
+    - Five in a row (a Bingo) breaks the shield. The cloud clears, the whole rescued fleet flies down to the **alien planet**, and the outpost's lights come on at the night-shift party.
+  - **Upgrades** (stars earned in flight): a wider beam, a second wing ship, a stronger shield, faster steering, and cosmetic paint and trails. They make flying more fun, never the math easier.
+  - **Shield:** when the shield runs out, the ship tows home to the deck with everything already earned (nothing is lost) and can launch again.
 - **Replay:**
-  - **Bingo** with a new card, any time after the finale. Best: fewest calls to a Bingo.
-  - **Meteor Run** (the old Space Quest race), from Rafi once the engine room is done: 60 seconds of facts, chosen from the ones the player finds hardest, for a personal best. Optional and separate, because the main path is never timed.
-- **Modeled on:** `pizza-fraction-frenzy` (the walking 16-bit world, jobs, braziers lighting one by one, the evening change, Frenzy mode). The Bingo board and the per-fact Star Map are new.
+  - **Bingo Boss** rematch with a new shield (best: fewest calls to a Bingo).
+  - **Meteor Run** (the old Space Quest race), from Rafi once his sector is cleared: 60 seconds of quick facts chosen from the ones the player finds hardest, for a personal best. Optional and separate; the main path is never timed.
+  - The Star Map's unlit stars.
+- **Modeled on:**
+  - `math-race-rally`, for a game with its own flight scene and camera next to the kit's normal one, plus upgrades for stars.
+  - `math-dash` (Library Rush), for action with a shield-like meter, dodging, and no fighting.
+  - `pizza-fraction-frenzy`, for walking the 16-bit deck.
 
-**Learning design** (each job covers its own part of the band, and the grown-ups page says which grades each job is for):
+  The flight scene is new: a top-down scrolling space scene drawn at the Star Station pixel size (24 pixels per tile) with its palette and neon glows.
 
-| Job (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+**Learning design** (each sector covers its own part of the band, and the grown-ups page says which grades each sector is for):
+
+| Sector (chief) | Skill | Level 1 | Level 2 | Level 3 | Standards |
 |---|---|---|---|---|---|
-| Hangar (Mei), grade 3 | Equal groups and arrays | Ships in equal groups: "4 docks with 3 ships each. How many ships?" and "Which times sentence matches?" | Formations (arrays): rows × columns, and turning a formation on its side (6 × 4 = 4 × 6) | Split a big formation into two smaller ones: 7 × 8 = 7 × 5 + 7 × 3. Which split matches the picture? | 3.OA.1, 3.OA.3, 3.OA.5 |
-| Engine Room (Rafi), grades 3–4 | Fact strategies | ×2 (doubles), ×5 (half of ×10), ×10, ×1 and ×0 | ×4 (double, then double again), ×9 (ten groups take away one), ×3 (double plus one more group). Pick the shortcut, then the answer | ×6, ×7, ×8 from a fact you know (6 × 7 = 5 × 7 + 7), and the 11s and 12s as a stretch | 3.OA.5, 3.OA.7, 3.OA.9 |
-| Cargo Bay (Dot), grades 3–4 | Division and the missing factor | Share crates equally: "24 crates, 4 ships. How many on each ship?" | The missing factor: ? × 6 = 42, so 42 ÷ 6 = 7. Plus "how many groups?" stories next to "how many in each?" stories | Leftovers: "29 crew, 4 seats per shuttle. How many shuttles?" (one more for the leftover crew), "How many full crates?", "How many left over?" | 3.OA.2, 3.OA.4, 3.OA.6, 4.OA.3 |
-| Star Map (Sol), grades 3–5 | Fact families and factors | Finish the family: 3, 4 and 12 make 3 × 4, 4 × 3, 12 ÷ 3, 12 ÷ 4 | Which fact doesn't belong? (3 ÷ 12 = 4 sneaks in) | Every way to park 24 ships in a rectangle (factor pairs), "Is 7 a factor of 42?", prime or not | 3.OA.6, 3.OA.7, 4.OA.4 |
+| Formations (Mei), grade 3 | Equal groups and arrays | Stranded ships in equal groups: "4 groups of 3 ships. How many ships?" and "Which times sentence matches?" | Formations (arrays): rows × columns, and a formation that turns on its side (6 × 4 = 4 × 6) | A big formation splits in two: 7 × 8 = 7 × 5 + 7 × 3. Shoot the split that matches the picture | 3.OA.1, 3.OA.3, 3.OA.5 |
+| Engines (Rafi), grades 3–4 | Fact strategies | ×2 (doubles), ×5 (half of ×10), ×10, ×1 and ×0 | ×4 (double, then double again), ×9 (ten groups take away one), ×3 (double plus one more group). First shoot the shortcut rock, then the answer | ×6, ×7, ×8 from a fact you know (6 × 7 = 5 × 7 + 7), and the 11s and 12s as a stretch | 3.OA.5, 3.OA.7, 3.OA.9 |
+| Cargo (Dot), grades 3–4 | Division and the missing factor | Crates drop into ships equally: "24 crates, 4 ships. How many on each ship?" | The missing factor: ? × 6 = 42, so 42 ÷ 6 = 7. Plus "how many groups?" stories next to "how many in each?" stories | Leftovers: "29 crew, 4 seats per shuttle. How many shuttles?" (one more for the leftover crew), "How many full crates?", "How many left over?" | 3.OA.2, 3.OA.4, 3.OA.6, 4.OA.3 |
+| Constellations (Sol), grades 3–5 | Fact families and factors | Finish the family: 3, 4 and 12 make 3 × 4, 4 × 3, 12 ÷ 3, 12 ÷ 4 (shoot the missing fact) | Which fact doesn't belong? (3 ÷ 12 = 4 sneaks in) | Every way to park 24 ships in a rectangle (factor pairs), "Is 7 a factor of 42?", prime or not | 3.OA.6, 3.OA.7, 4.OA.4 |
 
-- **The Star Map** (Tables Adventure merged in): a 10x10 chart where each fact is a star. A star lights up when the player answers that fact cleanly anywhere in the game. Sol's practice and Meteor Run pick the facts the player has missed or not seen yet. A row of the chart lights up fully when that table is mastered. The grown-ups page shows the map.
-- **Mistakes the wrong answers come from** (each wrong choice is built from one of these):
+- **The Star Map** (Tables Adventure merged in): a 10x10 chart on Sol's console where each fact is a star.
+  - A star lights up when the player answers that fact cleanly in any flight.
+  - Flights and Meteor Run mix in the facts the player has missed or not seen yet.
+  - A row lights up fully when that table is mastered.
+  - The grown-ups page shows the map.
+- **Mistakes the wrong answer rocks come from** (each wrong rock is built from one of these):
   - *Added instead:* 4 groups of 3 → 7.
   - *Group size or group count only:* 4 groups of 3 → 3, or 4.
   - *One group off:* 7 × 8 → 49 or 63 (a neighboring fact).
@@ -890,14 +925,18 @@ The names, settings and kind of game are owner choices (see "Choices for the own
   - *Leftovers:* gives the leftover as the answer, or forgets that the leftover crew still need a shuttle.
   - *Backwards division:* 3 ÷ 12 = 4.
   - *Odd means prime:* thinks 9 is prime; forgets that 1 × 24 is a factor pair.
-- **Hint ladder:** a nudge question ("How many groups? How many in each?") → a picture with a worked step (the ships grouped or in rows with the rows numbered, the formation split in two colors, crates dealt into ships one by one, the fact-family triangle) → the answer outlined with its explanation.
-- **Debriefs** (one "why" question per helper):
+- **Hint ladder in flight:** the Hint button (or H) **pauses the flight**. Rung 1 is a nudge ("How many groups? How many in each?"). Rung 2 is a picture panel with a worked step: the ships grouped with the rows numbered, the formation split in two colors, crates dealt into ships one by one, the fact-family triangle. Rung 3 outlines the right rock with its explanation. After two misses on one question, the flight pauses and the next rung opens by itself.
+- **Reading and pace:** the question banner stays on screen and is read aloud. The small rocks slow down while a question is new. Reduced motion slows everything and turns off screen shake.
+- **Debriefs** (back on the deck, one "why" question per chief):
   - Mei: "I turned a 3-by-5 formation on its side. Is it still 15 ships? Why?"
   - Rafi: "Why is 9 × 6 the same as 10 × 6 take away 6?"
   - Dot: "29 crew, 4 seats per shuttle. Seven shuttles leave 1 crew member behind. What do we do?"
   - Sol: "If you know 6 × 8 = 48, which division facts do you know for free?"
-- **Progress and finale:** five stars per job powers its system. A job is done after 5 stars and level 2 (or 12 questions played), so a child who struggles still finishes. The night shift and Launch Bingo, then the launch. Bingo and Meteor Run give a reason to come back, and the Star Map shows what's left to learn.
-- **Difficulty change from the originals:** from one level of random facts to all of grade 3's multiplication and division (equal groups, arrays, strategies, the inverse, fact families), up to grade 4's leftovers and factor pairs. The timer moves to an optional mode.
+- **Progress and finale:**
+  - **What shows progress:** the rescued fleet growing behind the ship, the route map clearing sector by sector, the Star Map, and upgrades.
+  - **When a sector is done:** after 5 stars and level 2, or 12 questions played, so a child who struggles still finishes.
+  - **The finale:** Bingo Boss, then the landing on the alien planet at the night-shift party.
+- **Difficulty change from the originals:** from one level of random facts to all of grade 3's multiplication and division (equal groups, arrays, strategies, the inverse, fact families), up to grade 4's leftovers and factor pairs. The 60-second timer moves to the optional Meteor Run.
 
 ##### Game 2: "Equation Balance Scale" (slug `equation-balance-scale`, grades 3–5)
 
@@ -935,16 +974,21 @@ The names, settings and kind of game are owner choices (see "Choices for the own
 
 ##### Choices for the owner
 
-1. **Order.** Recommended: Multiplication Space Quest first, built in two halves with a quick look in between (half 1: walking on the deck, the Hangar and the Engine Room; half 2: the Cargo Bay, the Star Map, Launch Bingo and Meteor Run), then Equation Balance Scale in its own PR. Or both games in one PR, or the smaller Balance Scale first.
-2. **Settings.** Recommended: Space Quest on the station deck and the Balance Scale on the alien planet, so both approved settings get used. Or both on the deck, or a new Star Station place for Space Quest (a ship hangar or docking bay).
-3. **The kind of game for Space Quest.** Recommended: a walking station with four jobs (above). Other real directions:
-   - **A voyage arcade:** the player pilots a ship from planet to planet, steering into the right answers on the way (like Math Race Rally, but in space), and lands at each planet for a picture puzzle. More action, but less room for pictures and hints, and close to Race Rally.
-   - **Station plus cockpit:** the walking station as above, but Meteor Run becomes a real flying arcade mode (steer the ship, catch the right answers) instead of a quick-answer race.
-4. **Names.** Keep "Multiplication Space Quest" and "Equation Balance Scale" (the links stay the same either way), or new names. The host names are drafts too.
+**Owner answers (2026-10-09):**
+- **Order:** build Multiplication Space Quest first.
+- **Settings:** the deck and the planet.
+- **Kind of game:** "Station + flying cockpit", with the main game played as a **space shooter** built around multiplication, so the fleet launches as spaceships and the station and planet are involved too.
+- **Names:** keep both names.
+
+Game 1 above was rewritten to match. Still open (asked 2026-10-09):
+
+1. **The shooter's direction:** vertical, with the ship at the bottom (recommended: it fits a phone held upright and leaves room for the question banner), or side-scrolling, with the ship on the left.
+2. **What the player fires at:** gray Static rocks that burst into sparkles while stranded ships are rescued (recommended, friendly like Library Rush), or classic asteroids and alien drones.
+3. **Halves:** half 1 is the deck (home base), the flight scene, the Formations and Engines sectors, upgrades and saving; half 2 is Cargo, Constellations, Bingo Boss, the landing on the planet and Meteor Run. Equation Balance Scale follows in its own PR, still on the alien planet.
 
 ##### Kit work for half 2 (after approval)
 
-Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`). The station deck and the alien planet need the same, following `ancient-kingdoms/forum.ts`. The Sunny Town games' build output must not change; it is checked after the kit work.
+Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`). The station deck (Space Quest's home base) and the alien planet (the landing, and later the Balance Scale) need the same, following `ancient-kingdoms/forum.ts`. Space Quest also needs a new flight scene: top-down scrolling space at 24 pixels per tile, with the Star Station palette and glows. The Sunny Town games' build output must not change; it is checked after the kit work.
 
 ##### Site changes when it ships
 
@@ -961,7 +1005,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
   - every Bingo call's answer on the card
   - no negative numbers anywhere in the Balance Scale
   - every equation's two sides checked
-- A browser test for each game, playing from the title through every job, the finale and (for Space Quest) Bingo and Meteor Run, then a reload and the grown-ups page.
+- A browser test for each game. For Space Quest: the title, the deck, a flight in every sector (steering, a wrong rock, a hint that pauses the flight), upgrades, Bingo Boss, the landing, Meteor Run, a reload and the grown-ups page. For the Balance Scale: every job, the finale, a reload and the grown-ups page. Plus a frame-rate check of the flight scene (30+ fps).
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
@@ -1029,3 +1073,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-08:** Game worlds W1 approved. M6 plan written with the `remaster-game` skill; owner chose the name Forum Fraction Feast, a walking Roman forum with four jobs, built in two halves. Half 1 (the Bakery and Milestone Road) built.
 - **2026-10-09:** Half 2 built (the Market Stall, the Mosaic, the Festival Feast and Frenzy mode); the site lists Forum Fraction Feast and `/games/fraction-pizza-party` redirects. 9.1/10, 27 unit tests and 51 browser checks. Owner approved and merged PR #220. **M6 COMPLETED ✅: 9 of the 11 Math games are done.** Next: M7 (Multiplication Space Quest with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in, and Equation Balance Scale) in the Star Station world, plan first. Handoff: `docs/M7_STAR_STATION_HANDOFF.md`.
 - **2026-10-09:** M7 plan written (the M7 section above), after studying and playing the four originals. Found two problems in the live games: about 55% of Bingo Bonanza's calls have no answer on the card, and the Balance Scale freezes on subtraction with a negative answer. Waiting for the owner's choices and approval.
+- **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
