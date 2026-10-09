@@ -160,6 +160,8 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings 
 
 ## 9. Handoff for the next session
 
+**Update (2026-10-09):** W2 started. M6 is Forum Fraction Feast in the Roman forum (plan approved); its first half is built and waits for the owner (see the M6 section of `docs/GAMES_3D_UPGRADE_PLAN.md`). The kit gained what a walking 16-bit game needs (`Walker16`, solid footprints in settings, tap-to-walk on the world camera).
+
 **Update (2026-10-08):** W1 is COMPLETED ✅ (PR #220; owner approved both proof settings). Next: W2, starting with M6 Fractions in Ancient Kingdoms (design plan first, for owner approval).
 
 **Update (2026-10-06, later):** the section 6 questions are answered and W0 is COMPLETED ✅ (level (b), both worlds approved, "one style per world, many settings"; sections 2a, 4b and 7a). Next: W1.

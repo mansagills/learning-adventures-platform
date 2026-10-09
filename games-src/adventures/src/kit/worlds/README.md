@@ -20,6 +20,7 @@ setting is a place inside it.** A game picks one world and one setting.
 | `hero16.ts` | 24x36 children and 24x42 adults in four directions, a 4-frame walk and a blink, and 72x72 portraits with four moods |
 | `stage.ts` | The 45-degree pixel camera with a pixels-per-tile setting (the kit's own renderer stays at 16 for Sunny Town), plus billboards, glows, light pools and shadows at any pixel size |
 | `figure.ts`, `place.ts` | A standing character with frames, and shortcuts for placing props |
+| `walker.ts` | `Walker16`: a walking 16-bit character (four directions, a 4-frame walk, blinking, the "!" and "?" markers), the new worlds' version of the kit's `Actor` |
 | `worlds.css` | The talk-box accent for each world (the parchment panel itself never changes) |
 | `star-station/` | `art.ts` (the station palette and deck props), `deck.ts`, `planet.ts` |
 | `ancient-kingdoms/` | `art.ts` (the world palette, the shared sky and the Mali horizon), `market.ts`, `forum.ts` |
@@ -50,6 +51,24 @@ const player = new Figure(ctx, frames, built.spots.player.x, built.spots.player.
 For the evening, use `style.tint.evening` and `ctx.lighting.set(tint, 1)`; that also
 turns on every glow (neon, torches, crystals). Register the world's music
 with `audio.addSong(style.id, style.music)`.
+
+## A walking game in a 16-bit world
+
+Forum Fraction Feast (`src/games/pizza-fraction-frenzy/world.ts`) is the
+model. The pieces it uses:
+
+- `Walker16(ctx, look, x, y)` for the player and the people, with
+  `look16FromAppearance(appearance)` turning the customize screen's choices
+  into a 16-bit player.
+- The setting's `walk` (where walking is allowed) and `blocks` (solid
+  footprints) to fill the kit's `CollisionGrid`, and `omit: ['braziers']` in
+  the `SceneCtx` when the game draws something itself (it lights its own
+  braziers one by one).
+- `Stage.lookAt(x, y, false, smooth)` to follow the player, and
+  `Stage.screenToTile` / `Stage.project` for tap-to-walk and labels.
+- `openCustomize(..., { paint, only: { hairStyle: HAIR16 }, hide: ['accessory'] })`
+  so the character creator shows the 16-bit player and only the hair styles
+  it can draw.
 
 ## Adding a setting
 

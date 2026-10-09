@@ -43,6 +43,8 @@ export interface SceneCtx {
   /** Pixels per tile (normally the world's px). */
   px: number;
   time: TimeOfDay;
+  /** Parts of the setting a game draws itself instead (for example 'braziers', which a game lights one by one). */
+  omit?: string[];
 }
 
 export interface Spot {
@@ -57,6 +59,10 @@ export interface SettingScene {
   focus: { x: number; feet: number; top: number };
   /** Background color behind everything (shows past the map edges). */
   clear: string;
+  /** Where walking is allowed (tile rectangle), for games with a walking player. */
+  walk?: { x0: number; y0: number; x1: number; y1: number };
+  /** Footprints of the solid things in the setting (tile rectangles), so a player walks round them. */
+  blocks?: Array<{ x: number; y: number; w: number; h: number }>;
   /** Where people can stand: at least 'player' and 'host'. */
   spots: Record<string, Spot>;
   /** Animate the setting; `t` is seconds since the start, `camX` the camera's tile x (for parallax). */

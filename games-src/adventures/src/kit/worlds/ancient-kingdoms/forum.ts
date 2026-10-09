@@ -379,7 +379,7 @@ export function paintStatue(T: number): PixelBuffer {
 }
 
 /** A bronze brazier on three legs, with a fire (3 frames). */
-export function paintBrazier(T: number, frame = 0): PixelBuffer {
+export function paintBrazier(T: number, frame = 0, lit = true): PixelBuffer {
   const u = U(T);
   const S = (v: number) => v * u;
   const p = new Paint(Math.round(16 * u), Math.round(28 * u));
@@ -387,6 +387,17 @@ export function paintBrazier(T: number, frame = 0): PixelBuffer {
   for (const fx of [3, 8, 13]) p.capsule(S(8), S(15), S(fx), S(27), S(0.8), R.bronze, {});
   p.ellipse(S(8), S(13.5), S(6.5), S(3), R.bronze, { sep: true });
   p.rect(S(1.5), S(11), S(13), S(1.5), R.bronze, { level: 3 });
+  if (!lit) {
+    // cold: a heap of grey ash and dark coals in the bowl
+    p.ellipse(S(8), S(10.6), S(4.4), S(1.6), ramp('#8d8780'), { form: 'flat', level: 2 });
+    for (const [cx, cy] of [
+      [6, 10.3],
+      [9.5, 10.1],
+      [8, 9.6],
+    ])
+      p.ellipse(S(cx), S(cy), S(1.1), S(0.8), ramp('#4a3f3a'), {});
+    return p.toBuffer();
+  }
   const fl = [
     [0, 0],
     [1, -1],
@@ -585,11 +596,14 @@ function buildForum(ctx: SceneCtx): SettingScene {
   const fountain = prop(paintFountain(T, 0).toCanvas(), 16.4, 6.9, 2.4);
 
   const brazierTex = [0, 1, 2].map((f) => pixelTexture(paintBrazier(T, f).toCanvas()));
-  const braziers = [
-    [8.8, 9.6],
-    [17.4, 10.6],
-    [12.9, 6.3],
-  ].map(([x, y]) => {
+  const braziers = (ctx.omit?.includes('braziers')
+    ? []
+    : [
+        [8.8, 9.6],
+        [17.4, 10.6],
+        [12.9, 6.3],
+      ]
+  ).map(([x, y]) => {
     add(glow(lighting, T, Math.round(T * 1.8), '#ffb050', x, y, 1.4, 0.7));
     add(lightPool(lighting, T, x, y + 0.2, 1.8, '#ff9a40', 0.32));
     return prop(brazierTex[0].image as HTMLCanvasElement, x, y, 0.6);
@@ -604,6 +618,25 @@ function buildForum(ctx: SceneCtx): SettingScene {
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 11.2, top: -3.2 },
     clear: mixHex('#86ad52', '#d9c8a0', 0.4),
+    walk: { x0: 1.4, y0: 4.9, x1: 24.6, y1: 23.4 },
+    blocks: [
+      { x: 0, y: 0, w: L.w, h: 4.9 }, // the temple, the basilica and the wall between them
+      { x: 19.7, y: 8.3, w: 3.4, h: 0.9 }, // the arch
+      { x: 2.5, y: 8.9, w: 1.4, h: 0.7 }, // the statue
+      { x: 4.0, y: 12.9, w: 2.8, h: 0.9 }, // the stalls
+      { x: 18.2, y: 13.1, w: 2.8, h: 0.9 },
+      { x: 8.4, y: 13.2, w: 2.0, h: 0.7 }, // the amphorae
+      { x: 15.1, y: 6.0, w: 2.6, h: 0.9 }, // the fountain
+      ...braziers.map((m) => ({ x: m.position.x - 0.3, y: m.position.z / Math.SQRT2 - 0.4, w: 0.6, h: 0.4 })),
+      ...[
+        [1.6, 20.6],
+        [24.2, 21.4],
+        [11.4, 23.6],
+        [6.4, 20.4],
+        [17.6, 20.6],
+        [20.2, 23.4],
+      ].map(([x, y]) => ({ x: x - 0.35, y: y - 0.5, w: 0.7, h: 0.5 })), // tree trunks
+    ],
     spots: { player: { x: 12.3, y: 10.8 }, host: { x: 14.1, y: 10.4 } },
     update(t, camX) {
       swapFrame(fountain, fountainTex[Math.floor(t * 5) % 3]);

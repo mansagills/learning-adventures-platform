@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { PixelBuffer } from '../src/kit/art/pixel';
 import { SETTINGS, WORLD_STYLES, settingById, settingsIn } from '../src/kit/worlds';
-import { ANCIENT_HOST, FORUM_HOST, PLAYER16, STATION_HOST, paintHero, paintPortrait16, size16, type Dir16 } from '../src/kit/worlds/hero16';
+import { ANCIENT_HOST, FORUM_HOST, HAIR16, PLAYER16, STATION_HOST, look16FromAppearance, paintHero, paintPortrait16, size16, type Dir16 } from '../src/kit/worlds/hero16';
+import { paintMarker16 } from '../src/kit/worlds/walker';
+import { DEFAULT_APPEARANCE } from '../src/kit/art/characters';
+import { HAIR_STYLES } from '../src/kit/art/palette';
 import { ramp, toHsl } from '../src/kit/worlds/shade';
 import { paintArch, paintBrazier, paintFountain, paintForumBuildings, paintRomanStall, paintStatue } from '../src/kit/worlds/ancient-kingdoms/forum';
 import { paintStall, paintTorch } from '../src/kit/worlds/ancient-kingdoms/art';
@@ -119,3 +122,25 @@ describe('the 16-bit painter', () => {
     expect(row.w).toBe(26 * T);
   });
 });
+
+describe('playing in a 16-bit world', () => {
+  it('turns any customize choice into a 16-bit player at the standard size', () => {
+    for (const body of ['boy', 'girl'] as const)
+      for (const hs of HAIR_STYLES) {
+        const look = look16FromAppearance({ ...DEFAULT_APPEARANCE, body, hairStyle: hs.id }, { clavi: true });
+        expect(HAIR16).toContain(look.hair.style);
+        const b = paintHero(look, 1.5, 'down', { walk: 1 });
+        expect([b.w, b.h]).toEqual([24, 36]);
+        expect(allHex(b)).toBe(true);
+      }
+  });
+
+  it('paints the talk-to-me markers at the world size', () => {
+    for (const kind of ['new', 'turnin'] as const) {
+      const m = paintMarker16(kind, 1.5);
+      expect([m.w, m.h]).toEqual([23, 29]);
+      expect(painted(m)).toBeGreaterThan(150);
+    }
+  });
+});
+

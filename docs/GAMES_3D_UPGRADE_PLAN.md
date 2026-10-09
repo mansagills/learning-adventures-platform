@@ -711,7 +711,7 @@ Every purchase shows on the stand, and the shop shows the subtraction ("$25.00 �
 
 Unit tests for every station, level and step over 300 random seeds (one correct choice, every wrong choice tagged, blueprint counts match the drawing, area and perimeter checked); a browser test playing title → all four stations → The Big Build → a Rush round; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M6 Fractions: DESIGN PLAN, choices made, awaiting owner approval of the plan (2026-10-08)
+#### M6 Fractions: PLAN APPROVED (2026-10-08), half 1 IN PROGRESS
 
 The first game built in a new world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). The owner placed M6 in **Ancient Kingdoms**, and approved the **Roman forum** setting from the kit (`src/kit/worlds/ancient-kingdoms/forum.ts`), so this game is set there: 24 pixels per tile, 16-bit characters, the forum's day and dusk light.
 
@@ -777,11 +777,20 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 ##### Choices for the owner
 
-**Owner answers (2026-10-08):** the name is **Forum Fraction Feast**; a **walking forum with four jobs**; built in **two halves** (bakery and road first).
+**Owner answers (2026-10-08):** the name is **Forum Fraction Feast**; a **walking forum with four jobs**; built in **two halves** (bakery and road first). **The owner approved the plan as written (2026-10-08)** and asked for the first half.
 
 1. **The name.** Pizza did not exist in ancient Rome, so the game uses Roman loaves and flatbreads. Options: a new name such as "Forum Fraction Feast" (recommended, same link), or keep "Pizza Fraction Frenzy" with the bakery making flatbread "pizzas" (the ancestors of pizza).
 2. **The kind of game.** A walking forum with four jobs and a finale (recommended: it uses the new world, and it gives each fraction skill its own picture), or a bakery shop where customers order fractions and the player earns coins for bakery upgrades (closer to the original Frenzy, but much like Money Market Madness).
 3. **Build in two halves** (recommended for four jobs): the forum, Livia's bakery and Marcus's road first, for a quick look; then Cornelia, Tullia, the finale and Frenzy mode.
+
+##### Half 1: BUILT, waiting for the owner's look (2026-10-09)
+
+- **What is playable:** the title, the character creator (now showing the 16-bit player), Livia's opening, walking the forum (keys, tap-to-walk, the touch pad), **the Bakery** and **Milestone Road** at all three levels with hints, debriefs and stars, two of the four braziers lighting up, Anser the goose, the job list, saving and the grown-ups page. Cornelia's stall, Tullia's mosaic, the Festival Feast and Frenzy mode are half 2.
+- **Not listed on the site yet:** the old Pizza Fraction Frenzy stays on `/games` until the whole game is done. The new one plays at `/games/play/pizza-fraction-frenzy/index.html` (also on the PR's Vercel preview).
+- **New in the kit** (used by this game, available to every 16-bit world): `Walker16` (a walking 16-bit character with markers), `look16FromAppearance`, `Stage.project` / `screenToTile` / smooth follow, the setting's `walk` and `blocks` (what is solid) and `omit`, an unlit brazier, and the customize screen's `paint` and `only` options. Sunny Town games are unaffected (their code paths did not change; all their browser tests were re-run).
+- **Fixed after looking at the screenshots:** the plate under eaten pieces was the same color as the crust (now pale glazed clay with a blue rim and faint lines where each piece was); the counting dots were too small; Livia's white headscarf looked like a chef's hat (now indigo); a phone could see past the top of the sky; the game now opens on a wide shot of the temple and basilica, then pans down to the player.
+- **Tests:** 15 unit tests for the fraction logic (every job and level over 400 seeds, all ten Fraction Pizza Party answers checked again, the classic road mistakes), 3 new kit tests, and the browser test `scripts/e2e-pizza-fraction-frenzy.mjs` (35/35).
+- **Score:** given at the end of half 2, when the finale and Frenzy mode exist.
 
 ##### Checks it will ship with
 

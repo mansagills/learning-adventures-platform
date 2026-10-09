@@ -1,5 +1,6 @@
 import { PixelBuffer } from '../art/pixel';
-import { P } from '../art/palette';
+import type { Appearance } from '../art/characters';
+import { HAIR_COLORS, OUTFIT_COLORS, P, SKIN_TONES } from '../art/palette';
 import { Paint, mixHex, ramp, selout, toHsl, fromHsl, type Ramp } from './shade';
 
 /**
@@ -82,6 +83,35 @@ export const ANCIENT_HOST: Look16 = {
   mudcloth: '#4a2e22',
   beads: ['#f2b53a', '#c9483f'],
 };
+
+/** The hair styles the 16-bit characters can show (the customize screen offers only these). */
+export const HAIR16 = ['short', 'puffs', 'locs'] as const;
+
+/**
+ * The player's look in a 16-bit world, from the same choices as the kit's
+ * customize screen: a tunic (with Roman stripes) or a dress in the outfit
+ * color, bare legs and sandals. Hair styles the 16-bit painter does not have
+ * yet fall back to the nearest one it has.
+ */
+export function look16FromAppearance(a: Appearance, opts: { clavi?: boolean } = {}): Look16 {
+  const skin = (SKIN_TONES.find((s) => s.id === a.skin) ?? SKIN_TONES[1]).base;
+  const hair = (HAIR_COLORS.find((h) => h.id === a.hairColor) ?? HAIR_COLORS[0]).base;
+  const outfit = OUTFIT_COLORS.find((o) => o.id === a.outfit) ?? OUTFIT_COLORS[4];
+  const style: Look16['hair']['style'] = a.hairStyle === 'puffs' || a.hairStyle === 'long' ? 'puffs' : a.hairStyle === 'locs' || a.hairStyle === 'braids' ? 'locs' : 'short';
+  const trim = outfit.id === 'yellow' ? '#2f9a94' : '#f2c94c';
+  const girl = a.body === 'girl';
+  return {
+    build: 'kid',
+    skin,
+    hair: { style, color: hair, tie: style === 'puffs' ? trim : undefined },
+    top: { color: outfit.base, trim, kind: girl ? 'dress' : 'jumpsuit' },
+    legs: skin,
+    shoes: '#8a5a3a',
+    sole: '#c9a074',
+    belt: girl ? undefined : '#7a4a2e',
+    clavi: !girl && opts.clavi ? trim : undefined,
+  };
+}
 
 interface Layout {
   H: number;

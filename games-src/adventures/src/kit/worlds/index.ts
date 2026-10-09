@@ -20,7 +20,8 @@ export { WORLD_STYLES, SUNNY_TOWN, STAR_STATION, ANCIENT_KINGDOMS } from './styl
 export type { Setting, SettingScene, SceneCtx, Spot, TimeOfDay, WorldId, WorldStyle } from './types';
 export { Stage, billboard, glow, groundPiece, lightPool, shadow } from './stage';
 export { Figure, swapFrame } from './figure';
-export { paintHero, paintPortrait16, size16, type Look16, type Dir16, type Mood } from './hero16';
+export { HAIR16, look16FromAppearance, paintHero, paintPortrait16, size16, type Look16, type Dir16, type Mood } from './hero16';
+export { Walker16, paintMarker16, type Marker16 } from './walker';
 
 /** Every setting, by world. Add new settings here (and a test to tests/worlds.test.ts). */
 export const SETTINGS: Setting[] = [STATION_DECK, ALIEN_PLANET, RIVER_MARKET, ROMAN_FORUM];

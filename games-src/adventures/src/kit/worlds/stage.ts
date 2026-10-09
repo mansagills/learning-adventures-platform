@@ -18,6 +18,10 @@ export class Stage {
   scale = 1;
   private offsetX = 0;
   private offsetY = 0;
+  private cssW = 0;
+  private cssH = 0;
+  private readonly ray = new THREE.Raycaster();
+  private readonly groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   private mapW = 40;
   private mapH = 30;
   readonly target = new THREE.Vector2(0, 0);
@@ -46,6 +50,8 @@ export class Stage {
     const dpr = window.devicePixelRatio || 1;
     const cssW = this.host.clientWidth || window.innerWidth;
     const cssH = this.host.clientHeight || window.innerHeight;
+    this.cssW = cssW;
+    this.cssH = cssH;
     const devW = Math.round(cssW * dpr);
     const devH = Math.round(cssH * dpr);
     const k = this.px / 16;
@@ -77,17 +83,44 @@ export class Stage {
     return { w: this.internalW / this.px, h: this.internalH / this.px };
   }
 
-  /** Look at a tile; `keepInside` keeps the view inside the map (off for showing what is above it). */
-  lookAt(tx: number, ty: number, keepInside = true): void {
-    if (!keepInside) {
-      this.target.set(tx, ty);
-      this.apply();
-      return;
+  /**
+   * Look at a tile; `keepInside` keeps the view inside the map (off for
+   * showing what is above it). `smooth` (0-1) eases toward the point instead
+   * of jumping, for following a walking player.
+   */
+  lookAt(tx: number, ty: number, keepInside = true, smooth = 0): void {
+    let x = tx;
+    let y = ty;
+    if (keepInside) {
+      const { w, h } = this.viewTiles;
+      const clamp = (v: number, size: number, view: number) => (view >= size ? size / 2 : Math.min(size - view / 2, Math.max(view / 2, v)));
+      x = clamp(tx, this.mapW, w);
+      y = clamp(ty, this.mapH, h);
     }
-    const { w, h } = this.viewTiles;
-    const clamp = (v: number, size: number, view: number) => (view >= size ? size / 2 : Math.min(size - view / 2, Math.max(view / 2, v)));
-    this.target.set(clamp(tx, this.mapW, w), clamp(ty, this.mapH, h));
+    if (smooth > 0) this.target.set(this.target.x + (x - this.target.x) * smooth, this.target.y + (y - this.target.y) * smooth);
+    else this.target.set(x, y);
     this.apply();
+  }
+
+  /** World position to CSS pixel position inside the host element. */
+  project(v: THREE.Vector3): { x: number; y: number; visible: boolean } {
+    const p = v.clone().project(this.camera);
+    const x = this.offsetX + ((p.x + 1) / 2) * this.canvas.clientWidth;
+    const y = this.offsetY + ((1 - p.y) / 2) * this.canvas.clientHeight;
+    return { x, y, visible: x >= 0 && y >= 0 && x <= this.cssW && y <= this.cssH };
+  }
+
+  /** CSS pixel position (host-relative) to ground tile coordinates. */
+  screenToTile(cx: number, cy: number): { x: number; y: number } | null {
+    const ndc = new THREE.Vector2(((cx - this.offsetX) / this.canvas.clientWidth) * 2 - 1, -(((cy - this.offsetY) / this.canvas.clientHeight) * 2 - 1));
+    this.ray.setFromCamera(ndc, this.camera);
+    const hit = new THREE.Vector3();
+    if (!this.ray.ray.intersectPlane(this.groundPlane, hit)) return null;
+    return { x: hit.x, y: hit.z / K };
+  }
+
+  get hostSize(): { w: number; h: number } {
+    return { w: this.cssW, h: this.cssH };
   }
 
   private apply(): void {
