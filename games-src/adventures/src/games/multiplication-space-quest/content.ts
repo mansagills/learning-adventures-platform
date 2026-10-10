@@ -53,9 +53,9 @@ export const SECTOR_INFO: Record<Sector, SectorInfo> = {
     ],
     again: 'More ships are waiting in the Formations sector. Count them the smart way!',
     debrief: {
-      text: 'I turned a formation of 3 rows of 5 on its side. Now it is 5 rows of 3. Is it still 15 ships?',
+      text: 'I turned 3 rows of 5 ships sideways. Now it is 5 rows of 3. Is it still 15 ships?',
       options: [
-        { text: 'Yes. Same ships, just turned. 5 × 3 = 3 × 5.', correct: true, feedback: 'Yes! Turning a formation does not add or take away a single ship.' },
+        { text: 'Yes. Same ships, just turned. 5 × 3 = 3 × 5.', correct: true, feedback: 'Yes! Turning the ships sideways does not add or take away a single ship.' },
         { text: 'No. Now it is 5 + 3 = 8 ships.', feedback: 'That adds the numbers. 5 rows of 3 is still 3 + 3 + 3 + 3 + 3.', misconception: 'added' },
         { text: 'No. It has more rows now, so more ships.', feedback: 'More rows, but each row is shorter. The same 15 ships, just turned.', misconception: 'turn-changes' },
       ],
@@ -205,7 +205,7 @@ export function mistakeLine(p: Problem, step: number, mis: Misconception): strin
     case 'missing-to-fill':
       return 'That is how many more cans would fill another crate. How many are left over now?';
     case 'backwards-division':
-      return 'Divide the big number by a small one: the total goes first.';
+      return 'Start with the biggest number, then divide it by a small one.';
     case 'division-not-family':
       return 'That division fact is in the family: it undoes the multiplication.';
     case 'repeated-pair':
@@ -228,11 +228,11 @@ export function mistakeLine(p: Problem, step: number, mis: Misconception): strin
       return 'That counts only the ships round the edge. The ships in the middle need rescuing too!';
     case 'turn-changes':
       if (p.sector === 'constellations') return `Turning a times fact round keeps it in the family: ${times(b, a)} is the same as ${times(a, b)}.`;
-      return 'Turning a formation does not add or take away any ships. Is the total the same as before?';
+      return 'Turning the ships sideways does not add or take away any. Is the total the same as before?';
     case 'split-both':
-      return step === 0 ? `Both parts keep all ${a} rows. Only the columns are split.` : `Both parts have ${a} rows. Add the two parts on the banner.`;
+      return step === 0 ? `Count the rows in each part. Both parts have ${a} rows.` : `Both parts have ${a} rows. Add the left part and the right part.`;
     case 'split-forgot':
-      return `The right part is a formation too: ${a} rows of ${b - 5}. Multiply it as well.`;
+      return `The right part has ${a} rows of ${b - 5}. Multiply it too.`;
     case 'zero-keeps':
       return 'Groups of zero, or zero groups, means no ships at all.';
     case 'one-makes-one':
@@ -267,13 +267,13 @@ export function hintText(p: Problem, step: number, rung: number): string {
     case 'groups-count':
       return rung === 1 ? 'How many groups? How many ships in each group?' : `Count by ${b}s, one number for each of the ${a} groups: ${twoCounts(b)}`;
     case 'groups-sentence':
-      return rung === 1 ? 'Which number tells the groups? Which tells how many in each?' : `Groups first: ${a} groups. Then how many in each group. Groups × in each.`;
+      return rung === 1 ? 'How many groups? How many ships in each group?' : `The first number is the groups: ${a}. The second number is how many in each group.`;
     case 'array-count':
       return rung === 1 ? 'How many rows? How many ships in each row?' : `Count by ${b}s down the rows: ${twoCounts(b)} one number for each of the ${a} rows.`;
     case 'array-turn':
-      return rung === 1 ? 'Did any ships fly away when the formation turned?' : `The same ships, just turned. Look at the first total on the banner.`;
+      return rung === 1 ? 'Did any ships fly away when they turned sideways?' : 'The same ships, just turned. Look at the first answer in the question.';
     case 'split':
-      if (step === 0) return rung === 1 ? 'How many rows does each part have?' : `The line splits the columns: 5 on the left, ${b - 5} on the right. Each part keeps all ${a} rows.`;
+      if (step === 0) return rung === 1 ? 'How many rows does each part have?' : `The blue line cuts every row: 5 ships on the left, ${b - 5} on the right. Both parts have ${a} rows.`;
       return rung === 1 ? 'Add the two parts together.' : `Add the tens first, then the ones.`;
     case 'basic': {
       const t = [0, 1, 2, 5, 10].find((x) => x === a || x === b) ?? b;
@@ -288,7 +288,7 @@ export function hintText(p: Problem, step: number, rung: number): string {
       const t = [4, 9, 3].find((x) => x === a || x === b)!;
       const n = other(t);
       if (step === 0) return rung === 1 ? (t === 4 ? 'Think about doubles.' : t === 9 ? 'Think about 10 groups.' : 'Think about a double.') : t === 4 ? '4 groups is 2 groups, and 2 groups again.' : t === 9 ? '9 groups is 10 groups with one group taken away.' : '3 groups is 2 groups and 1 more group.';
-      return rung === 1 ? 'Use the shortcut on the banner.' : t === 4 ? `${2 * n} + ${2 * n}` : t === 9 ? `${10 * n} − ${n}` : `${2 * n} + ${n}`;
+      return rung === 1 ? 'Follow the steps in the question.' : t === 4 ? `${2 * n} + ${2 * n}` : t === 9 ? `${10 * n} − ${n}` : `${2 * n} + ${n}`;
     }
     case 'break-apart': {
       const rest = a - 5;

@@ -220,7 +220,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
         facts: facts([groups, each]),
         steps: [
           {
-            ask: `${groups} groups of ${each} ships. How many ships?`,
+            ask: `${groups} groups. ${each} ships in each group. How many ships in all?`,
             choices: numberChoices(
               r,
               answer,
@@ -246,7 +246,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
       facts: facts([groups, each]),
       steps: [
         {
-          ask: `${groups} groups of ${each} ships. Which times sentence matches?`,
+          ask: `${groups} groups. ${each} ships in each group. Which rock matches the picture?`,
           choices: sentenceChoices(r, times(groups, each), [
             [`${groups} + ${each}`, 'added'],
             [times(groups + 1, each), 'one-group-off'],
@@ -275,7 +275,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
         facts: facts([rows, cols]),
         steps: [
           {
-            ask: `${rows} rows of ${cols} ships. How many ships?`,
+            ask: `${rows} rows. ${cols} ships in each row. How many ships in all?`,
             choices: numberChoices(
               r,
               answer,
@@ -302,7 +302,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
       facts: facts([rows, cols]),
       steps: [
         {
-          ask: `${times(rows, cols)} = ${answer}. Turned on its side, it is ${times(cols, rows)}. How many ships now?`,
+          ask: `The ships turned sideways! ${times(rows, cols)} = ${answer}. So ${times(cols, rows)} = ?`,
           choices: numberChoices(
             r,
             answer,
@@ -312,7 +312,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
             ],
             rows,
           ),
-          explain: `Turning a formation does not add or take away ships. ${times(cols, rows)} = ${times(rows, cols)} = ${answer}.`,
+          explain: `Turning the ships sideways does not add or take away any. ${times(cols, rows)} = ${times(rows, cols)} = ${answer}.`,
         },
       ],
     };
@@ -338,7 +338,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
     facts: facts([rows, cols], [rows, at], [rows, rest]),
     steps: [
       {
-        ask: `Split the ${rows} by ${cols} formation after ${at} columns. Which split matches?`,
+        ask: `The blue line cuts the ships into a left part and a right part. Which rock matches?`,
         choices: sentenceChoices(r, `${times(rows, at)} + ${times(rows, rest)}`, [
           [`${times(rows, at)} + ${times(cols, rest)}`, 'split-both'],
           [`${times(rows, at)} + ${rest}`, 'split-forgot'],
@@ -346,7 +346,7 @@ export function makeFormations(tier: Tier, r: Rand): Problem {
         explain: `Both parts still have ${rows} rows: ${times(rows, at)} on the left and ${times(rows, rest)} on the right.`,
       },
       {
-        ask: `${times(rows, at)} = ${first} and ${times(rows, rest)} = ${second}. How many ships in all?`,
+        ask: `Left part: ${times(rows, at)} = ${first}. Right part: ${times(rows, rest)} = ${second}. How many ships in all?`,
         choices: numberChoices(
           r,
           answer,
@@ -431,7 +431,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
       answer,
       picture: null,
       facts: facts([a, b]),
-      steps: [{ ask: `Charge the engine: ${times(a, b)} = ?`, choices: numberChoices(r, answer, mistakes, Math.max(1, table)), explain }],
+      steps: [{ ask: `${times(a, b)} = ?`, choices: numberChoices(r, answer, mistakes, Math.max(1, table)), explain }],
     };
   }
   if (tier === 2) {
@@ -453,7 +453,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
         facts: facts([a, b], [2, n]),
         steps: [
           {
-            ask: `Shortcut for ${times(a, b)}: which one works?`,
+            ask: `Which rock is a quick way to work out ${times(a, b)}?`,
             choices: sentenceChoices(r, `${n} × 2 × 2`, [
               [`${n} × 2`, 'double-once'],
               [`${n} + 4`, 'added'],
@@ -461,7 +461,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
             explain: `Times 4 is double, then double again: ${n} doubled is ${d}, and ${d} doubled is ${answer}.`,
           },
           {
-            ask: `${n} doubled is ${d}. Double again: ${times(a, b)} = ?`,
+            ask: `Double ${n} is ${d}. Now double ${d}. ${times(a, b)} = ?`,
             choices: numberChoices(
               r,
               answer,
@@ -490,7 +490,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
         facts: facts([a, b], [10, n]),
         steps: [
           {
-            ask: `Shortcut for ${times(a, b)}: which one works?`,
+            ask: `Which rock is a quick way to work out ${times(a, b)}?`,
             choices: sentenceChoices(r, `10 × ${n} − ${n}`, [
               [`10 × ${n} − 1`, 'nine-minus-one'],
               [`10 × ${n} + ${n}`, 'one-group-off'],
@@ -498,7 +498,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
             explain: `Times 9 is ten groups take away one group: 10 × ${n} = ${ten}, and ${ten} − ${n} = ${answer}.`,
           },
           {
-            ask: `10 × ${n} = ${ten}. Take away one group: ${times(a, b)} = ?`,
+            ask: `10 × ${n} = ${ten}. Take away one ${n}. ${times(a, b)} = ?`,
             choices: numberChoices(
               r,
               answer,
@@ -526,7 +526,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
       facts: facts([a, b], [2, n]),
       steps: [
         {
-          ask: `Shortcut for ${times(a, b)}: which one works?`,
+          ask: `Which rock is a quick way to work out ${times(a, b)}?`,
           choices: sentenceChoices(r, `${n} × 2 + ${n}`, [
             [`${n} × 2 + 3`, 'plus-three'],
             [`${n} + 3`, 'added'],
@@ -534,7 +534,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
           explain: `Times 3 is a double and one more group: ${n} doubled is ${d}, and ${d} + ${n} = ${answer}.`,
         },
         {
-          ask: `${n} doubled is ${d}. Add one more ${n}: ${times(a, b)} = ?`,
+          ask: `Double ${n} is ${d}. Add one more ${n}. ${times(a, b)} = ?`,
           choices: numberChoices(
             r,
             answer,
@@ -567,7 +567,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
       facts: facts([10, n]),
       steps: [
         {
-          ask: `Super charge: ${times(a, b)} = ?`,
+          ask: `${times(a, b)} = ?`,
           choices: numberChoices(
             r,
             answer,
@@ -606,7 +606,7 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
     facts: facts([a, b], [5, b]),
     steps: [
       {
-        ask: `Full power: ${times(a, b)} = ?`,
+        ask: `${times(a, b)} = ?`,
         choices: numberChoices(r, answer, mistakes, b),
         explain: `Break it apart: ${times(5, b)} = ${5 * b} and ${times(rest, b)} = ${rest * b}. ${5 * b} + ${rest * b} = ${answer}.`,
       },
@@ -633,7 +633,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
       facts: facts([ships, each]),
       steps: [
         {
-          ask: `${crates} crates shared equally between ${ships} ships. How many on each ship?`,
+          ask: `${ships} ships share ${crates} crates equally. How many crates on each ship?`,
           choices: numberChoices(
             r,
             each,
@@ -667,7 +667,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
         facts: facts([d, q]),
         steps: [
           {
-            ask: `Fill the cargo log: ${x} × ${y} = ${total}. What is the missing number?`,
+            ask: `Find the missing number: ${x} × ${y} = ${total}`,
             choices: numberChoices(
               r,
               q,
@@ -696,7 +696,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
       facts: facts([d, q]),
       steps: [
         {
-          ask: groupsAsk ? `${total} crates, ${d} crates in each ship. How many ships?` : `${total} crates shared by ${d} ships. How many in each ship?`,
+          ask: groupsAsk ? `${total} crates. Each ship carries ${d}. How many ships do we need?` : `${d} ships share ${total} crates equally. How many crates on each ship?`,
           choices: numberChoices(
             r,
             q,
@@ -730,7 +730,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
       facts: facts([per, q]),
       steps: [
         {
-          ask: `${total} crew, ${per} seats in each shuttle. How many shuttles so everyone flies?`,
+          ask: `${total} crew. Each shuttle has ${per} seats. How many shuttles so nobody is left behind?`,
           choices: numberChoices(
             r,
             q + 1,
@@ -757,7 +757,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
       facts: facts([per, q]),
       steps: [
         {
-          ask: `${total} cans of fuel, ${per} cans fill a crate. How many crates are full?`,
+          ask: `${total} fuel cans. ${per} cans fill one crate. How many crates are full?`,
           choices: numberChoices(
             r,
             q,
@@ -783,7 +783,7 @@ export function makeCargo(tier: Tier, r: Rand): Problem {
     facts: facts([per, q]),
     steps: [
       {
-        ask: `${total} cans of fuel go into crates of ${per}. How many cans are left over?`,
+        ask: `${total} fuel cans. ${per} cans fill one crate. How many cans are left over?`,
         choices: numberChoices(
           r,
           rem,
@@ -853,7 +853,7 @@ export function makeConstellations(tier: Tier, r: Rand): Problem {
         facts: facts([a, b]),
         steps: [
           {
-            ask: `The ${a}, ${b}, ${p} family: ${shown.join(', ')}. Which fact finishes it?`,
+            ask: `These facts all use ${a}, ${b} and ${p}: ${shown.join(', ')}. Which fact is missing?`,
             choices: sentenceChoices(r, right, wrong),
             explain: `${a}, ${b} and ${p} make four facts: ${fam.join(', ')}.`,
           },
@@ -878,7 +878,7 @@ export function makeConstellations(tier: Tier, r: Rand): Problem {
       facts: facts([a, b]),
       steps: [
         {
-          ask: `${fam[0]}. Which fact is NOT in this family?`,
+          ask: `Which fact does NOT belong with ${fam[0]}?`,
           choices,
           explain: odd.includes('+') ? `${odd} is an adding fact. The family is ${fam.join(', ')}.` : `${odd} is not true. The family is ${fam.join(', ')}.`,
         },
@@ -910,7 +910,7 @@ export function makeConstellations(tier: Tier, r: Rand): Problem {
       facts: facts(...pairs.filter(([x, y]) => x > 1 && y <= 10).map((q) => q as [number, number])),
       steps: [
         {
-          ask: `Park ${n} ships in a rectangle. Found: ${shown.map(([x, y]) => times(x, y)).join(', ')}. Which way is missing?`,
+          ask: `Ways to park ${n} ships in rows: ${shown.map(([x, y]) => times(x, y)).join(', ')}. Which new way is missing?`,
           choices: sentenceChoices(r, times(right[0], right[1]), [
             [times(turned[1], turned[0]), 'repeated-pair'],
             [fake, 'not-a-factor'],
@@ -937,7 +937,7 @@ export function makeConstellations(tier: Tier, r: Rand): Problem {
       facts: facts([k, m]),
       steps: [
         {
-          ask: `Which number is a factor of ${n}? (It divides ${n} with nothing left over.)`,
+          ask: `Which number is a factor of ${n}? A factor goes into ${n} with nothing left over.`,
           choices: numberChoices(
             r,
             k,
@@ -965,7 +965,7 @@ export function makeConstellations(tier: Tier, r: Rand): Problem {
     facts: [],
     steps: [
       {
-        ask: 'Which number is prime? (A prime has exactly two factors: 1 and itself.)',
+        ask: 'Which number is prime? A prime number can only be made with 1 × itself.',
         choices: numberChoices(
           r,
           p,

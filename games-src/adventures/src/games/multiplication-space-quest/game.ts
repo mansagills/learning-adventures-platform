@@ -118,6 +118,9 @@ interface Flight {
   boss: Boss | null;
 }
 
+/** Keeps each math fact on one line ("2 × ? = 12" never breaks after a sign) by joining it with no-break spaces. */
+const keepFacts = (t: string) => t.replace(/ (?=[×÷=+−])|(?<=[×÷=+−]) /g, '\u00a0');
+
 export class Game {
   private readonly world: DeckWorld;
   private readonly flightScene: FlightScene;
@@ -629,8 +632,8 @@ export class Game {
   }
 
   private setBanner(text: string, note = '', kind: '' | 'good' | 'try' | 'hint' = ''): void {
-    this.bannerText.textContent = text;
-    this.bannerNote.textContent = note;
+    this.bannerText.textContent = keepFacts(text);
+    this.bannerNote.textContent = keepFacts(note);
     this.bannerNote.hidden = !note;
     this.bannerNote.className = `msq-note ${kind}`;
     this.fitFlightTop();
