@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { PixelBuffer } from '../../kit/art/pixel';
 import { mulberry32 } from '../../kit/core/rng';
 import { h } from '../../kit/ui/dom';
-import { paintAnswerRock, paintNebula, paintPebble, paintShip, paintSpark, paintStaticCore, paintSupply, type PaintId } from './art';
+import { paintAnswerRock, paintCrate, paintNebula, paintPebble, paintShip, paintSpark, paintStaticCore, paintSupply, type PaintId } from './art';
 import type { Choice, Picture } from './problems';
 
 /**
@@ -99,6 +99,8 @@ interface Supply {
   lit: boolean;
   hue: number;
   small: boolean;
+  /** A supply crate (Cargo questions) instead of a ship. */
+  crate: boolean;
   /** After lighting up: flying down to join the fleet. */
   leaving: number;
 }
@@ -157,6 +159,8 @@ export class FlightScene {
   private groupRings: THREE.Mesh[] = [];
   private beam: { mesh: THREE.Mesh; t: number; index: number; fired: boolean } | null = null;
   private pendingFire: number | null = null;
+  private pendingZap: { x: number; y: number } | null = null;
+  private coreAt: { x: number; y: number } | null = null;
   private core: Spr | null = null;
   private coreTex: THREE.CanvasTexture[] = [];
   private stars: Array<{ mesh: THREE.Mesh; tex: THREE.CanvasTexture; speed: number }> = [];
@@ -351,13 +355,16 @@ export class FlightScene {
     this.parts = [];
     this.core?.dispose();
     this.core = null;
+    this.coreAt = null;
     if (this.beam) this.scene.remove(this.beam.mesh);
     this.beam = null;
     this.pendingFire = null;
+    this.pendingZap = null;
     this.steerTo = null;
   }
 
-  private clearRocks(): void {
+  /** Takes the answer rocks away (Meteor Run's time is up). */
+  clearRocks(): void {
     this.rocks.forEach((r) => {
       r.s.dispose();
       r.label.remove();
@@ -412,9 +419,39 @@ export class FlightScene {
     const put = (x: number, y: number, hue: number) => {
       const s = new Spr(this.cached(`supply-gray-${small}`, () => paintSupply(false, 0, small)), 0.4);
       this.scene.add(s.mesh);
-      this.supplies.push({ s, x, y, lit: false, hue, small, leaving: 0 });
+      this.supplies.push({ s, x, y, lit: false, hue, small, crate: false, leaving: 0 });
       s.at(x, y + this.H * 0.5);
     };
+    if (pic.kind === 'crates') {
+      // crates in rows of ten (a gap after five, like a ten-frame), and empty ships to share them into
+      const ringH = pic.rings ? 30 : 0;
+      const rows = Math.ceil(pic.crates / 10);
+      const c = Math.max(11, Math.min(18, Math.floor((cw - 16) / 10.6), Math.floor((top - bottom - ringH) / rows)));
+      const smallCrate = c < 17;
+      const w = 10 * c + 6;
+      const yTop = Math.min(top, bottom + ringH + rows * c + Math.floor((top - bottom - ringH - rows * c) / 2));
+      for (let i = 0; i < pic.crates; i++) {
+        const k = i % 10;
+        const row = Math.floor(i / 10);
+        const s = new Spr(this.cached(`crate-false-${smallCrate}`, () => paintCrate(false, smallCrate)), 0.4);
+        this.scene.add(s.mesh);
+        const x = cx - w / 2 + c * (k + 0.5) + (k >= 5 ? 6 : 0);
+        const y = yTop - c * (row + 0.5);
+        this.supplies.push({ s, x, y, lit: false, hue: 0, small: smallCrate, crate: true, leaving: 0 });
+        s.at(x, y + this.H * 0.5);
+      }
+      if (pic.rings) {
+        const rw = Math.min(40, Math.floor((cw - 12) / pic.rings) - 6);
+        const y = yTop - rows * c - ringH / 2 - 2;
+        for (let g = 0; g < pic.rings; g++) {
+          const x = cx + (g - (pic.rings - 1) / 2) * (rw + 6);
+          this.groupRings.push(this.ring(x, y, rw, 22));
+          small = true;
+          put(x, y, g % 5);
+        }
+      }
+      return;
+    }
     if (pic.kind === 'array' || pic.kind === 'split') {
       const gap = pic.kind === 'split' ? 8 : 0;
       const c = Math.max(12, Math.min(22, Math.floor((cw - 12 - gap) / pic.cols), Math.floor((top - bottom) / pic.rows)));
@@ -484,9 +521,13 @@ export class FlightScene {
     return m;
   }
 
+  private litTex(s: Supply): THREE.CanvasTexture {
+    return s.crate ? this.cached(`crate-true-${s.small}`, () => paintCrate(true, s.small)) : this.cached(`supply-lit-${s.hue}-${s.small}`, () => paintSupply(true, s.hue, s.small));
+  }
+
   /** Light the stranded ships in two colors (rung 2 of the hint for a split formation, or to show the groups). */
   tintPicture(): void {
-    for (const s of this.supplies) s.s.setTex(this.cached(`supply-lit-${s.hue}-${s.small}`, () => paintSupply(true, s.hue, s.small)));
+    for (const s of this.supplies) s.s.setTex(this.litTex(s));
   }
 
   /** The beam hit the right rock: it bursts, the stranded ships light up and fly down to join the fleet. */
@@ -501,7 +542,7 @@ export class FlightScene {
     if (!keepPicture) {
       this.supplies.forEach((s, i) => {
         s.lit = true;
-        s.s.setTex(this.cached(`supply-lit-${s.hue}-${s.small}`, () => paintSupply(true, s.hue, s.small)));
+        s.s.setTex(this.litTex(s));
         s.leaving = 0.6 + i * 0.012;
       });
       this.groupRings.forEach((m) => this.scene.remove(m));
@@ -531,6 +572,44 @@ export class FlightScene {
   /** Rung 3 of the hint: outline the right rock. */
   outline(index: number): void {
     this.rocks[index]?.label.classList.add('worked');
+  }
+
+  /** Slide under a point (field pixels) and beam it: the Bingo shield's squares. */
+  zap(x: number, y: number): void {
+    if (!this.running || this.paused || this.beam) return;
+    this.pendingFire = null;
+    this.pendingZap = { x, y };
+    this.steer(x);
+  }
+
+  /** Field position of a CSS point in the host. */
+  fromCss(cssX: number, cssY: number): { x: number; y: number } {
+    return { x: (cssX * this.dpr) / this.scale, y: this.H - (cssY * this.dpr) / this.scale };
+  }
+
+  /** Show the Static core big, behind the Bingo shield, centred on a field point (or hide it). */
+  showCore(at: { x: number; y: number } | null): void {
+    if (!at) {
+      this.core?.dispose();
+      this.core = null;
+      this.coreAt = null;
+      return;
+    }
+    if (!this.core) {
+      this.core = new Spr(this.coreTex[0], 0.2);
+      this.scene.add(this.core.mesh);
+    }
+    this.coreAt = at;
+  }
+
+  /** The Bingo shield breaks: a big burst where the core was. */
+  breakCore(): void {
+    if (!this.core) return;
+    this.burst(this.core.x, this.core.y, ['#e1dcff', '#a59fcf', '#ffffff', '#7ff0ff', '#ffd36a'], 80);
+    this.core.dispose();
+    this.core = null;
+    this.coreAt = null;
+    this.shake = this.reducedMotion ? 0 : 0.5;
   }
 
   /** Slide under rock `i` and fire the charge beam at it. */
@@ -626,6 +705,16 @@ export class FlightScene {
         this.scene.add(mesh);
         this.beam = { mesh, t: 0, index: i, fired: false };
       }
+    }
+    if (this.pendingZap && this.steerTo === null && !this.beam && !this.paused) {
+      const { y } = this.pendingZap;
+      this.pendingZap = null;
+      const len = Math.max(4, y - (this.shipY + 18));
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(5, len), new THREE.MeshBasicMaterial({ color: '#bff6ff', transparent: true, opacity: 0.95 }));
+      mesh.position.set(Math.round(this.shipX) + 0.5, this.shipY + 18 + len / 2, 1.5);
+      this.scene.add(mesh);
+      this.beam = { mesh, t: 0, index: -1, fired: true };
+      this.burst(this.shipX, y, ['#7ff0ff', '#ffffff'], 10);
     }
     if (this.beam) {
       this.beam.t += realDt;
@@ -731,7 +820,10 @@ export class FlightScene {
     }
     if (arrivedNow && this.rocksReady) this.onEvent?.({ type: 'arrived' });
     this.layoutRocks();
-    if (this.core) {
+    if (this.core && this.coreAt) {
+      this.core.setTex(this.coreTex[Math.floor(this.time * 3) % 2]);
+      this.core.at(this.coreAt.x, this.coreAt.y + (this.reducedMotion ? 0 : Math.round(Math.sin(this.time) * 2)));
+    } else if (this.core) {
       this.core.setTex(this.coreTex[Math.floor(this.time * 3) % 2]);
       // the core sits behind the row of answer rocks (they are pieces of it)
       this.core.at((this.x0 + this.x1) / 2, this.H * ROCK_Y + (this.reducedMotion ? 0 : Math.round(Math.sin(this.time) * 2)));

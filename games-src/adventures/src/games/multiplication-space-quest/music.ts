@@ -45,3 +45,24 @@ export const CLEAR_SONG: Song = {
   lead: 'triangle',
   drums: true,
 };
+
+/** The Bingo Boss: the heart of the Static. Driving, a little tense (D minor), still friendly. */
+export const BOSS_SONG: Song = {
+  bpm: 140,
+  chords: [
+    [50, 53, 57],
+    [46, 50, 53],
+    [48, 52, 55],
+    [45, 49, 52],
+  ],
+  bass: [38, 34, 36, 33],
+  // prettier-ignore
+  melody: [
+    74, 77, 81, null, 77, 74, 77, null,
+    70, 74, 77, null, 74, 70, 74, null,
+    72, 76, 79, null, 76, 72, 79, 81,
+    73, null, 76, null, 79, null, 81, null,
+  ],
+  lead: 'square',
+  drums: true,
+};

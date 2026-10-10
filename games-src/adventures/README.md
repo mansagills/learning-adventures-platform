@@ -42,8 +42,8 @@ node scripts/e2e-geometry-builder-challenge.mjs   # Shape Town Builders: all fou
 node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screenshots: all four jobs at levels 1-3 with a miss and hints, Rush, The Big Build and the opening
 node scripts/e2e-pizza-fraction-frenzy.mjs   # Forum Fraction Feast: all four jobs (walking, the job list), misses, hints, debriefs, the Festival Feast and finale, a Frenzy round, Anser, saving, phone (51 checks)
 node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast screenshots: the forum, all four jobs at levels 1-3 with a miss and hints, the feast and Frenzy
-node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest (half 1): the deck, a whole Formations flight (keys, Space, clicks, a miss, hints), the sector cleared, an Engines two-step question, the tow beam, upgrades, the Star Map, saving, phone (41 checks)
-node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, both sectors at levels 1-3 with a miss and hints, the Static core, upgrades and the Star Map
+node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest: the deck, a whole Formations flight (keys, Space, clicks, a miss, hints), the sector cleared, an Engines two-step question, the tow beam, upgrades, the Star Map, saving, Cargo, Constellations, the Bingo Boss, the landing, Meteor Run, phone (66 checks)
+node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -386,10 +386,11 @@ and the customize screen's 16-bit preview (`paint` and `only` options).
 | Grown-ups | G | Settings → For grown-ups |
 
 
-## Multiplication Space Quest (Math batch M7, grades 3–5): half 1
+## Multiplication Space Quest (Math batch M7, grades 3–5)
 
 The multiplication game (slug `multiplication-space-quest`; Multiplication
-Bingo Bonanza and Multiplication Tables Adventure will be merged in). It is the
+Bingo Bonanza and Multiplication Tables Adventure are merged in; their old
+links redirect here). It is the
 **first game in Star Station** and the first **space shooter**. The owner chose
 a vertical shooter with friendly targets. The station deck (the kit's
 `station-deck` setting) is home base, and the flight is its own scene
@@ -397,7 +398,7 @@ a vertical shooter with friendly targets. The station deck (the kit's
 Static, has stranded a fleet of supply ships; each flight clears part of it.
 
 - **On the deck:** Commander Ayo (host), Pilot Mei (Formations), Engineer Rafi
-  (Engines and the upgrade bay), Quartermaster Dot (Cargo, half 2), Navigator
+  (Engines, the upgrade bay and Meteor Run), Quartermaster Dot (Cargo), Navigator
   Sol (the Star Map) and Blip the alien. The player's ship sits on the docking
   ring.
 - **In flight:** the blaster fires by itself at small gray pebbles (bumps cost
@@ -413,8 +414,19 @@ Static, has stranded a fleet of supply ships; each flight clears part of it.
   answered right the first time.
 - **Upgrades** (stardust from pebbles and answers): twin blaster, rapid fire,
   two extra shields, thrusters, paint jobs. They never change the math.
-- **Half 2:** Cargo (division and leftovers), Constellations (fact families and
-  factors), Bingo Boss, the landing on the alien planet and Meteor Run.
+- **Cargo** (grades 3–4): sharing and grouping with crates, the missing
+  factor, then word problems with a remainder (round up, full crates, left
+  over). **Constellations** (grades 3–4): fact families, factor pairs, "is it
+  a factor?", and primes.
+- **The Bingo Boss** (once all four sectors are clear, at the night shift): a
+  5 × 5 card; Blip calls a fact and the player beams the square with its
+  answer. Every call's answer is on the card (`makeBingoCall` only picks
+  unmarked card values). Five in a row wins.
+- **The landing** (`landing.ts`): the kit's `alien-planet` setting at evening,
+  with the player's ship on the pad, the rescued fleet parked, and the crew
+  and Blip at the party. Then back to the deck at night.
+- **Meteor Run** (from Rafi, after Engines): 60 seconds of quick facts, mostly
+  ones not yet lit on the Star Map. The only timed part.
 
 Code: `src/games/multiplication-space-quest/`. The deck uses `Walker16` and the
 deck's `walk` and `blocks`, with `Stage.maxTilesTall` so a tall phone never
@@ -427,6 +439,7 @@ sees past the deck. The flight picks its own whole-number pixel scale (about
 | Talk, launch | Space | Tap a person or the ship |
 | Steer in flight | Arrow keys or A and D | Drag |
 | Beam a rock | Space (under it) or 1–3 | Click or tap the rock |
+| Bingo square | Arrow keys, then Space | Click or tap the square |
 | Hint (pauses the flight) | H | The light bulb |
 | Pause | Esc | Pause |
 | Missions | J | Missions |

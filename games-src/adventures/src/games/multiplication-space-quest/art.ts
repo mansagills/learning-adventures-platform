@@ -95,6 +95,21 @@ export function paintSupply(lit: boolean, hue = 0, small = false): PixelBuffer {
   return p.toBuffer();
 }
 
+/** A supply crate (for the Cargo questions): gray and dim in the Static, or glowing once delivered. 15 x 15 pixels (10 x 10 when `small`). */
+export function paintCrate(lit: boolean, small = false): PixelBuffer {
+  const k = small ? 1 : U;
+  const Z = (v: number) => Math.round(v * k);
+  const p = new Paint(Z(10), Z(10));
+  const body = ramp(lit ? '#ef8a3c' : '#9a8f86');
+  const band = ramp(lit ? '#ffcf6a' : '#6c6560');
+  p.rect(0, Z(1), Z(10), Z(9), body, { level: 2, sep: true });
+  p.rect(0, 0, Z(10), Z(2), body, { level: 3 });
+  p.rect(0, Z(4.5), Z(10), Math.max(1, Z(1.2)), band, { level: 2 });
+  p.rect(Z(4.2), Z(1), Math.max(1, Z(1.6)), Z(9), band, { level: 3 });
+  if (lit) p.pix(Z(1.5), Z(2.5), '#fff4d0');
+  return p.toBuffer();
+}
+
 /** A Static pebble: a fuzzy gray space rock that crackles (2 frames, 3 shapes). */
 export function paintPebble(shape = 0, frame = 0): PixelBuffer {
   const size = [10, 13, 8][shape % 3];
@@ -429,4 +444,12 @@ export function paintMapStar(lit: boolean): PixelBuffer {
   for (let i = 1; i < 7; i++) b.px[i * 8 + 3] = b.px[i * 8 + 4] = c;
   b.px[3 * 8 + 3] = b.px[4 * 8 + 4] = '#ffffff';
   return b;
+}
+
+/** The Static core as a 16 x 16 icon (the Bingo Boss in the mission list). */
+export function paintStaticCoreIcon(): PixelBuffer {
+  const p = new Paint(16, 16);
+  p.ellipse(8, 8.5, 7, 6, ramp('#6b6884'), { sep: true });
+  for (let y = 0; y < 3; y++) for (let x = 0; x < 3; x++) p.rect(4 + x * 3, 5 + y * 3, 2, 2, ramp((x + y) % 2 ? '#ffd36a' : '#7ff0ff'), { level: 3 });
+  return p.toBuffer();
 }

@@ -160,6 +160,8 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings 
 
 ## 9. Handoff for the next session
 
+**Update (2026-10-10):** M7's first game, Multiplication Space Quest, is built in the Star Station world (draft PR #224): a vertical space shooter with the station deck as home base and a landing at the outpost on the alien planet for the finale. Half 1 is owner-approved; half 2 waits for the owner's look. Equation Balance Scale (on the alien planet) follows in its own PR.
+
 **Update (2026-10-09, later):** M6 is COMPLETED ✅: the owner approved Forum Fraction Feast and merged PR #220. Next: M7 in Star Station, plan first. **Start with `docs/M7_STAR_STATION_HANDOFF.md`**; it has the steps, the open questions for the owner and the prompt for the next session.
 
 **Update (2026-10-09):** W2 started. M6 is Forum Fraction Feast in the Roman forum (plan approved); its first half is built and waits for the owner (see the M6 section of `docs/GAMES_3D_UPGRADE_PLAN.md`). The kit gained what a walking 16-bit game needs (`Walker16`, solid footprints in settings, tap-to-walk on the world camera).

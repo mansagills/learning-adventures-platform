@@ -28,11 +28,19 @@ export interface QuestSave {
   /** Star Map facts answered right first time ("3x7"). */
   starMap: string[];
   flights: number;
+  /** Ayo's "all four sectors are clear" call to the Bingo Boss. */
+  bossCalled: boolean;
+  /** The Bingo Boss is beaten and the fleet has landed on the planet. */
+  bossSeen: boolean;
+  /** Fewest calls to a Bingo (0: none yet). */
+  bingoBest: number;
+  /** Best Meteor Run (right answers in 60 seconds). */
+  best: number;
   learner: LearnerState;
   seed: number;
 }
 
-const zeroes = (): Record<Sector, number> => ({ formations: 0, engines: 0 });
+const zeroes = (): Record<Sector, number> => ({ formations: 0, engines: 0, cargo: 0, constellations: 0 });
 const UPGRADE_IDS: UpgradeId[] = ['twin', 'rapid', 'shield1', 'shield2', 'thrusters'];
 
 export function freshSave(): QuestSave {
@@ -52,6 +60,10 @@ export function freshSave(): QuestSave {
     paint: 'teal',
     starMap: [],
     flights: 0,
+    bossCalled: false,
+    bossSeen: false,
+    bingoBest: 0,
+    best: 0,
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
   };
@@ -102,6 +114,10 @@ export function cleanSave(raw: unknown): QuestSave {
     paint,
     starMap: Array.isArray(r.starMap) ? [...new Set((r.starMap as unknown[]).filter((x): x is string => typeof x === 'string' && FACT.test(x)))] : [],
     flights: int(r.flights, 99999, 0),
+    bossCalled: r.bossCalled === true,
+    bossSeen: r.bossSeen === true,
+    bingoBest: int(r.bingoBest, 24, 0),
+    best: int(r.best, 999, 0),
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,
   };

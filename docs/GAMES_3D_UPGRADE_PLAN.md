@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Space Quest half 1 built, waiting for the owner's look)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest built, waiting for the owner's look; Equation Balance Scale next)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -986,7 +986,7 @@ Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical s
 2. **What the player fires at:** gray Static rocks that burst into sparkles while stranded ships are rescued (recommended, friendly like Library Rush), or classic asteroids and alien drones.
 3. **Halves:** half 1 is the deck (home base), the flight scene, the Formations and Engines sectors, upgrades and saving; half 2 is Cargo, Constellations, Bingo Boss, the landing on the planet and Meteor Run. Equation Balance Scale follows in its own PR, still on the alien planet.
 
-##### Space Quest half 1: BUILT (2026-10-09), waiting for the owner's look
+##### Space Quest half 1: COMPLETED ✅ (the owner played it on the PR preview and said it plays well, 2026-10-10)
 
 - **What is playable:**
   - the title and the character creator (16-bit player)
@@ -1006,8 +1006,7 @@ Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical s
   - Rafi's upgrade bay (twin blaster, rapid fire, two extra shields, thrusters, four paint jobs, paid with stardust)
   - Sol's Star Map (55 facts)
   - the mission list (J), saving and the grown-ups page with its progress table
-- **Half 2:** Quartermaster Dot (Cargo), the Constellations sector, Bingo Boss, the landing on the alien planet and Meteor Run. Dot and Sol already stand on the deck: Dot says the crates are still being loaded, and Sol shows the Star Map.
-- **Not listed on the site yet:** the old Multiplication Space Quest stays on `/games` until the whole game is done. The new one plays at `/games/play/multiplication-space-quest/index.html` (also on the PR's Vercel preview).
+- **Half 2:** Quartermaster Dot (Cargo), the Constellations sector, Bingo Boss, the landing on the alien planet and Meteor Run (built, see below).
 - **New in the kit:**
   - the station deck now has `walk` and `blocks` (each prop's footprint, worked out from its picture) and can leave out its drone (`omit: ['drone']`)
   - the world camera can cap how many rows show top to bottom (`Stage.maxTilesTall`, off unless a game sets it), so a tall phone never sees past the deck
@@ -1035,6 +1034,40 @@ Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical s
   - the small gray ships in a 9-row formation are only 12 pixels wide
   - steering by dragging on a phone was checked by hand in the code, not by the browser test (the test taps the rocks)
   - the debrief questions have no picture
+
+##### Space Quest half 2: BUILT (2026-10-10), waiting for the owner's look
+
+- **Cargo with Quartermaster Dot** (grades 3–4, division as sharing and grouping):
+  - level 1: share crates equally ("24 crates shared between 4 ships"), and the missing factor (4 × ? = 24)
+  - level 2: how many groups ("30 crates, 5 to a ship: how many ships?")
+  - level 3: two-step word problems with a remainder: round up ("27 crew, 4 seats to a shuttle: how many shuttles?"), how many full crates, and how many left over
+  - the crates fly in as the picture: rows of 10 with a gap after 5, and on level 1 the empty docking rings of the ships they are shared between
+  - mistakes named: subtracting or multiplying instead of dividing, swapping the numbers, ignoring the left-over, giving the remainder as the answer, rounding when you should not, and giving the number of groups when the question asks for what is left
+- **Constellations with Navigator Sol** (grades 3–4, fact families and factors):
+  - level 1: the missing fact of a family (whole facts on the rocks, like "18 ÷ 9 = 2"), and the fact that is not in the family
+  - level 2: missing factor pairs, and "is 6 a factor of 42?"
+  - level 3: primes (which number has exactly two factors)
+  - mistakes named: dividing the small number by the big one (4 ÷ 12), not seeing division as part of the family, counting a turned pair (12 × 2 after 2 × 12) as a new pair, picking a number that does not divide evenly, mixing up factors and multiples, thinking every odd number is prime, and thinking 1 is prime
+- **The Bingo Boss** (Bingo Bonanza merged in): when all four sectors are clear, the night shift starts and Commander Ayo calls the player. The Static's last shield is a 5 × 5 Bingo card (a free middle, 8 small numbers and 16 products). Blip calls a fact ("7 × 6" or "42 ÷ 7"); the player beams the square with its answer (a click, a tap, or the arrow keys and Space). **Every call's answer is on the card**, which fixes the old game's bug where about 55% of calls had no answer. A wrong square shakes and says what went wrong. Three hints in the banner, so the card stays in view; the third outlines the square in gold. Five in a row breaks the shield. The number of calls it took is saved as the best Bingo, and Ayo offers a rematch.
+- **The landing on the alien planet:** the whole fleet flies down to the outpost for the night-shift party. The player's ship sits on the landing pad, the rescued supply ships park in rows with their lights on, and the crew and Blip gather in front of the outpost while Ayo and Blip talk. Then back to the deck, which stays at night. The game tells the site player it is complete ("Nice work!").
+- **Meteor Run** (Tables Adventure's speed practice), from Rafi once the Engines sector is clear: 60 seconds of quick facts, three out of four from facts not yet lit on the Star Map. The only timed part of the game. When time is up the rocks clear and Rafi gives the score; the best is saved.
+- **Site:** listed at `/games/multiplication-space-quest` (grades 3–5, 30–45 min) with a new description and card picture (the station deck). `/games/multiplication-bingo-bonanza` and `/games/multiplication-tables-adventure` redirect to it, and their listings are gone. No ebook lists them as companions. The old HTML files stay until the Phase 4 cleanup, as for M6.
+- **Grown-ups page:** four sectors in the progress table, the Bingo and Meteor Run in "what it teaches", and the standards 3.OA.2, 3.OA.4, 3.OA.6, 4.OA.3 and 4.OA.4 added.
+- **No kit changes in half 2.** The landing uses the alien planet setting as it is, with `Stage.maxTilesTall` from half 1. The Sunny Town games and Forum Fraction Feast are byte-for-byte unchanged by half 2.
+- **Fixed after looking at the screenshots:**
+  - when Meteor Run's time ran out, a new question and its rocks still showed behind Rafi's message (now cleared, with "Time!" in the banner)
+  - on the Bingo card, the keyboard cursor and the hint's answer were both outlined in gold (the cursor is now white)
+- **Tests:**
+  - 15 unit tests (5 new) over thousands of questions: every Cargo and Constellations answer worked out again from the numbers; every wrong choice computed from its mistake; a missing factor pair is never a square shown as "turned"; every Bingo call over 300 seeds per level has its answer on the card and unmarked; every Meteor Run fact is right.
+  - The browser test `scripts/e2e-multiplication-space-quest.mjs` (66/66, 25 new) adds: a Cargo flight with crates, a Constellations flight with whole facts on the rocks, the night shift, the Bingo Boss (the card, a call on the card, a wrong square, three hints, marking squares to Bingo), the landing on the planet, back on the deck with the Boss beaten, Meteor Run (the clock runs, a right answer scores, time up clears the rocks, the best is saved), the mission list with nothing locked, four rows on the grown-ups page, and on a phone the whole Bingo card on screen with squares big enough to tap.
+  - The flight runs at 53 frames a second on the test machine's software rendering.
+  - `scripts/msq-tour.mjs` takes 70 screenshots at 1280×720 and 390×844 (every sector and level: question, wrong, hint, right; the boss; the landing; Meteor Run), all reviewed by eye.
+- **Score: 9.1/10** (gameplay 2.2, learning 1.95, look and sound 1.35, ease of use 1.35, reliability 1.4, completeness 0.85). It loses points on:
+  - the Constellations questions have no picture in flight (the top of the screen is empty), like Engines
+  - the landing is a still scene with dialogue, not an animation of the fleet flying down
+  - the debrief questions have no picture
+  - the Bingo Boss is played on a card over the flight, so it feels less like a shooter than the sectors
+  - Equation Balance Scale is still to come (its own PR)
 
 ##### Kit work for half 2 (after approval)
 
@@ -1126,3 +1159,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.
+- **2026-10-10:** The owner played half 1 on the preview ("it plays well") and asked for half 2. Space Quest half 2 built: Cargo with Quartermaster Dot, Constellations with Navigator Sol, the Bingo Boss at the night shift (every call's answer on the card), the landing on the alien planet, and Meteor Run. The site now lists the new game, and Bingo Bonanza and Tables Adventure redirect to it. 9.1/10, 15 unit tests and 66/66 browser checks. Waiting for the owner's look; Equation Balance Scale comes next in its own PR.

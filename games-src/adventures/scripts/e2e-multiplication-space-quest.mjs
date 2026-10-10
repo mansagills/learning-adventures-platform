@@ -1,11 +1,14 @@
-// Browser check for Multiplication Space Quest (half 1): plays a new game
+// Browser check for Multiplication Space Quest: plays a new game
 // from the title screen with real clicks and keys. It walks the station deck
 // to Pilot Mei, flies the Formations mission (steering with the arrow keys and
 // beaming with Space, keys 1-3 and mouse clicks; a wrong rock, the hints that
 // pause the flight), clears the sector and its debrief, flies the Engines
 // mission with its two-step shortcut questions, gets towed home when the
 // shield runs out, buys an upgrade and a paint job, opens the Star Map, the
-// mission list and the grown-ups report, reloads, and checks the phone layout.
+// mission list and the grown-ups report, and reloads. Then half 2: the
+// Cargo and Constellations flights, the Bingo Boss (a wrong square, a hint,
+// marking squares until Bingo), the landing on the alien planet, Meteor Run
+// against the clock, and finally the phone layout (a flight and the Bingo card).
 //
 //   npm run build && (cd ../../public/games/play && python3 -m http.server 8811 &)
 //   node scripts/e2e-multiplication-space-quest.mjs [url]
@@ -242,7 +245,7 @@ try {
   // the mission list and the Star Map
   await page.keyboard.press('j');
   await wait(page, 300);
-  check('J opens the missions, with Cargo and Constellations still to come', (await page.locator('.belt-row.soon').count()) === 2);
+  check('J opens the missions: four sectors, with the Bingo Boss and Meteor Run still locked', (await page.locator('.belt-row').count()) === 6 && (await page.locator('.belt-row.soon').count()) === 2);
   await page.getByRole('button', { name: 'The Star Map' }).click();
   await wait(page, 300);
   const lit = await page.locator('.msq-map-cell.lit').count();
@@ -257,7 +260,7 @@ try {
   await page.getByRole('tab', { name: /how it is going/i }).click();
   await wait(page, 200);
   const rows = await page.locator('.progress-table tbody tr').count();
-  check('grown-ups report has a row per sector', rows === 2, String(rows));
+  check('grown-ups report has a row per sector', rows === 4, String(rows));
   await page.screenshot({ path: `${OUT}/11-grownups.png` });
   await page.keyboard.press('Escape');
   await wait(page, 300);
@@ -296,6 +299,105 @@ try {
   s = await st(page);
   check('a saved game continues with the sector, upgrade and paint', s.done.includes('formations') && s.upgrades.includes('twin') && s.paint !== 'teal' && s.starMap >= 1);
 
+  // ---- half 2: Cargo with Quartermaster Dot (sharing and grouping, with crates)
+  await page.evaluate(() => window.__msq.launch('cargo'));
+  await wait(page, 400);
+  await talkThrough(page);
+  check('the Cargo flight starts', await ready(page));
+  s = await st(page);
+  check('Cargo asks a division question', s.flight.sector === 'cargo' && ['share', 'missing-factor', 'how-many-groups'].includes(s.flight.kind), `${s.flight.sector} ${s.flight.kind}`);
+  check('Cargo shows the crates', (await info(page)).supplies > 0);
+  await page.screenshot({ path: `${OUT}/20-cargo.png` });
+  let cargoStars = s.stars.cargo;
+  await page.keyboard.press(String(s.flight.right + 1));
+  await answered(page, s.flight);
+  s = await st(page);
+  check('a right Cargo answer wins a star', s.stars.cargo === cargoStars + 1, String(s.stars.cargo));
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.getByRole('button', { name: /fly home/i }).click();
+  await wait(page, 600);
+  await talkThrough(page);
+
+  // Constellations with Navigator Sol (fact families, factors, primes)
+  await page.evaluate(() => window.__msq.launch('constellations'));
+  await wait(page, 400);
+  await talkThrough(page);
+  check('the Constellations flight starts', await ready(page));
+  s = await st(page);
+  check('Constellations asks a fact-family question', s.flight.sector === 'constellations' && ['family-missing', 'odd-fact'].includes(s.flight.kind), `${s.flight.sector} ${s.flight.kind}`);
+  const labels = await page.locator('.msq-rock').allInnerTexts();
+  check('its rocks show whole facts', labels.some((t) => /[×÷]/.test(t)), labels.join(' | '));
+  await page.screenshot({ path: `${OUT}/21-constellations.png` });
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.getByRole('button', { name: /fly home/i }).click();
+  await wait(page, 600);
+  await talkThrough(page);
+
+  // the finale: all four sectors clear, the night shift starts, Ayo calls the Bingo Boss
+  await page.evaluate(() => window.__msq.finishAll());
+  await wait(page, 300);
+  s = await st(page);
+  check('with all four sectors clear the night shift starts', s.bossCalled && s.night > 0, String(s.night));
+  await page.evaluate(() => window.__msq.boss());
+  await wait(page, 400);
+  await talkThrough(page);
+  check('the Bingo Boss shows a 5 by 5 card with a free middle', await waitFor(page, async () => (await page.locator('.msq-square').count()) === 25 && (await page.locator('.msq-square.free').count()) === 1, 6000));
+  s = await st(page);
+  check('Blip calls a fact whose answer is on the card', s.flight.boss.rightIndex >= 0 && s.flight.boss.rightIndex !== 12, `${s.flight.boss.call} -> ${s.flight.boss.answer}`);
+  const wrongSq = [0, 1, 2, 3, 4, 5].find((i) => i !== s.flight.boss.rightIndex);
+  await page.locator(`.msq-square[data-index="${wrongSq}"]`).click();
+  await wait(page, 500);
+  const s2 = await st(page);
+  check('a wrong square is not marked and says why', s2.flight.boss.marked === s.flight.boss.marked && (await page.locator('.msq-note').innerText()).length > 10);
+  await page.keyboard.press('h');
+  await wait(page, 300);
+  check('H gives a Bingo hint in the banner (the card stays in view)', (await page.locator('.msq-note.hint').innerText()).startsWith('Hint 1 of 3'));
+  await page.keyboard.press('h');
+  await page.keyboard.press('h');
+  await wait(page, 300);
+  check('the third hint outlines the right square', (await page.locator('.msq-square.worked').count()) === 1);
+  await page.screenshot({ path: `${OUT}/22-boss-hint.png` });
+  for (let i = 0; i < 26; i++) {
+    const b = await st(page);
+    if (!b.flight || !b.flight.boss || b.flight.boss.won) break;
+    await page.evaluate(() => window.__msq.pickRight());
+    await wait(page, 1300);
+  }
+  s = await st(page);
+  check('marking the right squares makes a Bingo', (s.flight && s.flight.boss && s.flight.boss.won) || s.mode === 'landing', s.mode);
+  await page.screenshot({ path: `${OUT}/23-bingo.png` });
+  check('the fleet lands on the alien planet', await waitFor(page, async () => (await st(page)).mode === 'landing', 10000));
+  await wait(page, 1000);
+  await page.screenshot({ path: `${OUT}/24-landing.png` });
+  await talkThrough(page);
+  s = await st(page);
+  check('after the party the game is back on the deck, with the Boss beaten', s.mode === 'deck' && s.bossSeen && s.bingoBest > 0, JSON.stringify({ mode: s.mode, bossSeen: s.bossSeen, bingoBest: s.bingoBest }));
+
+  // Meteor Run: 60 seconds of quick facts with Engineer Rafi
+  await page.evaluate(() => window.__msq.meteor());
+  await wait(page, 400);
+  await talkThrough(page);
+  check('Meteor Run starts with a 60-second clock', (await ready(page)) && (await page.locator('.msq-timer').count()) === 1);
+  s = await st(page);
+  check('the clock runs', await waitFor(page, async () => (await st(page)).flight.timeLeft < 59.5, 3000));
+  await page.keyboard.press(String(s.flight.right + 1));
+  await answered(page, s.flight);
+  check('a right answer scores', (await st(page)).flight.score === 1);
+  await page.evaluate(() => window.__msq.setTime(0.3));
+  check('when time is up Rafi gives the score', await waitFor(page, async () => (await st(page)).talking, 4000));
+  check('and the rocks are gone', (await page.locator('.msq-rock').count()) === 0);
+  await page.screenshot({ path: `${OUT}/25-meteor-end.png` });
+  await talkThrough(page);
+  s = await st(page);
+  check('the best Meteor Run is saved', s.mode === 'deck' && s.best === 1, String(s.best));
+  await page.keyboard.press('j');
+  await wait(page, 300);
+  check('the mission list has nothing locked after the finale', (await page.locator('.belt-row.soon').count()) === 0);
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+
   // phone layout
   const { page: ph } = await newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   await ph.goto(URL);
@@ -324,6 +426,21 @@ try {
   s = await st(ph);
   check('phone: tapping the right rock answers it', s.flight && (s.flight.step === 1 || s.flight.q === 1), JSON.stringify(s.flight && { q: s.flight.q, step: s.flight.step }));
   await ph.screenshot({ path: `${OUT}/14-phone-flight.png` });
+  await ph.evaluate(() => window.__msq.endFlight());
+  await wait(ph, 500);
+  await talkThrough(ph);
+  await ph.evaluate(() => window.__msq.finishAll());
+  await ph.evaluate(() => window.__msq.boss());
+  await wait(ph, 400);
+  await talkThrough(ph);
+  await waitFor(ph, async () => (await ph.locator('.msq-square').count()) === 25, 6000);
+  const sq = await ph.locator('.msq-square').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => ({ l: r.left, r: r.right, t: r.top, b: r.bottom })));
+  check('phone: the whole Bingo card is on screen with squares big enough to tap', sq.length === 25 && sq.every((b) => b.l >= 0 && b.r <= 390 && b.b <= 844 && b.r - b.l >= 44 && b.b - b.t >= 44), JSON.stringify(sq[0]));
+  s = await st(ph);
+  await ph.locator(`.msq-square[data-index="${s.flight.boss.rightIndex}"]`).tap();
+  await wait(ph, 500);
+  check('phone: tapping the right square marks it', (await st(ph)).flight.boss.marked === s.flight.boss.marked + 1);
+  await ph.screenshot({ path: `${OUT}/15-phone-bingo.png` });
 } catch (e) {
   check('no crash', false, String(e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e));
 }

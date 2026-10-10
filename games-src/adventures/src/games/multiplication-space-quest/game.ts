@@ -17,10 +17,15 @@ import { TouchControls } from '../../kit/ui/touch';
 import { showTitle } from '../../kit/ui/title';
 import { HAIR16, look16FromAppearance, paintHero, paintPortrait16, type Look16, type Mood } from '../../kit/worlds';
 import '../../kit/worlds/worlds.css';
-import { PAINT_IDS, PAINTS, paintBlipPortrait, paintFleetIcon, paintMapStar, paintSectorIcon, paintShieldIcon, paintShip, paintStardustIcon, paintUpgradeIcon } from './art';
+import { PAINT_IDS, PAINTS, paintBlipPortrait, paintStaticCoreIcon, paintFleetIcon, paintMapStar, paintSectorIcon, paintShieldIcon, paintShip, paintStardustIcon, paintUpgradeIcon } from './art';
 import {
   BLIP,
   BLIP_HELLO,
+  BOSS_BLIP,
+  BOSS_INTRO,
+  BOSS_READY,
+  BOSS_TIP_KEYS,
+  BOSS_TIP_TOUCH,
   BLIP_LINES,
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
@@ -30,30 +35,36 @@ import {
   FLIGHT_TIP_TOUCH,
   GROWNUPS,
   hintText,
+  LANDING,
+  LANDING_AFTER,
+  LANDING_BLIP,
   LAUNCH,
+  METEOR_INTRO,
+  METEOR_SECONDS,
   mistakeLine,
   OPENING,
   PAINT_COST,
   praise,
   QUESTIONS_PER_FLIGHT,
+  REMATCH_INTRO,
   SECTOR_INFO,
-  SOON,
   STARS_PER_SECTOR,
   TOWED,
   UPGRADES,
   type UpgradeId,
 } from './content';
 import { FlightScene, type FlightEvent } from './flight';
-import { CLEAR_SONG, DECK_SONG, FLIGHT_SONG } from './music';
+import { LandingScene } from './landing';
+import { BOSS_SONG, CLEAR_SONG, DECK_SONG, FLIGHT_SONG } from './music';
 import { pix } from './pix';
-import { factKey, makeProblem, SECTORS, type Misconception, type Problem, type Sector, type Tier } from './problems';
+import { bingoLine, bingoMistake, factKey, FREE, makeBingoCall, makeBingoCard, makeMeteor, makeProblem, SECTORS, type BingoCall, type BingoCard, type Misconception, type Problem, type Sector, type Tier } from './problems';
 import { freshSave, store, type QuestSave } from './save';
 import { CREW, DeckWorld, type CrewId, type Target } from './world';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_SECTOR = 12;
-/** All four sectors of the route (Cargo and Constellations open in the next part of the game). */
-const ROUTE: Array<'formations' | 'engines' | 'cargo' | 'constellations'> = ['formations', 'engines', 'cargo', 'constellations'];
+/** The four sectors of the route, in order. */
+const ROUTE: Sector[] = SECTORS;
 
 /** The crew of the Star Station (16-bit, in station jumpsuits with headsets). */
 const LOOKS: Record<CrewId, Look16> = {
@@ -66,9 +77,25 @@ const LOOKS: Record<CrewId, Look16> = {
 
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 
-type Mode = 'title' | 'deck' | 'busy' | 'flight' | 'result';
+type Mode = 'title' | 'deck' | 'busy' | 'flight' | 'result' | 'landing';
+
+/** The Bingo Boss: Blip's card, what is marked, the call, and the keyboard target. */
+interface Boss {
+  card: BingoCard;
+  marked: boolean[];
+  call: BingoCall;
+  calls: number;
+  tries: number;
+  rung: number;
+  cursor: number;
+  grid: HTMLElement;
+  squares: HTMLButtonElement[];
+  won: boolean;
+}
 
 interface Flight {
+  /** A mission (8 questions in a sector), Meteor Run (60 seconds of quick facts) or the Bingo Boss. */
+  kind: 'mission' | 'meteor' | 'boss';
   sector: Sector;
   q: number;
   problem: Problem;
@@ -85,6 +112,10 @@ interface Flight {
   hint: Modal | null;
   pause: Modal | null;
   ended: boolean;
+  /** Meteor Run: seconds left and right answers. */
+  timeLeft: number;
+  score: number;
+  boss: Boss | null;
 }
 
 export class Game {
@@ -115,6 +146,7 @@ export class Game {
   private dotsEl!: HTMLElement;
   private praiseCount = 0;
   private blipCount = 0;
+  private landing: LandingScene | null = null;
 
   constructor(private readonly host: HTMLElement) {
     applySettingsToDocument();
@@ -157,10 +189,12 @@ export class Game {
     audio.addSong('deck', DECK_SONG);
     audio.addSong('flight', FLIGHT_SONG);
     audio.addSong('clear', CLEAR_SONG);
+    audio.addSong('boss', BOSS_SONG);
     this.world.onArrive = (t) => this.use(t);
     this.flightScene.onEvent = (e) => this.onFlightEvent(e);
     window.addEventListener('resize', () => {
       this.world.resize();
+      this.landing?.resize();
       this.flightScene.resize();
       this.fitFlightTop();
     });
@@ -169,6 +203,7 @@ export class Game {
     bus.on('settings:changed', () => {
       this.world.reducedMotion = settings.reducedMotion;
       this.flightScene.reducedMotion = settings.reducedMotion;
+      if (this.landing) this.landing.reducedMotion = settings.reducedMotion;
       this.toolbar?.setIcon('sound', settings.muted ? 'soundOff' : 'soundOn', settings.muted ? 'Sound off' : 'Sound');
       this.touch?.setVisible(this.mode === 'deck' && touchControlsVisible());
     });
@@ -204,6 +239,23 @@ export class Game {
         this.world.follow();
       },
       flightInfo: () => this.flightScene.debug(),
+      /** Clear all four sectors (for testing the finale). */
+      finishAll: () => {
+        for (const x of SECTORS) if (!this.save.done.includes(x)) this.save.done.push(x);
+        this.save.bossCalled = true;
+        this.persist();
+        this.updateMarkers();
+        this.renderHud();
+        this.world.setNight(0.5);
+      },
+      boss: () => this.mode === 'deck' && this.startFlight('formations', 'boss'),
+      meteor: () => this.mode === 'deck' && this.startFlight('engines', 'meteor'),
+      /** Beam the right Bingo square (with a click, like a player). */
+      pickRight: () => {
+        const b = this.flight?.boss;
+        if (b) b.squares[b.card.values.indexOf(b.call.answer)].click();
+      },
+      setTime: (sec: number) => this.flight && (this.flight.timeLeft = sec),
     };
   }
 
@@ -211,6 +263,8 @@ export class Game {
     const names = Object.fromEntries(CREW.map((id) => [id, CREW_INFO[id].name])) as Record<CrewId, string>;
     this.world.build(this.playerLook(), LOOKS, names, this.save.paint);
     this.updateMarkers();
+    if (this.save.bossSeen) this.world.setNight(1);
+    else if (this.save.bossCalled) this.world.setNight(0.5);
     this.world.establishing = true;
     this.world.follow();
     this.flightScene.resize();
@@ -220,10 +274,19 @@ export class Game {
       this.last = now;
       const free = !document.querySelector('.modal-back') && !this.talk.isOpen;
       this.input.worldActive = (this.mode === 'deck' || (this.mode === 'flight' && !!this.flight && !this.flightScene.paused)) && free;
-      if (this.mode === 'flight' || this.mode === 'result') {
-        this.flightScene.paused = !!this.flight?.hint || !!this.flight?.pause || this.talk.isOpen || this.mode === 'result';
-        this.flightScene.update(dt, this.input.direction().x);
+      if (this.mode === 'landing' && this.landing) {
+        this.landing.update(dt);
+        this.landing.render();
+      } else if (this.mode === 'flight' || this.mode === 'result') {
+        const f = this.flight;
+        this.flightScene.paused = !!f?.hint || !!f?.pause || this.talk.isOpen || this.mode === 'result';
+        this.flightScene.update(dt, f?.kind === 'boss' ? 0 : this.input.direction().x);
         this.flightScene.render();
+        if (f && f.kind === 'meteor' && !f.ended && !f.between && !this.flightScene.paused && f.timeLeft < Infinity) {
+          f.timeLeft = Math.max(0, f.timeLeft - dt);
+          this.renderTimer();
+          if (f.timeLeft <= 0) void this.endFlight(false);
+        }
       } else {
         this.world.establishing = this.mode === 'title' || (!this.save.openingSeen && this.mode === 'busy');
         this.world.update(dt, this.mode === 'deck' ? this.input : null);
@@ -292,6 +355,7 @@ export class Game {
       if (ok !== 'yes') return;
       this.save = store.reset();
       this.world.setPaint(this.save.paint);
+      this.world.setNight(0);
       this.updateMarkers();
     }
     this.titleEl?.remove();
@@ -322,9 +386,14 @@ export class Game {
     this.mode = 'deck';
   }
 
+  private get allDone(): boolean {
+    return SECTORS.every((s) => this.save.done.includes(s));
+  }
+
   private updateMarkers(): void {
     const open = (s: Sector) => (this.save.done.includes(s) ? null : 'new');
-    this.world.setMarkers({ mei: open('formations'), rafi: open('engines'), ayo: null, dot: null, sol: null });
+    // Ayo calls everyone to the Bingo Boss once all four sectors are clear
+    this.world.setMarkers({ mei: open('formations'), rafi: open('engines'), dot: open('cargo'), sol: open('constellations'), ayo: this.allDone && !this.save.bossSeen ? 'turnin' : null });
   }
 
   // ------------------------------------------------------------ the deck
@@ -350,8 +419,10 @@ export class Game {
 
   private onAction(a: string): void {
     if (this.mode === 'flight') {
-      if (a === 'interact' && this.flight && !this.flight.between) this.flightScene.fireAbove();
-      else if (a === 'hint' && this.flight && !this.flight.between) this.openHint();
+      const f = this.flight;
+      if (a === 'interact' && f && !f.between && f.kind !== 'boss') this.flightScene.fireAbove();
+      else if (a === 'hint' && f && !f.between && f.kind === 'mission') this.openHint();
+      else if (a === 'hint' && f?.boss) this.bossHint();
       else if (a === 'menu' && this.flight && !this.flight.hint && !this.flight.pause) this.openPause();
       else if (a === 'mute') this.toggleMute();
       return;
@@ -426,41 +497,60 @@ export class Game {
     this.mode = 'busy';
     const who = this.speakers[id];
     if (id === 'ayo') {
+      if (this.allDone && !this.save.bossSeen) {
+        await this.talk.say(who, BOSS_INTRO, 'proud');
+        await this.talk.say(this.speakers.blip, BOSS_BLIP, 'curious');
+        await this.talk.say(this.speakers.blip, isTouchDevice() ? BOSS_TIP_TOUCH : BOSS_TIP_KEYS, 'curious');
+        this.talk.end();
+        this.mode = 'deck';
+        this.startFlight('formations', 'boss');
+        return;
+      }
+      if (this.save.bossSeen) {
+        const pick = await this.talk.offer(who, `The Static is gone, and your fleet has ${this.save.fleet} ships! ${this.save.bingoBest ? `Your best Bingo took ${this.save.bingoBest} calls.` : ''} Want a Bingo rematch with Blip?`, ['Bingo rematch!', 'Not now']);
+        if (pick === 0) {
+          await this.talk.say(this.speakers.blip, REMATCH_INTRO, 'curious');
+          this.talk.end();
+          this.mode = 'deck';
+          this.startFlight('formations', 'boss');
+          return;
+        }
+        this.talk.end();
+        this.mode = 'deck';
+        return;
+      }
       const s = this.nextSector;
-      const all = SECTORS.every((x) => this.save.done.includes(x));
-      await this.talk.say(who, all ? 'Two sectors clear! Cargo and Constellations open soon. Fly again any time to grow your fleet.' : `Your fleet has ${this.save.fleet} ships so far. Next: talk to ${CREW_INFO[SECTOR_INFO[s].chief].name} for the ${SECTOR_INFO[s].name} mission.`, 'smile');
+      await this.talk.say(who, `Your fleet has ${this.save.fleet} ships so far. Next: talk to ${CREW_INFO[SECTOR_INFO[s].chief].name} for the ${SECTOR_INFO[s].name} mission.`, 'smile');
       this.talk.end();
       this.mode = 'deck';
       return;
     }
-    if (id === 'dot') {
-      await this.talk.say(who, SOON.dot);
-      this.talk.end();
-      this.mode = 'deck';
-      return;
-    }
-    if (id === 'sol') {
-      const pick = await this.talk.offer(who, SOON.sol.join(' '), ['Show me the Star Map', 'Not now']);
-      this.talk.end();
-      this.mode = 'deck';
-      if (pick === 0) this.openStarMap();
-      return;
-    }
-    const sector: Sector = id === 'mei' ? 'formations' : 'engines';
+    const sector: Sector = id === 'mei' ? 'formations' : id === 'rafi' ? 'engines' : id === 'dot' ? 'cargo' : 'constellations';
     const info = SECTOR_INFO[sector];
     if (id === 'rafi') {
-      const pick = await this.talk.offer(who, `Ready for the Engines mission? Or visit my upgrade bay: you have ${this.save.dust} stardust.`, ['Fly the Engines mission', 'Upgrade bay', 'Change how I look', 'Not now']);
+      const meteor = this.save.done.includes('engines');
+      const options = ['Fly the Engines mission', ...(meteor ? ['Meteor Run!'] : []), 'Upgrade bay', 'Change how I look', 'Not now'];
+      const pick = options[await this.talk.offer(who, `Ready for the Engines mission? Or visit my upgrade bay: you have ${this.save.dust} stardust.${meteor ? ` Your best Meteor Run is ${this.save.best}.` : ''}`, options)];
+      if (pick === 'Meteor Run!') {
+        await this.talk.say(who, METEOR_INTRO);
+        this.talk.end();
+        this.mode = 'deck';
+        this.startFlight('engines', 'meteor');
+        return;
+      }
       this.talk.end();
       this.mode = 'deck';
-      if (pick === 0) void this.launch('engines');
-      else if (pick === 1) this.openUpgrades();
-      else if (pick === 2) this.customize(false, () => undefined);
+      if (pick === 'Fly the Engines mission') void this.launch('engines');
+      else if (pick === 'Upgrade bay') this.openUpgrades();
+      else if (pick === 'Change how I look') this.customize(false, () => undefined);
       return;
     }
-    const pick = await this.talk.offer(who, this.save.introduced.includes(sector) ? info.again : `${info.intro[0]} Ready for the ${info.name} mission?`, ['Launch!', 'Not now']);
+    const options = ['Launch!', ...(id === 'sol' ? ['Show me the Star Map'] : []), 'Not now'];
+    const pick = options[await this.talk.offer(who, this.save.introduced.includes(sector) ? info.again : `${info.intro[0]} Ready for the ${info.name} mission?`, options)];
     this.talk.end();
     this.mode = 'deck';
-    if (pick === 0) void this.launch(sector);
+    if (pick === 'Launch!') void this.launch(sector);
+    else if (pick === 'Show me the Star Map') this.openStarMap();
   }
 
   // ------------------------------------------------------------ a flight
@@ -484,7 +574,7 @@ export class Game {
     this.startFlight(sector);
   }
 
-  private startFlight(sector: Sector): void {
+  private startFlight(sector: Sector, kind: Flight['kind'] = 'mission'): void {
     this.mode = 'flight';
     this.hud.hidden = true;
     this.touch?.setVisible(false);
@@ -494,19 +584,21 @@ export class Game {
     this.fhud.hidden = false;
     document.body.classList.add('msq-flying');
     this.fitFlightTop();
-    audio.play('flight');
+    audio.play(kind === 'boss' ? 'boss' : 'flight');
     const up = this.save.upgrades;
     this.flightScene.start(
       { paint: this.save.paint, twin: up.includes('twin'), rapid: up.includes('rapid'), thrusters: up.includes('thrusters'), shieldMax: 3 + (up.includes('shield1') ? 1 : 0) + (up.includes('shield2') ? 1 : 0), wingmen: Math.min(6, Math.floor(this.save.fleet / 10)) },
       this.save.seed,
     );
-    this.flightScene.intensity = 0.8 + 0.15 * (skill(this.save.learner, sector).tier - 1);
-    const chief = SECTOR_INFO[sector].chief;
-    this.bannerFace.src = this.speakers[chief].portrait('smile');
-    this.bannerFace.alt = this.speakers[chief].name;
-    this.flight = { sector, q: 0, problem: null as unknown as Problem, step: 0, tries: 0, hintRung: 0, recorded: false, between: true, stars: 0, rescued: 0, dust: 0, seed: this.save.seed, hint: null, pause: null, ended: false };
+    this.flightScene.intensity = kind === 'boss' ? 0.5 : kind === 'meteor' ? 1.1 : 0.8 + 0.15 * (skill(this.save.learner, sector).tier - 1);
+    const who = kind === 'boss' ? this.speakers.blip : this.speakers[SECTOR_INFO[sector].chief];
+    this.bannerFace.src = who.portrait('smile');
+    this.bannerFace.alt = who.name;
+    this.fhud.dataset.kind = kind;
+    this.flight = { kind, sector, q: 0, problem: null as unknown as Problem, step: 0, tries: 0, hintRung: 0, recorded: false, between: true, stars: 0, rescued: 0, dust: 0, seed: this.save.seed, hint: null, pause: null, ended: false, timeLeft: kind === 'meteor' ? METEOR_SECONDS : Infinity, score: 0, boss: null };
     this.renderFlightHud();
-    setTimeout(() => this.nextQuestion(), 900);
+    if (kind === 'boss') setTimeout(() => this.startBoss(), 700);
+    else setTimeout(() => this.nextQuestion(), kind === 'meteor' ? 600 : 900);
   }
 
   /** Keep the stranded ships below the banner. */
@@ -522,7 +614,7 @@ export class Game {
     const tier = skill(this.save.learner, f.sector).tier as Tier;
     const seed = this.save.seed++;
     f.seed = seed;
-    f.problem = makeProblem(f.sector, tier, mulberry32(seed));
+    f.problem = f.kind === 'meteor' ? makeMeteor(this.save.starMap, mulberry32(seed)) : makeProblem(f.sector, tier, mulberry32(seed));
     f.step = 0;
     f.tries = 0;
     f.hintRung = 0;
@@ -530,8 +622,8 @@ export class Game {
     f.between = false;
     this.persist();
     this.flightScene.showPicture(f.problem.picture);
-    this.flightScene.showRocks(f.problem.steps[0].choices, f.q === QUESTIONS_PER_FLIGHT - 1);
-    this.flightScene.clearness = f.q / QUESTIONS_PER_FLIGHT;
+    this.flightScene.showRocks(f.problem.steps[0].choices, f.kind === 'mission' && f.q === QUESTIONS_PER_FLIGHT - 1);
+    this.flightScene.clearness = f.kind === 'meteor' ? 0.5 : f.q / QUESTIONS_PER_FLIGHT;
     this.setBanner(f.problem.steps[0].ask);
     this.renderFlightHud();
   }
@@ -574,6 +666,23 @@ export class Game {
     const step = p.steps[f.step];
     const c = step.choices[index];
     if (!c) return;
+    if (f.kind === 'meteor') {
+      f.between = true;
+      if (c.correct) {
+        f.score++;
+        audio.correct();
+        this.flightScene.win(index);
+        this.setBanner(step.ask, `${praise(this.praiseCount++)} ${f.score} so far.`, 'good');
+      } else {
+        audio.retry();
+        this.flightScene.miss(index);
+        this.flightScene.outline(step.choices.findIndex((x) => x.correct));
+        this.setBanner(step.ask, step.explain, 'try');
+      }
+      this.renderFlightHud();
+      setTimeout(() => this.flight === f && !f.ended && this.nextQuestion(), c.correct ? 500 : 1300);
+      return;
+    }
     if (c.correct) {
       if (f.step < p.steps.length - 1) {
         // the first step is done: the next rocks fly in for step two
@@ -622,7 +731,8 @@ export class Game {
       f.stars++;
       for (const k of p.facts) if (!this.save.starMap.includes(k)) this.save.starMap.push(k);
     }
-    const ships = p.picture ? p.answer : 2;
+    // formations rescue the ships in the picture; the other sectors free 2 ships a question
+    const ships = p.picture && p.picture.kind !== 'crates' ? p.answer : 2;
     f.rescued += ships;
     this.save.fleet += ships;
     f.dust += clean ? DUST.clean : DUST.right;
@@ -704,6 +814,12 @@ export class Game {
       return grid(t, n, (r) => (t === 4 ? (r < 2 ? 'c0' : 'c1') : r < 2 ? 'c0' : 'c2'), t === 4 ? `4 rows of ${n} dots: two rows, and two rows again` : `3 rows of ${n} dots: a double and one more row`);
     }
     if (p.kind === 'break-apart') return grid(a, b, (r) => (r < 5 ? 'c0' : 'c2'), `${a} rows of ${b} dots: 5 rows in one color and ${a - 5} in another`);
+    if (p.sector === 'cargo') {
+      // every crate as a dot, in rows of the group size: the full rows are the groups, the last row the leftovers
+      const rows = Math.ceil(a / b);
+      return grid(rows, b, (r, c) => (r * b + c >= a ? 'gone' : r * b + c >= Math.floor(a / b) * b ? 'c2' : r % 2 ? 'c1' : 'c0'), `${a} dots in rows of ${b}${a % b ? `, with ${a % b} in the last row` : ''}`);
+    }
+    if (p.kind === 'family-missing' || p.kind === 'odd-fact') return grid(a, b, (r) => (r % 2 ? 'c1' : 'c0'), `${a} rows of ${b} dots: ${a * b} in all`);
     if (p.kind === 'basic') {
       const t = [0, 1, 2, 5, 10].find((x) => x === a || x === b) ?? b;
       const n = a === t ? b : a;
@@ -719,7 +835,7 @@ export class Game {
     if (!f) return;
     const resume = h('button', { class: 'btn primary', type: 'button', 'data-autofocus': true, text: 'Keep flying' });
     const home = h('button', { class: 'btn', type: 'button', text: 'Fly home (keep what I earned)' });
-    const root = h('div', { class: 'panel modal msq-pause', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'msq-pause-title' }, h('header', {}, h('h2', { id: 'msq-pause-title', text: 'Paused' })), h('div', { class: 'content' }, h('p', { text: `Question ${Math.min(QUESTIONS_PER_FLIGHT, f.q + 1)} of ${QUESTIONS_PER_FLIGHT}. Stars this flight: ${f.stars}.` }), h('div', { class: 'msq-pause-buttons' }, resume, home)));
+    const root = h('div', { class: 'panel modal msq-pause', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'msq-pause-title' }, h('header', {}, h('h2', { id: 'msq-pause-title', text: 'Paused' })), h('div', { class: 'content' }, h('p', { text: f.kind === 'meteor' ? `Meteor Run: ${f.score} right so far. The clock is stopped.` : f.kind === 'boss' ? 'The Bingo Boss is waiting. Flying home ends this game; you can try again any time.' : `Question ${Math.min(QUESTIONS_PER_FLIGHT, f.q + 1)} of ${QUESTIONS_PER_FLIGHT}. Stars this flight: ${f.stars}.` }), h('div', { class: 'msq-pause-buttons' }, resume, home)));
     const modal = new Modal(this.host, root, () => {
       if (this.flight && this.flight.pause === modal) this.flight.pause = null;
     });
@@ -740,6 +856,19 @@ export class Game {
       return;
     }
     if (document.querySelector('.modal-back') || this.talk.isOpen) return;
+    if (f.boss) {
+      // the Bingo shield: arrows move the target, Space or Enter beams it
+      const k = e.key;
+      const moves: Record<string, [number, number]> = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1], a: [-1, 0], d: [1, 0], w: [0, -1], s: [0, 1] };
+      if (moves[k]) {
+        e.preventDefault();
+        this.moveCursor(...moves[k]);
+      } else if ((k === ' ' || k === 'Enter') && !(e.target instanceof HTMLButtonElement)) {
+        e.preventDefault();
+        this.pickSquare(f.boss.cursor);
+      }
+      return;
+    }
     if (/^[1-3]$/.test(e.key) && !f.between) {
       e.preventDefault();
       this.flightScene.fireAt(Number(e.key) - 1);
@@ -753,6 +882,30 @@ export class Game {
     f.hint?.close();
     f.pause?.close();
     this.mode = 'result';
+    if (f.kind === 'meteor') {
+      // Meteor Run: the score and the best, then home (no stars: it is practice for speed)
+      this.flightScene.clearRocks();
+      this.bannerText.textContent = towed ? '' : 'Time!';
+      this.bannerNote.hidden = true;
+      const isBest = f.score > this.save.best;
+      if (isBest) this.save.best = f.score;
+      this.save.dust += f.dust;
+      this.persist();
+      if (isBest && f.score > 0) audio.levelUp();
+      else audio.correct();
+      await this.talk.say(this.speakers.rafi, towed ? TOWED : `Time! ${f.score} right ${f.score === 1 ? 'answer' : 'answers'} in ${METEOR_SECONDS} seconds.${isBest && f.score > 0 ? ' That is your new best!' : ` Your best is ${this.save.best}.`}`, 'proud');
+      this.talk.end();
+      this.leaveFlight();
+      return;
+    }
+    if (f.kind === 'boss') {
+      // towed home or flown home before a Bingo: Ayo is still waiting
+      this.persist();
+      await this.talk.say(this.speakers.ayo, towed ? TOWED : 'Back to the deck. The Bingo Boss will wait for you: talk to me when you are ready.', 'thinking');
+      this.talk.end();
+      this.leaveFlight();
+      return;
+    }
     this.save.dust += f.dust + (towed || early ? 0 : DUST.flight);
     this.save.flights++;
     this.persist();
@@ -766,6 +919,13 @@ export class Game {
       await this.talk.say(who, `Flight complete! ${f.stars} ${f.stars === 1 ? 'star' : 'stars'}, ${f.rescued} ships rescued and ${f.dust + DUST.flight} stardust. Heading home!`, 'proud');
     }
     this.talk.end();
+    this.leaveFlight();
+    if (cleared) await this.finishSector(s);
+  }
+
+  /** Back to the station deck from any flight. */
+  private leaveFlight(): void {
+    this.flight?.boss?.grid.remove();
     this.flightScene.stop();
     this.flightScene.setVisible(false);
     this.fhud.hidden = true;
@@ -777,7 +937,211 @@ export class Game {
     audio.play('deck');
     this.renderHud();
     this.world.resize();
-    if (cleared) await this.finishSector(s);
+  }
+
+  // ------------------------------------------------------------ the Bingo Boss (the finale)
+
+  private bossTier(): Tier {
+    const t = SECTORS.reduce((sum, x) => sum + skill(this.save.learner, x).tier, 0) / SECTORS.length;
+    return Math.max(1, Math.min(3, Math.round(t))) as Tier;
+  }
+
+  private startBoss(): void {
+    const f = this.flight;
+    if (!f || f.ended) return;
+    const r = mulberry32(this.save.seed++);
+    const card = makeBingoCard(this.bossTier(), r);
+    const marked = card.values.map((_, i) => i === FREE);
+    const squares: HTMLButtonElement[] = [];
+    const grid = h('div', { class: 'msq-bingo', role: 'grid', 'aria-label': 'The Bingo shield' });
+    card.values.forEach((v, i) => {
+      const b = h('button', { class: `msq-square${i === FREE ? ' free on' : ''}`, type: 'button', 'data-index': String(i), 'aria-label': i === FREE ? 'Free space' : `Square ${v}`, disabled: i === FREE }, h('span', { text: i === FREE ? 'FREE' : String(v) }));
+      b.addEventListener('click', () => this.pickSquare(i));
+      squares.push(b);
+      grid.append(b);
+    });
+    this.fhud.append(grid);
+    f.boss = { card, marked, call: makeBingoCall(card, marked, r), calls: 0, tries: 0, rung: 0, cursor: 6, grid, squares, won: false };
+    f.between = false;
+    // the Static core sits behind the shield
+    requestAnimationFrame(() => {
+      const box = grid.getBoundingClientRect();
+      const host = this.host.getBoundingClientRect();
+      this.flightScene.showCore(this.flightScene.fromCss(box.left - host.left + box.width / 2, box.top - host.top + box.height / 2));
+    });
+    this.renderBoss();
+    this.callOut();
+  }
+
+  private callOut(): void {
+    const b = this.flight?.boss;
+    if (!b) return;
+    b.tries = 0;
+    b.rung = 0;
+    b.squares.forEach((q) => q.classList.remove('worked'));
+    this.setBanner(`Blip calls: ${b.call.text}`);
+  }
+
+  private renderBoss(): void {
+    const b = this.flight?.boss;
+    if (!b) return;
+    b.squares.forEach((q, i) => {
+      q.classList.toggle('on', b.marked[i]);
+      q.classList.toggle('cursor', i === b.cursor && !isTouchDevice());
+    });
+    this.renderFlightHud();
+  }
+
+  private pickSquare(i: number): void {
+    const f = this.flight;
+    const b = f?.boss;
+    if (!f || !b || f.between || f.ended || b.won || b.marked[i] || this.flightScene.paused) return;
+    b.cursor = i;
+    const sq = b.squares[i];
+    const box = sq.getBoundingClientRect();
+    const host = this.host.getBoundingClientRect();
+    const at = this.flightScene.fromCss(box.left - host.left + box.width / 2, box.top - host.top + box.height);
+    this.flightScene.zap(at.x, at.y);
+    const v = b.card.values[i];
+    const c = b.call;
+    if (v === c.answer) {
+      const clean = b.tries === 0 && b.rung <= 1;
+      b.marked[i] = true;
+      b.calls++;
+      if (clean && c.kind === 'times') {
+        const k = factKey(c.a, c.b);
+        if (k && !this.save.starMap.includes(k)) this.save.starMap.push(k);
+      }
+      audio.correct();
+      sq.classList.add('hit');
+      const line = bingoLine(b.marked);
+      this.renderBoss();
+      if (line) {
+        b.won = true;
+        f.between = true;
+        line.forEach((k) => b.squares[k].classList.add('line'));
+        this.setBanner('BINGO!', `Five in a row! The shield breaks. ${b.calls} calls.`, 'good');
+        audio.levelUp();
+        setTimeout(() => {
+          this.flightScene.breakCore();
+          b.grid.classList.add('broken');
+        }, 700);
+        setTimeout(() => void this.bossWon(), 2400);
+        return;
+      }
+      f.between = true;
+      this.setBanner(`Blip calls: ${c.text}`, `${praise(this.praiseCount++)} ${c.answer} is right.`, 'good');
+      setTimeout(() => {
+        if (this.flight !== f || f.ended) return;
+        b.call = makeBingoCall(b.card, b.marked, mulberry32(this.save.seed++));
+        f.between = false;
+        this.callOut();
+      }, 1200);
+      return;
+    }
+    b.tries++;
+    audio.retry();
+    sq.classList.remove('shake');
+    void sq.offsetWidth;
+    sq.classList.add('shake');
+    this.setBanner(`Blip calls: ${c.text}`, this.bingoLine(c, v), 'try');
+    if (b.tries >= 2) this.bossHint(3);
+  }
+
+  /** One sentence about a wrong Bingo square. */
+  private bingoLine(c: BingoCall, picked: number): string {
+    const mis = bingoMistake(c, picked);
+    if (mis === 'added') return `That adds ${c.a} and ${c.b}. Times means ${c.a} groups of ${c.b}.`;
+    if (mis === 'one-group-off') return c.kind === 'times' ? 'So close! That is one group too many or too few.' : 'So close! Check it: multiply your answer back.';
+    if (mis === 'nines-flipped') return 'The digits are flipped! Look again.';
+    if (mis === 'subtracted') return `That takes ${c.b} away from ${c.a}. How many ${c.b}s make ${c.a}?`;
+    if (mis === 'swapped') return `That is the number you divide by. How many ${c.b}s make ${c.a}?`;
+    return c.kind === 'times' ? `Not that one. What is ${c.a} groups of ${c.b}?` : `Not that one. What times ${c.b} makes ${c.a}?`;
+  }
+
+  /** H in the Bingo Boss: a nudge, then a counting tip, then the square outlined. */
+  private bossHint(rung?: number): void {
+    const b = this.flight?.boss;
+    if (!b || this.flight?.between) return;
+    b.rung = Math.min(3, rung ?? b.rung + 1);
+    audio.hint();
+    const c = b.call;
+    const text =
+      b.rung === 1
+        ? c.kind === 'times'
+          ? `Hint 1 of 3: ${c.a} groups of ${c.b}. Is there a shortcut you know?`
+          : `Hint 1 of 3: what times ${c.b} makes ${c.a}?`
+        : b.rung === 2
+          ? c.kind === 'times'
+            ? `Hint 2 of 3: count by ${c.b}s, ${c.a} times: ${c.b}, ${c.b * 2}, …`
+            : `Hint 2 of 3: count by ${c.b}s up to ${c.a} and count the jumps: ${c.b}, ${c.b * 2}, …`
+          : `Hint 3 of 3: the square is outlined. ${c.kind === 'times' ? `${c.a} × ${c.b} = ${c.answer}` : `${c.answer} × ${c.b} = ${c.a}`}.`;
+    if (b.rung >= 3) b.squares[b.card.values.indexOf(c.answer)].classList.add('worked');
+    this.setBanner(`Blip calls: ${c.text}`, text, 'hint');
+  }
+
+  private moveCursor(dx: number, dy: number): void {
+    const b = this.flight?.boss;
+    if (!b) return;
+    const x = Math.max(0, Math.min(4, (b.cursor % 5) + dx));
+    const y = Math.max(0, Math.min(4, Math.floor(b.cursor / 5) + dy));
+    b.cursor = y * 5 + x;
+    this.renderBoss();
+    const box = b.squares[b.cursor].getBoundingClientRect();
+    const host = this.host.getBoundingClientRect();
+    this.flightScene.steer(this.flightScene.fromCss(box.left - host.left + box.width / 2, 0).x);
+  }
+
+  private async bossWon(): Promise<void> {
+    const f = this.flight;
+    const b = f?.boss;
+    if (!f || !b) return;
+    f.ended = true;
+    const first = !this.save.bossSeen;
+    if (!this.save.bingoBest || b.calls < this.save.bingoBest) this.save.bingoBest = b.calls;
+    this.save.bossSeen = true;
+    this.save.fleet += 10;
+    this.persist();
+    this.leaveFlight();
+    this.updateMarkers();
+    this.world.setNight(1);
+    if (first) await this.landingScene();
+    else {
+      this.mode = 'busy';
+      await this.talk.say(this.speakers.blip, `Bingo in ${b.calls} calls! ${b.calls <= this.save.bingoBest ? 'That is your best!' : `Your best is ${this.save.bingoBest}.`} Bleep!`, 'curious');
+      this.talk.end();
+      this.mode = 'deck';
+    }
+  }
+
+  /** The finale: the fleet lands on the planet for the night-shift party, then back to the deck. */
+  private async landingScene(): Promise<void> {
+    this.mode = 'landing';
+    this.hud.hidden = true;
+    this.touch?.setVisible(false);
+    if (!this.landing) {
+      this.landing = new LandingScene(this.host);
+      this.landing.reducedMotion = settings.reducedMotion;
+      this.landing.build(this.playerLook(), LOOKS, this.save.paint, this.save.fleet);
+    }
+    this.world.stage.canvas.hidden = true;
+    this.landing.setVisible(true);
+    this.landing.resize();
+    audio.play('clear');
+    audio.levelUp();
+    await this.talk.say(this.speakers.ayo, LANDING, 'proud');
+    await this.talk.say(this.speakers.blip, LANDING_BLIP, 'curious');
+    await this.talk.say(this.speakers.ayo, LANDING_AFTER, 'smile');
+    this.talk.end();
+    toast('The Static is gone! The whole fleet is home.', 'reward');
+    window.parent?.postMessage({ type: 'game-complete', score: this.save.fleet }, '*');
+    this.landing.setVisible(false);
+    this.world.stage.canvas.hidden = false;
+    this.world.resize();
+    this.hud.hidden = false;
+    this.mode = 'deck';
+    audio.play('deck');
+    this.renderHud();
   }
 
   private async finishSector(s: Sector): Promise<void> {
@@ -796,7 +1160,14 @@ export class Game {
     await this.talk.say(who, info.done, 'proud');
     const left = SECTORS.filter((x) => !this.save.done.includes(x));
     if (left.length) await this.talk.say(this.speakers.ayo, `Brilliant flying! Next: ${CREW_INFO[SECTOR_INFO[left[0]].chief].name} has the ${SECTOR_INFO[left[0]].name} mission for you.`, 'proud');
-    else await this.talk.say(this.speakers.ayo, 'Formations and Engines are both clear! The Cargo and Constellations sectors open soon. Keep flying to grow your fleet!', 'proud');
+    else if (!this.save.bossCalled) {
+      // all four sectors: the night shift starts and Ayo calls the Bingo Boss
+      this.world.setNight(0.5);
+      await this.talk.say(this.speakers.ayo, BOSS_READY, 'proud');
+      this.save.bossCalled = true;
+      this.persist();
+      this.updateMarkers();
+    }
     this.talk.end();
     audio.play('deck');
     this.renderHud();
@@ -896,38 +1267,50 @@ export class Game {
 
   private openMissions(): void {
     if (this.mode !== 'deck') return;
+    const launchBtn = (label: string, go: () => void) =>
+      h('button', {
+        class: 'btn small',
+        type: 'button',
+        text: label,
+        onclick: () => {
+          modal.close();
+          go();
+        },
+      });
     const rows = ROUTE.map((s) => {
-      const open = (SECTORS as string[]).includes(s);
-      const sec = open ? SECTOR_INFO[s as Sector] : null;
-      const n = sec ? this.save.stars[sec.id] : 0;
-      const done = sec ? this.save.done.includes(sec.id) : false;
-      const name = { formations: 'Formations', engines: 'Engines', cargo: 'Cargo', constellations: 'Constellations' }[s];
+      const sec = SECTOR_INFO[s];
+      const n = this.save.stars[s];
+      const done = this.save.done.includes(s);
       return h(
         'li',
-        { class: `belt-row${open ? '' : ' soon'}` },
-        pix(`sector-${s}-${done}`, () => paintSectorIcon(s, done || open), 2),
+        { class: 'belt-row' },
+        pix(`sector-${s}-true`, () => paintSectorIcon(s, true), 2),
         h(
           'div',
           { class: 'belt-info' },
-          h('strong', { text: sec ? `${name}: ${sec.skill} (${sec.grades})` : `${name}` }),
-          h('span', { text: sec ? (done ? 'Cleared! Fly again any time.' : `Fly with ${CREW_INFO[sec.chief].name}. 5 stars clears the sector.`) : 'Opens soon.' }),
-          ...(sec ? [h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18)))] : []),
+          h('strong', { text: `${sec.name}: ${sec.skill} (${sec.grades})` }),
+          h('span', { text: done ? 'Cleared! Fly again any time.' : `Fly with ${CREW_INFO[sec.chief].name}. 5 stars clears the sector.` }),
+          h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18))),
         ),
-        ...(sec
-          ? [
-              h('button', {
-                class: 'btn small',
-                type: 'button',
-                text: 'Launch',
-                onclick: () => {
-                  modal.close();
-                  void this.launch(sec.id);
-                },
-              }),
-            ]
-          : []),
+        launchBtn('Launch', () => void this.launch(s)),
       );
     });
+    rows.push(
+      h(
+        'li',
+        { class: `belt-row${this.allDone ? '' : ' soon'}` },
+        pix('sector-boss', () => paintStaticCoreIcon(), 2),
+        h('div', { class: 'belt-info' }, h('strong', { text: 'The Bingo Boss' }), h('span', { text: this.save.bossSeen ? `Beaten! Best Bingo: ${this.save.bingoBest} calls. Ask Ayo for a rematch.` : this.allDone ? 'All four sectors are clear. Talk to Commander Ayo!' : 'Clear all four sectors first.' })),
+        ...(this.allDone ? [launchBtn(this.save.bossSeen ? 'Rematch' : 'Go!', () => this.startFlight('formations', 'boss'))] : []),
+      ),
+      h(
+        'li',
+        { class: `belt-row${this.save.done.includes('engines') ? '' : ' soon'}` },
+        pix('up-rapid', () => paintUpgradeIcon('rapid'), 2),
+        h('div', { class: 'belt-info' }, h('strong', { text: 'Meteor Run with Rafi' }), h('span', { text: this.save.done.includes('engines') ? `${METEOR_SECONDS} seconds of quick facts. Best: ${this.save.best}` : 'Clear the Engines sector to unlock it.' })),
+        ...(this.save.done.includes('engines') ? [launchBtn('Go!', () => this.startFlight('engines', 'meteor'))] : []),
+      ),
+    );
     const root = h(
       'div',
       { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'missions-title', style: 'width:min(620px,100%)' },
@@ -981,7 +1364,7 @@ export class Game {
     this.shieldEl = h('span', { class: 'msq-shield', role: 'img' });
     this.fFleetEl = h('span', { class: 'msq-count' });
     this.dotsEl = h('span', { class: 'msq-qdots', role: 'img' });
-    const hintBtn = h('button', { class: 'btn small', type: 'button', 'aria-keyshortcuts': 'H', onclick: () => this.flight && !this.flight.between && this.openHint() }, iconImg('bulb', '', 20), h('span', { class: 'msq-btn-label', text: 'Hint' }));
+    const hintBtn = h('button', { class: 'btn small msq-hint-btn', type: 'button', 'aria-keyshortcuts': 'H', onclick: () => (this.flight?.boss ? this.bossHint() : this.flight?.kind === 'mission' && !this.flight.between && this.openHint()) }, iconImg('bulb', '', 20), h('span', { class: 'msq-btn-label', text: 'Hint' }));
     const pauseBtn = h('button', { class: 'btn small', type: 'button', 'aria-label': 'Pause', onclick: () => this.flight && !this.flight.pause && this.openPause() }, h('span', { class: 'msq-pause-icon', 'aria-hidden': 'true' }), h('span', { class: 'msq-btn-label', text: 'Pause' }));
     this.fhud = h(
       'div',
@@ -1001,8 +1384,32 @@ export class Game {
     this.shieldEl.setAttribute('aria-label', `Shield: ${left} of ${max}`);
     this.fFleetEl.replaceChildren(pix('fleet', () => paintFleetIcon(), 2), h('span', { text: String(this.save.fleet) }));
     this.fFleetEl.setAttribute('aria-label', `Fleet: ${this.save.fleet} ships`);
+    if (f.kind === 'meteor') return this.renderTimer();
+    if (f.kind === 'boss') {
+      const n = f.boss ? f.boss.marked.filter(Boolean).length - 1 : 0;
+      this.dotsEl.replaceChildren(h('span', { class: 'msq-score', text: `Marked: ${n}` }));
+      this.dotsEl.setAttribute('aria-label', `${n} squares marked`);
+      return;
+    }
     this.dotsEl.replaceChildren(...Array.from({ length: QUESTIONS_PER_FLIGHT }, (_, i) => h('span', { class: `msq-qdot${i < f.q ? ' done' : i === f.q ? ' now' : ''}${i === QUESTIONS_PER_FLIGHT - 1 ? ' core' : ''}` })));
     this.dotsEl.setAttribute('aria-label', `Question ${Math.min(QUESTIONS_PER_FLIGHT, f.q + 1)} of ${QUESTIONS_PER_FLIGHT}`);
+  }
+
+  /** Meteor Run: the time bar and the score. */
+  private renderTimer(): void {
+    const f = this.flight;
+    if (!f || f.kind !== 'meteor') return;
+    let bar = this.dotsEl.querySelector<HTMLElement>('.msq-timer-fill');
+    let score = this.dotsEl.querySelector<HTMLElement>('.msq-score');
+    if (!bar || !score) {
+      bar = h('span', { class: 'msq-timer-fill' });
+      score = h('span', { class: 'msq-score' });
+      this.dotsEl.replaceChildren(h('span', { class: 'msq-timer', role: 'progressbar', 'aria-label': 'Time left' }, bar), score);
+    }
+    const left = Math.max(0, f.timeLeft === Infinity ? METEOR_SECONDS : f.timeLeft);
+    bar.style.width = `${(left / METEOR_SECONDS) * 100}%`;
+    bar.classList.toggle('low', left < 10);
+    score.textContent = `${f.score} right · ${Math.ceil(left)} s`;
   }
 
   private toggleMute(): void {
@@ -1052,6 +1459,21 @@ export class Game {
       'nine-minus-one': 'taking away 1 instead of a whole group for times 9',
       'nines-flipped': 'flipping the digits of a nines answer (36 for 63)',
       'plus-three': 'adding 3 instead of one more group for times 3',
+      subtracted: 'subtracting instead of dividing',
+      multiplied: 'multiplying instead of dividing',
+      swapped: 'giving the number of groups instead of how many in each',
+      'leftover-ignored': 'forgetting that the leftover crew still need a shuttle',
+      'remainder-answer': 'giving the leftover as the answer',
+      'rounded-up': 'counting a part-full crate as full',
+      'gave-quotient': 'giving the number of groups when asked what is left over',
+      'missing-to-fill': 'giving how many more would fill a group, not what is left over',
+      'backwards-division': 'dividing the small number by the big one (4 ÷ 12)',
+      'division-not-family': 'not seeing division facts as part of a times family',
+      'repeated-pair': 'counting a turned pair (12 × 2 after 2 × 12) as a new factor pair',
+      'not-a-factor': 'picking a number that does not divide evenly as a factor',
+      'multiple-not-factor': 'mixing up factors and multiples',
+      'odd-means-prime': 'thinking every odd number is prime',
+      'one-is-prime': 'thinking 1 is prime',
     };
     const rows = SECTORS.map((s) => {
       const rec = this.save.learner[s];
@@ -1069,7 +1491,7 @@ export class Game {
     return h(
       'div',
       {},
-      h('p', { text: `This summary is kept only in this browser. Sectors cleared: ${this.save.done.length} of 4. Flights: ${this.save.flights}. Ships rescued: ${this.save.fleet}. Star Map: ${this.save.starMap.length} of 55 facts lit (each lit fact was answered right first time).` }),
+      h('p', { text: `This summary is kept only in this browser. Sectors cleared: ${this.save.done.length} of 4.${this.save.bossSeen ? ` The Bingo Boss is beaten (best: ${this.save.bingoBest} calls).` : ''} Flights: ${this.save.flights}. Ships rescued: ${this.save.fleet}. Star Map: ${this.save.starMap.length} of 55 facts lit (each lit fact was answered right first time). Best Meteor Run: ${this.save.best} in ${METEOR_SECONDS} seconds.` }),
       h('div', { class: 'table-wrap' }, h('table', { class: 'progress-table' }, h('thead', {}, h('tr', {}, ...['Sector', 'Status', 'Answers', 'Level now', 'Most common slip'].map((t) => h('th', { scope: 'col', text: t })))), h('tbody', {}, ...rows))),
     );
   }
@@ -1094,8 +1516,17 @@ export class Game {
       paint: this.save.paint,
       starMap: this.save.starMap.length,
       talking: this.talk.isOpen,
+      bossCalled: this.save.bossCalled,
+      bossSeen: this.save.bossSeen,
+      bingoBest: this.save.bingoBest,
+      best: this.save.best,
+      night: this.world.night,
       flight: f
         ? {
+            mode: f.kind,
+            score: f.score,
+            timeLeft: f.timeLeft,
+            boss: f.boss ? { calls: f.boss.calls, call: f.boss.call.text, answer: f.boss.call.answer, rightIndex: f.boss.card.values.indexOf(f.boss.call.answer), marked: f.boss.marked.filter(Boolean).length, won: f.boss.won, cursor: f.boss.cursor } : null,
             sector: f.sector,
             q: f.q,
             step: f.step,

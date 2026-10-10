@@ -17,7 +17,19 @@
  *        pick the shortcut, then the answer
  *     3. x6, x7, x8 and x9 facts (break apart into a fact you know), and the 11s and 12s
  *
- * Cargo (division) and Constellations (fact families) come in half 2.
+ *   Cargo (Quartermaster Dot), grades 3-4, division and the missing factor (3.OA.2, 3.OA.4, 3.OA.6, 4.OA.3)
+ *     1. share crates equally between ships: how many on each ship
+ *     2. the missing factor (? x 6 = 42), and "how many groups?" next to "how many in each?" stories
+ *     3. leftovers: how many shuttles so everyone flies, how many full crates, how many left over
+ *   Constellations (Navigator Sol), grades 3-5, fact families and factors (3.OA.6, 3.OA.7, 4.OA.4)
+ *     1. finish the fact family (3, 4 and 12 make 3 x 4, 4 x 3, 12 / 3 and 12 / 4)
+ *     2. which fact does not belong in the family
+ *     3. the missing factor pair, which number is a factor, which number is prime
+ *
+ * Bingo Boss (the finale, Multiplication Bingo Bonanza merged in): a 5 x 5
+ * card of answers; every call's answer is on the card and not yet marked.
+ * Meteor Run (the old Space Quest race): quick facts, mostly ones the
+ * player has not lit on the Star Map yet.
  *
  * Wrong answers are made from real mistakes (adding instead of multiplying,
  * counting only the edge of a formation, doubling once for x4, taking away
@@ -25,8 +37,8 @@
  * explain.
  */
 
-export type Sector = 'formations' | 'engines';
-export const SECTORS: Sector[] = ['formations', 'engines'];
+export type Sector = 'formations' | 'engines' | 'cargo' | 'constellations';
+export const SECTORS: Sector[] = ['formations', 'engines', 'cargo', 'constellations'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -48,6 +60,21 @@ export type Misconception =
   | 'nine-minus-one' // x9 done as ten groups take away 1 (not a group)
   | 'nines-flipped' // the digits of a x9 answer flipped: 9 x 7 -> 36
   | 'plus-three' // x3 done as a double plus 3 (not one more group)
+  | 'subtracted' // took the numbers away instead of dividing: 24 crates, 4 ships -> 20
+  | 'multiplied' // multiplied instead of dividing: 24 crates, 4 ships -> 96
+  | 'swapped' // gave the number of groups when asked how many in each (or the other way round)
+  | 'leftover-ignored' // forgot the leftover crew still need a shuttle (29 crew, 4 seats -> 7)
+  | 'remainder-answer' // gave the leftover as the answer
+  | 'rounded-up' // counted a part-full crate as full
+  | 'gave-quotient' // gave how many groups when asked what is left over
+  | 'missing-to-fill' // gave how many more would fill a group, not how many are left over
+  | 'backwards-division' // divided the small number by the big one (4 / 12 = 3)
+  | 'division-not-family' // thinks a division fact is not part of the multiplication family
+  | 'repeated-pair' // counted a turned pair (12 x 2 after 2 x 12) as a new factor pair
+  | 'not-a-factor' // picked a number that does not divide evenly
+  | 'multiple-not-factor' // mixed up factors and multiples (84 is a multiple of 42, not a factor)
+  | 'odd-means-prime' // thinks every odd number is prime (9, 15, 21)
+  | 'one-is-prime' // thinks 1 is prime (a prime has exactly two factors)
   | 'other';
 
 export interface Choice {
@@ -67,6 +94,8 @@ export type Picture =
   | { kind: 'groups'; groups: number; each: number }
   | { kind: 'array'; rows: number; cols: number }
   | { kind: 'split'; rows: number; cols: number; at: number }
+  /** A pile of supply crates, with `rings` empty ships to share them into (0: no ships shown). */
+  | { kind: 'crates'; crates: number; rings: number }
   | null;
 
 /** One step of a question: what the banner asks, and the three rocks. */
@@ -81,8 +110,32 @@ export interface Step {
 export interface Problem {
   sector: Sector;
   tier: Tier;
-  kind: 'groups-count' | 'groups-sentence' | 'array-count' | 'array-turn' | 'split' | 'basic' | 'shortcut' | 'break-apart' | 'big';
-  /** The two factors (a groups of b, or a rows of b). */
+  kind:
+    | 'groups-count'
+    | 'groups-sentence'
+    | 'array-count'
+    | 'array-turn'
+    | 'split'
+    | 'basic'
+    | 'shortcut'
+    | 'break-apart'
+    | 'big'
+    | 'share'
+    | 'missing-factor'
+    | 'how-many-groups'
+    | 'round-up'
+    | 'full'
+    | 'left-over'
+    | 'family-missing'
+    | 'odd-fact'
+    | 'missing-pair'
+    | 'is-factor'
+    | 'prime';
+  /**
+   * The two numbers the question is about. Formations and Engines: the factors
+   * (a groups of b). Cargo: the crates and the ships (or the group size).
+   * Constellations: the two factors of the family, or the number whose factors are asked about.
+   */
   a: number;
   b: number;
   answer: number;
@@ -561,8 +614,489 @@ export function makeEngines(tier: Tier, r: Rand): Problem {
   };
 }
 
+// ------------------------------------------------------------------ Cargo (Quartermaster Dot)
+
+export function makeCargo(tier: Tier, r: Rand): Problem {
+  if (tier === 1) {
+    const ships = int(r, 2, 5);
+    let each = int(r, 2, 8);
+    if (each === ships) each++;
+    const crates = ships * each;
+    return {
+      sector: 'cargo',
+      tier,
+      kind: 'share',
+      a: crates,
+      b: ships,
+      answer: each,
+      picture: { kind: 'crates', crates, rings: ships },
+      facts: facts([ships, each]),
+      steps: [
+        {
+          ask: `${crates} crates shared equally between ${ships} ships. How many on each ship?`,
+          choices: numberChoices(
+            r,
+            each,
+            [
+              [crates - ships, 'subtracted'],
+              [ships, 'swapped'],
+              [crates * ships, 'multiplied'],
+            ],
+            1,
+          ),
+          explain: `Deal them out one each, round and round: ${crates} ÷ ${ships} = ${each}, because ${times(ships, each)} = ${crates}.`,
+        },
+      ],
+    };
+  }
+  if (tier === 2) {
+    const d = int(r, 2, 9);
+    let q = int(r, 2, 9);
+    if (q === d) q = q === 9 ? 8 : q + 1;
+    const total = d * q;
+    if (r() < 0.5) {
+      const [x, y] = r() < 0.5 ? ['?', String(d)] : [String(d), '?'];
+      return {
+        sector: 'cargo',
+        tier,
+        kind: 'missing-factor',
+        a: total,
+        b: d,
+        answer: q,
+        picture: { kind: 'crates', crates: total, rings: 0 },
+        facts: facts([d, q]),
+        steps: [
+          {
+            ask: `Fill the cargo log: ${x} × ${y} = ${total}. What is the missing number?`,
+            choices: numberChoices(
+              r,
+              q,
+              [
+                [total - d, 'subtracted'],
+                [q + 1, 'one-group-off'],
+                [total * d, 'multiplied'],
+              ],
+              1,
+            ),
+            explain: `What times ${d} makes ${total}? ${times(q, d)} = ${total}, so ${total} ÷ ${d} = ${q}.`,
+          },
+        ],
+      };
+    }
+    // "how many groups?" (the group size is known) next to "how many in each?" (the number of groups is known)
+    const groupsAsk = r() < 0.5;
+    return {
+      sector: 'cargo',
+      tier,
+      kind: 'how-many-groups',
+      a: total,
+      b: d,
+      answer: q,
+      picture: { kind: 'crates', crates: total, rings: groupsAsk ? 0 : d },
+      facts: facts([d, q]),
+      steps: [
+        {
+          ask: groupsAsk ? `${total} crates, ${d} crates in each ship. How many ships?` : `${total} crates shared by ${d} ships. How many in each ship?`,
+          choices: numberChoices(
+            r,
+            q,
+            [
+              [total - d, 'subtracted'],
+              [total * d, 'multiplied'],
+              [q - 1, 'one-group-off'],
+            ],
+            1,
+          ),
+          explain: groupsAsk ? `Count how many groups of ${d} make ${total}: ${times(q, d)} = ${total}. ${q} ships.` : `Share ${total} into ${d} equal groups: ${total} ÷ ${d} = ${q} in each.`,
+        },
+      ],
+    };
+  }
+  // level 3: leftovers (a remainder of 1 or more)
+  const per = int(r, 3, 9);
+  const q = int(r, 3, 9);
+  const rem = int(r, 1, per - 1);
+  const total = per * q + rem;
+  const kind = pick(r, ['round-up', 'full', 'left-over'] as const);
+  if (kind === 'round-up')
+    return {
+      sector: 'cargo',
+      tier,
+      kind,
+      a: total,
+      b: per,
+      answer: q + 1,
+      picture: { kind: 'crates', crates: total, rings: 0 },
+      facts: facts([per, q]),
+      steps: [
+        {
+          ask: `${total} crew, ${per} seats in each shuttle. How many shuttles so everyone flies?`,
+          choices: numberChoices(
+            r,
+            q + 1,
+            [
+              [q, 'leftover-ignored'],
+              [rem, 'remainder-answer'],
+              [q + 2, 'one-group-off'],
+            ],
+            1,
+          ),
+          explain: `${times(q, per)} = ${per * q}, so ${q} shuttles are full and ${rem} crew are left. They need one more shuttle: ${q + 1}.`,
+        },
+      ],
+    };
+  if (kind === 'full')
+    return {
+      sector: 'cargo',
+      tier,
+      kind,
+      a: total,
+      b: per,
+      answer: q,
+      picture: { kind: 'crates', crates: total, rings: 0 },
+      facts: facts([per, q]),
+      steps: [
+        {
+          ask: `${total} cans of fuel, ${per} cans fill a crate. How many crates are full?`,
+          choices: numberChoices(
+            r,
+            q,
+            [
+              [q + 1, 'rounded-up'],
+              [rem, 'remainder-answer'],
+              [q - 1, 'one-group-off'],
+            ],
+            1,
+          ),
+          explain: `${times(q, per)} = ${per * q}, with ${rem} left over. A crate with ${rem} is not full, so ${q} crates are full.`,
+        },
+      ],
+    };
+  return {
+    sector: 'cargo',
+    tier,
+    kind: 'left-over',
+    a: total,
+    b: per,
+    answer: rem,
+    picture: { kind: 'crates', crates: total, rings: 0 },
+    facts: facts([per, q]),
+    steps: [
+      {
+        ask: `${total} cans of fuel go into crates of ${per}. How many cans are left over?`,
+        choices: numberChoices(
+          r,
+          rem,
+          [
+            [q, 'gave-quotient'],
+            [per - rem, 'missing-to-fill'],
+            [rem + 1, 'one-group-off'],
+          ],
+          1,
+        ),
+        explain: `${times(q, per)} = ${per * q}. ${total} − ${per * q} = ${rem} left over.`,
+      },
+    ],
+  };
+}
+
+// ------------------------------------------------------------------ Constellations (Navigator Sol)
+
+/** The four facts of a family (a x b, b x a, p / a, p / b). */
+export function family(a: number, b: number): string[] {
+  const p = a * b;
+  return [`${a} × ${b} = ${p}`, `${b} × ${a} = ${p}`, `${p} ÷ ${a} = ${b}`, `${p} ÷ ${b} = ${a}`];
+}
+
+/** Is a fact sentence like "12 ÷ 4 = 3" or "3 + 4 = 7" true? */
+export function factTrue(s: string): boolean {
+  const m = s.match(/^(\d+) ([×÷+−]) (\d+) = (\d+)$/);
+  if (!m) return false;
+  const [x, op, y, z] = [Number(m[1]), m[2], Number(m[3]), Number(m[4])];
+  const v = op === '×' ? x * y : op === '÷' ? x / y : op === '+' ? x + y : x - y;
+  return v === z;
+}
+
+export const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+
+export function factorPairs(n: number): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (let k = 1; k * k <= n; k++) if (n % k === 0) out.push([k, n / k]);
+  return out;
+}
+
+export function makeConstellations(tier: Tier, r: Rand): Problem {
+  if (tier === 1 || tier === 2) {
+    const a = int(r, 2, 9);
+    let b = int(r, 2, 9);
+    if (b === a) b = b === 9 ? 8 : b + 1;
+    const p = a * b;
+    const fam = family(a, b);
+    if (tier === 1) {
+      const missing = int(r, 0, 3);
+      const shown = fam.filter((_, i) => i !== missing);
+      const right = fam[missing];
+      // the wrong facts: the division turned backwards, and an addition fact (another family)
+      const back = missing >= 2 ? `${missing === 2 ? a : b} ÷ ${p} = ${missing === 2 ? b : a}` : `${p} ÷ ${a + b} = ${b}`;
+      const wrong: Array<[string, Misconception]> = [
+        [missing >= 2 ? back : `${a} ÷ ${p} = ${b}`, 'backwards-division'],
+        [`${a} + ${b} = ${a + b}`, 'added'],
+      ];
+      return {
+        sector: 'constellations',
+        tier,
+        kind: 'family-missing',
+        a,
+        b,
+        answer: p,
+        picture: null,
+        facts: facts([a, b]),
+        steps: [
+          {
+            ask: `The ${a}, ${b}, ${p} family: ${shown.join(', ')}. Which fact finishes it?`,
+            choices: sentenceChoices(r, right, wrong),
+            explain: `${a}, ${b} and ${p} make four facts: ${fam.join(', ')}.`,
+          },
+        ],
+      };
+    }
+    // level 2: which fact is NOT in the family (two true members and one that does not belong)
+    const odd = pick(r, [`${b} ÷ ${p} = ${a}`, `${p} ÷ ${a} = ${b + 1}`, `${a} + ${b} = ${a + b}`]);
+    const members = shuffle(r, [fam[1], fam[2], fam[3]]).slice(0, 2);
+    const choices: Choice[] = shuffle(r, [
+      { value: odd, label: odd, correct: true },
+      ...members.map((m): Choice => ({ value: m, label: m, correct: false, misconception: m.includes('÷') ? 'division-not-family' : 'turn-changes' })),
+    ]);
+    return {
+      sector: 'constellations',
+      tier,
+      kind: 'odd-fact',
+      a,
+      b,
+      answer: p,
+      picture: null,
+      facts: facts([a, b]),
+      steps: [
+        {
+          ask: `${fam[0]}. Which fact is NOT in this family?`,
+          choices,
+          explain: odd.includes('+') ? `${odd} is an adding fact. The family is ${fam.join(', ')}.` : `${odd} is not true. The family is ${fam.join(', ')}.`,
+        },
+      ],
+    };
+  }
+  // level 3: factor pairs, factors and multiples, primes
+  const kind = pick(r, ['missing-pair', 'is-factor', 'prime'] as const);
+  if (kind === 'missing-pair') {
+    const n = pick(r, [12, 18, 20, 24, 30, 36, 40, 48] as const);
+    const pairs = factorPairs(n);
+    // leave out 1 x n now and then (the pair children most often forget)
+    const gone = r() < 0.4 ? 0 : int(r, 1, pairs.length - 1);
+    const right = pairs[gone];
+    const shown = pairs.filter((_, i) => i !== gone);
+    // a pair already found, turned round (never a square pair like 6 x 6, which is the same both ways)
+    const turned = [...shown].reverse().find(([x, y]) => x !== y)!;
+    let k = int(r, 2, 6);
+    while (n % k === 0) k++;
+    const fake = `${k} × ${Math.round(n / k)}`;
+    return {
+      sector: 'constellations',
+      tier,
+      kind,
+      a: n,
+      b: right[0],
+      answer: n,
+      picture: null,
+      facts: facts(...pairs.filter(([x, y]) => x > 1 && y <= 10).map((q) => q as [number, number])),
+      steps: [
+        {
+          ask: `Park ${n} ships in a rectangle. Found: ${shown.map(([x, y]) => times(x, y)).join(', ')}. Which way is missing?`,
+          choices: sentenceChoices(r, times(right[0], right[1]), [
+            [times(turned[1], turned[0]), 'repeated-pair'],
+            [fake, 'not-a-factor'],
+          ]),
+          explain: `The factor pairs of ${n} are ${pairs.map(([x, y]) => times(x, y)).join(', ')}. Turning a pair round is the same pair.`,
+        },
+      ],
+    };
+  }
+  if (kind === 'is-factor') {
+    const k = int(r, 3, 9);
+    const m = int(r, 3, 9);
+    const n = k * m;
+    let not = k + 1;
+    while (n % not === 0) not++;
+    return {
+      sector: 'constellations',
+      tier,
+      kind,
+      a: n,
+      b: k,
+      answer: k,
+      picture: null,
+      facts: facts([k, m]),
+      steps: [
+        {
+          ask: `Which number is a factor of ${n}? (It divides ${n} with nothing left over.)`,
+          choices: numberChoices(
+            r,
+            k,
+            [
+              [n * 2, 'multiple-not-factor'],
+              [not, 'not-a-factor'],
+            ],
+            1,
+          ),
+          explain: `${times(k, m)} = ${n}, so ${k} is a factor of ${n}. ${n * 2} is a multiple of ${n}, not a factor.`,
+        },
+      ],
+    };
+  }
+  const p = pick(r, [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]);
+  const odd = pick(r, [9, 15, 21, 25, 27, 33, 35]);
+  return {
+    sector: 'constellations',
+    tier,
+    kind: 'prime',
+    a: p,
+    b: odd,
+    answer: p,
+    picture: null,
+    facts: [],
+    steps: [
+      {
+        ask: 'Which number is prime? (A prime has exactly two factors: 1 and itself.)',
+        choices: numberChoices(
+          r,
+          p,
+          [
+            [odd, 'odd-means-prime'],
+            [1, 'one-is-prime'],
+          ],
+          1,
+        ),
+        explain: `${p} has only two factors, 1 and ${p}. ${odd} = ${factorPairs(odd)
+          .filter(([x]) => x > 1)
+          .map(([x, y]) => times(x, y))[0]}, and 1 has only one factor.`,
+      },
+    ],
+  };
+}
+
 export function makeProblem(sector: Sector, tier: Tier, r: Rand): Problem {
-  return sector === 'formations' ? makeFormations(tier, r) : makeEngines(tier, r);
+  if (sector === 'formations') return makeFormations(tier, r);
+  if (sector === 'engines') return makeEngines(tier, r);
+  if (sector === 'cargo') return makeCargo(tier, r);
+  return makeConstellations(tier, r);
+}
+
+// ------------------------------------------------------------------ Bingo Boss (the finale)
+
+/** A call: the question Blip calls out, and the number it is looking for. */
+export interface BingoCall {
+  text: string;
+  answer: number;
+  kind: 'times' | 'divide' | 'missing';
+  a: number;
+  b: number;
+}
+
+/** 25 squares, row by row; the middle (index 12) is the free space (value 0). */
+export interface BingoCard {
+  values: number[];
+}
+
+export const FREE = 12;
+
+/** A Bingo card: 8 small numbers (division answers) and 16 products, all different, at the player's level. */
+export function makeBingoCard(tier: Tier, r: Rand): BingoCard {
+  const small = shuffle(r, [2, 3, 4, 5, 6, 7, 8, 9, 10]).slice(0, 8);
+  const tables = tier === 1 ? [2, 5, 10] : tier === 2 ? [2, 3, 4, 5, 9, 10] : [3, 4, 6, 7, 8, 9];
+  const products = new Set<number>();
+  for (const t of tables) for (let n = 2; n <= 10; n++) if (!small.includes(t * n)) products.add(t * n);
+  const big = shuffle(r, [...products]).slice(0, 16);
+  const vals = shuffle(r, [...small, ...big]);
+  vals.splice(FREE, 0, 0);
+  return { values: vals };
+}
+
+/** Every factor pair (2-10) that makes n. */
+function smallPairs(n: number): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (let a = 2; a <= 10; a++) if (n % a === 0 && n / a >= 2 && n / a <= 10) out.push([a, n / a]);
+  return out;
+}
+
+/**
+ * Blip's next call: always for a number that is on the card and not marked
+ * yet (the old Bingo Bonanza called facts whose answers were often not on
+ * the card at all).
+ */
+export function makeBingoCall(card: BingoCard, marked: boolean[], r: Rand): BingoCall {
+  const open = card.values.map((v, i) => ({ v, i })).filter(({ i }) => i !== FREE && !marked[i]);
+  const { v } = pick(r, open);
+  const pairs = smallPairs(v);
+  if (v > 10 || (pairs.length && r() < 0.3)) {
+    const [a, b] = pick(r, pairs);
+    return { text: `${times(a, b)} = ?`, answer: v, kind: 'times', a, b };
+  }
+  const d = int(r, 2, 9);
+  const p = v * d;
+  if (r() < 0.5) return { text: `${p} ÷ ${d} = ?`, answer: v, kind: 'divide', a: p, b: d };
+  return { text: `? × ${d} = ${p}`, answer: v, kind: 'missing', a: p, b: d };
+}
+
+/** The idea behind tapping the wrong square for a call. */
+export function bingoMistake(c: BingoCall, picked: number): Misconception {
+  if (c.kind === 'times') {
+    if (picked === c.a + c.b) return 'added';
+    if (picked === c.answer + c.a || picked === c.answer - c.a || picked === c.answer + c.b || picked === c.answer - c.b) return 'one-group-off';
+    if (flipDigits(c.answer) === picked) return 'nines-flipped';
+    return 'other';
+  }
+  if (picked === c.a - c.b) return 'subtracted';
+  if (picked === c.b) return 'swapped';
+  if (picked === c.answer + 1 || picked === c.answer - 1) return 'one-group-off';
+  return 'other';
+}
+
+export const BINGO_LINES: number[][] = [
+  ...[0, 1, 2, 3, 4].map((row) => [0, 1, 2, 3, 4].map((c) => row * 5 + c)),
+  ...[0, 1, 2, 3, 4].map((col) => [0, 1, 2, 3, 4].map((row) => row * 5 + col)),
+  [0, 6, 12, 18, 24],
+  [4, 8, 12, 16, 20],
+];
+
+/** The first full line (row, column or diagonal), or null. */
+export function bingoLine(marked: boolean[]): number[] | null {
+  return BINGO_LINES.find((line) => line.every((i) => i === FREE || marked[i])) ?? null;
+}
+
+// ------------------------------------------------------------------ Meteor Run (the old 60-second race)
+
+/** A quick fact for Meteor Run: mostly one the player has not lit on the Star Map yet. */
+export function makeMeteor(lit: string[], r: Rand): Problem {
+  const all: Array<[number, number]> = [];
+  for (let a = 2; a <= 10; a++) for (let b = a; b <= 10; b++) all.push([a, b]);
+  const dark = all.filter(([a, b]) => !lit.includes(factKey(a, b)!));
+  const [x, y] = dark.length && r() < 0.75 ? pick(r, dark) : pick(r, all);
+  const [a, b] = r() < 0.5 ? [x, y] : [y, x];
+  const answer = a * b;
+  const mistakes: Array<[number, Misconception]> = [];
+  const f = flipDigits(answer);
+  if ((a === 9 || b === 9) && f) mistakes.push([f, 'nines-flipped']);
+  mistakes.push([answer + a, 'one-group-off'], [answer - b, 'one-group-off'], [a + b, 'added']);
+  return {
+    sector: 'engines',
+    tier: 1,
+    kind: 'basic',
+    a,
+    b,
+    answer,
+    picture: null,
+    facts: facts([a, b]),
+    steps: [{ ask: `${times(a, b)} = ?`, choices: numberChoices(r, answer, mistakes, Math.min(a, b)), explain: `${times(a, b)} = ${answer}.` }],
+  };
 }
 
 /** Every answer in a step must be the step's one right choice (used by the tests). */

@@ -44,7 +44,7 @@ await shot('05-ship');
 await page.evaluate(() => window.__msq.teleport(5.6, 9));
 await wait(700);
 await shot('06-rafi');
-for (const sector of ['formations', 'engines']) {
+for (const sector of (process.env.SECTORS ?? 'formations,engines,cargo,constellations').split(',')) {
   for (const tier of [1, 2, 3]) {
     await page.evaluate(([s, t]) => window.__msq.setTier(s, t), [sector, tier]);
     await page.evaluate((s) => window.__msq.launch(s), sector);
@@ -84,22 +84,59 @@ for (const sector of ['formations', 'engines']) {
     await wait(600);
   }
 }
-// the last question has the Static core behind it
-await page.evaluate(() => window.__msq.setTier('formations', 2));
-await page.evaluate(() => window.__msq.launch('formations'));
+// the finale: the Bingo Boss, then the landing on the planet
+await page.evaluate(() => window.__msq.finishAll());
+await wait(500);
+await shot('20-night-shift');
+await page.evaluate(() => window.__msq.boss());
+await until((s) => s.flight && s.flight.boss);
+await wait(900);
+await shot('21-boss');
+let st0 = await st();
+// a wrong square first, for the screenshot
+const wrongIdx = [0, 1, 2, 3, 4, 5].find((i) => i !== st0.flight.boss.rightIndex && i !== 12);
+await page.locator('.msq-square').nth(wrongIdx).click();
+await wait(500);
+await shot('22-boss-wrong');
+await page.keyboard.press('h');
+await wait(200);
+await page.keyboard.press('h');
 await wait(400);
-await skipTalk();
-await page.evaluate(() => window.__msq.lastQuestion());
-await until((s) => s.flight && s.flight.ready && !s.flight.between);
-let s = await st();
-await page.evaluate((i) => window.__msq.fire(i), s.flight.right);
-await wait(3200);
-await until((x) => x.flight && x.flight.ready && !x.flight.between);
-await wait(400);
-await shot('20-core');
-await page.evaluate(() => window.__msq.endFlight());
-await wait(400);
-await skipTalk();
+await shot('23-boss-hint');
+for (let i = 0; i < 26; i++) {
+  const s = await st();
+  if (!s.flight || !s.flight.boss || s.flight.boss.won) break;
+  await page.evaluate(() => window.__msq.pickRight());
+  await wait(1400);
+  if (i === 5) await shot('24-boss-marked');
+}
+await wait(800);
+await shot('25-bingo');
+await until((s) => s.mode === 'landing', 8000);
+await wait(1500);
+await shot('26-landing');
+for (let i = 0; i < 40 && (await page.locator('.dialogue').count()); i++) {
+  await page.keyboard.press('Space');
+  await wait(200);
+  if (i === 6) await shot('27-landing-talk');
+}
+await wait(800);
+await shot('28-deck-after');
+// Meteor Run
+await page.evaluate(() => window.__msq.meteor());
+await until((s) => s.flight && s.flight.ready);
+await wait(500);
+await shot('29-meteor');
+st0 = await st();
+await page.keyboard.press(String(st0.flight.right + 1));
+await wait(900);
+await page.evaluate(() => window.__msq.setTime(0.5));
+await wait(1500);
+await shot('30-meteor-end');
+for (let i = 0; i < 20 && (await page.locator('.dialogue').count()); i++) {
+  await page.keyboard.press('Space');
+  await wait(200);
+}
 await page.evaluate(() => window.__msq.addDust(80));
 await page.keyboard.press('j');
 await wait(400);
