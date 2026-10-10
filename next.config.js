@@ -48,6 +48,16 @@ const nextConfig = {
         destination: '/games/pizza-fraction-frenzy',
         permanent: true,
       },
+      {
+        source: '/games/multiplication-bingo-bonanza',
+        destination: '/games/multiplication-space-quest',
+        permanent: true,
+      },
+      {
+        source: '/games/multiplication-tables-adventure',
+        destination: '/games/multiplication-space-quest',
+        permanent: true,
+      },
     ];
   },
   async headers() {

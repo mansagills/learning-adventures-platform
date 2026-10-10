@@ -253,6 +253,15 @@ export class CarnivalWorld {
       else p.facing = dir.y > 0 ? 'down' : 'up';
       p.x = n.x;
       p.y = n.y;
+    } else if (this.path && this.pathGoal && Math.hypot(this.pathGoal.x - p.x, this.pathGoal.y - p.y) < 1.2) {
+      // Close enough to talk: arrive now. Walking on would press against the
+      // person's space and slide round it without ever getting stuck.
+      const goal = this.pathGoal;
+      this.path = null;
+      this.pathGoal = null;
+      p.moving = false;
+      p.facing = Math.abs(goal.x - p.x) > Math.abs(goal.y - p.y) ? (goal.x > p.x ? 'right' : 'left') : goal.y > p.y ? 'down' : 'up';
+      this.onArrive?.(goal);
     } else if (this.path) {
       const wp = this.path[0];
       const dx = wp.x - p.x;
