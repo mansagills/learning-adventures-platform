@@ -1,0 +1,451 @@
+/* Equation Balance Scale: the HUD, the job list, the job panel and the balance scale. */
+:root {
+  --ebs-night: #2a1f4a;
+  --ebs-cyan: #5fe3ff;
+  --ebs-pink: #ff6fc0;
+  --ebs-gold: #ffcf6a;
+  --ebs-leaf: #2f6b2c;
+  --ebs-leaf-bg: #dcebc9;
+}
+.title-card .logo {
+  color: #5a3fa8;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD bar (top left): the beacon ---------- */
+.ebs-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+}
+.ebs-beacon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* the job list */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-row.soon {
+  opacity: 0.7;
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- the job panel ---------- */
+.ebs-panel {
+  width: min(720px, 100%);
+}
+.ebs-panel header {
+  background: linear-gradient(90deg, #d9cff3, var(--paper-2));
+}
+.ebs-job-rover header {
+  background: linear-gradient(90deg, #f6d6bd, var(--paper-2));
+}
+.ebs-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.ebs-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.ebs-stars {
+  display: flex;
+  gap: 2px;
+}
+.ebs-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.ebs-host {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #e8e2fb;
+}
+.ebs-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 3px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.ebs-speak {
+  flex: none;
+}
+.ebs-body {
+  padding: 10px 16px 4px;
+  min-height: 0;
+}
+.ebs-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.ebs-feedback[hidden] {
+  display: none;
+}
+.ebs-feedback img {
+  flex: none;
+}
+.ebs-feedback.good {
+  background: var(--ebs-leaf-bg);
+  color: #1d4a1b;
+}
+.ebs-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.ebs-feedback.hint {
+  background: #e3e8f6;
+  color: #1c2f66;
+}
+.ebs-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.ebs-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ---------- the balance scale ---------- */
+.ebs-scale {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: linear-gradient(#2a1f4a 0%, #3a2a62 70%, #2f8f86 70%, #2fa39a 100%);
+  border: 3px solid #1d1a30;
+  overflow: hidden;
+}
+.ebs-rig {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: top left;
+}
+.ebs-stand {
+  position: absolute;
+  left: 172px;
+  top: 44px;
+}
+.ebs-stand .px-icon,
+.ebs-beam .px-icon,
+.ebs-pan > .px-icon {
+  display: block;
+}
+.ebs-beam {
+  position: absolute;
+  transition: transform 0.7s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.ebs-pan {
+  position: absolute;
+  width: 128px;
+  transform: translate(-50%, -2px);
+  transition:
+    left 0.7s cubic-bezier(0.3, 1.4, 0.5, 1),
+    top 0.7s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.ebs-lock {
+  position: absolute;
+  left: 220px;
+  top: 74px;
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+}
+.ebs-lock.open {
+  opacity: 0;
+}
+.ebs-load {
+  position: absolute;
+  left: -16px;
+  right: -16px;
+  bottom: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 3px;
+}
+.ebs-pile {
+  display: inline-flex;
+  flex-wrap: wrap-reverse;
+  justify-content: center;
+  max-width: 82px;
+}
+.ebs-pile .px-icon {
+  display: block;
+}
+.ebs-op {
+  align-self: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  padding: 0 1px;
+  text-shadow: 0 2px 0 #1d1a30;
+}
+.ebs-token {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+.ebs-token .px-icon {
+  display: block;
+}
+.ebs-num {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  text-align: center;
+  line-height: 1;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 15px;
+  color: #1d1a30;
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff;
+  font-variant-numeric: tabular-nums;
+}
+.ebs-gap .ebs-num {
+  color: #ffe9a8;
+  text-shadow: 0 2px 0 #1d1a30;
+}
+.ebs-gap.filled .ebs-num {
+  color: #1d1a30;
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff;
+}
+.ebs-gap.hover {
+  filter: drop-shadow(0 0 6px #ffe9a8) drop-shadow(0 0 6px #ffe9a8);
+}
+.ebs-plate {
+  position: absolute;
+  top: 82px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: #1d1a30;
+  color: #fff;
+  border: 2px solid var(--ebs-cyan);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 19px;
+}
+.ebs-plate.right {
+  border-color: var(--ebs-pink);
+}
+.ebs-weighs {
+  position: absolute;
+  top: 114px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: #fff3c4;
+  color: #3a2a00;
+  font-weight: 800;
+  font-size: 14px;
+}
+.ebs-weighs[hidden] {
+  display: none;
+}
+
+/* ---------- answers ---------- */
+.ebs-choices {
+  padding: 8px 16px 0;
+}
+.ebs-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.ebs-choice {
+  min-height: 56px;
+  justify-content: center;
+  gap: 8px;
+}
+.ebs-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.ebs-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) + 1px);
+}
+.ebs-choice.crystal {
+  min-width: 88px;
+  padding: 6px 12px;
+  background: #3a2a62;
+  color: #fff;
+  touch-action: none;
+  cursor: grab;
+}
+.ebs-choice.crystal .kbd {
+  color: #fff;
+}
+.ebs-choice.crystal .ebs-token {
+  transform: scale(1.25);
+  margin: 6px 4px;
+}
+.ebs-choice.nope {
+  opacity: 0.35;
+}
+.ebs-choice.nope .ebs-choice-text {
+  text-decoration: line-through;
+}
+.ebs-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  color: inherit;
+  border-color: var(--ebs-leaf);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.ebs-choice.crystal.right {
+  background: #2f6b2c;
+  color: #fff;
+}
+.worked {
+  outline: 4px dashed var(--ebs-leaf);
+  outline-offset: 3px;
+  animation: ebs-worked 1s ease-in-out infinite;
+}
+@keyframes ebs-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+/* the crystal following the pointer while it is dragged */
+.ebs-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1.5);
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.4));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ebs-beam,
+  .ebs-pan {
+    transition: none;
+  }
+}
+.reduced-motion .ebs-beam,
+.reduced-motion .ebs-pan {
+  transition: none;
+}
+
+@media (max-width: 640px) {
+  .ebs-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+  }
+  .ebs-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .ebs-host {
+    width: 48px;
+    height: 48px;
+  }
+  .ebs-prompt {
+    font-size: var(--text);
+  }
+  .ebs-body {
+    padding: 8px 10px 2px;
+  }
+  .ebs-choices {
+    padding: 6px 10px 0;
+  }
+  .ebs-head-right .ebs-level {
+    display: none;
+  }
+  .ebs-options {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .ebs-options.crystals {
+    flex-direction: row;
+    gap: 8px;
+  }
+  .ebs-options.crystals .ebs-choice {
+    flex: 1;
+    min-width: 0;
+    padding: 4px;
+  }
+  .ebs-choice {
+    min-height: 48px;
+  }
+  .ebs-feedback {
+    margin: 6px 10px 0;
+    font-size: var(--text-small);
+  }
+  .ebs-foot {
+    padding: 8px 10px 10px;
+  }
+}
