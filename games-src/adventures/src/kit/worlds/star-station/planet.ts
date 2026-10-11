@@ -1,3 +1,4 @@
+import type * as THREE from 'three';
 import { PixelBuffer } from '../../art/pixel';
 import { pixelTexture } from '../../world/sceneKit';
 import { swapFrame } from '../figure';
@@ -431,16 +432,27 @@ export const ALIEN_PLANET: Setting = {
 };
 
 function buildPlanet(ctx: SceneCtx): SettingScene {
-  const { lighting, px: T, time } = ctx;
+  const { lighting, px: T } = ctx;
+  let time = ctx.time;
   const { add, prop } = placer(ctx);
+  const leave = (part: string) => !!ctx.omit?.includes(part);
+  // solid props: their footprint (as wide as the picture, `depth` tiles deep) goes into `blocks`, so a walking player goes round them
+  const blocks: Array<{ x: number; y: number; w: number; h: number }> = [];
+  const solid = (cv: HTMLCanvasElement, x: number, y: number, shadowW = 0, depth = 0.5) => {
+    const w = cv.width / T;
+    blocks.push({ x: x - w / 2 + 0.1, y: y - depth, w: Math.max(0.4, w - 0.2), h: depth });
+    return prop(cv, x, y, shadowW);
+  };
 
   add(groundPiece(lighting, T, paintPlanetGround(T).toCanvas(), 0, 0));
-  const skyTex = [0, 1, 2].map((f) => pixelTexture(paintPlanetSky(T, L.w + 12, 9, time, f).toCanvas()));
+  // the sky's three twinkle frames, painted for each time of day the first time it is needed
+  const skyFrames: Partial<Record<TimeOfDay, THREE.Texture[]>> = {};
+  const skyFor = (t: TimeOfDay) => (skyFrames[t] ??= [0, 1, 2].map((f) => pixelTexture(paintPlanetSky(T, L.w + 12, 9, t, f).toCanvas())));
   const sky = add(billboard(null, T, paintPlanetSky(T, L.w + 12, 9, time, 0).toCanvas(), L.w / 2, L.floorTop - 0.4));
 
   // the habitat at the end of the walkway, with lit windows after dark
   const habTex = [0, 1].map((f) => pixelTexture(paintHabitat(T, f).toCanvas()));
-  const hab = prop(paintHabitat(T, 0).toCanvas(), 21.4, 12.2, 3.6);
+  const hab = solid(paintHabitat(T, 0).toCanvas(), 21.4, 12.2, 3.6, 1);
   for (const x of [19.6, 23.2]) add(glow(lighting, T, Math.round(T * 1.2), '#ffe9a8', x, 12.2, 1.6, 0.6));
   add(lightPool(lighting, T, 21.4, 12.6, 1.6, '#5fe3ff', 0.3));
 
@@ -451,7 +463,7 @@ function buildPlanet(ctx: SceneCtx): SettingScene {
     [11.2, 5.4, 2],
     [17.6, 19.6, 1],
     [1.6, 21.6, 0],
-  ]) prop(paintRock(T, s).toCanvas(), x, y, 1.6);
+  ]) solid(paintRock(T, s).toCanvas(), x, y, 1.6);
   const crystalSpots = [
     [6.2, 6.8, 0],
     [15.4, 6.2, 1],
@@ -460,7 +472,7 @@ function buildPlanet(ctx: SceneCtx): SettingScene {
     [3.4, 12.6, 1],
   ];
   for (const [x, y, s] of crystalSpots) {
-    prop(paintCrystals(T, s).toCanvas(), x, y, 1.2);
+    solid(paintCrystals(T, s).toCanvas(), x, y, 1.2);
     add(glow(lighting, T, Math.round(T * 1.6), s % 2 ? '#ff7fc8' : '#5fe3ff', x, y, 0.6, 0.65));
     add(lightPool(lighting, T, x, y, 1.1, s % 2 ? '#ff7fc8' : '#5fe3ff', 0.3));
   }
@@ -470,7 +482,7 @@ function buildPlanet(ctx: SceneCtx): SettingScene {
     [13.6, 19.4, 2],
     [24.6, 22.2, 1],
   ]) {
-    prop(paintMushroomTree(T, s).toCanvas(), x, y, 1.8);
+    solid(paintMushroomTree(T, s).toCanvas(), x, y, 1.8, 0.4);
     add(glow(lighting, T, Math.round(T * 2.2), s % 2 ? '#ffd04a' : '#ff8a4c', x, y, 2.4, 0.45));
   }
   for (const [x, y, s] of [
@@ -480,7 +492,7 @@ function buildPlanet(ctx: SceneCtx): SettingScene {
     [20.6, 15.6, 1],
     [7.6, 21.4, 0],
   ]) {
-    prop(paintBulbPlant(T, s).toCanvas(), x, y);
+    solid(paintBulbPlant(T, s).toCanvas(), x, y, 0, 0.4);
     add(glow(lighting, T, Math.round(T * 0.9), '#7dea8a', x, y, 0.7, 0.7));
   }
 
@@ -490,40 +502,52 @@ function buildPlanet(ctx: SceneCtx): SettingScene {
     const a = (k / 6) * Math.PI * 2 + Math.PI / 6;
     const x = pad.x + Math.cos(a) * pad.r * 0.92;
     const y = pad.y + Math.sin(a) * pad.r * 0.74;
-    prop(paintBollard(T).toCanvas(), x, y);
+    solid(paintBollard(T).toCanvas(), x, y, 0, 0.3);
     add(glow(lighting, T, Math.round(T * 0.9), '#5fe3ff', x, y, 0.75, 0.6));
   }
-  prop(paintRover(T).toCanvas(), 14.4, 14.4, 2.4);
-  prop(paintCrates(T).toCanvas(), 3.0, 17.4, 2.0);
+  solid(paintRover(T).toCanvas(), 14.4, 14.4, 2.4, 0.8);
+  solid(paintCrates(T).toCanvas(), 3.0, 17.4, 2.0, 0.8);
+  // the beacon (a game can draw its own, lit part by part, with omit: ['beacon'])
   const beaconTex = [0, 1].map((f) => pixelTexture(paintBeacon(T, f).toCanvas()));
-  const beacon = prop(paintBeacon(T, 0).toCanvas(), 9.6, 13.6, 0.8);
-  add(glow(lighting, T, Math.round(T * 1.4), '#ff7fc8', 9.6, 13.6, 3.1, 0.8));
+  const beacon = leave('beacon') ? null : solid(paintBeacon(T, 0).toCanvas(), 9.6, 13.6, 0.8);
+  if (beacon) add(glow(lighting, T, Math.round(T * 1.4), '#ff7fc8', 9.6, 13.6, 3.1, 0.8));
   const ventTex = [0, 1, 2].map((f) => pixelTexture(paintVent(T, f).toCanvas()));
-  const vent = prop(paintVent(T, 0).toCanvas(), 18.0, 22.4);
+  const vent = solid(paintVent(T, 0).toCanvas(), 18.0, 22.4, 0, 0.4);
 
-  // the helper drone and a friendly critter
+  // the helper drone and a friendly critter (a game can leave either out: omit: ['drone', 'critter'])
   const droneTex = [0, 1].map((f) => pixelTexture(paintDrone(T, f).toCanvas()));
-  const drone = prop(paintDrone(T, 0).toCanvas(), 16.2, 11.6, 0, 0.9);
-  const droneShadow = add(shadow(T, 0.7));
-  droneShadow.position.set(16.2, 0.015, 11.6 * K);
-  add(glow(lighting, T, Math.round(T * 1.1), '#5fe3ff', 16.2, 11.6, 0.85, 0.7));
+  let drone: THREE.Mesh | null = null;
+  if (!leave('drone')) {
+    drone = prop(paintDrone(T, 0).toCanvas(), 16.2, 11.6, 0, 0.9);
+    const droneShadow = add(shadow(T, 0.7));
+    droneShadow.position.set(16.2, 0.015, 11.6 * K);
+    add(glow(lighting, T, Math.round(T * 1.1), '#5fe3ff', 16.2, 11.6, 0.85, 0.7));
+  }
   const critterTex = [0, 1].map((f) => pixelTexture(paintCritter(T, f).toCanvas()));
-  const critter = prop(paintCritter(T, 0).toCanvas(), 10.8, 11.2, 0.6);
+  const critter = leave('critter') ? null : prop(paintCritter(T, 0).toCanvas(), 10.8, 11.2, 0.6);
 
   return {
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 11.6, top: -3.2 },
     clear: time === 'evening' ? '#2a1f4a' : '#6c4f9c',
+    walk: { x0: 1.2, y0: 4.9, x1: 24.8, y1: 23.4 },
+    blocks,
     spots: { player: { x: 12.4, y: 11.2 }, host: { x: 14.1, y: 10.8 } },
     update(t, camX) {
-      swapFrame(sky, skyTex[Math.floor(t * 1.5) % 3]);
+      swapFrame(sky, skyFor(time)[Math.floor(t * 1.5) % 3]);
       swapFrame(hab, habTex[Math.floor(t * 1.2) % 2]);
-      swapFrame(beacon, beaconTex[Math.floor(t * 2) % 2]);
+      if (beacon) swapFrame(beacon, beaconTex[Math.floor(t * 2) % 2]);
       swapFrame(vent, ventTex[Math.floor(t * 4) % 3]);
-      swapFrame(drone, droneTex[Math.floor(t * 8) % 2]);
-      drone.position.y = (0.9 + Math.round(Math.sin(t * 2.4) * 2) / T) * K;
-      swapFrame(critter, critterTex[t % 2.2 > 1.9 ? 1 : 0]);
+      if (drone) {
+        swapFrame(drone, droneTex[Math.floor(t * 8) % 2]);
+        drone.position.y = (0.9 + Math.round(Math.sin(t * 2.4) * 2) / T) * K;
+      }
+      if (critter) swapFrame(critter, critterTex[t % 2.2 > 1.9 ? 1 : 0]);
       sky.position.x = L.w / 2 + (camX - L.w / 2) * 0.5;
+    },
+    setTime(t) {
+      time = t;
+      swapFrame(sky, skyFor(t)[0]);
     },
   };
 }

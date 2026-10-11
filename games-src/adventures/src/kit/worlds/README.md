@@ -56,8 +56,12 @@ with `audio.addSong(style.id, style.music)`.
 
 Forum Fraction Feast (`src/games/pizza-fraction-frenzy/world.ts`) is the
 model; Multiplication Space Quest's deck (`src/games/multiplication-space-quest/world.ts`)
-does the same in Star Station. The settings with walking pieces are `roman-forum` and
-`station-deck` (the deck can also leave out its drone: `omit: ['drone']`). The pieces:
+does the same in Star Station, and Equation Balance Scale's outpost
+(`src/games/equation-balance-scale/world.ts`) on the alien planet. The settings with
+walking pieces are `roman-forum`, `station-deck` (the deck can also leave out its
+drone: `omit: ['drone']`) and `alien-planet` (it can leave out its beacon, critter
+and drone: `omit: ['beacon', 'critter', 'drone']`, and switch its sky with
+`setTime('evening')`). The pieces:
 
 - `Walker16(ctx, look, x, y)` for the player and the people, with
   `look16FromAppearance(appearance)` turning the customize screen's choices

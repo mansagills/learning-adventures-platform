@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale next)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale half 1 built in PR #225, waiting for the owner's look)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -978,6 +978,43 @@ The names, settings and kind of game are owner choices (see "Choices for the own
 - **Letters:** a letter for the unknown (like `3 × 6 + 4 = p`) only at the Dome's level 3 (4.OA.3); everything else keeps `?` or a box.
 - **Halves:** half 1 is the outpost (walking, with the kit's walking pieces added to the `alien-planet` setting), the Weigh Station and the Rover; half 2 is the Dome, The Big Weigh-in finale, and listing the game on the site with a new card picture. The owner tries half 1 on the preview before half 2.
 - **Wording:** the owner's rule from Space Quest applies to every question: short sentences, the facts first, then one plain question, in words that match the picture ("the left pan", "the right pan") and with no game jargon.
+
+##### Balance Scale half 1: BUILT (2026-10-11), waiting for the owner's look
+
+- **What is playable:**
+  - the title and the character creator (16-bit player)
+  - Ranger Kiri's opening, with Gloop
+  - walking the outpost (keys, tap-to-walk, the touch pad) to Kiri, Juno, Pax and Gloop
+  - **the Weigh Station** at all three levels: "Is 7 + 2 = 4 + 5 true?" with three answers that never move ("True: it balances", "False: the left is heavier", "False: the right is heavier"). The scale stays locked while the child thinks, and after a wrong answer, so it never gives the answer away; a right answer lets it go and it tips (or stays level) to show why.
+  - **the Rover** at all three levels: the missing number anywhere (7 + ? = 12, ? − 6 = 9, ? × 4 = 24, 36 ÷ ? = 9, then 8 + 4 = ? + 5, 3 × 8 = 6 × ?, 15 − 7 = ? − 10). The child drags a crystal weight into the gap (or clicks, taps or presses 1–3). A wrong crystal tips the scale and gets a sentence ("Try it: 13 + 8 = 21, not 13. The left pan is too heavy."), then comes back out.
+  - a sentence for every wrong answer, three hints (a nudge; what each pan weighs, shown under the scale; the answer outlined with its reason), and a debrief per job
+  - the outpost beacon: one lamp per finished job, also in the HUD
+  - the job list (J), saving and the grown-ups page
+- **Half 2:** Botanist Pax and the Dome (two-step problems, a letter for the unknown at level 3), The Big Weigh-in finale at evening, the site listing and a card picture. Pax already stands at the dome and says the seed pods are still growing.
+- **Not listed on the site yet:** the old Equation Balance Scale stays on `/games` until the whole game is done. The new one plays at `/games/play/equation-balance-scale/index.html` (also on the PR's Vercel preview).
+- **New in the kit:** the `alien-planet` setting got the walking pieces the deck and the forum have: `walk`, `blocks` (each prop's footprint), `omit` (`beacon`, `critter`, `drone`) and `setTime`. **The Sunny Town games' built files are byte-for-byte unchanged.** Forum Fraction Feast's game file was only renamed (it shares the world code file); its only change is the name it imports. Space Quest's landing uses the planet as before (66/66 browser checks).
+- **Fixed after looking at the screenshots:**
+  - Kiri's weigh-station scale was too small to notice (now 1.6 times bigger)
+  - at level 2 one pan showed 12 loose crystals next to weights on the other (only level 1 uses loose crystals now)
+  - a wrong answer at the Weigh Station let the scale tip and showed the answer (it stays locked now)
+  - "32 ÷ 256 does not come out even" was vague (now "is less than 1, not 8")
+  - the level 1 crystals were small (a third bigger)
+- **Tests:**
+  - 9 unit tests over 2,400 questions: one right answer and three different choices; no number ever below zero; the Weigh Station's answer is what the scale really does; each wrong answer comes from its mistake ("the answer comes next" is the other pan's weight, "added everything" adds every number); the right crystal balances and every wrong one tips; level 1 balances about half the time.
+  - The browser test `scripts/e2e-equation-balance-scale.mjs` (41/41).
+  - `scripts/ebs-tour.mjs` takes 31 screenshots at 1280×720 and 390×844, reviewed by eye.
+- **Score so far: 8.6/10, provisional** (the final score comes at the end of half 2):
+  - gameplay 1.9
+  - learning 1.95
+  - look and sound 1.3
+  - ease of use 1.35
+  - reliability 1.4
+  - completeness 0.7 (two of three jobs, no finale yet)
+
+  It loses points on:
+  - most of the play is answering on a panel (but the scale moves, and the Rover's crystals are dragged)
+  - the level 1 crystal piles are wide for 10 or more crystals
+  - Gloop doesn't sit on the scale yet (that comes with The Big Weigh-in)
 
 ##### Choices for the owner
 
@@ -1171,3 +1208,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-10:** The owner asked for simpler question wording in Space Quest (the math stays the same). Every banner question was rewritten: short sentences with the facts first and one plain question; words that match the picture ("the blue line", "left part" and "right part" instead of "split the 6 by 7 formation after 5 columns"); no game jargon ("Charge the engine", "Fill the cargo log", "Shortcut for…"); and the same pattern for similar questions (for example "3 rows. 4 ships in each row. How many ships in all?"). The mistake sentences and hints lost "formation", "columns" and "on the banner" too. Math facts in the banner no longer break across two lines on a phone. 15 unit tests and 66/66 browser checks still pass.
 - **2026-10-11:** The owner merged PR #224. **Multiplication Space Quest COMPLETED ✅: 10 of the 11 Math games are done.** Next: Equation Balance Scale on the alien planet (Game 2 above), in its own PR. Started by re-checking its open choices with the owner.
 - **2026-10-11:** Owner chose the walking outpost as drafted, kept the names, letters only at the Dome's top level, and two halves. Building Balance Scale half 1 (the outpost, the Weigh Station and the Rover).
+- **2026-10-11:** Balance Scale half 1 built: the outpost (the alien planet got walking pieces), the Weigh Station and the Rover, with a scale that tips and crystals that can be dragged into the gap. 9 unit tests, 41/41 browser checks. Provisional score 8.6. Waiting for the owner's look before half 2.

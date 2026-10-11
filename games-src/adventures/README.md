@@ -43,6 +43,8 @@ node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screen
 node scripts/e2e-pizza-fraction-frenzy.mjs   # Forum Fraction Feast: all four jobs (walking, the job list), misses, hints, debriefs, the Festival Feast and finale, a Frenzy round, Anser, saving, phone (51 checks)
 node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast screenshots: the forum, all four jobs at levels 1-3 with a miss and hints, the feast and Frenzy
 node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest: the deck, a whole Formations flight (keys, Space, clicks, a miss, hints), the sector cleared, an Engines two-step question, the tow beam, upgrades, the Star Map, saving, Cargo, Constellations, the Bingo Boss, the landing, Meteor Run, phone (66 checks)
+node scripts/e2e-equation-balance-scale.mjs   # Equation Balance Scale (half 1): the outpost, the Weigh Station (a miss keeps the scale locked, hints, the scale tips the right way), its debrief, the Rover (a real drag of a wrong crystal into the gap, then the right one), level 3, Pax and Gloop, grown-ups, saving, phone (41 checks)
+node scripts/ebs-tour.mjs <url> <outDir> [w] [h]    # Equation Balance Scale screenshots: the outpost, each job at levels 1-3 (the question, a miss, the hint picture, the answer), the job list (JOBS=weigh for one job)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
@@ -443,5 +445,47 @@ sees past the deck. The flight picks its own whole-number pixel scale (about
 | Hint (pauses the flight) | H | The light bulb |
 | Pause | Esc | Pause |
 | Missions | J | Missions |
+| Grown-ups | G | Settings → For grown-ups |
+
+## Equation Balance Scale (Math batch M7, grades 3–5): half 1
+
+The equations game (slug `equation-balance-scale`), the second M7 game in
+**Star Station**, set at an outpost on the alien planet (the kit's
+`alien-planet` setting, which now has walking pieces). The owner chose a
+walking outpost like Forum Fraction Feast. Every question is a balance scale:
+the two sides of an equation are the two pans, and "=" means both pans weigh
+the same.
+
+- **At the outpost:** Ranger Kiri (host, the Weigh Station), Mechanic Juno
+  (the Rover), Botanist Pax (the Dome, half 2) and Gloop the critter, who
+  hops about. Kiri's big weigh-station scale stands by the walkway, and the
+  outpost beacon lights one lamp per finished job.
+- **The Weigh Station** (grades 3–4, the equals sign): "Is 5 + 3 = 8 true?"
+  with three answers that never move: "True: it balances", "False: the left
+  is heavier", "False: the right is heavier". Level 1 shows real crystals;
+  level 2 has sums on both sides, a number alone on the left (9 = 4 + 5) and
+  the one-pan trap (6 + 4 = 10 + 1); level 3 adds × and ÷. The scale stays
+  locked while the child thinks (and after a miss); a right answer lets it go.
+- **The Rover** (grades 3–4, the missing number): a pan has a gap; the child
+  drags (or clicks, taps, presses 1–3) a crystal weight into it and the scale
+  tips. A wrong crystal shows which pan it made too heavy or too light, with
+  a "Try it: 13 + 8 = 21, not 13" sentence, then comes back out. Level 3 has
+  numbers on both sides (8 + 4 = ? + 5).
+- **Half 2:** the Dome (two-step problems, a letter for the unknown at level
+  3), The Big Weigh-in finale, and the site listing.
+
+Code: `src/games/equation-balance-scale/`. `problems.ts` is the math (no
+number is ever below zero), `scale.ts` the scale on the job panel (page
+elements, so the beam tips smoothly and the rig scales down on a phone),
+`world.ts` the outpost.
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Walk | Arrow keys or WASD | Tap the ground, or the pad |
+| Talk | Space | Tap a person or Gloop |
+| Answer | 1–3 | Click or tap an answer |
+| Put a crystal in the gap | 1–3 | Drag it in, or click or tap it |
+| Hint | H | The light bulb |
+| Jobs | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |
 
