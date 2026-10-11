@@ -35,6 +35,13 @@ export const STATION_DECK: Setting = {
 function buildDeck(ctx: SceneCtx): SettingScene {
   const { lighting, px: T } = ctx;
   const { add, prop } = placer(ctx);
+  // solid props: their footprint (as wide as the picture, `depth` tiles deep) goes into `blocks`, so a walking player goes round them
+  const blocks: Array<{ x: number; y: number; w: number; h: number }> = [];
+  const solid = (cv: HTMLCanvasElement, x: number, y: number, depth = 0.5, shadowW = 0) => {
+    const w = cv.width / T;
+    blocks.push({ x: x - w / 2 + 0.1, y: y - depth, w: Math.max(0.4, w - 0.2), h: depth });
+    return prop(cv, x, y, shadowW);
+  };
 
   add(groundPiece(lighting, T, paintStarFloor(T).toCanvas(), 0, 0));
 
@@ -58,25 +65,24 @@ function buildDeck(ctx: SceneCtx): SettingScene {
       add(lightPool(lighting, T, x, r1 + 0.9, 0.8, '#5fe3ff', 0.3));
     }
 
-
   // consoles by the wall, and a hologram table
-  const consoles = [prop(paintConsole(T, 0).toCanvas(), 3.6, 6.4), prop(paintConsole(T, 1).toCanvas(), 6.4, 6.4)];
+  const consoles = [solid(paintConsole(T, 0).toCanvas(), 3.6, 6.4, 0.8), solid(paintConsole(T, 1).toCanvas(), 6.4, 6.4, 0.8)];
   const consoleTex = [0, 1, 2].map((f) => pixelTexture(paintConsole(T, f).toCanvas()));
   for (const x of [3.6, 6.4]) add(glow(lighting, T, Math.round(T * 1.6), '#5fe3ff', x, 6.2, 1.3, 0.5));
-  const holo = prop(paintHoloTable(T, 0).toCanvas(), 17.2, 6.9, 1.6);
+  const holo = solid(paintHoloTable(T, 0).toCanvas(), 17.2, 6.9, 0.8, 1.6);
   const holoTex = [0, 1, 2, 3].map((f) => pixelTexture(paintHoloTable(T, f).toCanvas()));
   add(glow(lighting, T, Math.round(T * 3), '#5fe3ff', 17.2, 6.9, 1.6, 0.6));
   add(lightPool(lighting, T, 17.2, 7.1, 1.6, '#5fe3ff', 0.4));
 
   // plants, crates, a bench, light posts
-  prop(paintAlienPlant(T, 0).toCanvas(), 10.2, 4.6);
-  prop(paintAlienPlant(T, 1).toCanvas(), 21.6, 4.6);
-  prop(paintDome(T).toCanvas(), 22.6, 12.2, 2.4);
-  prop(paintDome(T).toCanvas(), 5.2, 22.4, 2.4);
-  prop(paintCrates(T).toCanvas(), 2.6, 14.6, 2.2);
-  prop(paintCrates(T).toCanvas(), 23.4, 22.6, 2.2);
-  prop(paintBench(T).toCanvas(), 8.6, 15.2);
-  prop(paintBench(T).toCanvas(), 14.4, 22.6);
+  solid(paintAlienPlant(T, 0).toCanvas(), 10.2, 4.6);
+  solid(paintAlienPlant(T, 1).toCanvas(), 21.6, 4.6);
+  solid(paintDome(T).toCanvas(), 22.6, 12.2, 1, 2.4);
+  solid(paintDome(T).toCanvas(), 5.2, 22.4, 1, 2.4);
+  solid(paintCrates(T).toCanvas(), 2.6, 14.6, 0.8, 2.2);
+  solid(paintCrates(T).toCanvas(), 23.4, 22.6, 0.8, 2.2);
+  solid(paintBench(T).toCanvas(), 8.6, 15.2);
+  solid(paintBench(T).toCanvas(), 14.4, 22.6);
   for (const [x, y] of [
     [1.6, 8.6],
     [24.4, 8.6],
@@ -85,30 +91,36 @@ function buildDeck(ctx: SceneCtx): SettingScene {
     [1.6, 17.6],
     [24.4, 20.4],
   ]) {
-    prop(paintBollard(T).toCanvas(), x, y);
+    solid(paintBollard(T).toCanvas(), x, y, 0.4);
     add(glow(lighting, T, Math.round(T * 0.9), '#5fe3ff', x, y, 0.75, 0.6));
   }
-  prop(paintAlienPlant(T, 1).toCanvas(), 11.8, 15.4);
+  solid(paintAlienPlant(T, 1).toCanvas(), 11.8, 15.4);
   const kioskTex = [0, 1, 2, 3].map((f) => pixelTexture(paintKiosk(T, f).toCanvas()));
-  const kiosk = prop(paintKiosk(T, 0).toCanvas(), 3.2, 20.2, 1.1);
+  const kiosk = solid(paintKiosk(T, 0).toCanvas(), 3.2, 20.2, 0.6, 1.1);
   add(glow(lighting, T, Math.round(T * 1.6), '#5fe3ff', 3.2, 20.2, 1.4, 0.5));
-  prop(paintTelescope(T).toCanvas(), 13.2, 6.2, 1.4);
-  prop(paintAlienPlant(T, 0).toCanvas(), 17.6, 16.4);
-  prop(paintAlienPlant(T, 1).toCanvas(), 9.4, 21.8);
-  prop(paintAlienPlant(T, 0).toCanvas(), 19.8, 21.4);
+  solid(paintTelescope(T).toCanvas(), 13.2, 6.2, 0.6, 1.4);
+  solid(paintAlienPlant(T, 0).toCanvas(), 17.6, 16.4);
+  solid(paintAlienPlant(T, 1).toCanvas(), 9.4, 21.8);
+  solid(paintAlienPlant(T, 0).toCanvas(), 19.8, 21.4);
 
-  // the helper drone hovers and bobs
+  // the helper drone hovers and bobs (a game can leave it out with omit: ['drone'])
   const droneTex = [0, 1].map((f) => pixelTexture(paintDrone(T, f).toCanvas()));
+  const hasDrone = !ctx.omit?.includes('drone');
   const drone = prop(paintDrone(T, 0).toCanvas(), 15.9, 12.2, 0, 0.9);
-  const droneShadow = shadow(T, 0.7);
-  droneShadow.position.set(15.9, 0.015, 12.2 * K);
-  add(droneShadow);
-  add(glow(lighting, T, Math.round(T * 1.1), '#5fe3ff', 15.9, 12.2, 0.85, 0.7));
+  drone.visible = hasDrone;
+  if (hasDrone) {
+    const droneShadow = shadow(T, 0.7);
+    droneShadow.position.set(15.9, 0.015, 12.2 * K);
+    add(droneShadow);
+    add(glow(lighting, T, Math.round(T * 1.1), '#5fe3ff', 15.9, 12.2, 0.85, 0.7));
+  }
 
   return {
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 12.2, top: -1.2 },
     clear: '#141729',
+    walk: { x0: 1.2, y0: 4.9, x1: 24.8, y1: 23.4 },
+    blocks,
     spots: { player: { x: 12.2, y: 11.4 }, host: { x: 14.0, y: 10.9 } },
     update(t, camX) {
       const f = Math.floor(t * 2);

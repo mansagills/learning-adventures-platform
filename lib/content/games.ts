@@ -78,10 +78,11 @@ export const games: PlayableGame[] = [
     grades: '3–5',
     difficulty: 'medium',
     description:
-      'Blast off across the galaxy while you practice your times tables.',
-    skills: ['Multiplication', 'Times Tables'],
-    estimatedTime: '10–15 min',
-    htmlPath: '/games/multiplication-space-quest.html',
+      'Fly a starfighter for the Star Station and blast answer rocks to clear the Static. Learn the times tables in four sectors (equal groups, the tricky facts, sharing cargo and fact families), win at Bingo against the Static, land the fleet on an alien planet, then race the clock in Meteor Run.',
+    skills: ['Multiplication', 'Times Tables', 'Division', 'Fact Families'],
+    estimatedTime: '30–45 min',
+    // Rebuilt with the Adventure Kit in the Star Station world (game worlds W2); Bingo Bonanza and Tables Adventure are merged in (UX-4 M7)
+    htmlPath: '/games/play/multiplication-space-quest/index.html',
     thumbnail: '/games/thumbnails/multiplication-space-quest.jpg',
     featured: true,
   },
@@ -98,20 +99,6 @@ export const games: PlayableGame[] = [
     estimatedTime: '30–45 min',
     htmlPath: '/games/play/math-adventure-island/index.html',
     thumbnail: '/games/thumbnails/math-adventure-island.jpg',
-  },
-  {
-    slug: 'multiplication-bingo-bonanza',
-    title: 'Multiplication Bingo Bonanza',
-    subject: 'math',
-    kind: 'game',
-    grades: '3–5',
-    difficulty: 'medium',
-    description:
-      'Solve multiplication problems and mark your card to get BINGO!',
-    skills: ['Multiplication', 'Times Tables'],
-    estimatedTime: '10–15 min',
-    htmlPath: '/games/multiplication-bingo-bonanza.html',
-    thumbnail: '/games/thumbnails/multiplication-bingo-bonanza.jpg',
   },
   {
     slug: 'math-dash',
@@ -215,19 +202,6 @@ export const games: PlayableGame[] = [
     estimatedTime: '10–15 min',
     htmlPath: '/games/equation-balance-scale.html',
     thumbnail: '/games/thumbnails/equation-balance-scale.jpg',
-  },
-  {
-    slug: 'multiplication-tables-adventure',
-    title: 'Multiplication Tables Adventure',
-    subject: 'math',
-    kind: 'activity',
-    grades: '3–5',
-    difficulty: 'medium',
-    description: 'Master your multiplication tables one step at a time.',
-    skills: ['Multiplication', 'Times Tables', 'Mental Math'],
-    estimatedTime: '20–30 min',
-    htmlPath: '/lessons/multiplication-tables-adventure.html',
-    thumbnail: '/games/thumbnails/multiplication-tables-adventure.jpg',
   },
 
   // ── Science ─────────────────────────────────────────────────────────────

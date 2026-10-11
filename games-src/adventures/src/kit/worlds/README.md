@@ -55,7 +55,9 @@ with `audio.addSong(style.id, style.music)`.
 ## A walking game in a 16-bit world
 
 Forum Fraction Feast (`src/games/pizza-fraction-frenzy/world.ts`) is the
-model. The pieces it uses:
+model; Multiplication Space Quest's deck (`src/games/multiplication-space-quest/world.ts`)
+does the same in Star Station. The settings with walking pieces are `roman-forum` and
+`station-deck` (the deck can also leave out its drone: `omit: ['drone']`). The pieces:
 
 - `Walker16(ctx, look, x, y)` for the player and the people, with
   `look16FromAppearance(appearance)` turning the customize screen's choices
@@ -64,6 +66,9 @@ model. The pieces it uses:
   footprints) to fill the kit's `CollisionGrid`, and `omit: ['braziers']` in
   the `SceneCtx` when the game draws something itself (it lights its own
   braziers one by one).
+- `Stage.maxTilesTall` (off by default) caps how many rows show top to
+  bottom; Multiplication Space Quest sets it to 24 so a tall phone never sees
+  past the station deck.
 - `Stage.lookAt(x, y, false, smooth)` to follow the player, and
   `Stage.screenToTile` / `Stage.project` for tap-to-walk and labels.
 - `openCustomize(..., { paint, only: { hairStyle: HAIR16 }, hide: ['accessory'] })`
