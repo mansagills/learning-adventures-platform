@@ -21,7 +21,8 @@ import { CRYSTAL, paintBeaconIcon, paintGloopPortrait, paintJobIcon, paintWeight
 import {
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
-  DOME_SOON,
+  DOME_TIP_KEYS,
+  DOME_TIP_TOUCH,
   GLOOP,
   GLOOP_AFTER,
   GLOOP_HELLO,
@@ -39,18 +40,28 @@ import {
   SCALE_TIP_KEYS,
   SCALE_TIP_TOUCH,
   STARS_PER_JOB,
+  WEIGHIN_AFTER,
+  WEIGHIN_AGAIN,
+  WEIGHIN_DONE,
+  WEIGHIN_FINALE,
+  WEIGHIN_GLOOP,
+  WEIGHIN_GLOOP_AFTER,
   WEIGHIN_READY,
   type PersonId,
 } from './content';
 import { BEACON_SONG, OUTPOST_SONG, WEIGH_SONG } from './music';
 import { pix } from './pix';
-import { makeProblem, OPEN_JOBS, panWeights, type Choice, type Job, type Misconception, type Problem, type Tier } from './problems';
+import { makeProblem, OPEN_JOBS, panWeights, type Choice, type Job, type Misconception, type Problem, type Step, type Tier } from './problems';
 import { freshSave, store, type ScaleSave } from './save';
 import { ScaleView } from './scale';
 import { OutpostWorld, type Target, type TargetId } from './world';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_JOB = 12;
+/** The Big Weigh-in: one scale from each job, in this order (no stars, nothing timed). */
+const WEIGHIN_ORDER: Job[] = ['weigh', 'rover', 'dome'];
+const JOB_OF: Record<PersonId, Job> = { kiri: 'weigh', juno: 'rover', pax: 'dome' };
+const START_WEIGHIN = 'Start The Big Weigh-in!';
 
 /** The outpost crew: Ranger Kiri (the host), Mechanic Juno and Botanist Pax, in Star Station work suits. */
 const LOOKS: Record<PersonId, Look16> = {
@@ -68,8 +79,18 @@ interface Panel {
   job: Job;
   problem: Problem;
   scale: ScaleView;
+  /** Which step of the problem is showing (a Dome story has two: pick the equation, then solve it). */
+  step: number;
   hintRung: number;
+  /** The highest hint used on an earlier step (a star needs no more than hint 1 on every step). */
+  maxRung: number;
   tries: number;
+  /** Wrong tries on this step (two bring a hint). */
+  stepTries: number;
+  /** The Big Weigh-in: which of its three scales is showing. */
+  weighin?: { index: number };
+  root: HTMLElement;
+  face: HTMLImageElement;
   recorded: boolean;
   answered: boolean;
   /** A wrong crystal is in the gap and the scale is showing it (the next try waits for it to come back out). */
@@ -175,11 +196,13 @@ export class Game {
       },
       finishAll: () => {
         for (const j of OPEN_JOBS) if (!this.save.done.includes(j)) this.save.done.push(j);
+        this.save.weighinCalled = true;
         this.persist();
-        this.world.setLit(this.save.done.length);
+        this.world.setLit(this.save.done.length, this.allDone);
         this.updateMarkers();
         this.renderHud();
       },
+      weighin: () => this.mode === 'world' && void this.openWeighin(),
       teleport: (x: number, y: number) => {
         this.world.player.x = x;
         this.world.player.y = y;
@@ -192,6 +215,9 @@ export class Game {
   start(): void {
     const names = { kiri: PEOPLE.kiri.name, juno: PEOPLE.juno.name, pax: PEOPLE.pax.name };
     this.world.build(this.playerLook(), LOOKS, names, this.save.done.length);
+    // with the whole beacon lit, the outpost stays in the evening (and, after The Big Weigh-in, the beam shines)
+    if (this.allDone) this.world.setLit(this.save.done.length, true);
+    this.world.setBeam(this.save.weighinSeen);
     this.updateMarkers();
     this.world.establishing = true;
     this.world.follow();
@@ -207,6 +233,10 @@ export class Game {
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
+  }
+
+  private get allDone(): boolean {
+    return OPEN_JOBS.every((j) => this.save.done.includes(j));
   }
 
   private playerLook(): Look16 {
@@ -278,7 +308,7 @@ export class Game {
     this.titleEl = null;
     this.hud.hidden = false;
     this.mode = 'world';
-    audio.play('outpost');
+    audio.play(this.allDone ? 'beacon' : 'outpost');
     this.renderHud();
     if (!this.save.openingSeen) void this.opening();
   }
@@ -299,7 +329,9 @@ export class Game {
 
   private updateMarkers(): void {
     const mark = (j: Job) => (this.save.done.includes(j) ? null : 'new');
-    this.world.setMarkers({ kiri: mark('weigh'), juno: mark('rover'), pax: null });
+    // with the whole beacon lit, Kiri calls everyone to The Big Weigh-in
+    const kiri = this.allDone ? (this.save.weighinSeen ? null : 'new') : mark('weigh');
+    this.world.setMarkers({ kiri, juno: mark('rover'), pax: mark('dome') });
   }
 
   // ------------------------------------------------------------ the world
@@ -379,14 +411,11 @@ export class Game {
     if (id === 'gloop') return;
     this.mode = 'busy';
     const who = this.speakers[id];
-    if (id === 'pax') {
-      // the Dome opens in half 2 of the build
-      await this.talk.say(who, DOME_SOON, 'smile');
-      this.talk.end();
-      this.mode = 'world';
+    if (id === 'kiri' && this.allDone && !this.save.weighinSeen) {
+      if (await this.offerWeighin(WEIGHIN_AGAIN)) void this.openWeighin();
       return;
     }
-    const job: Job = id === 'kiri' ? 'weigh' : 'rover';
+    const job = JOB_OF[id];
     const info = JOB_INFO[job];
     if (!this.save.introduced.includes(job)) {
       await this.talk.say(who, info.intro);
@@ -395,7 +424,7 @@ export class Game {
     } else {
       const done = this.save.done.includes(job);
       const options = [done ? 'More practice!' : 'Let’s weigh!', 'Change how I look', 'Not now'];
-      const text = done ? `This part of the beacon is lit, thanks to you! Want to keep practising ${info.skill.toLowerCase()}?` : info.again;
+      const text = job === 'weigh' && this.save.weighinSeen ? WEIGHIN_DONE : done ? `This part of the beacon is lit, thanks to you! Want to keep practising ${info.skill.toLowerCase()}?` : info.again;
       const pick = options[await this.talk.offer(who, text, options)];
       if (pick === 'Change how I look') {
         this.talk.end();
@@ -409,8 +438,9 @@ export class Game {
         return;
       }
     }
-    if (!this.save.scaleTipSeen || (job === 'rover' && this.save.played.rover === 0)) {
-      const tip = job === 'rover' ? (isTouchDevice() ? ROVER_TIP_TOUCH : ROVER_TIP_KEYS) : isTouchDevice() ? SCALE_TIP_TOUCH : SCALE_TIP_KEYS;
+    if (!this.save.scaleTipSeen || (job !== 'weigh' && this.save.played[job] === 0)) {
+      const touch = isTouchDevice();
+      const tip = job === 'rover' ? (touch ? ROVER_TIP_TOUCH : ROVER_TIP_KEYS) : job === 'dome' ? (touch ? DOME_TIP_TOUCH : DOME_TIP_KEYS) : touch ? SCALE_TIP_TOUCH : SCALE_TIP_KEYS;
       await this.talk.say(who, tip, 'smile');
       this.save.scaleTipSeen = true;
       this.persist();
@@ -421,7 +451,7 @@ export class Game {
 
   // ------------------------------------------------------------ the job panel (a scale)
 
-  private openPanel(job: Job): void {
+  private openPanel(job: Job, weighin = false): void {
     const info = JOB_INFO[job];
     const who = this.speakers[PERSON_OF[job]];
     this.mode = 'job';
@@ -441,7 +471,7 @@ export class Game {
     const root = h(
       'div',
       { class: `panel modal ebs-panel ebs-job-${job}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'ebs-title' },
-      h('header', {}, h('h2', { id: 'ebs-title', text: info.name }), h('div', { class: 'ebs-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
+      h('header', {}, h('h2', { id: 'ebs-title', text: weighin ? 'The Big Weigh-in' : info.name }), h('div', { class: 'ebs-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }))),
       h('div', { class: 'ebs-ask' }, face, prompt, speakBtn),
       body,
       choices,
@@ -451,7 +481,7 @@ export class Game {
     const modal = new Modal(this.host, root, () => this.closePanel(), { closeOnBackdrop: false });
     hintBtn.addEventListener('click', () => this.hint());
     next.addEventListener('click', () => this.afterAnswer());
-    this.panel = { modal, job, problem: null as unknown as Problem, scale: null as unknown as ScaleView, hintRung: 0, tries: 0, recorded: false, answered: false, showing: false, feedback, hintBtn, next, body, choices, stars, level, prompt };
+    this.panel = { modal, job, problem: null as unknown as Problem, scale: null as unknown as ScaleView, step: 0, hintRung: 0, maxRung: 0, tries: 0, stepTries: 0, weighin: weighin ? { index: 0 } : undefined, root, face, recorded: false, answered: false, showing: false, feedback, hintBtn, next, body, choices, stars, level, prompt };
     this.nextChallenge();
   }
 
@@ -459,25 +489,36 @@ export class Game {
     const pnl = this.panel;
     if (!pnl) return;
     const seed = this.save.seed++;
+    if (pnl.weighin) {
+      // The Big Weigh-in: the next job's scale, with that job's helper asking
+      pnl.job = WEIGHIN_ORDER[pnl.weighin.index];
+      pnl.root.className = `panel modal ebs-panel ebs-job-${pnl.job} ebs-weighin`;
+      pnl.face.src = this.speakers[PERSON_OF[pnl.job]].portrait('smile');
+      pnl.face.alt = PEOPLE[PERSON_OF[pnl.job]].name;
+    }
     const tier = skill(this.save.learner, pnl.job).tier as Tier;
     const p = makeProblem(pnl.job, tier, mulberry32(seed));
     this.persist();
     pnl.scale?.dispose();
     pnl.problem = p;
+    pnl.step = 0;
     pnl.hintRung = 0;
+    pnl.maxRung = 0;
     pnl.tries = 0;
+    pnl.stepTries = 0;
     pnl.recorded = false;
     pnl.answered = false;
     pnl.showing = false;
     pnl.prompt.textContent = keepFacts(p.steps[0].ask);
-    pnl.level.textContent = `Level ${p.tier} of 3`;
+    pnl.level.textContent = pnl.weighin ? `Scale ${pnl.weighin.index + 1} of ${WEIGHIN_ORDER.length}` : `Level ${p.tier} of 3`;
     pnl.feedback.hidden = true;
     pnl.next.hidden = true;
     pnl.hintBtn.disabled = false;
-    pnl.scale = new ScaleView(p);
+    // a Dome story: the pans stay empty until the equation is picked
+    pnl.scale = new ScaleView(p, { blank: p.kind === 'two-step', gloop: !!pnl.weighin });
     pnl.scale.setLocked(true);
     pnl.body.replaceChildren(pnl.scale.root);
-    pnl.choices.replaceChildren(this.choiceButtons(p));
+    pnl.choices.replaceChildren(this.choiceButtons(p.steps[0]));
     this.renderStars();
     speak(p.steps[0].ask);
     requestAnimationFrame(() => {
@@ -486,13 +527,13 @@ export class Game {
     });
   }
 
-  /** The Weigh Station's three answers, or the Rover's three crystal weights (which can be dragged into the gap). */
-  private choiceButtons(p: Problem): HTMLElement {
-    const crystals = p.job !== 'weigh';
+  /** Three answers in words (the Weigh Station, a Dome story's equations), or three crystal weights that can be dragged into the gap. */
+  private choiceButtons(step: Step): HTMLElement {
+    const crystals = step.pick === 'crystal';
     return h(
       'div',
       { class: `ebs-options${crystals ? ' crystals' : ''}` },
-      ...p.steps[0].choices.map((c, i) => {
+      ...step.choices.map((c, i) => {
         const b = h(
           'button',
           {
@@ -529,11 +570,11 @@ export class Game {
   }
 
   private overGap(x: number, y: number): boolean {
-    const gap = this.panel?.scale.gapEl;
-    if (!gap) return false;
-    const r = gap.getBoundingClientRect();
     const pad = 24;
-    return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+    return (this.panel?.scale.gapEls ?? []).some((gap) => {
+      const r = gap.getBoundingClientRect();
+      return x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+    });
   }
 
   private onDragMove(e: PointerEvent): void {
@@ -568,6 +609,12 @@ export class Game {
     const p = pnl.problem;
     const btn = pnl.choices.querySelector<HTMLButtonElement>(`[data-value="${CSS.escape(c.value)}"]`);
     if (btn?.disabled) return;
+    if (p.kind === 'two-step' && pnl.step === 0) {
+      // a Dome story: the right equation goes on the scale; a wrong one keeps the pans empty
+      if (c.correct) this.toEquation(btn);
+      else this.onWrong(btn, c);
+      return;
+    }
     if (p.job === 'weigh') {
       // the scale stays locked after a wrong answer (letting it go would give the answer away);
       // a right answer and Kiri lets it go, so it tips (or stays level) to show it
@@ -599,15 +646,59 @@ export class Game {
     }, 2200);
   }
 
+  /** A Dome story's right equation: it goes on the scale, and step 2 (solve it) begins. */
+  private toEquation(btn: HTMLButtonElement | null): void {
+    const pnl = this.panel!;
+    const p = pnl.problem;
+    btn?.classList.add('right');
+    pnl.choices.querySelectorAll('button').forEach((b) => ((b as HTMLButtonElement).disabled = true));
+    pnl.showing = true;
+    audio.correct();
+    setTimeout(() => {
+      if (this.panel !== pnl || pnl.answered) return;
+      pnl.maxRung = Math.max(pnl.maxRung, pnl.hintRung);
+      pnl.hintRung = 0;
+      pnl.stepTries = 0;
+      pnl.step = 1;
+      const st = p.steps[1];
+      pnl.scale.dispose();
+      pnl.scale = new ScaleView(p, { gloop: !!pnl.weighin });
+      pnl.scale.setLocked(true);
+      pnl.body.replaceChildren(pnl.scale.root);
+      pnl.prompt.textContent = keepFacts(st.ask);
+      pnl.choices.replaceChildren(this.choiceButtons(st));
+      pnl.showing = false;
+      this.showFeedback(`Yes! ${p.left.text} = ${p.right.text} tells the story. It is on the scale now.`, 'good', st.ask);
+      requestAnimationFrame(() => {
+        pnl.scale.fit();
+        pnl.choices.querySelector<HTMLButtonElement>('button:not([disabled])')?.focus();
+      });
+    }, 700);
+  }
+
   private onRight(btn: HTMLButtonElement | null): void {
     const pnl = this.panel!;
     const p = pnl.problem;
     pnl.answered = true;
-    const clean = pnl.tries === 0 && pnl.hintRung <= 1;
+    const rung = Math.max(pnl.maxRung, pnl.hintRung);
+    const clean = pnl.tries === 0 && rung <= 1;
     let tierChange = 0;
     if (!pnl.recorded) {
       pnl.recorded = true;
-      tierChange = recordAnswer(this.save.learner, p.job, { correct: true, hintRung: pnl.hintRung }, RULES).tierChange;
+      tierChange = recordAnswer(this.save.learner, p.job, { correct: true, hintRung: rung }, RULES).tierChange;
+    }
+    const explain = p.steps[pnl.step].explain;
+    if (pnl.weighin) {
+      // The Big Weigh-in has no stars: every scale just needs to balance
+      this.persist();
+      audio.itemGet();
+      this.showFeedback(`${pnl.weighin.index + 1 < WEIGHIN_ORDER.length ? 'Balanced!' : 'All three balanced!'} ${explain}`, 'good');
+      pnl.next.hidden = false;
+      pnl.hintBtn.disabled = true;
+      btn?.classList.add('right');
+      pnl.choices.querySelectorAll('button').forEach((b) => ((b as HTMLButtonElement).disabled = true));
+      requestAnimationFrame(() => pnl.next.focus());
+      return;
     }
     this.save.played[p.job]++;
     if (clean && this.save.stars[p.job] < STARS_PER_JOB) this.save.stars[p.job]++;
@@ -615,7 +706,7 @@ export class Game {
     if (clean) audio.itemGet();
     else audio.correct();
     const msg = clean ? `${praise(this.praiseCount++)} You win a star.` : 'You got it! Stars are for getting it right the first time.';
-    this.showFeedback(`${msg} ${p.steps[0].explain}`, 'good');
+    this.showFeedback(`${msg} ${explain}`, 'good');
     pnl.next.hidden = false;
     pnl.hintBtn.disabled = true;
     btn?.classList.add('right');
@@ -629,29 +720,31 @@ export class Game {
     const pnl = this.panel!;
     const p = pnl.problem;
     pnl.tries++;
+    pnl.stepTries++;
     if (!pnl.recorded) {
       pnl.recorded = true;
-      const o = recordAnswer(this.save.learner, p.job, { correct: false, hintRung: pnl.hintRung, misconception: (c.misconception ?? null) as Misconception | null }, RULES);
+      const o = recordAnswer(this.save.learner, p.job, { correct: false, hintRung: Math.max(pnl.maxRung, pnl.hintRung), misconception: (c.misconception ?? null) as Misconception | null }, RULES);
       this.persist();
       if (o.tierChange < 0) toast('Let us practise a little more at an easier level.', 'hint');
     }
     audio.retry();
-    this.showFeedback(mistakeLine(p, c.misconception ?? 'miscounted', c.value), 'try');
+    this.showFeedback(mistakeLine(p, c.misconception ?? 'miscounted', c.value, pnl.step), 'try');
     if (btn) {
       btn.disabled = true;
       btn.classList.add('nope');
       pnl.choices.querySelector<HTMLButtonElement>('.ebs-choice:not([disabled])')?.focus();
     }
-    if (pnl.tries >= 2) this.hint(Math.min(3, pnl.tries));
+    if (pnl.stepTries >= 2) this.hint(Math.min(3, pnl.stepTries));
   }
 
-  private showFeedback(text: string, kind: 'good' | 'try' | 'hint'): void {
+  /** The line under the scale (read aloud, with `then` read after it: the next question). */
+  private showFeedback(text: string, kind: 'good' | 'try' | 'hint', then = ''): void {
     const pnl = this.panel;
     if (!pnl) return;
     pnl.feedback.hidden = false;
     pnl.feedback.className = `ebs-feedback ${kind}`;
     pnl.feedback.replaceChildren(kind === 'hint' ? iconImg('bulb', '', 22) : kind === 'good' ? iconImg('star', '', 22) : '', h('span', { text: keepFacts(text) }));
-    speak(text);
+    speak(then ? `${text} ${then}` : text);
   }
 
   private hint(rung?: number): void {
@@ -666,14 +759,20 @@ export class Game {
     audio.hint();
     const p = pnl.problem;
     const k = pnl.hintRung;
-    if (k >= 2) pnl.scale.revealWeights();
-    if (k >= 3) pnl.choices.querySelector(`[data-value="${CSS.escape(p.steps[0].choices.find((c) => c.correct)!.value)}"]`)?.classList.add('worked');
-    this.showFeedback(`Hint ${k} of 3: ${hintText(p, k)}`, 'hint');
+    // (a Dome story's pans hold the whole answer, so their weights are not shown)
+    if (k >= 2 && p.kind !== 'two-step') pnl.scale.revealWeights();
+    if (k >= 3) pnl.choices.querySelector(`[data-value="${CSS.escape(p.steps[pnl.step].choices.find((c) => c.correct)!.value)}"]`)?.classList.add('worked');
+    this.showFeedback(`Hint ${k} of 3: ${hintText(p, k, pnl.step)}`, 'hint');
   }
 
   private renderStars(): void {
     const pnl = this.panel;
     if (!pnl) return;
+    if (pnl.weighin) {
+      pnl.stars.replaceChildren();
+      pnl.stars.removeAttribute('aria-label');
+      return;
+    }
     const n = this.save.stars[pnl.job];
     pnl.stars.replaceChildren(...Array.from({ length: STARS_PER_JOB }, (_, i) => iconImg(i < n ? 'star' : 'starEmpty', '', 20)));
     pnl.stars.setAttribute('aria-label', `${n} of ${STARS_PER_JOB} stars`);
@@ -682,6 +781,16 @@ export class Game {
   private afterAnswer(): void {
     const pnl = this.panel;
     if (!pnl || !pnl.answered) return;
+    if (pnl.weighin) {
+      pnl.weighin.index++;
+      if (pnl.weighin.index < WEIGHIN_ORDER.length) this.nextChallenge();
+      else {
+        pnl.weighin = undefined;
+        pnl.modal.close();
+        void this.finale();
+      }
+      return;
+    }
     const j = pnl.job;
     const rec = skill(this.save.learner, j);
     const ready = this.save.stars[j] >= STARS_PER_JOB && (rec.tier >= 2 || this.save.played[j] >= MAX_PER_JOB);
@@ -713,10 +822,12 @@ export class Game {
   private closePanel(): void {
     stopSpeaking();
     this.panel?.scale.dispose();
+    // leaving The Big Weigh-in before the end: Gloop hops down (Kiri starts it again any time)
+    if (this.panel?.weighin) this.world.gloopOnScale(false);
     this.panel = null;
     if (this.mode === 'job') {
       this.mode = 'world';
-      audio.play(this.save.done.length >= OPEN_JOBS.length ? 'beacon' : 'outpost');
+      audio.play(this.allDone ? 'beacon' : 'outpost');
     }
     this.touch?.setVisible(touchControlsVisible());
     this.renderHud();
@@ -739,14 +850,69 @@ export class Game {
     toast(`A beacon lamp is lit! ${this.save.done.length} of 3`, 'reward');
     await this.talk.say(who, info.done, 'proud');
     const left = OPEN_JOBS.filter((x) => !this.save.done.includes(x));
-    if (left.length) await this.talk.say(this.speakers.kiri, `Look at it glow! Next, ${PEOPLE[PERSON_OF[left[0]]].name} could use your help.`, 'proud');
-    else if (!this.save.weighinCalled) {
+    if (left.length) {
+      await this.talk.say(this.speakers.kiri, `Look at it glow! Next, ${PEOPLE[PERSON_OF[left[0]]].name} could use your help.`, 'proud');
+    } else if (!this.save.weighinCalled) {
+      // the whole beacon is lit: evening falls and Kiri calls The Big Weigh-in
+      this.world.setLit(this.save.done.length, true);
       audio.play('beacon');
-      await this.talk.say(this.speakers.kiri, WEIGHIN_READY, 'proud');
       this.save.weighinCalled = true;
       this.persist();
+      this.updateMarkers();
+      await this.talk.say(this.speakers.kiri, WEIGHIN_READY.slice(0, -1), 'proud');
+      this.renderHud();
+      if (await this.offerWeighin(WEIGHIN_READY[WEIGHIN_READY.length - 1])) {
+        void this.openWeighin();
+        return;
+      }
+      return;
     }
     this.talk.end();
+    this.renderHud();
+    this.mode = 'world';
+  }
+
+  // ------------------------------------------------------------ The Big Weigh-in (the finale)
+
+  /** Kiri asks if the player is ready (true: start it now). Ends the talk and goes back to walking if not. */
+  private async offerWeighin(text: string): Promise<boolean> {
+    this.mode = 'busy';
+    const options = [START_WEIGHIN, 'Not yet'];
+    const pick = options[await this.talk.offer(this.speakers.kiri, text, options)];
+    if (pick === START_WEIGHIN) return true;
+    this.talk.end();
+    this.mode = 'world';
+    return false;
+  }
+
+  /** Gloop climbs onto the big scale, then the three scales (one from each job). */
+  private async openWeighin(): Promise<void> {
+    this.mode = 'busy';
+    this.world.gloopOnScale(true);
+    this.world.cheer();
+    await this.talk.say(this.speakers.gloop, WEIGHIN_GLOOP, 'curious');
+    await this.talk.say(this.speakers.kiri, WEIGHIN_GLOOP_AFTER, 'smile');
+    this.talk.end();
+    this.openPanel(WEIGHIN_ORDER[0], true);
+  }
+
+  private async finale(): Promise<void> {
+    this.mode = 'busy';
+    audio.play('beacon');
+    audio.levelUp();
+    this.world.setBeam(true);
+    this.world.cheer();
+    this.save.weighinSeen = true;
+    this.persist();
+    this.updateMarkers();
+    await this.talk.say(this.speakers.kiri, WEIGHIN_FINALE, 'proud');
+    this.world.cheer();
+    await this.talk.say(this.speakers.gloop, WEIGHIN_AFTER[0], 'curious');
+    await this.talk.say(this.speakers.kiri, WEIGHIN_AFTER[1], 'smile');
+    this.talk.end();
+    this.world.gloopOnScale(false);
+    toast('The Big Weigh-in! The beacon shines up to the station.', 'reward');
+    window.parent?.postMessage({ type: 'game-complete', score: this.save.done.length }, '*');
     this.renderHud();
     this.mode = 'world';
   }
@@ -785,7 +951,7 @@ export class Game {
       const t = this.world.targets.find((x) => x.id === id);
       if (t) this.world.walkTo(t);
     };
-    const rows = (['weigh', 'rover', 'dome'] as Job[]).map((j) => {
+    const rows = OPEN_JOBS.map((j) => {
       const info = JOB_INFO[j];
       const open = OPEN_JOBS.includes(j);
       const n = this.save.stars[j];
@@ -799,7 +965,7 @@ export class Game {
           'div',
           { class: 'belt-info' },
           h('strong', { text: `${info.name}: ${info.skill} (${info.grades})` }),
-          h('span', { text: !open ? `${person}’s seed pods are still growing. Opens soon!` : on ? 'Done! Its beacon lamp is lit.' : `Help ${person}. 5 stars lights a beacon lamp.` }),
+          h('span', { text: !open ? 'Opens soon!' : on ? 'Done! Its beacon lamp is lit.' : `Help ${person}. 5 stars lights a beacon lamp.` }),
           ...(open ? [h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18)))] : []),
         ),
         ...(open ? [h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo(info.person) })] : []),
@@ -809,7 +975,23 @@ export class Game {
       'div',
       { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'jobs-title', style: 'width:min(620px,100%)' },
       h('header', {}, h('h2', { id: 'jobs-title', text: 'Outpost jobs' }), h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() })),
-      h('div', { class: 'content' }, h('p', { class: 'small-note', style: 'margin:0 0 10px', text: 'Win 5 stars at a job to light one of the beacon’s lamps. A star is for getting it right the first time.' }), h('ul', { class: 'belt-list' }, ...rows)),
+      h(
+        'div',
+        { class: 'content' },
+        h('p', { class: 'small-note', style: 'margin:0 0 10px', text: 'Win 5 stars at a job to light one of the beacon’s lamps. A star is for getting it right the first time.' }),
+        h(
+          'ul',
+          { class: 'belt-list' },
+          ...rows,
+          h(
+            'li',
+            { class: `belt-row${this.allDone ? '' : ' soon'}` },
+            pix(`beacon-icon-${this.save.done.length}`, () => paintBeaconIcon(this.save.done.length), 2),
+            h('div', { class: 'belt-info' }, h('strong', { text: 'The Big Weigh-in' }), h('span', { text: this.save.weighinSeen ? 'Done! The beacon shines up to the station.' : this.allDone ? 'The whole beacon is lit. Go and see Ranger Kiri!' : 'Light all three beacon lamps first.' })),
+            ...(this.allDone && !this.save.weighinSeen ? [h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo('kiri') })] : []),
+          ),
+        ),
+      ),
     );
     const modal = new Modal(this.host, root);
   }
@@ -853,6 +1035,9 @@ export class Game {
       'tipped-wrong-way': 'mixing up which side is heavier',
       miscounted: 'a slip working out one side',
       'one-off': 'a near miss by one',
+      'one-step': 'doing only the first step of a two-step story (3 × 6 + 4 → 18)',
+      'wrong-order': 'putting the numbers of a story in the wrong places (3 + 6 × 4)',
+      'one-pan-only': 'taking weight off one pan only (b + b + 3 = 11 → 7)',
     };
     const rows = OPEN_JOBS.map((j) => {
       const rec = this.save.learner[j];
@@ -870,7 +1055,7 @@ export class Game {
     return h(
       'div',
       {},
-      h('p', { text: `This summary is kept only in this browser. Beacon lamps lit: ${this.save.done.length} of 3.` }),
+      h('p', { text: `This summary is kept only in this browser. Beacon lamps lit: ${this.save.done.length} of 3.${this.save.weighinSeen ? ' The Big Weigh-in is done.' : ''}` }),
       h('div', { class: 'table-wrap' }, h('table', { class: 'progress-table' }, h('thead', {}, h('tr', {}, ...['Job', 'Status', 'Answers', 'Level now', 'Most common slip'].map((t) => h('th', { scope: 'col', text: t })))), h('tbody', {}, ...rows))),
     );
   }
@@ -892,22 +1077,28 @@ export class Game {
       lit: this.world.litCount,
       talking: this.talk.isOpen,
       night: this.world.night,
+      beam: this.world.beamOn,
+      gloopOnScale: this.world.gloopOnTop,
+      weighinSeen: this.save.weighinSeen,
       panel:
         pnl && p
           ? {
               job: pnl.job,
+              weighin: pnl.weighin ? pnl.weighin.index : null,
+              step: pnl.step,
+              steps: p.steps.length,
               kind: p.kind,
               tier: skill(this.save.learner, pnl.job).tier,
               left: p.left.text,
               right: p.right.text,
               answer: p.answer,
-              ask: p.steps[0].ask,
+              ask: p.steps[pnl.step].ask,
               hintRung: pnl.hintRung,
               answered: pnl.answered,
               showing: pnl.showing,
               tilt: pnl.scale.root.dataset.tilt,
-              right_: p.steps[0].choices.findIndex((c) => c.correct),
-              wrong: p.steps[0].choices.filter((c) => !c.correct).map((c) => ({ value: c.value, misconception: c.misconception })),
+              right_: p.steps[pnl.step].choices.findIndex((c) => c.correct),
+              wrong: p.steps[pnl.step].choices.filter((c) => !c.correct).map((c) => ({ value: c.value, misconception: c.misconception })),
             }
           : null,
     };

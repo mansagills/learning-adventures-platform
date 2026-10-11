@@ -43,8 +43,8 @@ node scripts/stb-tour.mjs <url> <outDir> [w] [h]    # Shape Town Builders screen
 node scripts/e2e-pizza-fraction-frenzy.mjs   # Forum Fraction Feast: all four jobs (walking, the job list), misses, hints, debriefs, the Festival Feast and finale, a Frenzy round, Anser, saving, phone (51 checks)
 node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast screenshots: the forum, all four jobs at levels 1-3 with a miss and hints, the feast and Frenzy
 node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest: the deck, a whole Formations flight (keys, Space, clicks, a miss, hints), the sector cleared, an Engines two-step question, the tow beam, upgrades, the Star Map, saving, Cargo, Constellations, the Bingo Boss, the landing, Meteor Run, phone (66 checks)
-node scripts/e2e-equation-balance-scale.mjs   # Equation Balance Scale (half 1): the outpost, the Weigh Station (a miss keeps the scale locked, hints, the scale tips the right way), its debrief, the Rover (a real drag of a wrong crystal into the gap, then the right one), level 3, Pax and Gloop, grown-ups, saving, phone (41 checks)
-node scripts/ebs-tour.mjs <url> <outDir> [w] [h]    # Equation Balance Scale screenshots: the outpost, each job at levels 1-3 (the question, a miss, the hint picture, the answer), the job list (JOBS=weigh for one job)
+node scripts/e2e-equation-balance-scale.mjs   # Equation Balance Scale: the outpost, the Weigh Station (a miss keeps the scale locked, hints, the scale tips the right way), the Rover (real drags into the gap), the Dome (pick the equation on empty pans, then solve it; the letter p and boxes), The Big Weigh-in with Gloop on the scale and the beam, saving, a phone
+node scripts/ebs-tour.mjs <url> <outDir> [w] [h]    # Equation Balance Scale screenshots: the outpost, each job at levels 1-3 (the question, a miss, the hint picture, the answer, both steps of a Dome story), the job list and The Big Weigh-in (JOBS=dome for one job, WEIGHIN=0 to skip the finale)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
@@ -447,7 +447,7 @@ sees past the deck. The flight picks its own whole-number pixel scale (about
 | Missions | J | Missions |
 | Grown-ups | G | Settings → For grown-ups |
 
-## Equation Balance Scale (Math batch M7, grades 3–5): half 1
+## Equation Balance Scale (Math batch M7, grades 3–5)
 
 The equations game (slug `equation-balance-scale`), the second M7 game in
 **Star Station**, set at an outpost on the alien planet (the kit's
@@ -457,7 +457,7 @@ the two sides of an equation are the two pans, and "=" means both pans weigh
 the same.
 
 - **At the outpost:** Ranger Kiri (host, the Weigh Station), Mechanic Juno
-  (the Rover), Botanist Pax (the Dome, half 2) and Gloop the critter, who
+  (the Rover), Botanist Pax (the Dome) and Gloop the critter, who
   hops about. Kiri's big weigh-station scale stands by the walkway, and the
   outpost beacon lights one lamp per finished job.
 - **The Weigh Station** (grades 3–4, the equals sign): "Is 5 + 3 = 8 true?"
@@ -471,19 +471,31 @@ the same.
   tips. A wrong crystal shows which pan it made too heavy or too light, with
   a "Try it: 13 + 8 = 21, not 13" sentence, then comes back out. Level 3 has
   numbers on both sides (8 + 4 = ? + 5).
-- **Half 2:** the Dome (two-step problems, a letter for the unknown at level
-  3), The Big Weigh-in finale, and the site listing.
+- **The Dome** (grades 4–5, two-step problems): a two-part story about seed
+  pods. Step 1: pick the equation that tells it (the pans stay empty, so they
+  do not give it away). Step 2: the equation goes on the pans and the child
+  puts the crystal that balances it in the gap. Level 1 adds and takes away,
+  level 2 has groups then one more step (3 × 6 + 4 = ?), level 3 uses the
+  letter p for the unknown and has boxes on a pan (b + b + 3 = 11: one crystal
+  dropped on a box fills both boxes).
+- **The Big Weigh-in:** with all three lamps lit, evening falls and Kiri calls
+  the finale. Gloop sits on top of the scale (right above the post, so it
+  does not tip), and the child balances one scale from each job. Then the
+  beacon shines a beam up to the Star Station and the game posts
+  `game-complete` to the site.
 
 Code: `src/games/equation-balance-scale/`. `problems.ts` is the math (no
-number is ever below zero), `scale.ts` the scale on the job panel (page
-elements, so the beam tips smoothly and the rig scales down on a phone),
-`world.ts` the outpost.
+number is ever below zero; a problem has one step, or two for a Dome story),
+`scale.ts` the scale on the job panel (page elements, so the beam tips
+smoothly and the rig scales down on a phone; any "?" or letter on a pan is a
+gap), `world.ts` the outpost (with Gloop on the big scale and the beam for
+the finale).
 
 | Action | Keyboard | Mouse / touch |
 |---|---|---|
 | Walk | Arrow keys or WASD | Tap the ground, or the pad |
 | Talk | Space | Tap a person or Gloop |
-| Answer | 1–3 | Click or tap an answer |
+| Answer (or pick an equation) | 1–3 | Click or tap an answer |
 | Put a crystal in the gap | 1–3 | Drag it in, or click or tap it |
 | Hint | H | The light bulb |
 | Jobs | J | Jobs |

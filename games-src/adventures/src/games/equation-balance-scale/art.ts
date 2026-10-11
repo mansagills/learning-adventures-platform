@@ -120,6 +120,18 @@ export function paintGap(): PixelBuffer {
   return p.toBuffer({ outline: false });
 }
 
+/** A seed-pod box for the Dome (24 x 28): a green crate whose weight is the letter on it. */
+export function paintBox(): PixelBuffer {
+  const p = new Paint(24, 28);
+  const wood = ramp('#7dea8a');
+  p.rect(3, 22, 18, 5, DARK, { level: 2, sep: true });
+  p.rect(2, 6, 20, 17, wood, { level: 2, sep: true });
+  p.rect(2, 6, 20, 3, wood, { level: 4 });
+  for (const x of [7, 12, 17]) p.line(x, 9, x, 22, ramp('#2f6b2c'), 1);
+  p.rect(9, 3, 6, 3, ramp('#c9d1de'), { level: 3 });
+  return p.toBuffer();
+}
+
 /** The lock Kiri puts on the scale while you think (12 x 14). */
 export function paintLock(open = false): PixelBuffer {
   const p = new Paint(12, 14);

@@ -197,10 +197,12 @@ export const games: PlayableGame[] = [
     kind: 'game',
     grades: '3–5',
     difficulty: 'hard',
-    description: 'Keep the scale balanced to discover the missing number.',
-    skills: ['Equations', 'Early Algebra'],
-    estimatedTime: '10–15 min',
-    htmlPath: '/games/equation-balance-scale.html',
+    description:
+      'Help the crew of an outpost on an alien planet weigh glowing crystals on big balance scales. Find out when both sides weigh the same, put the missing crystal in the gap, solve two-step stories (with a letter for the unknown), and balance three scales in The Big Weigh-in to light the beacon.',
+    skills: ['Equations', 'Equal Sign', 'Missing Numbers', 'Two-Step Problems'],
+    estimatedTime: '20–30 min',
+    // Rebuilt with the Adventure Kit in the Star Station world, on the alien planet (game worlds W2, UX-4 M7)
+    htmlPath: '/games/play/equation-balance-scale/index.html',
     thumbnail: '/games/thumbnails/equation-balance-scale.jpg',
   },
 

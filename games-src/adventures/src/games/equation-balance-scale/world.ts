@@ -74,6 +74,9 @@ export class OutpostWorld {
   private gloopLeg = 1;
   private gloopWait = 1;
   private gloopHappy = 0;
+  /** The Big Weigh-in: Gloop sits on top of the big scale. */
+  private gloopSitting = false;
+  private beam: THREE.Mesh | null = null;
   private path: Array<{ x: number; y: number }> | null = null;
   private pathGoal: Target | null = null;
   private time = 0;
@@ -180,6 +183,54 @@ export class OutpostWorld {
 
   setMarkers(marks: Partial<Record<PersonId, Marker16>>): void {
     for (const [id, m] of Object.entries(marks)) this.people.get(id as PersonId)?.setMarker(m ?? null);
+  }
+
+  /** The Big Weigh-in: Gloop climbs up and sits on top of the big scale (or hops down again). */
+  gloopOnScale(on: boolean): void {
+    this.gloopSitting = on;
+    if (!on) {
+      this.gloopAt = { ...GLOOP_PATH[0] };
+      this.gloopLeg = 1;
+      this.gloopWait = 1;
+    }
+  }
+
+  get gloopOnTop(): boolean {
+    return this.gloopSitting;
+  }
+
+  /** After The Big Weigh-in: the beacon shines a beam of light up to the Star Station. */
+  setBeam(on: boolean): void {
+    if (on && !this.beam) {
+      const T = this.style.px;
+      const cv = document.createElement('canvas');
+      cv.width = 12;
+      cv.height = T * 12;
+      const g = cv.getContext('2d')!;
+      const grad = g.createLinearGradient(0, cv.height, 0, 0);
+      grad.addColorStop(0, 'rgba(255,207,106,0.95)');
+      grad.addColorStop(0.5, 'rgba(255,111,192,0.6)');
+      grad.addColorStop(1, 'rgba(95,227,255,0)');
+      g.fillStyle = grad;
+      g.fillRect(2, 0, 8, cv.height);
+      g.fillStyle = 'rgba(255,255,255,0.8)';
+      g.fillRect(5, Math.round(cv.height * 0.3), 2, Math.round(cv.height * 0.7));
+      const w = cv.width / T;
+      const hgt = (cv.height / T) * K;
+      const geo = new THREE.PlaneGeometry(w, hgt);
+      geo.translate(0, hgt / 2, 0);
+      const mat = new THREE.MeshBasicMaterial({ map: pixelTexture(cv), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+      this.beam = new THREE.Mesh(geo, mat);
+      // from just above the top lamp, straight up into the sky
+      this.beam.position.set(BEACON_SPOT.x, 3.4 * K, BEACON_SPOT.y * K + 0.05);
+      this.beam.renderOrder = 6;
+      this.scene.add(this.beam);
+    }
+    if (this.beam) this.beam.visible = on;
+  }
+
+  get beamOn(): boolean {
+    return !!this.beam?.visible;
   }
 
   /** Gloop bounces for joy for a moment. */
@@ -301,13 +352,20 @@ export class OutpostWorld {
     this.setting.update(t, this.stage.target.x);
     swapFrame(this.beacon, this.beaconTex[this.lit][this.reducedMotion ? 0 : Math.floor(t * 2) % 2]);
     // the weigh-station scale rocks gently now and then
-    const rock = this.reducedMotion ? 0 : Math.floor(t * 0.8) % 4;
+    // (it holds still while Gloop sits on it: Gloop is right above the post)
+    const rock = this.reducedMotion || this.gloopSitting ? 0 : Math.floor(t * 0.8) % 4;
     swapFrame(this.station, this.stationTex[rock === 1 ? 1 : rock === 3 ? 2 : 0]);
     // Gloop hops from spot to spot, resting in between
     const g = this.gloopAt;
     const goal = GLOOP_PATH[this.gloopLeg];
     let hop = false;
-    if (this.gloopHappy > 0) {
+    if (this.gloopSitting) {
+      // on top of the big scale, right above the post
+      g.x = STATION_SPOT.x;
+      g.y = STATION_SPOT.y + 0.05;
+      hop = this.gloopHappy > 0 && !this.reducedMotion && Math.floor(t * 6) % 2 === 0;
+      if (this.gloopHappy > 0) this.gloopHappy -= dt;
+    } else if (this.gloopHappy > 0) {
       this.gloopHappy -= dt;
       hop = !this.reducedMotion && Math.floor(t * 6) % 2 === 0;
     } else if (this.gloopWait > 0) this.gloopWait -= dt;
@@ -330,7 +388,8 @@ export class OutpostWorld {
     }
     swapFrame(this.gloop, this.gloopTex[hop ? 1 : 0]);
     const px = this.style.px;
-    this.gloop.position.set(Math.round(g.x * px) / px, 0, (Math.round(g.y * px) / px) * K);
+    // sitting on the scale: lifted to the top of the post (3.6 tiles up the 4.4-tile scale)
+    this.gloop.position.set(Math.round(g.x * px) / px, this.gloopSitting ? 3.5 * K : 0, (Math.round(g.y * px) / px) * K);
     const target = this.targets.find((x) => x.id === 'gloop');
     if (target) {
       target.x = g.x;

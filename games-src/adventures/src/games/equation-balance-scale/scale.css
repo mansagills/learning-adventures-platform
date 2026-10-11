@@ -80,6 +80,17 @@
 .ebs-job-rover header {
   background: linear-gradient(90deg, #f6d6bd, var(--paper-2));
 }
+.ebs-job-dome header {
+  background: linear-gradient(90deg, var(--ebs-leaf-bg), var(--paper-2));
+}
+/* The Big Weigh-in: an evening header, whichever job's scale is showing */
+.ebs-weighin header {
+  background: linear-gradient(90deg, #3a2a62, #6c4f9c);
+  color: #fff;
+}
+.ebs-weighin header .ebs-level {
+  color: #ffe9a8;
+}
 .ebs-head-right {
   display: flex;
   align-items: center;
@@ -221,7 +232,14 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 3px;
+  gap: 1px;
+}
+/* three weights on a pan reach the frame's edge: nudge each load toward the middle */
+.ebs-pan.left .ebs-load {
+  transform: translateX(6px);
+}
+.ebs-pan.right .ebs-load {
+  transform: translateX(-6px);
 }
 .ebs-pile {
   display: inline-flex;
@@ -237,7 +255,7 @@
   color: #fff;
   font-weight: 800;
   font-size: 18px;
-  padding: 0 1px;
+  padding: 0;
   text-shadow: 0 2px 0 #1d1a30;
 }
 .ebs-token {
@@ -448,4 +466,32 @@
   .ebs-foot {
     padding: 8px 10px 10px;
   }
+}
+
+/* ---------- the Dome: letters, boxes, four weights on a pan ---------- */
+.ebs-load.small .ebs-num {
+  top: 6px;
+  font-size: 12px;
+}
+.ebs-gap.box .ebs-num {
+  top: 12px;
+  color: #10301a;
+  text-shadow:
+    0 0 3px #dcffd8,
+    0 0 3px #dcffd8;
+}
+.ebs-load.small .ebs-gap.box .ebs-num {
+  top: 9px;
+}
+.ebs-gap.box.filled .ebs-num {
+  color: #1d1a30;
+}
+/* The Big Weigh-in: Gloop sits on top of the scale, above the post */
+.ebs-gloop {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  z-index: 2;
+}
+.ebs-gloop .px-icon {
+  display: block;
 }

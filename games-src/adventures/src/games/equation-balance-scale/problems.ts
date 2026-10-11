@@ -15,7 +15,11 @@
  *     1. 7 + ? = 12 and ? - 6 = 9
  *     2. ? x 4 = 24 and 36 / ? = 9
  *     3. something on both sides: 8 + 4 = ? + 5, 3 x 8 = 6 x ?, 15 - 7 = ? - 10
- *   Dome (Botanist Pax), grades 4-5: two-step problems (half 2 of the build)
+ *   Dome (Botanist Pax), grades 4-5: two-step word problems (3.OA.8, 4.OA.3, 5.OA.2)
+ *     1. two steps of + and -: pick the equation that matches the story (9 + 5 - 4 = ?), then solve it
+ *     2. x then + or -: "3 bags of 6 pods and 4 more" -> 3 x 6 + 4 = ?, then solve it
+ *     3. the same with a letter for the unknown (3 x 6 + 4 = p), and boxes on a pan:
+ *        b + b + 3 = 11 (take 3 off both pans, then share between the boxes)
  *
  * Weigh Station answers are always the same three: "True: it balances",
  * "False: the left is heavier" and "False: the right is heavier", so a child
@@ -29,8 +33,8 @@
 
 export type Job = 'weigh' | 'rover' | 'dome';
 export const JOBS: Job[] = ['weigh', 'rover', 'dome'];
-/** The jobs built so far (the Dome comes in half 2). */
-export const OPEN_JOBS: Job[] = ['weigh', 'rover'];
+/** The jobs that are open (all three). */
+export const OPEN_JOBS: Job[] = JOBS;
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -43,7 +47,10 @@ export type Misconception =
   | 'backwards' // thinks a number alone on the left makes it false: 9 = 4 + 5
   | 'tipped-wrong-way' // knew it was not balanced but picked the lighter pan as heavier
   | 'miscounted' // the pans do (or don't) weigh the same and the sums were slipped
-  | 'one-off'; // a near miss by one
+  | 'one-off' // a near miss by one
+  | 'one-step' // did only the first step of a two-step story: 3 x 6 + 4 -> 18
+  | 'wrong-order' // put the numbers in the wrong places: 3 + 6 x 4 for "3 bags of 6 and 4 more"
+  | 'one-pan-only'; // took weight off one pan only: b + b + 3 = 11 -> 7
 
 export interface Choice {
   /** A unique key (the number, or the answer word). */
@@ -71,6 +78,10 @@ export type Verdict = 'balanced' | 'left' | 'right';
 export interface Step {
   /** The banner text (short: it sits above the scale and is read aloud). */
   ask: string;
+  /** How the answers look: word buttons, or crystal weights that can be dragged into the gap. */
+  pick: 'words' | 'crystal';
+  /** Hints 1 and 2 for this step, when the job's usual ones do not fit (the Dome's stories). */
+  hints?: [string, string];
   choices: Choice[];
   /** Shown with the answer (rung 3 of the hints and after a right answer). */
   explain: string;
@@ -83,7 +94,9 @@ export interface Problem {
     | 'tip' // Weigh: which way does the scale tip (crystals)
     | 'true-false' // Weigh: is this equation true, sums or x and /
     | 'missing' // Rover: the missing number on one side
-    | 'both-sides'; // Rover: something on both sides
+    | 'both-sides' // Rover: something on both sides
+    | 'two-step' // Dome: pick the equation for a story, then solve it
+    | 'boxes'; // Dome: equal boxes and crystals on one pan
   left: Pan;
   right: Pan;
   /** Weigh: the verdict. Rover: the missing number. */
@@ -111,6 +124,17 @@ const DIVIDE = '÷';
 
 /** A pan with no gap: its text and its weight. */
 const fixed = (text: string, w: number, piles?: number[]): Pan => ({ text, weight: () => w, gap: false, piles });
+
+/** A token on a pan that stands for the unknown: "?" or a letter (p, b). */
+export const isUnknown = (tok: string) => tok === '?' || /^[a-z]$/.test(tok);
+
+/** A pan's text with every unknown replaced by a number: "b + b + 3" -> "4 + 4 + 3". */
+export function fillUnknown(text: string, v: number): string {
+  return text
+    .split(' ')
+    .map((t) => (isUnknown(t) ? String(v) : t))
+    .join(' ');
+}
 
 /** Which way a scale tips with these two weights. */
 export function verdictOf(left: number, right: number): Verdict {
@@ -195,7 +219,7 @@ function weighQuestion(tier: Tier, kind: Problem['kind'], L: Side, R: Side): Pro
     left: fixed(L.text, L.w, tier === 1 ? L.piles : undefined),
     right: fixed(R.text, R.w, tier === 1 ? R.piles : undefined),
     answer,
-    steps: [{ ask: `Left pan: ${L.text}. Right pan: ${R.text}. Is ${eq} true?`, choices, explain }],
+    steps: [{ ask: `Left pan: ${L.text}. Right pan: ${R.text}. Is ${eq} true?`, pick: 'words', choices, explain }],
   };
 }
 
@@ -305,7 +329,7 @@ function roverQuestion(tier: Tier, kind: Problem['kind'], left: Pan, right: Pan,
     left,
     right,
     answer,
-    steps: [{ ask: `Find the missing number: ${eq}. Which crystal makes the scale balance?`, choices: numberChoices(r, answer, mistakes), explain }],
+    steps: [{ ask: `Find the missing number: ${eq}. Which crystal makes the scale balance?`, pick: 'crystal', choices: numberChoices(r, answer, mistakes), explain }],
   };
 }
 
@@ -415,13 +439,207 @@ export function makeRover(tier: Tier, r: Rand): Problem {
   ], `The left pan weighs ${a} ${MINUS} ${b} = ${d}. ${d} ${PLUS} ${c} = ${x}, so ${x} ${MINUS} ${c} = ${d} too.`, r);
 }
 
+// ------------------------------------------------------------------ Dome (Botanist Pax)
+
+const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+
+/** One equation for a story, as a choice ("3 × 6 + 4 = p"). */
+const eqChoice = (text: string, correct: boolean, misconception?: Misconception): Choice => ({ value: text, label: text, correct, misconception });
+
+/**
+ * A two-step story: first pick the equation that matches it (the scale's pans
+ * stay empty, so they do not give it away), then the equation goes on the
+ * pans and the player finds the unknown, which sits alone on the right pan.
+ */
+function twoStep(
+  tier: Tier,
+  r: Rand,
+  story: string,
+  expr: string,
+  value: number,
+  wrongEqs: Array<[string, Misconception]>,
+  mistakes: Array<[number, Misconception]>,
+  first: { text: string; value: number; words: string },
+  then: { text: string; words: string },
+): Problem {
+  const u = tier === 3 ? 'p' : '?';
+  const eq = `${expr} = ${u}`;
+  const what = tier === 3 ? 'p is the number of pods. ' : '';
+  const choices = shuffle(r, [eqChoice(eq, true), ...wrongEqs.map(([t, m]) => eqChoice(`${t} = ${u}`, false, m))]);
+  const firstFact = `${first.text} = ${first.value}`;
+  // "= ?" already ends with a question mark: no full stop after it
+  const stop = (t: string) => (t.endsWith('?') ? t : `${t}.`);
+  return {
+    job: 'dome',
+    tier,
+    kind: 'two-step',
+    left: fixed(expr, value),
+    right: { text: u, weight: (x) => x, gap: true },
+    answer: value,
+    steps: [
+      {
+        ask: `${story} ${what}Which equation matches the story?`,
+        pick: 'words',
+        choices,
+        explain: `The story has two parts. First, ${first.words}: ${first.text}. Then ${then.words}: ${then.text}. So the equation is ${stop(eq)}`,
+        hints: ['The story has two parts. What happens first? What happens next?', `First, ${first.words}: ${first.text}. Then ${then.words}: ${then.text}. Which equation does both?`],
+      },
+      {
+        ask: `${tier === 3 ? 'Now find p' : 'Now solve it'}: ${stop(eq)} Which crystal makes the scale balance?`,
+        pick: 'crystal',
+        choices: numberChoices(r, value, mistakes),
+        explain: `First, ${firstFact}. Then ${first.value} ${then.text} = ${value}. So ${u === 'p' ? 'p' : 'the missing number'} is ${value}.`,
+        hints: [`Do the first step: what is ${first.text}?`, `${firstFact}. Now work out ${first.value} ${then.text}.`],
+      },
+    ],
+  };
+}
+
+export function makeDome(tier: Tier, r: Rand): Problem {
+  if (tier === 1) {
+    if (r() < 0.5) {
+      // picks more, then plants some: a + b - c
+      const a = int(r, 6, 15);
+      const b = int(r, 2, 9);
+      // three different numbers, so the story never reads "picks 4 ... plants 4"
+      let c = int(r, 2, Math.min(9, a + b - 2));
+      while (c === b || c === a) c = c > 2 ? c - 1 : c + 2;
+      const v = a + b - c;
+      return twoStep(
+        tier,
+        r,
+        `Pax has ${a} seed pods. She picks ${b} more. Then she plants ${c} of them. How many pods are left?`,
+        `${a} ${PLUS} ${b} ${MINUS} ${c}`,
+        v,
+        [
+          [`${a} ${PLUS} ${b} ${PLUS} ${c}`, 'wrong-operation'],
+          [`${a} ${PLUS} ${b}`, 'one-step'],
+        ],
+        [
+          [a + b, 'one-step'],
+          [a + b + c, 'added-all'],
+        ],
+        { text: `${a} ${PLUS} ${b}`, value: a + b, words: `she picks ${b} more` },
+        { text: `${MINUS} ${c}`, words: `she plants ${c}` },
+      );
+    }
+    // Gloop eats some, then Pax adds more: a - b + c
+    const b = int(r, 2, 6);
+    const a = int(r, b + 3, 15);
+    let c = int(r, 2, 9);
+    if (c === b) c = c === 9 ? 8 : c + 1;
+    const v = a - b + c;
+    return twoStep(
+      tier,
+      r,
+      `There are ${a} pods in the tray. Gloop eats ${b}. Then Pax adds ${c} more. How many pods are in the tray now?`,
+      `${a} ${MINUS} ${b} ${PLUS} ${c}`,
+      v,
+      [
+        [`${a} ${PLUS} ${b} ${PLUS} ${c}`, 'wrong-operation'],
+        [`${a} ${MINUS} ${b}`, 'one-step'],
+      ],
+      [
+        [a - b, 'one-step'],
+        [a + b + c, 'added-all'],
+      ],
+      { text: `${a} ${MINUS} ${b}`, value: a - b, words: `Gloop eats ${b}` },
+      { text: `${PLUS} ${c}`, words: `Pax adds ${c}` },
+    );
+  }
+  // level 3: now and then, boxes on a pan
+  if (tier === 3 && r() < 0.4) return makeBoxes(r);
+  const big = tier === 3;
+  const n = int(r, big ? 3 : 2, big ? 9 : 6);
+  const k = int(r, big ? 4 : 3, 9);
+  const nk = n * k;
+  if (r() < 0.5) {
+    // bags of pods, then some more: n x k + e
+    const e = pick(r, range(2, big ? 19 : 9).filter((x) => x !== n && x !== k));
+    const v = nk + e;
+    return twoStep(
+      tier,
+      r,
+      `Pax packs ${n} bags. Each bag holds ${k} pods. Then she adds ${e} more pods. How many pods in all?`,
+      `${n} ${TIMES} ${k} ${PLUS} ${e}`,
+      v,
+      [
+        [`${n} ${PLUS} ${k} ${TIMES} ${e}`, 'wrong-order'],
+        [`${n} ${TIMES} ${k} ${MINUS} ${e}`, 'wrong-operation'],
+      ],
+      [
+        [nk, 'one-step'],
+        [n * (k + e), 'wrong-order'],
+        [n + k + e, 'added-all'],
+      ],
+      { text: `${n} ${TIMES} ${k}`, value: nk, words: `${n} bags of ${k}` },
+      { text: `${PLUS} ${e}`, words: `${e} more` },
+    );
+  }
+  // pots of pods, then Gloop eats some: n x k - e
+  // 2 x 3 has no room for a third number below 6: then the extra can match one of them
+  const es = range(2, Math.min(big ? 19 : 9, nk - 1));
+  const e = pick(r, es.filter((x) => x !== n && x !== k).length ? es.filter((x) => x !== n && x !== k) : es);
+  const v = nk - e;
+  return twoStep(
+    tier,
+    r,
+    `Pax has ${n} pots. Each pot holds ${k} pods. Gloop eats ${e} of them. How many pods are left?`,
+    `${n} ${TIMES} ${k} ${MINUS} ${e}`,
+    v,
+    [
+      [`${n} ${TIMES} ${k} ${PLUS} ${e}`, 'wrong-operation'],
+      [`${n} ${PLUS} ${k} ${MINUS} ${e}`, 'wrong-operation'],
+    ],
+    [
+      [nk, 'one-step'],
+      [nk + e, 'wrong-operation'],
+      [n + k + e, 'added-all'],
+    ],
+    { text: `${n} ${TIMES} ${k}`, value: nk, words: `${n} pots of ${k}` },
+    { text: `${MINUS} ${e}`, words: `Gloop eats ${e}` },
+  );
+}
+
+/** Level 3: equal boxes and crystals on the left pan, crystals on the right (b + b + 3 = 11). */
+function makeBoxes(r: Rand): Problem {
+  // two boxes (three would not fit on the pan at a size that can be read)
+  const m = 2;
+  const x = int(r, 2, 9);
+  const c = int(r, 1, 9);
+  const t = m * x + c;
+  const boxes = Array.from({ length: m }, () => 'b').join(` ${PLUS} `);
+  const leftText = `${boxes} ${PLUS} ${c}`;
+  const mistakes: Array<[number, Misconception]> = [
+    [t - c, 'one-step'],
+    [(t + c) / m, 'one-pan-only'],
+    [t, 'answer-next'],
+  ];
+  return {
+    job: 'dome',
+    tier: 3,
+    kind: 'boxes',
+    left: { text: leftText, weight: (v) => m * v + c, gap: true },
+    right: fixed(String(t), t),
+    answer: x,
+    steps: [
+      {
+        ask: `Left pan: ${m} boxes and a weight of ${c}. Right pan: ${t}. All the boxes weigh the same. Which crystal weighs the same as one box?`,
+        pick: 'crystal',
+        choices: numberChoices(r, x, mistakes),
+        explain: `Take ${c} off both pans: ${m} boxes balance ${t - c}. ${t - c} ${DIVIDE} ${m} = ${x}, so b = ${x}.`,
+        hints: [`Take ${c} off both pans. The scale still balances. What do the ${m} boxes weigh?`, `The ${m} boxes weigh ${t} ${MINUS} ${c} = ${t - c}. Share ${t - c} between ${m} boxes.`],
+      },
+    ],
+  };
+}
+
 // ------------------------------------------------------------------ any job
 
 export function makeProblem(job: Job, tier: Tier, r: Rand): Problem {
   if (job === 'weigh') return makeWeigh(tier, r);
   if (job === 'rover') return makeRover(tier, r);
-  // the Dome comes in half 2; until then it asks Rover questions
-  return makeRover(tier, r);
+  return makeDome(tier, r);
 }
 
 /** What each pan weighs once the player's choice is in (the chosen number fills the gap). */
