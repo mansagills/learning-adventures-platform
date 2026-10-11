@@ -135,4 +135,68 @@ describe('Equation Balance Scale problems', () => {
     expect(lvl1.some((p) => p.left.text.startsWith('?'))).toBe(true);
     expect(lvl1.some((p) => !p.left.text.startsWith('?'))).toBe(true);
   });
+
+  it('Dome: the first step picks the equation that is really on the pans, and the second step balances it', () => {
+    each((p) => {
+      const last = p.steps[p.steps.length - 1];
+      expect(last.pick).toBe('crystal');
+      const ok = panWeights(p, p.answer as number);
+      expect(ok.left).toBe(ok.right);
+      for (const c of last.choices) {
+        const v = Number(c.value);
+        expect(Number.isInteger(v) && v >= 1).toBe(true);
+        if (!c.correct) {
+          const w = panWeights(p, v);
+          expect(w.left).not.toBe(w.right);
+        }
+      }
+      if (p.kind === 'two-step') {
+        expect(p.steps).toHaveLength(2);
+        expect(p.steps[0].pick).toBe('words');
+        expect(p.steps[0].choices.find((c) => c.correct)!.value).toBe(`${p.left.text} = ${p.right.text}`);
+        // the unknown sits alone on the right pan, and the story's numbers are all in the equation
+        expect(p.right.gap && !p.left.gap).toBe(true);
+        for (const n of numbersIn(p.left.text)) expect(numbersIn(p.steps[0].ask)).toContain(n);
+        // "did one step only" is the first part of the story worked out
+        const firstTwo = p.left.text.split(' ').slice(0, 3).join(' ');
+        const [a, op, b] = firstTwo.split(' ');
+        const first = op === '×' ? Number(a) * Number(b) : op === '+' ? Number(a) + Number(b) : Number(a) - Number(b);
+        for (const c of last.choices.filter((x) => x.misconception === 'one-step')) expect(Number(c.value)).toBe(first);
+        expect(first).toBeGreaterThanOrEqual(0);
+      } else {
+        expect(p.kind).toBe('boxes');
+        expect(p.tier).toBe(3);
+      }
+      for (const step of p.steps) expect(step.hints?.length).toBe(2);
+    }, ['dome']);
+  });
+
+  it('Dome: a letter for the unknown only at level 3, and boxes balance when the same is taken off both pans', () => {
+    each((p) => {
+      if (p.tier < 3) {
+        expect(p.kind).toBe('two-step');
+        expect(p.right.text).toBe('?');
+        expect(`${p.left.text} ${p.right.text}`).not.toMatch(/[a-z]/);
+      } else {
+        // no "?" for the unknown on the pans or in the equations to pick from
+        for (const t of [p.left.text, p.right.text, ...p.steps[0].choices.map((c) => c.label)]) expect(t).not.toContain('?');
+        expect(`${p.left.text} ${p.right.text}`).toMatch(/\b[pb]\b/);
+      }
+      if (p.tier === 1) expect(p.left.text).not.toMatch(/[×÷]/);
+      if (p.tier === 2) expect(p.left.text).toContain('×');
+      if (p.kind === 'boxes') {
+        const m = (p.left.text.match(/b/g) ?? []).length;
+        const c = numbersIn(p.left.text)[0];
+        const t = p.right.weight(0);
+        expect(m * (p.answer as number) + c).toBe(t);
+        for (const ch of p.steps[0].choices.filter((x) => !x.correct)) {
+          if (ch.misconception === 'one-step') expect(Number(ch.value)).toBe(t - c);
+          if (ch.misconception === 'one-pan-only') expect(Number(ch.value) * m).toBe(t + c);
+        }
+      }
+    }, ['dome']);
+    const lvl3 = Array.from({ length: SEEDS }, (_, i) => makeProblem('dome', 3, mulberry32(i + 1)));
+    expect(lvl3.some((p) => p.kind === 'boxes')).toBe(true);
+    expect(lvl3.some((p) => p.kind === 'two-step' && p.right.text === 'p')).toBe(true);
+  });
 });

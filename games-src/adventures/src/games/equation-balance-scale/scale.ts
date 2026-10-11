@@ -1,15 +1,19 @@
 import { h } from '../../kit/ui/dom';
-import { CRYSTAL, paintBeam, paintCrystal, paintGap, paintLock, paintPan, paintStand, paintWeight } from './art';
+import { CRYSTAL, paintBeam, paintBox, paintCrystal, paintGap, paintLock, paintPan, paintStand, paintWeight } from './art';
+import { paintCritter } from '../../kit/worlds/star-station/planet';
 import { pix } from './pix';
-import type { Pan, Problem } from './problems';
+import { fillUnknown, isUnknown, type Pan, type Problem } from './problems';
 
 /**
  * The balance scale on the job panel, built from page elements so it can tip
  * smoothly: the stand, a beam that turns about the pivot, and two pans that
  * hang from its ends. Each pan carries its side of the equation: real crystals
  * at level 1 of the Weigh Station, otherwise a crystal weight for each number
- * (with the sign between them), and a dashed gap for the missing number. The
- * side's text is on a plate under the pan.
+ * (with the sign between them), and a dashed gap for the missing number (or
+ * its letter, at the Dome's top level). The Dome's boxes are crates with the
+ * letter b on them: a crystal put in one box fills them all, because the
+ * boxes weigh the same. The side's text is on a plate under the pan. While a
+ * Dome story's equation is still being picked, the pans are empty.
  *
  * The rig is laid out at 440 x 236 and scaled down to fit a phone.
  */
@@ -39,8 +43,9 @@ interface PanView {
   load: HTMLElement;
   plate: HTMLElement;
   weightTag: HTMLElement;
-  gap: HTMLElement | null;
+  gaps: HTMLElement[];
 }
+
 
 export class ScaleView {
   readonly root: HTMLElement;
@@ -52,13 +57,18 @@ export class ScaleView {
   private tilt = 0;
   private resizeObs: ResizeObserver | null = null;
 
-  constructor(private readonly p: Problem) {
+  constructor(
+    private readonly p: Problem,
+    private readonly opts: { blank?: boolean; gloop?: boolean } = {},
+  ) {
     this.beam = h('div', { class: 'ebs-beam' }, pix('scale-beam', () => paintBeam(), BEAM_SCALE));
     this.lockEl = h('div', { class: 'ebs-lock', title: 'The scale is locked while you think' }, pix('scale-lock', () => paintLock(false), 2));
     this.left = this.panView(p.left, 'left');
     this.right = this.panView(p.right, 'right');
     const stand = h('div', { class: 'ebs-stand' }, pix('scale-stand', () => paintStand(), 2));
     this.rig = h('div', { class: 'ebs-rig', style: `width:${RIG_W}px;height:${RIG_H}px` }, stand, this.left.el, this.right.el, this.beam, this.lockEl);
+    // The Big Weigh-in: Gloop sits on top, right above the post (so Gloop pushes both sides the same and never tips it)
+    if (opts.gloop) this.rig.append(h('div', { class: 'ebs-gloop', style: `left:${PIVOT.x}px;top:${PIVOT.y}px` }, pix('gloop-sit', () => paintCritter(24, 0), 1.5)));
     this.root = h('div', { class: 'ebs-scale', role: 'img', 'aria-label': this.describe() }, this.rig);
     this.place(0);
     if (typeof ResizeObserver !== 'undefined') {
@@ -68,9 +78,9 @@ export class ScaleView {
     requestAnimationFrame(() => this.fit());
   }
 
-  /** The gap element (where a dragged crystal is dropped), if this question has one. */
-  get gapEl(): HTMLElement | null {
-    return this.left.gap ?? this.right.gap;
+  /** The gaps (where a dragged crystal is dropped): one, or one per box. */
+  get gapEls(): HTMLElement[] {
+    return [...this.left.gaps, ...this.right.gaps];
   }
 
   /** Scale the rig down to fit the panel's width (never up). */
@@ -94,12 +104,14 @@ export class ScaleView {
     this.place(tiltFor(left, right));
   }
 
-  /** Put a crystal with this number in the gap (or take it out with null). */
+  /** Put a crystal with this number in the gap, or in every box (or take it out with null). */
   fillGap(value: number | null): void {
-    const gap = this.gapEl;
-    if (!gap) return;
-    gap.classList.toggle('filled', value !== null);
-    gap.replaceChildren(value === null ? pix('scale-gap', () => paintGap(), 1.5) : pix('weight-gold', () => paintWeight(CRYSTAL.gold), 1.5), h('span', { class: 'ebs-num', text: value === null ? '?' : String(value) }));
+    for (const gap of this.gapEls) {
+      const tok = gap.dataset.token!;
+      const k = Number(gap.dataset.scale);
+      gap.classList.toggle('filled', value !== null);
+      gap.replaceChildren(this.unknownArt(tok, value !== null, k), h('span', { class: 'ebs-num', text: value === null ? tok : String(value) }));
+    }
     this.root.setAttribute('aria-label', this.describe(value));
   }
 
@@ -117,7 +129,7 @@ export class ScaleView {
 
   /** Mark the gap as a drop target while a crystal is dragged over it. */
   setDropHover(on: boolean): void {
-    this.gapEl?.classList.toggle('hover', on);
+    for (const g of this.gapEls) g.classList.toggle('hover', on);
   }
 
   dispose(): void {
@@ -126,10 +138,22 @@ export class ScaleView {
 
   // ------------------------------------------------------------ building
 
+  /** The picture for an unknown: a dashed gap (or a box), or a gold crystal once a number is in it. */
+  private unknownArt(tok: string, filled: boolean, k: number): HTMLElement {
+    if (tok === 'b') return pix('scale-box', () => paintBox(), k);
+    return filled ? pix('weight-gold', () => paintWeight(CRYSTAL.gold), k) : pix('scale-gap', () => paintGap(), k);
+  }
+
   private panView(pan: Pan, side: 'left' | 'right'): PanView {
-    let gap: HTMLElement | null = null;
+    const gaps: HTMLElement[] = [];
     const load = h('div', { class: 'ebs-load' });
-    if (pan.piles) {
+    const tokens = pan.text.split(' ');
+    // four weights on one pan (b + b + b + 1) are drawn smaller so they fit
+    const k = tokens.filter((t) => t !== '+' && t.length && !/^[−×÷]$/.test(t)).length >= 4 ? 1.1 : 1.5;
+    if (k < 1.5) load.classList.add('small');
+    if (this.opts.blank) {
+      // the Dome's story: the pans stay empty until the equation is picked
+    } else if (pan.piles) {
       // real crystals, one pile per number
       const color = CRYSTAL[side];
       pan.piles.forEach((n, i) => {
@@ -138,18 +162,19 @@ export class ScaleView {
       });
     } else {
       // a crystal weight for each number, a gap for the missing one, and the signs between
-      for (const tok of pan.text.split(' ')) {
-        if (tok === '?') {
-          gap = h('span', { class: 'ebs-token ebs-gap', 'data-gap': '1' }, pix('scale-gap', () => paintGap(), 1.5), h('span', { class: 'ebs-num', text: '?' }));
+      for (const tok of tokens) {
+        if (isUnknown(tok)) {
+          const gap = h('span', { class: `ebs-token ebs-gap${tok === 'b' ? ' box' : ''}`, 'data-gap': '1', 'data-token': tok, 'data-scale': String(k) }, this.unknownArt(tok, false, k), h('span', { class: 'ebs-num', text: tok }));
+          gaps.push(gap);
           load.append(gap);
-        } else if (/^\d+$/.test(tok)) load.append(h('span', { class: 'ebs-token' }, pix(`weight-${side}`, () => paintWeight(CRYSTAL[side]), 1.5), h('span', { class: 'ebs-num', text: tok })));
+        } else if (/^\d+$/.test(tok)) load.append(h('span', { class: 'ebs-token' }, pix(`weight-${side}`, () => paintWeight(CRYSTAL[side]), k), h('span', { class: 'ebs-num', text: tok })));
         else load.append(h('span', { class: 'ebs-op', text: tok }));
       }
     }
-    const plate = h('div', { class: `ebs-plate ${side}`, text: pan.text });
+    const plate = h('div', { class: `ebs-plate ${side}`, text: this.opts.blank ? '?' : pan.text });
     const weightTag = h('div', { class: 'ebs-weighs', hidden: true });
     const el = h('div', { class: `ebs-pan ${side}` }, pix(`scale-pan-${side}`, () => paintPan(side), PAN_SCALE), load, plate, weightTag);
-    return { el, load, plate, weightTag, gap };
+    return { el, load, plate, weightTag, gaps };
   }
 
   /** Turn the beam and hang the pans from its ends. */
@@ -172,8 +197,10 @@ export class ScaleView {
 
   /** What a screen reader hears: both pans, and which way the scale tips. */
   private describe(chosen?: number | null): string {
-    const fill = (pan: Pan) => (pan.gap && chosen != null ? pan.text.replace('?', String(chosen)) : pan.text);
+    const fill = (pan: Pan) => (pan.gap && chosen != null ? fillUnknown(pan.text, chosen) : pan.text);
     const state = this.tilt === 0 ? 'level' : this.tilt > 0 ? 'tipped down on the right' : 'tipped down on the left';
+    if (this.opts.blank) return 'A balance scale with two empty pans. Pick the equation to put on them.';
     return `A balance scale. Left pan: ${fill(this.p.left)}. Right pan: ${fill(this.p.right)}. The scale is ${state}.`;
   }
 }
+

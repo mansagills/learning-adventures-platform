@@ -122,12 +122,20 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     clicks: [
       'button:has-text("Start a new game")',
       'button:has-text("I\'m ready!")',
-      ...Array(10).fill('.dialogue'),
+      ...Array(16).fill('.dialogue'),
     ],
     delay: 1500,
   },
   // Star Station: start, accept the look, read Commander Ayo's welcome, then the deck.
   'multiplication-space-quest': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(16).fill('.dialogue'),
+    ],
+    delay: 2500,
+  },
+  'equation-balance-scale': {
     clicks: [
       'button:has-text("Start a new game")',
       'button:has-text("I\'m ready!")',

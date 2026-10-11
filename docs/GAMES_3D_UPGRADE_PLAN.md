@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale half 1 built in PR #225, waiting for the owner's look)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale half 1 merged in PR #225 on 2026-10-11, half 2 built and waiting for the owner's look)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -979,7 +979,7 @@ The names, settings and kind of game are owner choices (see "Choices for the own
 - **Halves:** half 1 is the outpost (walking, with the kit's walking pieces added to the `alien-planet` setting), the Weigh Station and the Rover; half 2 is the Dome, The Big Weigh-in finale, and listing the game on the site with a new card picture. The owner tries half 1 on the preview before half 2.
 - **Wording:** the owner's rule from Space Quest applies to every question: short sentences, the facts first, then one plain question, in words that match the picture ("the left pan", "the right pan") and with no game jargon.
 
-##### Balance Scale half 1: BUILT (2026-10-11), waiting for the owner's look
+##### Balance Scale half 1: COMPLETED ✅ (the owner merged PR #225 on 2026-10-11 and asked for half 2)
 
 - **What is playable:**
   - the title and the character creator (16-bit player)
@@ -1015,6 +1015,38 @@ The names, settings and kind of game are owner choices (see "Choices for the own
   - most of the play is answering on a panel (but the scale moves, and the Rover's crystals are dragged)
   - the level 1 crystal piles are wide for 10 or more crystals
   - Gloop doesn't sit on the scale yet (that comes with The Big Weigh-in)
+
+##### Balance Scale half 2: BUILT (2026-10-11), waiting for the owner's look
+
+- **Botanist Pax's Dome** (grades 4–5, two-step problems; 3.OA.8, 4.OA.3, 5.OA.2). Every Dome question is a little story with two parts, played in two steps:
+  1. **Pick the equation that tells the story.** The scale's pans stay empty while the child picks, so they do not give the answer away. A wrong equation gets a sentence ("That equation only tells the first part of the story. What happens next?").
+  2. **Solve it on the scale.** The right equation goes onto the pans (the story on the left, the unknown alone on the right), and the child drags the crystal that balances it into the gap, as at the Rover.
+  - level 1: two steps of + and − ("Pax has 12 seed pods. She picks 4 more. Then she plants 7 of them. How many pods are left?" → 12 + 4 − 7 = ?)
+  - level 2: groups, then one more step ("Pax packs 3 bags. Each bag holds 6 pods. Then she adds 4 more pods." → 3 × 6 + 4 = ?; and pots of pods, then Gloop eats some: 5 × 4 − 5 = ?)
+  - level 3, as the owner chose: **a letter for the unknown** (3 × 6 + 4 = p, "p is the number of pods"), with bigger numbers; and **boxes on a pan**: "Left pan: 2 boxes and a weight of 3. Right pan: 11. All the boxes weigh the same. Which crystal weighs the same as one box?" The boxes are green seed-pod crates marked b (b + b + 3 = 11). One crystal dropped on a box fills both boxes, because they weigh the same.
+  - mistakes named: doing only the first step (3 × 6 + 4 → 18), the numbers in the wrong places (3 + 6 × 4), the wrong sign, adding every number, and for boxes taking weight off one pan only (b + b + 3 = 11 → 7) or forgetting to share between the boxes (→ 8)
+  - each step has its own hints: "The story has two parts. What happens first? What happens next?", then the two parts written out; on step 2, "Do the first step: what is 3 × 6?", then "3 × 6 = 18. Now work out 18 + 4." The scale does not show what the pans weigh on a story, because that would be the answer. For boxes: "Take 3 off both pans. The scale still balances. What do the 2 boxes weigh?"
+  - a star still needs a clean first try on both steps (at most hint 1)
+  - Pax's debrief: "Pax packs 3 bags of 6 pods, then adds 4 more. Why do we need two steps?"
+- **The Big Weigh-in** (the finale): when the third beacon lamp lights, evening falls on the outpost (the planet's evening sky) and Kiri calls The Big Weigh-in ("Start The Big Weigh-in!" or "Not yet"; Kiri asks again later, with a marker over her head). Gloop climbs up and sits on top of the big weigh-station scale in the outpost, and on top of every scale in the panel. Kiri explains why Gloop doesn't tip it: Gloop sits right above the post, so Gloop pushes both sides the same. Then three scales, one from each job in order (the Weigh Station, the Rover, the Dome), each asked by its own helper, at the child's level, with no stars and nothing timed. After the third, the beacon shines a beam of light up to the Star Station, Gloop does a happy dance, and the game tells the site player it is complete ("Nice work!"). The outpost stays in the evening, with the beam, and every job stays open for practice.
+- **Site:** `/games/equation-balance-scale` now plays the new game (grades 3–5, 20–30 min), with a new description, skills and card picture (the outpost with Kiri's scale, the three helpers and Gloop). The slug is the same, so no redirect is needed; the old HTML file stays until the Phase 4 cleanup, as for M6 and Space Quest.
+- **Grown-ups page:** three jobs in the progress table, the Dome in "what it teaches" (with the letter and the boxes), The Big Weigh-in in the summary, three new mistakes in "most common slip", a two-part story idea to try at home, and the standards 3.OA.8, 4.OA.3 and 5.OA.2.
+- **No kit changes in half 2.** The Sunny Town games, Forum Fraction Feast and Space Quest are byte-for-byte unchanged (only Equation Balance Scale's own files were rebuilt).
+- **Fixed after looking at the screenshots:**
+  - three boxes on one pan did not fit at a size that can be read (the boxes are now always two, as in the plan's example)
+  - three weights on a pan touched the edge of the scale's frame (each pan's load now sits a little toward the middle)
+  - a wrong-sign sentence talked about "bags" when the story was about pots (it now fits every story)
+  - a story could repeat a number ("Gloop eats 3. Then Pax adds 3."): the numbers in a story are now different
+  - Kiri's marker stayed up during the finale
+- **Tests:**
+  - 11 unit tests (2 new) over 3,600 questions: the right equation is exactly what goes on the pans; every number in it comes from the story; the right crystal balances and every wrong one tips; "did one step only" is the first part worked out; a letter only at level 3 (and never "?" there); boxes balance when the same is taken off both pans; every hint and explanation is there for both steps.
+  - The browser test `scripts/e2e-equation-balance-scale.mjs` (62/62, 21 new) adds: the Dome with empty pans while the equation is picked, a wrong equation, the right one going on the scale, a one-step crystal that tips it and says so, the letter p at level 3, a real drag onto a box that fills both boxes, five stars and Pax's debrief, evening and Kiri's call, Gloop on the scale, The Big Weigh-in (one scale from each job, in order), the beam and the "game complete" message, three rows on the grown-ups page, a reload that keeps the evening and the beam, and a Dome story on a phone.
+  - `scripts/ebs-tour.mjs` now takes both steps of each Dome question and the whole finale (37 screenshots for the Dome and The Big Weigh-in), all reviewed by eye.
+- **Score: 8.9/10** (gameplay 1.95, learning 2.0, look and sound 1.3, ease of use 1.35, reliability 1.4, completeness 0.9). It loses points on:
+  - most of the play is answering on a panel (the scale moves, and crystals are dragged, but the outpost itself is only for walking between jobs)
+  - the Dome's stories have no picture of their own (the pods, bags and pots are only words until the equation is on the scale)
+  - the level 1 crystal piles are wide for 10 or more crystals
+  - the beam to the station is a simple line of light
 
 ##### Choices for the owner
 
@@ -1209,3 +1241,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-11:** The owner merged PR #224. **Multiplication Space Quest COMPLETED ✅: 10 of the 11 Math games are done.** Next: Equation Balance Scale on the alien planet (Game 2 above), in its own PR. Started by re-checking its open choices with the owner.
 - **2026-10-11:** Owner chose the walking outpost as drafted, kept the names, letters only at the Dome's top level, and two halves. Building Balance Scale half 1 (the outpost, the Weigh Station and the Rover).
 - **2026-10-11:** Balance Scale half 1 built: the outpost (the alien planet got walking pieces), the Weigh Station and the Rover, with a scale that tips and crystals that can be dragged into the gap. 9 unit tests, 41/41 browser checks. Provisional score 8.6. Waiting for the owner's look before half 2.
+- **2026-10-11:** The owner merged half 1 (PR #225) and asked for half 2. Balance Scale half 2 built: Botanist Pax's Dome (two-step stories: pick the equation on empty pans, then solve it on the scale; the letter p and boxes at level 3), The Big Weigh-in at evening with Gloop on the scale and the beam to the station, and the site now plays the new game. 8.9/10, 11 unit tests and 62/62 browser checks. Waiting for the owner's look; when it is approved, M7 and all 11 Math games are done.

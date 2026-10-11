@@ -43,23 +43,28 @@ for (const job of (process.env.JOBS ?? 'weigh,rover').split(',')) {
     await page.evaluate(([j, t]) => window.__ebs.setTier(j, t), [job, tier]);
     await page.evaluate((j) => window.__ebs.open(j), job);
     await wait(900);
-    const tag = `${job}-t${tier}`;
-    await shot(`${tag}-a`);
-    let s = await st();
-    const wrongIndex = [0, 1, 2].find((i) => i !== s.panel.right_);
-    await page.locator('.ebs-choice').nth(wrongIndex).click();
-    await wait(1000);
-    await shot(`${tag}-wrong`);
-    await wait(1500);
-    await page.keyboard.press('h');
-    await wait(300);
-    await page.keyboard.press('h');
-    await wait(400);
-    await shot(`${tag}-hint`);
-    s = await st();
-    await page.locator('.ebs-choice').nth(s.panel.right_).click();
-    await wait(1000);
-    await shot(`${tag}-right`);
+    // every step of the question: a wrong answer, two hints, then the right answer (a Dome story has two steps)
+    for (let step = 0; step < 2; step++) {
+      const tag = `${job}-t${tier}${step ? '-s2' : ''}`;
+      await shot(`${tag}-a`);
+      let s = await st();
+      const wrongIndex = [0, 1, 2].find((i) => i !== s.panel.right_);
+      await page.locator('.ebs-choice').nth(wrongIndex).click();
+      await wait(1000);
+      await shot(`${tag}-wrong`);
+      await wait(1500);
+      await page.keyboard.press('h');
+      await wait(300);
+      await page.keyboard.press('h');
+      await wait(400);
+      await shot(`${tag}-hint`);
+      s = await st();
+      await page.locator('.ebs-choice').nth(s.panel.right_).click();
+      await wait(1000);
+      await shot(`${tag}-right`);
+      s = await st();
+      if (s.panel.answered) break;
+    }
     await page.keyboard.press('Escape');
     await wait(400);
   }
@@ -67,4 +72,35 @@ for (const job of (process.env.JOBS ?? 'weigh,rover').split(',')) {
 await page.keyboard.press('j');
 await wait(400);
 await shot('20-jobs');
+await page.keyboard.press('Escape');
+await wait(300);
+if (process.env.WEIGHIN !== '0') {
+  // The Big Weigh-in: evening, Gloop on the scale, one scale from each job, then the beam
+  await page.evaluate(() => window.__ebs.finishAll());
+  await page.evaluate(() => window.__ebs.teleport(12.6, 11.6));
+  await wait(800);
+  await shot('30-evening');
+  await page.evaluate(() => window.__ebs.weighin());
+  await wait(900);
+  await shot('31-gloop-climbs');
+  await skipTalk();
+  await wait(900);
+  for (let i = 0; i < 3; i++) {
+    for (let step = 0; step < 2; step++) {
+      await shot(`32-weighin-${i + 1}${step ? '-s2' : ''}`);
+      const s = await st();
+      await page.locator('.ebs-choice').nth(s.panel.right_).click();
+      await wait(1100);
+      if ((await st()).panel.answered) break;
+    }
+    await shot(`33-weighin-${i + 1}-right`);
+    await page.getByRole('button', { name: /^next/i }).click();
+    await wait(900);
+  }
+  await shot('34-finale');
+  await skipTalk();
+  await wait(1200);
+  await shot('35-beam');
+  console.log(JSON.stringify(await st()));
+}
 await browser.close();

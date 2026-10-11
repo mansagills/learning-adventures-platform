@@ -1,12 +1,14 @@
-// Browser check for Equation Balance Scale (half 1): plays a new game from the
-// title screen with real clicks, keys and a real drag. It walks to Ranger Kiri,
+// Browser check for Equation Balance Scale: plays a new game from the title
+// screen with real clicks, keys and real drags. It walks to Ranger Kiri,
 // answers at the Weigh Station (a wrong answer keeps the scale locked, the hints
 // show what each pan weighs, a right answer lets the scale go and it tips the
 // right way), finishes the job and its debrief, walks to Mechanic Juno from the
 // job list, drags a wrong crystal into the gap (the scale tips, then the crystal
-// comes back out) and the right one (it balances), finishes the Rover, visits
-// Botanist Pax and Gloop, opens the grown-ups report, reloads, and checks the
-// phone layout.
+// comes back out) and the right one (it balances), finishes the Rover, then
+// Botanist Pax's Dome (a story's equation picked on empty pans, then solved on
+// the scale; boxes and the letter p at level 3), plays The Big Weigh-in at
+// evening with Gloop on the scale, sees the beam, visits Gloop, opens the
+// grown-ups report, reloads, and checks the phone layout.
 //
 //   npm run build && (cd ../../public/games/play && python3 -m http.server 8811 &)
 //   node scripts/e2e-equation-balance-scale.mjs [url]
@@ -179,7 +181,7 @@ try {
   // the job list: walk to Juno
   await page.keyboard.press('j');
   await wait(page, 300);
-  check('J opens the job list with the Dome still to come', (await page.locator('.belt-row').count()) === 3 && (await page.locator('.belt-row.soon').count()) === 1);
+  check('J opens the job list: three jobs, and The Big Weigh-in still to come', (await page.locator('.belt-row').count()) === 4 && (await page.locator('.belt-row.soon').count()) === 1 && (await page.locator('.belt-row.soon').innerText()).includes('Big Weigh-in'));
   await page.locator('.belt-row').nth(1).getByRole('button', { name: /walk there/i }).click();
   check('"Walk there" walks to Juno and Juno talks', await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 120));
   await talkThrough(page);
@@ -226,25 +228,154 @@ try {
   await playJob(page);
   s = await st(page);
   check('five stars start Juno’s debrief', s.stars.rover === 5 && (await page.locator('.dialogue').count()) > 0);
-  let sawReady = false;
+  let sawNext = false;
   for (let i = 0; i < 40 && (await page.locator('.dialogue').count()); i++) {
-    if ((await page.locator('.dialogue').textContent())?.includes('Two parts of the beacon')) sawReady = true;
+    if ((await page.locator('.dialogue').textContent())?.includes('Botanist Pax could use your help')) sawNext = true;
     const opt = page.locator('.dialogue .choices button:not([disabled])');
     if (await opt.count()) await opt.first().click();
     else await page.keyboard.press('Space');
     await wait(page, 160);
   }
   s = await st(page);
-  check('the Rover is done: two beacon lamps lit, and Kiri says the Dome is next', s.done.includes('rover') && s.lit === 2 && sawReady, JSON.stringify({ done: s.done, lit: s.lit }));
+  check('the Rover is done: two beacon lamps lit, and Kiri sends you to Pax', s.done.includes('rover') && s.lit === 2 && sawNext, JSON.stringify({ done: s.done, lit: s.lit }));
   await page.screenshot({ path: `${OUT}/10-two-lamps.png` });
 
-  // Botanist Pax (the Dome opens in half 2) and Gloop
+  // Botanist Pax and the Dome
   await page.evaluate(() => window.__ebs.teleport(21.4, 14.4));
   await wait(page, 400);
   await page.keyboard.press('Space');
   await wait(page, 400);
-  check('Botanist Pax says the Dome opens soon (no job yet)', (await page.locator('.dialogue').textContent())?.includes('still growing') && (await page.locator('.ebs-panel').count()) === 0);
+  check('Botanist Pax explains the Dome', (await page.locator('.dialogue').textContent())?.includes('Pax'));
   await talkThrough(page);
+  check('the Dome opens', await waitFor(page, async () => (await page.locator('.ebs-job-dome').count()) > 0));
+  s = await st(page);
+  check('level 1 is a two-part story: pick the equation first', s.panel.kind === 'two-step' && s.panel.step === 0 && s.panel.steps === 2 && s.panel.ask.includes('Which equation matches the story?'), s.panel.ask);
+  check('the pans stay empty while the equation is picked (they would give it away)', (await page.locator('.ebs-load .ebs-token').count()) === 0 && (await page.locator('.ebs-plate').allInnerTexts()).every((t) => t === '?'));
+  check('the three answers are equations', (await page.locator('.ebs-choice-text').allInnerTexts()).every((t) => / = \?$/.test(t.replace(/ /g, ' '))));
+  await page.screenshot({ path: `${OUT}/11-dome-story.png` });
+  const wrongEq = [0, 1, 2].find((i) => i !== s.panel.right_);
+  const wrongEqMis = s.panel.wrong[0].misconception;
+  await page.locator('.ebs-choice').nth(wrongEq).click();
+  await wait(page, 400);
+  s = await st(page);
+  check('a wrong equation gets a sentence, and the pans stay empty', (await page.locator('.ebs-feedback.try').count()) === 1 && s.panel.step === 0 && (await page.locator('.ebs-load .ebs-token').count()) === 0, wrongEqMis);
+  await page.locator('.ebs-choice').nth(s.panel.right_).click();
+  check('the right equation goes on the scale, and step 2 asks to solve it', await waitFor(page, async () => {
+    const x = await st(page);
+    return x.panel.step === 1 && x.panel.ask.startsWith('Now solve it') && (await page.locator('.ebs-gap').count()) === 1 && (await page.locator('.ebs-load .ebs-token').count()) >= 4;
+  }, 30));
+  check('it says the equation tells the story', (await page.locator('.ebs-feedback.good').innerText()).includes('tells the story'));
+  await page.screenshot({ path: `${OUT}/12-dome-solve.png` });
+  s = await st(page);
+  const oneStep = s.panel.wrong.find((w) => w.misconception === 'one-step');
+  const wrongCrystal = oneStep ? s.panel.wrong.indexOf(oneStep) : 0;
+  const wrongValue = s.panel.wrong[wrongCrystal].value;
+  const idx = (await page.locator('.ebs-choice').evaluateAll((els) => els.map((e) => e.dataset.value))).indexOf(wrongValue);
+  await page.locator('.ebs-choice').nth(idx).click();
+  await wait(page, 800);
+  s = await st(page);
+  check('a crystal from doing only the first step tips the scale and says so', s.panel.tilt !== 'level' && (!oneStep || (await page.locator('.ebs-feedback').innerText()).includes('only the first step')), await page.locator('.ebs-feedback').innerText());
+  await waitFor(page, async () => !(await st(page)).panel.showing, 40);
+  await page.locator('.ebs-choice').nth(s.panel.right_).click();
+  await wait(page, 900);
+  s = await st(page);
+  check('the right crystal balances the story’s scale (no star after a miss)', s.panel.answered && s.panel.tilt === 'level' && s.stars.dome === 0);
+  await page.keyboard.press('Space');
+  await wait(page, 400);
+
+  // level 3: a letter for the unknown, and boxes
+  await page.evaluate(() => window.__ebs.setTier('dome', 3));
+  let sawLetter = false;
+  let sawBoxes = false;
+  for (let k = 0; k < 16 && !(sawLetter && sawBoxes); k++) {
+    await page.keyboard.press('Escape');
+    await wait(page, 250);
+    await page.evaluate(() => window.__ebs.open('dome'));
+    await wait(page, 450);
+    s = await st(page);
+    if (s.panel.kind === 'two-step' && !sawLetter) {
+      sawLetter = s.panel.right === 'p' && (await page.locator('.ebs-choice-text').allInnerTexts()).every((t) => / = p$/.test(t.replace(/ /g, ' ')));
+      if (sawLetter) await page.screenshot({ path: `${OUT}/13-dome-letter.png` });
+    }
+    if (s.panel.kind === 'boxes' && !sawBoxes) {
+      check('boxes: two boxes marked b on the left pan', (await page.locator('.ebs-gap.box').count()) === 2 && s.panel.left.startsWith('b + b'), s.panel.left);
+      // drag the right crystal onto a box: both boxes get it, and the scale balances
+      const box = await page.locator('.ebs-gap.box').first().boundingBox();
+      const from = await page.locator('.ebs-choice').nth(s.panel.right_).boundingBox();
+      await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+      await page.mouse.down();
+      for (let n = 1; n <= 8; n++) await page.mouse.move(from.x + from.width / 2 + ((box.x + box.width / 2 - from.x - from.width / 2) * n) / 8, from.y + from.height / 2 + ((box.y + box.height / 2 - from.y - from.height / 2) * n) / 8);
+      await page.mouse.up();
+      await wait(page, 900);
+      s = await st(page);
+      sawBoxes = s.panel.answered && s.panel.tilt === 'level' && (await page.locator('.ebs-gap.box.filled').count()) === 2;
+      check('boxes: dragging the right crystal onto a box fills both boxes and balances', sawBoxes);
+      await page.screenshot({ path: `${OUT}/14-dome-boxes.png` });
+    }
+  }
+  check('level 3 uses the letter p for the unknown', sawLetter);
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.evaluate(() => window.__ebs.open('dome'));
+  await wait(page, 500);
+  await playJob(page);
+  s = await st(page);
+  check('five stars start Pax’s debrief', s.stars.dome === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
+
+  // the whole beacon: evening, and Kiri calls The Big Weigh-in
+  await page.evaluate(() => {
+    window.__done = null;
+    window.addEventListener('message', (e) => {
+      if (e.data && e.data.type === 'game-complete') window.__done = e.data;
+    });
+  });
+  let sawCall = false;
+  for (let i = 0; i < 40 && !(await page.locator('.ebs-weighin').count()); i++) {
+    if (await page.locator('.dialogue').count()) {
+      if ((await page.locator('.dialogue').textContent())?.includes('The Big Weigh-in')) sawCall = true;
+      const opt = page.locator('.dialogue .choices button:not([disabled])');
+      if (await opt.count()) await opt.first().click();
+      else await page.keyboard.press('Space');
+    }
+    await wait(page, 180);
+  }
+  s = await st(page);
+  check('all three lamps lit: evening falls and Kiri calls The Big Weigh-in', s.lit === 3 && s.night === 1 && s.done.length === 3 && sawCall, JSON.stringify({ lit: s.lit, night: s.night }));
+  check('Gloop sits on the big scale in the outpost', s.gloopOnScale);
+  check('The Big Weigh-in opens: scale 1 of 3, Gloop on the scale, no stars', (await page.locator('.ebs-weighin').count()) === 1 && (await page.locator('.ebs-level').innerText()).includes('Scale 1 of 3') && (await page.locator('.ebs-gloop').count()) === 1 && (await page.locator('.ebs-stars img').count()) === 0);
+  await page.screenshot({ path: `${OUT}/15-weighin.png` });
+  const jobsSeen = [];
+  for (let guard = 0; guard < 30 && (await page.locator('.ebs-weighin').count()); guard++) {
+    s = await st(page);
+    if (!s.panel) break;
+    if (!jobsSeen.includes(s.panel.job)) jobsSeen.push(s.panel.job);
+    if (s.panel.showing) {
+      await wait(page, 300);
+      continue;
+    }
+    if (!s.panel.answered) {
+      await page.keyboard.press(String(s.panel.right_ + 1));
+      await wait(page, 300);
+      continue;
+    }
+    await page.keyboard.press('Space');
+    await wait(page, 500);
+  }
+  check('one scale from each job, in order', jobsSeen.join(',') === 'weigh,rover,dome', jobsSeen.join(','));
+  check('the finale: Kiri says The Big Weigh-in is done', await waitFor(page, async () => ((await page.locator('.dialogue').textContent()) ?? '').includes('Weigh-in is done'), 40));
+  let sawStation = false;
+  for (let i = 0; i < 30 && (await page.locator('.dialogue').count()); i++) {
+    await wait(page, 250);
+    if (((await page.locator('.dialogue').textContent()) ?? '').includes('shining up to the Star Station')) sawStation = true;
+    await page.keyboard.press('Space');
+  }
+  await wait(page, 300);
+  check('and that the beacon is shining up to the Star Station', sawStation);
+  s = await st(page);
+  const done = await page.evaluate(() => window.__done);
+  check('after The Big Weigh-in: the beam shines, Gloop hops down, and the game says it is complete', s.beam && !s.gloopOnScale && s.weighinSeen && s.mode === 'world' && done && done.score === 3, JSON.stringify(done));
+  await page.screenshot({ path: `${OUT}/16-beam.png` });
+
   const g = await page.evaluate(() => window.__ebs.state().player);
   const gl = await page.evaluate(() => window.__ebs.screenOf('gloop'));
   await page.mouse.click(gl.x, gl.y - 8);
@@ -256,8 +387,8 @@ try {
   await wait(page, 400);
   await page.getByRole('tab', { name: /how it is going/i }).click();
   await wait(page, 200);
-  check('grown-ups report has a row per open job', (await page.locator('.progress-table tbody tr').count()) === 2);
-  await page.screenshot({ path: `${OUT}/11-grownups.png` });
+  check('grown-ups report has a row per job, and says The Big Weigh-in is done', (await page.locator('.progress-table tbody tr').count()) === 3 && (await page.locator('.grownups, .modal').last().innerText()).includes('Big Weigh-in is done'));
+  await page.screenshot({ path: `${OUT}/17-grownups.png` });
   await page.keyboard.press('Escape');
   await wait(page, 300);
 
@@ -267,7 +398,7 @@ try {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 600);
   s = await st(page);
-  check('a saved game continues with both jobs done and two lamps lit', s.done.length === 2 && s.lit === 2);
+  check('a saved game continues at evening: three lamps lit and the beam shining', s.done.length === 3 && s.lit === 3 && s.night === 1 && s.beam);
 
   // phone layout
   const { page: ph } = await newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -292,7 +423,20 @@ try {
   await wait(ph, 800);
   s = await st(ph);
   check('phone: tapping the right crystal balances the scale', s.panel.answered && s.panel.tilt === 'level');
-  await ph.screenshot({ path: `${OUT}/12-phone.png` });
+  await ph.screenshot({ path: `${OUT}/18-phone.png` });
+  // phone: a Dome story fits too
+  await ph.locator('.ebs-panel button', { hasText: 'Leave' }).tap();
+  await wait(ph, 400);
+  await ph.evaluate(() => window.__ebs.setTier('dome', 2));
+  await ph.evaluate(() => window.__ebs.open('dome'));
+  await wait(ph, 700);
+  s = await st(ph);
+  await ph.locator('.ebs-choice').nth(s.panel.right_).tap();
+  await wait(ph, 1100);
+  const sw2 = await ph.evaluate(() => document.documentElement.scrollWidth);
+  const tokens = await ph.locator('.ebs-load .ebs-token').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).every((r) => r.left >= 0 && r.right <= 390));
+  check('phone: a Dome story’s equation fits on the scale', sw2 <= 390 && tokens && (await st(ph)).panel.step === 1);
+  await ph.screenshot({ path: `${OUT}/19-phone-dome.png` });
 } catch (e) {
   check('no crash', false, String(e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e));
 }
