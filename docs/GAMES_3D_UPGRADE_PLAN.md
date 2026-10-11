@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest built, waiting for the owner's look; Equation Balance Scale next)
+#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale next)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -1035,7 +1035,7 @@ Game 1 above was rewritten to match. **Second answers (2026-10-09): a vertical s
   - steering by dragging on a phone was checked by hand in the code, not by the browser test (the test taps the rocks)
   - the debrief questions have no picture
 
-##### Space Quest half 2: BUILT (2026-10-10), waiting for the owner's look
+##### Space Quest half 2: COMPLETED ✅ (the owner approved it after the simpler-wording change and merged PR #224 on 2026-10-11)
 
 - **Cargo with Quartermaster Dot** (grades 3–4, division as sharing and grouping):
   - level 1: share crates equally ("24 crates shared between 4 ships"), and the missing factor (4 × ? = 24)
@@ -1162,3 +1162,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-10:** The owner played half 1 on the preview ("it plays well") and asked for half 2. Space Quest half 2 built: Cargo with Quartermaster Dot, Constellations with Navigator Sol, the Bingo Boss at the night shift (every call's answer on the card), the landing on the alien planet, and Meteor Run. The site now lists the new game, and Bingo Bonanza and Tables Adventure redirect to it. 9.1/10, 15 unit tests and 66/66 browser checks. Waiting for the owner's look; Equation Balance Scale comes next in its own PR.
 - **2026-10-10:** Counting Carnival fix (found when re-running every game's browser test): tapping Munch from some angles left the player sliding round his personal space forever, so his talk never opened. Now the player arrives once close enough to talk (within 1.2 tiles). Its browser test is back to 28/28.
 - **2026-10-10:** The owner asked for simpler question wording in Space Quest (the math stays the same). Every banner question was rewritten: short sentences with the facts first and one plain question; words that match the picture ("the blue line", "left part" and "right part" instead of "split the 6 by 7 formation after 5 columns"); no game jargon ("Charge the engine", "Fill the cargo log", "Shortcut for…"); and the same pattern for similar questions (for example "3 rows. 4 ships in each row. How many ships in all?"). The mistake sentences and hints lost "formation", "columns" and "on the banner" too. Math facts in the banner no longer break across two lines on a phone. 15 unit tests and 66/66 browser checks still pass.
+- **2026-10-11:** The owner merged PR #224. **Multiplication Space Quest COMPLETED ✅: 10 of the 11 Math games are done.** Next: Equation Balance Scale on the alien planet (Game 2 above), in its own PR. Started by re-checking its open choices with the owner.
