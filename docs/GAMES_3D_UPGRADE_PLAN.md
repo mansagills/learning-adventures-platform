@@ -972,6 +972,13 @@ The names, settings and kind of game are owner choices (see "Choices for the own
 - **Progress and finale:** five stars per job lights a part of the beacon (done after 5 stars and level 2, or 12 questions). The Big Weigh-in, then the outpost stays in the evening with every job open. No timed mode (the old game had none, and this skill is about care, not speed).
 - **Difficulty change from the original:** from "a + b = ?" (one level, negative answers by accident) to the equals sign as balance, unknowns in every position, × and ÷, and two-step problems with a letter for the unknown, with no negative numbers anywhere.
 
+**Owner answers for the Balance Scale (2026-10-11):**
+- **Kind of game:** the walking outpost, as drafted above (not a puzzle-level or action game).
+- **Names:** keep Ranger Kiri, Mechanic Juno, Botanist Pax and Gloop.
+- **Letters:** a letter for the unknown (like `3 × 6 + 4 = p`) only at the Dome's level 3 (4.OA.3); everything else keeps `?` or a box.
+- **Halves:** half 1 is the outpost (walking, with the kit's walking pieces added to the `alien-planet` setting), the Weigh Station and the Rover; half 2 is the Dome, The Big Weigh-in finale, and listing the game on the site with a new card picture. The owner tries half 1 on the preview before half 2.
+- **Wording:** the owner's rule from Space Quest applies to every question: short sentences, the facts first, then one plain question, in words that match the picture ("the left pan", "the right pan") and with no game jargon.
+
 ##### Choices for the owner
 
 **Owner answers (2026-10-09):**
@@ -1163,3 +1170,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-10:** Counting Carnival fix (found when re-running every game's browser test): tapping Munch from some angles left the player sliding round his personal space forever, so his talk never opened. Now the player arrives once close enough to talk (within 1.2 tiles). Its browser test is back to 28/28.
 - **2026-10-10:** The owner asked for simpler question wording in Space Quest (the math stays the same). Every banner question was rewritten: short sentences with the facts first and one plain question; words that match the picture ("the blue line", "left part" and "right part" instead of "split the 6 by 7 formation after 5 columns"); no game jargon ("Charge the engine", "Fill the cargo log", "Shortcut for…"); and the same pattern for similar questions (for example "3 rows. 4 ships in each row. How many ships in all?"). The mistake sentences and hints lost "formation", "columns" and "on the banner" too. Math facts in the banner no longer break across two lines on a phone. 15 unit tests and 66/66 browser checks still pass.
 - **2026-10-11:** The owner merged PR #224. **Multiplication Space Quest COMPLETED ✅: 10 of the 11 Math games are done.** Next: Equation Balance Scale on the alien planet (Game 2 above), in its own PR. Started by re-checking its open choices with the owner.
+- **2026-10-11:** Owner chose the walking outpost as drafted, kept the names, letters only at the Dome's top level, and two halves. Building Balance Scale half 1 (the outpost, the Weigh Station and the Rover).
