@@ -216,7 +216,7 @@ Known issues (none blocking):
 
 Not merged (each is distinct): Number Line Ninja, Math Dash, Time Attack Clock, Equation Balance Scale, Fossil Dig Adventure, Animal Kingdom Match, Plant Growing Championship, Body System Heroes, Ecosystem Building Tycoon, Ocean Depth Diver, Magnet Power Puzzle, Spelling Bee Challenge, Ancient Egypt Explorer.
 
-### Phase 1: Math (11 games, from 20): IN PROGRESS
+### Phase 1: Math (11 games, from 20): COMPLETED ✅ (all seven batches owner-approved and merged; the last, M7, on 2026-10-11 in PR #226)
 
 Batches group games that share skills, so each batch also builds a question generator that the next batch reuses. Where the table lists two or three old games in one batch, they become the single merged game from the merge map. The "Upgrade" column is a starting idea, to be refined in the game's learning spec.
 
@@ -814,7 +814,7 @@ Each job covers its own part of the grade band, and the grown-ups page says whic
 
 Unit tests for every job and level over 300 random seeds (one correct choice, every wrong choice tagged with its mistake and computed from it, every number-line answer and every comparison checked with exact fractions); a browser test playing title → all four jobs → the Festival Feast → a Frenzy round → reload → grown-ups page; screenshots at 1280×720 and 390×844 reviewed by eye; a score against the rubric (8.5 to pass).
 
-#### M7 Multiplication and equations: IN PROGRESS (plan approved 2026-10-09; Multiplication Space Quest COMPLETED ✅ and merged in PR #224 on 2026-10-11; Equation Balance Scale half 1 merged in PR #225 on 2026-10-11, half 2 built and waiting for the owner's look)
+#### M7 Multiplication and equations: COMPLETED ✅ (owner approved and merged 2026-10-11: Multiplication Space Quest in PR #224, Equation Balance Scale in PRs #225 and #226)
 
 The last Math batch, and the first in the **Star Station** world (game worlds phase W2, `docs/GAME_WORLDS_PROPOSAL.md`). It is set at 24 pixels per tile, with 16-bit characters and the station's day and night-shift light. M7 becomes **two games**, which makes 11 Math games:
 
@@ -1016,7 +1016,7 @@ The names, settings and kind of game are owner choices (see "Choices for the own
   - the level 1 crystal piles are wide for 10 or more crystals
   - Gloop doesn't sit on the scale yet (that comes with The Big Weigh-in)
 
-##### Balance Scale half 2: BUILT (2026-10-11), waiting for the owner's look
+##### Balance Scale half 2: COMPLETED ✅ (the owner merged PR #226 on 2026-10-11)
 
 - **Botanist Pax's Dome** (grades 4–5, two-step problems; 3.OA.8, 4.OA.3, 5.OA.2). Every Dome question is a little story with two parts, played in two steps:
   1. **Pick the equation that tells the story.** The scale's pans stay empty while the child picks, so they do not give the answer away. A wrong equation gets a sentence ("That equation only tells the first part of the story. What happens next?").
@@ -1241,4 +1241,5 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-11:** The owner merged PR #224. **Multiplication Space Quest COMPLETED ✅: 10 of the 11 Math games are done.** Next: Equation Balance Scale on the alien planet (Game 2 above), in its own PR. Started by re-checking its open choices with the owner.
 - **2026-10-11:** Owner chose the walking outpost as drafted, kept the names, letters only at the Dome's top level, and two halves. Building Balance Scale half 1 (the outpost, the Weigh Station and the Rover).
 - **2026-10-11:** Balance Scale half 1 built: the outpost (the alien planet got walking pieces), the Weigh Station and the Rover, with a scale that tips and crystals that can be dragged into the gap. 9 unit tests, 41/41 browser checks. Provisional score 8.6. Waiting for the owner's look before half 2.
-- **2026-10-11:** The owner merged half 1 (PR #225) and asked for half 2. Balance Scale half 2 built: Botanist Pax's Dome (two-step stories: pick the equation on empty pans, then solve it on the scale; the letter p and boxes at level 3), The Big Weigh-in at evening with Gloop on the scale and the beam to the station, and the site now plays the new game. 8.9/10, 11 unit tests and 62/62 browser checks. Waiting for the owner's look; when it is approved, M7 and all 11 Math games are done.
+- **2026-10-11:** The owner merged half 1 (PR #225) and asked for half 2. Balance Scale half 2 built: Botanist Pax's Dome (two-step stories: pick the equation on empty pans, then solve it on the scale; the letter p and boxes at level 3), The Big Weigh-in at evening with Gloop on the scale and the beam to the station, and the site now plays the new game. 8.9/10, 11 unit tests and 62/62 browser checks. Waiting for the owner's look.
+- **2026-10-11:** The owner merged PR #226. **Equation Balance Scale COMPLETED ✅ and M7 COMPLETED ✅. Phase 1 (Math) is COMPLETED ✅: all 11 Math games are rebuilt** (Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island, Shape Town Builders, Forum Fraction Feast, Multiplication Space Quest and Equation Balance Scale). The team is doing QA on the finished games. Next: Phase 2 (Science), plan first, with the owner and team choosing which world each Science game goes in (game worlds W2), when the owner is ready.

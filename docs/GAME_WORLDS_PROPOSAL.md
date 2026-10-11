@@ -160,7 +160,7 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings 
 
 ## 9. Handoff for the next session
 
-**Update (2026-10-11, later):** Equation Balance Scale is built on the alien planet in two halves: half 1 (the outpost, the Weigh Station and the Rover) was merged in PR #225; half 2 (Botanist Pax's Dome, The Big Weigh-in at evening with Gloop on the scale, and the site listing) waits for the owner's look. When it is approved, M7 is done and every Math game is remastered.
+**Update (2026-10-11, later):** Equation Balance Scale is COMPLETED ✅ on the alien planet (owner merged PRs #225 and #226): the outpost, the Weigh Station, the Rover, Botanist Pax's Dome and The Big Weigh-in. **M7 is COMPLETED ✅, so both Star Station games are done and every Math game is remastered.** Next in W2: the other subjects in their worlds (Science first), with the owner and team choosing each game's world.
 
 **Update (2026-10-11):** Multiplication Space Quest is COMPLETED ✅ (owner merged PR #224); Equation Balance Scale on the alien planet is next.
 
