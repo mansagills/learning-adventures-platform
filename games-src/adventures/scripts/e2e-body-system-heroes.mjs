@@ -79,7 +79,7 @@ async function answerRight(page) {
     const t1 = (await fi(page)).time;
     const frames = await page.evaluate(() => new Promise((r) => { let n = 0; const t0 = performance.now(); const f = () => { n++; if (performance.now() - t0 < 500) requestAnimationFrame(f); else r(n); }; requestAnimationFrame(f); }));
     const t2 = (await fi(page)).time;
-    console.log('[debug] loop', JSON.stringify({ t1, t2, frames, vis: await page.evaluate(() => document.visibilityState), active: await page.evaluate(() => document.activeElement?.className) }));
+    console.log('[debug] loop', JSON.stringify({ gpu: (await fi(page)).gpu, t1, t2, frames, vis: await page.evaluate(() => document.visibilityState), active: await page.evaluate(() => document.activeElement?.className) }));
     await page.screenshot({ path: `${OUT}/debug-no-panel.png` });
     if (process.env.PROFILE) {
       const cdp = await page.context().newCDPSession(page);

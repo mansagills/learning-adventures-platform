@@ -250,7 +250,7 @@ export class BodyFlight {
     this.lighting = new Lighting();
     this.lighting.set(STAR_STATION.tint.day, 0);
     this.dive = new THREE.Group();
-    this.dive.add(this.dive);
+    this.scene.add(this.dive);
     const add = <O extends THREE.Object3D>(o: O): O => {
       this.dive.add(o);
       return o;
@@ -919,7 +919,7 @@ export class BodyFlight {
       nextRelay: this.nextRelay,
       time: this.time,
       paused: this.paused,
-      gpu: { ...this.stage.renderer.info.memory },
+      gpu: { ...this.stage.renderer.info.memory, programs: this.stage.renderer.info.programs?.length ?? 0, calls: this.stage.renderer.info.render.calls, objects: this.scene.children.length, dive: this.dive.children.length },
       cards: this.cards.map((c) => ({ x: c.x, y: c.y, got: c.got })),
     };
   }
