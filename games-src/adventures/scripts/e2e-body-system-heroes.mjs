@@ -81,6 +81,23 @@ async function answerRight(page) {
     const t2 = (await fi(page)).time;
     console.log('[debug] loop', JSON.stringify({ t1, t2, frames, vis: await page.evaluate(() => document.visibilityState), active: await page.evaluate(() => document.activeElement?.className) }));
     await page.screenshot({ path: `${OUT}/debug-no-panel.png` });
+    if (process.env.PROFILE) {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Profiler.enable');
+      await cdp.send('Profiler.start');
+      await wait(page, 3000);
+      const { profile } = await cdp.send('Profiler.stop');
+      const self = new Map();
+      const dt = profile.timeDeltas;
+      const byId = new Map(profile.nodes.map((n) => [n.id, n]));
+      profile.samples.forEach((id, i) => {
+        const n = byId.get(id);
+        const k = `${n.callFrame.functionName || '(anon)'} ${n.callFrame.url.split('/').pop()}:${n.callFrame.lineNumber}`;
+        self.set(k, (self.get(k) ?? 0) + (dt[i] ?? 0));
+      });
+      console.log('[profile]', JSON.stringify([...self.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([k, v]) => [k, Math.round(v / 1000)])));
+      console.log('[counts]', JSON.stringify(await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, canvases: document.querySelectorAll('canvas').length, toasts: document.querySelectorAll('.toast').length }))));
+    }
     console.log('[debug] modal', JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('.modal-back')].map((m) => ({ cls: m.firstElementChild?.className, text: m.textContent?.slice(0, 120), shown: getComputedStyle(m).display })))));
     console.log('[debug] no panel', JSON.stringify({ mode: s.mode, talking: s.talking, dive: s.dive, ship: f.ship, phase: f.phase, next: f.nextRelay, scans: f.scans, paused: f.paused, time: f.time, modals: await page.locator('.modal-back').count(), toasts: await page.locator('.toast').allInnerTexts() }));
     throw e;
