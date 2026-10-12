@@ -150,6 +150,10 @@ export class BodyFlight {
   readonly px = STAR_STATION.px;
   scene = new THREE.Scene();
   lighting = new Lighting();
+  /** Each body area is built once and kept (its pictures are reused on every dive there). */
+  private areas = new Map<BodyArea, { scene: THREE.Scene; built: SettingScene }>();
+  /** Everything that belongs to one dive (the ship, germs, spots, sparkles), freed when the dive ends. */
+  private dive = new THREE.Group();
   built!: SettingScene;
   private setup!: FlightSetup;
   private ship!: THREE.Mesh;
@@ -228,16 +232,27 @@ export class BodyFlight {
   start(setup: FlightSetup): void {
     this.setup = setup;
     const T = this.px;
-    this.disposeScene();
-    this.scene = new THREE.Scene();
-    this.lighting = new Lighting();
-    const ctx: SceneCtx = { scene: this.scene, lighting: this.lighting, px: T, time: 'day' };
-    this.built = BODY_SETTINGS.find((s) => s.id === `body-${setup.area}`)!.build(ctx);
+    this.disposeDive();
+    let area = this.areas.get(setup.area);
+    if (!area) {
+      const scene = new THREE.Scene();
+      const lighting = new Lighting();
+      const ctx: SceneCtx = { scene, lighting, px: T, time: 'day' };
+      const built = BODY_SETTINGS.find((s) => s.id === `body-${setup.area}`)!.build(ctx);
+      lighting.set(STAR_STATION.tint.day, 0);
+      area = { scene, built };
+      this.areas.set(setup.area, area);
+    }
+    this.scene = area.scene;
+    this.built = area.built;
     this.stage.setBounds(this.built.map.w, this.built.map.h);
     this.stage.renderer.setClearColor(new THREE.Color(this.built.clear), 1);
+    this.lighting = new Lighting();
     this.lighting.set(STAR_STATION.tint.day, 0);
+    this.dive = new THREE.Group();
+    this.dive.add(this.dive);
     const add = <O extends THREE.Object3D>(o: O): O => {
-      this.scene.add(o);
+      this.dive.add(o);
       return o;
     };
 
@@ -357,16 +372,18 @@ export class BodyFlight {
   }
 
   /**
-   * Free the last dive's graphics memory (every dive builds a new scene; without
-   * this, a long play session slowly fills the graphics card and gets slower).
-   * three.js re-uploads anything disposed if it is ever drawn again.
+   * Free the last dive's graphics memory (without this, a long play session
+   * slowly fills the graphics card and gets slower). The body area itself is
+   * kept for the next dive there. three.js re-uploads anything disposed if it
+   * is ever drawn again.
    */
-  private disposeScene(): void {
+  private disposeDive(): void {
     const textures = new Set<THREE.Texture>([...this.germTex.values()].flat());
     for (const t of [...this.helperTex, ...this.sparkTex, ...this.cardTex, ...this.nibTex, ...this.escortTex]) textures.add(t);
     if (this.shipTex) for (const t of [...this.shipTex.left, ...this.shipTex.right]) textures.add(t);
     for (const t of [this.beamTex, this.gooTex, this.dartTex, this.tagTex]) if (t) textures.add(t);
-    this.scene.traverse((o) => {
+    this.dive.removeFromParent();
+    this.dive.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
       m.geometry?.dispose();
@@ -383,7 +400,7 @@ export class BodyFlight {
   private drop(...objs: Array<THREE.Object3D | null | undefined>): void {
     for (const o of objs) {
       if (!o) continue;
-      this.scene.remove(o);
+      o.removeFromParent();
       const m = o as THREE.Mesh;
       if (!m.isMesh) continue;
       m.geometry?.dispose();
@@ -400,7 +417,7 @@ export class BodyFlight {
     const m = billboard(this.lighting, T, this.germTex.get(kind)![0].image as HTMLCanvasElement, x, y, 0.6);
     const sh = shadow(T, 1);
     sh.position.set(x, 0.015, y * K);
-    this.scene.add(m, sh);
+    this.dive.add(m, sh);
     return { m, sh, x, y, hx: x, hy: y, tx: x, ty: y, hp: GERM_HP, ph: i * 1.7, stuck: 0, goo: null, kind, tag: null };
   }
 
@@ -613,7 +630,7 @@ export class BodyFlight {
             g.stuck = 2.5;
             if (!g.goo) {
               g.goo = billboard(this.lighting, this.px, this.gooTex.image as HTMLCanvasElement, g.x, g.y, 0.3);
-              this.scene.add(g.goo);
+              this.dive.add(g.goo);
             }
           }
       }
@@ -735,7 +752,7 @@ export class BodyFlight {
         }
         if (best) {
           const m = billboard(null, this.px, this.dartTex.image as HTMLCanvasElement, this.x, this.y, 1);
-          this.scene.add(m);
+          this.dive.add(m);
           this.darts.push({ m, x: this.x, y: this.y, target: best });
         }
       }
@@ -750,7 +767,7 @@ export class BodyFlight {
         this.darts.splice(this.darts.indexOf(d), 1);
         if (this.germs.includes(g) && !g.tag) {
           g.tag = billboard(null, this.px, this.tagTex.image as HTMLCanvasElement, g.x, g.y, 1.4);
-          this.scene.add(g.tag);
+          this.dive.add(g.tag);
         }
         continue;
       }
@@ -775,7 +792,7 @@ export class BodyFlight {
       this.showExit(true);
       // the healed spot glows a warm, healthy green, with a big burst of sparkles
       const nest = this.setup.nest;
-      this.scene.add(lightPool(this.lighting, this.px, nest.x, nest.y, 3.6, '#9cf0a0', 0.5));
+      this.dive.add(lightPool(this.lighting, this.px, nest.x, nest.y, 3.6, '#9cf0a0', 0.5));
       this.burst(nest.x, nest.y, 24);
       this.onEvent?.({ type: 'healed' });
     }
@@ -785,7 +802,7 @@ export class BodyFlight {
     if (this.reducedMotion) n = Math.ceil(n / 3);
     for (let i = 0; i < n; i++) {
       const m = billboard(null, this.px, this.sparkTex[i % 3].image as HTMLCanvasElement, x, y, 0.8);
-      this.scene.add(m);
+      this.dive.add(m);
       const a = (i / n) * Math.PI * 2;
       this.sparks.push({ m, vx: Math.cos(a) * 2.4, vy: Math.sin(a) * 1.8, vz: 1.5 + (i % 3) * 0.4, life: 0.7, max: 0.7 });
     }
