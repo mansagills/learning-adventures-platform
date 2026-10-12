@@ -45,8 +45,8 @@ node scripts/fff-tour.mjs <url> <outDir> [w] [h]    # Forum Fraction Feast scree
 node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest: the deck, a whole Formations flight (keys, Space, clicks, a miss, hints), the sector cleared, an Engines two-step question, the tow beam, upgrades, the Star Map, saving, Cargo, Constellations, the Bingo Boss, the landing, Meteor Run, phone (66 checks)
 node scripts/e2e-equation-balance-scale.mjs   # Equation Balance Scale: the outpost, the Weigh Station (a miss keeps the scale locked, hints, the scale tips the right way), the Rover (real drags into the gap), the Dome (pick the equation on empty pans, then solve it; the letter p and boxes), The Big Weigh-in with Gloop on the scale and the beam, saving, a phone
 node scripts/ebs-tour.mjs <url> <outDir> [w] [h]    # Equation Balance Scale screenshots: the outpost, each job at levels 1-3 (the question, a miss, the hint picture, the answer, both steps of a Dome story), the job list and The Big Weigh-in (JOBS=dome for one job, WEIGHIN=0 to skip the finale)
-node scripts/e2e-body-system-heroes.mjs   # Body System Heroes (half 1): the med bay, flying by keys and by holding the mouse, the locked nest, scan questions (a miss, hints, Leave), the nest question, the beam, the habit games with real scrubbing (the 20-second handwashing cannot be skipped), all three missions and upgrades, the body map, grown-ups, saving, a phone (52 checks)
-node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=lungs for one)
+node scripts/e2e-body-system-heroes.mjs   # Body System Heroes: the med bay, flying by keys and by holding the mouse, the locked nest, scan questions (a miss, hints, Leave), the beam, the habit games with real scrubbing and jumping, all five missions and upgrades (helpers in the gut, the blood's pulse, darts), the finale (relays in order, the whole gang, game-complete), fact cards, the body map, grown-ups, saving, a phone
+node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
@@ -503,12 +503,12 @@ the finale).
 | Jobs | J | Jobs |
 | Grown-ups | G | Settings → For grown-ups |
 
-## Body System Heroes (Science, grades 3–5): half 1
+## Body System Heroes (Science, grades 3–5)
 
 The first Science game, the owner's idea: a tiny ship flies inside the human
 body (slug `body-system-heroes`, Star Station world, the inside-the-body
-settings in `src/kit/worlds/star-station/body.ts`). Not listed on the site
-until half 2; the old game still plays at the address.
+settings in `src/kit/worlds/star-station/body.ts`). Listed on the site at the
+old game's address.
 
 - **The med bay:** the station deck with Dr. Ama Okafor, Commander Ayo (the
   patient), Nib the nanobot, the shrink beam and the body map on its stand.
@@ -516,17 +516,28 @@ until half 2; the old game still plays at the address.
   question about what this body part does), open the germs' nest (a
   question about the germ), then zap the germs with the cleaning beam and
   fly into the ring to go home.
-- **Healthy habits** (`habit.ts`), scrubbed with the mouse, a finger or the
-  arrow keys: clean and cover a scraped knee, brush every tooth, and wash
-  both hands with soap for a real 20 seconds.
-- **Missions:** skin (Scrapes McGee), mouth and teeth (Plaque Jack), the flu
-  in the nose and lungs (Sniffles). Each heals after 5 stars and gives a
-  ship upgrade: a white blood cell escort, the saliva wave, the mucus net.
-  Gut, heart and the brain finale come in half 2.
+- **Five organ missions**, each healed by 5 stars, each with a ship upgrade:
+  - skin (Scrapes McGee): white blood cell escort
+  - mouth and teeth (Plaque Jack): saliva wave
+  - the flu in the nose and lungs (Sniffles): mucus net
+  - the gut (Queasy Louie): gut buddies. Good bacteria wander there too, and the beam hits the closest cell, so steer toward the germs.
+  - heart and blood (the Blood Bandit): antibody darts. The blood flow pushes the ship in beats.
+- **Healthy habits** (`habit.ts`):
+  - scrubbed with the mouse, a finger or the arrow keys: clean and cover a scrape, brush every tooth, wash both hands for a real 20 seconds, wash fruit and vegetables (then the milk goes in the fridge)
+  - a jump-rope game for the heart (Space or a tap): the heart rate climbs with every jump
+- **The finale, The Big Defense** (once the five organs are healed): in the
+  brain, five nerve relays light up one at a time, then the whole Grime Gang
+  comes out, and the fever slows them down. It ends with the game posting
+  `game-complete` to the site.
+- **Free exploring:** every healed part has an Explore button on the body map.
+  There are three gold fact cards in each part (18 in all).
 
-Code: `src/games/body-system-heroes/`. `problems.ts` holds the questions (18
-per mission, each wrong answer names a mix-up), `flight.ts` the dive,
-`world.ts` the med bay, `habit.ts` the habit games, `content.ts` every line.
+Code: `src/games/body-system-heroes/`.
+- `problems.ts`: the questions (18 per mission, each wrong answer names a mix-up)
+- `flight.ts`: the dive
+- `world.ts`: the med bay
+- `habit.ts`: the habit games
+- `content.ts`: every line, the fact cards and the relays
 
 | Action | Keyboard | Mouse / touch |
 |---|---|---|

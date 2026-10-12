@@ -287,6 +287,48 @@
   padding: 10px 16px 14px;
 }
 
+/* ---------- body fact cards ---------- */
+.bsh-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+.bsh-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 2px solid var(--wood-dark);
+  background: #fff6d8;
+  font: inherit;
+  font-size: var(--text-small);
+  font-weight: 700;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.bsh-card-btn.soon {
+  background: var(--paper-2);
+  border-style: dashed;
+  color: var(--ink-soft);
+  cursor: default;
+}
+.bsh-card header {
+  background: linear-gradient(90deg, #ffe9a8, var(--paper-2));
+}
+.bsh-card-text {
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 /* ---------- the healthy-habit screens ---------- */
 .bsh-habit {
   width: min(600px, 100%);

@@ -6,7 +6,7 @@ setting is a place inside it.** A game picks one world and one setting.
 | World | Pixels per tile | Characters | Settings so far |
 |---|---|---|---|
 | Sunny Town | 16 | classic (16x24) | none here: the eight finished Math games keep their own scene code, unchanged |
-| Star Station | 24 | 16-bit (24x36) | `station-deck`, `alien-planet`; inside the body: `body-skin`, `body-mouth`, `body-lungs`, `body-blood`, `body-stomach` (see below) |
+| Star Station | 24 | 16-bit (24x36) | `station-deck`, `alien-planet`; inside the body: `body-skin`, `body-mouth`, `body-lungs`, `body-blood`, `body-stomach`, `body-brain` (see below) |
 | Ancient Kingdoms | 24 | 16-bit (24x36) | `river-market`, `roman-forum` |
 
 ## What is in each file
@@ -97,8 +97,9 @@ own light and glow colors.
 
 ## Inside the body (Star Station)
 
-`star-station/body.ts` has five areas for Body System Heroes: the skin (a
-scraped knee), the mouth, the lungs, a blood vessel and the stomach. They are
+`star-station/body.ts` has six areas for Body System Heroes: the skin (a
+scraped knee), the mouth, the lungs, a blood vessel, the stomach and the brain
+(nerve cells joined by glowing nerve paths, the skull at the back). They are
 `BODY_SETTINGS` and are **not** in the shared `SETTINGS` list on purpose:
 adding them there would change the finished games' built files. A game
 imports them straight from `star-station/body.ts`. Every area is a 26 x 18

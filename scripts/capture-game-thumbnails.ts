@@ -143,6 +143,19 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     ],
     delay: 2500,
   },
+  // Body System Heroes: start, read Dr. Ama's welcome, then fly into the lungs from the body map (the ship inside the body).
+  'body-system-heroes': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(24).fill('.dialogue'),
+      'button:has-text("Missions")',
+      '.belt-row:nth-child(3) button:has-text("Fly in")',
+      ...Array(16).fill('.dialogue'),
+    ],
+    // the air flow carries the ship along until the flu germs' nest comes into view
+    delay: 18000,
+  },
 };
 
 const contentTypes: Record<string, string> = {

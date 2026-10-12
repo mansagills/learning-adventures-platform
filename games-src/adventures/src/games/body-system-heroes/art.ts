@@ -1,6 +1,6 @@
 import { PixelBuffer } from '../../kit/art/pixel';
 import { STAR } from '../../kit/worlds/star-station/art';
-import { BODY, paintBodyMap, paintPlaqueJack, paintScrapesMcGee, paintSniffles } from '../../kit/worlds/star-station/body-art';
+import { BODY, paintBloodBandit, paintBodyMap, paintPlaqueJack, paintQueasyLouie, paintScrapesMcGee, paintSniffles } from '../../kit/worlds/star-station/body-art';
 import { Paint, ramp } from '../../kit/worlds/shade';
 import type { Mission } from './problems';
 
@@ -69,12 +69,15 @@ export function paintMissionIcon(m: Mission, on = true): PixelBuffer {
   return p.toBuffer();
 }
 
-export type GermId = 'scrapes' | 'plaque' | 'sniffles';
+export type GermId = 'scrapes' | 'plaque' | 'sniffles' | 'queasy' | 'bandit';
+export const GERM_IDS: GermId[] = ['scrapes', 'plaque', 'sniffles', 'queasy', 'bandit'];
 
 /** A germ's sprite (the kit's art). */
 export function paintGerm(g: GermId, T: number, frame = 0): PixelBuffer {
   if (g === 'scrapes') return paintScrapesMcGee(T, frame);
   if (g === 'plaque') return paintPlaqueJack(T, frame);
+  if (g === 'queasy') return paintQueasyLouie(T, frame);
+  if (g === 'bandit') return paintBloodBandit(T, frame);
   return paintSniffles(T, frame);
 }
 
@@ -82,7 +85,8 @@ export function paintGerm(g: GermId, T: number, frame = 0): PixelBuffer {
 export function paintGermPortrait(g: GermId): PixelBuffer {
   const out = new PixelBuffer(72, 72);
   const bg = new Paint(72, 72);
-  bg.rect(0, 0, 72, 72, ramp(g === 'sniffles' ? '#3a2a62' : g === 'plaque' ? '#5a2a3a' : '#5a3a2a'), { level: 2 });
+  const back: Record<GermId, string> = { sniffles: '#3a2a62', plaque: '#5a2a3a', scrapes: '#5a3a2a', queasy: '#3a4a2a', bandit: '#4a2246' };
+  bg.rect(0, 0, 72, 72, ramp(back[g]), { level: 2 });
   for (let y = 0; y < 72; y += 6) bg.line(0, y, 71, y, ramp('#ffffff'), 0, { onlyOver: true });
   out.blit(bg.toBuffer({ outline: false }), 0, 0);
   const sprite = paintGerm(g, 32, 0);
@@ -122,7 +126,8 @@ export function paintScanMarker(T: number, frame = 0): PixelBuffer {
   return p.toBuffer();
 }
 
-export type UpgradeId = 'escort' | 'wave' | 'net';
+export type UpgradeId = 'escort' | 'wave' | 'net' | 'buddies' | 'darts';
+export const UPGRADE_IDS: UpgradeId[] = ['escort', 'wave', 'net', 'buddies', 'darts'];
 
 /** An icon for each ship upgrade (16 x 16). */
 export function paintUpgradeIcon(id: UpgradeId | 'scanner', on = true): PixelBuffer {
@@ -143,10 +148,73 @@ export function paintUpgradeIcon(id: UpgradeId | 'scanner', on = true): PixelBuf
     p.pix(10, 8, '#1d1a30');
   } else if (id === 'wave') {
     for (let k = 0; k < 3; k++) p.ellipse(8, 8, 2 + k * 2.4, 2 + k * 2.4, c(k % 2 ? '#8fe6ff' : '#4fd6ff'), { form: 'flat', level: 3 - k });
+  } else if (id === 'buddies') {
+    p.capsule(4, 6, 10, 6, 3, c('#5ccf8a'), { sep: true });
+    p.capsule(7, 11, 13, 11, 3, c('#5ccf8a'), { sep: true });
+    p.pix(6, 6, '#1d1a30');
+    p.pix(9, 11, '#1d1a30');
+  } else if (id === 'darts') {
+    p.line(2, 13, 10, 5, c('#ffcf6a'), 2);
+    p.poly(
+      [
+        [9, 3],
+        [13, 3],
+        [13, 7],
+      ],
+      c('#ff6fc0'),
+      { form: 'flat', level: 3, sep: true },
+    );
+    p.line(2, 11, 4, 13, c('#ffcf6a'), 2);
   } else {
     p.ellipse(8, 9, 6.5, 4.5, c('#e8e07a'), { form: 'sphere', sep: true });
     for (let x = 3; x < 14; x += 3) p.line(x, 5, x, 13, c('#c8b84a'), 1, { onlyOver: true });
   }
+  return p.toBuffer();
+}
+
+/** A body fact card floating in a healed area (about 0.8 tiles): gold, with a star. `frame` twinkles it. */
+export function paintFactCard(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(14 * u), Math.round(16 * u));
+  p.rect(S(1), S(1), S(12), S(14), ramp('#ffcf6a'), { form: 'flat', level: 2, sep: true });
+  p.rect(S(2.5), S(2.5), S(9), S(11), ramp('#fff6d8'), { form: 'flat', level: 3 });
+  p.poly(
+    [
+      [S(7), S(4)],
+      [S(8.2), S(7)],
+      [S(11), S(7.2)],
+      [S(8.8), S(9.2)],
+      [S(9.6), S(12)],
+      [S(7), S(10.4)],
+      [S(4.4), S(12)],
+      [S(5.2), S(9.2)],
+      [S(3), S(7.2)],
+      [S(5.8), S(7)],
+    ],
+    ramp(frame % 2 ? '#ff9f43' : '#ffb547'),
+    { form: 'flat', level: 3 },
+  );
+  if (frame % 2) p.pix(S(3), S(3), '#ffffff');
+  return p.toBuffer();
+}
+
+/** A nerve relay marker for the finale: a glowing spark in a ring (two frames). */
+export function paintRelayMarker(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(14 * u), Math.round(16 * u));
+  p.ellipse(S(7), S(6), S(5.6), S(5.6), ramp('#ffd86a'), { form: 'sphere', sep: true });
+  p.ellipse(S(7), S(6), S(3.4), S(3.4), ramp(frame % 2 ? '#ffffff' : '#fff1b0'), { form: 'flat', level: 3 });
+  p.poly(
+    [
+      [S(5), S(12)],
+      [S(9), S(12)],
+      [S(7), S(15)],
+    ],
+    ramp('#ffd86a'),
+    { form: 'flat', level: 2 },
+  );
   return p.toBuffer();
 }
 
@@ -227,5 +295,57 @@ export function paintScrubber(kind: 'soap' | 'brush' | 'water'): PixelBuffer {
     p.ellipse(7, 7, 6, 6, ramp(kind === 'soap' ? '#f4f1ff' : '#8fe6ff'), { form: 'sphere', bias: 0.2, sep: true });
     p.pix(5, 4, '#ffffff');
   }
+  return p.toBuffer();
+}
+
+/** An apple, a carrot and lettuce on a cutting board (for washing food). 128 x 96. */
+export function paintProduce(): PixelBuffer {
+  const p = new Paint(128, 96);
+  p.rect(6, 52, 116, 36, ramp('#c99a62'), { form: 'cylV', sep: true, box: [6, 52, 116, 36] });
+  for (let x = 14; x < 116; x += 18) p.line(x, 56, x + 6, 84, ramp('#a87a48'), 2, { onlyOver: true });
+  // lettuce
+  for (const [x, y, r] of [
+    [28, 52, 16],
+    [20, 44, 11],
+    [38, 42, 12],
+  ])
+    p.ellipse(x, y, r, r * 0.8, ramp('#7ccf5a'), { form: 'sphere', sep: true });
+  p.line(28, 40, 28, 62, ramp('#c8ef9a'), 1, { onlyOver: true });
+  // the apple
+  p.ellipse(66, 56, 15, 14, ramp('#e04a4a'), { form: 'sphere', sep: true });
+  p.line(66, 42, 68, 36, ramp('#6a4a2a'), 2);
+  p.ellipse(73, 38, 5, 2.6, ramp('#5ccf5a'), { form: 'sphere' });
+  // the carrot
+  p.poly(
+    [
+      [90, 50],
+      [120, 62],
+      [92, 68],
+    ],
+    ramp('#ff8a3c'),
+    { form: 'sphere', sep: true },
+  );
+  for (const x of [98, 106]) p.line(x, 55, x + 2, 65, ramp('#ff8a3c'), 1, { onlyOver: true });
+  for (let k = 0; k < 3; k++) p.line(90, 58, 80 - k * 2, 46 + k * 6, ramp('#5ccf5a'), 2);
+  return p.toBuffer();
+}
+
+/** A pixel heart for the jump-rope game (beats bigger on frame 1). 40 x 36. */
+export function paintBigHeart(frame = 0): PixelBuffer {
+  const p = new Paint(40, 36);
+  const k = frame ? 1.1 : 1;
+  const c = ramp('#e0434f');
+  p.ellipse(13, 13, 9 * k, 9 * k, c, { form: 'sphere' });
+  p.ellipse(27, 13, 9 * k, 9 * k, c, { form: 'sphere' });
+  p.poly(
+    [
+      [20 - 17 * k, 15],
+      [20 + 17 * k, 15],
+      [20, 15 + 18 * k],
+    ],
+    c,
+    { form: 'sphere', sep: true },
+  );
+  p.pix(11, 9, '#ffffff');
   return p.toBuffer();
 }

@@ -56,6 +56,12 @@ export const BODY = {
   plaqueFilm: ramp('#e6d27a'),
   sugar: ramp('#f6f4ff'),
   scrapes: ramp('#9ad04a'),
+  louie: ramp('#c2d84e'),
+  bandit: ramp('#c552b8'),
+  brain: ramp('#eeb0cc'),
+  brain2: ramp('#d690b8'),
+  nerve: ramp('#ffd86a'),
+  bone: ramp('#efe4cc'),
 } as const;
 
 /** Big friendly cartoon eyes (white, a dark pupil looking `look`, a sparkle). */
@@ -267,6 +273,98 @@ export function paintScrapesMcGee(T: number, frame = 0): PixelBuffer {
   // a cheeky lopsided grin
   for (let x = -2.5; x <= 2.5; x += 0.5) p.pix(S(12.2 + x), S(14.4) + Math.round(((x + 1) * (x + 1)) / 5 - 0.6) * u * 0.6, '#2f4a14');
   return p.toBuffer();
+}
+
+/**
+ * Queasy Louie, the food-poisoning bacteria (about 1.4 tiles): a lime-green
+ * rod with wavy tails all round (some food-poisoning bacteria really have
+ * many), a tiny chef's hat (it hides in food that is not cooked or washed)
+ * and a queasy wobbly mouth. `frame` waves the tails.
+ */
+export function paintQueasyLouie(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(26 * u), Math.round(24 * u));
+  const ph = frame % 2 ? 1.6 : 0;
+  // wavy tails (flagella) above and below the rod
+  for (const [x0, y0, dir] of [
+    [8, 17, 1],
+    [13, 18, 1],
+    [18, 17, 1],
+    [9, 9, -1],
+    [19, 9.5, -1],
+  ])
+    for (let k = 0; k < 6; k += 0.5) p.pix(S(x0 + Math.sin(k * 1.3 + ph + x0) * 1.3), S(y0 + dir * k), '#7f9a2a');
+  p.capsule(S(7), S(13), S(20), S(13), S(5), BODY.louie, { sep: true });
+  for (const [x, y] of [
+    [9.5, 15.5],
+    [16, 16],
+    [18.5, 10.5],
+  ])
+    p.ellipse(S(x), S(y), S(1), S(0.8), BODY.louie, { form: 'flat', level: 1, onlyOver: true });
+  // the chef's hat
+  p.rect(S(10.5), S(5.2), S(6), S(2.4), ramp('#f6f4ff'), { form: 'flat', level: 3, sep: true });
+  for (const x of [11.6, 13.5, 15.4]) p.ellipse(S(x), S(4.2), S(1.8), S(1.8), ramp('#f6f4ff'), { form: 'sphere', sep: true });
+  eyes(p, [S(11.6), S(15.8)], S(11.6), S(1.9), [frame % 2 ? -0.5 : 0.5, 0.3]);
+  // a queasy wobbly mouth
+  for (let x = -2.5; x <= 2.5; x += 0.5) p.pix(S(13.7 + x), S(15.2) + Math.round(Math.sin(x * 2.4 + ph) * 0.8 * u), '#3a4a10');
+  return p.toBuffer();
+}
+
+/**
+ * The Blood Bandit, a germ that sneaks into the blood (about 1.4 tiles): a
+ * round magenta germ in a bandit's eye mask, riding a red blood cell like a
+ * surfboard (germs in the blood ride along with it). `frame` tips the board.
+ */
+export function paintBloodBandit(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(26 * u), Math.round(24 * u));
+  const tip = frame % 2 ? 0.6 : -0.6;
+  // the red blood cell board (a dimpled disc, seen from the side)
+  p.capsule(S(4), S(19 + tip), S(22), S(19 - tip), S(3), BODY.blood, { sep: true });
+  p.capsule(S(9), S(18.6 + tip * 0.5), S(17), S(18.6 - tip * 0.5), S(1), BODY.blood, { form: 'flat', level: 1, onlyOver: true });
+  // little bumps all round the germ
+  for (let k = 0; k < 9; k++) {
+    const a = (k / 9) * Math.PI * 2;
+    p.ellipse(S(13) + Math.cos(a) * S(6.6), S(10) + Math.sin(a) * S(6.2), S(1.3), S(1.3), BODY.bandit, { form: 'sphere', sep: true });
+  }
+  p.ellipse(S(13), S(10), S(6.2), S(6), BODY.bandit, { sep: true });
+  // the bandit's mask, with its ties flapping behind
+  p.rect(S(7), S(7.4), S(12), S(3.4), ramp('#2a2440'), { form: 'flat', level: 1, sep: true });
+  p.line(S(7), S(8.4), S(3.6), S(frame % 2 ? 6.4 : 7.6), ramp('#2a2440'), 1);
+  p.line(S(7), S(9.4), S(3.4), S(frame % 2 ? 9 : 10.4), ramp('#2a2440'), 1);
+  eyes(p, [S(10.6), S(15.4)], S(9), S(1.6), [0.5, 0]);
+  // a cheeky grin
+  for (let x = -2.5; x <= 2.5; x += 0.5) p.pix(S(13 + x), S(13) + Math.round((x * x) / 4) * u * 0.6, '#4a1040');
+  return p.toBuffer();
+}
+
+/**
+ * A nerve cell (a neuron) on the brain's floor (about 1.6 tiles): a glowing
+ * star-shaped body with branches reaching out to the next cells. `frame`
+ * flashes it (a message passing through).
+ */
+export function paintNeuron(T: number, frame = 0, seed = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(28 * u), Math.round(24 * u));
+  const c: [number, number] = [14, 12];
+  const branch = BODY.nerve;
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2 + seed * 0.7;
+    let x = c[0];
+    let y = c[1];
+    for (let s = 0; s < 9; s += 0.5) {
+      x += Math.cos(a + Math.sin(s + k) * 0.3) * 0.6;
+      y += Math.sin(a + Math.sin(s + k) * 0.3) * 0.5;
+      p.dot(S(x), S(y), branch, s < 4 ? 3 : 2);
+    }
+    p.ellipse(S(x), S(y), S(0.9), S(0.9), branch, { form: 'flat', level: 3 });
+  }
+  p.ellipse(S(c[0]), S(c[1]), S(3.6), S(3.2), branch, { form: 'sphere', sep: true });
+  p.ellipse(S(c[0]), S(c[1]), S(1.4), S(1.2), ramp(frame % 2 ? '#ffffff' : '#ff9f43'), { form: 'flat', level: 3 });
+  return p.toBuffer({ outline: false });
 }
 
 /** A platelet (a tiny purple flake; platelets stick together to make a clot). */
