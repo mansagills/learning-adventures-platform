@@ -1181,7 +1181,7 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 | **S5 Matter and chemistry** | States of Matter Mixer, Crystal Cave Chemistry |
 | **S6 Forces, energy and waves** | Magnet Power Puzzle, Simple Machines Construction, Simple Machines Lab (activity), Light Laboratory Escape, Sound Wave Surfer |
 
-#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN DRAFTED (2026-10-12), waiting for the owner's approval
+#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look preview built and waiting for the owner's look
 
 The owner proposed a new Science game: children fly a microscopic ship through the human body, learn what each organ does, find out which germ is making it sick, then heal it and earn upgrades, mission by mission, with a sense of growth like *Spore*. One mission is the flu: learn how it spreads and why handwashing matters, then clear the germs from the lungs.
 
@@ -1282,7 +1282,46 @@ The review (2026-10-12) scored the idea as first described at about **7.95/10**:
 2. **Half 1:** the med bay hub, free flight in every direction (keys, mouse and touch: drag to steer on a phone), scanning, the first three missions (skin, mouth, lungs with the flu), the first ship upgrades, the body map, saving and the grown-ups page.
 3. **Half 2:** the gut and heart missions, the finale, free exploring and body fact cards, the site listing (replacing the old game at the same address), the card picture and the final score.
 
-##### Choices for the owner
+**Owner answers (2026-10-12):** "Go with your picks and start the look preview." So:
+- the ship is the **Micro-Scout**
+- the host is **Dr. Ama Okafor**, the station's doctor and inventor of the shrink beam
+- the co-pilot is **Nib**, a tiny round nanobot with one big eye
+- the patient is **Commander Ayo** from Multiplication Space Quest
+- the germs are the **Grime Gang**: Sniffles, Plaque Jack, Scrapes McGee, Queasy Louie and the Blood Bandit
+- the title stays **Body System Heroes**
+
+The plan is approved, and the look preview for the new setting comes first.
+
+##### Look preview: BUILT (2026-10-12), waiting for the owner's look
+
+The new **inside-the-body setting** of Star Station and the cast, on the look development pages (dev server only, not in the site build: `npm run games` in the repo root, then `/lookdev/#body-cast`, `#body-lungs`, `#body-blood` and `#body-stomach`):
+- **The cast sheet:**
+  - the Micro-Scout, resting, thrusting and facing left
+  - Nib, in flight and in the talk box (happy and thinking)
+  - Dr. Ama Okafor, in a white coat and teal headwrap, with a portrait
+  - Commander Ayo, the patient
+  - two of the Grime Gang: Sniffles the flu virus (covered in knobby spikes, like the real virus) and Plaque Jack the cavity bacteria (a rod with a sugar-cube hat)
+  - the body's helpers: red blood cells, a white blood cell, good gut bacteria, oxygen bubbles and mucus
+  - the med bay: the shrink beam with the Micro-Scout being shrunk, the med bed, and the body map with the lungs lit
+- **Three areas to fly in** (Three.js scenes at 24 pixels per tile, with the Micro-Scout flying a loop and Nib alongside, plus a talk box from Nib):
+  - **the lungs:** an airway lined with cilia across the middle, bunches of air sacs wrapped in tiny blood vessels, oxygen bubbles drifting by, mucus, and three Sniffles
+  - **a blood vessel:** red blood cells streaming one way, flow streaks on the vessel wall, and a white blood cell on patrol
+  - **the stomach:** soft folds, a glowing pool of stomach acid with rising bubbles, bits of food, the valve that opens into the small intestine, and good gut bacteria waiting there
+- **Code:**
+  - `src/kit/worlds/star-station/body-art.ts` (the cast and props)
+  - `src/kit/worlds/star-station/body.ts` (the settings `body-lungs`, `body-blood` and `body-stomach`)
+  - `src/lookdev/body.ts` (the pages)
+  - `scripts/body-lookdev-shots.mjs` (screenshots)
+
+  The new settings are **not in the shared settings list yet**, so the finished games' built files are byte-for-byte unchanged. They join the list when the game is built.
+- **Fixed after looking at the screenshots:**
+  - the camera showed mostly the back wall instead of the floor where the ship flies
+  - the lungs' air-sac pattern was too busy
+  - the air-sac bunches stood on stems like trees
+  - the stomach's folds were too bold
+  - Dr. Ama had the same hair puffs as the default player (now a teal headwrap)
+
+##### Choices for the owner (answered above)
 
 1. **The ship's name** (drafts):
    - **Micro-Scout** (recommended: says what it does, easy to read aloud)

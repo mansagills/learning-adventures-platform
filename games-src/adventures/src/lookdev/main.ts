@@ -13,6 +13,7 @@ import { showSheet } from './sheet';
  *   ?view=sheet                         the character test
  *   ?view=scene&world=star|ancient&level=a|b|c&time=day|evening
  * or the same as a #token, for example #star-day or #ancient-evening-talk.
+ * Body System Heroes: #body-cast, #body-lungs, #body-blood, #body-stomach.
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -20,4 +21,8 @@ const host = document.getElementById('app')!;
 const view = q.get('view') ?? 'sheet';
 if (view === 'scene') {
   import('./scene').then((m) => m.showScene(host, q));
+} else if (view === 'body') {
+  import('./body').then((m) => m.showBodyScene(host, q));
+} else if (view === 'body-cast') {
+  import('./body').then((m) => m.showBodyCast(host));
 } else showSheet(host, q);
