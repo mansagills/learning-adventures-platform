@@ -7,7 +7,7 @@ import { placer } from '../place';
 import { Paint, hash, ramp, type Ramp } from '../shade';
 import { billboard, glow, groundPiece, lightPool } from '../stage';
 import type { SceneCtx, Setting, SettingScene } from '../types';
-import { BODY, paintGoodBacteria, paintMucus, paintOxygen, paintRedCell, paintWhiteCell } from './body-art';
+import { BODY, paintGoodBacteria, paintHair, paintMucus, paintOxygen, paintPlatelet, paintRedCell, paintSugar, paintSweat, paintTooth, paintWhiteCell } from './body-art';
 
 /**
  * Star Station setting: inside the body (look development for Body System
@@ -16,6 +16,10 @@ import { BODY, paintGoodBacteria, paintMucus, paintOxygen, paintRedCell, paintWh
  * down and flies freely over the floor of each area, so every area is a wide
  * open space with a wall at the back:
  *
+ *   - `body-skin`: a scraped knee, seen from very close: skin cells, a scrape
+ *     with dirt in it, a clot turning into a scab, hairs and sweat pores
+ *   - `body-mouth`: on the tongue (taste buds), with a row of teeth at the
+ *     back, plaque on some of them, and sugar crystals lying about
  *   - `body-lungs`: an airway lined with cilia (tiny brushing hairs), opening
  *     into grape-like bunches of air sacs, with oxygen bubbles drifting by
  *   - `body-blood`: inside a blood vessel, red blood cells streaming one way
@@ -27,7 +31,7 @@ import { BODY, paintGoodBacteria, paintMucus, paintOxygen, paintRedCell, paintWh
  * directly.
  */
 
-export type BodyArea = 'lungs' | 'blood' | 'stomach';
+export type BodyArea = 'skin' | 'mouth' | 'lungs' | 'blood' | 'stomach';
 const U = (T: number) => T / 16;
 export const BODY_LAYOUT = { w: 26, h: 18, floorTop: 3 };
 const L = BODY_LAYOUT;
@@ -83,7 +87,66 @@ export function paintBodyFloor(T: number, area: BodyArea): PixelBuffer {
   const H = L.h * T;
   const p = new Paint(W, H);
   const top = L.floorTop * T;
-  if (area === 'lungs') {
+  if (area === 'skin') {
+    // skin cells: soft polygons, like a close-up of the top layer
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const n = blob(x, y, 2 * T, 31) * 0.6 + blob(x, y, 0.6 * T, 32) * 0.4;
+        const dith = (x + y) % 2 ? 0.03 : -0.03;
+        const cs = 0.9 * T;
+        const gx = Math.floor(x / cs + blob(x, y, T, 33) * 0.6);
+        const gy = Math.floor(y / cs + blob(x + 99, y, T, 34) * 0.6);
+        const edge = Math.floor((x - 1.5 * u) / cs + blob(x - 1.5 * u, y, T, 33) * 0.6) !== gx || Math.floor((y - 1.5 * u) / cs + blob(x + 99, y - 1.5 * u, T, 34) * 0.6) !== gy;
+        const lv = edge ? ((x + y) % 2 ? 1 : 2) : n + dith > 0.6 ? 3 : 2;
+        p.dot(x, y, hash(gx, gy, 35) > 0.5 ? BODY.skin : BODY.skin2, lv);
+      }
+    // the scrape: a long rough patch across the middle where the top layer is gone
+    const mid = (x: number) => top + 8 * T + Math.sin(x / (4 * T)) * 1.4 * T;
+    const half = (x: number) => (1.5 + Math.sin(x / (2.3 * T)) * 0.4 + blob(x, 0, T, 36) * 0.5) * T;
+    for (let x = Math.round(4 * T); x < W - 4 * T; x++) {
+      const taper = Math.min(1, (x - 4 * T) / (3 * T), (W - 4 * T - x) / (3 * T));
+      const hw = half(x) * taper;
+      for (let y = Math.round(mid(x) - hw); y < mid(x) + hw; y++) {
+        const d = Math.abs(y - mid(x)) / hw;
+        const lv = d > 0.85 ? 1 : blob(x, y, 0.4 * T, 37) > 0.6 ? 3 : 2;
+        // the right end is already clotting into a scab
+        const scab = x > W * 0.62 && blob(x, y, 0.8 * T, 38) > 0.4;
+        p.dot(x, y, scab ? BODY.scab : BODY.scrape, scab ? lv : lv);
+      }
+    }
+    // dirt specks in the scrape
+    for (let i = 0; i < 60; i++) {
+      const x = (5 + hash(i, 1, 39) * (L.w * 0.55)) * T;
+      const y = mid(x) + (hash(i, 2, 39) - 0.5) * 2 * T;
+      p.dot(x, y, BODY.dirt, 1);
+      p.dot(x + 1, y, BODY.dirt, 2);
+    }
+    // sweat pores: tiny dark dots
+    for (let i = 0; i < 40; i++) {
+      const x = hash(i, 4, 40) * W;
+      const y = top + hash(i, 5, 40) * (H - top);
+      if (Math.abs(y - mid(x)) < 2.4 * T) continue;
+      p.dot(x, y, BODY.skin2, 0);
+      p.dot(x + 1, y, BODY.skin2, 1);
+    }
+  } else if (area === 'mouth') {
+    // the tongue, covered in little bumps (taste buds sit in them)
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const n = blob(x, y, 2 * T, 41) * 0.6 + blob(x, y, 0.6 * T, 42) * 0.4;
+        const dith = (x + y) % 2 ? 0.03 : -0.03;
+        const bump = 0.55 * T;
+        const bx = (x % bump) - bump / 2;
+        const by = (y % bump) - bump / 2;
+        const isBump = Math.hypot(bx, by) < 1.6 * u;
+        let lv = n + dith > 0.6 ? 3 : n + dith < 0.3 ? 1 : 2;
+        if (isBump) lv = Math.min(4, lv + 1);
+        p.dot(x, y, n > 0.5 ? BODY.tongue : BODY.tongue2, lv);
+      }
+    // the groove down the middle of the tongue
+    for (let x = 0; x < W; x++)
+      for (let k = -1; k <= 1; k++) p.dot(x, top + 8.5 * T + Math.sin(x / (6 * T)) * 0.6 * T + k * u, BODY.tongue2, k === 0 ? 0 : 1);
+  } else if (area === 'lungs') {
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
         const n = blob(x, y, 2 * T, 3) * 0.6 + blob(x, y, 0.5 * T, 4) * 0.4;
@@ -163,11 +226,12 @@ export function paintBodyFloor(T: number, area: BodyArea): PixelBuffer {
 
 /** The back wall of each area (a curved tissue wall above row 0, with openings). */
 export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer {
+  const u = U(T);
   const W = (L.w + 12) * T;
   const H = 7 * T;
   const p = new Paint(W, H);
-  const base = area === 'lungs' ? BODY.lung : area === 'blood' ? BODY.vessel : BODY.stomach;
-  const base2 = area === 'lungs' ? BODY.tissue : area === 'blood' ? BODY.vessel2 : BODY.stomach2;
+  const base = { skin: BODY.scrape, mouth: BODY.gum, lungs: BODY.lung, blood: BODY.vessel, stomach: BODY.stomach }[area];
+  const base2 = { skin: BODY.tissue2, mouth: BODY.tongue2, lungs: BODY.tissue, blood: BODY.vessel2, stomach: BODY.stomach2 }[area];
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const n = blob(x, y, 1.5 * T, 21) * 0.7 + blob(x, y, 0.5 * T, 22) * 0.3;
@@ -179,7 +243,9 @@ export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer
     }
   // openings into the next part of the body: dark round tunnels with a glow at the rim
   const holes: Array<[number, number, number]> =
-    area === 'lungs'
+    area === 'skin' || area === 'mouth'
+      ? []
+      : area === 'lungs'
       ? [
           [8, 3.4, 1.6],
           [19, 3.0, 2.2],
@@ -201,6 +267,38 @@ export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer
         if (d > 0.95) p.dot(x, y, base, 4);
         else p.dot(x, y, base2, d > 0.75 ? 1 : 0);
       }
+  }
+  // the skin's wall is a cut-away of its layers: the top layer, then the deeper layer with blood vessels
+  if (area === 'skin') {
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const v = y / H;
+        if (v > 0.72) p.dot(x, y, BODY.skin, v > 0.9 ? 4 : 3);
+        else if (v > 0.66) p.dot(x, y, BODY.skin2, 1);
+      }
+    for (let k = 0; k < 3; k++) {
+      const vy = (1.6 + k * 1.2) * T;
+      for (let x = 0; x < W; x++) {
+        const y = vy + Math.sin(x / (2.5 * T) + k) * 0.35 * T;
+        for (let t = -1.5 * u; t <= 1.5 * u; t++) p.dot(x, y + t, k === 1 ? BODY.vein : BODY.vessel, Math.abs(t) > u ? 1 : 3);
+      }
+    }
+  }
+  // in the mouth, the back wall is a row of teeth on the gum
+  if (area === 'mouth') {
+    const tw = 2.2 * T;
+    for (let i = 0; i * tw < W; i++) {
+      const cx = i * tw + tw / 2;
+      for (let y = Math.round(1.2 * T); y < H - 1.4 * T; y++)
+        for (let x = Math.round(cx - tw * 0.45); x < cx + tw * 0.45; x++) {
+          const top = 1.2 * T + Math.abs(Math.sin(((x - cx) / tw) * Math.PI * 2)) * 0.4 * T;
+          if (y < top) continue;
+          const d = Math.abs(x - cx) / (tw * 0.45);
+          const lv = d > 0.9 ? 1 : x < cx - tw * 0.1 ? 4 : d > 0.6 ? 2 : 3;
+          const plaque = i % 3 === 1 && y > H * 0.6 && blob(x, y, 0.5 * T, 43) > 0.5;
+          p.dot(x, y, plaque ? BODY.plaqueFilm : BODY.tooth, lv);
+        }
+    }
   }
   // glistening highlights (the inside of the body is wet)
   for (let i = 0; i < 80; i++) {
@@ -296,10 +394,12 @@ function setting(area: BodyArea, name: string): Setting {
   };
 }
 
+export const BODY_SKIN = setting('skin', 'Inside the body: a scraped knee');
+export const BODY_MOUTH = setting('mouth', 'Inside the body: the mouth');
 export const BODY_LUNGS = setting('lungs', 'Inside the body: the lungs');
 export const BODY_BLOOD = setting('blood', 'Inside the body: a blood vessel');
 export const BODY_STOMACH = setting('stomach', 'Inside the body: the stomach');
-export const BODY_SETTINGS = [BODY_LUNGS, BODY_BLOOD, BODY_STOMACH];
+export const BODY_SETTINGS = [BODY_SKIN, BODY_MOUTH, BODY_LUNGS, BODY_BLOOD, BODY_STOMACH];
 
 interface Drifter {
   mesh: THREE.Mesh;
@@ -327,7 +427,49 @@ function buildBody(ctx: SceneCtx, area: BodyArea): SettingScene {
   };
   const anim: Array<(t: number) => void> = [];
 
-  if (area === 'lungs') {
+  if (area === 'skin') {
+    for (const [x, y, s] of [
+      [2.4, 5.4, 0],
+      [7.6, 5.0, 1],
+      [15.4, 5.2, 0],
+      [22.8, 5.6, 1],
+      [4.2, 16.4, 1],
+      [12.6, 16.8, 0],
+      [20.2, 16.2, 1],
+      [24.6, 14.6, 0],
+    ])
+      prop(paintHair(T, s).toCanvas(), x, y, 0.5);
+    // platelets gathering at the scab end of the scrape
+    for (let i = 0; i < 9; i++) drift([paintPlatelet(T, 0), paintPlatelet(T, 1)], 17 + hash(i, 1, 81) * 5, L.floorTop + 7 + hash(i, 2, 81) * 3, 0.2 + hash(i, 3, 81) * 0.5, 0.05, i);
+    // sweat drops rising from pores
+    for (const [x, y] of [
+      [5.6, 13.2],
+      [19.2, 12.8],
+      [10.4, 5.8],
+    ]) {
+      const f = [0, 1].map((k) => tex(paintSweat(T, k)));
+      const m = prop(paintSweat(T, 0).toCanvas(), x, y, 0, 0);
+      anim.push((t) => swapFrame(m, f[Math.floor(t * 1.5 + x) % 2]));
+    }
+    add(lightPool(lighting, T, 19, L.floorTop + 8, 3, '#ff8a8a', 0.2));
+  } else if (area === 'mouth') {
+    for (const [x, y, pl, s] of [
+      [2.4, 7.4, 0, 0],
+      [24.0, 7.0, 1, 1],
+      [2.0, 16.6, 1, 2],
+      [24.4, 16.2, 0, 1],
+    ])
+      prop(paintTooth(T, !!pl, s).toCanvas(), x, y, 2.2);
+    for (let i = 0; i < 10; i++) {
+      const x = 5 + hash(i, 1, 91) * 16;
+      const y = L.floorTop + 2 + hash(i, 2, 91) * 12;
+      const f = [0, 1].map((k) => tex(paintSugar(T, k)));
+      const m = prop(paintSugar(T, 0).toCanvas(), x, y, 0.5);
+      anim.push((t) => swapFrame(m, f[Math.floor(t * 2 + i) % 2]));
+    }
+    // saliva bubbles drifting by
+    for (let i = 0; i < 10; i++) drift([paintOxygen(T, 0), paintOxygen(T, 1)], hash(i, 1, 93) * L.w, L.floorTop + 2 + hash(i, 2, 93) * 12, 0.4 + hash(i, 3, 93), 0.3 + hash(i, 4, 93) * 0.3, i);
+  } else if (area === 'lungs') {
     for (const [x, y, s] of [
       [3.2, 6.2, 0],
       [9.4, 5.6, 1],
@@ -397,7 +539,7 @@ function buildBody(ctx: SceneCtx, area: BodyArea): SettingScene {
   return {
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 15.5, top: -1.2 },
-    clear: area === 'blood' ? '#4a1424' : '#5a2236',
+    clear: { skin: '#5a2a26', mouth: '#5a1a2e', lungs: '#5a2236', blood: '#4a1424', stomach: '#5a2236' }[area],
     walk: { x0: 0.6, y0: L.floorTop + 0.6, x1: L.w - 0.6, y1: L.h - 0.4 },
     blocks: [],
     spots: { player: { x: 12, y: L.floorTop + 7.4 }, host: { x: 13.6, y: L.floorTop + 6.8 } },

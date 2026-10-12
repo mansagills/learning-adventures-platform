@@ -42,6 +42,20 @@ export const BODY = {
   nib: ramp('#c9d1de'),
   nibEye: ramp('#5fe3ff'),
   gold: ramp('#ffcf6a'),
+  skin: ramp('#e9b48c'),
+  skin2: ramp('#d99a72'),
+  scrape: ramp('#e0606a'),
+  scab: ramp('#8a3a2e'),
+  dirt: ramp('#8a7a6a'),
+  hair: ramp('#3b2a24'),
+  platelet: ramp('#b47ad8'),
+  tongue: ramp('#ec7f92'),
+  tongue2: ramp('#de6b80'),
+  gum: ramp('#e86a86'),
+  tooth: ramp('#f4f1e6'),
+  plaqueFilm: ramp('#e6d27a'),
+  sugar: ramp('#f6f4ff'),
+  scrapes: ramp('#9ad04a'),
 } as const;
 
 /** Big friendly cartoon eyes (white, a dark pupil looking `look`, a sparkle). */
@@ -223,6 +237,108 @@ export function paintPlaqueJack(T: number, frame = 0): PixelBuffer {
   // a sly grin
   for (let x = -2.5; x <= 2.5; x += 0.5) p.pix(S(16.1 + x), S(15) + Math.round((x * x) / 4 - 1) * u * 0.6, '#5a3a10');
   return p.toBuffer();
+}
+
+/**
+ * Scrapes McGee, the bacteria in a cut (about 1.4 tiles): a bunch of round
+ * green bacteria stuck together (some real bacteria grow in bunches like
+ * grapes), with one cheeky face on the biggest ball. `frame` jiggles the bunch.
+ */
+export function paintScrapesMcGee(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(24 * u), Math.round(22 * u));
+  const j = frame % 2 ? 0.5 : 0;
+  const balls: Array<[number, number, number]> = [
+    [6, 8 + j, 4],
+    [17.5, 7 - j, 4.2],
+    [5.5, 16, 3.6],
+    [18.5, 15.5 + j, 3.8],
+    [12, 4.5, 3.4],
+  ];
+  for (const [x, y, r] of balls) p.ellipse(S(x), S(y), S(r), S(r), BODY.scrapes, { sep: true, box: [S(x - r), S(y - r), S(r * 2), S(r * 2)] });
+  p.ellipse(S(12), S(12), S(6.4), S(6.2), BODY.scrapes, { sep: true });
+  for (const [x, y] of [
+    [9, 15],
+    [15.5, 14.6],
+  ])
+    p.ellipse(S(x), S(y), S(0.9), S(0.8), BODY.scrapes, { form: 'flat', level: 1, onlyOver: true });
+  eyes(p, [S(9.8), S(14.4)], S(10.8), S(2), [frame % 2 ? 0.5 : -0.3, 0.2]);
+  // a cheeky lopsided grin
+  for (let x = -2.5; x <= 2.5; x += 0.5) p.pix(S(12.2 + x), S(14.4) + Math.round(((x + 1) * (x + 1)) / 5 - 0.6) * u * 0.6, '#2f4a14');
+  return p.toBuffer();
+}
+
+/** A platelet (a tiny purple flake; platelets stick together to make a clot). */
+export function paintPlatelet(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(9 * u), Math.round(7 * u));
+  p.poly(
+    [
+      [S(1), S(4)],
+      [S(3), S(1 + (frame % 2))],
+      [S(7), S(1.5)],
+      [S(8), S(5)],
+      [S(4), S(6)],
+    ],
+    BODY.platelet,
+    { sep: true },
+  );
+  return p.toBuffer();
+}
+
+/** A molar tooth standing up out of the gum (about 2 tiles), with a patch of plaque if `plaque`. */
+export function paintTooth(T: number, plaque = false, seed = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(32 * u), Math.round(36 * u));
+  p.ellipse(S(16), S(32), S(15), S(4), BODY.gum, { sep: true });
+  // a rounded crown with two soft bumps on top, and the body of the tooth down to the gum
+  const tooth = (x: number, y: number) => {
+    const body = x > S(4) && x < S(28) && y > S(10) && y < S(31);
+    const bump = Math.hypot((x - S(10)) / S(7), (y - S(11)) / S(6.5)) < 1 || Math.hypot((x - S(22)) / S(7), (y - S(11 + (seed % 2))) / S(6.5)) < 1;
+    return body || bump;
+  };
+  p.shape(tooth, [S(3), S(3), S(26), S(29)], BODY.tooth, { form: 'sphere', sep: true, box: [S(3), S(4), S(26), S(27)] });
+  p.line(S(16), S(9), S(16), S(14), BODY.tooth, 1, { onlyOver: true });
+  if (plaque) {
+    p.ellipse(S(9 + (seed % 3) * 5), S(24), S(5), S(3), BODY.plaqueFilm, { form: 'flat', level: 2, onlyOver: true });
+    p.ellipse(S(21), S(14), S(3), S(2), BODY.plaqueFilm, { form: 'flat', level: 3, onlyOver: true });
+  }
+  return p.toBuffer();
+}
+
+/** A sugar crystal (a little sparkling cube). */
+export function paintSugar(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(10 * u), Math.round(10 * u));
+  p.rect(S(1.5), S(2), S(7), S(7), BODY.sugar, { form: 'sphere', sep: true });
+  p.pix(S(3), S(3.4), '#ffffff');
+  if (frame % 2) p.pix(S(6.6), S(6.4), '#ffffff');
+  return p.toBuffer();
+}
+
+/** A hair growing out of the skin (a follicle and a strand). */
+export function paintHair(T: number, seed = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(12 * u), Math.round(30 * u));
+  p.ellipse(S(6), S(28), S(3.4), S(1.6), BODY.skin2, { form: 'flat', level: 1 });
+  const lean = seed % 2 ? 1 : -1;
+  p.capsule(S(6), S(28), S(6 + lean * 4), S(3), S(1.3), BODY.hair, { form: 'cylH' });
+  return p.toBuffer();
+}
+
+/** A drop of sweat coming out of a pore. */
+export function paintSweat(T: number, frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(8 * u), Math.round(10 * u));
+  p.ellipse(S(4), S(6.5 - (frame % 2)), S(2.6), S(3), BODY.oxygen, { form: 'sphere', bias: 0.15 });
+  p.pix(S(3.2), S(5), '#ffffff');
+  return p.toBuffer({ outline: false });
 }
 
 // ------------------------------------------------------------------ the body's helpers

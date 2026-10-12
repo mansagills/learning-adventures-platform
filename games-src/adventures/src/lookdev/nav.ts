@@ -16,6 +16,8 @@ export const PAGES: Array<[string, string]> = [
   ['roman-forum-day', 'Roman forum'],
   ['roman-forum-evening-talk', 'Forum at dusk'],
   ['body-cast', 'Body: the cast'],
+  ['body-skin', 'Body: a scraped knee'],
+  ['body-mouth', 'Body: the mouth'],
   ['body-lungs', 'Body: the lungs'],
   ['body-blood', 'Body: a blood vessel'],
   ['body-stomach', 'Body: the stomach'],

@@ -42,6 +42,8 @@ import { currentToken, pageNav } from './nav';
 const T = STAR_STATION.px;
 
 const NIB_LINES: Record<BodyArea, string> = {
+  skin: 'We are in a scraped knee! The top layer of skin is gone here, so germs can get in. Look, the blood is already clotting into a scab.',
+  mouth: 'We are on the tongue! Those white hills are teeth. Watch out for the sugar: cavity bacteria love it.',
   lungs: 'We are in the lungs! Air comes down this tube into millions of tiny air sacs. Oxygen goes from the air sacs into the blood. Uh oh, flu viruses!',
   blood: 'Inside a blood vessel! The red blood cells carry oxygen all over the body. They all flow one way, so we fly with the flow.',
   stomach: 'The stomach! Its acid helps break down food. Over there is the door to the small intestine, where most digestion happens.',
@@ -56,7 +58,7 @@ function nibSpeaker(): Speaker {
 // ------------------------------------------------------------------ a body area, flying
 
 export function showBodyScene(host: HTMLElement, q: URLSearchParams): void {
-  const area = (['lungs', 'blood', 'stomach'].includes(q.get('area') ?? '') ? q.get('area') : 'lungs') as BodyArea;
+  const area = (['skin', 'mouth', 'lungs', 'blood', 'stomach'].includes(q.get('area') ?? '') ? q.get('area') : 'lungs') as BodyArea;
   const setting = BODY_SETTINGS.find((s) => s.id === `body-${area}`)!;
   document.body.classList.add(STAR_STATION.panelClass);
   const stage = new Stage(host, T);
