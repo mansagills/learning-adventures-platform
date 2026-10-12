@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): NOT STARTED
+### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes: half 1 built, waiting for the owner's look)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1180,6 +1180,237 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 | **S4 Ocean and environment** | Ocean Depth Diver, Ocean Conservation Heroes, Pollution Solution Squad |
 | **S5 Matter and chemistry** | States of Matter Mixer, Crystal Cave Chemistry |
 | **S6 Forces, energy and waves** | Magnet Power Puzzle, Simple Machines Construction, Simple Machines Lab (activity), Light Laboratory Escape, Sound Wave Surfer |
+
+#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, half 1 BUILT and waiting for the owner's look
+
+The owner proposed a new Science game: children fly a microscopic ship through the human body, learn what each organ does, find out which germ is making it sick, then heal it and earn upgrades, mission by mission, with a sense of growth like *Spore*. One mission is the flu: learn how it spreads and why handwashing matters, then clear the germs from the lungs.
+
+The review (2026-10-12) scored the idea as first described at about **7.95/10**: a strong hook, but the learning came before the play instead of driving it. With the changes below, the projected score is about **9.2**. The owner liked the direction and answered:
+
+- **World:** Star Station, with a **new "inside the body" setting** in that world (one style per world, many settings).
+- **How the flying plays:** **free exploring in all directions**, like *Spore* (not a vertical shooter).
+- **Replace Body System Heroes:** the new game takes over the slug `body-system-heroes` (the same web address), and the grades widen from 4–5 to **3–5**.
+- **Names:** draft them (below) for the owner to pick.
+
+##### What the original does
+
+- **Teaches:** grades 4–5, five body systems (heart and blood, lungs, digestion, brain and nerves, muscles and bones) as twelve multiple-choice questions, two per system, with points and a health bar. One level, no hints, no explanations, emoji art.
+- **Keeps:** the facts that are right. The heart pumps blood; red blood cells carry oxygen; we breathe in oxygen; oxygen enters the blood in the lungs; most digestion happens in the small intestine; stomach acid helps break down food; the brain is the control center; nerves carry messages; adults have 206 bones; the skull protects the brain.
+- **Drops or fixes two wrong facts:**
+  - "How many muscles does it take to smile?" is a myth with no real answer. **Dropped.**
+  - "Which muscle never gets tired? → the heart" is too simple. **Fixed** to the true fact: heart muscle rests a little between every beat.
+- **Missing against the standard:** levels, wrong answers built from real mistakes, hints, debriefs, the pixel art, sound, a phone layout, saving and the grown-ups page.
+
+##### The game
+
+- **Setting:** the Star Station's med bay (home base), and the new **inside-the-body setting** of Star Station. Each organ is its own area to fly around: the tiny air sacs of the lungs, the tunnels of the blood vessels, the stomach and the gut, the gums and teeth, a scraped patch of skin and the nerve network of the brain. The 16-bit Star Station look, 24 pixels per tile, glowing and colorful, never gory.
+- **Characters (drafts for the owner to pick from; see the choices below):** a host scientist in the med bay who shrinks the ship and briefs each mission; a tiny co-pilot who rides along, scans cells and gives hints; the patient, a friendly station crew member who is feeling unwell (the body we fly through); good cells who help (white blood cells, red blood cells, the gut's good bacteria); and the **Grime Gang**, goofy, gloopy germ villains (one per mission), never scary.
+- **How it plays:** each mission has five beats.
+  1. **Briefing in the med bay:** the host shows the patient's symptoms and the organ on a body map, with one or two facts about what the organ does.
+  2. **Shrink and explore:** the ship flies freely in every direction around the organ. Children steer by **how the organ works**: air flows one way into the lungs, blood flows one way through the heart (the valves close behind you), and food moves through the gut.
+  3. **Scan and diagnose:** the co-pilot scans cells. The child answers what is wrong (virus or bacteria? which organ part?) before healing. This is where most questions live.
+  4. **Heal:** use the right defense on the germs while protecting the good cells. Zapping the gut's good bacteria hurts your score.
+  5. **Back in the med bay:** a quick **healthy-habit mini-game** (for example, scrub hands for 20 seconds: the length of "Happy Birthday" sung twice), a talk-it-through debrief, a "wanted poster" for the germ (the body remembers it) and a ship upgrade.
+- **The *Spore* feeling:** the **ship grows** mission by mission with the body's own defenses as upgrades:
+  - **Scanner** (start): reads cells and shows what each organ does
+  - **Mucus net** (lungs): traps germs, like the sticky lining of the airways
+  - **Cilia sweepers** (lungs): tiny brushes that sweep trapped germs out
+  - **Antibody darts** (gut, heart): stick only to the matching germ, like a key in a lock (a shape-matching puzzle)
+  - **White blood cell escorts** (heart and blood): friendly cells that follow the ship and help
+  - **Fever booster** (finale): the brain turns up the heat to slow germs down
+
+  The **body map** fills in as organs heal, like *Spore*'s galaxy. Healed organs stay open to explore freely and collect **body fact cards**.
+- **Modeled on:**
+  - **Library Rush** for free movement in every direction and enemies that swarm
+  - **Multiplication Space Quest** for the ship, the flight controls and the Star Station look
+  - **Equation Balance Scale** for the walking hub, the jobs and the finale pattern
+
+##### Missions (grades 3–5)
+
+| Mission | Organ | The problem (the germ) | What it teaches | Healthy habit |
+|---|---|---|---|---|
+| 1 | Skin | A scraped knee lets bacteria in | Skin is the body's biggest organ and its first wall; a scab protects the cut while it heals | Clean a cut, cover it, don't pick the scab |
+| 2 | Mouth and teeth | Cavity bacteria feast on sugar and make acid | Teeth start digestion by chewing; acid from bacteria makes holes in enamel | Brush twice a day, fewer sugary snacks |
+| 3 | Nose and lungs | **The flu** (a virus) | The airway (nose → windpipe → lungs → tiny air sacs), where oxygen enters the blood | **Wash hands for 20 seconds**, cough into your elbow, rest |
+| 4 | Stomach and gut | Food-poisoning bacteria (and the good gut bacteria to protect) | Chewing → stomach acid → small intestine (where most digestion happens) → large intestine; most gut bacteria are helpers | Wash hands before eating, cook food well |
+| 5 | Heart and blood | A germ riding through the blood | The heart has four chambers and pumps one way; red blood cells carry oxygen; white blood cells fight germs and are made in the bone marrow | Exercise keeps the heart strong |
+| Finale | Brain and nerves | **The Big Defense:** the whole body works together | The brain is the control center: nerves carry its messages, the skull protects it, and it can turn on a fever to fight germs | Sleep, and tell a grown-up when you feel sick |
+
+##### Learning design
+
+| Mission | Level 1 (grade 3) | Level 2 (grade 4) | Level 3 (grade 5) | Standards |
+|---|---|---|---|---|
+| Each mission | **Name it:** which part is this, and what does it do? ("Which part takes in oxygen?") | **How it works:** put the steps in order or follow the path (nose → windpipe → lungs → air sacs; chew → stomach → small intestine) | **Cause and effect across systems:** what happens if this part is sick or missing? ("The lungs can't get oxygen into the blood. What happens to the muscles?") | NGSS **4-LS1-1** (internal structures support survival), **5-LS1-1** stretch and **MS-LS1-3** as a top-level preview (body systems working together); National Health Education Standards 1 and 7 (disease prevention, healthy habits) |
+
+- **Mistakes the wrong answers come from:**
+  - *Antibiotics cure the flu:* they work on bacteria, not on viruses like the flu.
+  - *All germs are bad:* most of the bacteria in the gut are helpers.
+  - *You catch a cold or the flu from cold weather:* you catch it from a virus, spread by coughs, sneezes and hands.
+  - *Rinsing hands with water is enough:* soap and 20 seconds of scrubbing remove the germs.
+  - *The stomach does all the digesting:* most digestion happens in the small intestine.
+  - *Lungs are like two empty balloons:* they are made of millions of tiny air sacs.
+  - *Blood in your veins is blue:* blood is always red; veins only look blue through skin.
+  - *A fever is the sickness:* a fever is the body fighting the germs.
+  - *The brain only does thinking:* it also runs breathing and the heartbeat without you thinking about it.
+  - *A scab is bad, so pick it off:* the scab protects the cut while new skin grows.
+- **Diagnose before healing:** the scan asks what the problem is (a virus or bacteria? which part of the organ?) and which defense will work. The wrong defense bounces off, with a sentence why: "Antibody darts only stick to the germ they match. This one has a different shape."
+- **Hint ladder:**
+  1. A nudge from the co-pilot: "What does this organ do? Look at where the air is flowing."
+  2. A picture: the ship's scanner shows the organ diagram with the right part glowing.
+  3. The answer outlined, with its reason.
+- **Debriefs** (one per mission, the child picks the best reason):
+  - Skin: "Why does a cut need to be cleaned and covered?"
+  - Mouth: "Why do sugary snacks make cavities more likely?"
+  - Lungs: "Why does washing your hands help stop the flu?"
+  - Gut: "Why didn't we zap the good bacteria?"
+  - Heart: "Why does the blood need to flow in one direction?"
+  - Finale: "How did the brain help the whole body fight back?"
+- **Progress and finale:**
+  - 5 stars per mission heals that organ on the body map and gives a ship upgrade (done after 5 stars and level 2, or 12 questions, so a child who struggles still finishes).
+  - **The finale, The Big Defense:** in the brain, a message race along the nerves calls every defense the ship has collected to the patient's aid. The patient gets well, the crew cheers in the med bay, and the game tells the site it is complete.
+  - **Replay:** free exploring in every healed organ to collect body fact cards, and harder levels.
+- **Difficulty change from the original:** from one level of twelve recall questions (grades 4–5) to three levels across grades 3–5: naming parts, then how each organ works, then how the body systems depend on each other. Healthy habits are tied to each germ. Every wrong answer is named and explained.
+- **Kid-friendly rules:**
+  - The germs are goofy and gloopy, never scary. No blood, gore or needles.
+  - Being sick is normal; nobody is blamed for catching a germ. The message is "tell a grown-up."
+  - The grown-ups page says it is a learning game, not medical advice.
+- **Facts checked against:** CDC (handwashing and how flu spreads), NIH MedlinePlus, Nemours KidsHealth, NIH NIDCR (teeth and cavities) and the Smithsonian. They are listed in the grown-ups page credits.
+
+##### How it would be built (three steps, each with an owner look)
+
+1. **Look development for the new setting** (like W0 and W1 for the other settings): a preview page with the med bay, the ship, the co-pilot, two Grime Gang germs and three inside-the-body areas (the lungs' air sacs, a blood vessel tunnel, the stomach). The owner approves the look before the game is built. The setting goes into the world kit as `inside-body`, part of Star Station; the other games stay byte-for-byte unchanged.
+2. **Half 1:** the med bay hub, free flight in every direction (keys, mouse and touch: drag to steer on a phone), scanning, the first three missions (skin, mouth, lungs with the flu), the first ship upgrades, the body map, saving and the grown-ups page.
+3. **Half 2:** the gut and heart missions, the finale, free exploring and body fact cards, the site listing (replacing the old game at the same address), the card picture and the final score.
+
+**Owner answers (2026-10-12):** "Go with your picks and start the look preview." So:
+- the ship is the **Micro-Scout**
+- the host is **Dr. Ama Okafor**, the station's doctor and inventor of the shrink beam
+- the co-pilot is **Nib**, a tiny round nanobot with one big eye
+- the patient is **Commander Ayo** from Multiplication Space Quest
+- the germs are the **Grime Gang**: Sniffles, Plaque Jack, Scrapes McGee, Queasy Louie and the Blood Bandit
+- the title stays **Body System Heroes**
+
+The plan is approved, and the look preview for the new setting comes first.
+
+##### Look preview: APPROVED (2026-10-12)
+
+The new **inside-the-body setting** of Star Station and the cast, on the look development pages (dev server only, not in the site build: `npm run games` in the repo root, then `/lookdev/#body-cast`, `#body-lungs`, `#body-blood` and `#body-stomach`):
+- **The cast sheet:**
+  - the Micro-Scout, resting, thrusting and facing left
+  - Nib, in flight and in the talk box (happy and thinking)
+  - Dr. Ama Okafor, in a white coat and teal headwrap, with a portrait
+  - Commander Ayo, the patient
+  - two of the Grime Gang: Sniffles the flu virus (covered in knobby spikes, like the real virus) and Plaque Jack the cavity bacteria (a rod with a sugar-cube hat)
+  - the body's helpers: red blood cells, a white blood cell, good gut bacteria, oxygen bubbles and mucus
+  - the med bay: the shrink beam with the Micro-Scout being shrunk, the med bed, and the body map with the lungs lit
+- **Three areas to fly in** (Three.js scenes at 24 pixels per tile, with the Micro-Scout flying a loop and Nib alongside, plus a talk box from Nib):
+  - **the lungs:** an airway lined with cilia across the middle, bunches of air sacs wrapped in tiny blood vessels, oxygen bubbles drifting by, mucus, and three Sniffles
+  - **a blood vessel:** red blood cells streaming one way, flow streaks on the vessel wall, and a white blood cell on patrol
+  - **the stomach:** soft folds, a glowing pool of stomach acid with rising bubbles, bits of food, the valve that opens into the small intestine, and good gut bacteria waiting there
+- **Code:**
+  - `src/kit/worlds/star-station/body-art.ts` (the cast and props)
+  - `src/kit/worlds/star-station/body.ts` (the settings `body-lungs`, `body-blood` and `body-stomach`)
+  - `src/lookdev/body.ts` (the pages)
+  - `scripts/body-lookdev-shots.mjs` (screenshots)
+
+  The new settings are **not in the shared settings list yet**, so the finished games' built files are byte-for-byte unchanged. They join the list when the game is built.
+- **Fixed after looking at the screenshots:**
+  - the camera showed mostly the back wall instead of the floor where the ship flies
+  - the lungs' air-sac pattern was too busy
+  - the air-sac bunches stood on stems like trees
+  - the stomach's folds were too bold
+  - Dr. Ama had the same hair puffs as the default player (now a teal headwrap)
+
+##### Half 1: BUILT (2026-10-12), waiting for the owner's look
+
+The owner approved the look ("I like the look of the inside of the body and it's kid friendly. The germs aren't scary, and the ship looks good") and asked for half 1.
+
+**What a child does:**
+1. **The med bay** (the station deck, walked like the other Star Station games). Dr. Ama Okafor explains that Commander Ayo is sick. Nib the nanobot says hello. The body map on its stand shows which parts are healed. Talk to Dr. Ama or step onto the shrink beam to pick a mission.
+2. **The dive.** The Micro-Scout shrinks and flies inside Commander Ayo. It flies freely in every direction: arrow keys or WASD, holding the mouse (the ship flies toward it), or the touch pad on a phone. In the lungs the air flow gently pushes the ship.
+3. **Scan three spots.** Each glowing ring opens a question from Nib about what this part of the body does. A wrong answer is crossed out, with one sentence about the mix-up. Hints come in three steps: the first two never give the answer away, the third outlines it. Leave closes the question and the spot stays open for later.
+4. **The germs' nest.** It stays locked until the three spots are scanned. Then Nib asks a question about the germ (for example, why we rinse a scrape, or why antibiotics do not work on the flu).
+5. **The heal.** The germs scatter. Fly close and the ship's cleaning beam zaps them. Germs bump the ship, but nothing is ever lost. When they are all gone, the spot glows green and a ring takes the ship home.
+6. **The healthy habit**, back in the med bay (the first time, and again from the body map):
+   - **Skin:** rinse the dirt out of a scraped knee with water, then put on a bandage.
+   - **Mouth:** brush the plaque off every tooth (two minutes of brushing, sped up to 15 seconds).
+   - **Lungs:** scrub every germ off both hands with soap for a real 20 seconds ("Happy Birthday" sung twice). It cannot be finished early, even when every germ is gone.
+7. **Healed!** After 5 stars (and level 2, or 12 questions), Dr. Ama asks one debrief question. Then the organ lights up on the body map, a "germ file" (a wanted poster: what it is, where it lives, how to stop it) opens, and the ship gets an upgrade.
+
+**The three missions and their upgrades** (the plan's upgrade list was matched to the missions that come first):
+
+| Mission | Germ | Upgrade earned | What it does |
+|---|---|---|---|
+| The Scraped Knee (skin) | Scrapes McGee (bacteria) | **White blood cell escort** | A white blood cell flies along and zaps germs too |
+| The Sugar Trap (mouth and teeth) | Plaque Jack (cavity bacteria) | **Saliva wave** (E, Space or the Wave button) | A wave that washes over nearby germs, then fills up again |
+| The Flu (nose and lungs) | Sniffles (the flu virus) | **Mucus net** | Sticky mucus that slows germs down, like the lining of the airways |
+
+The gut, heart and brain missions show on the body map as "coming soon".
+
+**Questions:** 18 per mission (54 in all): 6 per level, 4 about the body part (scan) and 2 about the germ (nest). Every wrong answer names a mix-up (for example "virus or bacteria", "antibiotics for a virus", "cold weather causes the flu", "water is enough", "pick the scab"). The grown-ups page shows each mission's most common mix-up. The standards are NGSS 4-LS1-1 (structures and their jobs) and the National Health Education Standards 1 and 7 (health facts and healthy habits), with a preview of MS-LS1-3 (body systems working together). Facts were checked against the CDC, NIH MedlinePlus, Nemours KidsHealth and the American Dental Association.
+
+**Code:**
+- `games-src/adventures/body-system-heroes/` (the page)
+- `src/games/body-system-heroes/`:
+  - `game.ts` (the flow)
+  - `world.ts` (the med bay)
+  - `flight.ts` (the dive)
+  - `habit.ts` (the habit games)
+  - `problems.ts` (the questions)
+  - `content.ts` (the words)
+  - `art.ts`, `save.ts`, `music.ts` and the CSS
+- The kit gained the skin and mouth areas (`body-skin`, `body-mouth`) and Scrapes McGee. The body settings are still kept out of the shared settings list.
+- Adding a new game makes the bundler reorder the shared code files, so their names change. The finished games' own code is unchanged, and all 12 games were loaded in a browser with no errors.
+
+**Checks:**
+- 7 unit tests for the questions. They check:
+  - the wording rule (facts first, one question, short sentences)
+  - that hints never contain the answer
+  - that there are no he/she pronouns
+  - that a question doesn't repeat until all have been shown
+- A browser playthrough of the whole of half 1, with real keys, mouse and scrubbing (`scripts/e2e-body-system-heroes.mjs`, 52/52 checks, including a phone check).
+- A screenshot tour (`scripts/bsh-tour.mjs`) at desktop and phone size.
+- 34 fps in the lungs with software rendering (the slow worst case on this machine).
+
+**Fixed after looking at the screenshots:**
+- the knee in the clean-and-cover game looked like stripes (it is now a leg seen from the front)
+- the healed spot now glows green with a burst of sparkles
+- on a phone, the action button now sends the saliva wave
+- "practise" became "practice"
+
+**Provisional score: 8.7/10:**
+- gameplay and feel 2.15/2.5 (no finale until half 2)
+- learning 1.85/2.0
+- visual and audio 1.35/1.5
+- usability 1.35/1.5
+- technical 1.35/1.5
+- completeness 0.65/1.0 (three of six missions, not yet listed on the site)
+
+**Not yet:** the game is not listed on the site until half 2, so the old Body System Heroes still plays at its address.
+
+##### Choices for the owner (answered above)
+
+1. **The ship's name** (drafts):
+   - **Micro-Scout** (recommended: says what it does, easy to read aloud)
+   - **The Pocket Comet** (fun and space-y)
+   - **The Tiny Titan** (sounds brave)
+2. **The host**, the med bay scientist who shrinks the ship and briefs each mission (drafts):
+   - **Dr. Ama Okafor**, the station's doctor and inventor of the shrink beam (recommended)
+   - **Medic Rio Tan**, a young station medic on their first big case
+   - **Professor Bea Quill**, an excited scientist who loves body facts
+3. **The co-pilot**, who rides in the ship, scans cells and gives hints (drafts):
+   - **Nib**, a tiny round nanobot with one big eye (recommended: a robot fits Star Station and can't be confused with a germ)
+   - **Dot**, a friendly white blood cell who joined the crew
+   - **Zip**, a speedy little scanner drone
+4. **The patient** (drafts): **Commander Ayo** from Multiplication Space Quest (recommended: links the two Star Station games), or a new crew member such as **Chef Bruno**.
+5. **The Grime Gang** (germ villain drafts):
+   - **Sniffles** the flu virus
+   - **Plaque Jack** the cavity bacteria
+   - **Scrapes McGee** for the cut
+   - **Queasy Louie** for food poisoning
+   - **The Blood Bandit** for the heart mission
+6. **The title:** keep **Body System Heroes** (the same name and address), or rename it, for example **Micro-Scout: Inside the Body**. The address stays the same either way.
+
 
 ### Phase 3: English and History (2): NOT STARTED
 
@@ -1243,3 +1474,5 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-11:** Balance Scale half 1 built: the outpost (the alien planet got walking pieces), the Weigh Station and the Rover, with a scale that tips and crystals that can be dragged into the gap. 9 unit tests, 41/41 browser checks. Provisional score 8.6. Waiting for the owner's look before half 2.
 - **2026-10-11:** The owner merged half 1 (PR #225) and asked for half 2. Balance Scale half 2 built: Botanist Pax's Dome (two-step stories: pick the equation on empty pans, then solve it on the scale; the letter p and boxes at level 3), The Big Weigh-in at evening with Gloop on the scale and the beam to the station, and the site now plays the new game. 8.9/10, 11 unit tests and 62/62 browser checks. Waiting for the owner's look.
 - **2026-10-11:** The owner merged PR #226. **Equation Balance Scale COMPLETED ✅ and M7 COMPLETED ✅. Phase 1 (Math) is COMPLETED ✅: all 11 Math games are rebuilt** (Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island, Shape Town Builders, Forum Fraction Feast, Multiplication Space Quest and Equation Balance Scale). The team is doing QA on the finished games. Next: Phase 2 (Science), plan first, with the owner and team choosing which world each Science game goes in (game worlds W2), when the owner is ready.
+- **2026-10-12:** The owner proposed the first Science game: a microscopic ship exploring inside the human body (organ missions, germs to clear, healthy habits like handwashing for the flu, growth like *Spore*). Reviewed against the rubric (about 7.95 as first described, about 9.2 with the suggested changes). The owner chose Star Station with a new inside-the-body setting, free exploring in all directions, and replacing Body System Heroes. The plan is in the S3 section above, with draft names; waiting for the owner's approval and name picks.
+- **2026-10-12:** The owner approved the look ("the germs aren't scary, and the ship looks good") and asked for half 1. Body System Heroes half 1 built: the med bay, free flight, scanning, the skin, mouth and lungs missions (54 questions), the nest and the heal, three healthy-habit games (clean and cover, brushing, 20-second handwashing), three ship upgrades, the body map, germ files, saving and the grown-ups page. 7 unit tests, 52/52 browser checks, 34 fps (software). Provisional score 8.7. Waiting for the owner's look before half 2.

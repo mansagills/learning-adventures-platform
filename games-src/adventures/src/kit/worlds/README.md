@@ -6,7 +6,7 @@ setting is a place inside it.** A game picks one world and one setting.
 | World | Pixels per tile | Characters | Settings so far |
 |---|---|---|---|
 | Sunny Town | 16 | classic (16x24) | none here: the eight finished Math games keep their own scene code, unchanged |
-| Star Station | 24 | 16-bit (24x36) | `station-deck`, `alien-planet` |
+| Star Station | 24 | 16-bit (24x36) | `station-deck`, `alien-planet`; inside the body: `body-skin`, `body-mouth`, `body-lungs`, `body-blood`, `body-stomach` (see below) |
 | Ancient Kingdoms | 24 | 16-bit (24x36) | `river-market`, `roman-forum` |
 
 ## What is in each file
@@ -22,7 +22,7 @@ setting is a place inside it.** A game picks one world and one setting.
 | `figure.ts`, `place.ts` | A standing character with frames, and shortcuts for placing props |
 | `walker.ts` | `Walker16`: a walking 16-bit character (four directions, a 4-frame walk, blinking, the "!" and "?" markers), the new worlds' version of the kit's `Actor` |
 | `worlds.css` | The talk-box accent for each world (the parchment panel itself never changes) |
-| `star-station/` | `art.ts` (the station palette and deck props), `deck.ts`, `planet.ts` |
+| `star-station/` | `art.ts` (the station palette and deck props), `deck.ts`, `planet.ts`, `body.ts` (the inside-the-body areas) and `body-art.ts` (the Micro-Scout, Nib, the Grime Gang germs, the body's helper cells, Dr. Ama and the med bay props) |
 | `ancient-kingdoms/` | `art.ts` (the world palette, the shared sky and the Mali horizon), `market.ts`, `forum.ts` |
 
 ## Using a setting in a game
@@ -94,3 +94,13 @@ and drone: `omit: ['beacon', 'critter', 'drone']`, and switch its sky with
 
 Keep the style: no new pixel sizes, no flat black outlines, and the world's
 own light and glow colors.
+
+## Inside the body (Star Station)
+
+`star-station/body.ts` has five areas for Body System Heroes: the skin (a
+scraped knee), the mouth, the lungs, a blood vessel and the stomach. They are
+`BODY_SETTINGS` and are **not** in the shared `SETTINGS` list on purpose:
+adding them there would change the finished games' built files. A game
+imports them straight from `star-station/body.ts`. Every area is a 26 x 18
+tile floor seen from above (the ship flies over it), with drifting helpers
+(oxygen bubbles, red and white blood cells, saliva, good bacteria).

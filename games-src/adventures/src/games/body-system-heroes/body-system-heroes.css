@@ -1,0 +1,412 @@
+/* Body System Heroes: the HUD, the body map list, the question panel, the germ file and the habit screens. */
+:root {
+  --bsh-night: #2a1f4a;
+  --bsh-cyan: #5fe3ff;
+  --bsh-pink: #ff6fc0;
+  --bsh-leaf: #2f6b2c;
+  --bsh-leaf-bg: #dcebc9;
+}
+.title-card .logo {
+  color: #b0304a;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD bar (top left): the body map, the flight bar, the wave ---------- */
+.bsh-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 12px;
+  font-weight: 700;
+  max-width: calc(100% - 24px);
+}
+.bsh-map,
+.bsh-flightbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bsh-flightbar[hidden],
+.bsh-wave[hidden] {
+  display: none;
+}
+.bsh-map-text {
+  margin-left: 2px;
+}
+.bsh-wave {
+  gap: 6px;
+}
+.bsh-wave:disabled {
+  opacity: 0.5;
+}
+
+/* ---------- the body map list (missions) ---------- */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-row.soon {
+  opacity: 0.7;
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.bsh-row-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.bsh-up-title {
+  margin: 16px 0 8px;
+  font-size: var(--text);
+}
+.bsh-ups {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bsh-up {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  font-size: var(--text-small);
+}
+.bsh-up.soon {
+  opacity: 0.7;
+}
+
+/* ---------- the question panel ---------- */
+.bsh-panel {
+  width: min(720px, 100%);
+}
+.bsh-scan header {
+  background: linear-gradient(90deg, #c9eef8, var(--paper-2));
+}
+.bsh-diagnose header {
+  background: linear-gradient(90deg, #f6d0dc, var(--paper-2));
+}
+.bsh-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.bsh-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.bsh-stars {
+  display: flex;
+  gap: 2px;
+}
+.bsh-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.bsh-host,
+.bsh-ask > .px-icon {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #e2f3f6;
+}
+.bsh-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 3px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.bsh-speak {
+  flex: none;
+}
+.bsh-options {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px 16px 0;
+}
+.bsh-choice {
+  min-height: 52px;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+.bsh-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.bsh-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: calc(var(--text) + 1px);
+}
+.bsh-choice.nope {
+  opacity: 0.35;
+}
+.bsh-choice.nope .bsh-choice-text {
+  text-decoration: line-through;
+}
+.bsh-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  color: inherit;
+  border-color: var(--bsh-leaf);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--bsh-leaf);
+  outline-offset: 3px;
+  animation: bsh-worked 1s ease-in-out infinite;
+}
+@keyframes bsh-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+.bsh-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 16px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.bsh-feedback[hidden] {
+  display: none;
+}
+.bsh-feedback img {
+  flex: none;
+}
+.bsh-feedback.good {
+  background: var(--bsh-leaf-bg);
+  color: #1d4a1b;
+}
+.bsh-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.bsh-feedback.hint {
+  background: #e3e8f6;
+  color: #1c2f66;
+}
+.bsh-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.bsh-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ---------- the germ file (a wanted poster) ---------- */
+.bsh-file {
+  width: min(560px, 100%);
+}
+.bsh-file header {
+  background: linear-gradient(90deg, #f6d0dc, var(--paper-2));
+}
+.bsh-file-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.bsh-file-body > .px-icon {
+  flex: none;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+}
+.bsh-file-body dl {
+  margin: 0;
+}
+.bsh-file-body dt {
+  font-weight: 700;
+  margin-top: 6px;
+}
+.bsh-file-body dt:first-child {
+  margin-top: 0;
+}
+.bsh-file-body dd {
+  margin: 2px 0 0;
+}
+.bsh-file-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px 14px;
+}
+
+/* ---------- the healthy-habit screens ---------- */
+.bsh-habit {
+  width: min(600px, 100%);
+}
+.bsh-habit header {
+  background: linear-gradient(90deg, var(--bsh-leaf-bg), var(--paper-2));
+}
+.bsh-habit-step {
+  margin: 0 0 10px;
+  font-size: calc(var(--text) + 1px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.bsh-habit-stage {
+  display: flex;
+  justify-content: center;
+  border-radius: 12px;
+  background: #e2f3f6;
+  border: 3px solid var(--wood-dark);
+  padding: 8px;
+}
+.bsh-habit-canvas {
+  display: block;
+  width: min(384px, 100%);
+  height: auto;
+  image-rendering: pixelated;
+  touch-action: none;
+  cursor: none;
+}
+.bsh-habit-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0 4px;
+}
+.bsh-habit-label {
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.bsh-habit-bar {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--paper-3);
+  overflow: hidden;
+}
+.bsh-habit-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #4fd6ff, #7fbf5a);
+}
+.bsh-habit-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.bsh-habit-foot .btn[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worked {
+    animation: none;
+  }
+}
+.reduced-motion .worked {
+  animation: none;
+}
+
+@media (max-width: 640px) {
+  .bsh-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+    gap: 6px;
+  }
+  .bsh-map-text {
+    display: none;
+  }
+  .bsh-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .bsh-host,
+  .bsh-ask > .px-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .bsh-prompt {
+    font-size: var(--text);
+  }
+  .bsh-head-right .bsh-level {
+    display: none;
+  }
+  .bsh-options {
+    padding: 8px 10px 0;
+    gap: 6px;
+  }
+  .bsh-choice {
+    min-height: 46px;
+  }
+  .bsh-feedback {
+    margin: 6px 10px 0;
+    font-size: var(--text-small);
+  }
+  .bsh-foot,
+  .bsh-file-foot,
+  .bsh-habit-foot {
+    padding: 8px 10px 10px;
+  }
+  .bsh-file-body {
+    flex-direction: column;
+    align-items: center;
+  }
+  .belt-row {
+    flex-wrap: wrap;
+  }
+  .bsh-row-btns {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

@@ -15,6 +15,12 @@ export const PAGES: Array<[string, string]> = [
   ['river-market-evening-talk', 'Market at dusk'],
   ['roman-forum-day', 'Roman forum'],
   ['roman-forum-evening-talk', 'Forum at dusk'],
+  ['body-cast', 'Body: the cast'],
+  ['body-skin', 'Body: a scraped knee'],
+  ['body-mouth', 'Body: the mouth'],
+  ['body-lungs', 'Body: the lungs'],
+  ['body-blood', 'Body: a blood vessel'],
+  ['body-stomach', 'Body: the stomach'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -25,6 +31,17 @@ export function pageParams(): URLSearchParams {
   const q = new URLSearchParams();
   const token = location.hash.slice(1);
   if (!token || token === 'sheet') return q;
+  // Body System Heroes: #body-cast, or #body-<area> (add -quiet to hide the talk box)
+  if (token.startsWith('body-')) {
+    const [, area, flag] = token.split('-');
+    if (area === 'cast') q.set('view', 'body-cast');
+    else {
+      q.set('view', 'body');
+      q.set('area', area);
+      if (flag === 'quiet') q.set('talk', '0');
+    }
+    return q;
+  }
   const id = SETTING_IDS.find((sid) => token.startsWith(sid)) ?? 'station-deck';
   const [time, ...rest] = token.slice(id.length + 1).split('-');
   q.set('view', 'scene');
