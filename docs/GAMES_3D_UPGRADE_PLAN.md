@@ -1425,6 +1425,14 @@ The owner merged half 1 and asked for half 2.
   - `content.ts` gained the missions, the relays and the fact cards
 - The body settings are still kept out of the shared settings list.
 
+**Testing:** `scripts/e2e-body-system-heroes.mjs` passes 73 of 73 browser checks with no console errors. It plays the whole game from a new save: every mission, both new habits, the finale, free exploring, the body map, the grown-ups page and the save. The tour (`scripts/bsh-tour.mjs`) screenshots were reviewed. There are 180 game unit tests and 94 site tests.
+
+**Two speed fixes found while testing:**
+- **Graphics memory:** each dive used to build a new copy of its body area and never freed the old one, so the game got slower after many dives (44 down to 24 frames a second after 12 dives). Each body area is now built once and reused, and everything made for a dive goes in one group that is freed when the next dive starts. It stays at about 50 frames a second.
+- **The fever glow:** the kit draws a glow one pixel at a time. The finale's fever glow is wide enough (576 pixels) that the browser hands that drawing to the graphics chip, and on computers without a strong one (including the test browser) the finale dropped to half a frame a second. The game now builds that one glow with all its pixels in one step (`feverPool` in `flight.ts`), and the finale runs at about 40 frames a second. Every other glow in the game is under 256 pixels and is not affected. The kit's `glowCanvas` was left alone so the finished games stay unchanged.
+
+**Self-score (provisional, the owner decides): 9.2 / 10.** It is the biggest game so far: six missions, two new kinds of play in the gut and heart, a finale that ties the body systems together, and free exploring with fact cards. It is held back by reading load for grade 3 in the finale's "whole body" questions.
+
 ##### Choices for the owner (answered above)
 
 1. **The ship's name** (drafts):

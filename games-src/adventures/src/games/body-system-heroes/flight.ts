@@ -313,7 +313,7 @@ export class BodyFlight {
       ].map(([dx, dy], i) => this.makeGerm(setup.nest.x + dx, setup.nest.y + dy, i));
     }
     // the brain's fever: a warm glow over the whole area
-    if (setup.fever) add(lightPool(this.lighting, T, 13, 10, 12, '#ff9f43', 0.18));
+    if (setup.fever) add(feverPool(this.lighting, T, 13, 10, 12, '#ff9f43', 0.18));
     this.nestMarker = add(billboard(this.lighting, T, paintScanMarker(T, 1).toCanvas(), setup.nest.x, setup.nest.y, 2.4));
     this.nestMarker.visible = false;
 
@@ -938,4 +938,46 @@ export class BodyFlight {
 function hashT(t: number, ph: number): number {
   const v = Math.sin(t * 12.9898 + ph * 78.233) * 43758.5453;
   return v - Math.floor(v);
+}
+
+/**
+ * A big pool of light on the floor, like the kit's `lightPool` (same rings of light), but its
+ * pixels are written in one go. The kit draws a glow one pixel at a time; on a picture 256 pixels
+ * or wider, the browser hands that drawing to the graphics chip, and hundreds of thousands of tiny
+ * squares jam it for many seconds on computers without a strong graphics chip.
+ */
+function feverPool(lighting: Lighting, px: number, x: number, y: number, radiusTiles: number, color: string, max: number): THREE.Mesh {
+  const size = Math.round(radiusTiles * 2 * px);
+  const cv = document.createElement('canvas');
+  cv.width = size;
+  cv.height = size;
+  const img = new ImageData(size, size);
+  const n = parseInt(color.slice(1), 16);
+  const r = size / 2;
+  const bands: Array<[number, number]> = [
+    [0.3, 0.85],
+    [0.55, 0.5],
+    [0.8, 0.26],
+    [1, 0.1],
+  ];
+  for (let py = 0; py < size; py++)
+    for (let pxl = 0; pxl < size; pxl++) {
+      const d = Math.hypot(pxl + 0.5 - r, py + 0.5 - r) / r;
+      const band = bands.find(([edge]) => d <= edge);
+      if (!band) continue;
+      const i = (py * size + pxl) * 4;
+      img.data[i] = (n >> 16) & 255;
+      img.data[i + 1] = (n >> 8) & 255;
+      img.data[i + 2] = n & 255;
+      img.data[i + 3] = Math.round(band[1] * 255);
+    }
+  cv.getContext('2d')!.putImageData(img, 0, 0);
+  const geo = new THREE.PlaneGeometry(radiusTiles * 2, radiusTiles * 2 * K);
+  geo.rotateX(-Math.PI / 2);
+  const mat = new THREE.MeshBasicMaterial({ map: pixelTexture(cv), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+  lighting.addGlow(mat, max);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, 0.02, y * K);
+  m.renderOrder = 1;
+  return m;
 }

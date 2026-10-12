@@ -46,7 +46,8 @@
 - The finale, The Big Defense: a new `body-brain` area, five nerve relays in order, the whole Grime Gang and a fever.
 - Free exploring with 18 body fact cards.
 - The site listing at the same address (it replaces the old game) and a new card picture.
-- 108 questions; tests in `scripts/e2e-body-system-heroes.mjs`.
+- 108 questions; 73/73 browser checks in `scripts/e2e-body-system-heroes.mjs`; provisional 9.2.
+- Speed lesson: build big glows (256 pixels or wider) with ImageData, not one pixel at a time (see `feverPool` in `flight.ts`), and free each dive's graphics.
 
 Question wording rule (owner, 2026-10-10): short sentences, facts first, then one plain question, in words that match the picture and with no game jargon. `docs/M7_STAR_STATION_HANDOFF.md` (M7 is done) still has useful practical lessons for building a game in a world. Details: sections 2a, 4b, 6, 7, 7a and 7b of `docs/GAME_WORLDS_PROPOSAL.md`. The look development pages are in `games-src/adventures/lookdev/` and `src/lookdev/` (dev server only, left out of the build).
 - **Open follow-ups** (not UX; do only when asked):
