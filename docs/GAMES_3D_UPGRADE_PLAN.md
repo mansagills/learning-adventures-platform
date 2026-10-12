@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): PLANNING (the first game, Body System Heroes, has a plan waiting for the owner's approval)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes: half 1 built, waiting for the owner's look)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1181,7 +1181,7 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 | **S5 Matter and chemistry** | States of Matter Mixer, Crystal Cave Chemistry |
 | **S6 Forces, energy and waves** | Magnet Power Puzzle, Simple Machines Construction, Simple Machines Lab (activity), Light Laboratory Escape, Sound Wave Surfer |
 
-#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look preview built and waiting for the owner's look
+#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, half 1 BUILT and waiting for the owner's look
 
 The owner proposed a new Science game: children fly a microscopic ship through the human body, learn what each organ does, find out which germ is making it sick, then heal it and earn upgrades, mission by mission, with a sense of growth like *Spore*. One mission is the flu: learn how it spreads and why handwashing matters, then clear the germs from the lungs.
 
@@ -1292,7 +1292,7 @@ The review (2026-10-12) scored the idea as first described at about **7.95/10**:
 
 The plan is approved, and the look preview for the new setting comes first.
 
-##### Look preview: BUILT (2026-10-12), waiting for the owner's look
+##### Look preview: APPROVED (2026-10-12)
 
 The new **inside-the-body setting** of Star Station and the cast, on the look development pages (dev server only, not in the site build: `npm run games` in the repo root, then `/lookdev/#body-cast`, `#body-lungs`, `#body-blood` and `#body-stomach`):
 - **The cast sheet:**
@@ -1320,6 +1320,73 @@ The new **inside-the-body setting** of Star Station and the cast, on the look de
   - the air-sac bunches stood on stems like trees
   - the stomach's folds were too bold
   - Dr. Ama had the same hair puffs as the default player (now a teal headwrap)
+
+##### Half 1: BUILT (2026-10-12), waiting for the owner's look
+
+The owner approved the look ("I like the look of the inside of the body and it's kid friendly. The germs aren't scary, and the ship looks good") and asked for half 1.
+
+**What a child does:**
+1. **The med bay** (the station deck, walked like the other Star Station games). Dr. Ama Okafor explains that Commander Ayo is sick. Nib the nanobot says hello. The body map on its stand shows which parts are healed. Talk to Dr. Ama or step onto the shrink beam to pick a mission.
+2. **The dive.** The Micro-Scout shrinks and flies inside Commander Ayo. It flies freely in every direction: arrow keys or WASD, holding the mouse (the ship flies toward it), or the touch pad on a phone. In the lungs the air flow gently pushes the ship.
+3. **Scan three spots.** Each glowing ring opens a question from Nib about what this part of the body does. A wrong answer is crossed out, with one sentence about the mix-up. Hints come in three steps: the first two never give the answer away, the third outlines it. Leave closes the question and the spot stays open for later.
+4. **The germs' nest.** It stays locked until the three spots are scanned. Then Nib asks a question about the germ (for example, why we rinse a scrape, or why antibiotics do not work on the flu).
+5. **The heal.** The germs scatter. Fly close and the ship's cleaning beam zaps them. Germs bump the ship, but nothing is ever lost. When they are all gone, the spot glows green and a ring takes the ship home.
+6. **The healthy habit**, back in the med bay (the first time, and again from the body map):
+   - **Skin:** rinse the dirt out of a scraped knee with water, then put on a bandage.
+   - **Mouth:** brush the plaque off every tooth (two minutes of brushing, sped up to 15 seconds).
+   - **Lungs:** scrub every germ off both hands with soap for a real 20 seconds ("Happy Birthday" sung twice). It cannot be finished early, even when every germ is gone.
+7. **Healed!** After 5 stars (and level 2, or 12 questions), Dr. Ama asks one debrief question. Then the organ lights up on the body map, a "germ file" (a wanted poster: what it is, where it lives, how to stop it) opens, and the ship gets an upgrade.
+
+**The three missions and their upgrades** (the plan's upgrade list was matched to the missions that come first):
+
+| Mission | Germ | Upgrade earned | What it does |
+|---|---|---|---|
+| The Scraped Knee (skin) | Scrapes McGee (bacteria) | **White blood cell escort** | A white blood cell flies along and zaps germs too |
+| The Sugar Trap (mouth and teeth) | Plaque Jack (cavity bacteria) | **Saliva wave** (E, Space or the Wave button) | A wave that washes over nearby germs, then fills up again |
+| The Flu (nose and lungs) | Sniffles (the flu virus) | **Mucus net** | Sticky mucus that slows germs down, like the lining of the airways |
+
+The gut, heart and brain missions show on the body map as "coming soon".
+
+**Questions:** 18 per mission (54 in all): 6 per level, 4 about the body part (scan) and 2 about the germ (nest). Every wrong answer names a mix-up (for example "virus or bacteria", "antibiotics for a virus", "cold weather causes the flu", "water is enough", "pick the scab"). The grown-ups page shows each mission's most common mix-up. The standards are NGSS 4-LS1-1 (structures and their jobs) and the National Health Education Standards 1 and 7 (health facts and healthy habits), with a preview of MS-LS1-3 (body systems working together). Facts were checked against the CDC, NIH MedlinePlus, Nemours KidsHealth and the American Dental Association.
+
+**Code:**
+- `games-src/adventures/body-system-heroes/` (the page)
+- `src/games/body-system-heroes/`:
+  - `game.ts` (the flow)
+  - `world.ts` (the med bay)
+  - `flight.ts` (the dive)
+  - `habit.ts` (the habit games)
+  - `problems.ts` (the questions)
+  - `content.ts` (the words)
+  - `art.ts`, `save.ts`, `music.ts` and the CSS
+- The kit gained the skin and mouth areas (`body-skin`, `body-mouth`) and Scrapes McGee. The body settings are still kept out of the shared settings list.
+- Adding a new game makes the bundler reorder the shared code files, so their names change. The finished games' own code is unchanged, and all 12 games were loaded in a browser with no errors.
+
+**Checks:**
+- 7 unit tests for the questions. They check:
+  - the wording rule (facts first, one question, short sentences)
+  - that hints never contain the answer
+  - that there are no he/she pronouns
+  - that a question doesn't repeat until all have been shown
+- A browser playthrough of the whole of half 1, with real keys, mouse and scrubbing (`scripts/e2e-body-system-heroes.mjs`, 52/52 checks, including a phone check).
+- A screenshot tour (`scripts/bsh-tour.mjs`) at desktop and phone size.
+- 34 fps in the lungs with software rendering (the slow worst case on this machine).
+
+**Fixed after looking at the screenshots:**
+- the knee in the clean-and-cover game looked like stripes (it is now a leg seen from the front)
+- the healed spot now glows green with a burst of sparkles
+- on a phone, the action button now sends the saliva wave
+- "practise" became "practice"
+
+**Provisional score: 8.7/10:**
+- gameplay and feel 2.15/2.5 (no finale until half 2)
+- learning 1.85/2.0
+- visual and audio 1.35/1.5
+- usability 1.35/1.5
+- technical 1.35/1.5
+- completeness 0.65/1.0 (three of six missions, not yet listed on the site)
+
+**Not yet:** the game is not listed on the site until half 2, so the old Body System Heroes still plays at its address.
 
 ##### Choices for the owner (answered above)
 
@@ -1408,3 +1475,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-11:** The owner merged half 1 (PR #225) and asked for half 2. Balance Scale half 2 built: Botanist Pax's Dome (two-step stories: pick the equation on empty pans, then solve it on the scale; the letter p and boxes at level 3), The Big Weigh-in at evening with Gloop on the scale and the beam to the station, and the site now plays the new game. 8.9/10, 11 unit tests and 62/62 browser checks. Waiting for the owner's look.
 - **2026-10-11:** The owner merged PR #226. **Equation Balance Scale COMPLETED ✅ and M7 COMPLETED ✅. Phase 1 (Math) is COMPLETED ✅: all 11 Math games are rebuilt** (Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island, Shape Town Builders, Forum Fraction Feast, Multiplication Space Quest and Equation Balance Scale). The team is doing QA on the finished games. Next: Phase 2 (Science), plan first, with the owner and team choosing which world each Science game goes in (game worlds W2), when the owner is ready.
 - **2026-10-12:** The owner proposed the first Science game: a microscopic ship exploring inside the human body (organ missions, germs to clear, healthy habits like handwashing for the flu, growth like *Spore*). Reviewed against the rubric (about 7.95 as first described, about 9.2 with the suggested changes). The owner chose Star Station with a new inside-the-body setting, free exploring in all directions, and replacing Body System Heroes. The plan is in the S3 section above, with draft names; waiting for the owner's approval and name picks.
+- **2026-10-12:** The owner approved the look ("the germs aren't scary, and the ship looks good") and asked for half 1. Body System Heroes half 1 built: the med bay, free flight, scanning, the skin, mouth and lungs missions (54 questions), the nest and the heal, three healthy-habit games (clean and cover, brushing, 20-second handwashing), three ship upgrades, the body map, germ files, saving and the grown-ups page. 7 unit tests, 52/52 browser checks, 34 fps (software). Provisional score 8.7. Waiting for the owner's look before half 2.
