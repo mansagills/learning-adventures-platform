@@ -1,7 +1,7 @@
 // Dev helper: screenshot tour of Body System Heroes: the title, the med bay, then each mission's dive
 // (flight, a scan question with a wrong answer, a hint and the answer, the nest, the heal, the way out),
 // the healthy-habit game, the body map and the germ file.
-//   node scripts/bsh-tour.mjs <url> <outDir> [w] [h]      MISSIONS=skin,mouth,lungs
+//   node scripts/bsh-tour.mjs <url> <outDir> [w] [h]      MISSIONS=skin,mouth,lungs,gut,heart,brain  PRE=skin,mouth,lungs (mark done first)  EXPLORE=gut
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 const [url, out = 'test-output/bsh', w = '1280', hgt = '720'] = process.argv.slice(2);
@@ -65,8 +65,9 @@ await shot('03-opening');
 await skipTalk();
 await wait(700);
 await shot('04-medbay');
+if (process.env.PRE) await page.evaluate((ms) => window.__bsh.markDone(ms), process.env.PRE.split(','));
 
-const missions = (process.env.MISSIONS ?? 'skin,mouth,lungs').split(',');
+const missions = (process.env.MISSIONS ?? 'skin,mouth,lungs,gut,heart,brain').split(',');
 for (const m of missions) {
   for (let dive = 0; dive < 2; dive++) {
     const first = dive === 0;
@@ -111,7 +112,22 @@ for (const m of missions) {
     if (first) await shot(`${m}-18-home`);
     await skipTalk();
     // the habit game (first time only)
-    if (await page.locator('.bsh-habit').count()) {
+    if (await page.locator('.bsh-habit').count() && m === 'heart') {
+      await wait(400);
+      for (let k = 0; k < 6; k++) {
+        await page.keyboard.press('Space');
+        await wait(650);
+      }
+      await shot(`${m}-20-habit`);
+      await page.evaluate(() => window.__bshHabit.addJumps(20));
+      for (let k = 0; k < 8 && !(await page.locator('.bsh-habit-foot .btn:not([hidden])', { hasText: /done/i }).count()); k++) {
+        await page.keyboard.press('Space');
+        await wait(700);
+      }
+      await shot(`${m}-22-habit-done`);
+      await page.locator('.bsh-habit-foot .btn', { hasText: /done/i }).click();
+      await wait(500);
+    } else if (await page.locator('.bsh-habit').count()) {
       await wait(600);
       // scrub a little by mouse
       const box = await page.locator('.bsh-habit-canvas').boundingBox();
@@ -124,9 +140,10 @@ for (const m of missions) {
       });
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await wait(700);
-      if (await page.locator('.bsh-habit-foot .btn:not([hidden])', { hasText: /bandage/i }).count()) {
+      const step2 = page.locator('.bsh-habit-foot .btn:not([hidden])', { hasText: /bandage|fridge/i });
+      if (await step2.count()) {
         await shot(`${m}-21-habit-step2`);
-        await page.locator('.bsh-habit-foot .btn', { hasText: /bandage/i }).click();
+        await step2.click();
         await wait(600);
       }
       await shot(`${m}-22-habit-done`);
@@ -162,6 +179,28 @@ for (const m of missions) {
   }
   await wait(400);
   await shot(`${m}-40-medbay-after`);
+}
+// free exploring: collect the fact cards in one healed area
+for (const m of (process.env.EXPLORE ?? 'gut').split(',').filter(Boolean)) {
+  await page.evaluate((x) => window.__bsh.explore(x), m);
+  await wait(700);
+  await skipTalk();
+  await waitMode('flight');
+  await wait(500);
+  await shot(`explore-${m}-1`);
+  const f = await info();
+  for (let i = 0; i < f.cards.length; i++) {
+    await page.evaluate(([x, y]) => window.__bsh.teleport(x, y), [f.cards[i].x, f.cards[i].y]);
+    await wait(700);
+    if (i === 0) await shot(`explore-${m}-2-card`);
+    if (await page.locator('.bsh-card').count()) await page.keyboard.press('Escape');
+    await wait(400);
+  }
+  const g = await info();
+  await page.evaluate(([x, y]) => window.__bsh.teleport(x, y), [g.exit.x, g.exit.y]);
+  await wait(800);
+  await skipTalk();
+  console.log(`[tour] explored ${m}: cards ${(await st()).cards.join(',')}`);
 }
 await page.keyboard.press('j');
 await wait(500);

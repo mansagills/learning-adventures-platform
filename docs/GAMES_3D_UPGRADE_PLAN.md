@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes: half 1 built, waiting for the owner's look)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes: both halves built, waiting for the owner's look)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1181,7 +1181,7 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 | **S5 Matter and chemistry** | States of Matter Mixer, Crystal Cave Chemistry |
 | **S6 Forces, energy and waves** | Magnet Power Puzzle, Simple Machines Construction, Simple Machines Lab (activity), Light Laboratory Escape, Sound Wave Surfer |
 
-#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, half 1 BUILT and waiting for the owner's look
+#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, half 1 MERGED (PR #228), half 2 BUILT and waiting for the owner's look
 
 The owner proposed a new Science game: children fly a microscopic ship through the human body, learn what each organ does, find out which germ is making it sick, then heal it and earn upgrades, mission by mission, with a sense of growth like *Spore*. One mission is the flu: learn how it spreads and why handwashing matters, then clear the germs from the lungs.
 
@@ -1321,7 +1321,7 @@ The new **inside-the-body setting** of Star Station and the cast, on the look de
   - the stomach's folds were too bold
   - Dr. Ama had the same hair puffs as the default player (now a teal headwrap)
 
-##### Half 1: BUILT (2026-10-12), waiting for the owner's look
+##### Half 1: BUILT and MERGED (2026-10-12, PR #228)
 
 The owner approved the look ("I like the look of the inside of the body and it's kid friendly. The germs aren't scary, and the ship looks good") and asked for half 1.
 
@@ -1387,6 +1387,51 @@ The gut, heart and brain missions show on the body map as "coming soon".
 - completeness 0.65/1.0 (three of six missions, not yet listed on the site)
 
 **Not yet:** the game is not listed on the site until half 2, so the old Body System Heroes still plays at its address.
+
+##### Half 2: BUILT (2026-10-12), waiting for the owner's look
+
+The owner merged half 1 and asked for half 2.
+
+**The two new missions:**
+
+| Mission | Germ | Area | What is new in the play | Habit | Upgrade |
+|---|---|---|---|---|---|
+| The Tummy Trouble (stomach and gut) | Queasy Louie, food-poisoning bacteria in a chef's hat | the stomach | Good gut bacteria wander near the germs. The beam zaps whatever cell is closest, so the child steers until the germs are closer than the helpers. Hitting a helper only pauses the beam, with a line from Nib. | Keep food safe: rinse the dirt off fruit and vegetables, then put the milk in the fridge | **Gut buddies**: two good bacteria fly with the ship and slow nearby germs |
+| The Blood Bandit (heart and blood) | The Blood Bandit, a germ in a bandit mask riding a red blood cell | a blood vessel | The blood flows one way and pushes the ship in beats, about 72 a minute | Get moving: a jump-rope game, where every jump raises the heart rate from 80 to up to 140 beats a minute | **Antibody darts**: every few seconds a dart sticks to one germ, and the beam clears it twice as fast |
+
+(The plan's upgrade list was matched to the missions: the white blood cell escort came from the skin in half 1, and "cilia sweepers" and the "fever booster" were folded into the mucus net and the finale's fever.)
+
+**The finale, The Big Defense** (opens when the five organs are healed):
+- **The brain:** a new area of the inside-the-body setting (`body-brain`). Its floor is soft folds of brain tissue, crossed by nerve cells and glowing nerve paths with sparks (messages) running along them, and the skull sits at the back.
+- **The nerve relays:** five relays light up one at a time. Each asks a "whole body" question, and answering sends the brain's call to one part of the body (the skin, the airways, the bone marrow, the stomach, then a fever for the whole body).
+- **The last stand:** the whole Grime Gang comes out together, every upgrade helps, and the fever slows every germ down.
+- **The ending:** back in the med bay comes the last debrief ("How did the brain help the whole body fight back?"). Then Commander Ayo is well, the crew cheers, the Grime Gang's germ file is added, and the game tells the site it is complete.
+
+**Free exploring and body fact cards:**
+- Every healed part of the body has an **Explore** button on the body map: fly in with no questions and no germs.
+- Find the three gold **fact cards** in each part (18 in all, for example "Your heart beats about 100,000 times a day").
+- The body map keeps the collection.
+
+**On the site:** the game is now listed at its old address (`/games/body-system-heroes`, grades 3–5) and replaces the old game. Its card picture shows the Micro-Scout and Nib flying through the airway toward three Sniffles.
+
+**Questions:** 108 in all, 18 per mission (6 per level). The gut and heart add mix-ups such as "all bacteria are bad", "blood in the veins is blue" and "the heart gets tired and stops to rest". The finale adds "the brain only does thinking". The 7 unit tests now check all six missions.
+
+**Code:**
+- `src/kit/worlds/star-station/body.ts` gained the brain area (`BRAIN_NEURONS`, `BRAIN_PATHS`).
+- `body-art.ts` gained Queasy Louie, the Blood Bandit and a nerve cell.
+- In the game folder:
+  - `flight.ts` gained the helpers, buddies, darts, pulse, relays, fever and fact cards
+  - `habit.ts` gained the food game and the jump-rope game
+  - `content.ts` gained the missions, the relays and the fact cards
+- The body settings are still kept out of the shared settings list.
+
+**Testing:** `scripts/e2e-body-system-heroes.mjs` passes 73 of 73 browser checks with no console errors. It plays the whole game from a new save: every mission, both new habits, the finale, free exploring, the body map, the grown-ups page and the save. The tour (`scripts/bsh-tour.mjs`) screenshots were reviewed. There are 180 game unit tests and 94 site tests.
+
+**Two speed fixes found while testing:**
+- **Graphics memory:** each dive used to build a new copy of its body area and never freed the old one, so the game got slower after many dives (44 down to 24 frames a second after 12 dives). Each body area is now built once and reused, and everything made for a dive goes in one group that is freed when the next dive starts. It stays at about 50 frames a second.
+- **The fever glow:** the kit draws a glow one pixel at a time. The finale's fever glow is wide enough (576 pixels) that the browser hands that drawing to the graphics chip, and on computers without a strong one (including the test browser) the finale dropped to half a frame a second. The game now builds that one glow with all its pixels in one step (`feverPool` in `flight.ts`), and the finale runs at about 40 frames a second. Every other glow in the game is under 256 pixels and is not affected. The kit's `glowCanvas` was left alone so the finished games stay unchanged.
+
+**Self-score (provisional, the owner decides): 9.2 / 10.** It is the biggest game so far: six missions, two new kinds of play in the gut and heart, a finale that ties the body systems together, and free exploring with fact cards. It is held back by reading load for grade 3 in the finale's "whole body" questions.
 
 ##### Choices for the owner (answered above)
 

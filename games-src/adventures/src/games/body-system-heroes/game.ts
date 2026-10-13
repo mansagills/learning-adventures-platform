@@ -18,18 +18,24 @@ import { showTitle } from '../../kit/ui/title';
 import { HAIR16, look16FromAppearance, paintHero, paintPortrait16, type Look16, type Mood } from '../../kit/worlds';
 import '../../kit/worlds/worlds.css';
 import { COMMANDER_AYO, DR_AMA, paintNibPortrait } from '../../kit/worlds/star-station/body-art';
-import { ORGAN_INDEX, paintGermPortrait, paintMissionIcon, paintUpgradeIcon, type UpgradeId } from './art';
+import { GERM_IDS, ORGAN_INDEX, UPGRADE_IDS, paintFactCard, paintGermPortrait, paintMissionIcon, paintUpgradeIcon, type UpgradeId } from './art';
 import {
   AYO_LINES,
   BACK_HOME,
   BUMP_LINES,
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
+  EXPLORE_ARRIVE,
+  FACT_CARDS,
+  FINALE_DONE,
+  FINALE_GO,
   FLY_TIP_KEYS,
   FLY_TIP_TOUCH,
   GROWNUPS,
   HEAL_GO,
   HEALED,
+  HELPER_HIT,
+  HELPERS_SAFE,
   hintText,
   MISSION_INFO,
   mistakeLine,
@@ -41,17 +47,19 @@ import {
   OPENING,
   PEOPLE,
   praise,
+  RELAYS,
   SCANS_PER_DIVE,
   STARS_PER_MISSION,
   UPGRADES,
+  type FactCard,
   type MissionInfo,
   type PersonId,
 } from './content';
 import { BodyFlight, type FlightEvent } from './flight';
-import { HABITS, playHabit } from './habit';
+import { HABIT_MISSIONS, playHabit } from './habit';
 import { BODY_SONG, HEAL_SONG, MEDBAY_SONG } from './music';
 import { pix } from './pix';
-import { makeQuestion, OPEN_MISSIONS, type Choice, type Kind, type Misconception, type Mission, type Question, type Tier } from './problems';
+import { makeQuestion, MISSIONS, ORGAN_MISSIONS, type Choice, type Kind, type Misconception, type Mission, type Question, type Tier } from './problems';
 import { freshSave, store, type HeroesSave } from './save';
 import { MedBayWorld, type Target, type TargetId } from './world';
 
@@ -66,6 +74,8 @@ type Mode = 'title' | 'world' | 'busy' | 'flight' | 'question';
 interface Dive {
   mission: Mission;
   info: MissionInfo;
+  /** Free exploring (no questions, fact cards to find). */
+  explore: boolean;
   /** The question being asked (scan spot index, or -1 for the nest). */
   asking: number | null;
   germsLeft: number;
@@ -127,7 +137,7 @@ export class Game {
       portrait: (e: Expression) => {
         const key = `${id}-${e}`;
         let u = cache.get(key);
-        if (!u) cache.set(key, (u = paintPortrait16(LOOKS[id], id === 'ayo' && this.save.done.length < 3 && e === 'smile' ? 'thinking' : MOOD[e]).toDataURL(2)));
+        if (!u) cache.set(key, (u = paintPortrait16(LOOKS[id], id === 'ayo' && this.save.done.length < MISSIONS.length && e === 'smile' ? 'thinking' : MOOD[e]).toDataURL(2)));
         return u;
       },
     });
@@ -186,6 +196,7 @@ export class Game {
         return t ? this.world.screenOf(t, 0) : null;
       },
       fly: (m: Mission) => this.mode === 'world' && void this.startMission(m),
+      explore: (m: Mission) => this.mode === 'world' && void this.startExplore(m),
       setTier: (m: Mission, t: Tier) => {
         skill(this.save.learner, m).tier = t;
       },
@@ -193,10 +204,23 @@ export class Game {
         this.save.stars[m] = n;
         this.persist();
       },
-      finishAll: () => {
-        for (const m of OPEN_MISSIONS) if (!this.save.done.includes(m)) this.save.done.push(m);
-        this.save.upgrades = ['escort', 'wave', 'net'];
-        this.save.habits = [...OPEN_MISSIONS];
+      finishAll: (withFinale = false) => {
+        for (const m of withFinale ? MISSIONS : ORGAN_MISSIONS) if (!this.save.done.includes(m)) this.save.done.push(m);
+        this.save.upgrades = [...UPGRADE_IDS];
+        this.save.habits = [...HABIT_MISSIONS];
+        this.persist();
+        this.world.setHealed(this.healedOrgans());
+        this.updateMarkers();
+        this.renderHud();
+      },
+      markDone: (ms: Mission[]) => {
+        for (const m of ms) {
+          if (!this.save.done.includes(m)) this.save.done.push(m);
+          const up = MISSION_INFO[m].upgrade;
+          if (m !== 'brain' && !this.save.upgrades.includes(up)) this.save.upgrades.push(up);
+          if (HABIT_MISSIONS.includes(m) && !this.save.habits.includes(m)) this.save.habits.push(m);
+          if (!this.save.briefed.includes(m)) this.save.briefed.push(m);
+        }
         this.persist();
         this.world.setHealed(this.healedOrgans());
         this.updateMarkers();
@@ -214,6 +238,7 @@ export class Game {
       healNow: () => {
         for (const g of this.flight.germs) g.hp = 0;
       },
+      lastMessage: () => this.lastComplete,
     };
   }
 
@@ -263,7 +288,7 @@ export class Game {
     this.titleEl = showTitle(this.host, {
       title: 'Body System Heroes',
       subtitle: 'A tiny ship on a big mission inside the body',
-      intro: ['Shrink down in the Micro-Scout and fly inside Commander Ayo’s body. Learn how the skin, the teeth and the lungs work, find the germs, and help the body heal.', 'For grades 3 to 5. Every line can be read aloud.'],
+      intro: ['Shrink down in the Micro-Scout and fly inside Commander Ayo’s body. Learn how the skin, teeth, lungs, gut, heart and brain work, find the germs, and help the body heal.', 'For grades 3 to 5. Every line can be read aloud.'],
       hasSave: store.exists(),
       continueGame: () => {
         audio.unlock();
@@ -337,8 +362,17 @@ export class Game {
     this.mode = 'world';
   }
 
+  /** The missions that can be flown now: the five organs, then the finale once they are all healed. */
+  private available(): Mission[] {
+    return this.finaleOpen() ? MISSIONS : ORGAN_MISSIONS;
+  }
+
+  private finaleOpen(): boolean {
+    return ORGAN_MISSIONS.every((m) => this.save.done.includes(m));
+  }
+
   private updateMarkers(): void {
-    const left = OPEN_MISSIONS.some((m) => !this.save.done.includes(m));
+    const left = this.available().some((m) => !this.save.done.includes(m));
     this.world.setMarkers({ ama: left ? 'new' : null, ayo: null });
   }
 
@@ -405,7 +439,7 @@ export class Game {
       this.world.cheer();
       await this.talk.say(this.speakers.nib, NIB_LINES[this.nibCount++ % NIB_LINES.length], 'smile');
     } else if (id === 'ayo') {
-      await this.talk.say(this.speakers.ayo, AYO_LINES[Math.min(3, this.save.done.length)], this.save.done.length >= 3 ? 'proud' : 'thinking');
+      await this.talk.say(this.speakers.ayo, AYO_LINES[Math.min(6, this.save.done.length)], this.save.done.length >= MISSIONS.length ? 'proud' : 'thinking');
     } else if (id === 'map') {
       this.talk.end();
       this.mode = 'world';
@@ -413,9 +447,13 @@ export class Game {
       return;
     } else {
       // Dr. Ama or the shrink beam: where shall we fly?
-      const missions = OPEN_MISSIONS;
-      const labels = missions.map((m) => `${MISSION_INFO[m]!.organ}${this.save.done.includes(m) ? ' (healed)' : ''}`);
-      const text = this.save.done.length >= OPEN_MISSIONS.length ? 'Every part we can reach is healed for now! You can fly back in for more practice.' : 'Where shall we fly? Pick a part of the body.';
+      const missions = this.available();
+      const labels = missions.map((m) => (m === 'brain' ? `The Big Defense (brain)${this.save.done.includes(m) ? ' (won)' : ''}` : `${MISSION_INFO[m].organ}${this.save.done.includes(m) ? ' (healed)' : ''}`));
+      const text = this.save.done.length >= MISSIONS.length
+        ? 'Every part of the body is healed! Fly back in for more practice, or explore from the body map to find fact cards.'
+        : this.finaleOpen() && !this.save.done.includes('brain')
+          ? 'The whole Grime Gang is back! Fly into the brain for The Big Defense, or pick another part.'
+          : 'Where shall we fly? Pick a part of the body.';
       const pick = await this.talk.offer(id === 'beam' ? this.speakers.nib : this.speakers.ama, text, [...labels, 'Not now']);
       if (pick < missions.length) {
         this.talk.end();
@@ -430,7 +468,7 @@ export class Game {
   // ------------------------------------------------------------ a dive into the body
 
   private async startMission(m: Mission): Promise<void> {
-    const info = MISSION_INFO[m]!;
+    const info = MISSION_INFO[m];
     this.mode = 'busy';
     if (!this.save.briefed.includes(m)) {
       await this.talk.say(this.speakers.ama, info.briefing);
@@ -438,7 +476,44 @@ export class Game {
       this.persist();
     }
     this.talk.end();
-    // the shrink beam
+    const tier = skill(this.save.learner, m).tier as Tier;
+    this.shrink({ mission: m, info, asking: null, germsLeft: info.germs + 2 * (tier - 1), explore: false });
+    this.flight.start({
+      area: info.area,
+      germ: info.finale ? GERM_IDS : info.germ,
+      scans: info.finale ? info.scans : info.scans.slice(0, SCANS_PER_DIVE),
+      nest: info.nest,
+      start: info.start,
+      exit: info.exit,
+      upgrades: this.save.upgrades,
+      flow: info.flow,
+      pulse: info.pulse,
+      helpers: info.helpers,
+      ordered: info.finale,
+      fever: info.finale,
+    });
+    await this.arrive(info.arrive);
+  }
+
+  /** Free exploring in a healed part of the body: no questions, just the fact cards still to find. */
+  private async startExplore(m: Mission): Promise<void> {
+    const info = MISSION_INFO[m];
+    this.mode = 'busy';
+    this.shrink({ mission: m, info, asking: null, germsLeft: 0, explore: true });
+    const cards = this.cardsLeftIn(m);
+    this.exploreCards = cards;
+    this.flight.start({ area: info.area, germ: info.germ, scans: [], nest: info.nest, start: info.start, exit: info.exit, upgrades: this.save.upgrades, flow: info.flow, pulse: info.pulse, helpers: info.helpers, explore: true, cards: cards.map((c) => ({ x: c.x, y: c.y })) });
+    await this.arrive(cards.length ? EXPLORE_ARRIVE : 'Every fact card here is found! Fly around as long as you like, then fly to the glowing ring to go home.');
+  }
+
+  private exploreCards: FactCard[] = [];
+
+  private cardsLeftIn(m: Mission): FactCard[] {
+    return FACT_CARDS.filter((c) => c.mission === m && !this.save.cards.includes(c.id));
+  }
+
+  /** The shrink beam: the med bay gives way to the inside of the body. */
+  private shrink(d: Dive): void {
     audio.fx(
       [
         [72, 0, 0.12],
@@ -450,16 +525,16 @@ export class Game {
       0.08,
     );
     toast('Shrinking!', 'reward');
-    this.dive = { mission: m, info, asking: null, germsLeft: 0 };
-    const tier = skill(this.save.learner, m).tier as Tier;
-    this.flight.start({ area: info.area, germ: info.germ, scans: info.scans.slice(0, SCANS_PER_DIVE), nest: info.nest, start: info.start, exit: info.exit, upgrades: this.save.upgrades, flow: info.flow });
-    this.dive.germsLeft = info.germs + 2 * (tier - 1);
+    this.dive = d;
+  }
+
+  private async arrive(line: string): Promise<void> {
     this.world.setVisible(false);
     this.flight.setVisible(true);
     this.flight.resize();
     audio.play('body');
     this.renderHud();
-    await this.talk.say(this.speakers.nib, info.arrive, 'smile');
+    await this.talk.say(this.speakers.nib, line, 'smile');
     if (!this.save.flyTipSeen) {
       await this.talk.say(this.speakers.nib, isTouchDevice() ? FLY_TIP_TOUCH : FLY_TIP_KEYS, 'smile');
       this.save.flyTipSeen = true;
@@ -477,8 +552,9 @@ export class Game {
       d.asking = e.index;
       this.openQuestion('scan');
     } else if (e.type === 'nest-locked') {
-      toast(NEST_LOCKED, 'hint');
-      speak(NEST_LOCKED);
+      const line = d.info.finale ? 'The Grime Gang is hiding in the middle. Send every message along the nerves first!' : NEST_LOCKED;
+      toast(line, 'hint');
+      speak(line);
     } else if (e.type === 'nest') {
       d.asking = -1;
       void this.nestFound();
@@ -488,13 +564,49 @@ export class Game {
     } else if (e.type === 'bump') {
       audio.retry();
       toast(BUMP_LINES[this.bumpCount++ % BUMP_LINES.length]);
+    } else if (e.type === 'helper') {
+      audio.retry();
+      toast(HELPER_HIT, 'hint');
+      speak(HELPER_HIT);
+    } else if (e.type === 'card') {
+      void this.collectCard(e.index);
     } else if (e.type === 'healed') {
       audio.levelUp();
       audio.play('body');
-      toast(HEALED, 'reward');
-      speak(HEALED);
+      const safe = (d.info.helpers ?? 0) > 0 && this.flight.helperHits === 0 ? ` ${HELPERS_SAFE}` : '';
+      toast(`${HEALED}${safe}`, 'reward');
+      speak(`${HEALED}${safe}`);
       this.renderHud();
     } else if (e.type === 'exit') void this.endDive();
+  }
+
+  /** A fact card was found while exploring: show it. */
+  private async collectCard(i: number): Promise<void> {
+    const card = this.exploreCards[i];
+    if (!card || this.save.cards.includes(card.id)) return;
+    this.save.cards.push(card.id);
+    this.persist();
+    audio.itemGet();
+    this.mode = 'busy';
+    await this.showCard(card, true);
+    this.mode = 'flight';
+    this.renderHud();
+  }
+
+  private showCard(card: FactCard, fresh: boolean): Promise<void> {
+    return new Promise((resolve) => {
+      const close = h('button', { class: 'btn primary', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() });
+      const n = this.save.cards.length;
+      const root = h(
+        'div',
+        { class: 'panel modal bsh-file bsh-card', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'bsh-card-title' },
+        h('header', {}, h('h2', { id: 'bsh-card-title', text: fresh ? `Fact card ${n} of ${FACT_CARDS.length}: ${card.title}` : card.title })),
+        h('div', { class: 'content bsh-file-body' }, pix(`mission-${card.mission}-true`, () => paintMissionIcon(card.mission, true), 4, ''), h('p', { class: 'bsh-card-text', text: card.text })),
+        h('footer', { class: 'bsh-file-foot' }, close),
+      );
+      const modal = new Modal(this.host, root, () => resolve());
+      speak(`${card.title}. ${card.text}`);
+    });
   }
 
   private async nestFound(): Promise<void> {
@@ -529,28 +641,42 @@ export class Game {
     audio.play('medbay');
     this.renderHud();
     this.updateTouch();
-    await this.talk.say(this.speakers.ama, BACK_HOME, 'smile');
     const m = d.mission;
-    if (!this.save.habits.includes(m) && HABITS[m]) {
+    if (d.explore) {
+      const left = this.cardsLeftIn(m).length;
+      await this.talk.say(this.speakers.ama, `Welcome back, explorer! You have ${this.save.cards.length} of ${FACT_CARDS.length} body fact cards.${left ? ` There ${left === 1 ? 'is 1 more' : `are ${left} more`} in that part of the body.` : ''}`, 'smile');
+      this.talk.end();
+      this.mode = 'world';
+      this.updateTouch();
+      return;
+    }
+    await this.talk.say(this.speakers.ama, BACK_HOME, 'smile');
+    if (!this.save.habits.includes(m) && HABIT_MISSIONS.includes(m)) {
       await this.talk.say(this.speakers.ama, `Now let’s practice the healthy habit that keeps ${d.info.germName} away.`, 'smile');
       this.talk.end();
-      const res = await playHabit(this.host, m, this.save.seed++);
+      const res = await playHabit(this.host, m, this.save.seed++, this.playerLook());
       if (res.finished) {
         this.save.habits.push(m);
         this.persist();
       }
     }
-    const rec = skill(this.save.learner, m);
-    const ready = this.save.stars[m] >= STARS_PER_MISSION && (rec.tier >= 2 || this.save.played[m] >= MAX_PER_MISSION);
-    if (ready && !this.save.done.includes(m)) await this.finishMission(m);
-    else if (!this.save.done.includes(m)) await this.talk.say(this.speakers.ama, `${this.save.stars[m]} of ${STARS_PER_MISSION} stars for this mission. Fly in again to win the rest!`, 'smile');
+    if (d.info.finale) {
+      // the finale is won by finishing it once
+      if (!this.save.done.includes(m)) await this.finishFinale();
+      else await this.talk.say(this.speakers.ama, 'The Grime Gang is beaten again! Great practice.', 'proud');
+    } else {
+      const rec = skill(this.save.learner, m);
+      const ready = this.save.stars[m] >= STARS_PER_MISSION && (rec.tier >= 2 || this.save.played[m] >= MAX_PER_MISSION);
+      if (ready && !this.save.done.includes(m)) await this.finishMission(m);
+      else if (!this.save.done.includes(m)) await this.talk.say(this.speakers.ama, `${this.save.stars[m]} of ${STARS_PER_MISSION} stars for this mission. Fly in again to win the rest!`, 'smile');
+    }
     this.talk.end();
     this.mode = 'world';
     this.updateTouch();
   }
 
   private async finishMission(m: Mission): Promise<void> {
-    const info = MISSION_INFO[m]!;
+    const info = MISSION_INFO[m];
     await this.talk.say(this.speakers.ama, 'Five stars! Before we celebrate, one question.', 'proud');
     const res = await this.talk.ask(this.speakers.ama, info.debrief, () => audio.hint());
     recordAnswer(this.save.learner, `${m}-talk`, { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
@@ -566,16 +692,49 @@ export class Game {
     this.talk.end();
     await this.showGermFile(m, true);
     await this.talk.say(this.speakers.nib, `${UPGRADES[info.upgrade].name}: ${UPGRADES[info.upgrade].what}`, 'smile');
-    if (OPEN_MISSIONS.every((x) => this.save.done.includes(x))) {
-      await this.talk.say(this.speakers.ayo, AYO_LINES[3], 'proud');
-      await this.talk.say(this.speakers.ama, 'Commander Ayo is feeling much better! More missions are coming soon: the gut, the heart, and the brain.', 'smile');
+    await this.talk.say(this.speakers.nib, 'You can fly back in from the body map to explore. Look for the gold fact cards!', 'smile');
+    if (this.finaleOpen()) {
+      await this.talk.say(this.speakers.ayo, AYO_LINES[5], 'thinking');
+      await this.talk.say(this.speakers.ama, ['Oh no. The scanners show the whole Grime Gang coming back, all at once!', 'This needs the whole body working together. And the brain is the control center.', 'When you are ready, fly into the brain for The Big Defense.'], 'thinking');
     }
     this.renderHud();
   }
 
+  /** The finale is won: the debrief, Commander Ayo well again, the crew cheers, and the site hears the game is complete. */
+  private async finishFinale(): Promise<void> {
+    const info = MISSION_INFO.brain;
+    await this.talk.say(this.speakers.ama, 'You did it! One last question, the biggest one.', 'proud');
+    const res = await this.talk.ask(this.speakers.ama, info.debrief, () => audio.hint());
+    recordAnswer(this.save.learner, 'brain-talk', { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
+    this.save.done.push('brain');
+    this.persist();
+    this.world.setHealed(this.healedOrgans());
+    this.updateMarkers();
+    audio.levelUp();
+    this.world.cheer();
+    toast('The Big Defense is won! Commander Ayo is well again.', 'reward');
+    await this.talk.say(this.speakers.ama, info.done, 'proud');
+    await this.talk.say(this.speakers.ayo, FINALE_DONE[0], 'proud');
+    this.world.cheer();
+    await this.talk.say(this.speakers.ama, FINALE_DONE[1], 'proud');
+    await this.talk.say(this.speakers.nib, FINALE_DONE[2], 'smile');
+    this.talk.end();
+    await this.showGermFile('brain', true);
+    const stars = MISSIONS.reduce((n, m) => n + this.save.stars[m], 0);
+    this.lastComplete = { type: 'game-complete', score: stars };
+    try {
+      window.parent?.postMessage(this.lastComplete, '*');
+    } catch {
+      /* not in the site's player */
+    }
+    this.renderHud();
+  }
+
+  private lastComplete: { type: string; score: number } | null = null;
+
   /** The germ file: a wanted poster for a germ beaten on a mission. */
   private showGermFile(m: Mission, fresh = false): Promise<void> {
-    const info = MISSION_INFO[m]!;
+    const info = MISSION_INFO[m];
     return new Promise((resolve) => {
       const close = h('button', { class: 'btn primary', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() });
       const root = h(
@@ -622,7 +781,8 @@ export class Game {
         return b;
       }),
     );
-    const title = kind === 'scan' ? `Scan ${SCANS_PER_DIVE - this.flight.scansLeft + 1} of ${SCANS_PER_DIVE}` : `The nest: ${d.info.germName}`;
+    const total = d.info.finale ? d.info.scans.length : SCANS_PER_DIVE;
+    const title = kind === 'scan' ? `${d.info.finale ? 'Nerve relay' : 'Scan'} ${total - this.flight.scansLeft + 1} of ${total}` : d.info.finale ? 'The last stand: the Grime Gang' : `The nest: ${d.info.germName}`;
     const root = h(
       'div',
       { class: `panel modal bsh-panel bsh-${kind}`, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'bsh-q-title' },
@@ -751,7 +911,12 @@ export class Game {
       if (pnl.answered) this.flight.completeScan(i);
       else this.flight.reopenScan(i);
       this.mode = 'flight';
-      if (pnl.answered && this.flight.scansLeft === 0) {
+      if (pnl.answered && d.info.finale) {
+        // each relay sends the brain's call to one part of the body
+        const line = this.flight.scansLeft === 0 ? `${RELAYS[RELAYS.length - 1]} Now fly to the middle: the Grime Gang is there!` : `${RELAYS[(d.info.scans.length - this.flight.scansLeft - 1) % RELAYS.length]} On to the next relay!`;
+        toast(line, 'reward');
+        speak(line);
+      } else if (pnl.answered && this.flight.scansLeft === 0) {
         toast('Every spot is scanned! Now find the germs’ nest.', 'reward');
         speak('Every spot is scanned! Now find the germs’ nest.');
       }
@@ -759,8 +924,9 @@ export class Game {
       if (pnl.answered) {
         this.flight.startHeal(d.germsLeft);
         audio.play('heal');
-        toast(HEAL_GO, 'reward');
-        speak(HEAL_GO);
+        const go = d.info.finale ? FINALE_GO : HEAL_GO;
+        toast(go, 'reward');
+        speak(go);
       } else this.flight.reopenNest();
       this.mode = 'flight';
     }
@@ -800,8 +966,8 @@ export class Game {
 
   private renderHud(): void {
     const done = this.save.done;
-    this.mapEl.replaceChildren(...OPEN_MISSIONS.map((m) => pix(`mission-${m}-${done.includes(m)}`, () => paintMissionIcon(m, done.includes(m)), 2)), h('span', { class: 'bsh-map-text', text: `${done.length} of ${OPEN_MISSIONS.length} healed` }));
-    this.mapEl.setAttribute('aria-label', `${done.length} of ${OPEN_MISSIONS.length} body parts healed`);
+    this.mapEl.replaceChildren(...MISSIONS.map((m) => pix(`mission-${m}-${done.includes(m)}`, () => paintMissionIcon(m, done.includes(m)), 2)), h('span', { class: 'bsh-map-text', text: `${done.length} of ${MISSIONS.length} healed` }));
+    this.mapEl.setAttribute('aria-label', `${done.length} of ${MISSIONS.length} body parts healed`);
     this.updateFlightHud(true);
   }
 
@@ -810,8 +976,22 @@ export class Game {
     const d = this.dive;
     const inFlight = !!d && this.mode !== 'world';
     const ph = this.flight.phase;
-    const text = !d ? '' : ph === 'heal' ? `Germs left: ${this.flight.germs.length}` : ph === 'healed' ? 'All clear! Fly to the ring' : this.flight.scansLeft > 0 ? `Scan spots left: ${this.flight.scansLeft}` : 'Find the germs’ nest';
-    const key = `${inFlight}|${text}|${ph}|${Math.ceil(this.flight.waveCooldown)}`;
+    const text = !d
+      ? ''
+      : d.explore
+        ? `Fact cards here: ${this.flight.cardsLeft} left. The ring takes you home.`
+        : ph === 'heal'
+          ? `Germs left: ${this.flight.germs.length}`
+          : ph === 'healed'
+            ? 'All clear! Fly to the ring'
+            : this.flight.scansLeft > 0
+              ? d.info.finale
+                ? `Nerve relays left: ${this.flight.scansLeft}`
+                : `Scan spots left: ${this.flight.scansLeft}`
+              : d.info.finale
+                ? 'Find the Grime Gang in the middle'
+                : 'Find the germs’ nest';
+    const key = `${inFlight}|${text}|${ph}|${Math.ceil(this.flight.waveCooldown)}|${this.save.cards.length}`;
     if (!force && key === this.flightHudKey) return;
     this.flightHudKey = key;
     this.flightBar.hidden = !inFlight;
@@ -823,16 +1003,26 @@ export class Game {
 
   private openMissionList(): void {
     if (this.mode !== 'world') return;
-    const fly = (m: Mission) => () => {
+    const go = (fn: () => Promise<void>) => () => {
       modal.close();
-      void this.startMission(m);
+      void fn();
     };
-    const rows = (['skin', 'mouth', 'lungs', 'gut', 'heart', 'brain'] as Mission[]).map((m) => {
+    const rows = MISSIONS.map((m) => {
       const info = MISSION_INFO[m];
-      const open = OPEN_MISSIONS.includes(m);
+      const open = this.available().includes(m);
       const n = this.save.stars[m];
       const on = this.save.done.includes(m);
-      const names: Record<Mission, string> = { skin: 'Skin', mouth: 'Mouth and teeth', lungs: 'Nose and lungs', gut: 'Stomach and gut', heart: 'Heart and blood', brain: 'Brain (the finale)' };
+      const cardsHere = FACT_CARDS.filter((c) => c.mission === m);
+      const got = cardsHere.filter((c) => this.save.cards.includes(c.id)).length;
+      const status = !open
+        ? 'Opens when the other five are healed.'
+        : m === 'brain'
+          ? on
+            ? 'Won! Every defense worked together.'
+            : 'The finale: carry the brain’s message along the nerves, then beat the whole Grime Gang.'
+          : on
+            ? `Healed! Upgrade: ${UPGRADES[info.upgrade].name}.`
+            : `Germ: ${info.germName}. 5 stars heals it.`;
       return h(
         'li',
         { class: `belt-row${open ? '' : ' soon'}` },
@@ -840,32 +1030,57 @@ export class Game {
         h(
           'div',
           { class: 'belt-info' },
-          h('strong', { text: info ? `${info.name}: ${info.organ}` : names[m] }),
-          h('span', { text: !open ? 'Coming soon!' : on ? `Healed! Upgrade: ${UPGRADES[info!.upgrade].name}.` : `Germ: ${info!.germName}. 5 stars heals it.` }),
-          ...(open ? [h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18)))] : []),
+          h('strong', { text: `${info.name}: ${info.organ}` }),
+          h('span', { text: status }),
+          ...(open && m !== 'brain' ? [h('span', { class: 'belt-stars', 'aria-label': `${n} of 5 stars` }, ...Array.from({ length: 5 }, (_, k) => iconImg(k < n ? 'star' : 'starEmpty', '', 18)))] : []),
+          ...(on ? [h('span', { text: `Fact cards: ${got} of ${cardsHere.length}` })] : []),
         ),
         ...(open
           ? [
               h(
                 'div',
                 { class: 'bsh-row-btns' },
-                h('button', { class: 'btn small primary', type: 'button', text: 'Fly in', onclick: fly(m) }),
-                ...(this.save.habits.includes(m) ? [h('button', { class: 'btn small', type: 'button', text: 'Habit', onclick: () => void playHabit(this.host, m, this.save.seed++) })] : []),
+                h('button', { class: 'btn small primary', type: 'button', text: m === 'brain' ? 'Fly to the brain' : 'Fly in', onclick: go(() => this.startMission(m)) }),
+                ...(on ? [h('button', { class: 'btn small', type: 'button', text: 'Explore', onclick: go(() => this.startExplore(m)) })] : []),
+                ...(this.save.habits.includes(m) && HABIT_MISSIONS.includes(m) ? [h('button', { class: 'btn small', type: 'button', text: 'Habit', onclick: () => void playHabit(this.host, m, this.save.seed++, this.playerLook()) })] : []),
                 ...(on ? [h('button', { class: 'btn small', type: 'button', text: 'Germ file', onclick: () => void this.showGermFile(m) })] : []),
               ),
             ]
           : []),
       );
     });
-    const ups = (['escort', 'wave', 'net'] as UpgradeId[]).map((u) => {
+    const ups = UPGRADE_IDS.map((u: UpgradeId) => {
       const has = this.save.upgrades.includes(u);
       return h('li', { class: `bsh-up${has ? '' : ' soon'}` }, pix(`up-${u}-${has}`, () => paintUpgradeIcon(u, has), 2), h('span', { text: has ? `${UPGRADES[u].name}: ${UPGRADES[u].what}` : `${UPGRADES[u].name}: not yet` }));
     });
+    const cards = h(
+      'ul',
+      { class: 'bsh-cards' },
+      ...FACT_CARDS.map((c) => {
+        const got = this.save.cards.includes(c.id);
+        return h(
+          'li',
+          {},
+          got
+            ? h('button', { class: 'bsh-card-btn', type: 'button', 'aria-label': `Fact card: ${c.title}`, onclick: () => void this.showCard(c, false) }, pix('fact-card', () => paintFactCard(16, 0), 2, ''), h('span', { text: c.title }))
+            : h('span', { class: 'bsh-card-btn soon', 'aria-label': 'A fact card still to find' }, pix('fact-card-off', () => paintMissionIcon(c.mission, false), 2, ''), h('span', { text: '?' })),
+        );
+      }),
+    );
     const root = h(
       'div',
-      { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'missions-title', style: 'width:min(680px,100%)' },
+      { class: 'panel modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'missions-title', style: 'width:min(720px,100%)' },
       h('header', {}, h('h2', { id: 'missions-title', text: 'The body map' }), h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() })),
-      h('div', { class: 'content' }, h('p', { class: 'small-note', style: 'margin:0 0 10px', text: 'Win 5 stars in a mission to heal that part of the body. A star is for getting a question right the first time.' }), h('ul', { class: 'belt-list' }, ...rows), h('h3', { class: 'bsh-up-title', text: 'Ship upgrades' }), h('ul', { class: 'bsh-ups' }, ...ups)),
+      h(
+        'div',
+        { class: 'content' },
+        h('p', { class: 'small-note', style: 'margin:0 0 10px', text: 'Win 5 stars in a mission to heal that part of the body. A star is for getting a question right the first time. Explore a healed part to find its fact cards.' }),
+        h('ul', { class: 'belt-list' }, ...rows),
+        h('h3', { class: 'bsh-up-title', text: 'Ship upgrades' }),
+        h('ul', { class: 'bsh-ups' }, ...ups),
+        h('h3', { class: 'bsh-up-title', text: `Body fact cards: ${this.save.cards.length} of ${FACT_CARDS.length}` }),
+        cards,
+      ),
     );
     const modal = new Modal(this.host, root);
   }
@@ -915,11 +1130,15 @@ export class Game {
       'sugar-ok': 'thinking sugar does not matter for teeth',
       'stomach-only': 'thinking digestion starts in the stomach',
       'lungs-balloons': 'thinking the lungs are two empty bags',
+      'all-germs-bad': 'thinking all bacteria are bad',
+      'blue-blood': 'thinking blood in the veins is blue',
+      'heart-tired': 'thinking the heart gets tired or stops to rest',
+      'brain-thinking-only': 'thinking the brain only does thinking',
     };
-    const rows = OPEN_MISSIONS.map((m) => {
+    const rows = MISSIONS.map((m) => {
       const rec = this.save.learner[m];
       const mis = topMisconception(rec);
-      const info = MISSION_INFO[m]!;
+      const info = MISSION_INFO[m];
       return h(
         'tr',
         {},
@@ -933,7 +1152,7 @@ export class Game {
     return h(
       'div',
       {},
-      h('p', { text: `This summary is kept only in this browser. Body parts healed: ${this.save.done.length} of ${OPEN_MISSIONS.length}. Healthy habits practiced: ${this.save.habits.length}.` }),
+      h('p', { text: `This summary is kept only in this browser. Body parts healed: ${this.save.done.length} of ${MISSIONS.length}${this.save.done.includes('brain') ? ' (the finale is won)' : ''}. Healthy habits practiced: ${this.save.habits.length} of ${HABIT_MISSIONS.length}. Body fact cards found: ${this.save.cards.length} of ${FACT_CARDS.length}.` }),
       h('div', { class: 'table-wrap' }, h('table', { class: 'progress-table' }, h('thead', {}, h('tr', {}, ...['Mission', 'Status', 'Answers', 'Level now', 'Most common mix-up'].map((t) => h('th', { scope: 'col', text: t })))), h('tbody', {}, ...rows))),
     );
   }
@@ -954,7 +1173,8 @@ export class Game {
       habits: [...this.save.habits],
       upgrades: [...this.save.upgrades],
       talking: this.talk.isOpen,
-      dive: this.dive ? { mission: this.dive.mission, phase: this.flight.phase, scansLeft: this.flight.scansLeft, germs: this.flight.germs.length } : null,
+      cards: [...this.save.cards],
+      dive: this.dive ? { mission: this.dive.mission, explore: this.dive.explore, phase: this.flight.phase, scansLeft: this.flight.scansLeft, germs: this.flight.germs.length } : null,
       panel: pnl
         ? {
             kind: pnl.kind,

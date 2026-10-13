@@ -21,6 +21,7 @@ export const PAGES: Array<[string, string]> = [
   ['body-lungs', 'Body: the lungs'],
   ['body-blood', 'Body: a blood vessel'],
   ['body-stomach', 'Body: the stomach'],
+  ['body-brain', 'Body: the brain'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];

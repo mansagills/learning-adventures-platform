@@ -22,7 +22,9 @@ import {
   paintNib,
   paintNibPortrait,
   paintOxygen,
+  paintBloodBandit,
   paintPlaqueJack,
+  paintQueasyLouie,
   paintRedCell,
   paintShrinkBeam,
   paintSniffles,
@@ -47,6 +49,7 @@ const NIB_LINES: Record<BodyArea, string> = {
   lungs: 'We are in the lungs! Air comes down this tube into millions of tiny air sacs. Oxygen goes from the air sacs into the blood. Uh oh, flu viruses!',
   blood: 'Inside a blood vessel! The red blood cells carry oxygen all over the body. They all flow one way, so we fly with the flow.',
   stomach: 'The stomach! Its acid helps break down food. Over there is the door to the small intestine, where most digestion happens.',
+  brain: 'The brain! Nerve cells pass messages along these glowing paths. The skull up there keeps the brain safe.',
 };
 
 function nibSpeaker(): Speaker {
@@ -58,7 +61,7 @@ function nibSpeaker(): Speaker {
 // ------------------------------------------------------------------ a body area, flying
 
 export function showBodyScene(host: HTMLElement, q: URLSearchParams): void {
-  const area = (['skin', 'mouth', 'lungs', 'blood', 'stomach'].includes(q.get('area') ?? '') ? q.get('area') : 'lungs') as BodyArea;
+  const area = (['skin', 'mouth', 'lungs', 'blood', 'stomach', 'brain'].includes(q.get('area') ?? '') ? q.get('area') : 'lungs') as BodyArea;
   const setting = BODY_SETTINGS.find((s) => s.id === `body-${area}`)!;
   document.body.classList.add(STAR_STATION.panelClass);
   const stage = new Stage(host, T);
@@ -223,10 +226,12 @@ export function showBodyCast(host: HTMLElement): void {
     card([cv(paintHero(PLAYER16, 1.5, 'down'), Z)], 'The player', 'Made in the character creator'),
   );
   block(
-    '3. The Grime Gang (two of the five)',
+    '3. The Grime Gang (four of the five; Scrapes McGee is on the skin page)',
     'Goofy, gloopy and never scary. The flu virus really is covered in knobby spikes; cavity bacteria love sugar.',
     card([cv(paintSniffles(T, 0), Z), cv(paintSniffles(T, 1), Z)], 'Sniffles', 'The flu virus (lungs)'),
     card([cv(paintPlaqueJack(T, 0), Z), cv(paintPlaqueJack(T, 1), Z)], 'Plaque Jack', 'Cavity bacteria (mouth)'),
+    card([cv(paintQueasyLouie(T, 0), Z), cv(paintQueasyLouie(T, 1), Z)], 'Queasy Louie', 'Food-poisoning bacteria (gut)'),
+    card([cv(paintBloodBandit(T, 0), Z), cv(paintBloodBandit(T, 1), Z)], 'The Blood Bandit', 'A germ riding in the blood (heart)'),
   );
   block(
     '4. The body’s helpers',

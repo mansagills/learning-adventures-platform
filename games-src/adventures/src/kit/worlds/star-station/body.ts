@@ -7,7 +7,7 @@ import { placer } from '../place';
 import { Paint, hash, ramp, type Ramp } from '../shade';
 import { billboard, glow, groundPiece, lightPool } from '../stage';
 import type { SceneCtx, Setting, SettingScene } from '../types';
-import { BODY, paintGoodBacteria, paintHair, paintMucus, paintOxygen, paintPlatelet, paintRedCell, paintSugar, paintSweat, paintTooth, paintWhiteCell } from './body-art';
+import { BODY, paintGoodBacteria, paintHair, paintMucus, paintNeuron, paintOxygen, paintPlatelet, paintRedCell, paintSugar, paintSweat, paintTooth, paintWhiteCell } from './body-art';
 
 /**
  * Star Station setting: inside the body (look development for Body System
@@ -25,13 +25,48 @@ import { BODY, paintGoodBacteria, paintHair, paintMucus, paintOxygen, paintPlate
  *   - `body-blood`: inside a blood vessel, red blood cells streaming one way
  *   - `body-stomach`: soft folds, a glowing pool of stomach acid, bits of
  *     food, and the round valve that opens into the small intestine
+ *   - `body-brain`: the brain's soft folds, nerve cells joined by glowing
+ *     nerve paths with messages running along them, and the skull at the back
  *
  * Not in the shared SETTINGS list yet (so the finished games' built files
  * stay byte-for-byte the same); the look development page imports it
  * directly.
  */
 
-export type BodyArea = 'skin' | 'mouth' | 'lungs' | 'blood' | 'stomach';
+export type BodyArea = 'skin' | 'mouth' | 'lungs' | 'blood' | 'stomach' | 'brain';
+
+/** The brain's nerve cells (tiles) and the nerve paths between them (index pairs). */
+export const BRAIN_NEURONS: Array<[number, number]> = [
+  [4, 6.2],
+  [9.6, 5.4],
+  [16.2, 6.4],
+  [22.6, 5.6],
+  [6.2, 11.4],
+  [13, 10.4],
+  [20.2, 11.8],
+  [3.4, 16.4],
+  [10.4, 16.8],
+  [16.8, 16.2],
+  [23.6, 16.4],
+];
+export const BRAIN_PATHS: Array<[number, number]> = [
+  [0, 1],
+  [1, 2],
+  [2, 3],
+  [0, 4],
+  [1, 5],
+  [2, 5],
+  [3, 6],
+  [4, 5],
+  [5, 6],
+  [4, 7],
+  [4, 8],
+  [5, 8],
+  [5, 9],
+  [6, 9],
+  [6, 10],
+  [8, 9],
+];
 const U = (T: number) => T / 16;
 export const BODY_LAYOUT = { w: 26, h: 18, floorTop: 3 };
 const L = BODY_LAYOUT;
@@ -195,6 +230,43 @@ export function paintBodyFloor(T: number, area: BodyArea): PixelBuffer {
       const len = (1 + hash(i, 3, 31)) * T;
       for (let k = 0; k < len; k++) p.dot(x + k, y, BODY.vessel, k > len - 3 * u ? 4 : 3);
     }
+  } else if (area === 'brain') {
+    // the brain's soft folds: gentle winding ridges
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const n = blob(x, y, 2 * T, 15) * 0.6 + blob(x, y, 0.6 * T, 16) * 0.4;
+        const dith = (x + y) % 2 ? 0.03 : -0.03;
+        const fold = Math.sin(x / (1.4 * T) + blob(x, y, 2.6 * T, 17) * 7 + Math.sin(y / (2.2 * T)) * 1.5);
+        let lv = n + dith > 0.6 ? 3 : 2;
+        if (fold > 0.93) lv = 4;
+        else if (fold < -0.93) lv = 2;
+        p.dot(x, y, fold < -0.9 ? BODY.brain2 : BODY.brain, lv);
+      }
+    // nerve paths: glowing lines joining the nerve cells
+    for (const [a, b] of BRAIN_PATHS) {
+      const [x0, y0] = BRAIN_NEURONS[a];
+      const [x1, y1] = BRAIN_NEURONS[b];
+      const len = Math.hypot(x1 - x0, y1 - y0) * T;
+      for (let k = 0; k <= len; k++) {
+        const f = k / len;
+        const bend = Math.sin(f * Math.PI) * 0.4 * T * (a % 2 ? 1 : -1);
+        const x = (x0 + (x1 - x0) * f) * T - ((y1 - y0) / Math.hypot(x1 - x0, y1 - y0)) * bend;
+        const y = (y0 + (y1 - y0) * f) * T + ((x1 - x0) / Math.hypot(x1 - x0, y1 - y0)) * bend;
+        for (let t = -1.5 * u; t <= 1.5 * u; t++) p.dot(x, y + t, BODY.nerve, Math.abs(t) > u ? 1 : 2);
+        p.dot(x, y, BODY.nerve, 3);
+      }
+    }
+    // the nerve cells, flat on the tissue where the paths meet
+    BRAIN_NEURONS.forEach(([nx, ny], i) => {
+      const cell = paintNeuron(T, 0, i);
+      const ox = Math.round(nx * T - cell.w / 2);
+      const oy = Math.round(ny * T - cell.h / 2);
+      for (let y = 0; y < cell.h; y++)
+        for (let x = 0; x < cell.w; x++) {
+          const c = cell.get(x, y);
+          if (c) p.pix(ox + x, oy + y, c);
+        }
+    });
   } else {
     for (let y = 0; y < H; y++)
       for (let x = 0; x < W; x++) {
@@ -230,8 +302,8 @@ export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer
   const W = (L.w + 12) * T;
   const H = 7 * T;
   const p = new Paint(W, H);
-  const base = { skin: BODY.scrape, mouth: BODY.gum, lungs: BODY.lung, blood: BODY.vessel, stomach: BODY.stomach }[area];
-  const base2 = { skin: BODY.tissue2, mouth: BODY.tongue2, lungs: BODY.tissue, blood: BODY.vessel2, stomach: BODY.stomach2 }[area];
+  const base = { skin: BODY.scrape, mouth: BODY.gum, lungs: BODY.lung, blood: BODY.vessel, stomach: BODY.stomach, brain: BODY.brain }[area];
+  const base2 = { skin: BODY.tissue2, mouth: BODY.tongue2, lungs: BODY.tissue, blood: BODY.vessel2, stomach: BODY.stomach2, brain: BODY.brain2 }[area];
   for (let y = 0; y < H; y++)
     for (let x = 0; x < W; x++) {
       const n = blob(x, y, 1.5 * T, 21) * 0.7 + blob(x, y, 0.5 * T, 22) * 0.3;
@@ -243,7 +315,7 @@ export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer
     }
   // openings into the next part of the body: dark round tunnels with a glow at the rim
   const holes: Array<[number, number, number]> =
-    area === 'skin' || area === 'mouth'
+    area === 'skin' || area === 'mouth' || area === 'brain'
       ? []
       : area === 'lungs'
       ? [
@@ -283,6 +355,15 @@ export function paintBodyWall(T: number, area: BodyArea, frame = 0): PixelBuffer
         for (let t = -1.5 * u; t <= 1.5 * u; t++) p.dot(x, y + t, k === 1 ? BODY.vein : BODY.vessel, Math.abs(t) > u ? 1 : 3);
       }
     }
+  }
+  // in the brain, the top of the wall is the skull (bone keeps the brain safe), with a soft layer under it
+  if (area === 'brain') {
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        const edge = 2.6 * T + Math.sin(x / (3 * T)) * 0.3 * T;
+        if (y < edge) p.dot(x, y, BODY.bone, y < edge - 0.4 * T ? (blob(x, y, 0.8 * T, 19) > 0.55 ? 3 : 2) : 1);
+        else if (y < edge + 0.5 * T) p.dot(x, y, BODY.brain2, 1);
+      }
   }
   // in the mouth, the back wall is a row of teeth on the gum
   if (area === 'mouth') {
@@ -399,7 +480,8 @@ export const BODY_MOUTH = setting('mouth', 'Inside the body: the mouth');
 export const BODY_LUNGS = setting('lungs', 'Inside the body: the lungs');
 export const BODY_BLOOD = setting('blood', 'Inside the body: a blood vessel');
 export const BODY_STOMACH = setting('stomach', 'Inside the body: the stomach');
-export const BODY_SETTINGS = [BODY_SKIN, BODY_MOUTH, BODY_LUNGS, BODY_BLOOD, BODY_STOMACH];
+export const BODY_BRAIN = setting('brain', 'Inside the body: the brain');
+export const BODY_SETTINGS = [BODY_SKIN, BODY_MOUTH, BODY_LUNGS, BODY_BLOOD, BODY_STOMACH, BODY_BRAIN];
 
 interface Drifter {
   mesh: THREE.Mesh;
@@ -498,6 +580,28 @@ function buildBody(ctx: SceneCtx, area: BodyArea): SettingScene {
       swapFrame(wbc, wbcTex[Math.floor(t * 2) % 2]);
       wbc.position.x = Math.round((6 + Math.sin(t * 0.3) * 3) * T) / T;
     });
+  } else if (area === 'brain') {
+    // a glow on each nerve cell, flashing now and then as a message passes through
+    BRAIN_NEURONS.forEach(([x, y], i) => {
+      const g = add(glow(lighting, T, Math.round(T * 1.6), '#ffe9a0', x, y, 0.05, 0.7));
+      add(lightPool(lighting, T, x, y, 1.1, '#ffd86a', 0.25));
+      anim.push((t) => (g.visible = (t * 1.3 + i * 0.37) % 2 < 0.3));
+    });
+    // messages running along the nerve paths: little bright sparks
+    const sparkPaint = new Paint(Math.round(6 * U(T)), Math.round(6 * U(T)));
+    sparkPaint.ellipse(3 * U(T), 3 * U(T), 2.4 * U(T), 2.4 * U(T), ramp('#fff4c4'), { form: 'sphere', bias: 0.2 });
+    const spark = sparkPaint.toBuffer({ outline: false });
+    BRAIN_PATHS.forEach(([a, b], i) => {
+      const [x0, y0] = BRAIN_NEURONS[a];
+      const [x1, y1] = BRAIN_NEURONS[b];
+      const m = prop(spark.toCanvas(), x0, y0, 0, 0.15);
+      const speed = 0.35 + hash(i, 1, 77) * 0.3;
+      anim.push((t) => {
+        const f = (t * speed + hash(i, 2, 77)) % 1;
+        m.position.x = Math.round((x0 + (x1 - x0) * f) * T) / T;
+        m.position.z = (y0 + (y1 - y0) * f) * K;
+      });
+    });
   } else {
     for (const [x, y, k] of [
       [5.6, 7.6, 0],
@@ -539,7 +643,7 @@ function buildBody(ctx: SceneCtx, area: BodyArea): SettingScene {
   return {
     map: { w: L.w, h: L.h },
     focus: { x: 13, feet: 15.5, top: -1.2 },
-    clear: { skin: '#5a2a26', mouth: '#5a1a2e', lungs: '#5a2236', blood: '#4a1424', stomach: '#5a2236' }[area],
+    clear: { skin: '#5a2a26', mouth: '#5a1a2e', lungs: '#5a2236', blood: '#4a1424', stomach: '#5a2236', brain: '#4a2246' }[area],
     walk: { x0: 0.6, y0: L.floorTop + 0.6, x1: L.w - 0.6, y1: L.h - 0.4 },
     blocks: [],
     spots: { player: { x: 12, y: L.floorTop + 7.4 }, host: { x: 13.6, y: L.floorTop + 6.8 } },

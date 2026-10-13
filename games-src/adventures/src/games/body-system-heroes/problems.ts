@@ -22,8 +22,10 @@
 
 export type Mission = 'skin' | 'mouth' | 'lungs' | 'gut' | 'heart' | 'brain';
 export const MISSIONS: Mission[] = ['skin', 'mouth', 'lungs', 'gut', 'heart', 'brain'];
-/** The missions built so far (half 1 of the build). */
-export const OPEN_MISSIONS: Mission[] = ['skin', 'mouth', 'lungs'];
+/** The five organ missions (the brain is the finale, open once all five are healed). */
+export const ORGAN_MISSIONS: Mission[] = ['skin', 'mouth', 'lungs', 'gut', 'heart'];
+/** Every mission with questions (all of them). */
+export const OPEN_MISSIONS: Mission[] = MISSIONS;
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 export type Kind = 'scan' | 'diagnose';
@@ -43,7 +45,11 @@ export type Misconception =
   | 'skip-habit' // thinks a healthy habit can be skipped or done rarely
   | 'sugar-ok' // thinks sugar does not matter for teeth
   | 'stomach-only' // thinks digestion only happens in the stomach
-  | 'lungs-balloons'; // thinks the lungs are two empty bags
+  | 'lungs-balloons' // thinks the lungs are two empty bags
+  | 'all-germs-bad' // thinks every bacterium is a germ to get rid of
+  | 'blue-blood' // thinks blood in the veins is blue
+  | 'heart-tired' // thinks the heart gets tired, stops to rest, or beats fast from tiredness
+  | 'brain-thinking-only'; // thinks the brain only does thinking (not breathing, the heartbeat, feelings)
 
 export interface Choice {
   /** A unique key (the answer's own text). */
@@ -796,7 +802,728 @@ const LUNGS: QDef[] = [
   },
 ];
 
-const BANKS: Partial<Record<Mission, QDef[]>> = { skin: SKIN, mouth: MOUTH, lungs: LUNGS };
+
+const GUT: QDef[] = [
+  // level 1: name it
+  {
+    id: 'gut-stomach',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Food goes down a tube into the stomach. The stomach squeezes and churns it. What does the stomach do with food?',
+    right: 'It mashes it and mixes it with acid.',
+    wrong: [
+      ['It sends food to the lungs.', 'wrong-part', 'Food never goes to the lungs. Only air does.'],
+      ['It pumps food into the blood at once.', 'wrong-job', 'The stomach does not pump food into the blood. It squeezes and mixes.'],
+    ],
+    explain: 'The stomach squeezes food and mixes it with a strong acid, until it is a thick mush.',
+    hints: ['Look at the folds on the floor. They squeeze and churn.', 'Squeezing, plus a strong juice, turns food into mush.'],
+  },
+  {
+    id: 'gut-start',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Digestion means breaking food down so the body can use it. Where does digestion start?',
+    right: 'In the mouth, when you chew.',
+    wrong: [
+      ['In the stomach.', 'stomach-only', 'Food is already being broken down before it reaches the stomach.'],
+      ['In the lungs.', 'wrong-part', 'The lungs are for air, not food.'],
+    ],
+    explain: 'Digestion starts in the mouth. Teeth chew the food, and saliva starts to break it down.',
+    hints: ['What is the very first thing you do with food?', 'You bite. Saliva gets to work too.'],
+  },
+  {
+    id: 'gut-small',
+    tier: 1,
+    kind: 'scan',
+    ask: 'After the stomach, food goes into a long, twisty tube. It is the small intestine. What happens there?',
+    right: 'Most of the food is digested and taken in.',
+    wrong: [
+      ['Nothing. It is just a pipe.', 'stomach-only', 'The small intestine does more digesting than any other part.'],
+      ['Food turns into air.', 'wrong-job', 'Food never turns into air. Air comes in through the lungs.'],
+    ],
+    explain: 'Most digestion happens in the small intestine. Tiny parts of food pass from there into the blood.',
+    hints: ['The small intestine is very long. Why would the body need so much tube?', 'A long tube gives lots of time and space to work on food.'],
+  },
+  {
+    id: 'gut-helpers',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Trillions of bacteria live in your gut. Most of them are helpers. What do the helper bacteria do?',
+    right: 'Help digest food and keep bad germs out.',
+    wrong: [
+      ['They make you sick every day.', 'all-germs-bad', 'Most gut bacteria are helpers, not germs that make you sick.'],
+      ['They carry oxygen.', 'wrong-job', 'Red blood cells carry oxygen, not bacteria.'],
+    ],
+    explain: 'Good gut bacteria help break down food, make some vitamins, and leave less room for bad germs.',
+    hints: ['Look at the green bean-shaped cells. Do they look friendly?', 'They are on our side, working with the gut.'],
+  },
+  {
+    id: 'gut-louie',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'Queasy Louie is a living cell, much bigger than a virus. Some come in food that is not cooked well. What is Queasy Louie?',
+    right: 'Bacteria.',
+    wrong: [
+      ['A virus, like the flu.', 'virus-bacteria', 'Viruses are much smaller, and they are not cells.'],
+      ['A good gut helper.', 'helper-or-germ', 'Queasy Louie upsets the stomach. Helpers do not.'],
+    ],
+    explain: 'Queasy Louie is bacteria: a tiny living cell. Some kinds make the stomach sick.',
+    hints: ['Is it a living cell, or something much smaller?', 'We met living germ cells like this in the scrape and the mouth.'],
+  },
+  {
+    id: 'gut-hands',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'Queasy Louie can ride on unwashed hands. Then it gets onto food. How can you stop Queasy Louie?',
+    right: 'Wash your hands before you eat.',
+    wrong: [
+      ['Eat faster.', 'skip-habit', 'Eating fast does not get germs off your hands.'],
+      ['Skip washing if your hands look clean.', 'skip-habit', 'Germs are too small to see, so clean-looking hands can still have them.'],
+    ],
+    explain: 'Washing with soap before eating keeps germs from riding on your hands into your mouth.',
+    hints: ['How do the germs get from your hands to your mouth?', 'On your food. What gets germs off your hands first?'],
+  },
+  // level 2: how it works
+  {
+    id: 'gut-path',
+    tier: 2,
+    kind: 'scan',
+    ask: 'Food goes on a long trip through the body. It passes through four parts. Which order is right?',
+    right: 'Mouth, stomach, small intestine, large intestine.',
+    wrong: [
+      ['Stomach, mouth, large intestine, small intestine.', 'wrong-order', 'The trip starts where food goes in.'],
+      ['Mouth, lungs, stomach, heart.', 'wrong-part', 'Food never goes into the lungs or the heart.'],
+    ],
+    explain: 'Food goes from the mouth to the stomach, then the small intestine, then the large intestine.',
+    hints: ['Where does food go in?', 'After the mouth, food slides down to the stomach. What comes after that?'],
+  },
+  {
+    id: 'gut-acid',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The stomach makes a strong acid. It helps break down food. What else does the acid do?',
+    right: 'It kills many germs in food.',
+    wrong: [
+      ['It makes food taste sweet.', 'wrong-job', 'Taste happens on the tongue, not in the stomach.'],
+      ['It turns food into blood.', 'wrong-job', 'Food is not turned into blood. Tiny food parts go into the blood later.'],
+    ],
+    explain: 'Stomach acid helps break down food, and it kills many of the germs that come in with it.',
+    hints: ['Germs can come in with food. What happens to them in a strong acid?', 'Strong acid is very hard on tiny living things.'],
+  },
+  {
+    id: 'gut-large',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The large intestine comes last. Most food is already taken in by then. What does the large intestine take back?',
+    right: 'Water.',
+    wrong: [
+      ['Oxygen.', 'wrong-job', 'Oxygen comes in through the lungs.'],
+      ['All the food.', 'stomach-only', 'Most of the food was taken in earlier, in the small intestine.'],
+    ],
+    explain: 'The large intestine takes back water. What is left leaves the body as waste.',
+    hints: ['The body needs to keep this, or you get thirsty.', 'What do you drink every day?'],
+  },
+  {
+    id: 'gut-villi',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The small intestine is covered in tiny finger-like bumps. They are called villi. Why are there so many bumps?',
+    right: 'They give more room to take in food.',
+    wrong: [
+      ['They chew the food.', 'wrong-job', 'Teeth chew. The intestine has no teeth.'],
+      ['They push air through.', 'wrong-part', 'Air goes through the airways, not the intestine.'],
+    ],
+    explain: 'Millions of villi make a huge surface, so lots of food can pass into the blood.',
+    hints: ['A towel with lots of loops soaks up more. Why?', 'More bumps mean more surface touching the food.'],
+  },
+  {
+    id: 'gut-protect',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'Good bacteria live right next to Queasy Louie’s gang. The good ones help digestion. Should we clear out every bacterium here?',
+    right: 'No. Only the germs, and keep the helpers safe.',
+    wrong: [
+      ['Yes. All bacteria are bad.', 'all-germs-bad', 'Most gut bacteria are helpers.'],
+      ['Yes, and the stomach lining too.', 'wrong-job', 'The stomach lining is part of the body. We only go after germs.'],
+    ],
+    explain: 'Most gut bacteria are helpers. We clear out the germs and leave the helpers to do their work.',
+    hints: ['Are all bacteria the same?', 'Some make you sick. Others help digest food.'],
+  },
+  {
+    id: 'gut-sick',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'Queasy Louie upsets the stomach. Commander Ayo throws up. Why does the body do that?',
+    right: 'To push the germs out fast.',
+    wrong: [
+      ['Because the stomach is empty.', 'wrong-job', 'An empty stomach does not make you throw up. The germs do.'],
+      ['Because the lungs are sick.', 'wrong-part', 'The lungs are fine. The trouble is in the gut.'],
+    ],
+    explain: 'Throwing up is one way the body gets rid of germs quickly. Sips of water help afterwards.',
+    hints: ['What does the body want to do with the germs?', 'Get rid of them, as quickly as it can.'],
+  },
+  // level 3: cause and effect
+  {
+    id: 'gut-energy',
+    tier: 3,
+    kind: 'scan',
+    ask: 'The small intestine passes food into the blood. The blood carries it everywhere. What would happen if the small intestine stopped working?',
+    right: 'The body would not get enough food energy.',
+    wrong: [
+      ['Nothing. The stomach would do it all.', 'stomach-only', 'The stomach cannot pass most food into the blood.'],
+      ['The lungs would digest food.', 'wrong-part', 'The lungs never digest food.'],
+    ],
+    explain: 'Food energy reaches the body through the small intestine. Without it, the muscles and brain would go short.',
+    hints: ['Where does food get into the blood?', 'If that part stops, how does energy reach the muscles?'],
+  },
+  {
+    id: 'gut-legs',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Tiny food parts go into the blood. The heart pumps that blood. How does food energy get to your leg muscles?',
+    right: 'The blood carries it there.',
+    wrong: [
+      ['The stomach sends it down a tube.', 'wrong-part', 'There is no tube from the stomach to the legs.'],
+      ['Nerves carry the food.', 'wrong-job', 'Nerves carry messages, not food.'],
+    ],
+    explain: 'The gut and the blood work as a team: food goes into the blood, and the heart pumps it to every muscle.',
+    hints: ['What flows to every part of the body?', 'The heart pumps it round and round.'],
+  },
+  {
+    id: 'gut-antibiotics',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Antibiotics are medicines that kill bacteria. A doctor gives them only when needed. Why not take them for every tummy ache?',
+    right: 'They can harm the good gut bacteria too.',
+    wrong: [
+      ['They fight viruses best.', 'antibiotics-virus', 'Antibiotics do not work on viruses at all.'],
+      ['They always make you stronger.', 'wrong-job', 'Medicine is only for when a doctor says it is needed.'],
+    ],
+    explain: 'Antibiotics cannot tell bad bacteria from good ones, so they are used only when a doctor says so.',
+    hints: ['Antibiotics kill bacteria. Which bacteria live in the gut?', 'Helpers live there too.'],
+  },
+  {
+    id: 'gut-fiber',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Fruits, vegetables and beans have fiber. The good gut bacteria feed on fiber. What happens when you eat fiber?',
+    right: 'The helper bacteria stay strong.',
+    wrong: [
+      ['The helper bacteria go away.', 'all-germs-bad', 'Fiber is food for the helpers, so they stay.'],
+      ['Your lungs work harder.', 'wrong-part', 'Fiber is for the gut, not the lungs.'],
+    ],
+    explain: 'Fiber feeds the good gut bacteria, and a strong team of helpers keeps the gut healthy.',
+    hints: ['Fiber is food. Food for whom?', 'When the helpers are well fed, what happens to them?'],
+  },
+  {
+    id: 'gut-cook',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'Queasy Louie can hide in raw meat and eggs. Heat kills these germs. What is the safest way to eat chicken?',
+    right: 'Cook it all the way through.',
+    wrong: [
+      ['Eat it pink in the middle.', 'skip-habit', 'Germs can live in the pink middle.'],
+      ['Wash it in the sink.', 'water-only', 'Washing raw meat splashes germs around. Heat is what kills them.'],
+    ],
+    explain: 'Cooking chicken all the way through kills the germs inside. A grown-up can check it is done.',
+    hints: ['What kills the germs?', 'Heat has to reach the very middle.'],
+  },
+  {
+    id: 'gut-fridge',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'Germs grow fast in warm food. Cold slows them down. Where should leftovers go after dinner?',
+    right: 'In the fridge.',
+    wrong: [
+      ['On the counter all night.', 'skip-habit', 'A warm room lets germs grow fast.'],
+      ['In a warm oven until morning.', 'skip-habit', 'Warmth helps germs grow. It does not stop them.'],
+    ],
+    explain: 'Cold slows germs down, so leftovers go somewhere cold soon after the meal.',
+    hints: ['Do germs grow faster when it is warm or cold?', 'Put the food somewhere cold.'],
+  },
+];
+
+const HEART: QDef[] = [
+  // level 1: name it
+  {
+    id: 'heart-pump',
+    tier: 1,
+    kind: 'scan',
+    ask: 'The heart is a strong muscle in your chest. It beats all day and all night. What does the heart do?',
+    right: 'It pumps blood all around the body.',
+    wrong: [
+      ['It breathes air in.', 'wrong-part', 'Breathing is the job of the lungs.'],
+      ['It thinks your thoughts.', 'wrong-part', 'Thinking happens in the brain.'],
+    ],
+    explain: 'The heart is a pump. Every beat pushes blood out to the whole body.',
+    hints: ['Put a hand on your chest. What do you feel?', 'A beat. Each beat pushes something along.'],
+  },
+  {
+    id: 'heart-red',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Look at the red discs floating by. They are red blood cells. What do red blood cells carry?',
+    right: 'Oxygen.',
+    wrong: [
+      ['Germs, on purpose.', 'helper-or-germ', 'Red blood cells do not carry germs on purpose.'],
+      ['Food to the stomach.', 'wrong-job', 'Food goes down from the mouth. Red cells do not carry it there.'],
+    ],
+    explain: 'Red blood cells pick up oxygen in the lungs and carry it to every part of the body.',
+    hints: ['What do your lungs breathe in that the whole body needs?', 'The air sacs pass it into the blood, and these cells take it everywhere.'],
+  },
+  {
+    id: 'heart-white',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Some blood cells are white and puffy. They are white blood cells. What do they do?',
+    right: 'Fight germs.',
+    wrong: [
+      ['Carry oxygen.', 'wrong-job', 'The red cells are the ones that carry oxygen.'],
+      ['Make the heart beat.', 'wrong-job', 'The heart muscle makes itself beat.'],
+    ],
+    explain: 'White blood cells are the body’s guards. They find germs and get rid of them.',
+    hints: ['They chase anything that does not belong in the body.', 'They are like the body’s guards.'],
+  },
+  {
+    id: 'heart-color',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Veins can look blue through your skin. Some people say the blood inside is blue. What color is your blood?',
+    right: 'Always red.',
+    wrong: [
+      ['Blue in the veins.', 'blue-blood', 'Veins only look blue through skin. The blood inside them is red too.'],
+      ['Green.', 'blue-blood', 'Human blood is never green.'],
+    ],
+    explain: 'Blood is always red: bright red with lots of oxygen, darker red with less. Veins only look blue through skin.',
+    hints: ['Look around this blood vessel. What color are the cells?', 'The color gets a little darker or brighter, but it stays in one color family.'],
+  },
+  {
+    id: 'heart-bandit',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'The Blood Bandit got into the blood through a cut. Now it rides around the body. Which cells rush to fight it?',
+    right: 'White blood cells.',
+    wrong: [
+      ['Red blood cells.', 'helper-or-germ', 'Red cells carry oxygen. They are not the fighters.'],
+      ['Good gut bacteria.', 'helper-or-germ', 'Gut bacteria stay in the gut. They do not ride in the blood to fight.'],
+    ],
+    explain: 'White blood cells rush to germs in the blood and fight them.',
+    hints: ['Which cells are the body’s guards?', 'They are puffy and pale, not red.'],
+  },
+  {
+    id: 'heart-cuts',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'Germs can get into the blood through an open cut. How can you keep the Blood Bandit out?',
+    right: 'Clean and cover cuts.',
+    wrong: [
+      ['Pick at scabs.', 'pick-scab', 'Picking a scab opens the cut again.'],
+      ['Leave cuts dirty.', 'heals-itself', 'Dirt in a cut lets germs in.'],
+    ],
+    explain: 'A clean, covered cut keeps germs out of the blood while the skin heals.',
+    hints: ['Remember the scraped knee?', 'What did we do for the knee in the med bay?'],
+  },
+  // level 2: how it works
+  {
+    id: 'heart-lungs',
+    tier: 2,
+    kind: 'scan',
+    ask: 'Blood goes from the heart to the body and back. Then it goes to the lungs. Why does blood visit the lungs?',
+    right: 'To pick up fresh oxygen.',
+    wrong: [
+      ['To get food.', 'wrong-job', 'Blood picks up food in the small intestine.'],
+      ['To be cleaned of all germs.', 'wrong-job', 'The lungs swap air. That is not where germs are cleaned out.'],
+    ],
+    explain: 'In the lungs, the blood drops off carbon dioxide and picks up oxygen. Then the heart pumps it out again.',
+    hints: ['What do the lungs bring into the body?', 'The blood stops by to fill up on it.'],
+  },
+  {
+    id: 'heart-chambers',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The heart has four rooms inside, called chambers. The two top ones fill up. What do the two bottom ones do?',
+    right: 'Squeeze to pump the blood out.',
+    wrong: [
+      ['Hold air.', 'wrong-part', 'Air stays in the lungs. The heart is full of blood.'],
+      ['Digest food.', 'wrong-job', 'Digesting happens in the gut.'],
+    ],
+    explain: 'The top chambers fill up, and the strong bottom chambers squeeze to push the blood out.',
+    hints: ['The heart is a pump. What does a pump do?', 'The bottom rooms have the strongest walls. They push hard.'],
+  },
+  {
+    id: 'heart-valves',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The heart has little doors called valves. They open one way, then shut. Why do the valves shut behind the blood?',
+    right: 'So blood only flows one way.',
+    wrong: [
+      ['To stop the heart.', 'wrong-job', 'Valves do not stop the heart. It keeps beating.'],
+      ['To keep germs out.', 'wrong-job', 'Valves are for the flow, not for germs.'],
+    ],
+    explain: 'Valves are one-way doors. They shut so the blood cannot slosh backward.',
+    hints: ['Feel how the flow pushes us. Does it ever go backward?', 'A door that only opens one way stops things going back.'],
+  },
+  {
+    id: 'heart-pulse',
+    tier: 2,
+    kind: 'scan',
+    ask: 'Press two fingers on your wrist. You can feel a beat there. What is that beat?',
+    right: 'Blood pushed by each heartbeat.',
+    wrong: [
+      ['Air in your arm.', 'wrong-part', 'Arms do not have air in them.'],
+      ['Your bones moving.', 'wrong-part', 'Bones do not beat. The beat comes from the chest.'],
+    ],
+    explain: 'That beat is your pulse. Each squeeze of the heart sends a push of blood all the way to your wrist.',
+    hints: ['Where does the beat start?', 'Each squeeze in your chest sends a push all the way down your arm.'],
+  },
+  {
+    id: 'heart-marrow',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'White blood cells are fighting the Blood Bandit. The body makes more of them. Where are new blood cells made?',
+    right: 'Inside the bones, in the marrow.',
+    wrong: [
+      ['In the stomach.', 'wrong-part', 'The stomach digests food. It does not make blood cells.'],
+      ['In the lungs.', 'wrong-part', 'The lungs swap air. New blood cells come from somewhere else.'],
+    ],
+    explain: 'New blood cells are made in bone marrow, the soft middle of many bones.',
+    hints: ['They are made somewhere hard on the outside and soft on the inside.', 'Your skeleton is not just for holding you up.'],
+  },
+  {
+    id: 'heart-antibody',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'White blood cells make antibodies. An antibody fits only one germ, like a key in a lock. What does an antibody do?',
+    right: 'Sticks to its germ so the body can find it.',
+    wrong: [
+      ['Sticks to every cell.', 'helper-or-germ', 'An antibody fits only one kind of germ.'],
+      ['Carries oxygen.', 'wrong-job', 'Red blood cells carry oxygen.'],
+    ],
+    explain: 'An antibody locks onto one kind of germ. That marks it, so white blood cells can find it fast.',
+    hints: ['A key fits only one lock. What does that tell you?', 'It marks just one kind of germ.'],
+  },
+  // level 3: cause and effect
+  {
+    id: 'heart-run',
+    tier: 3,
+    kind: 'scan',
+    ask: 'When you run, your muscles need more oxygen. Your heart beats faster. Why does the heart speed up?',
+    right: 'To send more blood and oxygen to the muscles.',
+    wrong: [
+      ['Because the heart is tired.', 'heart-tired', 'A faster beat is not tiredness. The heart is working harder on purpose.'],
+      ['To cool the lungs.', 'wrong-job', 'The heart does not cool the lungs.'],
+    ],
+    explain: 'Running muscles need more oxygen. A faster heartbeat sends them more blood, and more oxygen with it.',
+    hints: ['What do running muscles need more of?', 'More blood brings more of it.'],
+  },
+  {
+    id: 'heart-strong',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Exercise makes the heart muscle stronger. A strong heart pumps more blood with each beat. What can a strong heart do at rest?',
+    right: 'Beat more slowly.',
+    wrong: [
+      ['Stop for a while.', 'heart-tired', 'A healthy heart never stops to rest. It beats all life long.'],
+      ['Beat much faster.', 'wrong-job', 'A strong heart pushes more blood each beat, so it needs fewer beats.'],
+    ],
+    explain: 'A strong heart moves more blood with every beat, so at rest it can beat more slowly.',
+    hints: ['More blood each beat means how many beats are needed?', 'Think about fewer, bigger pushes.'],
+  },
+  {
+    id: 'heart-team',
+    tier: 3,
+    kind: 'scan',
+    ask: 'The lungs put oxygen into the blood. The heart pumps that blood. What happens if the heart is weak?',
+    right: 'Less oxygen gets to the body.',
+    wrong: [
+      ['The lungs stop breathing.', 'wrong-part', 'The lungs keep breathing. The trouble is the pumping.'],
+      ['Nothing changes.', 'heals-itself', 'The body needs the heart to move oxygen around.'],
+    ],
+    explain: 'The lungs and the heart are a team. If the pump is weak, less oxygen reaches the muscles and the brain.',
+    hints: ['Who carries the oxygen from the lungs to the body?', 'If the pump is weak, how much arrives?'],
+  },
+  {
+    id: 'heart-rest',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Heart muscle does not get tired like leg muscles. It rests a tiny bit between beats. When does the heart stop for a long rest?',
+    right: 'Never. It keeps beating all life long.',
+    wrong: [
+      ['At night, while you sleep.', 'heart-tired', 'The heart beats all night, just more slowly.'],
+      ['After lunch.', 'heart-tired', 'The heart keeps beating after meals too.'],
+    ],
+    explain: 'The heart rests only for a moment between beats. It slows down at night, but it never stops.',
+    hints: ['Can you feel your pulse while you sleep?', 'It slows down at night. Does it stop?'],
+  },
+  {
+    id: 'heart-spread',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'The Blood Bandit rides in the blood. Blood reaches every part of the body. Why is a germ in the blood a big problem?',
+    right: 'It can travel everywhere the blood goes.',
+    wrong: [
+      ['It can only stay in one place.', 'wrong-job', 'Blood moves, so a germ in it moves too.'],
+      ['Germs in the blood are always harmless.', 'heals-itself', 'Germs in the blood need the body’s defenses, and sometimes a doctor.'],
+    ],
+    explain: 'Blood flows to every part of the body, so a germ riding in it can reach anywhere.',
+    hints: ['Where does blood go?', 'Think of a germ on a bus that stops at every town.'],
+  },
+  {
+    id: 'heart-doctor',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'Some germs in the blood are serious. The body might need extra help. What should Commander Ayo do about a hot, swollen cut and a fever?',
+    right: 'Tell a doctor or a grown-up.',
+    wrong: [
+      ['Hide it and wait.', 'heals-itself', 'Some infections need a doctor. Waiting can make them worse.'],
+      ['Pick the scab off.', 'pick-scab', 'Picking the scab opens the cut and lets more germs in.'],
+    ],
+    explain: 'A hot, swollen cut with a fever needs a doctor. Telling a grown-up is always the right move.',
+    hints: ['Who can help when the body needs extra help?', 'Saying how you feel is always okay.'],
+  },
+];
+
+const BRAIN: QDef[] = [
+  // level 1: name it (the nerve relays of the finale)
+  {
+    id: 'brain-control',
+    tier: 1,
+    kind: 'scan',
+    ask: 'The brain sits inside your head. It sends messages to every part of the body. What is the brain’s main job?',
+    right: 'It is the control center.',
+    wrong: [
+      ['It pumps blood.', 'wrong-part', 'Pumping blood is the heart’s job.'],
+      ['It digests food.', 'wrong-part', 'Digesting happens in the gut.'],
+    ],
+    explain: 'The brain is the body’s control center. It sends orders and gets news from every part.',
+    hints: ['Who gives the orders in the body?', 'Like the captain of a ship.'],
+  },
+  {
+    id: 'brain-nerves',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Nerves are like long wires all through your body. Look at the glowing paths here. What do nerves carry?',
+    right: 'Messages to and from the brain.',
+    wrong: [
+      ['Food.', 'wrong-job', 'Food travels through the gut and the blood.'],
+      ['Air.', 'wrong-part', 'Air goes through the airways.'],
+    ],
+    explain: 'Nerves carry messages, super fast, between the brain and every part of the body.',
+    hints: ['Watch the sparks race along the paths.', 'Each spark is a tiny signal going somewhere.'],
+  },
+  {
+    id: 'brain-skull',
+    tier: 1,
+    kind: 'scan',
+    ask: 'The brain is soft. A hard bone covers it, called the skull. What does the skull do?',
+    right: 'It protects the brain.',
+    wrong: [
+      ['It thinks for you.', 'wrong-part', 'The skull is bone. The brain does the thinking.'],
+      ['It pumps blood to the head.', 'wrong-part', 'The heart pumps the blood.'],
+    ],
+    explain: 'The skull is a hard shell of bone that keeps the soft brain safe. A helmet helps it on a bike.',
+    hints: ['What does a helmet do?', 'Hard bone keeps something soft safe.'],
+  },
+  {
+    id: 'brain-senses',
+    tier: 1,
+    kind: 'scan',
+    ask: 'Your eyes, ears, nose, tongue and skin notice things. They send messages to the brain. What does the brain do with them?',
+    right: 'Works out what you see, hear and feel.',
+    wrong: [
+      ['Throws them away.', 'wrong-job', 'The brain uses every message to make sense of the world.'],
+      ['Turns them into food.', 'wrong-job', 'Messages are not food.'],
+    ],
+    explain: 'Your senses collect the news. The brain puts it together, so you know what is going on.',
+    hints: ['Who decides what a sound means?', 'The ears catch the sound. Something else understands it.'],
+  },
+  {
+    id: 'brain-gang',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'The whole Grime Gang is here: bacteria and viruses together. The body’s defenses are ready. What is the best plan?',
+    right: 'Every defense works together.',
+    wrong: [
+      ['Only one defense should fight.', 'wrong-job', 'The body is strongest when its parts team up.'],
+      ['Let the germs stay.', 'heals-itself', 'The germs will not leave on their own.'],
+    ],
+    explain: 'The body fights best as a team: skin, mucus, saliva, stomach acid and white blood cells, all led by the brain.',
+    hints: ['Think of all the helpers we met.', 'Skin, mucus, saliva, white blood cells. What if they all joined in?'],
+  },
+  {
+    id: 'brain-tell',
+    tier: 1,
+    kind: 'diagnose',
+    ask: 'Commander Ayo feels sick. The brain notices something is wrong. What is the best thing to do when you feel sick?',
+    right: 'Tell a grown-up.',
+    wrong: [
+      ['Keep it a secret.', 'heals-itself', 'A grown-up can help you get better.'],
+      ['Go to school and play hard.', 'skip-habit', 'Rest helps the body fight, and staying home keeps germs from spreading.'],
+    ],
+    explain: 'Feeling sick is normal, and nobody is to blame. Telling a grown-up gets you help and rest.',
+    hints: ['Who can help you when you are sick?', 'Saying how you feel is always okay.'],
+  },
+  // level 2: how it works
+  {
+    id: 'brain-hot',
+    tier: 2,
+    kind: 'scan',
+    ask: 'You touch a hot pan. Your hand pulls away before you even think. How does that happen?',
+    right: 'Nerves send a super-fast message.',
+    wrong: [
+      ['The hand decides by itself.', 'wrong-job', 'Hands do not think. Nerves and the spinal cord do the work.'],
+      ['The heart pulls the hand back.', 'wrong-part', 'The heart pumps blood. It does not move your hand.'],
+    ],
+    explain: 'Nerves in your skin send a message to the spinal cord, and a message races straight back to pull your hand away.',
+    hints: ['What carries messages very fast?', 'The glowing paths here race signals in a flash.'],
+  },
+  {
+    id: 'brain-kick',
+    tier: 2,
+    kind: 'scan',
+    ask: 'The brain sends orders to the muscles. You decide to kick a ball. Which path does the message take?',
+    right: 'Brain, then nerves, then leg muscles.',
+    wrong: [
+      ['Leg muscles, then brain, then nerves.', 'wrong-order', 'The message starts where the decision is made.'],
+      ['Stomach, then heart, then leg.', 'wrong-part', 'Messages travel along nerves, not through the stomach.'],
+    ],
+    explain: 'The brain decides, the nerves carry the order, and the leg muscles do the kicking.',
+    hints: ['Where is the decision made?', 'The message travels along the wires to the part that moves.'],
+  },
+  {
+    id: 'brain-auto',
+    tier: 2,
+    kind: 'scan',
+    ask: 'You do not have to think about breathing. You do not think about your heartbeat either. Who keeps them going?',
+    right: 'The brain, without you noticing.',
+    wrong: [
+      ['Nobody. They just happen.', 'brain-thinking-only', 'The brain runs them, even while you sleep.'],
+      ['The stomach.', 'wrong-part', 'The stomach digests. It does not run breathing.'],
+    ],
+    explain: 'The brain does much more than thinking. It runs breathing and the heartbeat all the time, even in your sleep.',
+    hints: ['Who is the control center?', 'It works even when you are asleep.'],
+  },
+  {
+    id: 'brain-sleep',
+    tier: 2,
+    kind: 'scan',
+    ask: 'Sleep gives the brain time to rest and sort out the day. Kids need lots of sleep. What happens with too little sleep?',
+    right: 'It is harder to think and to fight germs.',
+    wrong: [
+      ['Nothing. Sleep does not matter.', 'skip-habit', 'The brain and the body’s defenses both need sleep.'],
+      ['You grow extra muscles.', 'wrong-job', 'Missing sleep does not grow muscles.'],
+    ],
+    explain: 'Sleep helps the brain learn and helps the body’s defenses stay strong.',
+    hints: ['How do you feel after a very late night?', 'A tired brain and tired defenses both work less well.'],
+  },
+  {
+    id: 'brain-fever',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'The brain can turn up the body’s heat when germs attack. This is called a fever. Why does the brain do it?',
+    right: 'Heat slows the germs down.',
+    wrong: [
+      ['The fever is the germ.', 'fever-sickness', 'A fever is the body’s own move, not a germ.'],
+      ['The body is broken.', 'fever-sickness', 'A fever is on purpose. The body is fighting back.'],
+    ],
+    explain: 'A fever makes the body too warm for many germs, and it helps the white blood cells work.',
+    hints: ['Who turns up the heat: the germs or the brain?', 'Many germs do not like it too warm.'],
+  },
+  {
+    id: 'brain-guards',
+    tier: 2,
+    kind: 'diagnose',
+    ask: 'The brain notices the germs. Then the body sends its guards. Which cells rush to the germs?',
+    right: 'White blood cells.',
+    wrong: [
+      ['Red blood cells.', 'helper-or-germ', 'Red cells carry oxygen. They do not fight germs.'],
+      ['Skin cells.', 'wrong-part', 'Skin cells make the outside wall. They stay put.'],
+    ],
+    explain: 'White blood cells are the guards. They ride in the blood to wherever the germs are.',
+    hints: ['They are the body’s guards.', 'Puffy and pale, and they ride in the blood.'],
+  },
+  // level 3: cause and effect across the body
+  {
+    id: 'brain-oxygen',
+    tier: 3,
+    kind: 'scan',
+    ask: 'The brain uses lots of oxygen. Oxygen comes in through the lungs and rides in the blood. What happens if the brain gets too little?',
+    right: 'It cannot work well.',
+    wrong: [
+      ['It works better.', 'wrong-job', 'The brain needs oxygen every moment.'],
+      ['The stomach gives it oxygen.', 'wrong-part', 'Oxygen comes from the lungs, not the stomach.'],
+    ],
+    explain: 'The lungs, the heart and the brain are one team. Without enough oxygen, the brain gets slow and tired.',
+    hints: ['What does every working part of the body need?', 'Without enough, the brain gets slow and tired.'],
+  },
+  {
+    id: 'brain-boss',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Lungs bring in oxygen. The heart pumps it. The gut brings in food. Which part runs the whole team?',
+    right: 'The brain and nerves.',
+    wrong: [
+      ['The skin.', 'wrong-part', 'The skin is the wall. It does not give the orders.'],
+      ['The teeth.', 'wrong-part', 'Teeth chew. They do not run the body.'],
+    ],
+    explain: 'The brain and nerves link every body system, so they all work together.',
+    hints: ['Who sends messages everywhere?', 'The glowing paths start here.'],
+  },
+  {
+    id: 'brain-sleepy',
+    tier: 3,
+    kind: 'scan',
+    ask: 'When you are sick, you often feel sleepy. The brain makes you feel that way. Why?',
+    right: 'So you rest and the defenses can work.',
+    wrong: [
+      ['Because the brain is broken.', 'brain-thinking-only', 'The brain is fine. Feeling sleepy is part of its plan.'],
+      ['So the germs can win.', 'wrong-job', 'The brain is always on the body’s side.'],
+    ],
+    explain: 'Feeling sleepy makes you rest. Resting saves energy for the body’s fight against the germs.',
+    hints: ['What helps the body fight germs?', 'Resting saves energy for the fight.'],
+  },
+  {
+    id: 'brain-sneeze',
+    tier: 3,
+    kind: 'scan',
+    ask: 'Germs tickle the inside of the nose. Nerves tell the brain. What does the brain make you do?',
+    right: 'Sneeze to blow them out.',
+    wrong: [
+      ['Blink.', 'wrong-part', 'Blinking protects the eyes, not the nose.'],
+      ['Hiccup.', 'wrong-job', 'Hiccups come from the muscle under the lungs, not from germs in the nose.'],
+    ],
+    explain: 'A sneeze blasts the germs out of the nose. Sneeze into your elbow, so they do not reach other people.',
+    hints: ['What happens when your nose tickles?', 'It is a big, sudden blast of air.'],
+  },
+  {
+    id: 'brain-wall',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'The body has many defenses: skin, mucus, saliva, stomach acid and white blood cells. Which one is the first wall against germs?',
+    right: 'The skin.',
+    wrong: [
+      ['White blood cells.', 'wrong-order', 'White blood cells fight germs that already got in.'],
+      ['Stomach acid.', 'wrong-order', 'Acid only meets germs that were swallowed.'],
+    ],
+    explain: 'The skin keeps most germs out in the first place. The other defenses fight the ones that get past.',
+    hints: ['What covers the whole outside of you?', 'It was our very first mission.'],
+  },
+  {
+    id: 'brain-habits',
+    tier: 3,
+    kind: 'diagnose',
+    ask: 'Commander Ayo is well again. Healthy habits keep germs away. Which one is a set of healthy habits?',
+    right: 'Wash hands, brush teeth and sleep well.',
+    wrong: [
+      ['Skip washing if hands look clean.', 'skip-habit', 'Germs are too small to see.'],
+      ['Eat candy instead of brushing.', 'sugar-ok', 'Sugar feeds the cavity bacteria.'],
+    ],
+    explain: 'Washing hands, brushing teeth, cooking food well, staying active and sleeping well all keep the Grime Gang away.',
+    hints: ['Think about the habit games we played.', 'Each mission ended with one. Which choice has three of them?'],
+  },
+];
+
+const BANKS: Record<Mission, QDef[]> = { skin: SKIN, mouth: MOUTH, lungs: LUNGS, gut: GUT, heart: HEART, brain: BRAIN };
 
 // ------------------------------------------------------------------ picking questions
 
@@ -812,7 +1539,7 @@ export function shuffle<T>(r: Rand, list: T[]): T[] {
 
 /** Every question for a mission (for tests and the grown-ups page). */
 export function bank(m: Mission): QDef[] {
-  return BANKS[m] ?? [];
+  return BANKS[m];
 }
 
 function build(m: Mission, d: QDef, r: Rand): Question {

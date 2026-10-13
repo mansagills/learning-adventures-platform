@@ -298,12 +298,14 @@ export const games: PlayableGame[] = [
     title: 'Body System Heroes',
     subject: 'science',
     kind: 'game',
-    grades: '4–5',
-    difficulty: 'hard',
-    description: 'Guide tiny heroes through the human body to fight off germs.',
-    skills: ['Human Body', 'Health'],
-    estimatedTime: '20–25 min',
-    htmlPath: '/games/body-system-heroes.html',
+    grades: '3–5',
+    difficulty: 'medium',
+    description:
+      'Shrink down in the Micro-Scout and fly inside Commander Ayo’s body. Learn how the skin, teeth, lungs, gut, heart and brain work, find out which germ is making each one sick, clear it out with the body’s own defenses, and practice the healthy habits that keep germs away.',
+    skills: ['Human Body', 'Body Systems', 'Germs', 'Healthy Habits'],
+    estimatedTime: '30–45 min',
+    // Rebuilt with the Adventure Kit in the Star Station world, inside the body (UX-4 Phase 2, Science)
+    htmlPath: '/games/play/body-system-heroes/index.html',
     thumbnail: '/games/thumbnails/body-system-heroes.jpg',
   },
   {

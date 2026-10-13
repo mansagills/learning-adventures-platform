@@ -18,7 +18,7 @@ async function shot(name, query, vp, opts = {}) {
 }
 await shot('cast', '?view=body-cast', [1440, 900], { full: true });
 await shot('cast-phone', '?view=body-cast', [390, 844, 2], { full: true });
-for (const area of (process.env.AREAS ?? 'skin,mouth,lungs,blood,stomach').split(',')) {
+for (const area of (process.env.AREAS ?? 'skin,mouth,lungs,blood,stomach,brain').split(',')) {
   await shot(`${area}-desktop`, `?view=body&area=${area}&talk=0`, [1280, 720], { wait: 3000 });
   await shot(`${area}-talk`, `?view=body&area=${area}`, [1280, 720], { wait: 4000 });
   await shot(`${area}-phone`, `?view=body&area=${area}&talk=0`, [390, 844, 3], { wait: 3000 });

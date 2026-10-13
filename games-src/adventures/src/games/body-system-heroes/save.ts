@@ -2,7 +2,8 @@ import { DEFAULT_APPEARANCE, type Appearance } from '../../kit/art/characters';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../../kit/art/palette';
 import { cleanLearner, type LearnerState } from '../../kit/learning/mastery';
 import { SaveStore } from '../../kit/systems/save';
-import type { UpgradeId } from './art';
+import { UPGRADE_IDS, type UpgradeId } from './art';
+import { FACT_CARDS } from './content';
 import { MISSIONS, type Mission } from './problems';
 
 export interface HeroesSave {
@@ -17,6 +18,8 @@ export interface HeroesSave {
   /** Missions whose healthy-habit game has been played. */
   habits: Mission[];
   upgrades: UpgradeId[];
+  /** Body fact cards collected while exploring (card ids). */
+  cards: string[];
   openingSeen: boolean;
   flyTipSeen: boolean;
   /** Question ids asked lately (so every question comes up before any repeats). */
@@ -26,7 +29,6 @@ export interface HeroesSave {
 }
 
 const zeroes = (): Record<Mission, number> => ({ skin: 0, mouth: 0, lungs: 0, gut: 0, heart: 0, brain: 0 });
-const UPGRADE_IDS: UpgradeId[] = ['escort', 'wave', 'net'];
 
 export function freshSave(): HeroesSave {
   return {
@@ -38,6 +40,7 @@ export function freshSave(): HeroesSave {
     briefed: [],
     habits: [],
     upgrades: [],
+    cards: [],
     openingSeen: false,
     flyTipSeen: false,
     recent: [],
@@ -78,6 +81,7 @@ export function cleanSave(raw: unknown): HeroesSave {
     briefed: missions(r.briefed),
     habits: missions(r.habits),
     upgrades: Array.isArray(r.upgrades) ? UPGRADE_IDS.filter((u) => (r.upgrades as unknown[]).includes(u)) : [],
+    cards: Array.isArray(r.cards) ? FACT_CARDS.map((c) => c.id).filter((id) => (r.cards as unknown[]).includes(id)) : [],
     openingSeen: r.openingSeen === true,
     flyTipSeen: r.flyTipSeen === true,
     recent: Array.isArray(r.recent) ? (r.recent as unknown[]).filter((x): x is string => typeof x === 'string' && x.length < 40).slice(-60) : [],
