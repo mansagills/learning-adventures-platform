@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes: both halves built, waiting for the owner's look)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes, is COMPLETED ✅; 1 of 14 done)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1181,7 +1181,7 @@ Detailed learning specs are written at the start of this phase, aligned to NGSS.
 | **S5 Matter and chemistry** | States of Matter Mixer, Crystal Cave Chemistry |
 | **S6 Forces, energy and waves** | Magnet Power Puzzle, Simple Machines Construction, Simple Machines Lab (activity), Light Laboratory Escape, Sound Wave Surfer |
 
-#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, half 1 MERGED (PR #228), half 2 BUILT and waiting for the owner's look
+#### S3 first: Body System Heroes, the owner's inside-the-body idea: PLAN APPROVED (2026-10-12), look APPROVED, COMPLETED ✅ (half 1 in PR #228, half 2 in PR #229, merged 2026-10-13)
 
 The owner proposed a new Science game: children fly a microscopic ship through the human body, learn what each organ does, find out which germ is making it sick, then heal it and earn upgrades, mission by mission, with a sense of growth like *Spore*. One mission is the flu: learn how it spreads and why handwashing matters, then clear the germs from the lungs.
 
@@ -1388,7 +1388,7 @@ The gut, heart and brain missions show on the body map as "coming soon".
 
 **Not yet:** the game is not listed on the site until half 2, so the old Body System Heroes still plays at its address.
 
-##### Half 2: BUILT (2026-10-12), waiting for the owner's look
+##### Half 2: COMPLETED ✅ (built 2026-10-12, owner merged PR #229 on 2026-10-13)
 
 The owner merged half 1 and asked for half 2.
 
@@ -1521,3 +1521,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-11:** The owner merged PR #226. **Equation Balance Scale COMPLETED ✅ and M7 COMPLETED ✅. Phase 1 (Math) is COMPLETED ✅: all 11 Math games are rebuilt** (Number Line Ninja, Counting Carnival, Library Rush, Money Market Madness, Time Attack Clock, Math Race Rally, Math Adventure Island, Shape Town Builders, Forum Fraction Feast, Multiplication Space Quest and Equation Balance Scale). The team is doing QA on the finished games. Next: Phase 2 (Science), plan first, with the owner and team choosing which world each Science game goes in (game worlds W2), when the owner is ready.
 - **2026-10-12:** The owner proposed the first Science game: a microscopic ship exploring inside the human body (organ missions, germs to clear, healthy habits like handwashing for the flu, growth like *Spore*). Reviewed against the rubric (about 7.95 as first described, about 9.2 with the suggested changes). The owner chose Star Station with a new inside-the-body setting, free exploring in all directions, and replacing Body System Heroes. The plan is in the S3 section above, with draft names; waiting for the owner's approval and name picks.
 - **2026-10-12:** The owner approved the look ("the germs aren't scary, and the ship looks good") and asked for half 1. Body System Heroes half 1 built: the med bay, free flight, scanning, the skin, mouth and lungs missions (54 questions), the nest and the heal, three healthy-habit games (clean and cover, brushing, 20-second handwashing), three ship upgrades, the body map, germ files, saving and the grown-ups page. 7 unit tests, 52/52 browser checks, 34 fps (software). Provisional score 8.7. Waiting for the owner's look before half 2.
+- **2026-10-13:** The owner merged PR #229. **Body System Heroes COMPLETED ✅** (both halves; self-score 9.2/10; 73/73 browser checks). It replaces the old game on the site at the same address. That is the first of the 14 Science games. Next: the owner picks the next Science game; plan first, with the owner and team choosing its world.
