@@ -46,6 +46,9 @@ node scripts/e2e-multiplication-space-quest.mjs   # Multiplication Space Quest: 
 node scripts/e2e-equation-balance-scale.mjs   # Equation Balance Scale: the outpost, the Weigh Station (a miss keeps the scale locked, hints, the scale tips the right way), the Rover (real drags into the gap), the Dome (pick the equation on empty pans, then solve it; the letter p and boxes), The Big Weigh-in with Gloop on the scale and the beam, saving, a phone
 node scripts/ebs-tour.mjs <url> <outDir> [w] [h]    # Equation Balance Scale screenshots: the outpost, each job at levels 1-3 (the question, a miss, the hint picture, the answer, both steps of a Dome story), the job list and The Big Weigh-in (JOBS=dome for one job, WEIGHIN=0 to skip the finale)
 node scripts/e2e-body-system-heroes.mjs   # Body System Heroes: the med bay, flying by keys and by holding the mouse, the locked nest, scan questions (a miss, hints, Leave), the beam, the habit games with real scrubbing and jumping, all five missions and upgrades (helpers in the gut, the blood's pulse, darts), the finale (relays in order, the whole gang, game-complete), fact cards, the body map, grown-ups, saving, a phone
+node scripts/e2e-solar-system-explorer.mjs   # Solar System Explorer (half 1): the observatory, the Orrery (a miss, the hint ladder, the debrief, a lens lights), the Sunrise Lab (the flagpole and East and West), Lumi's "opens soon", the star map, Mars (driving the rover, the sample, the fact card, the question, the postcard), the Neptune cloud dive (steering, three finds), leaving Venus early, the album, grown-ups, saving, a phone (51 checks)
+node scripts/sse-tour.mjs <url> <outDir> [w] [h]    # Solar System Explorer screenshots: the observatory, each open station at levels 1-3 (a miss, the hint picture, the answer), the star map, planet stops and dives (STATIONS=orrery STOPS=mars,jupiter TIERS=1,2,3)
+node scripts/space-lookdev-shots.mjs   # the Solar System Explorer look preview pages (needs npx vite --port 5179)
 node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
@@ -548,4 +551,53 @@ Code: `src/games/body-system-heroes/`.
 | Answer | 1–3 | Click or tap an answer |
 | Hint | H | The light bulb |
 | Body map | J | Missions |
+| Grown-ups | G | Settings → For grown-ups |
+
+## Solar System Explorer (Science, grades 2–5): half 1
+
+S1 Space, in the Star Station world (slug `solar-system-explorer`; Planet
+Explorer Quest merges in). Half 1 is built and not listed on the site yet;
+half 2 adds the Star Dome, the Launch Bay, the Grand Tour finale and the
+site listing. The observatory, planet surfaces and space art are in the
+world kit (`src/kit/worlds/star-station/observatory.ts`, `surfaces.ts` and
+`space-art.ts`), kept out of the shared settings list.
+
+- **The observatory:** walk round the domed room. Navigator Sol stands by the
+  big telescope, whose four lenses light up one per finished station. Vee
+  the probe follows the player everywhere.
+- **The Orrery (Navigator Sol):** the planets in order (the glowing ring is
+  where the next planet goes), rocky planets and giants, what makes each one
+  special, and at level 3 the patterns (longer years far out, Venus hotter
+  than Mercury, no ground on a giant, the gaps grow, Pluto).
+- **The Sunrise Lab (Dr. Kofi Mensah):** a globe lit by a lamp (the lamp is on
+  the right and the globe turns like the real Earth, so the town comes out of
+  the night at the front: a sunrise), day and night, and a flagpole with East
+  and West for shadows (direction, and length through the day).
+- **The star map and the planet stops:** hop to any planet. On the rocky
+  planets (Mercury, Venus, Earth, Mars) drive the rover to three finds: a
+  sample, a fact card and a question. The giants have no ground, so Vee dives
+  into their clouds (`dive.ts`) and the player steers to catch the finds.
+  Three finds earn a postcard for the album.
+- **Hints:** a nudge, then a picture (the planets in a row with the asked one
+  hidden, rocky and giant groups, the lamp's rays on the globe, the Sun's rays
+  past the flagpole, or the Sun's path across the sky), then the answer
+  outlined.
+
+Code: `src/games/solar-system-explorer/`.
+- `problems.ts`: the questions (45 at the two stations, 3 at each planet stop) and the fact cards
+- `world.ts`: the observatory and the rover stops
+- `dive.ts`: the cloud dive
+- `art.ts`: the flagpole scene, the hint pictures and the icons
+- `content.ts`: every line and the grown-ups page
+
+| Action | Keyboard | Mouse / touch |
+|---|---|---|
+| Walk, or drive the rover | Arrow keys or WASD | Tap the ground, or the pad |
+| Talk, or pick up a find | Space | Tap a person or a find |
+| Steer in a cloud dive | Left and right arrows, or A and D | Hold the mouse or a finger on the side to go to |
+| Answer | 1–3 | Click or tap an answer |
+| Hint | H | The light bulb |
+| Stations | J | Stations |
+| Star map | P | Star map |
+| Album | B | Album |
 | Grown-ups | G | Settings → For grown-ups |

@@ -28,7 +28,7 @@ export const SURFACE_LAYOUT = { w: 24, h: 18, floorTop: 4 };
 const L = SURFACE_LAYOUT;
 
 export interface SurfaceLook {
-  id: 'mars' | 'mercury' | 'venus' | 'moon';
+  id: 'mars' | 'mercury' | 'venus' | 'earth' | 'moon';
   name: string;
   dust: Ramp;
   dust2: Ramp;
@@ -41,9 +41,11 @@ export interface SurfaceLook {
   stars: number;
   craters: number;
   /** Shape of the far horizon. */
-  horizon: 'shield-volcano' | 'cliffs';
+  horizon: 'shield-volcano' | 'cliffs' | 'hills';
   far: Ramp;
   inspiredBy: string;
+  /** Earth only: ponds of liquid water, flowers and white clouds in a blue sky. */
+  earthy?: boolean;
 }
 
 export const MARS_LOOK: SurfaceLook = {
@@ -76,6 +78,45 @@ export const MERCURY_LOOK: SurfaceLook = {
   horizon: 'cliffs',
   far: ramp('#6a6662', { spread: 0.5 }),
   inspiredBy: 'NASA MESSENGER pictures of Mercury: grey craters and long cliffs, no air (so a black sky), and a Sun two to three times bigger than from Earth.',
+};
+
+export const VENUS_LOOK: SurfaceLook = {
+  id: 'venus',
+  name: 'Venus',
+  dust: ramp('#b8864a'),
+  dust2: ramp('#9c6e3c'),
+  rock: ramp('#5e4a3a'),
+  sky: ['#b8702e', '#c8823a', '#d69a48', '#e2b05a', '#ecc46e'],
+  sunR: 0,
+  sunAt: [0.5, 0.5],
+  stars: 0,
+  craters: 1,
+  horizon: 'hills',
+  far: ramp('#a8763e', { spread: 0.5 }),
+  inspiredBy: 'The color pictures robot landers sent back from Venus in 1982: flat dark rocks under a thick orange-yellow sky, with the Sun hidden by clouds.',
+};
+
+/** Earth's ponds (tiles: x, y, radius); the rover drives round them. */
+export const EARTH_PONDS: Array<[number, number, number]> = [
+  [4.2, 10.4, 1.6],
+  [19.6, 8.4, 1.3],
+];
+
+export const EARTH_LOOK: SurfaceLook = {
+  id: 'earth',
+  name: 'Earth',
+  dust: ramp('#5aa84a'),
+  dust2: ramp('#4a9440'),
+  rock: ramp('#8a8a86'),
+  sky: ['#3f8fe0', '#5aa2e6', '#78b6ec', '#9cccf2', '#c2e2f6'],
+  sunR: 0.48,
+  sunAt: [0.72, 0.5],
+  stars: 0,
+  craters: 0,
+  horizon: 'hills',
+  far: ramp('#4f9a6a', { spread: 0.5 }),
+  inspiredBy: 'Home: a grassy meadow with a pond, under a blue sky.',
+  earthy: true,
 };
 
 function blob(x: number, y: number, sc: number, seed: number): number {
@@ -120,6 +161,23 @@ export function paintSurfaceGround(T: number, look: SurfaceLook): PixelBuffer {
         else p.dot(x, y, look.dust2, 1);
       }
   }
+  if (look.earthy) {
+    // ponds of liquid water, with a lighter edge and a glint
+    const water = ramp('#3a86d0');
+    for (const [cx, cy, rx] of EARTH_PONDS) {
+      p.ellipse(cx * T, cy * T, rx * T, rx * T * 0.55, ramp('#c9b07a'), { form: 'flat', level: 2 });
+      p.ellipse(cx * T, cy * T, rx * T * 0.88, rx * T * 0.47, water, { form: 'flat', level: 2 });
+      p.ellipse(cx * T - rx * T * 0.3, cy * T - rx * T * 0.12, rx * T * 0.3, rx * T * 0.08, water, { form: 'flat', level: 4 });
+    }
+    // little flowers in the grass
+    const petals = [ramp('#ffd65a'), ramp('#ff8fd0'), ramp('#ffffff')];
+    for (let i = 0; i < 70; i++) {
+      const x = hash(i, 1, 71) * W;
+      const y = (L.floorTop + 0.3 + hash(i, 2, 71) * (L.h - L.floorTop - 0.5)) * T;
+      p.dot(x, y, petals[i % 3], 3);
+      if (u >= 1.5) p.dot(x + 1, y, petals[i % 3], 2);
+    }
+  }
   // rover tracks across the ground
   for (let x = 2 * T; x < 15 * T; x++) {
     const y = 12.2 * T + Math.sin(x / (40 * u)) * 0.4 * T;
@@ -153,6 +211,8 @@ export function paintSurfaceSky(T: number, look: SurfaceLook, wTiles: number, hT
       // Olympus Mons: so wide and gently sloped that from the ground it looks like a long, low hill
       const k = (x - W * 0.62) / (W * 0.3);
       top = horizon - 0.25 * T - Math.max(0, 1 - k * k) * 1.1 * T;
+    } else if (look.horizon === 'hills') {
+      top = horizon - 0.25 * T - (Math.sin(x / (40 * u)) * 0.5 + 0.5) * 0.6 * T - Math.abs(Math.sin(x / (13 * u))) * 0.1 * T;
     } else {
       // Mercury's long cliffs (scarps), made as the planet shrank when its core cooled
       top = horizon - 0.3 * T - (Math.floor(x / (11 * T)) % 2 ? 0.6 * T : 0.2 * T) - Math.abs(Math.sin(x / (17 * u))) * 0.2 * T;
@@ -164,8 +224,33 @@ export function paintSurfaceSky(T: number, look: SurfaceLook, wTiles: number, hT
     for (let y = Math.floor(top); y < H; y++) p.dot(x, y, look.dust2, y < top + 2 * u ? 3 : 2);
   }
   const out = p.toBuffer({ outline: false });
-  const sun = paintPlanet('sun', look.sunR * T, 0);
-  out.blit(sun, Math.round(W * look.sunAt[0] - sun.w / 2), Math.round(H * look.sunAt[1] - sun.h / 2));
+  if (look.sunR > 0) {
+    const sun = paintPlanet('sun', look.sunR * T, 0);
+    out.blit(sun, Math.round(W * look.sunAt[0] - sun.w / 2), Math.round(H * look.sunAt[1] - sun.h / 2));
+  }
+  if (look.earthy) {
+    // fluffy white clouds drifting in the blue sky
+    for (const [cx, cy, sc] of [
+      [0.2, 0.5, 1],
+      [0.45, 0.42, 0.7],
+      [0.88, 0.55, 0.85],
+    ]) {
+      const c = new Paint(Math.round(3 * T * sc), Math.round(1.2 * T * sc));
+      const cw = c.w;
+      const ch = c.h;
+      c.ellipse(cw * 0.3, ch * 0.62, cw * 0.24, ch * 0.36, ramp('#f6fbff'), { bias: 0.3 });
+      c.ellipse(cw * 0.55, ch * 0.45, cw * 0.28, ch * 0.42, ramp('#f6fbff'), { bias: 0.3 });
+      c.ellipse(cw * 0.75, ch * 0.65, cw * 0.2, ch * 0.32, ramp('#f6fbff'), { bias: 0.3 });
+      const cb = c.toBuffer({ outline: false });
+      out.blit(cb, Math.round(W * cx + ((frame % 2) * u) - cb.w / 2), Math.round(H * cy - cb.h / 2));
+    }
+  }
+  if (look.id === 'venus') {
+    // thick cloud streaks in the orange sky
+    for (let y = 0; y < H * 0.75; y++)
+      for (let x = 0; x < W; x++)
+        if (Math.sin(x / (23 * u) + y / (4 * u) + frame * 0.4) > 0.86 && (x + y) % 2) out.set(x, y, mixHex(out.get(x, y) ?? look.sky[0], '#f2d08a', 0.35));
+  }
   if (look.id === 'mars') {
     // Mars's two little moons, Phobos and Deimos, faint in the day sky
     for (const [mx, my, r] of [
@@ -237,6 +322,8 @@ function surfaceSetting(look: SurfaceLook): Setting {
 
 export const SURFACE_MARS = surfaceSetting(MARS_LOOK);
 export const SURFACE_MERCURY = surfaceSetting(MERCURY_LOOK);
+export const SURFACE_VENUS = surfaceSetting(VENUS_LOOK);
+export const SURFACE_EARTH = surfaceSetting(EARTH_LOOK);
 
 function buildSurface(ctx: SceneCtx, look: SurfaceLook): SettingScene {
   const { lighting, px: T } = ctx;
@@ -273,11 +360,13 @@ function buildSurface(ctx: SceneCtx, look: SurfaceLook): SettingScene {
       add(lightPool(lighting, T, x, y, 0.9, col, 0.35));
       finds.push({ m, tex });
     }
+  if (look.earthy) for (const [x, y, r] of EARTH_PONDS) blocks.push({ x: x - r * 0.85, y: y - r * 0.4, w: r * 1.7, h: r * 0.8 });
   if (!ctx.omit?.includes('rover')) solid(paintRover(T).toCanvas(), 11.2, 11.4, 2.4, 0.8);
   return {
     map: { w: L.w, h: L.h },
     focus: { x: 12, feet: 11.4, top: -3.2 },
-    clear: look.sky[0],
+    // past the edges of the ground, the planet's own dust color (not a strip of sky)
+    clear: look.dust2[1],
     walk: { x0: 1.2, y0: 4.9, x1: L.w - 1.2, y1: L.h - 0.6 },
     blocks,
     spots: { player: { x: 11.2, y: 11.4 }, host: { x: 12.6, y: 10.4 } },

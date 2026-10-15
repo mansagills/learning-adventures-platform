@@ -209,7 +209,7 @@ function buildObservatory(ctx: SceneCtx): SettingScene {
   if (models) add(glow(lighting, T, Math.round(T * 2), '#ffd65a', OBS_SPOTS.orrery.x, OBS_SPOTS.orrery.y - 0.6, 1.6, 0.6));
   const globeTex = models ? Array.from({ length: 16 }, (_, f) => pixelTexture(paintGlobeLab(T, f / 16).toCanvas())) : [];
   const globe = models ? solid(paintGlobeLab(T, 0).toCanvas(), OBS_SPOTS.globe.x, OBS_SPOTS.globe.y, 1, 3) : null;
-  if (models) add(glow(lighting, T, Math.round(T * 2.4), '#ffd65a', OBS_SPOTS.globe.x - 1.5, OBS_SPOTS.globe.y, 1.8, 0.7));
+  if (models) add(glow(lighting, T, Math.round(T * 2.4), '#ffd65a', OBS_SPOTS.globe.x + 1.3, OBS_SPOTS.globe.y, 1.8, 0.7));
   const projTex = models ? [0, 1, 2].map((f) => pixelTexture(paintStarProjector(T, f).toCanvas())) : [];
   const proj = models ? solid(paintStarProjector(T, 0).toCanvas(), OBS_SPOTS.projector.x, OBS_SPOTS.projector.y, 0.6, 1.8) : null;
   if (models) add(glow(lighting, T, Math.round(T * 1.6), '#4fd6ff', OBS_SPOTS.projector.x, OBS_SPOTS.projector.y, 1.8, 0.5));

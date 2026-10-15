@@ -345,7 +345,7 @@ function paintSun(r: number): PixelBuffer {
  * rings. `t` is the model's time in years; close planets go round faster
  * (one turn per planet year), which is what the child sees when it runs.
  */
-export function paintOrrery(T: number, t = 0, placed = 8): PixelBuffer {
+export function paintOrrery(T: number, t = 0, placed = 8, glow = -1): PixelBuffer {
   const u = U(T);
   const S = (v: number) => v * u;
   const W = Math.round(80 * u);
@@ -360,8 +360,15 @@ export function paintOrrery(T: number, t = 0, placed = 8): PixelBuffer {
   p.ellipse(cx, cy, S(38), S(12), SPACE.night, { form: 'flat', level: 1 });
   // the orbit rings (brass), spaced so the gaps grow farther out, like the real ones
   const rings = PLANET_ORDER.map((_, i) => S(7 + i * 4.1 + i * i * 0.08));
-  for (const rr of rings)
-    for (let a = 0; a < Math.PI * 2; a += 0.6 / rr) p.dot(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.32, SPACE.brass, 1);
+  rings.forEach((rr, i) => {
+    for (let a = 0; a < Math.PI * 2; a += 0.6 / rr) {
+      if (i === glow) {
+        // the glowing ring: where the next planet goes
+        p.pix(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.32, STAR.neonCyan);
+        p.pix(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.32 + 1, '#2f9ac0');
+      } else p.dot(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.32, SPACE.brass, 1);
+    }
+  });
   // the Sun in the middle
   const sun = paintSun(S(3.6));
   const bufs: Array<{ b: PixelBuffer; x: number; y: number }> = [];
@@ -387,57 +394,70 @@ export function paintOrrery(T: number, t = 0, placed = 8): PixelBuffer {
 
 /**
  * The globe lab (about 4 tiles wide): a big Earth globe on a stand, lit by a
- * lamp that stands in for the Sun, so one half has day and the other night.
- * A crank turns it; `spin` 0..1 is one full day. A tiny town marker shows
- * where the child's town is.
+ * lamp on the right that stands in for the Sun, so one half has day and the
+ * other night. The crank turns it the way the real Earth turns (toward the
+ * east: the front moves left to right), so the town comes out of the night
+ * into the lamp's light at the front: a sunrise. `spin` 0..1 is one full day;
+ * at 0 the town is in the middle of its day. `rays` draws the lamp's light
+ * (a hint picture).
  */
-export function paintGlobeLab(T: number, spin = 0): PixelBuffer {
+export function paintGlobeLab(T: number, spin = 0, rays = false): PixelBuffer {
   const u = U(T);
   const S = (v: number) => v * u;
   const W = Math.round(64 * u);
   const H = Math.round(54 * u);
   const p = new Paint(W, H);
-  // the lamp on the left (the Sun)
-  p.rect(S(4), S(28), S(4), S(22), STAR.trim, { form: 'cylV', box: [S(4), 0, S(4), H] });
-  p.ellipse(S(6), S(51), S(6), S(2), STAR.dark, { form: 'flat', level: 1 });
-  p.ellipse(S(8), S(24), S(7), S(7), SPACE.lamp, { form: 'flat', level: 4 });
-  p.ellipse(S(8), S(24), S(4.5), S(4.5), ramp('#ffffff'), { form: 'flat', level: 2 });
-  // the stand and the crank
-  p.rect(S(37), S(42), S(6), S(9), SPACE.wood, { form: 'cylV', box: [S(37), 0, S(6), H] });
-  p.ellipse(S(40), S(51), S(10), S(2.2), SPACE.wood, { sep: true });
-  p.line(S(54), S(26), S(60), S(26), STAR.trim, 2);
-  p.line(S(60), S(26), S(60), S(31), STAR.trim, 2);
-  p.ellipse(S(60), S(32), S(1.6), S(1.6), STAR.magenta, { form: 'sphere' });
+  // the lamp on the right (the Sun)
+  p.rect(S(56), S(28), S(4), S(22), STAR.trim, { form: 'cylV', box: [S(56), 0, S(4), H] });
+  p.ellipse(S(58), S(51), S(6), S(2), STAR.dark, { form: 'flat', level: 1 });
+  p.ellipse(S(56), S(24), S(7), S(7), SPACE.lamp, { form: 'flat', level: 4 });
+  p.ellipse(S(56), S(24), S(4.5), S(4.5), ramp('#ffffff'), { form: 'flat', level: 2 });
+  // the stand and the crank (on the left)
+  p.rect(S(21), S(42), S(6), S(9), SPACE.wood, { form: 'cylV', box: [S(21), 0, S(6), H] });
+  p.ellipse(S(24), S(51), S(10), S(2.2), SPACE.wood, { sep: true });
+  p.line(S(10), S(26), S(4), S(26), STAR.trim, 2);
+  p.line(S(4), S(26), S(4), S(31), STAR.trim, 2);
+  p.ellipse(S(4), S(32), S(1.6), S(1.6), STAR.magenta, { form: 'sphere' });
   // the brass ring round the globe
-  for (let a = 0; a < Math.PI * 2; a += 0.02) p.dot(S(40) + Math.cos(a) * S(15.5), S(25) + Math.sin(a) * S(15.5), SPACE.brass, a > Math.PI ? 3 : 1);
+  for (let a = 0; a < Math.PI * 2; a += 0.02) p.dot(S(24) + Math.cos(a) * S(15.5), S(25) + Math.sin(a) * S(15.5), SPACE.brass, a > Math.PI ? 3 : 1);
   // the globe itself, lit from the lamp's side
-  const gx = S(40);
+  const gx = S(24);
   const gy = S(25);
   const R = S(14);
-  const lx = -1;
   for (let y = Math.floor(gy - R); y <= gy + R; y++)
     for (let x = Math.floor(gx - R); x <= gx + R; x++) {
       const nx = (x + 0.5 - gx) / R;
       const ny = (y + 0.5 - gy) / R;
       if (nx * nx + ny * ny > 1) continue;
       const nz = Math.sqrt(1 - nx * nx - ny * ny);
-      const lon = Math.atan2(nx, nz) / Math.PI + spin * 2;
+      const lon = Math.atan2(nx, nz) / Math.PI - spin * 2;
       const n = vnoise(lon * 4 + 10, ny * 2.5 + 3, 7) * 0.7 + vnoise(lon * 10, ny * 6, 9) * 0.3;
       const r: Ramp = Math.abs(ny) > 0.86 ? COL.ice : n > 0.55 ? (n > 0.7 && Math.abs(ny) < 0.4 ? COL.desert : COL.land) : COL.ocean;
-      const light = nx * lx * 0.95 + nz * 0.3 - ny * 0.1;
+      const light = nx * 0.95 + nz * 0.3 - ny * 0.1;
       const dith = (x + y) % 2 ? 0.04 : -0.04;
       const lv = light + dith > 0.55 ? 4 : light + dith > 0.25 ? 3 : light + dith > 0 ? 2 : light + dith > -0.2 ? 1 : 0;
       p.dot(x, y, r, lv);
       // the night side is darker still, with a few city lights
-      if (light + dith < -0.2 && r !== COL.ocean && hash(x, y, 77 + Math.floor(spin * 20)) < 0.04) p.pix(x, y, '#ffe9a8');
+      if (light + dith < -0.2 && r !== COL.ocean && hash(x, y, 77) < 0.04) p.pix(x, y, '#ffe9a8');
     }
-  // the town marker, riding round with the globe (only on the side facing us)
-  const ta = spin * Math.PI * 2 - 0.4;
-  if (Math.cos(ta) > 0) {
-    const tx = gx + Math.sin(ta) * R * 0.75;
+  // the lamp's light (a hint picture): rays from the lamp to the lit half
+  if (rays)
+    for (let k = -3; k <= 3; k++) {
+      const y0 = S(24) + k * S(1.6);
+      const y1 = gy + k * S(3.6);
+      for (let x = S(50); x > gx + Math.sqrt(Math.max(0, R * R - (y1 - gy) ** 2)) + S(1); x -= 2) {
+        const t = (S(50) - x) / (S(50) - gx);
+        p.pix(x, y0 + (y1 - y0) * t, '#fff3a8');
+      }
+    }
+  // the town marker rides round with the globe (only on the side facing us)
+  const ta = 0.6 + spin * Math.PI * 2;
+  if (Math.cos(ta) > 0.15) {
+    const tx = gx + Math.sin(ta) * R * 0.92;
     const ty = gy - R * 0.25;
-    p.line(tx, ty, tx, ty - S(4), STAR.white, 4);
-    p.rect(tx, ty - S(4), S(2.5), S(1.6), STAR.magenta, { level: 3 });
+    p.line(tx, ty, tx, ty - S(5), STAR.white, 4);
+    p.rect(tx, ty - S(5), S(3), S(2), STAR.magenta, { level: 3 });
+    p.ellipse(tx, ty, S(1.3), S(1), STAR.magenta, { form: 'flat', level: 3 });
   }
   return p.toBuffer();
 }
@@ -544,9 +564,11 @@ export function paintLaunchCannon(T: number, frame = 0): PixelBuffer {
 /**
  * The big telescope (about 5 tiles tall), the centrepiece of the observatory:
  * a long white tube on a sturdy mount, with four lens rings that light up one
- * by one as the stations are finished (`lit` 0..4).
+ * by one as the stations are finished (`lit` 0..4 lights the first ones, or
+ * one true or false per lens, in station order).
  */
-export function paintBigTelescope(T: number, lit = 0): PixelBuffer {
+export function paintBigTelescope(T: number, lit: number | boolean[] = 0): PixelBuffer {
+  const on = (k: number) => (typeof lit === 'number' ? k < lit : !!lit[k]);
   const u = U(T);
   const S = (v: number) => v * u;
   const W = Math.round(64 * u);
@@ -574,7 +596,7 @@ export function paintBigTelescope(T: number, lit = 0): PixelBuffer {
     // a band round the tube, square to it
     const nx = 48 / 62.5;
     const ny = 40 / 62.5;
-    p.capsule(x - nx * S(6.4), y - ny * S(6.4), x + nx * S(6.4), y + ny * S(6.4), S(1.5), k < lit ? ringC[k] : STAR.dark, { form: 'cylV', sep: true, bias: k < lit ? 0.3 : 0 });
+    p.capsule(x - nx * S(6.4), y - ny * S(6.4), x + nx * S(6.4), y + ny * S(6.4), S(1.5), on(k) ? ringC[k] : STAR.dark, { form: 'cylV', sep: true, bias: on(k) ? 0.3 : 0 });
   }
   return p.toBuffer();
 }

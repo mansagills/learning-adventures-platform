@@ -1457,7 +1457,7 @@ The owner merged half 1 and asked for half 2.
 6. **The title:** keep **Body System Heroes** (the same name and address), or rename it, for example **Micro-Scout: Inside the Body**. The address stays the same either way.
 
 
-#### S1 Space: Solar System Explorer: PLAN APPROVED (2026-10-15, with Claude's picks), look preview BUILT, waiting for the owner's look
+#### S1 Space: Solar System Explorer: PLAN APPROVED (2026-10-15, with Claude's picks), look APPROVED, half 1 BUILT (2026-10-15), waiting for the owner's look before half 2
 
 > Source: the old site games `public/games/solar-system-explorer.html` (grades 2–5) and `public/games/planet-explorer-quest.html` (grades 3–5). They merge into one game at the surviving slug **`solar-system-explorer`**, grades **2–5**; `/games/planet-explorer-quest` redirects to it.
 >
@@ -1563,7 +1563,7 @@ The space standards in NGSS sit in grade 1 (patterns of the Sun, Moon and stars)
 - the title stays **Solar System Explorer**
 - built in **two halves**, with a look preview first
 
-##### Look preview: BUILT (2026-10-15), waiting for the owner's look
+##### Look preview: APPROVED (2026-10-15: the owner said "Build half 1")
 
 Open with `cd games-src/adventures && npm run dev`, then `/lookdev/#space-cast`, `#space-observatory`, `#space-mars`, `#space-mercury` and `#space-jupiter`. `node scripts/space-lookdev-shots.mjs` saves the screenshots to `test-output/space-lookdev/`.
 
@@ -1584,6 +1584,55 @@ Open with `cd games-src/adventures && npm run dev`, then `/lookdev/#space-cast`,
   - `surfaces.ts` (the planet stops and the cloud dive)
   - `src/lookdev/space.ts`
   - These are kept out of the shared settings list, so the other games stay unchanged (all 180 unit tests pass).
+
+##### Half 1: BUILT (2026-10-15), waiting for the owner's look before half 2
+
+What a child can do now (not listed on the site yet; it opens at `/games/play/solar-system-explorer/`):
+
+- **The observatory:** walk round the domed room with Vee following.
+  - Navigator Sol stands by the big telescope. Its four lenses light up one per finished station, in each station's own color.
+  - Lumi and Tess say their stations open soon (half 2).
+- **The Orrery (Navigator Sol): 27 questions.**
+  - Level 1: name a planet from its picture, and "which planet goes on the glowing ring" for the first four rings.
+  - Level 2: all eight in order, rocky planets and giants, and the old games' "why" questions with the facts fixed.
+  - Level 3: the patterns: longer years far out, Mercury fastest because the Sun's pull is strongest close in, Venus hotter than Mercury, no ground on a giant, the gaps grow, Pluto, cold Neptune.
+  - The debrief: "Why is Venus hotter than Mercury?"
+- **The Sunrise Lab (Dr. Kofi Mensah): 18 questions.**
+  - A globe lit by a lamp. The lamp is on the right and the globe turns like the real Earth, so the town comes out of the night at the front: a sunrise.
+  - A flagpole with East and West labels, for shadows.
+  - Level 1: the lit half has day; sunrise in the east and sunset in the west; a shadow falls away from the Sun.
+  - Level 2: one spin is about 24 hours; the Sun only seems to move; why we have night; which way a shadow points in the morning and the evening.
+  - Level 3: shadow length through the day; a sundial; midnight on the far side of Earth.
+  - The debrief: "Why does the Sun seem to cross the sky?"
+- **The star map and all 8 planet stops.**
+  - On Mercury, Venus, Earth and Mars, drive the rover to three finds: a sample (Vee says what it is), a fact card (distance, one spin, one year, moons) and a question.
+  - On Jupiter, Saturn, Uranus and Neptune there is no ground, so Vee dives into the clouds. The child steers with the arrow keys or a finger to catch the three finds. It gets darker deeper down, with lightning.
+  - Three finds earn a postcard for the album (B).
+  - Leaving early keeps the finds already collected.
+  - New surfaces for Venus (an orange sky with the Sun hidden by clouds, flat dark rocks) and Earth (grass, ponds, flowers, a blue sky with clouds).
+- **Hints** go from a nudge, to a picture, to the answer outlined. The picture is one of:
+  - the planets in a row, with the asked one hidden behind a "?"
+  - the rocky and giant groups
+  - the lamp's rays on the globe
+  - the Sun's rays past the flagpole to the shadow's tip
+  - the Sun's path across the sky
+- **Saving and the grown-ups page:** progress rows for the two stations and the planet stops, the standards, talking points and what the game simplifies.
+- **Checks:**
+  - 10 unit tests (`tests/sse-problems.test.ts`). They also make sure the old games' mistakes cannot come back.
+  - 51/51 browser checks (`scripts/e2e-solar-system-explorer.mjs`).
+  - 49 fps in the observatory, 55 on Mars and 60 in a dive, even with the slow software rendering on the test machine.
+  - The other Star Station games still pass all their browser checks (Equation Balance Scale 62/62, Body System Heroes 73/73, Multiplication Space Quest 66/66).
+
+Provisional score (half 1): 8.75/10.
+
+| Category | Points | Evidence |
+|---|---|---|
+| Gameplay and feel | 2.2 / 2.5 | Walking, driving the rover, steering a dive and collecting postcards give real variety. The weakest point: the stations are answered with buttons, and the orrery and globe models move on their own rather than being dragged or cranked by the child. |
+| Learning accuracy and clarity | 1.85 / 2.0 | 69 questions across three levels. Every wrong answer names a real misconception. Hint 2 always adds a picture, and both stations have a debrief. Facts were checked against NASA. |
+| Visual and audio polish | 1.35 / 1.5 | New 16-bit art for the observatory, four surfaces and four cloud palettes, plus three songs. The orrery picture in the panel is small next to the planet pictures. |
+| Usability and accessibility | 1.35 / 1.5 | Keyboard, mouse and touch all work, read-aloud is on, the phone layout fits (51 checks include a phone), and reduced motion stills the bands and the bobbing. |
+| Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, smooth on software rendering, and saves are checked when loaded. |
+| Completeness | 0.6 / 1.0 | Half 1 only: the Star Dome, the Launch Bay, the Grand Tour, the site listing and the redirect come in half 2. |
 
 ### Phase 3: English and History (2): NOT STARTED
 
@@ -1652,3 +1701,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-13:** The owner merged PR #229. **Body System Heroes COMPLETED ✅** (both halves; self-score 9.2/10; 73/73 browser checks). It replaces the old game on the site at the same address. That is the first of the 14 Science games. Next: the owner picks the next Science game; plan first, with the owner and team choosing its world.
 - **2026-10-13:** The owner picked the next Science game: **Solar System Explorer** (S1 Space, in Star Station; Planet Explorer Quest merges in), and decided that **Wild Lands**, the nature world, comes right after it. Both old games were studied and their facts checked against NASA: six facts are fixed (Mercury's speed, the Uranus wrong answer that is also true, the Great Red Spot's age, Olympus Mons's height, out-of-date moon counts, and day length meaning one spin). The plan is in the S1 section above (a walking observatory with four hands-on space models, hops to every planet and a Grand Tour finale; grades 2–5). Waiting for the owner's choices and approval.
 - **2026-10-15:** The owner approved the Solar System Explorer plan with Claude's picks: the walking observatory, Navigator Sol, Lumi Reyes, Kofi Mensah, Tess Rocket, Vee, the same title, and two halves. The look preview is built (the cast, the observatory, Mars, Mercury and the Jupiter dive). Waiting for the owner's look before half 1.
+- **2026-10-15:** The owner looked at the preview and said "Build half 1". Half 1 built: the walkable observatory with Vee, the Orrery and the Sunrise Lab (45 questions and two debriefs), the star map, all 8 planet stops (a rover on the rocky planets, a cloud dive on the giants, 24 stop questions, fact cards, postcards and the album), saving and the grown-ups page. 10 unit tests, 51/51 browser checks, provisional score 8.75. Waiting for the owner's look before half 2.
