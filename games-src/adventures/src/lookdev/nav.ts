@@ -22,6 +22,11 @@ export const PAGES: Array<[string, string]> = [
   ['body-blood', 'Body: a blood vessel'],
   ['body-stomach', 'Body: the stomach'],
   ['body-brain', 'Body: the brain'],
+  ['space-cast', 'Space: the cast'],
+  ['space-observatory', 'Space: the observatory'],
+  ['space-mars', 'Space: Mars'],
+  ['space-mercury', 'Space: Mercury'],
+  ['space-jupiter', 'Space: Jupiter dive'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -41,6 +46,18 @@ export function pageParams(): URLSearchParams {
       q.set('area', area);
       if (flag === 'quiet') q.set('talk', '0');
     }
+    return q;
+  }
+  // Solar System Explorer: #space-cast, #space-jupiter, or #space-<area> (add -quiet to hide the talk box)
+  if (token.startsWith('space-')) {
+    const [, area, flag] = token.split('-');
+    if (area === 'cast') q.set('view', 'space-cast');
+    else if (area === 'jupiter') q.set('view', 'space-jupiter');
+    else {
+      q.set('view', 'space');
+      q.set('area', area);
+    }
+    if (flag === 'quiet') q.set('talk', '0');
     return q;
   }
   const id = SETTING_IDS.find((sid) => token.startsWith(sid)) ?? 'station-deck';

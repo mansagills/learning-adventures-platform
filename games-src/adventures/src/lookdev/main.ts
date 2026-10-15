@@ -14,6 +14,7 @@ import { showSheet } from './sheet';
  *   ?view=scene&world=star|ancient&level=a|b|c&time=day|evening
  * or the same as a #token, for example #star-day or #ancient-evening-talk.
  * Body System Heroes: #body-cast, #body-lungs, #body-blood, #body-stomach.
+ * Solar System Explorer: #space-cast, #space-observatory, #space-mars, #space-mercury, #space-jupiter.
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -25,4 +26,10 @@ if (view === 'scene') {
   import('./body').then((m) => m.showBodyScene(host, q));
 } else if (view === 'body-cast') {
   import('./body').then((m) => m.showBodyCast(host));
+} else if (view === 'space') {
+  import('./space').then((m) => m.showSpaceScene(host, q));
+} else if (view === 'space-cast') {
+  import('./space').then((m) => m.showSpaceCast(host));
+} else if (view === 'space-jupiter') {
+  import('./space').then((m) => m.showJupiterDive(host, q));
 } else showSheet(host, q);

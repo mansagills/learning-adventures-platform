@@ -1457,7 +1457,7 @@ The owner merged half 1 and asked for half 2.
 6. **The title:** keep **Body System Heroes** (the same name and address), or rename it, for example **Micro-Scout: Inside the Body**. The address stays the same either way.
 
 
-#### S1 Space: Solar System Explorer: PLAN WRITTEN (2026-10-13), waiting for the owner's approval
+#### S1 Space: Solar System Explorer: PLAN APPROVED (2026-10-15, with Claude's picks), look preview BUILT, waiting for the owner's look
 
 > Source: the old site games `public/games/solar-system-explorer.html` (grades 2–5) and `public/games/planet-explorer-quest.html` (grades 3–5). They merge into one game at the surviving slug **`solar-system-explorer`**, grades **2–5**; `/games/planet-explorer-quest` redirects to it.
 >
@@ -1556,6 +1556,35 @@ The space standards in NGSS sit in grade 1 (patterns of the Sun, Moon and stars)
 5. **The title:** keep **Solar System Explorer** (recommended; the same address either way), or something like **Sol's Observatory: Solar System Explorer**.
 6. **Two halves**, with a quick look in between (recommended, as for the last games), or all at once.
 
+**Owner answer (2026-10-15):** "This is a good use of updating the old games. I'll go with your picks." So:
+- **(a)** the walking observatory with hands-on space models and short hops to the planets
+- the host is **Navigator Sol**; the helpers are **Astronomer Lumi Reyes** (Star Dome), **Dr. Kofi Mensah** (Sunrise Lab) and **Engineer Tess Rocket** (Launch Bay)
+- the probe is **Vee**
+- the title stays **Solar System Explorer**
+- built in **two halves**, with a look preview first
+
+##### Look preview: BUILT (2026-10-15), waiting for the owner's look
+
+Open with `cd games-src/adventures && npm run dev`, then `/lookdev/#space-cast`, `#space-observatory`, `#space-mars`, `#space-mercury` and `#space-jupiter`. `node scripts/space-lookdev-shots.mjs` saves the screenshots to `test-output/space-lookdev/`.
+
+- **The cast sheet:**
+  - Vee (hovering, thrusting, facing left, blinking, and in the talk box)
+  - the crew and the player
+  - the Sun, the eight planets, the Moon and Pluto
+  - the space models: the orrery running, the globe lab turning from day to night, the star projector, the launch cannon and the big telescope with its lenses dark and lit
+  - Navigator Sol's star map and three postcards
+  - the three finds and the Jupiter cloud dive
+- **The observatory:** a domed room with an arched window onto the stars, the Milky Way, the Moon and Earth's blue edge. The telescope stands in the middle, with the models and their helpers round it, the Star Dome door on the left and the Launch Bay hatch on the right.
+- **Mars:** rusty dust, dark boulders and craters, a butterscotch sky with a small Sun, and Olympus Mons as a long, low hill on the horizon. The rover, Vee and the three finds are there.
+- **Mercury:** grey craters and long cliffs, a black sky even in the day, and a big Sun.
+- **Jupiter:** Vee dives through cloud bands that blow in opposite directions. It gets darker deeper down, with lightning.
+- **Code:**
+  - `src/kit/worlds/star-station/space-art.ts` (the crew, Vee, the planets, the models, the star map and postcards)
+  - `observatory.ts` (the observatory setting)
+  - `surfaces.ts` (the planet stops and the cloud dive)
+  - `src/lookdev/space.ts`
+  - These are kept out of the shared settings list, so the other games stay unchanged (all 180 unit tests pass).
+
 ### Phase 3: English and History (2): NOT STARTED
 
 - **Spelling Bee Challenge** (3–5): spelling patterns (vowel teams, prefixes and suffixes, homophones) with word meaning in context, not just memorizing lists (L.3.2, L.4.2).
@@ -1622,3 +1651,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-12:** The owner approved the look ("the germs aren't scary, and the ship looks good") and asked for half 1. Body System Heroes half 1 built: the med bay, free flight, scanning, the skin, mouth and lungs missions (54 questions), the nest and the heal, three healthy-habit games (clean and cover, brushing, 20-second handwashing), three ship upgrades, the body map, germ files, saving and the grown-ups page. 7 unit tests, 52/52 browser checks, 34 fps (software). Provisional score 8.7. Waiting for the owner's look before half 2.
 - **2026-10-13:** The owner merged PR #229. **Body System Heroes COMPLETED ✅** (both halves; self-score 9.2/10; 73/73 browser checks). It replaces the old game on the site at the same address. That is the first of the 14 Science games. Next: the owner picks the next Science game; plan first, with the owner and team choosing its world.
 - **2026-10-13:** The owner picked the next Science game: **Solar System Explorer** (S1 Space, in Star Station; Planet Explorer Quest merges in), and decided that **Wild Lands**, the nature world, comes right after it. Both old games were studied and their facts checked against NASA: six facts are fixed (Mercury's speed, the Uranus wrong answer that is also true, the Great Red Spot's age, Olympus Mons's height, out-of-date moon counts, and day length meaning one spin). The plan is in the S1 section above (a walking observatory with four hands-on space models, hops to every planet and a Grand Tour finale; grades 2–5). Waiting for the owner's choices and approval.
+- **2026-10-15:** The owner approved the Solar System Explorer plan with Claude's picks: the walking observatory, Navigator Sol, Lumi Reyes, Kofi Mensah, Tess Rocket, Vee, the same title, and two halves. The look preview is built (the cast, the observatory, Mars, Mercury and the Jupiter dive). Waiting for the owner's look before half 1.
