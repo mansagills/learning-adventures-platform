@@ -58,6 +58,11 @@ const nextConfig = {
         destination: '/games/multiplication-space-quest',
         permanent: true,
       },
+      {
+        source: '/games/planet-explorer-quest',
+        destination: '/games/solar-system-explorer',
+        permanent: true,
+      },
     ];
   },
   async headers() {

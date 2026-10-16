@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
-import { bank, FACTS, makeQuestion, OPEN_STATIONS, PLANET_ORDER, stopBank, stopQuestion, TIERS, type Question, type QDef } from '../src/games/solar-system-explorer/problems';
+import { bank, FACTS, makeQuestion, OPEN_STATIONS, PLANET_ORDER, STATIONS, stopBank, stopQuestion, TIERS, type Question, type QDef } from '../src/games/solar-system-explorer/problems';
+import { DIAL, launch, ORBIT_R, SHOT_SPEED } from '../src/games/solar-system-explorer/physics';
 
 /** Every question, built once (stations and planet stops). */
 function all(): Question[] {
@@ -116,5 +117,75 @@ describe('Solar System Explorer questions', () => {
     const r = mulberry32(3);
     for (let i = 0; i < 30; i++) spots.add(makeQuestion('orrery', 1, r).choices.findIndex((c) => c.correct));
     expect(spots.size).toBe(3);
+  });
+
+  it('all four stations are open', () => {
+    expect(OPEN_STATIONS).toEqual(STATIONS);
+  });
+
+  it('the Star Dome and the Launch Bay keep the tricky facts right', () => {
+    const right = (s: 'dome' | 'launch', id: string) => (bank(s) as QDef[]).find((d) => d.id === id)!;
+    // the Sun is a middle-sized star that looks big because it is close; "the biggest star" is only ever a wrong answer
+    for (const d of bank('dome')) expect(d.right, d.id).not.toMatch(/biggest star/i);
+    expect(right('dome', 'dome-why-big').right).toMatch(/closer/);
+    // the Moon and the planets shine with reflected sunlight
+    expect(right('dome', 'dome-moon-shine').right).toMatch(/sunlight/i);
+    // the seasons come from the tilt, not the distance (Earth is closest in early January)
+    expect(right('launch', 'launch-seasons').right).toMatch(/tilt/);
+    expect(right('launch', 'launch-seasons').wrong.map((w) => w[1])).toContain('season-distance');
+    // astronauts float because they are falling round Earth; "no gravity in space" is only ever a wrong answer
+    expect(right('launch', 'launch-astronauts').right).toMatch(/falling/);
+    for (const d of [...bank('dome'), ...bank('launch')]) expect(d.right, d.id).not.toMatch(/no gravity/i);
+    // down points to the middle of Earth everywhere
+    expect(right('launch', 'launch-bottom').right).toMatch(/middle/);
+  });
+
+  it('every Star Dome and Launch Bay question has a picture for hint 2 (a model, or a change to its picture)', () => {
+    // the hint picture each picture kind can show, by model (the game draws these)
+    const shows: Record<string, string[]> = {
+      lamps: ['lamps'],
+      starsky: ['daysky', 'lamps'],
+      season: ['seasons'],
+      moonlight: ['moonlight', 'paths'],
+      cannon: ['paths'],
+      down: ['down'],
+      tilt: ['tilt'],
+      planet: ['lamps', 'card'],
+      orrery: ['years', 'order'],
+    };
+    for (const d of [...bank('dome'), ...bank('launch')] as QDef[]) expect(shows[d.pic.k] ?? [], `${d.id}: ${d.pic.k} + ${d.model}`).toContain(d.model);
+  });
+
+  it('the cannon pictures match their questions (the orbit questions show an orbit)', () => {
+    for (const d of bank('launch') as QDef[]) {
+      if (d.pic.k !== 'cannon') continue;
+      const text = `${d.ask} ${d.right}`.toLowerCase();
+      if (d.pic.shot === 'orbit') expect(text, d.id).toMatch(/orbit|around|float/);
+      if (d.pic.shot === 'slow') expect(text, d.id).toMatch(/slow/);
+      if (d.pic.shot === 'escape') expect(text, d.id).toMatch(/super fast|flies off/);
+    }
+  });
+});
+
+describe('Tess’s cannon (real gravity)', () => {
+  it('a slow shot lands, a just-right shot orbits, a super fast one flies away', () => {
+    expect(launch(SHOT_SPEED.slow).outcome).toBe('land');
+    expect(launch(SHOT_SPEED.orbit).outcome).toBe('orbit');
+    expect(launch(SHOT_SPEED.escape).outcome).toBe('escape');
+  });
+
+  it('the dial goes from landing, to orbits, to flying away, in order', () => {
+    expect(DIAL.map((v) => launch(v).outcome)).toEqual(['land', 'land', 'land', 'orbit', 'orbit', 'escape']);
+  });
+
+  it('the just-right speed makes a circle that stays at the mountain top', () => {
+    for (const [x, y] of launch(1).path) expect(Math.abs(Math.hypot(x, y) - ORBIT_R)).toBeLessThan(0.01);
+  });
+
+  it('a landing ends on the ground, and every path starts at the cannon', () => {
+    const f = launch(SHOT_SPEED.slow);
+    const [x, y] = f.path[f.path.length - 1];
+    expect(Math.hypot(x, y)).toBeCloseTo(1, 5);
+    expect(f.path[0]).toEqual([0, -ORBIT_R]);
   });
 });

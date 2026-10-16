@@ -1,15 +1,21 @@
-// Browser check for Solar System Explorer (half 1): plays a new game from the
-// title screen with real clicks and keys. Navigator Sol and Vee open the story;
-// the player walks, clicks Sol and plays the Orrery (a wrong answer is crossed
-// out with a sentence about the mistake, the hint ladder adds a picture and
-// then outlines the answer), finishes it with the debrief (a telescope lens
+// Browser check for Solar System Explorer: plays a new game from the title
+// screen with real clicks and keys. Navigator Sol and Vee open the story; the
+// player walks, clicks Sol and plays the Orrery (a wrong answer is crossed out
+// with a sentence about the mistake, the hint ladder adds a picture and then
+// outlines the answer), finishes it with the debrief (a telescope lens
 // lights), walks to Dr. Kofi from the station list and finishes the Sunrise
-// Lab, hears Lumi's "opens soon", opens the star map, lands on Mars (drives the
-// rover, picks up the sample, reads the fact card, answers the question, gets
-// the postcard), dives into Neptune's clouds (steers with the keys, catches
-// the three finds), leaves Venus early and comes back to a find that stays
-// collected, opens the album and the grown-ups report, reloads, and checks the
-// phone layout.
+// Lab, turns Lumi's season dial and finishes the Star Dome (the Sun's bonus
+// postcard), fires Tess's cannon (a slow shot lands, a just-right one orbits,
+// a super fast one flies away) and finishes the Launch Bay (the Moon's
+// postcard), then flies the Grand Tour: plots the route (a wrong planet
+// first), photographs all eight planets, answers a question from each
+// station, photographs the Pale Blue Dot, and ends at the star party (Pluto's
+// postcard, and the game tells the site it is complete). Then it opens the
+// star map, lands on Mars (drives the rover, picks up the sample, reads the
+// fact card, answers the question, gets the postcard), dives into Neptune's
+// clouds (steers with the keys, catches the three finds), leaves Venus early
+// and comes back to a find that stays collected, opens the album and the
+// grown-ups report, reloads, and checks the phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-solar-system-explorer.mjs [url]
@@ -93,8 +99,49 @@ async function pickUp(page, kind) {
   await wait(page, 300);
 }
 
+/** Answer whatever is on screen during the Grand Tour until the star party is over. */
+async function flyTour(page, shots) {
+  let photos = 0;
+  let questions = 0;
+  for (let guard = 0; guard < 400; guard++) {
+    const s = await st(page);
+    if (s.fly) photos = Math.max(photos, s.fly.photos);
+    if (s.tourDone && s.mode === 'world' && !(await page.locator('.dialogue, .modal-back').count())) break;
+    if (s.panel && !s.panel.answered) {
+      questions++;
+      await page.keyboard.press(String(s.panel.right + 1));
+      await wait(page, 250);
+      await page.getByRole('button', { name: /back to the flight/i }).click();
+    } else if (await page.getByRole('button', { name: /into the album/i }).count()) {
+      if (shots.party) await page.screenshot({ path: `${OUT}/${shots.party}` });
+      await page.getByRole('button', { name: /into the album/i }).click();
+    } else if (await page.locator('.dialogue').count()) {
+      if (shots.dot && s.fly && !s.fly.planet && s.fly.photos === 9) {
+        await page.screenshot({ path: `${OUT}/${shots.dot}` });
+        shots.dot = null;
+      }
+      const opt = page.locator('.dialogue .choices button:not([disabled])');
+      if (await opt.count()) await opt.first().click();
+      else await page.keyboard.press('Space');
+    } else if (s.fly?.phase === 'ready') {
+      await wait(page, 350);
+      if (shots.jupiter && s.fly.planet === 'jupiter') {
+        await page.screenshot({ path: `${OUT}/${shots.jupiter}` });
+        shots.jupiter = null;
+      }
+      await page.keyboard.press('Space');
+    }
+    await wait(page, 150);
+  }
+  return { photos, questions };
+}
+
 try {
   const { page } = await newPage();
+  await page.addInitScript(() => {
+    window.__complete = [];
+    window.addEventListener('message', (e) => e.data?.type === 'game-complete' && window.__complete.push(e.data));
+  });
   await page.goto(URL);
   await wait(page, 1600);
   check('title screen shows', await page.getByText('Solar System Explorer').first().isVisible());
@@ -169,7 +216,7 @@ try {
   // the station list: walk to Kofi
   await page.keyboard.press('j');
   await wait(page, 300);
-  check('J opens the station list: four stations, two still setting up', (await page.locator('.belt-row').count()) === 4 && (await page.locator('.belt-row.soon').count()) === 2);
+  check('J opens the station list: four stations and the Grand Tour (still locked)', (await page.locator('.belt-row').count()) === 5 && (await page.locator('.belt-row.soon').count()) === 1);
   await page.locator('.belt-row').nth(1).getByRole('button', { name: /walk there/i }).click();
   check('"Walk there" walks to Kofi and Kofi talks', await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 150));
   await talkThrough(page);
@@ -190,25 +237,121 @@ try {
   await playStation(page);
   s = await st(page);
   check('five stars start Kofi’s debrief', s.stars.sunrise === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
-  let sawBoth = false;
+  let sawNext = false;
   for (let i = 0; i < 60 && (await page.locator('.dialogue').count()); i++) {
-    if ((await page.locator('.dialogue').textContent())?.includes('Two lenses lit')) sawBoth = true;
+    if ((await page.locator('.dialogue').textContent())?.includes('could use your help')) sawNext = true;
     const opt = page.locator('.dialogue .choices button:not([disabled])');
     if (await opt.count()) await opt.first().click();
     else await page.keyboard.press('Space');
     await wait(page, 160);
   }
   s = await st(page);
-  check('the Sunrise Lab is done: two lenses lit, and Sol says so', s.done.includes('sunrise') && s.lit === '1100' && sawBoth, s.lit);
+  check('the Sunrise Lab is done: two lenses lit, and Sol says who to help next', s.done.includes('sunrise') && s.lit === '1100' && sawNext, s.lit);
 
-  // Lumi's station opens in half 2
+  // the Star Dome: Lumi's season dial, then the questions
   await page.evaluate(() => window.__sse.teleport(7.6, 8.5));
   await wait(page, 300);
   await page.keyboard.press('Space');
   await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
-  check('Lumi says the Star Dome opens soon (no panel)', (await page.locator('.dialogue').textContent())?.includes('Come back soon'));
+  check('Lumi introduces the Star Dome', (await page.locator('.dialogue').textContent())?.includes('Lumi'));
   await talkThrough(page);
-  check('no panel opened for Lumi', (await page.locator('.sse-panel').count()) === 0);
+  check('the season dial opens', await waitFor(page, async () => (await page.locator('.sse-dial-btn').count()) === 4, 40));
+  for (const season of ['spring', 'summer', 'autumn']) {
+    await page.locator(`.sse-dial-btn[data-season="${season}"]`).click();
+    await wait(page, 250);
+  }
+  check('turning the dial changes the star picture (Scorpius in summer, all four seasons seen)', (await page.locator('.sse-toy-status').innerText()).includes('all the way round') && (await page.locator('.sse-toy img[alt*="Pegasus"]').count()) > 0);
+  await page.screenshot({ path: `${OUT}/05b-season-dial.png` });
+  await page.getByRole('button', { name: /^done/i }).click();
+  await wait(page, 300);
+  await talkThrough(page);
+  check('the Star Dome questions open, with a picture', await waitFor(page, async () => (await page.locator('.sse-dome .sse-pic img').count()) > 0, 40));
+  s = await st(page);
+  check('the dial counts as done', s.dialDone);
+  await page.keyboard.press('h');
+  await wait(page, 150);
+  await page.keyboard.press('h');
+  await wait(page, 300);
+  check('Star Dome hint 2 adds a picture or labels', (await page.locator('.sse-model:not([hidden]) img, .sse-pic .sse-tag').count()) > 0);
+  await page.screenshot({ path: `${OUT}/05c-dome-hint.png` });
+  await playStation(page);
+  s = await st(page);
+  check('five stars start Lumi’s debrief', s.stars.dome === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
+  await talkThrough(page);
+  check('the Sun’s bonus postcard', await waitFor(page, async () => (await page.getByRole('button', { name: /into the album/i }).count()) > 0, 40));
+  await page.getByRole('button', { name: /into the album/i }).click();
+  await wait(page, 300);
+  await talkThrough(page);
+  s = await st(page);
+  check('the Star Dome is done: three lenses lit', s.done.includes('dome') && s.lit === '1110' && s.bonus.includes('sun'), s.lit);
+
+  // the Launch Bay: Tess's cannon (real gravity), then the questions
+  const tess = await page.evaluate(() => window.__sse.screenOf('tess'));
+  await page.mouse.click(tess.x, tess.y - 24);
+  check('clicking Tess walks there and Tess talks', await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 150));
+  await talkThrough(page);
+  check('the launch cannon opens', await waitFor(page, async () => (await page.locator('.sse-cannon-canvas').count()) > 0, 40));
+  const shoot = async (n) => {
+    await page.evaluate((v) => window.__sseCannon.set(v), n);
+    await page.keyboard.press('f');
+    await waitFor(page, () => page.evaluate(() => window.__sseCannon.outcome !== null), 120);
+    return page.evaluate(() => window.__sseCannon.outcome);
+  };
+  check('a slow shot lands back on the planet', (await shoot(1)) === 'land');
+  check('a just-right shot goes into orbit', (await shoot(4)) === 'orbit');
+  await page.screenshot({ path: `${OUT}/05d-cannon-orbit.png` });
+  check('a super fast shot flies off into space', (await shoot(6)) === 'escape');
+  await page.getByRole('button', { name: /^done/i }).click();
+  await wait(page, 300);
+  await talkThrough(page);
+  check('the Launch Bay questions open', await waitFor(page, async () => (await page.locator('.sse-launch .sse-pic img').count()) > 0, 40));
+  s = await st(page);
+  check('the cannon counts as done (an orbit was found)', s.cannonDone);
+  await playStation(page);
+  s = await st(page);
+  check('five stars start Tess’s debrief', s.stars.launch === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
+  await talkThrough(page);
+  check('the Moon’s bonus postcard', await waitFor(page, async () => (await page.getByRole('button', { name: /into the album/i }).count()) > 0, 40));
+  await page.getByRole('button', { name: /into the album/i }).click();
+  await wait(page, 300);
+  let sawTour = false;
+  for (let i = 0; i < 30 && (await page.locator('.dialogue').count()); i++) {
+    const txt = (await page.locator('.dialogue').textContent()) ?? '';
+    if (txt.includes('All four lenses')) sawTour = true;
+    const opt = page.locator('.dialogue .choices button:not([disabled])', { hasText: 'Start the Grand Tour' });
+    if (await opt.count()) {
+      await opt.first().click();
+      break;
+    }
+    await page.keyboard.press('Space');
+    await wait(page, 160);
+  }
+  s = await st(page);
+  check('all four lenses lit, and Sol offers the Grand Tour', s.lit === '1111' && sawTour, s.lit);
+
+  // the Grand Tour: plot the route, then fly
+  await talkThrough(page);
+  check('the route planner opens with eight planets', await waitFor(page, async () => (await page.locator('.sse-route .sse-planet-btn').count()) === 8, 40));
+  await page.locator('.sse-route .sse-planet-btn[data-planet="neptune"]').click();
+  await wait(page, 250);
+  check('a planet out of order is not placed, with a reason', (await page.locator('.sse-slot.filled').count()) === 0 && (await page.locator('.sse-route .sse-toy-status').innerText()).includes('farther out'));
+  for (const p of ['mercury', 'venus', 'earth', 'mars']) {
+    await page.locator(`.sse-route .sse-planet-btn[data-planet="${p}"]`).click();
+    await wait(page, 120);
+  }
+  check('planets in order fill the route', (await page.locator('.sse-slot.filled').count()) === 4);
+  await page.screenshot({ path: `${OUT}/05e-route.png` });
+  for (const p of ['jupiter', 'saturn', 'uranus', 'neptune']) {
+    await page.locator(`.sse-route .sse-planet-btn[data-planet="${p}"]`).click();
+    await wait(page, 120);
+  }
+  check('the route is set and the flight starts', await waitFor(page, async () => (await st(page)).fly !== null || (await page.locator('.dialogue').count()) > 0, 60));
+  const tour = await flyTour(page, { jupiter: '05f-flyby-jupiter.png', dot: '05g-pale-blue-dot.png', party: '05h-star-party.png' });
+  s = await st(page);
+  check('the Grand Tour: nine photos (eight planets and the Pale Blue Dot)', tour.photos === 9, String(tour.photos));
+  check('the Grand Tour asks one question from each station', tour.questions === 4, String(tour.questions));
+  check('the star party ends the game: Pluto’s postcard, and the site hears the game is complete', s.tourDone && s.bonus.length === 3 && (await page.evaluate(() => window.__complete.length)) === 1, `${s.bonus}`);
+  check('back in the observatory after the star party', s.mode === 'world' && (await page.locator('.sse-party').count()) === 0);
 
   // the star map and Mars
   await page.keyboard.press('p');
@@ -313,7 +456,7 @@ try {
   // the album and the grown-ups page
   await page.keyboard.press('b');
   await wait(page, 300);
-  check('B opens the album: two postcards and six to find', (await page.locator('.sse-album-card').count()) === 8 && (await page.locator('.sse-album-card.empty').count()) === 6);
+  check('B opens the album: two postcards, six to find, and three bonus postcards', (await page.locator('.sse-album-card').count()) === 11 && (await page.locator('.sse-album-card.empty').count()) === 6);
   await page.screenshot({ path: `${OUT}/11-album.png` });
   await page.keyboard.press('Escape');
   await wait(page, 200);
@@ -326,7 +469,7 @@ try {
     await tab.first().click();
     await wait(page, 200);
   }
-  check('the progress report has a row for each open station and the planet stops', (await page.locator('.progress-table tbody tr').count()) === 3);
+  check('the progress report has a row for each station, the planet stops and the Grand Tour', (await page.locator('.progress-table tbody tr').count()) === 6);
   await page.screenshot({ path: `${OUT}/12-grownups.png` });
   await page.keyboard.press('Escape');
   await wait(page, 200);
@@ -337,7 +480,7 @@ try {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 600);
   s = await st(page);
-  check('after a reload, Continue keeps the lenses and the postcards', s.lit === '1100' && s.postcards.length === 2 && s.finds.venus?.includes('sample'), `${s.lit} ${s.postcards}`);
+  check('after a reload, Continue keeps the lenses, the postcards and the Grand Tour', s.lit === '1111' && s.postcards.length === 2 && s.finds.venus?.includes('sample') && s.tourDone && s.bonus.length === 3, `${s.lit} ${s.postcards}`);
   check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
   check('no requests to other websites', offsite.length === 0, offsite.slice(0, 3).join(' | '));
 
@@ -366,6 +509,18 @@ try {
   await wait(ph.page, 500);
   check('phone: the dive fills the screen and the stop bar shows', (await ph.page.locator('.sse-dive').count()) === 1 && (await ph.page.locator('.sse-stopbar:not([hidden])').count()) === 1);
   await ph.page.screenshot({ path: `${OUT}/22-phone-dive.png` });
+  // the route planner on a phone
+  await ph.page.getByRole('button', { name: /back to the observatory/i }).click();
+  await waitFor(ph.page, async () => (await st(ph.page)).onStop === null, 40);
+  await ph.page.evaluate(() => {
+    window.__sse.finishAll();
+    window.__sse.tour();
+  });
+  await wait(ph.page, 600);
+  await talkThrough(ph.page);
+  const rbox = await ph.page.locator('.sse-route').boundingBox();
+  check('phone: the route planner fits on screen', rbox && rbox.width <= 390 && rbox.y + rbox.height <= 844 + 2, rbox ? `${Math.round(rbox.width)}x${Math.round(rbox.height)} at ${Math.round(rbox.y)}` : 'none');
+  await ph.page.screenshot({ path: `${OUT}/23-phone-route.png` });
   check('phone: no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
 } catch (e) {
   check('the test ran to the end', false, String(e?.stack ?? e).slice(0, 400));

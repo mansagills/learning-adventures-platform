@@ -2,6 +2,7 @@ import { DEFAULT_APPEARANCE, type Appearance } from '../../kit/art/characters';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../../kit/art/palette';
 import { cleanLearner, type LearnerState } from '../../kit/learning/mastery';
 import { SaveStore } from '../../kit/systems/save';
+import { BONUS_ORDER, type Bonus } from './content';
 import { FIND_ORDER, type FindKind } from './dive';
 import { PLANET_ORDER, STATIONS, type PlanetId, type Station } from './problems';
 
@@ -24,6 +25,15 @@ export interface ExplorerSave {
   postcards: PlanetId[];
   /** Finds already collected at a planet whose postcard is not earned yet. */
   finds: Partial<Record<PlanetId, FindKind[]>>;
+  /** Bonus postcards: the Sun (the Star Dome), the Moon (the Launch Bay) and Pluto (the Grand Tour). */
+  bonus: Bonus[];
+  /** The season dial has been turned to all four seasons; the cannon has put a probe in orbit. */
+  dialDone: boolean;
+  cannonDone: boolean;
+  /** Vee explains how to take photos on the first Grand Tour. */
+  snapTipSeen: boolean;
+  /** The Grand Tour (the finale) has been flown. */
+  tourDone: boolean;
   /** Question ids seen lately at each station (so every question comes up before any repeats). */
   recent: Record<Station, string[]>;
   learner: LearnerState;
@@ -46,6 +56,11 @@ export function freshSave(): ExplorerSave {
     diveTipSeen: false,
     postcards: [],
     finds: {},
+    bonus: [],
+    dialDone: false,
+    cannonDone: false,
+    snapTipSeen: false,
+    tourDone: false,
     recent: { orrery: [], sunrise: [], dome: [], launch: [] },
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
@@ -104,6 +119,11 @@ export function cleanSave(raw: unknown): ExplorerSave {
     diveTipSeen: r.diveTipSeen === true,
     postcards: planets(r.postcards),
     finds,
+    bonus: Array.isArray(r.bonus) ? BONUS_ORDER.filter((b) => (r.bonus as unknown[]).includes(b)) : [],
+    dialDone: r.dialDone === true,
+    cannonDone: r.cannonDone === true,
+    snapTipSeen: r.snapTipSeen === true,
+    tourDone: r.tourDone === true,
     recent,
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,

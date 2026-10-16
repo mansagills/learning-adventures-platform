@@ -13,7 +13,19 @@
  *     2. Earth spins once a day, so the Sun only seems to move; shadows point
  *        away from the Sun (5-ESS1-2)
  *     3. shadow length through the day; the far side of Earth (5-ESS1-2)
- *   The Star Dome and the Launch Bay open in half 2.
+ *   The Star Dome (Astronomer Lumi Reyes): the Sun and other stars
+ *     1. the Sun is a star; stars are still there in the daytime (1-ESS1-1)
+ *     2. the Sun looks biggest and brightest because it is closest; the Moon
+ *        and the planets shine with reflected sunlight (5-ESS1-1)
+ *     3. star pictures that come and go with the seasons, as Earth goes round
+ *        the Sun; how far apart the stars are (5-ESS1-1, 5-ESS1-2)
+ *   The Launch Bay (Engineer Tess Rocket): gravity, orbits and years
+ *     1. gravity pulls things down; one trip round the Sun is a year (5-PS2-1)
+ *     2. "down" means toward the middle of Earth, everywhere; farther planets
+ *        have longer years; weaker gravity on the Moon (5-PS2-1)
+ *     3. orbits: moving sideways fast enough, the probe falls around the
+ *        planet; astronauts float because they are falling round Earth;
+ *        seasons come from Earth's tilt (MS-ESS1-1 preview)
  *
  * Each planet stop also has three questions (one per level) and a fact card.
  *
@@ -31,8 +43,8 @@ export { PLANET_ORDER, type PlanetId } from '../../kit/worlds/star-station/space
 
 export type Station = 'orrery' | 'sunrise' | 'dome' | 'launch';
 export const STATIONS: Station[] = ['orrery', 'sunrise', 'dome', 'launch'];
-/** The stations open in half 1. */
-export const OPEN_STATIONS: Station[] = ['orrery', 'sunrise'];
+/** The stations that are open (all four since half 2). */
+export const OPEN_STATIONS: Station[] = ['orrery', 'sunrise', 'dome', 'launch'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -71,17 +83,51 @@ export type Misconception =
   | 'pole-changes' // thinks the object itself changes
   | 'air-cools' // thinks thick air keeps a planet cool
   | 'new-planet' // thinks a planet appeared when it was first seen
-  | 'hollow-planet'; // thinks a giant planet is hollow
+  | 'hollow-planet' // thinks a giant planet is hollow
+  | 'sun-not-star' // thinks the Sun is not a star, or another star is closer
+  | 'sun-biggest' // thinks the Sun is the biggest star
+  | 'stars-small' // thinks other stars are small
+  | 'stars-gone' // thinks stars go away in the day, or in some seasons
+  | 'stars-same' // thinks the same star pictures are up all year
+  | 'star-closer' // thinks stars move closer or farther away
+  | 'distance-bright' // does not link distance with how bright or big a light looks
+  | 'moon-shines' // thinks the Moon makes its own light
+  | 'planet-shines' // thinks a planet makes its own light, like a star
+  | 'gravity-up' // thinks things fall up, or away
+  | 'no-gravity' // thinks there is no gravity in space, or that things just float
+  | 'gravity-magnet' // thinks magnets or air hold things down
+  | 'fall-off' // thinks "down" is the bottom of the picture, so people could fall off Earth
+  | 'gravity-size' // mixed up how strong gravity is on a big or small world
+  | 'orbit-engine' // thinks a probe in orbit needs its engines on to stay up
+  | 'season-distance' // thinks seasons come from Earth getting closer to the Sun
+  | 'tilt-mixup'; // mixed up which way Earth's tilt makes summer
 
 /** What the panel shows above the question (words in the question match it). */
 export type Pic =
   | { k: 'orrery'; placed: number; glow?: number }
   | { k: 'planet'; body: SkyBody }
   | { k: 'globe'; spin: number }
-  | { k: 'sky'; sun: 'morning' | 'noon' | 'evening'; shadow: boolean };
+  | { k: 'sky'; sun: 'morning' | 'noon' | 'evening'; shadow: boolean }
+  /** Two lamps that are just the same, one close and one far away. */
+  | { k: 'lamps' }
+  /** A town under the sky, in the day or at night. */
+  | { k: 'starsky'; day: boolean }
+  /** A star picture over the horizon on a winter or a summer evening. */
+  | { k: 'season'; season: Season }
+  /** The Sun shining on the Moon (or on Venus), and that light coming on to Earth. */
+  | { k: 'moonlight'; body: 'moon' | 'venus' }
+  /** Tess's cannon on a little planet; `shot` is the path drawn once answered. */
+  | { k: 'cannon'; shot: Shot }
+  /** Children standing on Earth dropping balls: one on top, or all the way round. */
+  | { k: 'down'; all: boolean }
+  /** Tilted Earth in June and in December. */
+  | { k: 'tilt' };
+
+export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
+export type Shot = 'slow' | 'orbit' | 'escape';
 
 /** The picture model that hint 2 adds. */
-export type Model = 'order' | 'kinds' | 'daynight' | 'rays' | 'shadow-day' | 'card';
+export type Model = 'order' | 'kinds' | 'daynight' | 'rays' | 'shadow-day' | 'card' | 'lamps' | 'daysky' | 'seasons' | 'moonlight' | 'paths' | 'down' | 'years' | 'tilt';
 
 export interface Choice {
   value: string;
@@ -776,6 +822,534 @@ const SUNRISE: QDef[] = [
   },
 ];
 
+// ------------------------------------------------------------------ The Star Dome (Astronomer Lumi Reyes)
+
+const DOME: QDef[] = [
+  // level 1: the Sun is a star; stars are there in the day too
+  {
+    id: 'dome-sun-star',
+    tier: 1,
+    ask: 'The Sun is a huge ball of hot, glowing gas. It makes its own light and heat. What kind of thing is the Sun?',
+    right: 'A star',
+    wrong: [
+      ['A planet', 'sun-planet', 'Planets do not make their own light. They go round the Sun.'],
+      ['A giant moon', 'moon-planet', 'Moons go round planets. Nothing here goes round the Sun like that.'],
+    ],
+    explain: 'The Sun is a star. Stars are huge balls of hot gas that make their own light.',
+    hints: ['What do we call the twinkling lights we see at night?', 'Those night lights are huge balls of hot gas too. They are just much farther away.'],
+    pic: planet('sun'),
+    model: 'lamps',
+  },
+  {
+    id: 'dome-day-stars',
+    tier: 1,
+    ask: 'It is the middle of the day. The sky is bright blue. Are the stars still up there?',
+    right: 'Yes, the bright sunlight hides them.',
+    wrong: [
+      ['No, stars go away in the day.', 'stars-gone', 'Stars do not go anywhere. Something just makes them hard to see.'],
+      ['No, stars only come out in winter.', 'stars-gone', 'We see stars on clear nights all year round.'],
+    ],
+    explain: 'The stars are there all the time. In the day, the bright blue sky hides them.',
+    hints: ['Can you see a torch shining outside on a sunny day?', 'A small light is hard to see next to a very bright one.'],
+    pic: { k: 'starsky', day: true },
+    model: 'daysky',
+  },
+  {
+    id: 'dome-night-why',
+    tier: 1,
+    ask: 'The Sun has set, and the sky is dark. Now we can see lots of stars. Why can we see them now?',
+    right: 'The bright sunlight is gone, so the stars show.',
+    wrong: [
+      ['The stars just switched on.', 'stars-gone', 'Stars shine all the time, day and night.'],
+      ['The stars came closer to Earth.', 'star-closer', 'Stars stay very, very far away. They do not move closer at night.'],
+    ],
+    explain: 'Stars shine all the time. At night the dark sky lets their light show.',
+    hints: ['What changed in the sky when the Sun went down?', 'It is easier to see a small light in a dark room.'],
+    pic: { k: 'starsky', day: false },
+    model: 'daysky',
+  },
+  {
+    id: 'dome-closest-star',
+    tier: 1,
+    ask: 'All stars are huge balls of glowing gas. One of them is much closer to Earth than all the others. Which star is it?',
+    right: 'The Sun',
+    wrong: [
+      ['The North Star', 'sun-not-star', 'The North Star is very, very far away, like most stars.'],
+      ['The Moon', 'moon-shines', 'The Moon is not a star. It does not make its own light.'],
+    ],
+    explain: 'The Sun is the closest star to Earth. That is why it looks so big and bright.',
+    hints: ['Which star lights up our day?', 'The closest star is the one that gives us daylight and warmth.'],
+    pic: { k: 'starsky', day: true },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-own-light',
+    tier: 1,
+    ask: 'A star makes its own light. Three things in this picture look bright from space. Which one makes its own light?',
+    right: 'The Sun',
+    wrong: [
+      ['The Moon', 'moon-shines', 'The Moon looks bright, but it has no light of its own.'],
+      ['Earth', 'planet-shines', 'Earth looks bright from space, but it has no light of its own.'],
+    ],
+    explain: 'Only the Sun makes its own light. The Moon and Earth shine because sunlight bounces off them.',
+    hints: ['Which one is a star?', 'Look where the light starts. The yellow lines show it.'],
+    pic: { k: 'moonlight', body: 'moon' },
+    model: 'moonlight',
+  },
+  {
+    id: 'dome-star-pictures',
+    tier: 1,
+    ask: 'Long ago, people joined bright stars with lines to make pictures in the sky. This one is a hunter. What are star pictures called?',
+    right: 'Constellations',
+    wrong: [
+      ['Planets', 'sun-planet', 'Planets are worlds that go round the Sun. These are patterns of stars.'],
+      ['Moons', 'moon-planet', 'Moons go round planets. These are patterns of stars.'],
+    ],
+    explain: 'A star picture is called a constellation. Orion, the hunter, is a famous one.',
+    hints: ['It is a long word that starts with "con".', 'The word comes from "stella", an old word for star.'],
+    pic: { k: 'season', season: 'winter' },
+    model: 'seasons',
+  },
+
+  // level 2: why the Sun looks biggest; reflected light
+  {
+    id: 'dome-why-big',
+    tier: 2,
+    ask: 'The Sun looks much bigger and brighter than any other star. Why does it look like that?',
+    right: 'It is much closer to us than the other stars.',
+    wrong: [
+      ['It is the biggest star in space.', 'sun-biggest', 'The Sun is a middle-sized star. Many stars are much bigger.'],
+      ['The other stars are tiny sparks.', 'stars-small', 'Many stars are bigger than the Sun. They only look tiny.'],
+    ],
+    explain: 'The Sun is the closest star to Earth. Things that are close look bigger and brighter.',
+    hints: ['Look at the two lamps. They are just the same. Why does one look bigger?', 'A lamp across the room looks smaller and dimmer than the same lamp close up.'],
+    pic: { k: 'lamps' },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-two-lamps',
+    tier: 2,
+    ask: 'These two lamps are just the same. One is close to you. One is far away. Which one looks brighter?',
+    right: 'The close one',
+    wrong: [
+      ['The far one', 'distance-bright', 'Light spreads out as it goes. Less of it reaches you from far away.'],
+      ['They look the same', 'distance-bright', 'They give out the same light, but distance changes how they look.'],
+    ],
+    explain: 'The close lamp looks brighter and bigger. Stars work the same way.',
+    hints: ['Which lamp has more of its light reaching your eyes?', 'Light spreads out as it travels. The farther it goes, the more it spreads.'],
+    pic: { k: 'lamps' },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-moon-shine',
+    tier: 2,
+    ask: 'The Moon shines brightly at night. But the Moon has no light of its own. Where does its light come from?',
+    right: 'Sunlight bouncing off it',
+    wrong: [
+      ['A fire inside the Moon', 'moon-shines', 'The Moon is cold rock. There is no fire inside it.'],
+      ['Lights from our cities', 'moon-shines', 'City lights are far too weak to light up the Moon.'],
+    ],
+    explain: 'The Moon shines because sunlight bounces off it, like light off a mirror.',
+    hints: ['Look at the picture. Which side of the Moon is lit?', 'The lit side of the Moon faces the Sun.'],
+    pic: { k: 'moonlight', body: 'moon' },
+    model: 'moonlight',
+  },
+  {
+    id: 'dome-far-dots',
+    tier: 2,
+    ask: 'Some stars are much bigger than the Sun. At night, they still look like tiny dots. Why do they look so small?',
+    right: 'They are very, very far away.',
+    wrong: [
+      ['They are smaller than the Sun.', 'stars-small', 'Some of these stars are hundreds of times bigger than the Sun.'],
+      ['They are behind a cloud.', 'distance-bright', 'Clouds would hide them. On a clear night, something else makes them small.'],
+    ],
+    explain: 'Stars are so far away that even giant stars look like tiny dots.',
+    hints: ['How does a plane look when it is high in the sky?', 'Things that are far away look small, even if they are huge.'],
+    pic: { k: 'starsky', day: false },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-sun-moon-size',
+    tier: 2,
+    ask: 'In our sky, the Sun and the Moon look about the same size. The Sun is really much bigger. Why do they look the same?',
+    right: 'The Sun is much farther away than the Moon.',
+    wrong: [
+      ['They are really the same size.', 'size-mixup', 'The Sun is about 400 times wider than the Moon.'],
+      ['The Moon is bigger than the Sun.', 'size-mixup', 'The Moon is much smaller. It is even smaller than Earth.'],
+    ],
+    explain: 'The Sun is about 400 times wider than the Moon, and about 400 times farther away. So they look the same size.',
+    hints: ['Remember the two lamps. What makes a big thing look small?', 'Hold up a coin. It can cover a whole house far away.'],
+    pic: { k: 'lamps' },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-venus-shine',
+    tier: 2,
+    ask: 'Venus looks like a bright star in the evening sky. But Venus is a planet. Why does Venus shine?',
+    right: 'Sunlight bounces off its clouds.',
+    wrong: [
+      ['It makes its own light, like a star.', 'planet-shines', 'Planets do not make their own light. Only stars do.'],
+      ['It is on fire.', 'planet-shines', 'Venus is very hot, but it is not burning like a fire.'],
+    ],
+    explain: 'Planets shine with sunlight that bounces off them. Venus has bright clouds, so it shines a lot.',
+    hints: ['How does the Moon shine?', 'Look where the yellow lines start, and where they bounce.'],
+    pic: { k: 'moonlight', body: 'venus' },
+    model: 'moonlight',
+  },
+
+  // level 3: star pictures and the seasons; how far apart stars are
+  {
+    id: 'dome-orion-winter',
+    tier: 3,
+    ask: 'From the northern half of Earth, Orion is high on winter evenings. On summer evenings it is hard to see. Why?',
+    right: 'Earth has moved round the Sun, so our night side faces other stars.',
+    wrong: [
+      ['Orion switches off in summer.', 'stars-gone', 'Orion’s stars shine all year. Something about us has changed.'],
+      ['Orion moves far away in summer.', 'star-closer', 'Stars are so far away that they do not move closer or farther in a year.'],
+    ],
+    explain: 'As Earth goes round the Sun, our night side faces different stars. In summer, Orion is on the day side.',
+    hints: ['At night, which way does our side of Earth face: toward the Sun or away?', 'Look at Earth in winter and in summer. The night side points at different stars.'],
+    pic: { k: 'season', season: 'winter' },
+    model: 'seasons',
+  },
+  {
+    id: 'dome-scorpius-winter',
+    tier: 3,
+    ask: 'Scorpius is a star picture we see on summer evenings. Six months later, Earth is on the other side of the Sun. Where is Scorpius then?',
+    right: 'In our day sky, hidden by sunlight',
+    wrong: [
+      ['Right above us at night', 'stars-same', 'Our night side now faces the other way, away from Scorpius.'],
+      ['Gone from space', 'stars-gone', 'Stars do not disappear. They are still there.'],
+    ],
+    explain: 'In winter, Scorpius is behind the Sun, in our day sky. The bright day hides it.',
+    hints: ['Six months later, which side of the Sun is Earth on?', 'Look at the picture. In winter, the Sun sits between Earth and Scorpius.'],
+    pic: { k: 'season', season: 'summer' },
+    model: 'seasons',
+  },
+  {
+    id: 'dome-come-back',
+    tier: 3,
+    ask: 'Orion is up on winter evenings. Then it is gone for the summer. How long until Orion is back on winter evenings?',
+    right: 'One year',
+    wrong: [
+      ['One day', 'spin-orbit', 'One spin brings stars up each night. Orion needs a longer trip to come back.'],
+      ['One hundred years', 'stars-gone', 'We see Orion every winter. It does not take that long.'],
+    ],
+    explain: 'Earth takes one year to go round the Sun. Then the night side faces Orion again.',
+    hints: ['Orion comes back when Earth is back in the same place. How long is one trip round the Sun?', 'The seasons go round once in a trip round the Sun.'],
+    pic: { k: 'season', season: 'winter' },
+    model: 'seasons',
+  },
+  {
+    id: 'dome-what-changes',
+    tier: 3,
+    ask: 'Some star pictures are only up on evenings in some seasons. Which of Earth’s movements makes them change?',
+    right: 'Earth going round the Sun',
+    wrong: [
+      ['Earth spinning every day', 'spin-orbit', 'The spin makes stars rise and set every night, the same each night.'],
+      ['The stars going round Earth', 'star-closer', 'The stars do not go round Earth. Earth is the one moving.'],
+    ],
+    explain: 'Earth goes round the Sun once a year. So our night side faces different stars in different seasons.',
+    hints: ['Which movement takes a whole year?', 'A spin takes one day. Something slower changes the seasons.'],
+    pic: { k: 'season', season: 'summer' },
+    model: 'seasons',
+  },
+  {
+    id: 'dome-next-star',
+    tier: 3,
+    ask: 'The next closest star after the Sun is about 270,000 times farther away than the Sun. What does that tell us?',
+    right: 'The stars are very far apart.',
+    wrong: [
+      ['The stars are close together.', 'star-closer', 'That number is huge. There is a lot of space between stars.'],
+      ['The Sun is the only star.', 'sun-not-star', 'There are billions of stars. That one is just the next closest.'],
+    ],
+    explain: 'The stars are very, very far apart. Even the next closest star is about 40 trillion km away.',
+    hints: ['Is 270,000 times farther a little or a lot?', 'If the Sun were one step away, the next star would be over 100 km away.'],
+    pic: { k: 'starsky', day: false },
+    model: 'lamps',
+  },
+  {
+    id: 'dome-same-light',
+    tier: 3,
+    ask: 'Two stars give out the same amount of light. From Earth, one looks much dimmer. What is the best reason?',
+    right: 'It is much farther away.',
+    wrong: [
+      ['It is smaller.', 'stars-small', 'They give out the same light, so size is not the reason here.'],
+      ['It is daytime there.', 'stars-gone', 'Stars do not have day and night. They always shine.'],
+    ],
+    explain: 'The farther away a light is, the dimmer it looks. That is true for lamps and for stars.',
+    hints: ['Remember the two lamps in the Star Dome.', 'The same light looks dimmer when it travels farther to reach you.'],
+    pic: { k: 'lamps' },
+    model: 'lamps',
+  },
+];
+
+// ------------------------------------------------------------------ The Launch Bay (Engineer Tess Rocket)
+
+const LAUNCH: QDef[] = [
+  // level 1: gravity pulls things down; a year is one trip round the Sun
+  {
+    id: 'launch-ball-down',
+    tier: 1,
+    ask: 'Tess holds a ball and lets go. Gravity pulls on the ball. Which way does the ball go?',
+    right: 'Down to the ground',
+    wrong: [
+      ['Up into the sky', 'gravity-up', 'Gravity pulls things toward Earth, not away from it.'],
+      ['It floats where it is', 'no-gravity', 'Gravity is pulling on it, so it does not stay still.'],
+    ],
+    explain: 'Gravity pulls things toward Earth. So the ball falls down to the ground.',
+    hints: ['What happens when you drop a spoon?', 'Earth pulls everything toward it.'],
+    pic: { k: 'down', all: false },
+    model: 'down',
+  },
+  {
+    id: 'launch-jump',
+    tier: 1,
+    ask: 'You jump up as high as you can. Then you come back down. What pulls you back down?',
+    right: 'Earth’s gravity',
+    wrong: [
+      ['The air pushing on you', 'gravity-magnet', 'Air does not push you down. You would fall even with no air.'],
+      ['Your heavy shoes', 'gravity-magnet', 'You would come down with no shoes on too.'],
+    ],
+    explain: 'Earth’s gravity pulls you back down every time you jump.',
+    hints: ['What pull keeps everything on the ground?', 'It is the same pull that makes a ball fall.'],
+    pic: { k: 'down', all: false },
+    model: 'down',
+  },
+  {
+    id: 'launch-slow-shot',
+    tier: 1,
+    ask: 'Tess fires the cannon slowly. The probe flies a little way. Then gravity pulls on it. Where does it end up?',
+    right: 'Back on the little planet',
+    wrong: [
+      ['Out in space', 'no-gravity', 'It was going slowly. Gravity pulls it back.'],
+      ['On the Sun', 'gravity-up', 'The Sun is very far away. The planet’s pull is the one that matters here.'],
+    ],
+    explain: 'A slow probe cannot get away. Gravity pulls it back down to the ground.',
+    hints: ['What does gravity do to things that fly up slowly?', 'Throw a ball gently. Where does it land?'],
+    pic: { k: 'cannon', shot: 'slow' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-sun-pull',
+    tier: 1,
+    ask: 'The planets all go round and round the Sun. Something keeps them from flying away. What is it?',
+    right: 'The Sun’s gravity',
+    wrong: [
+      ['Giant magnets', 'gravity-magnet', 'There are no giant magnets holding the planets.'],
+      ['Nothing at all', 'no-gravity', 'Something must pull them, or they would fly off in a straight line.'],
+    ],
+    explain: 'The Sun’s gravity pulls on every planet and keeps it going round.',
+    hints: ['What pulls a ball back to Earth?', 'The Sun is huge, so its pull reaches all the planets.'],
+    pic: orrery(8),
+    model: 'years',
+  },
+  {
+    id: 'launch-year',
+    tier: 1,
+    ask: 'Earth goes all the way round the Sun, then starts again. How long does one trip round the Sun take?',
+    right: 'One year',
+    wrong: [
+      ['One day', 'spin-orbit', 'One day is one spin. Going round the Sun takes much longer.'],
+      ['One hour', 'spin-orbit', 'An hour is much too short. Think about the seasons.'],
+    ],
+    explain: 'Earth takes one year, about 365 days, to go round the Sun once.',
+    hints: ['How long is it from one birthday to the next?', 'All four seasons go by in one trip round the Sun.'],
+    pic: orrery(8, 2),
+    model: 'years',
+    focus: 8,
+  },
+  {
+    id: 'launch-birthdays',
+    tier: 1,
+    ask: 'Today you turn 8 years old. How many times has Earth gone round the Sun since you were born?',
+    right: '8 times',
+    wrong: [
+      ['Just once', 'spin-orbit', 'Earth goes round the Sun again every year.'],
+      ['About 3,000 times', 'spin-orbit', 'That is about how many times Earth has spun. A spin is a day.'],
+    ],
+    explain: 'Earth goes round the Sun once a year. Eight birthdays means eight trips!',
+    hints: ['How long is one trip round the Sun?', 'Every birthday, Earth finishes another trip.'],
+    pic: orrery(8, 2),
+    model: 'years',
+    focus: 8,
+  },
+
+  // level 2: down is toward the middle; longer years farther out; the Moon's gravity
+  {
+    id: 'launch-bottom',
+    tier: 2,
+    ask: 'People live all over Earth, even on the bottom of this globe. A child there drops a ball. Which way does it fall?',
+    right: 'Toward the middle of Earth, onto the ground',
+    wrong: [
+      ['Off into space', 'fall-off', 'Gravity pulls toward the middle of Earth, everywhere on Earth.'],
+      ['Up to the top of the globe', 'fall-off', 'The ball falls to the ground near the child’s feet.'],
+    ],
+    explain: 'Down always means toward the middle of Earth. Nobody falls off the bottom!',
+    hints: ['Where does Earth’s gravity pull: to the bottom of the picture, or to the middle of Earth?', 'Look at the arrows. They all point to the same place.'],
+    pic: { k: 'down', all: true },
+    model: 'down',
+  },
+  {
+    id: 'launch-side',
+    tier: 2,
+    ask: 'A child stands on the side of the globe and drops a ball. Where does gravity pull the ball?',
+    right: 'Toward the middle of Earth',
+    wrong: [
+      ['Toward the bottom of the picture', 'fall-off', 'Pictures have a bottom, but Earth does not. Gravity pulls a different way.'],
+      ['Nowhere, so it floats', 'no-gravity', 'Gravity pulls on things everywhere on Earth.'],
+    ],
+    explain: 'Gravity pulls everything toward the middle of Earth, wherever you stand.',
+    hints: ['For the child on top, down points to the middle. Is it different on the side?', 'Follow each arrow. They all meet in one place.'],
+    pic: { k: 'down', all: true },
+    model: 'down',
+  },
+  {
+    id: 'launch-mars-year',
+    tier: 2,
+    ask: 'Mars is farther from the Sun than Earth. How does a year on Mars compare with a year on Earth?',
+    right: 'It is longer.',
+    wrong: [
+      ['It is shorter.', 'far-faster', 'Mars has farther to go, and it moves more slowly.'],
+      ['It is the same.', 'far-faster', 'Each planet takes its own time to go round the Sun.'],
+    ],
+    explain: 'A year on Mars is 687 Earth days. Farther planets have longer years.',
+    hints: ['Is Mars’s path round the Sun bigger or smaller than Earth’s?', 'Look at the years under each planet. They grow farther out.'],
+    pic: orrery(8, 3),
+    model: 'years',
+    focus: 8,
+  },
+  {
+    id: 'launch-neptune-year',
+    tier: 2,
+    ask: 'Neptune is the farthest planet. One trip round the Sun takes it about 165 Earth years. Why does it take so long?',
+    right: 'Its path is huge, and it moves slowly.',
+    wrong: [
+      ['Neptune is the biggest planet.', 'size-speed', 'Jupiter is the biggest. Size does not set how long a year is.'],
+      ['Neptune spins slowly.', 'spin-orbit', 'Neptune spins in about 16 hours. A spin makes a day, not a year.'],
+    ],
+    explain: 'Far from the Sun, the path is huge and the Sun’s pull is weak, so a planet goes slowly.',
+    hints: ['How big is Neptune’s ring on the orrery?', 'The Sun’s pull is weak far away, so far planets move slowly.'],
+    pic: orrery(8, 7),
+    model: 'years',
+    focus: 8,
+  },
+  {
+    id: 'launch-moon-pull',
+    tier: 2,
+    ask: 'The Moon goes round and round Earth. Nothing is tied to it. What keeps the Moon going round Earth?',
+    right: 'Earth’s gravity pulling on it',
+    wrong: [
+      ['Winds in space', 'no-gravity', 'Space has no air, so there is no wind.'],
+      ['Nothing, it just floats', 'no-gravity', 'Without a pull, the Moon would fly off in a straight line.'],
+    ],
+    explain: 'Earth’s gravity pulls on the Moon and keeps it going round us.',
+    hints: ['What keeps the planets going round the Sun?', 'The same kind of pull works for Earth and the Moon.'],
+    pic: { k: 'moonlight', body: 'moon' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-moon-jump',
+    tier: 2,
+    ask: 'The Moon is much smaller than Earth, so its gravity is weaker. How high could you jump on the Moon?',
+    right: 'Much higher than on Earth',
+    wrong: [
+      ['Not at all, there is no gravity', 'no-gravity', 'The Moon does have gravity. It is just weaker.'],
+      ['Lower than on Earth', 'gravity-size', 'Weaker gravity pulls you down less, not more.'],
+    ],
+    explain: 'The Moon’s gravity is about one sixth of Earth’s. You could jump about six times higher!',
+    hints: ['Does weaker gravity pull you down more or less?', 'Astronauts on the Moon bounced along in big hops.'],
+    pic: planet('moon'),
+    model: 'card',
+  },
+
+  // level 3: orbits; floating astronauts; the tilt and the seasons
+  {
+    id: 'launch-orbit',
+    tier: 3,
+    ask: 'Tess fires the cannon very fast, sideways. The probe falls, but the ground curves away under it. What happens?',
+    right: 'It keeps falling around the planet.',
+    wrong: [
+      ['It stops and hangs in the air.', 'no-gravity', 'Gravity is still pulling, so it cannot just hang there.'],
+      ['It falls straight down.', 'orbit-engine', 'That happens when it goes slowly. This shot was very fast.'],
+    ],
+    explain: 'Fast enough sideways, the probe falls around the planet without hitting it. That is an orbit.',
+    hints: ['The probe is falling. Why does it never reach the ground?', 'Look at the three paths: too slow, just right and too fast.'],
+    pic: { k: 'cannon', shot: 'orbit' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-why-miss',
+    tier: 3,
+    ask: 'The probe is in orbit. Gravity is still pulling on it. Why does it not crash into the planet?',
+    right: 'It moves sideways so fast that it keeps missing the ground.',
+    wrong: [
+      ['There is no gravity up there.', 'no-gravity', 'Gravity is still pulling. Without it, the probe would fly off straight.'],
+      ['Its engines hold it up all the time.', 'orbit-engine', 'Probes in orbit can go round for years with their engines off.'],
+    ],
+    explain: 'The probe falls toward the planet, but it is going sideways so fast that the ground curves away.',
+    hints: ['Is the probe going slowly, or very fast sideways?', 'As it falls, the planet’s round ground curves away beneath it.'],
+    pic: { k: 'cannon', shot: 'orbit' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-astronauts',
+    tier: 3,
+    ask: 'Astronauts on the space station float around inside it. Earth’s gravity is still strong up there. Why do they float?',
+    right: 'They are falling around Earth with the station.',
+    wrong: [
+      ['There is no gravity in space.', 'no-gravity', 'Earth’s gravity is still strong up there. It keeps the station going round.'],
+      ['They are too far away to feel Earth.', 'no-gravity', 'The station is only about 400 km up. Earth’s pull is still strong.'],
+    ],
+    explain: 'The station and the astronauts are falling around Earth together, so they float inside.',
+    hints: ['The space station is in orbit, like the probe. What is a probe in orbit doing?', 'When a lift drops fast, you feel lighter. The station falls round Earth all the time.'],
+    pic: { k: 'cannon', shot: 'orbit' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-too-fast',
+    tier: 3,
+    ask: 'Tess fires the cannon super fast. Gravity cannot bend the probe’s path enough to bring it round. What happens?',
+    right: 'It flies off into space.',
+    wrong: [
+      ['It lands right next to the cannon.', 'no-gravity', 'That is what a very slow shot does. This one is super fast.'],
+      ['It stops in the air.', 'no-gravity', 'Nothing stops it. It keeps going.'],
+    ],
+    explain: 'Very fast, the probe gets away from the planet’s pull. That is how probes leave Earth for other planets.',
+    hints: ['Faster than an orbit, does gravity have time to bend the path all the way round?', 'Look at the three paths. The fastest one does not come back.'],
+    pic: { k: 'cannon', shot: 'escape' },
+    model: 'paths',
+  },
+  {
+    id: 'launch-seasons',
+    tier: 3,
+    ask: 'Earth is closest to the Sun in early January. That is winter in the northern half of Earth. So what causes the seasons?',
+    right: 'Earth’s tilt',
+    wrong: [
+      ['Earth’s distance from the Sun', 'season-distance', 'We are closest to the Sun in northern winter, so distance is not the reason.'],
+      ['Earth’s spin each day', 'spin-orbit', 'The spin makes day and night. Seasons take a whole year.'],
+    ],
+    explain: 'Earth is tipped over a little. The half tipped toward the Sun gets more direct sunlight and has summer.',
+    hints: ['Look at the picture. Is Earth standing straight up?', 'In June, the top half leans toward the Sun. In December, it leans away.'],
+    pic: { k: 'tilt' },
+    model: 'tilt',
+  },
+  {
+    id: 'launch-june',
+    tier: 3,
+    ask: 'Earth is tilted. In June, the northern half leans toward the Sun. It gets more direct sunlight. What season is it there?',
+    right: 'Summer',
+    wrong: [
+      ['Winter', 'tilt-mixup', 'Leaning toward the Sun means more sunlight and longer days.'],
+      ['No season, Earth is too far away', 'season-distance', 'Distance does not make the seasons. The tilt does.'],
+    ],
+    explain: 'The half of Earth leaning toward the Sun has summer. In June, that is the northern half.',
+    hints: ['More direct sunlight and longer days: warm or cold?', 'Six months later, the northern half leans away. Then it has winter.'],
+    pic: { k: 'tilt' },
+    model: 'tilt',
+  },
+];
+
 // ------------------------------------------------------------------ the planet stops: fact cards and questions
 
 export interface PlanetFacts {
@@ -1165,7 +1739,7 @@ const STOP_QS: Record<PlanetId, QDef[]> = {
   ],
 };
 
-const BANKS: Record<Station, QDef[]> = { orrery: ORRERY, sunrise: SUNRISE, dome: [], launch: [] };
+const BANKS: Record<Station, QDef[]> = { orrery: ORRERY, sunrise: SUNRISE, dome: DOME, launch: LAUNCH };
 
 // ------------------------------------------------------------------ picking questions
 
