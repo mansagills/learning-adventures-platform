@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): IN PROGRESS (the first game, Body System Heroes, is COMPLETED ✅; 1 of 14 done)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (Body System Heroes and Solar System Explorer are COMPLETED ✅; 2 of 14 done)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1457,7 +1457,7 @@ The owner merged half 1 and asked for half 2.
 6. **The title:** keep **Body System Heroes** (the same name and address), or rename it, for example **Micro-Scout: Inside the Body**. The address stays the same either way.
 
 
-#### S1 Space: Solar System Explorer: PLAN APPROVED (2026-10-15, with Claude's picks), look APPROVED, half 1 APPROVED (2026-10-16), half 2 BUILT (2026-10-16), waiting for the owner's look
+#### S1 Space: Solar System Explorer: COMPLETED ✅ (owner merged PR #231 on 2026-10-17; both halves, 9.3/10)
 
 > Source: the old site games `public/games/solar-system-explorer.html` (grades 2–5) and `public/games/planet-explorer-quest.html` (grades 3–5). They merge into one game at the surviving slug **`solar-system-explorer`**, grades **2–5**; `/games/planet-explorer-quest` redirects to it.
 >
@@ -1634,7 +1634,7 @@ Provisional score (half 1): 8.75/10.
 | Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, smooth on software rendering, and saves are checked when loaded. |
 | Completeness | 0.6 / 1.0 | Half 1 only: the Star Dome, the Launch Bay, the Grand Tour, the site listing and the redirect come in half 2. |
 
-##### Half 2: BUILT (2026-10-16), waiting for the owner's look
+##### Half 2: BUILT (2026-10-16), merged by the owner in PR #231 (2026-10-17)
 
 What half 2 adds (the game is now listed on the site at `/games/solar-system-explorer`, replacing the old one, and `/games/planet-explorer-quest` redirects to it):
 
@@ -1743,3 +1743,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-15:** The owner approved the Solar System Explorer plan with Claude's picks: the walking observatory, Navigator Sol, Lumi Reyes, Kofi Mensah, Tess Rocket, Vee, the same title, and two halves. The look preview is built (the cast, the observatory, Mars, Mercury and the Jupiter dive). Waiting for the owner's look before half 1.
 - **2026-10-15:** The owner looked at the preview and said "Build half 1". Half 1 built: the walkable observatory with Vee, the Orrery and the Sunrise Lab (45 questions and two debriefs), the star map, all 8 planet stops (a rover on the rocky planets, a cloud dive on the giants, 24 stop questions, fact cards, postcards and the album), saving and the grown-ups page. 10 unit tests, 51/51 browser checks, provisional score 8.75. Waiting for the owner's look before half 2.
 - **2026-10-16:** The owner played half 1 on the preview ("It works now and plays well") and said "Build half 2". Half 2 built: the Star Dome with Lumi's season dial and the Launch Bay with Tess's cannon (36 more questions, two debriefs, the Sun's and the Moon's bonus postcards), the Grand Tour (plot the route, photograph every planet, a question from each station, the Pale Blue Dot) and the star party (Pluto's bonus postcard; the game tells the site it is complete). The game now replaces the old one at `/games/solar-system-explorer`, `/games/planet-explorer-quest` redirects to it, and it has a new card picture. 18 unit tests, 77/77 browser checks, score 9.3. Waiting for the owner's look.
+- **2026-10-17:** The owner merged PR #231. **Solar System Explorer COMPLETED ✅** (both halves; 9.3/10; 77/77 browser checks). It replaces the old game at `/games/solar-system-explorer`, and `/games/planet-explorer-quest` redirects to it. That is 2 of the 14 Science games. Next (the owner's choice): plan the **Wild Lands** nature world, where most of S2–S4 goes.
