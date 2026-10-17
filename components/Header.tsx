@@ -16,6 +16,7 @@ import UiIcon from '@/components/icons/UiIcon';
 const NAV_LINKS = [
   { href: '/games', label: 'Games' },
   { href: '/books', label: 'Books' },
+  { href: '/tech-prep', label: 'Tech Prep' },
   { href: '/demo', label: 'World Demo' },
   { href: '/blog', label: 'Blog' },
   { href: '/about', label: 'About' },
