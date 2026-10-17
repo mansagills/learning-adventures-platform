@@ -12,7 +12,8 @@ import type { Lighting } from '../world/sceneKit';
  * world and one setting.
  */
 
-export type WorldId = 'sunny-town' | 'star-station' | 'ancient-kingdoms';
+/** 'wild-lands' (the nature world) is in look development: its style lives in wild-lands/style.ts until the owner approves it. */
+export type WorldId = 'sunny-town' | 'star-station' | 'ancient-kingdoms' | 'wild-lands';
 export type TimeOfDay = 'day' | 'evening';
 
 export interface WorldStyle {

@@ -15,6 +15,7 @@ import { showSheet } from './sheet';
  * or the same as a #token, for example #star-day or #ancient-evening-talk.
  * Body System Heroes: #body-cast, #body-lungs, #body-blood, #body-stomach.
  * Solar System Explorer: #space-cast, #space-observatory, #space-mars, #space-mercury, #space-jupiter.
+ * Wild Lands and Ocean Depth Diver: #wild-cast, #wild-camp, #wild-camp-evening, #wild-reef (-sunlight, -twilight, -midnight).
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -32,4 +33,10 @@ if (view === 'scene') {
   import('./space').then((m) => m.showSpaceCast(host));
 } else if (view === 'space-jupiter') {
   import('./space').then((m) => m.showJupiterDive(host, q));
+} else if (view === 'wild-camp') {
+  import('./wild').then((m) => m.showWildCamp(host, q));
+} else if (view === 'wild-cast') {
+  import('./wild').then((m) => m.showWildCast(host));
+} else if (view === 'wild-reef') {
+  import('./wild').then((m) => m.showWildReef(host, q));
 } else showSheet(host, q);
