@@ -1,6 +1,6 @@
 # Game Worlds: proposal and handoff
 
-> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **W2 (games in their worlds) is in progress:** M6, Forum Fraction Feast, is COMPLETED ✅ (PR #220). **M7 in Star Station is in progress:** the plan is approved (the owner made Multiplication Space Quest a vertical space shooter, with the station deck as home base), and Space Quest half 1 is built (PR #224; the M7 section of `docs/GAMES_3D_UPGRADE_PLAN.md`).
+> Status: **APPROVED IN PRINCIPLE (2026-10-06)**. **Update (2026-10-17):** the plan for the third world, **Wild Lands**, is approved (section 7c), and its look preview (a rainforest field camp and a side-view coral reef) is built and waiting for the owner's look. The direction, the order of work and the section 6 questions are decided (sections 2a and 6). **W0 (look development) is COMPLETED ✅** (PR #217): the owner picked character level (b) and approved both worlds (section 7a). **W1 (theme layer) is COMPLETED ✅** (PR #220): the owner approved the Roman forum and the alien planet (section 7b). **W2 (games in their worlds) is in progress:** M6, Forum Fraction Feast, is COMPLETED ✅ (PR #220). **M7 in Star Station is in progress:** the plan is approved (the owner made Multiplication Space Quest a vertical space shooter, with the station deck as home base), and Space Quest half 1 is built (PR #224; the M7 section of `docs/GAMES_3D_UPGRADE_PLAN.md`).
 > Work continues on the branch `claude/elegant-clarke-hlzflj`.
 
 ## 1. The idea (the owner's words, summarized)
@@ -149,6 +149,90 @@ Built on `claude/elegant-clarke-hlzflj` (draft PR to `main`). The test settings 
 **Sunny Town:** the plan said to pull Sunny Town's art out of the existing games. That was not done, because the owner decided the eight finished games stay exactly as they are; moving their code would risk changing them for no visible gain. Sunny Town is recorded as a style (16 px, classic characters) so the site can name it, and its games keep their own scene code. The game build is byte-for-byte unchanged, so no shipped game changed.
 
 **Owner decision (2026-10-08): COMPLETED ✅.** The owner approved the Roman forum and the alien planet and said to go ahead with the proposed games in those worlds. W2 builds Math M6 (Fractions) in Ancient Kingdoms and M7 (Multiplication Space Quest, Equation Balance Scale) in Star Station, each with the `remaster-game` skill; each game's design plan goes to the owner before it is built.
+
+### 7c. Wild Lands, the third world: PLAN APPROVED (2026-10-17); look preview built, waiting for the owner's look
+
+The owner chose to build **Wild Lands**, the nature world, next (2026-10-13, confirmed 2026-10-17), because most of the Science games still to build are about living things, the Earth and the ocean. The owner accepted all of Claude's picks on 2026-10-17 (see "Owner answers" below), and the look preview is built (see "Look preview" at the end of this section).
+
+**What the world is.** Wild Lands is the outdoors without a town: rainforest, reef, volcano, dig site, mountain weather and wild meadows. It is a different place from Sunny Town, which is also green and sunny, in three ways:
+- It uses the richer 16-bit look (24 pixels per tile, level (b) characters), like Star Station and Ancient Kingdoms. Sunny Town keeps its 16-pixel look.
+- It is wild, not built up: no streets or shops. People there are scientists and rangers working in the field: tents, rope bridges, boardwalks, a jeep, a weather mast, collecting jars and field notebooks.
+- It has animals everywhere, drawn in the same 16-bit style as the people.
+
+**The style (fixed for every Wild Lands setting), following the "one style per world, many settings" rule:**
+
+| | Wild Lands |
+|---|---|
+| Tiles and characters | 24 pixels per tile; 16-bit characters at level (b), as in the other new worlds |
+| Colors | Lush leaf greens, warm earth browns and sea blues, with bright accents from flowers, birds and coral. Shadows lean cool (blue-green); sunlit edges lean warm (yellow). |
+| Light | Day: sunlight dappled through leaves (soft light spots that drift). Evening: golden hour, then dusk. |
+| Glow signature (each world has one) | Living light: fireflies, glowing mushrooms, bioluminescent plankton and, where it fits, lava. Star Station glows with neon and Ancient Kingdoms with torchlight. |
+| Small moving touches | Swaying grass and leaves, ripples, drifting pollen, birds and butterflies crossing, fish turning |
+| Talk-box accent | Leaf green (the parchment panel stays the same, as in every world) |
+| Music | Marimba, kalimba and soft woodwinds, with light hand drums |
+
+**Settings (places inside the world).** Each game picks one or more. New settings are added only when a game needs them:
+
+| Setting | What it looks like | Could suit |
+|---|---|---|
+| `field-camp` | A research camp at the edge of the rainforest, by a river: tents, a boardwalk, a specimen table, a weather mast and a jeep | A shared home base for several games |
+| `rainforest` | The forest floor, understory and canopy, with rope bridges between the trees | Animal Kingdom Match, Ecosystem Building Tycoon |
+| `coral-reef` | Underwater: a sunlit reef that fades into deep blue water with glowing plankton | Ocean Depth Diver |
+| `coastline` | A beach, a river mouth and a wetland | Pollution Solution Squad |
+| `volcano-canyon` | Striped rock cliffs, a smoking volcano, cooled lava, hot springs | Rock Cycle Racing |
+| `dig-site` | Dry badlands with a fossil quarry, grid strings and brushes | Fossil Dig Adventure |
+| `mountain-valley` | A valley where the whole water cycle shows at once: sea, clouds, rain on the peaks, a river back down | Weather Wizard Battle |
+| `wild-meadow` | Wildflowers, a pond and a greenhouse at the meadow's edge | Plant Growing Championship |
+
+**Animals.** Animals are the biggest new piece of art. The world would get a shared set of friendly 16-bit animals, each with a few frames (idle, move, blink), that any Wild Lands game can use:
+- rainforest: a frog, a toucan, a monkey, a sloth, a jaguar (calm, never scary), a butterfly
+- reef: a sea turtle, a clownfish, a ray, an octopus
+- other places: a heron, a bee
+
+Animals follow the lore's rule: the world is friendly. Animals are never shown hurt; a problem (for example litter on a beach) is shown by the place looking dull and gray until it is fixed.
+
+**Which games could go here (suggestions only; the owner and the team decide):**
+
+| Game (merges from the merge map) | Grades | Suggested setting | Main standards |
+|---|---|---|---|
+| Ocean Depth Diver | 3–5 | `coral-reef` and the deep | 3-LS4-3, 4-LS1-1 (adaptations, the ocean zones) |
+| Animal Kingdom Match | 1–4 | `rainforest`, plus other habitats | 2-LS4-1, 3-LS4-3 (habitats and diversity) |
+| Ecosystem Building Tycoon | 4–5 | `rainforest` or a pond | 5-LS2-1 (food webs, matter moving through an ecosystem) |
+| Plant Growing Championship | 2–4 | `wild-meadow` | 2-LS2-1, 3-LS1-1 (what plants need, life cycles) |
+| Rock Cycle Racing (with Volcano Explorer Lab) | 3–5 | `volcano-canyon` | 4-ESS2-1, 2-ESS1-1, with an MS-ESS2-1 preview (the rock cycle) |
+| Fossil Dig Adventure | 3–5 | `dig-site` | 3-LS4-1, 4-ESS1-1 (fossils and rock layers as evidence) |
+| Weather Wizard Battle (with Water Cycle Journey) | 2–5 | `mountain-valley` | 3-ESS2-1, 3-ESS2-2, 5-ESS2-1 (weather, climate, the water cycle) |
+| Pollution Solution Squad (with Ocean Conservation Heroes) | 3–5 | `coastline` | 5-ESS3-1, 3-LS4-4 (protecting the environment) |
+
+That is 8 of the 12 Science games still to build. The other four (States of Matter Mixer, Magnet Power Puzzle, Simple Machines Construction and Light Laboratory Escape) are lab and invention games. They might suit Star Station better; that is an owner call for later.
+
+**How it would be built (each step ends with the owner's look):**
+1. **Look preview.** Two proof settings (the owner picks; see choices), each painted by day and in the evening, at desktop and phone size. Also a cast sheet with a test guide (a placeholder name; every game still gets its own host), the player, the animals, the plants and the props, and a short piece of Wild Lands music to hear. This works like the Solar System Explorer preview: the code goes into the kit (`src/kit/worlds/wild-lands/`) but stays out of the shared settings list, so the finished games stay byte-for-byte the same. The pages are on the dev server only, at `/lookdev/#wild-*`.
+2. **Into the kit.** Once the look is approved, the Wild Lands style and the approved settings join the shared list, with unit tests (as in W1). Every finished game is checked to be unchanged.
+3. **The first game in Wild Lands.** A design plan for the owner first, then two halves, as for the last games.
+
+**Choices for the owner (answered 2026-10-17: "Let's go with your picks"):**
+1. **The name:** keep **Wild Lands** (recommended: it was already in the plan, and it is short and clear), or pick another.
+2. **The two proof settings:**
+   - **(a) `field-camp` in the rainforest, and `coral-reef` underwater** (recommended). One is on land and one underwater, so together they show the whole range of the world. The camp can also be the shared home base.
+   - (b) `field-camp` and `volcano-canyon`: both on land, with the Earth science look.
+   - (c) another pair from the settings table.
+3. **The glow signature:** **living light** (fireflies, glowing mushrooms, bioluminescent plankton; recommended), or sunbeams and rainbows only, with no night glow.
+4. **The placeholder test guide's name:** **Ranger Tala** (recommended) or Dr. Moss. Each game still gets its own host.
+5. **Which games go here:** confirm the eight in the table, or move some.
+6. **The first game after the look**, with the owner and the team choosing:
+   - **Ocean Depth Diver** (recommended): it uses the reef setting, it plays differently from the walking hubs (you swim down through the sunlit, twilight and midnight zones and meet the animals that live in each), and it has a strong standards fit.
+   - Animal Kingdom Match, rebuilt as a ranger trip through habitats (it reaches the youngest players, grades 1–4).
+   - Rock Cycle Racing or Fossil Dig Adventure, for Earth science first.
+
+**Owner answers (2026-10-17):** the name **Wild Lands**; the proof settings **(a) `field-camp` and `coral-reef`**; the glow signature **living light**; the test guide **Ranger Tala**; the **eight games** in the table; and the first game **Ocean Depth Diver**. The owner then asked for a walkthrough of how Ocean Depth Diver plays, liked all of it ("especially the creature design") and said "Let's start building". The game's plan is in the S4 section of `docs/GAMES_3D_UPGRADE_PLAN.md`.
+
+**Look preview: BUILT (2026-10-17), waiting for the owner's look.** Code in `games-src/adventures/src/kit/worlds/wild-lands/`, kept out of the shared lists (`WORLD_STYLES`, `SETTINGS`, `worlds.css`), so the finished games build byte-for-byte the same (checked):
+- `style.ts`: the world style (24 px, 16-bit characters, a cool blue dusk tint, the leaf-green talk-box accent in `wild.css`, the living-light glow colors, and a bouncy marimba-like tune).
+- `art.ts`: the palette, Ranger Tala and Dr. Lani Kahale (Ocean Depth Diver's host, a draft name), Finn the robot camera, the little submarine (a draft name: the Little Nautilus), seven rainforest and river animals, seven sea animals and the camp's props.
+- `camp.ts`: the `field-camp` setting. A sunny clearing with tents, the lab tent, the touch tank, the ocean-zone chart, a weather mast, the jeep and a campfire; a boardwalk over the sand to the dock where the submarine bobs; the river along the bottom with a heron in the shallows and a jaguar resting on the far bank; rain trees, palms and ferns; a rainforest and sea backdrop. Day: dappled sunlight. Dusk: lanterns and the campfire glow, fireflies drift, mushrooms glow, and the sea sparkles blue with plankton.
+- `ocean.ts`: the side-view sea (the `coral-reef` setting is drawn this way, because the game's dives are side view). A reef on a sunny shelf (corals, a sea fan, an anemone with clownfish, an octopus, seagrass), a rock wall dropping into the deep, water fading from turquoise to black, animals in their real zones, marine snow, and the submarine's headlamp in the dark.
+- Pages (dev server only): `/lookdev/#wild-cast`, `#wild-camp`, `#wild-camp-evening`, `#wild-reef` (a slow dive down and back up) and `#wild-reef-sunlight`, `-twilight`, `-midnight`. Screenshots: `node scripts/wild-lookdev-shots.mjs`. Unit tests: `tests/wild-lands.test.ts`.
 
 ## 8. Things that must not change
 

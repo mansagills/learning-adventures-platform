@@ -1674,6 +1674,28 @@ Score (both halves): **9.3/10.**
 | Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, and saves are checked when loaded. |
 | Completeness | 1.0 / 1.0 | Both halves, the site listing, the redirect and a new card picture. |
 
+#### S4 Ocean: Ocean Depth Diver: PLAN APPROVED (2026-10-17); look preview built, waiting for the owner's look
+
+The first game in the **Wild Lands** world (section 7c of `docs/GAME_WORLDS_PROPOSAL.md`). Grades 3–5, slug `ocean-depth-diver` (the old game is replaced at the same address when the new one ships). The owner accepted Claude's picks for the world, asked for a walkthrough of how the game plays, and said: "I like all of these ideas, especially the creature design. Let's start building" (2026-10-17). All names are drafts until the owner looks at the preview.
+
+##### The game
+- **Home base:** Ranger Tala's field camp, where a rainforest river meets the sea (the `field-camp` setting). The host is the marine biologist **Dr. Lani Kahale**, who works in the lab tent by the dock. **Finn** is the robot camera that takes the photos for the field guide and gives hints. The submarine is the **Little Nautilus**.
+- **The dive:** a side view. The child steers the submarine freely and goes deeper, with dials for depth, temperature and pressure. Below the sunlight the only lights are the headlamp's cone and the animals' own living light.
+- **Four expeditions**, each opened from the camp:
+  1. **The sunlight zone and the reef** (0–200 m): food chains start with sunlight (seaweed and tiny plankton make food).
+  2. **The twilight zone** (200–1000 m): big eyes, glowing bellies, dim blue light, and a chase following the lanternfish on their nightly trip up to feed.
+  3. **The midnight zone** (1000–4000 m): no sunlight at all; anglerfish lures, and marine snow (bits of food drifting down from above).
+  4. **The deep sea floor and the vents** (grade 5): life that gets its energy from chemicals instead of sunlight.
+- **The Creature Designer** (the owner's favorite) in the lab tent: pick body parts (eyes, mouth, color, light organs, fins), then test-dive the creature in a zone and see whether it can find food, stay hidden and keep safe there (3-LS4-3).
+- **Questions:** three levels, wrong answers that name a real misconception, and the hint ladder (hint 2 always adds a picture). A **field guide** fills up with Finn's photos of every animal met.
+- **The finale, the Trench Dive:** all the way down (about 11 km) with one question from each zone, then the **Glow Show**: back at camp at night, the bay lights up blue with plankton.
+- **Facts fixed from the old game:** sharks do not smell blood "from miles away" (a myth); the deepest fish ever filmed was at 8,336 m (2023); the 250-year tube worm is a cold-seep species, not the giant tube worm at hot vents; the Portuguese man-of-war floats at the surface, not in the twilight zone.
+
+##### How it is built (each step ends with the owner's look)
+1. **Look preview: BUILT (2026-10-17), waiting for the owner's look.** The Wild Lands style, the cast (Ranger Tala, Dr. Lani Kahale, Finn, the submarine), 14 animals, the field camp by day and at dusk, and the side-view dive through the sunlight, twilight and midnight zones. Pages: `/lookdev/#wild-cast`, `#wild-camp`, `#wild-camp-evening`, `#wild-reef` (and `-sunlight`, `-twilight`, `-midnight`); dev server only. Details in section 7c of `docs/GAME_WORLDS_PROPOSAL.md`.
+2. **Half 1:** the camp, the sunlight and twilight expeditions, the Creature Designer, the field guide, saving and the grown-ups page.
+3. **Half 2:** the midnight and vent expeditions, the Trench Dive, the Glow Show, the site listing and a new card picture.
+
 ### Phase 3: English and History (2): NOT STARTED
 
 - **Spelling Bee Challenge** (3–5): spelling patterns (vowel teams, prefixes and suffixes, homophones) with word meaning in context, not just memorizing lists (L.3.2, L.4.2).
@@ -1744,3 +1766,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-15:** The owner looked at the preview and said "Build half 1". Half 1 built: the walkable observatory with Vee, the Orrery and the Sunrise Lab (45 questions and two debriefs), the star map, all 8 planet stops (a rover on the rocky planets, a cloud dive on the giants, 24 stop questions, fact cards, postcards and the album), saving and the grown-ups page. 10 unit tests, 51/51 browser checks, provisional score 8.75. Waiting for the owner's look before half 2.
 - **2026-10-16:** The owner played half 1 on the preview ("It works now and plays well") and said "Build half 2". Half 2 built: the Star Dome with Lumi's season dial and the Launch Bay with Tess's cannon (36 more questions, two debriefs, the Sun's and the Moon's bonus postcards), the Grand Tour (plot the route, photograph every planet, a question from each station, the Pale Blue Dot) and the star party (Pluto's bonus postcard; the game tells the site it is complete). The game now replaces the old one at `/games/solar-system-explorer`, `/games/planet-explorer-quest` redirects to it, and it has a new card picture. 18 unit tests, 77/77 browser checks, score 9.3. Waiting for the owner's look.
 - **2026-10-17:** The owner merged PR #231. **Solar System Explorer COMPLETED ✅** (both halves; 9.3/10; 77/77 browser checks). It replaces the old game at `/games/solar-system-explorer`, and `/games/planet-explorer-quest` redirects to it. That is 2 of the 14 Science games. Next (the owner's choice): plan the **Wild Lands** nature world, where most of S2–S4 goes.
+- **2026-10-17:** The Wild Lands plan was written (section 7c of `docs/GAME_WORLDS_PROPOSAL.md`) and the owner accepted all of Claude's picks: the name Wild Lands, a rainforest field camp and a coral reef as the proof settings, living light as the glow, Ranger Tala as the test guide, eight games and **Ocean Depth Diver** first. After a walkthrough of how it plays, the owner approved the game's plan (the S4 section above). The look preview is built (the cast, the field camp by day and at dusk, and the side-view dive). Waiting for the owner's look before half 1.

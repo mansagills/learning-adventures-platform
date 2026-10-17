@@ -27,6 +27,13 @@ export const PAGES: Array<[string, string]> = [
   ['space-mars', 'Space: Mars'],
   ['space-mercury', 'Space: Mercury'],
   ['space-jupiter', 'Space: Jupiter dive'],
+  ['wild-cast', 'Wild Lands: the cast'],
+  ['wild-camp', 'Wild Lands: the field camp'],
+  ['wild-camp-evening', 'Field camp at dusk'],
+  ['wild-reef', 'Wild Lands: the dive'],
+  ['wild-reef-sunlight', 'Dive: sunlight zone'],
+  ['wild-reef-twilight', 'Dive: twilight zone'],
+  ['wild-reef-midnight', 'Dive: midnight zone'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -58,6 +65,17 @@ export function pageParams(): URLSearchParams {
       q.set('area', area);
     }
     if (flag === 'quiet') q.set('talk', '0');
+    return q;
+  }
+  // Wild Lands: #wild-cast, #wild-camp[-evening], #wild-reef[-sunlight|-twilight|-midnight] (add -quiet to hide the talk box)
+  if (token.startsWith('wild-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'wild-cast' : area === 'reef' ? 'wild-reef' : 'wild-camp');
+    for (const r of rest) {
+      if (r === 'evening') q.set('time', 'evening');
+      else if (r === 'quiet') q.set('talk', '0');
+      else q.set('zone', r);
+    }
     return q;
   }
   const id = SETTING_IDS.find((sid) => token.startsWith(sid)) ?? 'station-deck';

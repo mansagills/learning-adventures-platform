@@ -17,7 +17,7 @@ import { currentToken, pageNav } from './nav';
 export function showScene(host: HTMLElement, q: URLSearchParams): void {
   const settingId = SETTINGS.some((s) => s.id === q.get('setting')) ? q.get('setting')! : 'station-deck';
   const setting = settingById(settingId);
-  const style = WORLD_STYLES[setting.world];
+  const style = WORLD_STYLES[setting.world as keyof typeof WORLD_STYLES];
   const level = (['a', 'b', 'c'].includes(q.get('level') ?? '') ? q.get('level') : 'b') as Level;
   const time: TimeOfDay = q.get('time') === 'evening' ? 'evening' : 'day';
   // The world's own px (24) is level (b); levels (a) and (c) are kept for comparison.

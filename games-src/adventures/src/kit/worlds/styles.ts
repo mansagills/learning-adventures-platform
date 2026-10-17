@@ -85,7 +85,8 @@ export const ANCIENT_KINGDOMS: WorldStyle = {
   },
 };
 
-export const WORLD_STYLES: Record<WorldId, WorldStyle> = {
+/** The approved worlds (Wild Lands joins once its look is approved). */
+export const WORLD_STYLES: Record<Exclude<WorldId, 'wild-lands'>, WorldStyle> = {
   'sunny-town': SUNNY_TOWN,
   'star-station': STAR_STATION,
   'ancient-kingdoms': ANCIENT_KINGDOMS,
