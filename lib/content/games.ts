@@ -208,18 +208,19 @@ export const games: PlayableGame[] = [
 
   // ── Science ─────────────────────────────────────────────────────────────
   {
-    slug: 'planet-explorer-quest',
-    title: 'Planet Explorer Quest',
+    slug: 'solar-system-explorer',
+    title: 'Solar System Explorer',
     subject: 'science',
     kind: 'game',
-    grades: '3–5',
+    grades: '2–5',
     difficulty: 'medium',
     description:
-      'Pilot your spaceship through the solar system answering planet facts.',
-    skills: ['Astronomy', 'Space Facts'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/planet-explorer-quest.html',
-    thumbnail: '/games/thumbnails/planet-explorer-quest.jpg',
+      'Explore an observatory on the Star Station with Navigator Sol and Vee the probe. Put the planets in order, spin a globe to make day and night, find out why the Sun looks bigger than other stars, fire a cannon into orbit, visit all eight planets, then fly the Grand Tour to the edge of the solar system.',
+    skills: ['Planets', 'Day and Night', 'Stars', 'Gravity and Orbits'],
+    estimatedTime: '30–45 min',
+    // Rebuilt with the Adventure Kit in the Star Station world (UX-4 Phase 2, Science); Planet Explorer Quest is merged in
+    htmlPath: '/games/play/solar-system-explorer/index.html',
+    thumbnail: '/games/thumbnails/solar-system-explorer.jpg',
     featured: true,
   },
   {
@@ -265,20 +266,6 @@ export const games: PlayableGame[] = [
     htmlPath: '/games/crystal-cave-chemistry.html',
     thumbnail: '/games/thumbnails/crystal-cave-chemistry.jpg',
     featured: true,
-  },
-  {
-    slug: 'solar-system-explorer',
-    title: 'Solar System Explorer',
-    subject: 'science',
-    kind: 'game',
-    grades: '2–5',
-    difficulty: 'easy',
-    description:
-      'Fly from planet to planet and explore the whole solar system.',
-    skills: ['Astronomy', 'Planets'],
-    estimatedTime: '10–15 min',
-    htmlPath: '/games/solar-system-explorer.html',
-    thumbnail: '/games/thumbnails/solar-system-explorer.jpg',
   },
   {
     slug: 'weather-wizard-battle',

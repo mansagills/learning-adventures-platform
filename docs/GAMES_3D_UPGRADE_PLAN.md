@@ -1457,6 +1457,223 @@ The owner merged half 1 and asked for half 2.
 6. **The title:** keep **Body System Heroes** (the same name and address), or rename it, for example **Micro-Scout: Inside the Body**. The address stays the same either way.
 
 
+#### S1 Space: Solar System Explorer: PLAN APPROVED (2026-10-15, with Claude's picks), look APPROVED, half 1 APPROVED (2026-10-16), half 2 BUILT (2026-10-16), waiting for the owner's look
+
+> Source: the old site games `public/games/solar-system-explorer.html` (grades 2–5) and `public/games/planet-explorer-quest.html` (grades 3–5). They merge into one game at the surviving slug **`solar-system-explorer`**, grades **2–5**; `/games/planet-explorer-quest` redirects to it.
+>
+> The owner picked this game on 2026-10-13 (option A: the Star Station world is already built, and it finishes the S1 Space group with one game). **Wild Lands, the nature world, comes right after it** (owner, 2026-10-13), because most of S2–S4 belongs there.
+
+##### What the originals do (studied 2026-10-13)
+
+- **Solar System Explorer** (grades 2–5) shows the 8 planets in order, one fact each, then one recall question per planet ("Which planet is the Red Planet?"). There's one level and a skip button. A wrong answer only shows the right one and moves on. Emoji art, no saving.
+- **Planet Explorer Quest** (grades 3–5) shows a click-to-fly map of the solar system with a ship. Each planet opens a fact card (distance from the Sun, day length, year length, moons), one "why" question with a short explanation, and a fun fact. Its fuel counter goes down but never matters, and the orbits are drawn evenly spaced, which hides the real pattern (the gaps grow hugely farther out).
+- **Keeps:** the planet order and each planet's headline fact (Mercury smallest and closest; Venus hottest with thick clouds; Earth with liquid water and life; Mars red from rusty soil, with the biggest volcano; Jupiter biggest, with the Great Red Spot storm; Saturn's rings of ice and rock, and it's less dense than water; Uranus on its side; Neptune windiest, found by math first). Also the "why" questions and the fact cards (distance, day, year), which become the planet postcards.
+- **Fixes (facts that are wrong or out of date, checked against NASA):**
+  - *"Mercury is the fastest planet because it has less distance to travel."* That explains its short **year**, not its **speed**. It moves fastest because the Sun's gravity pulls hardest close in. **Fixed.**
+  - *Uranus: "rotates on its side" vs the wrong answer "rotates backwards".* Uranus really does spin backwards too (like Venus), so that wrong answer is also true. **Fixed** with a wrong answer that is really wrong.
+  - *The Great Red Spot "has been raging for over 400 years".* NASA says it has been watched since at least the 1830s, so that is more than 150 years. Older sightings are uncertain. **Fixed** to "more than 150 years".
+  - *Olympus Mons is "3 times taller than Mount Everest".* NASA says about two and a half times. **Fixed.**
+  - *Moon counts* (Jupiter "95+", Saturn "146+", Uranus 28). These are out of date: in 2025 NASA counted 274 for Saturn, and Uranus got a 29th. **Replaced** with "dozens" or "hundreds", and "scientists keep finding more", which teaches something true about science.
+  - *"Day length: 59 Earth days" (Mercury), "243" (Venus).* Those are one full **spin**. Sunrise to sunrise is longer (176 Earth days on Mercury). The postcards say "one spin" so the numbers stay right.
+- **Missing against the standard:** levels, wrong answers built from real mistakes, hints, debriefs, anything about the Sun, stars, day and night, shadows or gravity (the grade 5 standards), the pixel art, sound, a phone layout, saving and the grown-ups page.
+
+##### The game
+
+- **Setting:** the **Star Station observatory**, a new walking area on the station (part of the Star Station world): a big glass dome with a telescope, a working model of the solar system (an orrery), a globe lab and a planetarium. From the observatory the ship hops to the planets on Navigator Sol's star map. The 16-bit Star Station look, 24 pixels per tile. Rocky planets reuse the alien-planet setting's walking pieces with each planet's own colors and sky (grey craters on Mercury, orange haze on Venus, red dust on Mars). The giant planets get a cloud-dive view instead, because **there's no ground to land on**.
+- **Characters (drafts for the owner to pick from; see the choices below):**
+  - **Host: Navigator Sol**, "Keeper of the Star Map" from Multiplication Space Quest, now running the observatory. This links the Star Station games.
+  - **Station helpers, one per station:** an astronomer at the planetarium, an Earth scientist at the globe lab, and a launch engineer at the launch bay.
+  - **Sidekick:** a small probe robot that flies the planet hops with you, takes the postcards and gives hints. It is the star of the finale.
+  - Commander Ayo, Dr. Ama and Gloop can appear at the finale's star party.
+- **How it plays:** walk the observatory and talk to people with a "!" over them, as at the outpost in Equation Balance Scale. Each station is a hands-on **space model** you play with, not a quiz panel:
+  1. **The Orrery (Planet Tour):** drag the planets onto their orbits in the right order. Then the model runs, and you can see that close planets go round faster. From here, **hop to a planet** on the star map (a short hop, not a shooter). On a rocky planet you drive the probe's little rover over a patch of ground (people could not survive on Venus or Mercury, but robots have landed on them) to find three things: a sample, a fact card and a question. On a giant planet the probe dives through the cloud bands. Every planet visited adds a **planet postcard** to your album. This is where Planet Explorer Quest lives on.
+  2. **The Sunrise Lab (day and night):** a big globe with a tiny pixel town on it and a lamp for the Sun. Turn the crank to spin Earth and watch the town go from sunrise to night. Then the **shadow puzzles**: drag the Sun across the sky over a flagpole and pick where its shadow falls and how long it is.
+  3. **The Star Dome (the Sun and stars):** a planetarium. Find out the Sun is a star, why it looks so much bigger and brighter than the others (two lamps at different distances), and turn the season dial to see which star pictures are up on winter nights and on summer nights.
+  4. **The Launch Bay (gravity and orbits):** a launch cannon on a little planet. Too slow and the probe falls back; just right and it falls *around* the planet: that's an orbit. Drop balls from people standing all around a globe: "down" always means toward the middle. Farther planets take longer to go round, so their years are longer.
+- **Finale: The Grand Tour.** Plot the probe's route from the Sun out to Neptune in order, then launch. The probe flies past each planet (a gentle flyby where you tap to take its photo, with one mixed question from every station). At the edge it turns round to take a picture of Earth as a tiny dot, like the real Voyager 1 "Pale Blue Dot" photo from 1990. Then the dome opens at night for a **star party** where the whole crew looks at your photos, and the game tells the site it's complete.
+- **Replay:** the postcard album (8 planets, plus the Sun, the Moon and Pluto as a dwarf planet), harder levels, and every model stays free to play with.
+- **Modeled on:**
+  - **Equation Balance Scale** for the walking hub on Star Station, the jobs with a scale you drag things onto, and the finale pattern
+  - **Multiplication Space Quest** for the star map, the ship and the landing on the alien planet
+  - **Shape Town Builders** for drag-to-place building (the orrery)
+
+##### Learning design
+
+The space standards in NGSS sit in grade 1 (patterns of the Sun, Moon and stars) and grade 5 (the Sun is a star, day and night, shadows, seasonal stars, gravity). So **level 1 is grades 2–3** (names, order, the basic patterns), **level 2 is grade 4** (comparing and explaining patterns), and **level 3 is grade 5**, with a little middle-school preview (scale, why we have seasons).
+
+| Station (helper) | Skill | Level 1 (grades 2–3) | Level 2 (grade 4) | Level 3 (grade 5) | Standards |
+|---|---|---|---|---|---|
+| The Orrery (Navigator Sol) | The planets: order, kinds, what makes each one special | Name the planet from its picture and one fact; put Mercury to Mars in order | All 8 in order; rocky planets vs giant planets; the planet-postcard "why" questions (why is Mars red?) | Patterns and scale: farther out = colder and slower, with Venus as the trap; you can't land on a giant; how far apart they really are | 5-ESS1-1 (stretch), MS-ESS1-3 (scale, preview) |
+| The Sunrise Lab (Earth scientist) | Day and night, and shadows | Day on the side facing the Sun; the Sun rises in the east and sets in the west | Earth spins once a day, so the Sun only *seems* to move; a shadow points away from the Sun | Shadow length through the day (long in the morning, shortest near midday, long again in the evening); which way it points at each time | 1-ESS1-1, **5-ESS1-2** |
+| The Star Dome (astronomer) | The Sun and other stars | The Sun is a star; stars are still there in the daytime, the Sun's light just hides them | The Sun looks biggest and brightest because it is the closest star; the Moon shines with reflected sunlight | Some star pictures are seen only in some seasons, because Earth goes round the Sun (Orion on winter nights, Scorpius on summer nights, from the northern half of Earth) | 1-ESS1-1, **5-ESS1-1**, **5-ESS1-2** |
+| The Launch Bay (launch engineer) | Gravity, orbits and years | Gravity pulls things down; one trip round the Sun = one year | "Down" means toward the middle of Earth, everywhere on Earth; farther planets have longer years | Orbits: moving sideways fast enough, the probe falls *around* the planet; astronauts float because they are falling round Earth, not because there's no gravity; seasons come from Earth's tilt, not its distance from the Sun (preview) | **5-PS2-1**, MS-ESS1-1 (seasons, preview) |
+
+- **Mistakes the wrong answers come from:**
+  - *The Sun moves around Earth:* day and night come from Earth spinning.
+  - *The Sun goes away at night:* it is shining on the other side of Earth.
+  - *The closest planet is the hottest:* Venus is hotter than Mercury, because its thick air traps heat.
+  - *The Sun isn't a star (or it's the biggest star):* it's a medium-sized star that looks big because it's close.
+  - *Stars aren't there in the daytime:* the bright sky hides them.
+  - *Seasons happen because Earth gets closer to the Sun:* it's the tilt. Earth is actually closest to the Sun in early January, during northern winter.
+  - *The planets are evenly spaced:* the gaps get much bigger farther out.
+  - *A shadow points toward the Sun, or stays the same length all day.*
+  - *People at the bottom of Earth would fall off:* "down" is always toward the middle.
+  - *There's no gravity in space:* gravity keeps the Moon and the planets in orbit.
+  - *You can land on Jupiter:* the giant planets have no solid surface to stand on.
+  - *Pluto is the ninth planet, or the Moon is a planet:* Pluto has been a dwarf planet since 2006, and the Moon goes round Earth.
+- **Hint ladder:**
+  1. A nudge from the probe: "Where is the Sun's light shining?"
+  2. A picture: the station's own model shows it, such as the globe with the lit half glowing, the orrery with one orbit lit, two lamps at different distances, or the probe's path curving round the planet.
+  3. The answer outlined, with its reason.
+- **Debriefs** (one per station, the child picks the best reason):
+  - Orrery: "Mercury is closest to the Sun. Why is Venus hotter?"
+  - Sunrise Lab: "Why does the Sun seem to cross the sky every day?"
+  - Star Dome: "Why does the Sun look so much bigger and brighter than other stars?"
+  - Launch Bay: "Why doesn't the probe in orbit fall back down?"
+- **Progress and finale:** 5 stars per station lights one of the dome's four big **telescope lenses**. A station counts as done after 5 stars and level 2, or after 12 questions, so a child who struggles still finishes. All four lenses unlock the Grand Tour. Planet postcards fill the album as you go.
+- **Question wording** (the owner's rule from 2026-10-10): short sentences, facts first, then one plain question, in words that match the picture, with no game jargon. For example: "The Sun is on this side. Which side of Earth has day?"
+- **Difficulty change from the original:** from one level of 8 recall questions to three levels across grades 2–5 and four skills. The old games only covered planet facts. The new one adds the grade 5 standards on the Sun, stars, day and night, shadows and gravity, with hands-on models, named mistakes, hints and debriefs.
+- **Facts checked against:** NASA Science (Solar System Exploration, planet fact sheets, Voyager), the NASA Space Place pages for kids, NOAA (seasons) and the IAU (Pluto as a dwarf planet). They're listed in the grown-ups page credits.
+
+##### How it would be built (three steps, each with an owner look, as for Body System Heroes)
+
+1. **Look preview:** a lookdev page with the observatory (the dome, telescope, orrery, globe lab, planetarium and launch bay), the cast, the probe, the star map, two rocky planet surfaces (Mars and Mercury) and one giant planet's cloud dive (Jupiter). The owner approves the look before the game is built. The observatory goes into the world kit as a new Star Station setting; the other games stay byte-for-byte unchanged.
+2. **Half 1:** the observatory, the Orrery with the star-map hops, all 8 planet stops and the postcard album, the Sunrise Lab, saving and the grown-ups page.
+3. **Half 2:** the Star Dome, the Launch Bay, the Grand Tour finale and star party, the site listing (with `/games/planet-explorer-quest` redirecting), the card picture and the final score.
+
+##### Choices for the owner
+
+1. **The kind of game:**
+   - **(a) Walking observatory with hands-on space models, plus short hops to the planets** (recommended). It plays differently from the last two games, which were both flying games, and the models are what actually teach the grade 5 ideas (spinning Earth, shadows, orbits).
+   - **(b) Free flight round a big solar system**, like Body System Heroes, with each station on a planet. This is more action, but it would be the third flying game in a row, and day and night or shadows are hard to teach from a ship.
+   - **(c) Just the orrery and star map** (a smaller game, like the old ones but deeper). It would be quicker to build, but it would score lower on variety and leave out the grade 5 standards.
+2. **The host:** **Navigator Sol** from Multiplication Space Quest (recommended), or a new astronomer.
+3. **The helpers** (drafts):
+   - Star Dome astronomer: **Astronomer Lumi Reyes** (recommended), or **Stargazer Oona**
+   - Sunrise Lab Earth scientist: **Dr. Kofi Mensah** (recommended), or **Professor Hana Ito**
+   - Launch Bay engineer: **Engineer Tess Rocket** (recommended), or **Chief Bolt**
+4. **The probe sidekick** (drafts): **Vee** (recommended: short for Voyager, and easy to read aloud), **Comet** or **Blink**.
+5. **The title:** keep **Solar System Explorer** (recommended; the same address either way), or something like **Sol's Observatory: Solar System Explorer**.
+6. **Two halves**, with a quick look in between (recommended, as for the last games), or all at once.
+
+**Owner answer (2026-10-15):** "This is a good use of updating the old games. I'll go with your picks." So:
+- **(a)** the walking observatory with hands-on space models and short hops to the planets
+- the host is **Navigator Sol**; the helpers are **Astronomer Lumi Reyes** (Star Dome), **Dr. Kofi Mensah** (Sunrise Lab) and **Engineer Tess Rocket** (Launch Bay)
+- the probe is **Vee**
+- the title stays **Solar System Explorer**
+- built in **two halves**, with a look preview first
+
+##### Look preview: APPROVED (2026-10-15: the owner said "Build half 1")
+
+Open with `cd games-src/adventures && npm run dev`, then `/lookdev/#space-cast`, `#space-observatory`, `#space-mars`, `#space-mercury` and `#space-jupiter`. `node scripts/space-lookdev-shots.mjs` saves the screenshots to `test-output/space-lookdev/`.
+
+- **The cast sheet:**
+  - Vee (hovering, thrusting, facing left, blinking, and in the talk box)
+  - the crew and the player
+  - the Sun, the eight planets, the Moon and Pluto
+  - the space models: the orrery running, the globe lab turning from day to night, the star projector, the launch cannon and the big telescope with its lenses dark and lit
+  - Navigator Sol's star map and three postcards
+  - the three finds and the Jupiter cloud dive
+- **The observatory:** a domed room with an arched window onto the stars, the Milky Way, the Moon and Earth's blue edge. The telescope stands in the middle, with the models and their helpers round it, the Star Dome door on the left and the Launch Bay hatch on the right.
+- **Mars:** rusty dust, dark boulders and craters, a butterscotch sky with a small Sun, and Olympus Mons as a long, low hill on the horizon. The rover, Vee and the three finds are there.
+- **Mercury:** grey craters and long cliffs, a black sky even in the day, and a big Sun.
+- **Jupiter:** Vee dives through cloud bands that blow in opposite directions. It gets darker deeper down, with lightning.
+- **Code:**
+  - `src/kit/worlds/star-station/space-art.ts` (the crew, Vee, the planets, the models, the star map and postcards)
+  - `observatory.ts` (the observatory setting)
+  - `surfaces.ts` (the planet stops and the cloud dive)
+  - `src/lookdev/space.ts`
+  - These are kept out of the shared settings list, so the other games stay unchanged (all 180 unit tests pass).
+
+##### Half 1: BUILT (2026-10-15), APPROVED (2026-10-16: the owner said "It works now and plays well. Build half 2")
+
+What a child can do now (not listed on the site yet; it opens at `/games/play/solar-system-explorer/index.html`; the address needs the `index.html`, because the site drops a slash at the end):
+
+- **The observatory:** walk round the domed room with Vee following.
+  - Navigator Sol stands by the big telescope. Its four lenses light up one per finished station, in each station's own color.
+  - Lumi and Tess say their stations open soon (half 2).
+- **The Orrery (Navigator Sol): 27 questions.**
+  - Level 1: name a planet from its picture, and "which planet goes on the glowing ring" for the first four rings.
+  - Level 2: all eight in order, rocky planets and giants, and the old games' "why" questions with the facts fixed.
+  - Level 3: the patterns: longer years far out, Mercury fastest because the Sun's pull is strongest close in, Venus hotter than Mercury, no ground on a giant, the gaps grow, Pluto, cold Neptune.
+  - The debrief: "Why is Venus hotter than Mercury?"
+- **The Sunrise Lab (Dr. Kofi Mensah): 18 questions.**
+  - A globe lit by a lamp. The lamp is on the right and the globe turns like the real Earth, so the town comes out of the night at the front: a sunrise.
+  - A flagpole with East and West labels, for shadows.
+  - Level 1: the lit half has day; sunrise in the east and sunset in the west; a shadow falls away from the Sun.
+  - Level 2: one spin is about 24 hours; the Sun only seems to move; why we have night; which way a shadow points in the morning and the evening.
+  - Level 3: shadow length through the day; a sundial; midnight on the far side of Earth.
+  - The debrief: "Why does the Sun seem to cross the sky?"
+- **The star map and all 8 planet stops.**
+  - On Mercury, Venus, Earth and Mars, drive the rover to three finds: a sample (Vee says what it is), a fact card (distance, one spin, one year, moons) and a question.
+  - On Jupiter, Saturn, Uranus and Neptune there is no ground, so Vee dives into the clouds. The child steers with the arrow keys or a finger to catch the three finds. It gets darker deeper down, with lightning.
+  - Three finds earn a postcard for the album (B).
+  - Leaving early keeps the finds already collected.
+  - New surfaces for Venus (an orange sky with the Sun hidden by clouds, flat dark rocks) and Earth (grass, ponds, flowers, a blue sky with clouds).
+- **Hints** go from a nudge, to a picture, to the answer outlined. The picture is one of:
+  - the planets in a row, with the asked one hidden behind a "?"
+  - the rocky and giant groups
+  - the lamp's rays on the globe
+  - the Sun's rays past the flagpole to the shadow's tip
+  - the Sun's path across the sky
+- **Saving and the grown-ups page:** progress rows for the two stations and the planet stops, the standards, talking points and what the game simplifies.
+- **Checks:**
+  - 10 unit tests (`tests/sse-problems.test.ts`). They also make sure the old games' mistakes cannot come back.
+  - 51/51 browser checks (`scripts/e2e-solar-system-explorer.mjs`).
+  - 49 fps in the observatory, 55 on Mars and 60 in a dive, even with the slow software rendering on the test machine.
+  - The other Star Station games still pass all their browser checks (Equation Balance Scale 62/62, Body System Heroes 73/73, Multiplication Space Quest 66/66).
+
+Provisional score (half 1): 8.75/10.
+
+| Category | Points | Evidence |
+|---|---|---|
+| Gameplay and feel | 2.2 / 2.5 | Walking, driving the rover, steering a dive and collecting postcards give real variety. The weakest point: the stations are answered with buttons, and the orrery and globe models move on their own rather than being dragged or cranked by the child. |
+| Learning accuracy and clarity | 1.85 / 2.0 | 69 questions across three levels. Every wrong answer names a real misconception. Hint 2 always adds a picture, and both stations have a debrief. Facts were checked against NASA. |
+| Visual and audio polish | 1.35 / 1.5 | New 16-bit art for the observatory, four surfaces and four cloud palettes, plus three songs. The orrery picture in the panel is small next to the planet pictures. |
+| Usability and accessibility | 1.35 / 1.5 | Keyboard, mouse and touch all work, read-aloud is on, the phone layout fits (51 checks include a phone), and reduced motion stills the bands and the bobbing. |
+| Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, smooth on software rendering, and saves are checked when loaded. |
+| Completeness | 0.6 / 1.0 | Half 1 only: the Star Dome, the Launch Bay, the Grand Tour, the site listing and the redirect come in half 2. |
+
+##### Half 2: BUILT (2026-10-16), waiting for the owner's look
+
+What half 2 adds (the game is now listed on the site at `/games/solar-system-explorer`, replacing the old one, and `/games/planet-explorer-quest` redirects to it):
+
+- **The Star Dome (Astronomer Lumi Reyes): 18 questions** and a hands-on **season dial**.
+  - The dial: turn it to each season. A picture from above shows Earth on its trip round the Sun, with its night side looking out at that season's star picture (Orion in winter, Leo in spring, Scorpius in summer, Pegasus in autumn), next to that evening's sky.
+  - Level 1: the Sun is a star (the closest one); the stars are still there in the daytime; only the Sun makes its own light; star pictures are called constellations.
+  - Level 2: the Sun looks biggest and brightest because it is closest (two lamps that are just the same, one close and one far away); the Moon and Venus shine with reflected sunlight; the Sun and the Moon look the same size because the Sun is about 400 times wider and about 400 times farther away.
+  - Level 3: star pictures come and go with the seasons because Earth goes round the Sun; Scorpius is in the day sky in winter; the stars are very far apart (the next closest star is about 270,000 times farther away than the Sun).
+  - The debrief: "Why does the Sun look so much bigger and brighter than the other stars?" Finishing earns the Sun's bonus postcard.
+- **The Launch Bay (Engineer Tess Rocket): 18 questions** and a hands-on **launch cannon** worked out with real gravity (Isaac Newton's thought experiment).
+  - The cannon: pick a speed and fire. Too slow and the probe lands; just right and it falls all the way round (an orbit); super fast and it flies off into space. Finding an orbit finishes it.
+  - Level 1: gravity pulls things down; the Sun's gravity keeps the planets going round; one trip round the Sun is a year (eight birthdays, eight trips).
+  - Level 2: "down" means toward the middle of Earth, even for a child on the bottom of the globe; farther planets have longer years (Mars 687 days, Neptune about 165 years); Earth's gravity keeps the Moon going round; you could jump about six times higher on the Moon.
+  - Level 3: orbits (the probe falls but the ground curves away); astronauts float because they are falling round Earth with the station; a super fast probe gets away; the seasons come from Earth's tilt, not its distance (Earth is closest to the Sun in early January).
+  - The debrief: "Why doesn't a probe in orbit fall back down?" Finishing earns the Moon's bonus postcard.
+- **Hint pictures for the new stations:** the two lamps (labelled close and far away), the day sky with the hidden stars drawn faintly, Earth's trip past the star pictures, the sunlight's path to the Moon and on to Earth, the cannon's three paths (too slow, just right, too fast), arrows from every child's ball to the middle of Earth, each planet's year under the row of planets, and tilted Earth in December and June.
+- **The Grand Tour (the finale)**, once all four lenses are lit:
+  1. Plot the route: tap the planets in order from the Sun. A planet out of order is not placed, with a reason; after two misses the next one is outlined.
+  2. Fly: each planet glides past, Vee says one thing about it, and the child takes its photo (Space or Enter, a click or a tap). On the way Sol, Kofi, Lumi and Tess each radio one question from their station (four in all, no stars to lose).
+  3. Past Neptune, Vee turns round and photographs Earth as a tiny blue dot in a sunbeam, like the real Voyager 1 "Pale Blue Dot" photo from 1990.
+  4. The star party: the crew under the open dome with the Milky Way overhead and the nine photos pinned up. Each crew member says one line, Pluto's bonus postcard goes into the album, and the game tells the site it is complete.
+  - "End the flight" stops the tour at any photo. The tour can be flown again any time from Navigator Sol.
+- **The album** now has the eight planets plus three bonus postcards (the Sun, the Moon and Pluto). **The grown-ups page** covers all four stations, the planet stops and the Grand Tour, with 5-PS2-1 and the seasons preview added to the standards.
+- **Code:** `toys.ts` (the season dial and the cannon), `physics.ts` (the cannon's gravity), `tour.ts` (the Grand Tour flight), new pictures in `art.ts`, and two new songs (the tour and the star party).
+- **Checks:**
+  - 18 unit tests (`tests/sse-problems.test.ts`), including the cannon's physics (slow lands, just right orbits, super fast flies away, and the circle stays round) and the tricky facts (the Sun is not the biggest star, seasons come from the tilt, astronauts are falling).
+  - 77/77 browser checks (`scripts/e2e-solar-system-explorer.mjs`), which now play all four stations, the dial, three cannon shots, the whole Grand Tour and the star party.
+
+Score (both halves): **9.3/10.**
+
+| Category | Points | Evidence |
+|---|---|---|
+| Gameplay and feel | 2.3 / 2.5 | Walking, driving, steering a dive, the season dial, a cannon with real gravity, plotting the route and taking photos on the flyby. The orrery and globe still move on their own, and the station questions are answered with buttons. |
+| Learning accuracy and clarity | 1.85 / 2.0 | 105 questions (81 at the stations, 24 at the planet stops) across three levels, four debriefs, every wrong answer names a real mistake, and hint 2 always adds a picture. Facts checked against NASA Science and NASA Space Place. |
+| Visual and audio polish | 1.35 / 1.5 | New 16-bit pictures for every question type, the flyby, the Pale Blue Dot and the star party, and five songs. The children on the "down" globe are small. |
+| Usability and accessibility | 1.4 / 1.5 | Keyboard, mouse and touch everywhere (the dial turns with the arrow keys, F fires the cannon), read-aloud, reduced motion, and the phone layout fits (the browser checks include the route planner on a phone). |
+| Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, and saves are checked when loaded. |
+| Completeness | 1.0 / 1.0 | Both halves, the site listing, the redirect and a new card picture. |
+
 ### Phase 3: English and History (2): NOT STARTED
 
 - **Spelling Bee Challenge** (3–5): spelling patterns (vowel teams, prefixes and suffixes, homophones) with word meaning in context, not just memorizing lists (L.3.2, L.4.2).
@@ -1522,3 +1739,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-12:** The owner proposed the first Science game: a microscopic ship exploring inside the human body (organ missions, germs to clear, healthy habits like handwashing for the flu, growth like *Spore*). Reviewed against the rubric (about 7.95 as first described, about 9.2 with the suggested changes). The owner chose Star Station with a new inside-the-body setting, free exploring in all directions, and replacing Body System Heroes. The plan is in the S3 section above, with draft names; waiting for the owner's approval and name picks.
 - **2026-10-12:** The owner approved the look ("the germs aren't scary, and the ship looks good") and asked for half 1. Body System Heroes half 1 built: the med bay, free flight, scanning, the skin, mouth and lungs missions (54 questions), the nest and the heal, three healthy-habit games (clean and cover, brushing, 20-second handwashing), three ship upgrades, the body map, germ files, saving and the grown-ups page. 7 unit tests, 52/52 browser checks, 34 fps (software). Provisional score 8.7. Waiting for the owner's look before half 2.
 - **2026-10-13:** The owner merged PR #229. **Body System Heroes COMPLETED ✅** (both halves; self-score 9.2/10; 73/73 browser checks). It replaces the old game on the site at the same address. That is the first of the 14 Science games. Next: the owner picks the next Science game; plan first, with the owner and team choosing its world.
+- **2026-10-13:** The owner picked the next Science game: **Solar System Explorer** (S1 Space, in Star Station; Planet Explorer Quest merges in), and decided that **Wild Lands**, the nature world, comes right after it. Both old games were studied and their facts checked against NASA: six facts are fixed (Mercury's speed, the Uranus wrong answer that is also true, the Great Red Spot's age, Olympus Mons's height, out-of-date moon counts, and day length meaning one spin). The plan is in the S1 section above (a walking observatory with four hands-on space models, hops to every planet and a Grand Tour finale; grades 2–5). Waiting for the owner's choices and approval.
+- **2026-10-15:** The owner approved the Solar System Explorer plan with Claude's picks: the walking observatory, Navigator Sol, Lumi Reyes, Kofi Mensah, Tess Rocket, Vee, the same title, and two halves. The look preview is built (the cast, the observatory, Mars, Mercury and the Jupiter dive). Waiting for the owner's look before half 1.
+- **2026-10-15:** The owner looked at the preview and said "Build half 1". Half 1 built: the walkable observatory with Vee, the Orrery and the Sunrise Lab (45 questions and two debriefs), the star map, all 8 planet stops (a rover on the rocky planets, a cloud dive on the giants, 24 stop questions, fact cards, postcards and the album), saving and the grown-ups page. 10 unit tests, 51/51 browser checks, provisional score 8.75. Waiting for the owner's look before half 2.
+- **2026-10-16:** The owner played half 1 on the preview ("It works now and plays well") and said "Build half 2". Half 2 built: the Star Dome with Lumi's season dial and the Launch Bay with Tess's cannon (36 more questions, two debriefs, the Sun's and the Moon's bonus postcards), the Grand Tour (plot the route, photograph every planet, a question from each station, the Pale Blue Dot) and the star party (Pluto's bonus postcard; the game tells the site it is complete). The game now replaces the old one at `/games/solar-system-explorer`, `/games/planet-explorer-quest` redirects to it, and it has a new card picture. 18 unit tests, 77/77 browser checks, score 9.3. Waiting for the owner's look.

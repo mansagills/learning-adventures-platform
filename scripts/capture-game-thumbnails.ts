@@ -156,6 +156,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     // the air flow carries the ship along until the flu germs' nest comes into view
     delay: 18000,
   },
+  // Solar System Explorer: start, read Navigator Sol's welcome, then the observatory with the telescope, the orrery and the crew.
+  'solar-system-explorer': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(16).fill('.dialogue'),
+    ],
+    delay: 2500,
+  },
 };
 
 const contentTypes: Record<string, string> = {
