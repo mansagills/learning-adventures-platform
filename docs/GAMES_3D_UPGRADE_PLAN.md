@@ -1696,6 +1696,72 @@ The first game in the **Wild Lands** world (section 7c of `docs/GAME_WORLDS_PROP
 2. **Half 1:** the camp, the sunlight and twilight expeditions, the Creature Designer, the field guide, saving and the grown-ups page.
 3. **Half 2:** the midnight and vent expeditions, the Trench Dive, the Glow Show, the site listing and a new card picture.
 
+#### S7 New idea: Molecule Mission (working title): PLAN DRAFTED (2026-10-20), waiting for the owner's approval
+
+A brand-new Science game, not a rebuild of an old one. It started as six chemistry story prompts; the owner chose three and asked for them to become **phases of one game in the Star Station world**: (1) the student is a **water molecule** traveling through nature, (2) they talk with **the elements**, and (3) it all ties into the **journey of a plastic bottle**, its wasteful impact on the environment and the hope of recycling. The owner then accepted Claude's picks on the four open questions (grades 3–5; a different way of moving in each phase; a hopeful ending where the child's choices decide how clean the ocean is; build it in two halves). The creative-writing seed, "Letter from a Plastic Bottle", is in `docs/science-stories/letter-from-a-plastic-bottle.md`. All names are drafts until the owner picks.
+
+##### The hook that holds it together
+
+The player is a single **H2O molecule**, and that same molecule ends up **inside the bottle**. So there is no switch of characters: we follow one drop from the ocean, through the elements that make it, into a plastic bottle, and out again to the sea and to recycling. The three elements in the Element Council (hydrogen, oxygen, carbon) are also **exactly the atoms PET plastic is made of**, so Phase 2 sets up Phase 3.
+
+##### The game
+
+- **Setting:** the Star Station. The station's scientists study Earth's water and **shrink the player to one molecule** (the same idea as the Micro-Scout in Body System Heroes). Home base is a **Molecule Lab** on the station deck; each phase is a new place reached from it. New settings in the Star Station world are needed (see the build steps); the world's style does not change.
+- **Characters (drafts):**
+  - **Host:** Dr. Nova Adeyemi, the lab scientist who shrinks the player and briefs each phase.
+  - **The player:** a water molecule the child names (default "Drip").
+  - **The elements:** Hydrogen ("Hy", tiny, fast, always in a pair), Oxygen ("Oxy", big-hearted, loves to bond) and Carbon ("Cara", the builder with four hands to hold).
+  - **Bo the bottle:** speaks the letter, narrates the Wasteful Road and shows up again at the end.
+- **Grades 3–5.** Three levels in the question sets (see below); grade 3 gets the water cycle and the 3 Rs, grade 5 gets particles, polymers and green chemistry.
+
+##### The five phases
+
+| Phase | Where | How you move | What you do | Science (NGSS-aligned) |
+|---|---|---|---|---|
+| **1. The Water Journey** | Ocean, cloud, river, a plant root | A floating **drift**, steered by heat and cold | Gain heat to evaporate, lose heat to condense and freeze, ride rain to a river, get pulled up a root. Each place is one state of water. | Water cycle, states of matter, physical change (5-ESS2-1, 5-PS1-1) |
+| **2. The Element Council** | A glowing council chamber | **Walk and talk** (the Equation Balance Scale pattern) | Meet Hydrogen, Oxygen and Carbon. Each explains why it matters in life and in industry. Then **snap atoms together** to build H2O and CO2, and see why the same atoms can make different things. | Elements, atoms, molecules, bonding (5-PS1-1, 5-PS1-3) |
+| **3. Bo Is Born** | A plastic factory, shown as long chains | A **building puzzle** | Link carbon, hydrogen and oxygen into a long chain (a polymer), watch it melt and blow into a bottle shape, then get filled with water: the player is now inside Bo. | Polymers, fossil fuels, materials and their properties (5-PS1-3) |
+| **4. The Wasteful Road** | Park, storm drain, river, sea | A short **action run** | Ride in Bo as it is dropped, washed away and carried to the sea. Dodge hazards, see it break into microplastics, and see which sea animals are affected. Cause and effect, not blame. | Pollution, microplastics, food chains, human impact (5-ESS3-1) |
+| **5. The Hope Run** | The recycling center, then the year 2050 | A **sorting game**, then a short walk | Sort items into the right bins, watch them shred, melt and remake. In the finale the child's earlier choices decide how clean the 2050 ocean is. A green chemistry lab shows plastics that break down safely. | Recycling, the 3 Rs, designing solutions, green chemistry (3-5-ETS1-1, 5-ESS3-1) |
+
+Bo's letter appears as a **story beat**: parts of it open each phase and the whole letter is the ending card.
+
+##### The ending: hopeful, and it depends on the child
+
+During Phases 4 and 5, choices add up to a **Clean Ocean score** (for example: sorting correctly, rescuing an animal from a hazard, picking reuse over a new bottle). The 2050 scene shows the ocean in one of three states, but **every state ends with hope and a next step**; none is a failure screen. The game never shames the child.
+
+##### Facts to get right (checked against the story)
+
+- PET stands for polyethylene terephthalate. It is made from oil and gas, and is a polyester; do not call it "polyethylene" in the game.
+- Plastic does not rot like food, but it does break into smaller pieces. Say "hundreds of years", not one exact number. Microplastics are pieces under 5 mm.
+- Recycling is real, but **not all plastic is recycled**, and a bottle can be remade only a limited number of times. The game says so honestly, then shows what helps (reduce and reuse come first).
+- The water molecule is not "used up" when we drink it. It goes on in the cycle.
+
+##### Questions and learning design
+
+Three levels, wrong answers that name a real misconception (for example "plastic rots like an apple", "melting makes water disappear"), the hint ladder (hint 2 always adds a picture), a debrief after each phase, a saved-progress screen and the grown-ups page. Question wording follows the owner's rule: short sentences, facts first, then one plain question, with no game jargon. Target about 90–110 questions across the five phases.
+
+##### Overlaps with games already in the Science list (the owner decides)
+
+Molecule Mission covers ground that four planned rebuilds also cover:
+- **Water Cycle Journey (S2)** and **States of Matter Mixer (S5)**: Phase 1.
+- **Pollution Solution Squad (S4)**: Phases 4 and 5.
+- **Crystal Cave Chemistry (S5)**: part of Phase 2.
+
+Claude's pick: build Molecule Mission **as an addition**, then ask the owner whether to merge or retire any of those four so the Science list stays at a sensible size.
+
+##### How it is built (each step ends with the owner's look)
+
+1. **Look preview:** the new settings (the molecule scale, the council chamber, the factory, the storm drain and sea, the recycling center, the 2050 ocean), the cast (Dr. Nova, Drip, Hy, Oxy, Cara, Bo) and the water in each state. Pages in the look-development area (dev server only). The owner looks before any game code is written.
+2. **Half 1 (Phases 1–2):** the Molecule Lab, the Water Journey, the Element Council with atom snapping, saving and the grown-ups page.
+3. **Half 2 (Phases 3–5):** Bo Is Born, the Wasteful Road, the Hope Run, the Clean Ocean ending, the site listing and a card picture.
+
+Slug (draft): `molecule-mission`, subject Science, kind game, grades 3–5. Run the `remaster-game` checks and the rubric after each half.
+
+##### Ideas kept for later
+
+From the six story prompts: *The Adventures of a Young Chemist* (lab safety), *Chemistry in My Kitchen* (chemical changes in cooking) and *If Elements Could Talk* (the full periodic table) could each become their own game or a bonus mission later.
+
 ### Phase 3: English and History (2): NOT STARTED
 
 - **Spelling Bee Challenge** (3–5): spelling patterns (vowel teams, prefixes and suffixes, homophones) with word meaning in context, not just memorizing lists (L.3.2, L.4.2).
