@@ -184,6 +184,30 @@ export interface OceanOpts {
   sub?: { x: number; y: number; face: 'left' | 'right'; lamp?: boolean };
   /** Leave the animals out (a game draws its own). */
   noAnimals?: boolean;
+  /** Leave out the marine snow and the sparkles (a game draws its own, moving). */
+  noSnow?: boolean;
+  /** Meters shown top to bottom, if not `viewSpan(depth)`. A fixed span lets a game paint the sea as tiles that fit together. */
+  span?: number;
+}
+
+/**
+ * The rock, for a picture W pixels wide: the reef shelf near the top on the
+ * left, its edge dropping away and curving back into a wall that goes down
+ * into the deep. `isRock(x, m)` is true where pixel column x is rock at
+ * depth m (meters); `shelfFloor(x)` is the shelf's top. A game uses it to
+ * keep the sub out of the rock.
+ */
+export function oceanRock(W: number): { isRock: (x: number, m: number) => boolean; shelfFloor: (x: number) => number; shelfEdge: number } {
+  const sea = W / 360;
+  const shelfEdge = W * 0.46;
+  const shelfFloor = (x: number) => 30 + Math.sin(x / 11) * 2 + Math.sin(x / 4.3) * 0.8;
+  const wallX = (m: number) => W * (0.12 + 0.035 * Math.sin(m / 41) + 0.02 * Math.sin(m / 13));
+  const edgeAt = (m: number) => {
+    const k = Math.min(1, Math.max(0, (m - 34) / 140));
+    const ease = k * k * (3 - 2 * k);
+    return shelfEdge + (wallX(m) - shelfEdge) * ease + Math.sin(m / 3.7) * 2 * sea + Math.sin(m / 9.1 + 2) * 1.5 * sea;
+  };
+  return { isRock: (x, m) => m > shelfFloor(x) && x < edgeAt(m), shelfFloor, shelfEdge };
 }
 
 /** A glowing point: living light, a lamp, a lure. */
@@ -199,21 +223,13 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
   const { depth } = opts;
   const frame = opts.frame ?? 0;
   const out = new PixelBuffer(W, H);
-  const rows = Array.from({ length: H }, (_, y) => depthAtRow(y, H, depth));
+  const span = opts.span ?? viewSpan(depth);
+  const rows = Array.from({ length: H }, (_, y) => depth + ((y - H / 2) / H) * span);
   const mOf = (y: number) => rows[Math.max(0, Math.min(H - 1, Math.round(y)))];
-  const row = (m: number) => rowOfDepth(m, H, depth);
+  const row = (m: number) => H / 2 + ((m - depth) / span) * H;
   const sea = W / 360;
 
-  // the rock: the reef shelf near the top on the left, its edge dropping away and curving back into a wall that goes down into the deep
-  const shelfEdge = W * 0.46;
-  const shelfFloor = (x: number) => 30 + Math.sin(x / 11) * 2 + Math.sin(x / 4.3) * 0.8;
-  const wallX = (m: number) => W * (0.12 + 0.035 * Math.sin(m / 41) + 0.02 * Math.sin(m / 13));
-  const edgeAt = (m: number) => {
-    const k = Math.min(1, Math.max(0, (m - 34) / 140));
-    const ease = k * k * (3 - 2 * k);
-    return shelfEdge + (wallX(m) - shelfEdge) * ease + Math.sin(m / 3.7) * 2 * sea + Math.sin(m / 9.1 + 2) * 1.5 * sea;
-  };
-  const isRock = (x: number, m: number) => m > shelfFloor(x) && x < edgeAt(m);
+  const { isRock, shelfFloor } = oceanRock(W);
   const sun = sunlightAt(depth);
 
   // 1. water (and a sliver of sky above the surface), with sunbeams near the top
@@ -249,7 +265,7 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
   const lump = (x: number, m: number) => {
     const sc = 10 * sea;
     // in screen pixels, but fixed to the rock (so the boulders move with it as the camera sinks)
-    const yy = m * (H / viewSpan(depth));
+    const yy = m * (H / span);
     const cx = Math.floor(x / sc);
     const cy = Math.floor(yy / sc);
     let best = 9;
@@ -281,8 +297,7 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
       let c = rock[lv];
       // the shelf's sandy top
       if (m < 40 && !isRock(x, mOf(y - 3))) c = WILD.sand[!isRock(x, mOf(y - 1)) ? 3 : 2];
-      else if (lv >= 2 && hash(x >> 2, Math.floor(m * (H / viewSpan(depth))) >> 2, 43) < 0.04 && (x + y) % 3 !== 0)
-        c = sponge[Math.floor(hash(x >> 2, Math.floor(m * (H / viewSpan(depth))) >> 2, 44) * 4)];
+      else if (lv >= 2 && hash(x >> 2, Math.floor(m * (H / span)) >> 2, 43) < 0.04 && (x + y) % 3 !== 0) c = sponge[Math.floor(hash(x >> 2, Math.floor(m * (H / span)) >> 2, 44) * 4)];
       out.set(x, y, c);
     }
   }
@@ -406,14 +421,14 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
   }
 
   // 5. marine snow (bits of food drifting down) and living-light sparkles in the dark
-  for (let i = 0; i < W * H * 0.004; i++) {
+  for (let i = 0; i < (opts.noSnow ? 0 : W * H * 0.004); i++) {
     const x = Math.floor(hash(i, 1, 91) * W);
     const y = Math.floor((hash(i, 2, 91) * H + frame * (0.3 + hash(i, 3, 91) * 0.3)) % H);
     const m = rows[y];
     if (m < 150 || isRock(x, m)) continue;
     out.set(x, y, m < 400 ? '#8ab0d0' : '#c8d8e8');
   }
-  for (let i = 0; i < 26; i++) {
+  for (let i = 0; i < (opts.noSnow ? 0 : 26); i++) {
     const x = Math.floor(hash(i, 4, 92) * W);
     const y = Math.floor(hash(i, 5, 92) * H);
     if (rows[y] < 500 || isRock(x, rows[y])) continue;
@@ -437,29 +452,33 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
     if (ang > 0.36 || d > R) return 0;
     return (1 - d / R) * Math.sqrt(1 - ang / 0.36);
   };
-  if (sun < 0.98)
-    for (let y = 0; y < H; y++) {
-      const m = rows[y];
-      const amb = sunlightAt(m);
-      for (let x = 0; x < W; x++) {
-        const c = out.get(x, y);
-        if (!c) continue;
-        const water = isRock(x, m) ? null : waterAt(m, x, y);
-        const l = Math.min(1, amb * 1.6 + lampAt(x, y) * 1.4);
-        if (water && c === water) {
-          // open water: the headlamp's beam shows as lighter, in three steps
-          const b = lampAt(x, y);
-          if (b > 0.02) {
-            const step = b > 0.45 ? 0.32 : b > 0.18 ? 0.2 : (x + y) % 2 ? 0.1 : 0;
-            if (step) out.set(x, y, mixHex(c, '#6ab8d8', step));
-          }
-          continue;
+  // (row by row, so tiles painted separately match: a row that is fully sunlit and out of the headlamp is skipped)
+  for (let y = 0; y < H; y++) {
+    const m = rows[y];
+    const amb = sunlightAt(m);
+    if (amb * 1.6 >= 0.98 && !lamp) continue;
+    for (let x = 0; x < W; x++) {
+      const c = out.get(x, y);
+      if (!c) continue;
+      const water = isRock(x, m) ? null : waterAt(m, x, y);
+      const l = Math.min(1, amb * 1.6 + lampAt(x, y) * 1.4);
+      if (water && c === water) {
+        // open water: the headlamp's beam shows as lighter, in three steps
+        const b = lampAt(x, y);
+        if (b > 0.02) {
+          const step = b > 0.45 ? 0.32 : b > 0.18 ? 0.2 : (x + y) % 2 ? 0.1 : 0;
+          if (step) out.set(x, y, mixHex(c, '#6ab8d8', step));
         }
-        if (l >= 0.98) continue;
-        const k = l > 0.66 ? 0.25 : l > 0.4 ? 0.5 : l > 0.2 ? 0.72 : l > 0.08 ? 0.86 : 0.95;
-        out.set(x, y, mixHex(c, water ?? mixHex(waterAt(m, x, y), '#000000', 0.35), k));
+        continue;
       }
+      if (l >= 0.98) continue;
+      // a checkerboard where one step of darkness meets the next, so there is no hard line across the rock
+      const lj = l + ((x + y) % 2 ? 0.04 : -0.04);
+      const k = lj > 0.92 ? 0 : lj > 0.8 ? 0.12 : lj > 0.66 ? 0.25 : lj > 0.4 ? 0.5 : lj > 0.2 ? 0.72 : lj > 0.08 ? 0.86 : 0.95;
+      if (!k) continue;
+      out.set(x, y, mixHex(c, water ?? mixHex(waterAt(m, x, y), '#000000', 0.35), k));
     }
+  }
 
   // 7. living light on top: soft halos and a bright middle
   for (const g of glows) {
