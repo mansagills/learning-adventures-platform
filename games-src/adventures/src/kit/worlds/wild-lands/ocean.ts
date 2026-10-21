@@ -188,7 +188,14 @@ export interface OceanOpts {
   noSnow?: boolean;
   /** Meters shown top to bottom, if not `viewSpan(depth)`. A fixed span lets a game paint the sea as tiles that fit together. */
   span?: number;
+  /** A sea floor right across, this many meters down (the deep sea floor, or the bottom of a trench). */
+  floor?: number;
+  /** A deep trench: below the abyssal plain (about 5,800 m) the walls close in, down to the floor. */
+  trench?: boolean;
 }
+
+/** Where a trench's walls start: the flat deep sea floor around it (meters). */
+export const PLAIN_M = 5800;
 
 /**
  * The rock, for a picture W pixels wide: the reef shelf near the top on the
@@ -197,7 +204,10 @@ export interface OceanOpts {
  * depth m (meters); `shelfFloor(x)` is the shelf's top. A game uses it to
  * keep the sub out of the rock.
  */
-export function oceanRock(W: number): { isRock: (x: number, m: number) => boolean; shelfFloor: (x: number) => number; shelfEdge: number } {
+export function oceanRock(
+  W: number,
+  extra: { floor?: number; trench?: boolean } = {},
+): { isRock: (x: number, m: number) => boolean; shelfFloor: (x: number) => number; shelfEdge: number; floorAt: (x: number) => number } {
   const sea = W / 360;
   const shelfEdge = W * 0.46;
   const shelfFloor = (x: number) => 30 + Math.sin(x / 11) * 2 + Math.sin(x / 4.3) * 0.8;
@@ -207,7 +217,16 @@ export function oceanRock(W: number): { isRock: (x: number, m: number) => boolea
     const ease = k * k * (3 - 2 * k);
     return shelfEdge + (wallX(m) - shelfEdge) * ease + Math.sin(m / 3.7) * 2 * sea + Math.sin(m / 9.1 + 2) * 1.5 * sea;
   };
-  return { isRock: (x, m) => m > shelfFloor(x) && x < edgeAt(m), shelfFloor, shelfEdge };
+  const floor = extra.floor ?? Infinity;
+  const floorAt = (x: number) => floor + Math.sin(x / (17 * sea)) * 3 + Math.sin(x / (5.3 * sea)) * 1.2;
+  // the trench: its walls close in from the plain down to the floor, wobbling a little
+  const trenchRock = (x: number, m: number) => {
+    if (!extra.trench || m < PLAIN_M + Math.sin(x / (9 * sea)) * 2) return false;
+    const k = Math.min(1, (m - PLAIN_M) / Math.max(1, floor - PLAIN_M)) ** 0.7;
+    const hw = W * (0.3 - 0.1 * k) + Math.sin(m / 23) * 4 * sea + Math.sin(m / 7.3) * 2 * sea;
+    return Math.abs(x - W * 0.55) > hw;
+  };
+  return { isRock: (x, m) => (m > shelfFloor(x) && x < edgeAt(m)) || m > floorAt(x) || trenchRock(x, m), shelfFloor, shelfEdge, floorAt };
 }
 
 /** A glowing point: living light, a lamp, a lure. */
@@ -229,7 +248,9 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
   const row = (m: number) => H / 2 + ((m - depth) / span) * H;
   const sea = W / 360;
 
-  const { isRock, shelfFloor } = oceanRock(W);
+  const { isRock, shelfFloor } = oceanRock(W, { floor: opts.floor, trench: opts.trench });
+  // the deep floor is seen a little in the sub's lights (it would be lost in the black otherwise)
+  const floorLit = (m: number) => (opts.floor !== undefined && m > Math.min(opts.floor - 60, opts.trench ? PLAIN_M - 30 : Infinity) ? 0.24 : 0);
   const sun = sunlightAt(depth);
 
   // 1. water (and a sliver of sky above the surface), with sunbeams near the top
@@ -295,8 +316,9 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
       if (!isRock(x, mOf(y - 1)) || !isRock(x, mOf(y - 2))) lv = 3;
       if (!isRock(x + 1, m) || !isRock(x + 2, m)) lv = Math.min(lv, 1);
       let c = rock[lv];
-      // the shelf's sandy top
+      // the shelf's sandy top, and the soft gray ooze on the deep floor
       if (m < 40 && !isRock(x, mOf(y - 3))) c = WILD.sand[!isRock(x, mOf(y - 1)) ? 3 : 2];
+      else if (m > 2000 && !isRock(x, mOf(y - 2))) c = !isRock(x, mOf(y - 1)) ? '#a89c88' : '#7a7064';
       else if (lv >= 2 && hash(x >> 2, Math.floor(m * (H / span)) >> 2, 43) < 0.04 && (x + y) % 3 !== 0) c = sponge[Math.floor(hash(x >> 2, Math.floor(m * (H / span)) >> 2, 44) * 4)];
       out.set(x, y, c);
     }
@@ -461,7 +483,7 @@ export function paintOcean(W: number, H: number, opts: OceanOpts): PixelBuffer {
       const c = out.get(x, y);
       if (!c) continue;
       const water = isRock(x, m) ? null : waterAt(m, x, y);
-      const l = Math.min(1, amb * 1.6 + lampAt(x, y) * 1.4);
+      const l = Math.min(1, Math.max(amb * 1.6 + lampAt(x, y) * 1.4, water ? 0 : floorLit(m)));
       if (water && c === water) {
         // open water: the headlamp's beam shows as lighter, in three steps
         const b = lampAt(x, y);

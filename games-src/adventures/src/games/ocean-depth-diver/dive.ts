@@ -4,8 +4,8 @@ import { h } from '../../kit/ui/dom';
 import { hash } from '../../kit/worlds/shade';
 import { paintFinn, paintSub } from '../../kit/worlds/wild-lands/art';
 import { oceanRock, paintOcean, sunlightAt } from '../../kit/worlds/wild-lands/ocean';
-import { ANIMALS, ANIMALS_IN, dials, type AnimalId } from './animals';
-import { paintAnimal, paintPlanktonCloud } from './art';
+import { ANIMALS, ANIMALS_IN, dials, TRENCH_FLOOR, VENT_FLOOR, type AnimalId } from './animals';
+import { paintAnimal, paintAtolla, paintPlanktonCloud, paintVentChimney } from './art';
 import type { Station } from './problems';
 
 /**
@@ -22,7 +22,18 @@ import type { Station } from './problems';
  *
  * The twilight dive ends with the night trip: after dusk up top, a school of
  * lanternfish swims up to feed, and the child follows them all the way.
+ * The midnight dive goes down past 2,000 meters into the dark. The sea floor
+ * dive ends on the bottom at the hot vents, where Finn also takes a sample
+ * of the vent water. The Trench Dive (the finale) goes all the way down a
+ * trench to about 10,900 meters, stopping at checkpoints for questions.
  */
+
+/** Where a dive goes: one of the four expeditions, or the Trench Dive. */
+export type DiveZone = Station | 'trench';
+
+/** The Trench Dive's checkpoints (meters): the bottom of each zone, then the trench floor. */
+export const CHECKPOINTS = [200, 1000, 4000, 6000, TRENCH_FLOOR - 70];
+const FLOORS: Record<DiveZone, number> = { sunlight: 190, twilight: 980, midnight: 2400, vents: VENT_FLOOR, trench: TRENCH_FLOOR };
 
 const VW = 320;
 const VH = 180;
@@ -46,11 +57,13 @@ interface Critter {
   face: 1 | -1;
   frames: HTMLCanvasElement[];
   glow: string | null;
+  /** Where the glow is, as a share of the sprite's size from its middle (facing right). */
+  glowAt: [number, number];
   done: boolean;
 }
 
 interface Ambient {
-  kind: 'school' | 'lantern' | 'jelly';
+  kind: 'school' | 'lantern' | 'jelly' | 'spark';
   x: number;
   m: number;
   phase: number;
@@ -61,6 +74,10 @@ export interface DiveState {
   x: number;
   photos: AnimalId[];
   chase: { on: boolean; m: number; x: number; progress: number; near: boolean } | null;
+  /** The sea floor dive: has Finn taken the vent water sample? */
+  sample: boolean;
+  /** The Trench Dive: how many checkpoints are passed. */
+  checkpoint: number;
   paused: boolean;
 }
 
@@ -76,7 +93,7 @@ export class OceanDive {
   private scale = 2;
   private readonly ppm = PPM;
   private tiles = new Map<number, HTMLCanvasElement>();
-  private rock = oceanRock(VW);
+  private rock: ReturnType<typeof oceanRock>;
   private t = 0;
   private sub = { x: VW * 0.6, m: 3, face: 1 as 1 | -1, vx: 0, vm: 0 };
   private cam = 0;
@@ -93,6 +110,13 @@ export class OceanDive {
   private raf = 0;
   private last = performance.now();
   private near: Critter | null = null;
+  /** The sea floor dive: the hot water sample (near the top of the big chimney). */
+  private sampleSpot: { x: number; m: number } | null = null;
+  private sampleTaken = false;
+  private nearSample = false;
+  private chimneys: Array<{ x: number; m: number; frames: HTMLCanvasElement[] }> = [];
+  /** The Trench Dive: the next checkpoint. */
+  private nextCp = 0;
   /** The night trip: the school's depth, how much of the way the child has kept up, and whether the sub is close now. */
   private chaseState: { on: boolean; m: number; x: number; progress: number; near: boolean; wait: number } | null = null;
   paused = false;
@@ -106,16 +130,21 @@ export class OceanDive {
   onSurface: (() => void) | null = null;
   /** The night trip is finished. */
   onChaseDone: (() => void) | null = null;
+  /** The vent water sample is taken. */
+  onSample: (() => void) | null = null;
+  /** The Trench Dive reached a checkpoint (its index in CHECKPOINTS). */
+  onCheckpoint: ((i: number) => void) | null = null;
   private readonly onKey: (e: KeyboardEvent) => void;
   private allPhotosSaid = false;
 
   constructor(
     host: HTMLElement,
-    readonly zone: Station,
+    readonly zone: DiveZone,
     have: AnimalId[] = [],
     before: Element | null = null,
   ) {
-    this.floor = zone === 'sunlight' ? 190 : 980;
+    this.floor = FLOORS[zone];
+    this.rock = oceanRock(VW, { floor: this.seaFloor, trench: zone === 'trench' });
     this.canvas = h('canvas', { class: 'odd-dive-canvas', 'aria-label': 'The view from the submarine' }) as HTMLCanvasElement;
     this.dialsEl = h('div', { class: 'odd-dials panel', role: 'status' });
     this.promptEl = h('button', { class: 'panel prompt odd-photo', type: 'button', hidden: true, onclick: () => this.photo() }) as HTMLButtonElement;
@@ -138,7 +167,7 @@ export class OceanDive {
       else if (k === 'arrowdown' || k === 's') this.keys.down = down;
       else if ((k === ' ' || k === 'enter') && down) {
         if (this.paused || document.querySelector('.modal-back')) return;
-        if (this.near) {
+        if (this.near || this.nearSample) {
           e.preventDefault();
           this.photo();
         }
@@ -163,7 +192,9 @@ export class OceanDive {
   private makeCritters(have: AnimalId[]): void {
     const W = VW;
     const shelf = (fx: number) => this.rock.shelfFloor(fx * W);
-    const place: Record<AnimalId, { x: number; m: number; range: number; speed: number; glow: string | null; s: number }> = {
+    const bed = (fx: number) => this.rock.floorAt(fx * W);
+    type Place = { x: number; m: number; range: number; speed: number; glow: string | null; s: number; glowAt?: [number, number] };
+    const place: Record<AnimalId, Place> = {
       plankton: { x: 0.7, m: 12, range: 10, speed: 0.4, glow: null, s: 0.8 },
       turtle: { x: 0.55, m: 9, range: 90, speed: 0.25, glow: null, s: 1.2 },
       seagrass: { x: 0.08, m: shelf(0.08) + 0.5, range: 0, speed: 0, glow: null, s: 1.1 },
@@ -173,6 +204,14 @@ export class OceanDive {
       combjelly: { x: 0.7, m: 320, range: 30, speed: 0.2, glow: '#c8a8ff', s: 1.6 },
       lanternfish: { x: 0.45, m: 450, range: 80, speed: 0.35, glow: '#7ff0ff', s: 1.6 },
       hatchetfish: { x: 0.68, m: 600, range: 50, speed: 0.3, glow: '#9ff4ff', s: 1.6 },
+      atolla: { x: 0.3, m: 1300, range: 24, speed: 0.15, glow: null, s: 1.6 },
+      anglerfish: { x: 0.7, m: 1800, range: 40, speed: 0.2, glow: '#d8ff8a', s: 1.4, glowAt: [0.28, -0.39] },
+      gulpereel: { x: 0.45, m: 2250, range: 60, speed: 0.25, glow: '#ff8ab0', s: 1.2, glowAt: [-0.46, 0] },
+      // the vent animals live round the big chimney (its middle is at 0.7 of the width)
+      ventshrimp: { x: 0.7 + 9 / W, m: bed(0.7) - 15, range: 0, speed: 0, glow: null, s: 1.2 },
+      tubeworm: { x: 0.56, m: bed(0.56) - 6.4, range: 0, speed: 0, glow: null, s: 1.4 },
+      yeticrab: { x: 0.84, m: bed(0.84) - 2.6, range: 8, speed: 0.4, glow: null, s: 1.3 },
+      snailfish: { x: 0.55, m: 8300, range: 22, speed: 0.2, glow: null, s: 1.4 },
     };
     for (const id of ANIMALS_IN[this.zone]) {
       const p = place[id];
@@ -187,11 +226,24 @@ export class OceanDive {
         face: 1,
         frames: [0, 1, 2].map((f) => (id === 'plankton' ? paintPlanktonCloud(f) : paintAnimal(id, p.s, f)).toCanvas()),
         glow: p.glow,
+        glowAt: p.glowAt ?? [0, 0],
         done: have.includes(id),
       });
     }
+    // the hot vents: two chimneys on the sea floor, and the water sample at the top of the big one
+    if (this.zone === 'vents') {
+      for (const [fx, sc] of [
+        [0.7, 2],
+        [0.36, 1.4],
+      ] as const) {
+        const frames = Array.from({ length: 8 }, (_, f) => paintVentChimney(sc, f).toCanvas());
+        this.chimneys.push({ x: fx * W, m: bed(fx) + 1, frames });
+      }
+      const big = this.chimneys[0];
+      this.sampleSpot = { x: big.x, m: big.m - ((44 - 18) * 2) / this.ppm - 4 };
+    }
     // fish and lights that are just there to see
-    if (this.zone === 'sunlight') this.ambient.push({ kind: 'school', x: W * 0.4, m: 18, phase: 0 }, { kind: 'school', x: W * 0.8, m: 70, phase: 2 });
+    if (this.zone === 'sunlight' || this.zone === 'trench') this.ambient.push({ kind: 'school', x: W * 0.4, m: 18, phase: 0 }, { kind: 'school', x: W * 0.8, m: 70, phase: 2 });
     for (const [m, x] of [
       [380, 0.3],
       [520, 0.8],
@@ -199,9 +251,15 @@ export class OceanDive {
       [820, 0.75],
       [930, 0.5],
     ])
-      if (this.zone === 'twilight') this.ambient.push({ kind: 'lantern', x: W * x, m, phase: m });
-    if (this.zone === 'twilight') this.ambient.push({ kind: 'jelly', x: W * 0.25, m: 760, phase: 1 });
-    for (let i = 0; i < 70; i++) this.snow.push({ x: hash(i, 1, 21) * W, m: hash(i, 2, 21) * this.floor, v: 0.6 + hash(i, 3, 21) * 0.8 });
+      if (this.zone !== 'sunlight') this.ambient.push({ kind: 'lantern', x: W * x, m, phase: m });
+    if (this.zone !== 'sunlight') this.ambient.push({ kind: 'jelly', x: W * 0.25, m: 760, phase: 1 });
+    // flashes of living light in the dark below 1,000 meters
+    if (this.zone !== 'sunlight' && this.zone !== 'twilight')
+      for (let i = 0; i < 40; i++) {
+        const m = 1050 + hash(i, 1, 33) * (Math.min(this.floor, 9000) - 1100);
+        this.ambient.push({ kind: 'spark', x: W * hash(i, 2, 33), m, phase: hash(i, 3, 33) * 10 });
+      }
+    for (let i = 0; i < 70; i++) this.snow.push({ x: hash(i, 1, 21) * W, m: 150 + hash(i, 2, 21) * 70, v: 0.6 + hash(i, 3, 21) * 0.8 });
   }
 
   // ------------------------------------------------------------ input and size
@@ -218,7 +276,11 @@ export class OceanDive {
   private onPointerDown(e: PointerEvent): void {
     if (this.paused) return;
     const p = this.toScreen(e);
-    // a tap on the animal Finn can photograph takes the photo
+    // a tap on the animal Finn can photograph (or the vent water) takes the photo
+    if (this.nearSample && this.sampleSpot && Math.hypot(p.x - this.sampleSpot.x, p.y - this.rowOf(this.sampleSpot.m)) < 30) {
+      this.photo();
+      return;
+    }
     if (this.near) {
       const sx = this.near.x;
       const sy = this.rowOf(this.near.m);
@@ -250,9 +312,14 @@ export class OceanDive {
     let t = this.tiles.get(i);
     if (t) return t;
     const th = Math.round(TILE_M * this.ppm);
-    t = paintOcean(this.W, th, { depth: (i + 0.5) * TILE_M, span: TILE_M, noAnimals: true, noSnow: true, frame: 0 }).toCanvas();
+    t = paintOcean(this.W, th, { depth: (i + 0.5) * TILE_M, span: TILE_M, noAnimals: true, noSnow: true, frame: 0, floor: this.seaFloor, trench: this.zone === 'trench' }).toCanvas();
     this.tiles.set(i, t);
     return t;
+  }
+
+  /** The rock floor under this dive, if it has one (the hot vents, the trench). */
+  private get seaFloor(): number | undefined {
+    return this.zone === 'vents' ? VENT_FLOOR : this.zone === 'trench' ? TRENCH_FLOOR : undefined;
   }
 
   /** The screen row of a depth (meters). */
@@ -269,6 +336,8 @@ export class OceanDive {
       x: Math.round(this.sub.x),
       photos: this.critters.filter((k) => k.done).map((k) => k.id),
       chase: c ? { on: c.on, m: Math.round(c.m), x: Math.round(c.x), progress: Math.round(c.progress * 100) / 100, near: c.near } : null,
+      sample: this.sampleTaken,
+      checkpoint: this.nextCp,
       paused: this.paused,
     };
   }
@@ -277,6 +346,11 @@ export class OceanDive {
   critterAt(id: AnimalId): { x: number; m: number } | null {
     const k = this.critters.find((c) => c.id === id && !c.done);
     return k ? { x: k.x, m: k.m } : null;
+  }
+
+  /** Where the vent water sample is (for tests): null if there is none, or it is taken. */
+  sampleAt(): { x: number; m: number } | null {
+    return this.sampleSpot && !this.sampleTaken ? { ...this.sampleSpot } : null;
   }
 
   /** Test helper: move the sub straight to a spot. */
@@ -291,8 +365,9 @@ export class OceanDive {
     return -(this.H > 300 ? this.H * 0.3 : 17) / this.ppm;
   }
 
+  /** Every photo is taken (and, at the hot vents, the water sample too). */
   get allPhotos(): boolean {
-    return this.critters.every((c) => c.done);
+    return this.critters.every((c) => c.done) && (!this.sampleSpot || this.sampleTaken);
   }
 
   resume(): void {
@@ -331,11 +406,15 @@ export class OceanDive {
       if (Math.abs(dy) > 4) am = Math.sign(dy);
     }
     // the sub sinks and climbs faster the deeper it is, so the long trip down does not take forever
-    const vSpeed = 14 * (1 + s.m / 250);
+    // (with a top speed, and slower close to an animal still to photograph, so nobody shoots past it)
+    let vSpeed = Math.min(250, 14 * (1 + s.m / 250));
+    if (this.critters.some((c) => !c.done && Math.abs(c.m - s.m) < 120)) vSpeed = Math.min(vSpeed, 45);
     const hSpeed = 70;
     s.vx += (ax * hSpeed - s.vx) * Math.min(1, dt * 4);
     s.vm += (am * vSpeed - s.vm) * Math.min(1, dt * 4);
     if (ax) s.face = ax > 0 ? 1 : -1;
+    // in the trench, a gentle current keeps the sub away from the walls when it is not steering sideways
+    if (this.zone === 'trench' && s.m > 5600 && !ax) s.vx += (this.W * 0.55 - s.x) * Math.min(1, dt * 1.5);
     let nx = Math.max(16, Math.min(this.W - 16, s.x + s.vx * dt));
     let nm = Math.max(2, Math.min(this.floor, s.m + s.vm * dt));
     // the sub cannot go into the rock: try the move, then each half of it
@@ -353,7 +432,9 @@ export class OceanDive {
     s.x = nx;
     s.m = nm;
     // the camera keeps the sub a little above the middle
-    const goal = Math.max(this.camTop, s.m - (this.H / this.ppm) * 0.45);
+    let goal = Math.max(this.camTop, s.m - (this.H / this.ppm) * 0.45);
+    // over a sea floor, a tall phone screen should not fill up with rock: keep the floor near the bottom of the view
+    if (this.seaFloor !== undefined) goal = Math.max(this.camTop, Math.min(goal, this.seaFloor + 30 - this.H / this.ppm));
     this.cam += (goal - this.cam) * (this.reducedMotion ? 1 : Math.min(1, dt * 5));
     // the animals wander
     for (const c of this.critters) {
@@ -362,9 +443,12 @@ export class OceanDive {
       if (Math.abs(nxp - c.x) > 0.01) c.face = nxp > c.x ? 1 : -1;
       c.x = nxp;
     }
+    // the snow drifts down past the sub; flakes that leave the view come back in at the other side
+    const viewM = this.H / this.ppm;
     for (const sn of this.snow) {
       sn.m += sn.v * dt * 2;
-      if (sn.m > this.floor + 40) sn.m = 150;
+      if (sn.m > this.cam + viewM + 4) sn.m -= viewM + 8;
+      else if (sn.m < this.cam - 4) sn.m += viewM + 8;
     }
     // which animal is close enough for a photo?
     let best: Critter | null = null;
@@ -378,6 +462,11 @@ export class OceanDive {
       }
     }
     this.near = best;
+    this.nearSample = false;
+    if (this.sampleSpot && !this.sampleTaken && Math.hypot(this.sampleSpot.x - s.x, (this.sampleSpot.m - s.m) * this.ppm) < Math.min(bd, PHOTO_R)) {
+      this.near = null;
+      this.nearSample = true;
+    }
     this.flash = Math.max(0, this.flash - dt * 4);
     // the night trip
     const ch = this.chaseState;
@@ -403,7 +492,16 @@ export class OceanDive {
         return;
       }
     }
-    if (!this.allPhotosSaid && this.allPhotos) {
+    // the Trench Dive's checkpoints (the last one, on the bottom, waits for the snailfish photo)
+    if (this.zone === 'trench' && this.nextCp < CHECKPOINTS.length) {
+      const last = this.nextCp === CHECKPOINTS.length - 1;
+      if (s.m >= CHECKPOINTS[this.nextCp] - (last ? 12 : 0) && (!last || this.allPhotos)) {
+        this.paused = true;
+        this.onCheckpoint?.(this.nextCp++);
+        return;
+      }
+    }
+    if (this.zone !== 'trench' && !this.allPhotosSaid && this.allPhotos) {
       this.allPhotosSaid = true;
       this.paused = true;
       this.onAllPhotos?.();
@@ -417,9 +515,22 @@ export class OceanDive {
 
   /** Finn takes the photo of the animal close by. */
   photo(): void {
+    if (this.nearSample && !this.paused) {
+      this.sampleTaken = true;
+      this.nearSample = false;
+      this.flash = 0.5;
+      this.paused = true;
+      this.onSample?.();
+      return;
+    }
     const c = this.near;
     if (!c || this.paused) return;
     c.done = true;
+    // the atolla jelly's burglar alarm: its ring of blue lights flashes
+    if (c.id === 'atolla') {
+      c.frames = [0, 1, 0].map((f) => paintAtolla(1.6, f, true).toCanvas());
+      c.glow = '#7ad8ff';
+    }
     this.near = null;
     this.flash = 1;
     this.paused = true;
@@ -475,6 +586,8 @@ export class OceanDive {
     }
     // paint the next tile below ahead of time, when this frame painted none
     if (!painted && !this.tiles.has(last + 1) && (last + 1) * TILE_M < this.floor + this.H / this.ppm) this.tile(last + 1);
+    // forget tiles far from the view (the Trench Dive is long)
+    if (this.tiles.size > 60) for (const k of this.tiles.keys()) if (k < first - 20 || k > last + 20) this.tiles.delete(k);
     const night = !!this.chaseState?.on;
     if (night) {
       // dusk up top: the sunlight zone goes dark
@@ -515,9 +628,27 @@ export class OceanDive {
           const yy = y + (i % 2) * 7 - 3;
           glows.push([x, yy, 3, '#7ff0ff']);
         }
+      } else if (a.kind === 'spark') {
+        // a short flash now and then, like a startled animal
+        if ((this.t * 0.5 + a.phase) % 4 < 0.5) glows.push([a.x + Math.sin(a.phase) * 10, y, 3, a.phase % 2 < 1 ? '#5fd8ff' : '#9ff4b0']);
       } else {
         glows.push([a.x + Math.sin(this.t * 0.3) * 8, y + Math.sin(this.t * 0.5) * 4, 7, '#c8a8ff']);
       }
+    }
+    // the hot vent chimneys, smoking (seen in the headlamp, and a little in the dark)
+    for (const v of this.chimneys) {
+      const img = v.frames[this.reducedMotion ? 0 : Math.floor(this.t * 6) % v.frames.length];
+      const yb = this.rowOf(v.m);
+      if (yb < -10 || yb - img.height > H + 10) continue;
+      g.globalAlpha = Math.max(0.5, this.lightAt(v.x, v.m - 12));
+      g.drawImage(img, Math.round(v.x - img.width / 2), Math.round(yb - img.height));
+      g.globalAlpha = 1;
+    }
+    if (this.sampleSpot && !this.sampleTaken && this.nearSample) {
+      const y = this.rowOf(this.sampleSpot.m);
+      g.strokeStyle = fr ? '#fff6b0' : '#ffd04a';
+      g.lineWidth = 1;
+      g.strokeRect(Math.round(this.sampleSpot.x - 9), Math.round(y - 9), 18, 18);
     }
     // the animals to photograph
     for (const c of this.critters) {
@@ -538,7 +669,7 @@ export class OceanDive {
         g.restore();
       } else g.drawImage(img, x, yy);
       g.globalAlpha = 1;
-      if (c.glow) glows.push([c.x, y, c.id === 'combjelly' ? 10 : 6, c.glow]);
+      if (c.glow) glows.push([c.x + c.glowAt[0] * img.width * (flip ? -1 : 1), y + c.glowAt[1] * img.height, c.id === 'combjelly' ? 10 : c.id === 'atolla' ? 12 : 6, c.glow]);
       // a soft ring round an animal still to photograph, once it is close
       if (!c.done && c === this.near) {
         g.strokeStyle = fr ? '#fff6b0' : '#ffd04a';
@@ -611,7 +742,19 @@ export class OceanDive {
 
   private drawHud(): void {
     const d = dials(this.sub.m);
-    const zone = this.sub.m < 200 ? 'Sunlight zone' : this.sub.m < 1000 ? 'Twilight zone' : 'Midnight zone';
+    const m = this.sub.m;
+    const zone =
+      m < 200
+        ? 'Sunlight zone'
+        : m < 1000
+          ? 'Twilight zone'
+          : this.zone === 'vents' && m > VENT_FLOOR - 120
+            ? 'Sea floor: hot vents'
+            : m < 4000
+              ? 'Midnight zone'
+              : m < 6000
+                ? 'Deep sea'
+                : 'The trench';
     const key = `${d.depth}|${d.temp}|${d.pressure}|${zone}`;
     if (this.dialsEl.dataset.key !== key) {
       this.dialsEl.dataset.key = key;
@@ -624,9 +767,9 @@ export class OceanDive {
       this.dialsEl.setAttribute('aria-label', `${zone}. ${d.depth} meters down. Water ${d.temp} degrees. Pressure ${d.pressure} times the air at the top.`);
     }
     // the photo prompt, next to the animal
-    const n = this.near;
+    const n = this.near ?? (this.nearSample && this.sampleSpot ? { id: null, x: this.sampleSpot.x, m: this.sampleSpot.m } : null);
     if (n && !this.paused) {
-      const label = `Photo: ${ANIMALS[n.id].name}`;
+      const label = n.id ? `Photo: ${ANIMALS[n.id].name}` : 'Sample: hot vent water';
       if (this.promptEl.dataset.label !== label) {
         this.promptEl.dataset.label = label;
         this.promptEl.replaceChildren(h('span', { text: label }), h('span', { class: 'kbd', text: 'Space' }));
@@ -646,7 +789,10 @@ export class OceanDive {
     else if (left.length) {
       const c = left.reduce((a, b) => (Math.abs(a.m - this.sub.m) <= Math.abs(b.m - this.sub.m) ? a : b));
       goal = { x: c.x, m: c.m, name: ANIMALS[c.id].name };
-    } else if (this.zone === 'sunlight' && this.allPhotosSaid && this.sub.m > 3) goal = { x: this.sub.x, m: 0, name: 'the surface' };
+    } else if (this.sampleSpot && !this.sampleTaken) goal = { ...this.sampleSpot, name: 'the hot vent' };
+    else if (this.zone === 'trench' && this.nextCp < CHECKPOINTS.length)
+      goal = { x: this.sub.x, m: CHECKPOINTS[this.nextCp], name: this.nextCp === CHECKPOINTS.length - 1 ? 'the bottom' : 'the next checkpoint' };
+    else if (this.zone === 'sunlight' && this.allPhotosSaid && this.sub.m > 3) goal = { x: this.sub.x, m: 0, name: 'the surface' };
     const y = goal ? this.rowOf(goal.m) : 0;
     if (goal && (y < 4 || y > this.H - 4)) {
       const dm = Math.round(goal.m - this.sub.m);

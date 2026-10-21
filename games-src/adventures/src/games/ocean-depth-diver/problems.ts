@@ -3,7 +3,7 @@
  * timers) so every rule can be unit tested.
  *
  * Each expedition ends at Dr. Lani's logbook, a set of questions at three
- * levels. Half 1 has two:
+ * levels. There are four:
  *   The sunlight zone (the reef, 0 to 200 meters)
  *     1. the zones, plants and sunlight, who eats what, hiding on the reef
  *     2. food chains start with sunlight; plankton; red light fades first;
@@ -16,6 +16,23 @@
  *        up to feed, marine snow, silver sides (4-LS1-1, 3-LS4-3)
  *     3. what living light is for, how the nightly trip carries food down,
  *        the best way to hide, where the energy first came from
+ *   The midnight zone (1,000 to 4,000 meters)
+ *     1. total darkness, living light, the anglerfish's lure, cold, red
+ *        animals, a giant mouth
+ *     2. marine snow, saving energy, the atolla's alarm lights, pressure,
+ *        tiny eyes, no colors of sunlight left (4-LS1-1)
+ *     3. the energy still starts with sunlight far above, partnerships with
+ *        glowing bacteria, hiding in total dark, why belly lights do not help
+ *   The deep sea floor and its hot vents (grade 5 stretch)
+ *     1. what a hot vent is, no sunlight, tube worms fed by bacteria that use
+ *        chemicals, the yeti crab's farm, cold away from the vents
+ *     2. why vent water does not boil, chimneys of minerals, a vent food
+ *        chain, the 1977 discovery, the water sample (5-LS2-1)
+ *     3. food chains that start with chemicals, the 250-year cold-seep tube
+ *        worm, marine snow on the floor, where the heat comes from
+ * The Trench Dive (the finale) also asks two old-game myth fixes at the top
+ * (the shark's sense of smell, the man-of-war) and three trench questions at
+ * the bottom (the deepest fish, Mount Everest, the pressure).
  *
  * Every wrong answer names the real mistake behind it (a misconception tag)
  * and carries one plain sentence that explains it without giving the answer
@@ -28,8 +45,8 @@
 
 import type { AnimalId, Zone } from './animals';
 
-export type Station = 'sunlight' | 'twilight';
-export const STATIONS: Station[] = ['sunlight', 'twilight'];
+export type Station = 'sunlight' | 'twilight' | 'midnight' | 'vents';
+export const STATIONS: Station[] = ['sunlight', 'twilight', 'midnight', 'vents'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -71,7 +88,18 @@ export type Misconception =
   | 'snow-literal' // thinks marine snow is frozen snow
   | 'light-carried' // thinks animals carry sunlight down
   | 'bright-hide' // thinks a bright or pale animal hides well from below
-  | 'pressure-push'; // thinks deep animals push the water away
+  | 'pressure-push' // thinks deep animals push the water away
+  | 'glow-lava' // thinks the deep glow comes from lava
+  | 'glow-hot' // thinks living light is hot
+  | 'sun-deep' // thinks sunlight reaches the deep sea
+  | 'snow-up' // thinks marine snow floats back up
+  | 'lights-hide-dark' // thinks lights hide an animal in total darkness
+  | 'no-hunters' // thinks there are no hunters in the deep
+  | 'chemo-sun' // thinks vent life runs on sunlight
+  | 'crab-plant' // thinks a vent crab is a plant
+  | 'deep-empty' // thinks the deep sea floor is empty of life
+  | 'shark-myth' // believes sharks smell blood from miles away
+  | 'trench-depth'; // mixed up how deep the trenches are
 
 /** What the panel shows above the question (words in the question match it). */
 export type Pic =
@@ -90,12 +118,20 @@ export type Pic =
   /** The sub's three dials at a depth. */
   | { k: 'dials'; depth: number }
   /** Lanternfish deep down in the day and near the top at night. */
-  | { k: 'migrate' };
+  | { k: 'migrate' }
+  /** A hot vent: chimneys, smoky hot water, tube worms, crabs and shrimp. */
+  | { k: 'vent' }
+  /** Marine snow drifting down from the sunlight zone to the sea floor. */
+  | { k: 'snow' }
+  /** Two food chains side by side: one starting with sunlight, one with vent chemicals. */
+  | { k: 'chemo' }
+  /** The deepest trench with Mount Everest beside it, and where the deepest fish was seen. */
+  | { k: 'depthbar' };
 
-export type ChainLink = 'sun' | 'plankton' | 'smallfish' | 'bigfish' | 'seagrass' | 'turtle' | 'lanternfish';
+export type ChainLink = 'sun' | 'plankton' | 'smallfish' | 'bigfish' | 'seagrass' | 'turtle' | 'lanternfish' | 'snow' | 'gulpereel' | 'chemicals' | 'bacteria' | 'tubeworm';
 
 /** The picture model that hint 2 adds (or that changes the picture itself). */
-export type Model = 'zones' | 'chain' | 'colors' | 'below' | 'migrate' | 'dials' | 'card';
+export type Model = 'zones' | 'chain' | 'colors' | 'below' | 'migrate' | 'dials' | 'card' | 'chemo' | 'snow' | 'everest';
 
 export interface Choice {
   value: string;
@@ -656,7 +692,613 @@ const TWILIGHT: QDef[] = [
   },
 ];
 
-const BANKS: Record<Station, QDef[]> = { sunlight: SUNLIGHT, twilight: TWILIGHT };
+// ------------------------------------------------------------------ the midnight zone
+
+const MIDNIGHT: QDef[] = [
+  // level 1
+  {
+    id: 'mid-zone-name',
+    tier: 1,
+    ask: 'Below 1,000 meters, no sunlight reaches at all. It is dark all day and all night. What is this layer called?',
+    right: 'The midnight zone',
+    wrong: [
+      ['The twilight zone', 'zone-order', 'The twilight zone still gets a little dim light. This layer gets none.'],
+      ['The sunlight zone', 'zone-order', 'The sunlight zone is the bright layer at the very top.'],
+    ],
+    explain: 'The midnight zone starts at about 1,000 meters. It is always dark there, like the middle of the night.',
+    hints: ['What time of day is the darkest?', 'The layers go: sunlight, then dim twilight, then dark midnight.'],
+    pic: zones('midnight'),
+    model: 'zones',
+  },
+  {
+    id: 'mid-only-light',
+    tier: 1,
+    ask: 'In the midnight zone there is no sunlight. Yet the sub sees little flashes and glows. Where does that light come from?',
+    right: 'Animals making their own light',
+    wrong: [
+      ['Sunlight shining down', 'glow-sun', 'No sunlight gets this deep at all.'],
+      ['Lava under the sea', 'glow-lava', 'These lights move and blink, the way animals do.'],
+    ],
+    explain: 'All the light in the midnight zone is living light, made by animals such as anglerfish, jellies and shrimp.',
+    hints: ['What did the lanternfish have along their bodies?', 'Many deep animals make their own light. It is called bioluminescence, or living light.'],
+    pic: animal('anglerfish'),
+    model: 'card',
+  },
+  {
+    id: 'mid-lure',
+    tier: 1,
+    ask: 'This anglerfish has a glowing lure above its mouth. Small animals swim toward the light. What is the lure for?',
+    right: 'Catching food',
+    wrong: [
+      ['Lighting the way home', 'structure-function', 'Think about who swims toward the light.'],
+      ['Keeping warm', 'glow-hot', 'Living light gives off almost no heat.'],
+    ],
+    explain: 'The lure works like a fishing rod with bait. Small animals come close to the light, and the anglerfish snaps them up.',
+    hints: ['A person fishing uses bait on a hook. Why?', 'Animals swim toward the glow, right up to the anglerfish’s mouth.'],
+    pic: animal('anglerfish'),
+    model: 'card',
+  },
+  {
+    id: 'mid-cold',
+    tier: 1,
+    ask: 'The sub is 2,000 meters down. The Sun warms only the top of the sea. What is the water like here?',
+    right: 'Very cold, a little above freezing',
+    wrong: [
+      ['Warm, like a bath', 'warm-deep', 'The Sun’s warmth stays near the top.'],
+      ['Hot, like soup', 'warm-deep', 'Nothing down here heats the water, away from the hot vents.'],
+    ],
+    explain: 'The deep sea is very cold: only a few degrees above freezing, all year round.',
+    hints: ['Look at the temperature dial.', 'The farther from the Sun-warmed top, the colder the water.'],
+    pic: { k: 'dials', depth: 2000 },
+    model: 'dials',
+  },
+  {
+    id: 'mid-red',
+    tier: 1,
+    ask: 'This atolla jelly is deep red. No red light ever reaches this deep. Why is red a good color down here?',
+    right: 'Red looks black in the dark, so it is hidden',
+    wrong: [
+      ['Red is easy to see, so friends find it', 'red-visible', 'With no red light, red does not show at all.'],
+      ['Red keeps it warm', 'structure-function', 'Color does not warm it up. Think about being seen.'],
+    ],
+    explain: 'Red needs red light to look red. In the dark deep there is none, so a red animal looks black and stays hidden.',
+    hints: ['Remember the light going down. Which color was gone first?', 'Without red light, a red thing has nothing to show. It looks dark.'],
+    pic: animal('atolla'),
+    model: 'colors',
+  },
+  {
+    id: 'mid-big-mouth',
+    tier: 1,
+    ask: 'Food is hard to find in the midnight zone. This gulper eel has a giant mouth. How does a giant mouth help?',
+    right: 'It can eat almost anything it finds',
+    wrong: [
+      ['It helps it swim fast', 'structure-function', 'A big open mouth would slow it down. Its mouth is for eating.'],
+      ['It scares other fish away', 'eyes-scary', 'Its mouth is for eating, not for scaring.'],
+    ],
+    explain: 'When food is rare, it helps to eat whatever you find, big or small. A giant mouth can scoop up a lot.',
+    hints: ['Is food easy or hard to find down here?', 'If you only find food now and then, you want to be able to eat it, whatever its size.'],
+    pic: animal('gulpereel'),
+    model: 'card',
+  },
+  // level 2
+  {
+    id: 'mid-snow',
+    tier: 2,
+    ask: 'No plants grow down here. Bits of dead plankton, dead animals and poop sink from far above, like snow. What do midnight animals do with it?',
+    right: 'Eat it: it is food',
+    wrong: [
+      ['Nothing. It melts.', 'snow-literal', 'It is called marine snow, but it is not frozen. It is food!'],
+      ['Build nests with it', 'wrong-reason', 'Most midnight animals do not build nests. The snow is food.'],
+    ],
+    explain: 'Marine snow is food. It carries food from the busy sunlight zone down to the animals of the deep.',
+    hints: ['Where is food made? Which way do things sink?', 'Bits from the top sink slowly, like snowflakes, and deep animals eat them.'],
+    pic: { k: 'snow' },
+    model: 'snow',
+  },
+  {
+    id: 'mid-slow',
+    tier: 2,
+    ask: 'Food is scarce in the midnight zone. Many animals there move slowly and wait for food to come to them. Why?',
+    right: 'Moving slowly saves energy',
+    wrong: [
+      ['The water is too thick to swim fast', 'wrong-reason', 'Deep water is about as easy to swim in. It is about energy.'],
+      ['They are always asleep', 'wrong-reason', 'They are awake, waiting for food to come by.'],
+    ],
+    explain: 'When meals are rare, wasting energy is risky. Moving slowly and waiting saves energy until food comes along.',
+    hints: ['What happens to your energy when you run around a lot?', 'Food gives energy. If food is rare, animals use as little energy as they can.'],
+    pic: animal('atolla'),
+    model: 'card',
+  },
+  {
+    id: 'mid-alarm',
+    tier: 2,
+    ask: 'When something grabs an atolla jelly, it flashes a ring of blue lights. The flashes may call a bigger animal. How does that help the jelly?',
+    right: 'The bigger animal may chase the attacker away',
+    wrong: [
+      ['The lights make the jelly bigger', 'structure-function', 'The lights do not change its size.'],
+      ['The lights burn the attacker', 'glow-hot', 'Living light is cool. It gives off almost no heat.'],
+    ],
+    explain: 'It is like a burglar alarm. The flashes may bring a bigger hunter that goes after the attacker, and the jelly can get away.',
+    hints: ['What does a burglar alarm do?', 'An alarm calls someone bigger to come and deal with the attacker.'],
+    pic: animal('atolla'),
+    model: 'card',
+  },
+  {
+    id: 'mid-pressure',
+    tier: 2,
+    ask: 'At 2,000 meters, the water presses about 200 times harder than the air at the top. Why don’t midnight animals get squashed?',
+    right: 'Their bodies are full of water, with no air pockets',
+    wrong: [
+      ['They all have hard shells', 'wrong-reason', 'Many are soft and jelly-like. It is what is inside that matters.'],
+      ['The water presses less on animals', 'pressure-less', 'The water presses on everything just as hard.'],
+    ],
+    explain: 'Air squashes easily, but water hardly squashes at all. A body full of water and no air pockets is not crushed.',
+    hints: ['Think of a balloon full of air, and a water balloon. Which squashes more?', 'Air squashes easily. Water hardly squashes at all.'],
+    pic: { k: 'dials', depth: 2000 },
+    model: 'dials',
+  },
+  {
+    id: 'mid-tiny-eyes',
+    tier: 2,
+    ask: 'Some midnight fish, like this gulper eel, have tiny eyes. Twilight fish have big eyes. Why might eyes matter less down here?',
+    right: 'There is no sunlight to see by',
+    wrong: [
+      ['They live inside caves', 'wrong-reason', 'They live out in open water. It is the darkness.'],
+      ['Their eyes wore out', 'wrong-reason', 'Eyes do not wear out like that.'],
+    ],
+    explain: 'With no sunlight, big eyes help less. Some midnight animals have tiny eyes and find food by touch, smell or living light.',
+    hints: ['How much sunlight is there in the midnight zone?', 'Twilight fish need big eyes to catch dim light. Here, there is no sunlight at all.'],
+    pic: animal('gulpereel'),
+    model: 'card',
+  },
+  {
+    id: 'mid-no-colors',
+    tier: 2,
+    ask: 'Red light is soaked up near the top. Blue light goes deepest, but it is gone by about 1,000 meters. Which colors of sunlight are left in the midnight zone?',
+    right: 'None. It is completely dark.',
+    wrong: [
+      ['Only red', 'red-visible', 'Red is the first color to go, near the top.'],
+      ['All of them', 'sun-deep', 'Sunlight fades out long before this depth.'],
+    ],
+    explain: 'By 1,000 meters every color of sunlight is gone. The midnight zone is completely dark, except for living light.',
+    hints: ['Look at the colors going down. Do any reach the bottom of the picture?', 'Red goes first, blue goes last, and below about 1,000 meters none are left.'],
+    pic: { k: 'colors' },
+    model: 'colors',
+  },
+  // level 3
+  {
+    id: 'mid-energy',
+    tier: 3,
+    ask: 'Sun, then plankton near the top, then marine snow sinking down, then a gulper eel. Where did the energy in the eel’s food first come from?',
+    right: 'Sunlight, used by plankton far above',
+    wrong: [
+      ['The eel’s glowing tail', 'glow-food', 'Making light uses energy. It does not make food.'],
+      ['The cold, dark water', 'water-food', 'Water is not food, and it does not give energy.'],
+    ],
+    explain: 'The energy started as sunlight at the top. Plankton caught it, and marine snow carried it all the way down.',
+    hints: ['Look at the start of the chain.', 'Follow the arrows back to the very first link.'],
+    pic: { k: 'chain', links: ['sun', 'plankton', 'snow', 'gulpereel'] },
+    model: 'chain',
+  },
+  {
+    id: 'mid-bacteria-partner',
+    tier: 3,
+    ask: 'An anglerfish’s lure glows because tiny bacteria live inside it. The bacteria get a safe home. What does the anglerfish get?',
+    right: 'Light to catch its food',
+    wrong: [
+      ['Warmth', 'glow-hot', 'Living light gives off almost no heat.'],
+      ['Food from the bacteria', 'wrong-reason', 'The bacteria make light for it, not food.'],
+    ],
+    explain: 'It is a partnership, like the clownfish and the anemone. The bacteria get a home, and the anglerfish gets a glowing lure.',
+    hints: ['What is the lure for?', 'Both partners get something. The bacteria get a home. What does the glow do for the fish?'],
+    pic: animal('anglerfish'),
+    model: 'card',
+  },
+  {
+    id: 'mid-hardest',
+    tier: 3,
+    ask: 'In the total darkness of the midnight zone, which animal is the hardest to see?',
+    right: 'A deep red jelly with its lights off',
+    wrong: [
+      ['A fish with a bright glowing lure', 'lights-hide-dark', 'In total darkness, any light shows where you are.'],
+      ['A fish with glowing spots along its sides', 'lights-hide-dark', 'In total darkness, any light shows where you are.'],
+    ],
+    explain: 'In total darkness, a red body looks black and cannot be seen. Lights would give an animal away.',
+    hints: ['In total darkness, what can you see?', 'Only light shows in the dark. An animal with no lights, colored like the dark, is hidden.'],
+    pic: { k: 'zones', mark: 'midnight' },
+    model: 'colors',
+  },
+  {
+    id: 'mid-no-shadows',
+    tier: 3,
+    ask: 'Twilight fish use belly lights to hide their shadows from hunters below. In the midnight zone, belly lights do not help with that. Why?',
+    right: 'No light comes from above, so there are no shadows to hide',
+    wrong: [
+      ['The water is too cold for lights', 'wrong-reason', 'Living light works in cold water. The reason is the darkness above.'],
+      ['There are no hunters down here', 'no-hunters', 'There are hunters, like the anglerfish.'],
+    ],
+    explain: 'A shadow needs light from above. In the midnight zone there is none, so there is no shadow to hide.',
+    hints: ['When do you have a shadow?', 'A fish only looks dark against light from above. With no light above, there is nothing to hide.'],
+    pic: { k: 'below', glow: true },
+    model: 'below',
+  },
+  {
+    id: 'mid-big-meal',
+    tier: 3,
+    ask: 'An anglerfish may find food only once in a long while. It has a huge mouth and a stretchy stomach. Why is that helpful?',
+    right: 'It can eat a big meal whenever it finds one',
+    wrong: [
+      ['It can eat the plants down here', 'plants-deep', 'No plants grow in the dark.'],
+      ['It can hold air to float', 'wrong-reason', 'Its stomach is for food, and deep fish have no air pockets.'],
+    ],
+    explain: 'When food is rare, a stretchy stomach lets an anglerfish eat a big meal, even an animal bigger than itself, and wait a long time for the next one.',
+    hints: ['If you only ate once in a long while, how big would you want that meal to be?', 'A big mouth and a stretchy stomach mean no meal is too big.'],
+    pic: animal('anglerfish'),
+    model: 'card',
+  },
+  {
+    id: 'mid-snow-ends',
+    tier: 3,
+    ask: 'Marine snow sinks from the sunlight zone all the way down. If no one eats it on the way, where does it end up?',
+    right: 'On the sea floor, where it feeds animals there',
+    wrong: [
+      ['Back at the top', 'snow-up', 'Bits heavier than water sink. They do not float back up.'],
+      ['It melts in the cold water', 'snow-literal', 'It is not real snow, so it does not melt.'],
+    ],
+    explain: 'Marine snow keeps sinking until it reaches the sea floor. Animals there, like sea cucumbers, eat it.',
+    hints: ['Which way does marine snow go?', 'It keeps sinking until there is nowhere farther to go.'],
+    pic: { k: 'snow' },
+    model: 'zones',
+  },
+];
+
+// ------------------------------------------------------------------ the deep sea floor and its hot vents
+
+const VENT_CHAIN: ChainLink[] = ['chemicals', 'bacteria', 'tubeworm'];
+
+const VENTS: QDef[] = [
+  // level 1
+  {
+    id: 'vent-what',
+    tier: 1,
+    ask: 'On the deep sea floor, there are cracks where hot water gushes out. The water was heated deep inside Earth. What are these called?',
+    right: 'Hot vents',
+    wrong: [
+      ['Underwater waterfalls', 'wrong-reason', 'Waterfalls fall down. This water shoots up, and it is hot.'],
+      ['Coral reefs', 'zone-order', 'Reefs grow in shallow, sunny water, far above.'],
+    ],
+    explain: 'They are called hot vents, or hydrothermal vents. Hydro means water and thermal means heat.',
+    hints: ['Hot water comes out of an opening. What do we call an opening that lets something out?', 'A vent is an opening. These ones let out hot water.'],
+    pic: { k: 'vent' },
+    model: 'card',
+  },
+  {
+    id: 'vent-dark',
+    tier: 1,
+    ask: 'The hot vents are about 2,500 meters down. Does any sunlight reach them?',
+    right: 'No. It is completely dark.',
+    wrong: [
+      ['Yes, a little', 'sun-deep', 'Sunlight is gone by about 1,000 meters.'],
+      ['Yes, at noon', 'sun-deep', 'Even at noon, no sunlight gets this deep.'],
+    ],
+    explain: 'No sunlight reaches the deep sea floor. The vents are in the dark all the time.',
+    hints: ['Where does the sunlight run out?', 'Sunlight is gone below about 1,000 meters. The vents are much deeper.'],
+    pic: { k: 'zones', mark: 'vents' },
+    model: 'zones',
+  },
+  {
+    id: 'vent-worm-food',
+    tier: 1,
+    ask: 'Giant tube worms have no mouth and no stomach. Bacteria living inside them make their food. What do the bacteria use to make it?',
+    right: 'Chemicals in the vent water',
+    wrong: [
+      ['Sunlight', 'chemo-sun', 'No sunlight reaches the vents. The bacteria use something else.'],
+      ['Sand', 'food-from-soil', 'Sand is not food. Think about what comes out of the vent.'],
+    ],
+    explain: 'The bacteria make food from chemicals in the vent water. This is called chemosynthesis: making food from chemicals.',
+    hints: ['What comes out of the vents along with the hot water?', 'Vent water is full of chemicals from inside Earth. The bacteria use them instead of sunlight.'],
+    pic: animal('tubeworm'),
+    model: 'chemo',
+  },
+  {
+    id: 'vent-crab',
+    tier: 1,
+    ask: 'A yeti crab grows bacteria on its hairy arms, then eats them. What is the crab like?',
+    right: 'A farmer, growing its own food',
+    wrong: [
+      ['A hunter that chases fish', 'diet-mixup', 'It mostly eats the bacteria it grows.'],
+      ['A plant', 'crab-plant', 'A crab is an animal. It eats the bacteria on its arms.'],
+    ],
+    explain: 'The yeti crab farms bacteria on its hairy arms, waving them in the warm vent water to help them grow.',
+    hints: ['A person who grows food to eat is called what?', 'The crab grows bacteria, then eats them. Like a farmer growing vegetables.'],
+    pic: animal('yeticrab'),
+    model: 'card',
+  },
+  {
+    id: 'vent-shrimp-close',
+    tier: 1,
+    ask: 'Thousands of vent shrimp crowd onto the chimneys. Why do they stay so close to the vents?',
+    right: 'That is where their food grows',
+    wrong: [
+      ['To get a suntan', 'sun-deep', 'There is no sunlight down here.'],
+      ['To cook their food', 'wrong-reason', 'They eat bacteria, not cooked food.'],
+    ],
+    explain: 'Food-making bacteria grow where the vent water flows, so the shrimp crowd as close as they safely can.',
+    hints: ['What do vent animals eat?', 'The bacteria need the vent chemicals, so they grow by the vents. The shrimp eat the bacteria.'],
+    pic: animal('ventshrimp'),
+    model: 'chemo',
+  },
+  {
+    id: 'vent-floor-cold',
+    tier: 1,
+    ask: 'Away from the vents, the deep sea floor is about 4,000 meters down. What is the water like there?',
+    right: 'Very cold, a little above freezing',
+    wrong: [
+      ['Warm, like a bath', 'warm-deep', 'The Sun warms only the top. Only right at the vents is it warm.'],
+      ['Hot, like soup', 'warm-deep', 'Away from the vents, nothing heats the water.'],
+    ],
+    explain: 'The deep sea floor is about 2 °C, only a little above freezing. Only the water right by a vent is warm.',
+    hints: ['Look at the temperature dial.', 'The Sun warms only the top. The deeper, the colder.'],
+    pic: { k: 'dials', depth: 4000 },
+    model: 'dials',
+  },
+  // level 2
+  {
+    id: 'vent-no-boil',
+    tier: 2,
+    ask: 'Water from a vent can be hotter than 350 °C, much hotter than boiling water in a pot. Why doesn’t it boil?',
+    right: 'The huge pressure stops it from boiling',
+    wrong: [
+      ['It is not really hot', 'wrong-reason', 'It really is that hot, right at the vent.'],
+      ['The cold sea cools it at once', 'wrong-reason', 'Right at the vent it is still very hot. The pressing is the reason.'],
+    ],
+    explain: 'All the water above presses down so hard that the vent water cannot turn into bubbles, so it does not boil.',
+    hints: ['What is very strong this deep?', 'Boiling makes bubbles. Strong enough pressing stops the bubbles from forming.'],
+    pic: { k: 'vent' },
+    model: 'dials',
+  },
+  {
+    id: 'vent-chimney',
+    tier: 2,
+    ask: 'When hot vent water meets the icy sea, minerals in it turn solid. Over time they pile up into tall chimneys. What are the chimneys made of?',
+    right: 'Minerals from the vent water',
+    wrong: [
+      ['Coral', 'zone-order', 'Coral grows only in shallow, sunny water.'],
+      ['Ice', 'wrong-reason', 'The sea is cold, but above freezing, and the vent water is hot.'],
+    ],
+    explain: 'The chimneys are built from minerals that were dissolved in the hot water. They turn solid when the water cools.',
+    hints: ['Read the question again. What turns solid?', 'Hot water can carry dissolved minerals. When it cools, they come out and pile up.'],
+    pic: { k: 'vent' },
+    model: 'card',
+  },
+  {
+    id: 'vent-which-chain',
+    tier: 2,
+    ask: 'Vent bacteria make food from chemicals instead of sunlight. Which one is a food chain at a hot vent?',
+    right: 'Chemicals, then bacteria, then tube worms',
+    wrong: [
+      ['Sun, then seaweed, then fish', 'chemo-sun', 'That chain starts with sunlight, and there is none at the vents.'],
+      ['Tube worms, then bacteria, then chemicals', 'chain-backward', 'That chain is backward. What comes first?'],
+    ],
+    explain: 'At the vents, the food chain starts with chemicals, not sunlight. Bacteria use them, and animals eat or host the bacteria.',
+    hints: ['Look at the two chains. Which one could work in the dark?', 'A food chain starts with whatever makes the food. At the vents, that is bacteria using chemicals.'],
+    pic: { k: 'chemo' },
+    model: 'chemo',
+  },
+  {
+    id: 'vent-red-plume',
+    tier: 2,
+    ask: 'A giant tube worm’s top is bright red. It is full of blood, like ours. What does the red top do?',
+    right: 'Takes in chemicals and oxygen from the water for its bacteria',
+    wrong: [
+      ['Catches small fish', 'diet-mixup', 'Tube worms have no mouth. The red top takes things in from the water.'],
+      ['Glows to light the vents', 'structure-function', 'The red top does not glow. Its blood takes things in from the water.'],
+    ],
+    explain: 'The red top works like gills. Its blood picks up chemicals and oxygen from the water and carries them to the bacteria inside.',
+    hints: ['What do the bacteria inside the worm need?', 'The bacteria need chemicals and oxygen from the water. Something has to collect them.'],
+    pic: animal('tubeworm'),
+    model: 'chemo',
+  },
+  {
+    id: 'vent-found',
+    tier: 2,
+    ask: 'Hot vents were first found in 1977 by scientists in a small submarine. Before that, many people thought the deep sea floor was almost empty. What did they find around the vents?',
+    right: 'Crowds of animals',
+    wrong: [
+      ['Nothing at all', 'deep-empty', 'They were amazed: the vents were crowded with life.'],
+      ['Plants growing in the dark', 'plants-deep', 'Plants cannot grow without sunlight.'],
+    ],
+    explain: 'They found crowds of tube worms, clams, crabs and shrimp. Life was thriving with no sunlight at all.',
+    hints: ['Think of the animals Finn photographed at the vents.', 'Tube worms, crabs and shrimp: the vents are busy places.'],
+    pic: { k: 'vent' },
+    model: 'card',
+  },
+  {
+    id: 'vent-not-inside',
+    tier: 2,
+    ask: 'Finn took a water sample right next to a vent. It was hot, but a short way off it was icy again. Why do animals live close to the vent, but not inside it?',
+    right: 'Close by is warm and full of food, but the vent itself is far too hot',
+    wrong: [
+      ['They are not allowed inside', 'wrong-reason', 'Nobody stops them. Think about the temperature.'],
+      ['It is too bright inside', 'wrong-reason', 'Vents are dark. The problem is the heat.'],
+    ],
+    explain: 'Right at the vent the water is hot enough to cook an animal. A little way off it is just warm, and full of food-making bacteria.',
+    hints: ['What did the temperature dial show at the vent, and a little way off?', 'Too hot right inside, icy far away, and just right close by.'],
+    pic: { k: 'dials', depth: 2600 },
+    model: 'dials',
+  },
+  // level 3
+  {
+    id: 'vent-special',
+    tier: 3,
+    ask: 'Almost every food chain on Earth starts with sunlight. Why are the animals at hot vents special?',
+    right: 'Their food chain starts with chemicals, not sunlight',
+    wrong: [
+      ['They don’t need food', 'no-food', 'Every animal needs food.'],
+      ['They eat sunlight that sinks down', 'light-carried', 'Sunlight cannot sink down to the sea floor.'],
+    ],
+    explain: 'Vent animals live on food made from chemicals by bacteria. They are one of the few kinds of life on Earth that do not depend on sunlight.',
+    hints: ['Where does the energy for most life come from?', 'Most food chains start with plants using sunlight. At the vents, bacteria use chemicals instead.'],
+    pic: { k: 'chemo' },
+    model: 'chemo',
+  },
+  {
+    id: 'vent-old-worm',
+    tier: 3,
+    ask: 'Giant tube worms at hot vents grow fast. A different kind of tube worm lives at cold seeps, where chemicals leak out slowly. It grows very slowly. About how long can it live?',
+    right: 'Around 250 years',
+    wrong: [
+      ['About 1 year', 'wrong-reason', 'Animals that grow very slowly often live a very long time.'],
+      ['Forever', 'wrong-reason', 'No animal lives forever, but this one lives a very long time.'],
+    ],
+    explain: 'Tube worms at cold seeps grow so slowly that some may live about 250 years. They are among the longest-living animals.',
+    hints: ['Slow growing usually goes with a long life. Think of trees that grow slowly.', 'It is far longer than a person lives: hundreds of years.'],
+    pic: animal('tubeworm'),
+    model: 'card',
+  },
+  {
+    id: 'vent-floor-food',
+    tier: 3,
+    ask: 'Away from the vents, the deep sea floor has no plants and no vent chemicals. What do most animals there eat?',
+    right: 'Marine snow and other food that sinks from above',
+    wrong: [
+      ['Plants that grow in the mud', 'plants-deep', 'No plants grow in the dark.'],
+      ['Sunlight', 'sun-deep', 'No sunlight reaches the sea floor.'],
+    ],
+    explain: 'Most sea floor animals eat marine snow, and sometimes a feast: a whale or a big fish that sinks from above.',
+    hints: ['Where did marine snow end up?', 'Food that is not eaten on the way down lands on the sea floor.'],
+    pic: { k: 'snow' },
+    model: 'snow',
+  },
+  {
+    id: 'vent-shrimp-glow',
+    tier: 3,
+    ask: 'Vent shrimp have no regular eyes. A shiny patch on their backs may sense the faint glow of hot vents. Why would that help?',
+    right: 'It helps them find the vents without getting too close',
+    wrong: [
+      ['It helps them see the Sun', 'sun-deep', 'There is no sunlight down here.'],
+      ['It keeps them warm', 'structure-function', 'A patch that senses light does not make heat.'],
+    ],
+    explain: 'Very hot vent water gives off a faint glow. Sensing it may help the shrimp stay near their food without being cooked.',
+    hints: ['What do the shrimp need to stay close to, but not too close to?', 'The glow shows where the vent is, so they can stay at a safe distance.'],
+    pic: animal('ventshrimp'),
+    model: 'card',
+  },
+  {
+    id: 'vent-heat',
+    tier: 3,
+    ask: 'Hot vents are found where the sea floor is slowly pulling apart. Sea water sinks into the cracks and is heated far below. Where does the heat come from?',
+    right: 'Hot rock deep inside Earth',
+    wrong: [
+      ['The Sun', 'sun-deep', 'The Sun’s warmth stays near the top of the sea.'],
+      ['The animals', 'wrong-reason', 'The animals use the warmth. They do not make it.'],
+    ],
+    explain: 'Deep inside Earth, the rock is very hot. Water that seeps into the cracks is heated, then gushes back out of the vents.',
+    hints: ['The water sinks down into cracks. What is down there?', 'Earth is very hot inside. That heat warms the water.'],
+    pic: { k: 'vent' },
+    model: 'card',
+  },
+  {
+    id: 'vent-stops',
+    tier: 3,
+    ask: 'If a vent stops gushing, the chemicals stop too. What happens to the tube worms there?',
+    right: 'They lose their food and die off',
+    wrong: [
+      ['Nothing. They use sunlight instead.', 'chemo-sun', 'There is no sunlight down here to use.'],
+      ['They walk to another vent', 'wrong-reason', 'Tube worms live fixed in their tubes. They cannot travel.'],
+    ],
+    explain: 'With no chemicals, the bacteria cannot make food, and the tube worms starve. New vents open elsewhere, and new animals settle there.',
+    hints: ['What do the bacteria need to make food?', 'No chemicals means no food for the bacteria, and so no food for the worms.'],
+    pic: { k: 'chain', links: VENT_CHAIN },
+    model: 'chemo',
+  },
+];
+
+// ------------------------------------------------------------------ the Trench Dive's extra questions (one per checkpoint)
+
+/**
+ * Checkpoint questions that belong to no logbook: two facts the old game
+ * got wrong at the top (the shark myth, the man-of-war), and the trench at
+ * the bottom (the deepest fish, Mount Everest, the pressure).
+ */
+export const TRENCH_EXTRAS: { top: QDef[]; bottom: QDef[] } = {
+  top: [
+    {
+      id: 'trench-shark',
+      tier: 2,
+      ask: 'Sharks have a great sense of smell. People say a shark can smell one drop of blood from miles away. Is that true?',
+      right: 'No. Sharks smell well, but over a much shorter distance.',
+      wrong: [
+        ['Yes, from anywhere in the ocean', 'shark-myth', 'Smells spread slowly in water. "Miles away" is a myth.'],
+        ['Sharks cannot smell at all', 'shark-myth', 'Sharks smell very well, just not from miles away.'],
+      ],
+      explain: 'It is a myth. Sharks can smell tiny amounts, but smells spread slowly in water, so it works over a much shorter distance.',
+      hints: ['Think of a drop of food coloring in a bath. How fast does it spread?', 'Smells spread slowly in water. A shark has to be fairly close.'],
+      pic: zones('sunlight'),
+      model: 'zones',
+    },
+    {
+      id: 'trench-man-of-war',
+      tier: 2,
+      ask: 'A Portuguese man-of-war has a gas-filled float, like a little sail. Where does it live?',
+      right: 'At the very top of the sea, floating on the surface',
+      wrong: [
+        ['In the twilight zone', 'zone-order', 'Its float keeps it right at the top.'],
+        ['On the deep sea floor', 'zone-order', 'Its float keeps it right at the top.'],
+      ],
+      explain: 'The man-of-war floats on the surface, pushed along by the wind. Its long stinging tentacles hang down below.',
+      hints: ['What does a float do?', 'A float filled with gas stays at the top, like a balloon.'],
+      pic: zones('sunlight'),
+      model: 'zones',
+    },
+  ],
+  bottom: [
+    {
+      id: 'trench-deepest-fish',
+      tier: 2,
+      ask: 'Trenches are the deepest places in the ocean. In 2023, scientists filmed a snailfish deeper than any fish seen before. About how deep was it?',
+      right: 'About 8,300 meters',
+      wrong: [
+        ['About 100 meters', 'zone-order', 'That is still the sunlight zone. It was far, far deeper.'],
+        ['About 20,000 meters', 'trench-depth', 'The deepest trench is only about 11,000 meters deep.'],
+      ],
+      explain: 'The snailfish was filmed 8,336 meters down, in a trench near Japan. It is the deepest fish ever seen.',
+      hints: ['The deepest trench is about 11,000 meters. Could a fish be deeper than that?', 'It was very deep, but still above the bottom of the deepest trench.'],
+      pic: { k: 'depthbar' },
+      model: 'everest',
+    },
+    {
+      id: 'trench-everest',
+      tier: 2,
+      ask: 'The deepest trench goes down about 11,000 meters. Mount Everest, the tallest mountain, is about 8,800 meters tall. If Everest sat on the trench floor, what would happen?',
+      right: 'Its top would still be under water',
+      wrong: [
+        ['Its top would stick out of the sea', 'trench-depth', 'The trench is deeper than Everest is tall.'],
+        ['It would float up', 'wrong-reason', 'Mountains are rock. They do not float.'],
+      ],
+      explain: 'The trench is about 2,000 meters deeper than Everest is tall, so even its peak would be deep under water.',
+      hints: ['Which number is bigger: 11,000 or 8,800?', 'The trench is deeper than Everest is tall.'],
+      pic: { k: 'depthbar' },
+      model: 'everest',
+    },
+    {
+      id: 'trench-pressure',
+      tier: 2,
+      ask: 'At the bottom of the deepest trench, the water presses about 1,100 times harder than the air at the top. What lets a snailfish live there?',
+      right: 'A soft body with no air pockets',
+      wrong: [
+        ['A hard shell, like a tank', 'wrong-reason', 'Snailfish are soft and jelly-like.'],
+        ['It pushes the water away', 'pressure-push', 'No animal could push back that much water.'],
+      ],
+      explain: 'A soft body full of water, with no air pockets, cannot be squashed. That is how the snailfish lives so deep.',
+      hints: ['Think of the water balloon and the air balloon.', 'Air squashes easily. Water hardly squashes at all.'],
+      pic: { k: 'dials', depth: 10900 },
+      model: 'dials',
+    },
+  ],
+};
+
+const BANKS: Record<Station, QDef[]> = { sunlight: SUNLIGHT, twilight: TWILIGHT, midnight: MIDNIGHT, vents: VENTS };
 
 // ------------------------------------------------------------------ making a question
 
@@ -675,7 +1317,7 @@ export function bank(s: Station): QDef[] {
   return BANKS[s];
 }
 
-function build(station: Station, d: QDef, r: Rand): Question {
+export function build(station: Station, d: QDef, r: Rand): Question {
   const choices: Choice[] = shuffle(r, [
     { value: 'right', label: d.right, correct: true },
     ...d.wrong.map(([label, misconception, why], i) => ({ value: `wrong${i}`, label, correct: false, misconception, why })),

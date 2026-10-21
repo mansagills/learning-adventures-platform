@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
-import { ANIMAL_ORDER, ANIMALS, ANIMALS_IN, dials, OPEN_ZONES } from '../src/games/ocean-depth-diver/animals';
-import { CHALLENGES, cleanParts, creatureName, meets, PART_KEYS, PART_OPTIONS, START_PARTS, testCreature, type Parts } from '../src/games/ocean-depth-diver/designer';
-import { bank, makeQuestion, STATIONS, TIERS } from '../src/games/ocean-depth-diver/problems';
+import { ANIMAL_ORDER, ANIMALS, ANIMALS_IN, dials, OPEN_ZONES, ZONE_INFO } from '../src/games/ocean-depth-diver/animals';
+import { CHALLENGES, cleanParts, creatureName, meets, openChallenges, PART_KEYS, PART_OPTIONS, START_PARTS, testCreature, type Parts } from '../src/games/ocean-depth-diver/designer';
+import { cleanSave, freshSave } from '../src/games/ocean-depth-diver/save';
+import { bank, build, makeQuestion, STATIONS, TIERS, TRENCH_EXTRAS } from '../src/games/ocean-depth-diver/problems';
 
 describe('Ocean Depth Diver questions', () => {
   it('has at least five questions at every level of each expedition, with unique ids', () => {
@@ -79,17 +80,53 @@ describe('Ocean Depth Diver questions', () => {
     expect(find('tw-belly-lights').right).toMatch(/hard to see/);
     // coral is an animal: the algae inside it need the sunlight
     expect(find('sun-coral-animal').right).toMatch(/algae/);
+    // red hides in the dark; vent water does not boil because of the pressure; vent food starts with chemicals
+    expect(find('mid-red').right).toMatch(/black/);
+    expect(find('vent-no-boil').right).toMatch(/pressure/);
+    expect(find('vent-worm-food').right).toMatch(/[Cc]hemicals/);
+    // the 250-year tube worm is the cold-seep kind
+    expect(find('vent-old-worm').ask).toMatch(/cold seeps/);
+  });
+
+  it('has Trench Dive questions that follow the same rules, with the old game’s myths fixed', () => {
+    const r = mulberry32(5);
+    const all = [...TRENCH_EXTRAS.top, ...TRENCH_EXTRAS.bottom];
+    expect(TRENCH_EXTRAS.top.length).toBeGreaterThanOrEqual(2);
+    expect(TRENCH_EXTRAS.bottom.length).toBeGreaterThanOrEqual(2);
+    for (const d of all) {
+      const q = build('vents', d, r);
+      expect(q.choices.filter((c) => c.correct).length, d.id).toBe(1);
+      expect(q.ask.trim().endsWith('?'), d.id).toBe(true);
+      for (const sentence of d.ask.split(/(?<=[.?!])\s+/)) expect(sentence.split(/\s+/).length, `${d.id}: ${sentence}`).toBeLessThanOrEqual(26);
+      for (const [, mis, why] of d.wrong) {
+        expect(mis).toBeTruthy();
+        expect(why.toLowerCase().includes(d.right.toLowerCase()), d.id).toBe(false);
+      }
+    }
+    const find = (id: string) => all.find((d) => d.id === id)!;
+    expect(find('trench-shark').right).toMatch(/^No/);
+    expect(find('trench-man-of-war').right).toMatch(/surface/);
+    expect(find('trench-deepest-fish').right).toMatch(/8,300/);
+    expect(find('trench-everest').right).toMatch(/under water/);
   });
 });
 
 describe('the field guide and the dials', () => {
-  it('lists six sunlight animals and three twilight animals in the right zones', () => {
+  it('lists the animals of every zone, each found at a depth in its zone', () => {
     expect(ANIMALS_IN.sunlight.length).toBe(6);
     expect(ANIMALS_IN.twilight.length).toBe(3);
+    expect(ANIMALS_IN.midnight.length).toBe(3);
+    expect(ANIMALS_IN.vents.length).toBe(3);
+    expect(ANIMALS_IN.trench).toEqual(['snailfish']);
     for (const a of ANIMAL_ORDER) {
       const an = ANIMALS[a];
-      if (an.zone === 'sunlight') expect(an.depth).toBeLessThan(200);
-      if (an.zone === 'twilight') expect(an.depth).toBeGreaterThanOrEqual(200);
+      // the vents sit on a ridge, higher than most of the sea floor, so they are checked by their own rule
+      if (an.zone === 'vents') expect(an.depth).toBeGreaterThan(2400);
+      else {
+        expect(an.depth, a).toBeGreaterThanOrEqual(ZONE_INFO[an.zone].top);
+        expect(an.depth, a).toBeLessThan(ZONE_INFO[an.zone].bottom);
+      }
+      for (const f of an.facts) expect(f.length).toBeGreaterThan(20);
     }
   });
 
@@ -104,6 +141,30 @@ describe('the field guide and the dials', () => {
     }
     expect(dials(100).pressure).toBe(11);
     expect(dials(1000).temp).toBe(4);
+    // near freezing in the deep, never below it
+    for (let m = 1000; m <= 11000; m += 500) {
+      expect(dials(m).temp).toBeLessThanOrEqual(4);
+      expect(dials(m).temp).toBeGreaterThanOrEqual(2);
+    }
+    expect(dials(10900).pressure).toBe(1091);
+  });
+});
+
+describe('the save', () => {
+  it('keeps a half 1 save working, with the new expeditions empty', () => {
+    const old = {
+      stars: { sunlight: 5, twilight: 3 },
+      played: { sunlight: 9, twilight: 4 },
+      done: ['sunlight', 'designer'],
+      dived: ['sunlight', 'twilight'],
+      recent: { sunlight: ['a'], twilight: [] },
+    };
+    const s = cleanSave(old);
+    expect(s.stars).toEqual({ sunlight: 5, twilight: 3, midnight: 0, vents: 0 });
+    expect(s.recent.midnight).toEqual([]);
+    expect(s.done).toEqual(['sunlight', 'designer']);
+    expect(s.trenchDone).toBe(false);
+    expect(freshSave().glowSeen).toBe(false);
   });
 });
 
@@ -144,6 +205,25 @@ describe('the Creature Designer', () => {
       if (p.light !== 'belly') expect(hide.grade).toBeLessThan(2);
       for (const c of r.checks) expect(c.why.length).toBeGreaterThan(10);
     }
+  });
+
+  it('in the dark midnight zone, needs a lure or a huge mouth for food, and red or see-through skin to hide', () => {
+    for (const p of every()) {
+      const r = testCreature(p, 'midnight');
+      const food = r.checks.find((c) => c.id === 'food')!;
+      const hide = r.checks.find((c) => c.id === 'hide')!;
+      if (p.light !== 'lure' && p.mouth !== 'wide') expect(food.grade).toBeLessThan(2);
+      if (p.light === 'lure') expect(hide.grade).toBeLessThan(2);
+      if (hide.grade === 2) expect(['red', 'clear']).toContain(p.skin);
+    }
+    const gulper: Parts = { body: 'round', eyes: 'small', skin: 'red', light: 'none', mouth: 'wide' };
+    expect(testCreature(gulper, 'midnight').overall).toBe('thrives');
+    expect(testCreature(gulper, 'sunlight').overall).not.toBe('thrives');
+  });
+
+  it('opens the midnight challenges only with the midnight zone', () => {
+    expect(openChallenges(['sunlight', 'twilight']).every((c) => c.zone !== 'midnight')).toBe(true);
+    expect(openChallenges(['sunlight', 'twilight', 'midnight']).length).toBe(CHALLENGES.length);
   });
 
   it('cleans saved parts and makes friendly names', () => {

@@ -1,27 +1,45 @@
 /**
  * The animals (and two plant-like living things) Finn can photograph for the
- * field guide, with the facts on their cards. Half 1 has the sunlight zone
- * (the reef) and the twilight zone; the midnight zone and the vents come in
- * half 2.
+ * field guide, with the facts on their cards: the sunlight zone (the reef),
+ * the twilight zone, the midnight zone, the deep sea floor with its hot
+ * vents, and the deepest trench (the Trench Dive).
  *
  * Facts are checked against NOAA Ocean Exploration and the NOAA Ocean
  * Service, the Smithsonian Ocean portal and the Monterey Bay Aquarium. They
  * are written for grades 3 to 5: short sentences, facts first.
  */
 
-export type Zone = 'sunlight' | 'twilight' | 'midnight' | 'vents';
-export const ZONES: Zone[] = ['sunlight', 'twilight', 'midnight', 'vents'];
-/** The zones with an expedition in half 1. */
-export const OPEN_ZONES: Zone[] = ['sunlight', 'twilight'];
+export type Zone = 'sunlight' | 'twilight' | 'midnight' | 'vents' | 'trench';
+export const ZONES: Zone[] = ['sunlight', 'twilight', 'midnight', 'vents', 'trench'];
+/** The zones with an expedition (the trench is the finale, the Trench Dive). */
+export const OPEN_ZONES: Zone[] = ['sunlight', 'twilight', 'midnight', 'vents', 'trench'];
 
 export const ZONE_INFO: Record<Zone, { name: string; depth: string; top: number; bottom: number }> = {
   sunlight: { name: 'The sunlight zone', depth: '0 to 200 meters', top: 0, bottom: 200 },
   twilight: { name: 'The twilight zone', depth: '200 to 1,000 meters', top: 200, bottom: 1000 },
   midnight: { name: 'The midnight zone', depth: '1,000 to 4,000 meters', top: 1000, bottom: 4000 },
-  vents: { name: 'The deep sea floor', depth: 'below 4,000 meters', top: 4000, bottom: 11000 },
+  // the sea floor is mostly 3,000 to 6,000 meters down; the hot vents are on undersea mountain ridges, higher up, about 2,500 meters down
+  vents: { name: 'The deep sea floor', depth: 'mostly 3,000 to 6,000 meters down', top: 4000, bottom: 6000 },
+  trench: { name: 'The deepest trench', depth: 'down to about 11,000 meters', top: 6000, bottom: 11000 },
 };
 
-export type AnimalId = 'seagrass' | 'plankton' | 'clownfish' | 'octopus' | 'turtle' | 'ray' | 'lanternfish' | 'hatchetfish' | 'combjelly';
+export type AnimalId =
+  | 'seagrass'
+  | 'plankton'
+  | 'clownfish'
+  | 'octopus'
+  | 'turtle'
+  | 'ray'
+  | 'lanternfish'
+  | 'hatchetfish'
+  | 'combjelly'
+  | 'anglerfish'
+  | 'gulpereel'
+  | 'atolla'
+  | 'tubeworm'
+  | 'yeticrab'
+  | 'ventshrimp'
+  | 'snailfish';
 
 export interface Animal {
   id: AnimalId;
@@ -122,21 +140,120 @@ export const ANIMALS: Record<AnimalId, Animal> = {
       'The combs scatter light into rainbows. Many comb jellies are clear like glass, so they are hard to see.',
     ],
   },
+  anglerfish: {
+    id: 'anglerfish',
+    name: 'Anglerfish',
+    zone: 'midnight',
+    lives: 'The midnight zone',
+    depth: 1800,
+    facts: [
+      'A female anglerfish has a glowing lure on a long spine, like a fishing rod. Tiny bacteria living in the lure make the light.',
+      'Small animals swim toward the light. Her huge mouth and stretchy stomach can swallow food bigger than she is.',
+    ],
+  },
+  gulpereel: {
+    id: 'gulpereel',
+    name: 'Gulper eel',
+    zone: 'midnight',
+    lives: 'The twilight and midnight zones',
+    depth: 2300,
+    facts: [
+      'A gulper eel has a giant, loose mouth, like a pelican’s pouch. It can open it wide to scoop up food.',
+      'The tip of its long, thin tail can glow. Scientists think the light may draw small animals close.',
+    ],
+  },
+  atolla: {
+    id: 'atolla',
+    name: 'Atolla jelly',
+    zone: 'midnight',
+    lives: 'The midnight zone',
+    depth: 1300,
+    facts: [
+      'The atolla jelly is deep red, so in the dark it is almost invisible.',
+      'When something grabs it, it flashes a ring of blue lights, like a burglar alarm. The flashes may call a bigger animal to chase the attacker away.',
+    ],
+  },
+  tubeworm: {
+    id: 'tubeworm',
+    name: 'Giant tube worm',
+    zone: 'vents',
+    lives: 'Hot vents on the deep sea floor',
+    depth: 2560,
+    facts: [
+      'Giant tube worms grow taller than a grown-up, inside white tubes. Their red tops are full of blood that takes in chemicals from the vent water.',
+      'They have no mouth and no stomach! Bacteria living inside them make food from the chemicals, with no sunlight at all.',
+    ],
+  },
+  yeticrab: {
+    id: 'yeticrab',
+    name: 'Yeti crab',
+    zone: 'vents',
+    lives: 'Hot vents and cold seeps on the deep sea floor',
+    depth: 2590,
+    facts: ['A yeti crab has hairy arms. Bacteria grow on the hairs, and the crab eats them.', 'It waves its arms in the warm vent water, which helps the bacteria grow. It is like a little farmer.'],
+  },
+  ventshrimp: {
+    id: 'ventshrimp',
+    name: 'Vent shrimp',
+    zone: 'vents',
+    lives: 'The chimneys of hot vents',
+    depth: 2540,
+    facts: [
+      'Thousands of vent shrimp crowd onto the chimneys, as close to the warm water as they can safely get.',
+      'They have no regular eyes. A shiny patch on their backs may sense the faint glow of the hot vents.',
+    ],
+  },
+  snailfish: {
+    id: 'snailfish',
+    name: 'Snailfish',
+    zone: 'trench',
+    lives: 'Deep trenches',
+    depth: 8200,
+    facts: [
+      'In 2023, scientists filmed a snailfish 8,336 meters down in a trench near Japan. It is the deepest fish ever seen.',
+      'Snailfish have soft, jelly-like bodies and no air pockets, so the huge pressure does not crush them.',
+    ],
+  },
 };
 
-export const ANIMAL_ORDER: AnimalId[] = ['seagrass', 'plankton', 'clownfish', 'octopus', 'turtle', 'ray', 'lanternfish', 'hatchetfish', 'combjelly'];
+export const ANIMAL_ORDER: AnimalId[] = [
+  'seagrass',
+  'plankton',
+  'clownfish',
+  'octopus',
+  'turtle',
+  'ray',
+  'lanternfish',
+  'hatchetfish',
+  'combjelly',
+  'atolla',
+  'anglerfish',
+  'gulpereel',
+  'ventshrimp',
+  'tubeworm',
+  'yeticrab',
+  'snailfish',
+];
 
 export const ANIMALS_IN: Record<Zone, AnimalId[]> = {
   sunlight: ANIMAL_ORDER.filter((a) => ANIMALS[a].zone === 'sunlight'),
   twilight: ANIMAL_ORDER.filter((a) => ANIMALS[a].zone === 'twilight'),
-  midnight: [],
-  vents: [],
+  midnight: ANIMAL_ORDER.filter((a) => ANIMALS[a].zone === 'midnight'),
+  vents: ANIMAL_ORDER.filter((a) => ANIMALS[a].zone === 'vents'),
+  trench: ANIMAL_ORDER.filter((a) => ANIMALS[a].zone === 'trench'),
 };
 
 /** The water at a depth, as the sub's dials show it (rounded, for children). */
 export function dials(m: number): { depth: number; temp: number; pressure: number } {
   const d = Math.max(0, m);
-  // the Sun warms only the top; it is cold by about 1,000 meters and stays near 4 °C below that
-  const temp = d < 50 ? 26 - d * 0.04 : d < 1000 ? 24 - 20 * Math.min(1, (d - 50) / 950) ** 0.6 : 4;
+  // the Sun warms only the top; it is cold by about 1,000 meters, and near the bottom it is only a little above freezing (about 2 °C)
+  const temp = d < 50 ? 26 - d * 0.04 : d < 1000 ? 24 - 20 * Math.min(1, (d - 50) / 950) ** 0.6 : 4 - 2 * Math.min(1, (d - 1000) / 3000);
   return { depth: Math.round(d), temp: Math.round(temp), pressure: Math.round(1 + d / 10) };
 }
+
+/** The hot vents: where the dive's sea floor is, and how hot the vent water gets (it does not boil, because of the huge pressure). */
+export const VENT_FLOOR = 2600;
+export const VENT_WATER_C = 360;
+/** The bottom of the deepest trench (the Challenger Deep, rounded) and the top of Mount Everest, for comparing. */
+export const TRENCH_FLOOR = 10900;
+export const EVEREST_M = 8849;
