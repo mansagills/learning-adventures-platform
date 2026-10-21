@@ -567,6 +567,9 @@
 .odd-creature-img.dim {
   filter: brightness(0.75) saturate(0.8);
 }
+.odd-creature-img.dark {
+  filter: brightness(0.55) saturate(0.7);
+}
 .odd-creature-view.swim .odd-creature-img {
   animation: odd-swim 1.6s ease-in-out 1;
 }
@@ -766,4 +769,72 @@
   background: #e3f4ef;
   color: #1d3f3a;
   font-weight: 700;
+}
+
+/* half 2: two food chains side by side (wrapping on a phone) */
+.odd-chemo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 0;
+}
+.odd-dark .px-icon {
+  filter: brightness(0.7) saturate(0.8);
+}
+
+/* the Trench Dive's radio questions: the picture sits above the talk box */
+.odd-radio-pic {
+  position: absolute;
+  left: 50%;
+  top: 84px;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: calc(100% - 32px);
+  padding: 6px;
+  background: radial-gradient(circle at 50% 40%, #1f5a8a, #0a1a30);
+}
+.odd-radio-pic .px-icon {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: min(30vh, 200px);
+  object-fit: contain;
+}
+
+/* the Glow Show */
+.odd-glow {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: min(640px, calc(100% - 32px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+}
+.odd-glow header h2 {
+  margin: 0 0 6px;
+}
+.odd-glow .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.odd-glow-img {
+  display: block;
+  width: 100%;
+  max-height: 46vh;
+  object-fit: contain;
+  height: auto;
+  image-rendering: pixelated;
+  border-radius: 10px;
+  border: 3px solid #1d1a30;
+}
+.odd-glow-facts {
+  margin: 0;
+  padding-left: 20px;
+  font-weight: 700;
+  align-self: stretch;
 }

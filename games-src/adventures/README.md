@@ -49,7 +49,7 @@ node scripts/e2e-body-system-heroes.mjs   # Body System Heroes: the med bay, fly
 node scripts/e2e-solar-system-explorer.mjs   # Solar System Explorer: the observatory, the Orrery (a miss, the hint ladder, the debrief, a lens lights), the Sunrise Lab (the flagpole and East and West), the Star Dome (the season dial, the Sun's postcard), the Launch Bay (three cannon shots: land, orbit, fly away; the Moon's postcard), the Grand Tour (the route, nine photos, a question from each station, the star party, Pluto's postcard, game-complete), the star map, Mars (driving the rover, the sample, the fact card, the question, the postcard), the Neptune cloud dive (steering, three finds), leaving Venus early, the album, grown-ups, saving, a phone (77 checks)
 node scripts/sse-tour.mjs <url> <outDir> [w] [h]    # Solar System Explorer screenshots: the observatory, each open station at levels 1-3 (a miss, the hint picture, the answer), the star map, planet stops and dives (STATIONS=orrery STOPS=mars,jupiter TIERS=1,2,3)
 node scripts/space-lookdev-shots.mjs   # the Solar System Explorer look preview pages (needs npx vite --port 5179)
-node scripts/e2e-ocean-depth-diver.mjs   # Ocean Depth Diver (half 1): the camp, the lab tent closed, Dr. Lani, the sunlight dive (steering, six photos, the surface), the logbook (a miss, the hint ladder, the debrief), the Creature Designer (a test dive, a challenge, saving a creature), the twilight dive (three photos, the night trip), dusk at camp, the twilight logbook, a twilight creature (all four challenges, the debrief), Ranger Tala's goodbye, the field guide, grown-ups, saving, a phone (56 checks)
+node scripts/e2e-ocean-depth-diver.mjs   # Ocean Depth Diver (the whole game): the camp, the lab tent closed, Dr. Lani, the sunlight dive (steering, six photos, the surface), the logbook (a miss, the hint ladder, the debrief), the Creature Designer (a test dive, a challenge, saving a creature), the twilight dive (three photos, the night trip), dusk at camp, the twilight logbook, a twilight creature, the midnight dive and logbook, the sea floor dive (the water sample) and logbook, a midnight creature (all six challenges, the debrief), the Trench Dive (five radio questions, the snailfish), the Glow Show (game complete), the field guide, grown-ups, saving, a phone (92 checks)
 node scripts/odd-question-shots.mjs   # Ocean Depth Diver: every kind of question picture, with hint 2, desktop and phone (needs a dev server or preview)
 node scripts/wild-lookdev-shots.mjs   # the Wild Lands look preview pages (needs npx vite --port 5179)
 node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
@@ -559,10 +559,10 @@ Code: `src/games/body-system-heroes/`.
 ## Ocean Depth Diver (Science, grades 3–5)
 
 S4 Ocean, the first game in the Wild Lands world (slug `ocean-depth-diver`).
-Half 1 is built; it is not listed on the site yet (play it at
-`/games/play/ocean-depth-diver/index.html`). The field camp and the ocean
-painter are in the world kit (`src/kit/worlds/wild-lands/`), kept out of the
-shared lists until the game ships.
+Both halves are built and the game is listed on the site (it replaces the old
+game at the same address). The field camp and the ocean painter (with its sea
+floor and trench options) are in the world kit (`src/kit/worlds/wild-lands/`),
+which the game imports directly; the world is kept out of the shared lists.
 
 - **The field camp:** Ranger Tala by the campfire, Dr. Lani Kahale on the
   boardwalk by the dock, the lab tent's Creature Designer, and Finn the robot
@@ -572,12 +572,24 @@ shared lists until the game ships.
   and his sonar arrow points to the next one. The sea is painted in tiles at
   a fixed scale. The sunlight zone has six animals on the reef; the twilight
   zone has three, the headlamp, living light and the lanternfish night trip.
+  The midnight zone has three more in the dark (Dr. Lani winches the sub up
+  after the photos). The sea floor dive lands on the bottom at two hot vent
+  chimneys, with three animals and a water sample from the big chimney. The
+  Trench Dive (`zone: 'trench'`) goes to about 10,900 meters between closing
+  walls, stopping at `CHECKPOINTS` for radio questions; the bottom waits for
+  the snailfish photo. Far tiles are freed on long dives, and the sub slows
+  down near an animal still to photograph.
 - **The logbook:** Dr. Lani's questions after each dive (`problems.ts`), with
   pictures (`art.ts`) and the hint ladder; five stars and a debrief finish a
   zone.
 - **The Creature Designer (`designer.ts`, `designerUi.ts`):** build a
-  creature from parts and test-dive it; three checks with reasons, four
+  creature from parts and test-dive it on the reef, in the twilight zone or
+  (after that dive) in the midnight zone; three checks with reasons, six
   challenges, and saved creatures in the field guide.
+- **The finale:** the Trench Dive (questions from `TRENCH_EXTRAS` at the top
+  and the bottom, and from each zone's logbook in between, with no stars),
+  then the Glow Show on the beach at night, which posts `game-complete` to
+  the site's player.
 
 Code: `src/games/ocean-depth-diver/`. `animals.ts` has the field guide's facts
 and the dials.

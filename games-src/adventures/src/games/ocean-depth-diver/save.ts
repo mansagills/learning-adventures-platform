@@ -6,9 +6,9 @@ import { ANIMAL_ORDER, type AnimalId } from './animals';
 import { CHALLENGES, cleanParts, type ChallengeId, type Parts } from './designer';
 import { STATIONS, type Station } from './problems';
 
-/** The parts of the game that can be finished: the two expeditions and the Creature Designer. */
+/** The parts of the game that can be finished: the four expeditions and the Creature Designer. */
 export type Part = Station | 'designer';
-export const PARTS: Part[] = ['sunlight', 'twilight', 'designer'];
+export const PARTS: Part[] = ['sunlight', 'twilight', 'designer', 'midnight', 'vents'];
 
 export interface SavedCreature {
   name: string;
@@ -35,15 +35,20 @@ export interface DiverSave {
   creatures: SavedCreature[];
   openingSeen: boolean;
   diveTipSeen: boolean;
-  /** Ranger Tala's goodbye for this part of the game has been said. */
+  /** Ranger Tala's goodbye for this part of the game has been said (half 1's goodbye; kept for old saves). */
   allDoneSeen: boolean;
+  /** The Trench Dive finale has been finished. */
+  trenchDone: boolean;
+  /** The Glow Show has been seen. */
+  glowSeen: boolean;
   /** Question ids seen lately at each expedition (so every question comes up before any repeats). */
   recent: Record<Station, string[]>;
   learner: LearnerState;
   seed: number;
 }
 
-const zeroes = (): Record<Station, number> => ({ sunlight: 0, twilight: 0 });
+const zeroes = (): Record<Station, number> => ({ sunlight: 0, twilight: 0, midnight: 0, vents: 0 });
+const noLists = (): Record<Station, string[]> => ({ sunlight: [], twilight: [], midnight: [], vents: [] });
 export const MAX_CREATURES = 6;
 
 export function freshSave(): DiverSave {
@@ -61,7 +66,9 @@ export function freshSave(): DiverSave {
     openingSeen: false,
     diveTipSeen: false,
     allDoneSeen: false,
-    recent: { sunlight: [], twilight: [] },
+    trenchDone: false,
+    glowSeen: false,
+    recent: noLists(),
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
   };
@@ -83,7 +90,7 @@ export function cleanSave(raw: unknown): DiverSave {
     return out;
   };
   const only = <T extends string>(v: unknown, list: readonly T[]): T[] => (Array.isArray(v) ? list.filter((x) => (v as unknown[]).includes(x)) : []);
-  const recent = { sunlight: [] as string[], twilight: [] as string[] };
+  const recent = noLists();
   if (typeof r.recent === 'object' && r.recent)
     for (const s of STATIONS) {
       const v = (r.recent as Record<string, unknown>)[s];
@@ -119,6 +126,8 @@ export function cleanSave(raw: unknown): DiverSave {
     openingSeen: r.openingSeen === true,
     diveTipSeen: r.diveTipSeen === true,
     allDoneSeen: r.allDoneSeen === true,
+    trenchDone: r.trenchDone === true,
+    glowSeen: r.glowSeen === true,
     recent,
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,

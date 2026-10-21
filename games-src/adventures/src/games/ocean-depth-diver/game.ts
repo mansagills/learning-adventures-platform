@@ -20,7 +20,23 @@ import '../../kit/worlds/worlds.css';
 import '../../kit/worlds/wild-lands/wild.css';
 import { LANI_KAHALE, RANGER_TALA, paintFinnPortrait } from '../../kit/worlds/wild-lands/art';
 import { ANIMAL_ORDER, ANIMALS, ANIMALS_IN, dials, ZONE_INFO, type AnimalId, type Zone } from './animals';
-import { paintAnimalCard, paintBelow, paintChain, paintColors, paintCoralHead, paintCreature, paintDesignerIcon, paintDialFaces, paintMigrate, paintZoneBadge, paintZoneChart } from './art';
+import {
+  paintAnimalCard,
+  paintBelow,
+  paintChain,
+  paintColors,
+  paintCoralHead,
+  paintCreature,
+  paintDepthBar,
+  paintDesignerIcon,
+  paintDialFaces,
+  paintGlowBay,
+  paintMigrate,
+  paintSnowFall,
+  paintVentScene,
+  paintZoneBadge,
+  paintZoneChart,
+} from './art';
 import {
   ALL_DONE,
   CHASE_DONE,
@@ -33,22 +49,25 @@ import {
   EXPEDITIONS,
   FINN,
   FINN_HELLO,
+  GLOW,
   GROWNUPS,
+  LOCKED,
   OPENING,
   OPENING_END,
   PEOPLE,
   praise,
+  SAMPLE_LINES,
   STARS_PER_STATION,
   SURFACE_LINE,
-  TWILIGHT_LOCKED,
+  TRENCH,
   type PersonId,
 } from './content';
 import { CHALLENGES, type ChallengeId } from './designer';
 import { describe, openDesigner } from './designerUi';
-import { OceanDive } from './dive';
+import { CHECKPOINTS, OceanDive, type DiveZone } from './dive';
 import { CAMP_SONG, DEEP_SONG, LAB_SONG, REEF_SONG } from './music';
 import { pix } from './pix';
-import { bank, makeQuestion, STATIONS, type ChainLink, type Choice, type Misconception, type Question, type Station, type Tier } from './problems';
+import { bank, build, makeQuestion, STATIONS, TRENCH_EXTRAS, type ChainLink, type Choice, type Misconception, type Question, type Station, type Tier } from './problems';
 import { freshSave, MAX_CREATURES, PARTS, store, type DiverSave, type Part } from './save';
 import { CampWorld, PEOPLE_SPOTS, type Target } from './world';
 
@@ -57,7 +76,13 @@ const MAX_PER_STATION = 12;
 
 const LOOKS: Record<PersonId, Look16> = { lani: LANI_KAHALE, tala: RANGER_TALA };
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
-const PART_NAME: Record<Part, string> = { sunlight: 'The sunlight zone', twilight: 'The twilight zone', designer: 'The Creature Designer' };
+const PART_NAME: Record<Part, string> = {
+  sunlight: 'The sunlight zone',
+  twilight: 'The twilight zone',
+  designer: 'The Creature Designer',
+  midnight: 'The midnight zone',
+  vents: 'The deep sea floor',
+};
 const LINK_NAME: Record<ChainLink, string> = {
   sun: 'Sun',
   plankton: 'Plankton',
@@ -66,6 +91,11 @@ const LINK_NAME: Record<ChainLink, string> = {
   seagrass: 'Seagrass',
   turtle: 'Sea turtle',
   lanternfish: 'Lanternfish',
+  snow: 'Marine snow',
+  gulpereel: 'Gulper eel',
+  chemicals: 'Vent chemicals',
+  bacteria: 'Bacteria',
+  tubeworm: 'Tube worm',
 };
 
 type Mode = 'title' | 'world' | 'busy' | 'panel' | 'dive';
@@ -178,9 +208,11 @@ export class Game {
       setTier: (s: string, t: Tier) => {
         skill(this.save.learner, s).tier = t;
       },
-      dive: (z: Station) => this.mode === 'world' && void this.startDive(z),
+      dive: (z: DiveZone) => this.mode === 'world' && void this.startDive(z),
       diveTo: (x: number, m: number) => this.dive?.teleport(x, m),
       critter: (id: AnimalId) => this.dive?.critterAt(id) ?? null,
+      sample: () => this.dive?.sampleAt() ?? null,
+      glow: () => this.mode === 'world' && void this.glowShow(),
       photo: () => this.dive?.photo(),
       designer: () => this.mode === 'world' && void this.useDesigner(),
       /** Open one question by its id (for screenshots). */
@@ -314,18 +346,29 @@ export class Game {
     this.mode = 'world';
   }
 
+  /** Is this expedition open (the one before it is finished)? */
+  private isOpen(s: Station): boolean {
+    const i = STATIONS.indexOf(s);
+    return i === 0 || this.save.done.includes(STATIONS[i - 1]);
+  }
+
   /** What Dr. Lani has next: an expedition to start, or a logbook to write up. */
   private laniNext(): Station | null {
     for (const s of STATIONS) {
-      if (s === 'twilight' && !this.save.done.includes('sunlight')) return null;
+      if (!this.isOpen(s)) return null;
       if (!this.save.done.includes(s)) return s;
     }
     return null;
   }
 
+  /** Everything is finished, so the Trench Dive is ready. */
+  private get trenchReady(): boolean {
+    return this.allDone;
+  }
+
   private updateMarkers(): void {
     const tala = this.allDone && !this.save.allDoneSeen ? 'new' : null;
-    this.world.setMarkers({ lani: this.laniNext() ? 'new' : null, tala });
+    this.world.setMarkers({ lani: this.laniNext() || (this.trenchReady && !this.save.trenchDone) ? 'new' : null, tala });
   }
 
   // ------------------------------------------------------------ the camp
@@ -400,22 +443,33 @@ export class Game {
       return;
     }
     const options: Array<{ label: string; run: () => void | Promise<void> }> = [];
+    // the Trench Dive comes first in the list once it is ready
+    if (this.trenchReady)
+      options.push({
+        label: `${sv.trenchDone ? 'Dive again' : 'Dive'}: ${TRENCH.name.toLowerCase()}`,
+        run: async () => {
+          this.mode = 'busy';
+          if (!sv.trenchDone) await this.talk.say(lani, TRENCH.intro);
+          this.talk.end();
+          void this.startDive('trench');
+        },
+      });
     for (const s of STATIONS) {
       const info = EXPEDITIONS[s];
-      if (s === 'twilight' && !sv.done.includes('sunlight')) continue;
+      if (!this.isOpen(s)) continue;
       const dived = sv.dived.includes(s);
       const done = sv.done.includes(s);
       if (dived && !done) options.push({ label: `Write up the logbook: ${info.name.toLowerCase()}`, run: () => this.openPanel(s) });
-      if (s === 'twilight' && !sv.introduced.includes('twilight'))
+      if (!sv.introduced.includes(s))
         options.push({
-          label: 'Dive deeper: the twilight zone',
+          label: `Dive deeper: ${info.name.toLowerCase()}`,
           run: async () => {
             this.mode = 'busy';
-            await this.talk.say(lani, EXPEDITIONS.twilight.intro);
-            sv.introduced.push('twilight');
+            await this.talk.say(lani, info.intro);
+            sv.introduced.push(s);
             this.persist();
             this.talk.end();
-            void this.startDive('twilight');
+            void this.startDive(s);
           },
         });
       else options.push({ label: `${dived ? 'Dive again' : 'Dive'}: ${info.name.toLowerCase()}`, run: () => void this.startDive(s) });
@@ -423,12 +477,17 @@ export class Game {
     }
     options.push({ label: 'Not now', run: () => undefined });
     const next = this.laniNext();
+    const prev = next ? STATIONS[STATIONS.indexOf(next) - 1] : null;
     const text = !next
-      ? 'You have explored both zones! Dive again any time, or practise with the logbook.'
+      ? this.trenchReady
+        ? sv.trenchDone
+          ? 'You have explored the whole ocean, top to bottom! Dive again any time, or practise with the logbook.'
+          : TRENCH.ready
+        : TRENCH.notYet
       : sv.dived.includes(next)
         ? `Your photos from ${EXPEDITIONS[next].name.toLowerCase()} are ready. Let’s write up the logbook!`
-        : next === 'twilight' && !sv.introduced.includes('twilight')
-          ? 'The sunlight zone is done. Ready to go deeper?'
+        : !sv.introduced.includes(next) && prev
+          ? `${EXPEDITIONS[prev].name} is done. Ready to go deeper?`
           : EXPEDITIONS[next].again;
     const i = await this.talk.offer(
       lani,
@@ -436,7 +495,7 @@ export class Game {
       options.map((o) => o.label),
     );
     const pick = options[i];
-    if (pick.label.startsWith('Dive deeper')) {
+    if (pick.label.startsWith('Dive deeper') || pick.label.endsWith(TRENCH.name.toLowerCase())) {
       await pick.run();
       return;
     }
@@ -463,7 +522,9 @@ export class Game {
           ? `Next: ${EXPEDITIONS[next].name.toLowerCase()}, with Dr. Lani on the dock.`
           : !this.save.done.includes('designer')
             ? 'Have you tried all of Dr. Lani’s challenges in the Creature Designer? The lab tent is just over there.'
-            : 'You have done everything here for now. Great diving!';
+            : !this.save.trenchDone
+              ? 'Dr. Lani has the Trench Dive ready, down on the dock. Good luck, diver!'
+              : 'You have explored the whole ocean! Dive again any time, or try new creatures in the lab tent.';
     const options = ['Open the field guide', 'Change how I look', 'Not now'];
     const pick = options[await this.talk.offer(tala, tip, options)];
     this.talk.end();
@@ -495,7 +556,7 @@ export class Game {
     audio.play('lab');
     this.designer = openDesigner(this.host, {
       met: [...sv.challenges],
-      twilightOpen: sv.dived.includes('twilight'),
+      openZones: ['sunlight', ...(['twilight', 'midnight'] as const).filter((z) => sv.dived.includes(z))],
       saved: sv.creatures.length,
       maxSaved: MAX_CREATURES,
       seed: sv.seed++,
@@ -520,7 +581,7 @@ export class Game {
     if (!sv.done.includes('designer') && CHALLENGES.every((c) => sv.challenges.includes(c.id))) {
       this.mode = 'busy';
       const lani = this.speakers.lani;
-      await this.talk.say(lani, 'All four challenges met! Before you go, one question.', 'proud');
+      await this.talk.say(lani, DESIGNER.allMet(CHALLENGES.length), 'proud');
       const res = await this.talk.ask(lani, DESIGNER.debrief, () => audio.hint());
       recordAnswer(sv.learner, 'designer-talk', { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
       sv.done.push('designer');
@@ -538,10 +599,10 @@ export class Game {
 
   // ------------------------------------------------------------ the dive
 
-  private async startDive(zone: Station): Promise<void> {
-    if (zone === 'twilight' && !this.save.done.includes('sunlight')) {
+  private async startDive(zone: DiveZone): Promise<void> {
+    if (zone === 'trench' ? !this.trenchReady : !this.isOpen(zone)) {
       this.mode = 'busy';
-      await this.talk.say(this.speakers.lani, TWILIGHT_LOCKED);
+      await this.talk.say(this.speakers.lani, zone === 'trench' ? TRENCH.notYet : LOCKED[zone]);
       this.talk.end();
       this.mode = 'world';
       return;
@@ -564,27 +625,37 @@ export class Game {
         dive.resume();
       });
     };
+    dive.onSample = async () => {
+      audio.itemGet();
+      await this.talk.say(this.speakers.finn, SAMPLE_LINES, 'smile');
+      this.talk.end();
+      this.renderDiveBar(zone, shots);
+      dive.resume();
+    };
     dive.onAllPhotos = async () => {
+      if (zone === 'trench') return;
       const info = EXPEDITIONS[zone];
-      if (zone === 'sunlight') await this.talk.say(this.speakers.finn, info.allPhotos, 'smile');
-      else {
+      if (zone === 'twilight') {
         await this.talk.say(this.speakers.lani, info.allPhotos, 'smile');
         dive.startChase();
-      }
+      } else await this.talk.say(this.speakers.finn, info.allPhotos, 'smile');
       this.talk.end();
+      // the deep dives end here: Dr. Lani winches the sub back up
+      if (zone === 'midnight' || zone === 'vents') return void (await this.finishDive(zone));
       this.renderDiveBar(zone, shots);
       dive.resume();
     };
     dive.onSurface = async () => {
       await this.talk.say(this.speakers.finn, SURFACE_LINE, 'smile');
       this.talk.end();
-      await this.finishDive(zone);
+      if (zone !== 'trench') await this.finishDive(zone);
     };
     dive.onChaseDone = async () => {
       await this.talk.say(this.speakers.finn, CHASE_DONE, 'smile');
       this.talk.end();
-      await this.finishDive(zone);
+      if (zone !== 'trench') await this.finishDive(zone);
     };
+    dive.onCheckpoint = (i) => void this.trenchCheckpoint(i, shots);
     if (!this.save.diveTipSeen) {
       dive.paused = true;
       await this.talk.say(this.speakers.finn, isTouchDevice() ? DIVE_TIP_TOUCH : DIVE_TIP_KEYS, 'smile');
@@ -593,6 +664,103 @@ export class Game {
       this.persist();
       dive.resume();
     }
+  }
+
+  /** The Trench Dive's checkpoints: Dr. Lani radios a question at the bottom of each zone (no stars), and the last one is on the trench floor. */
+  private async trenchCheckpoint(i: number, shots: Set<AnimalId>): Promise<void> {
+    const dive = this.dive;
+    if (!dive) return;
+    const lani = this.speakers.lani;
+    const r = mulberry32(this.save.seed++);
+    const pickFrom = (list: typeof TRENCH_EXTRAS.top) => list[Math.floor(r() * list.length) % list.length];
+    // the top and the bottom have their own questions; the zones in between ask one of that zone's logbook questions at the child's level
+    const station: Station = i === 0 ? 'sunlight' : i === 1 ? 'twilight' : i === 2 ? 'midnight' : 'vents';
+    const q: Question =
+      i === 0
+        ? build('sunlight', pickFrom(TRENCH_EXTRAS.top), r)
+        : i === CHECKPOINTS.length - 1
+          ? build('vents', pickFrom(TRENCH_EXTRAS.bottom), r)
+          : makeQuestion(station, skill(this.save.learner, station).tier as Tier, r, this.save.recent[station]);
+    await this.talk.say(lani, i === 0 ? [TRENCH.checkpoints[0], TRENCH.noStars] : TRENCH.checkpoints[i]);
+    // (the two myth questions at the top are about animals with no picture of their own, so they have none)
+    const fig = h('div', { class: 'panel odd-radio-pic' }, this.buildPic(q, false, 0));
+    if (i > 0) this.host.append(fig);
+    const right = q.choices.find((c) => c.correct)!;
+    const res = await this.talk.ask(
+      lani,
+      {
+        text: q.ask,
+        options: q.choices.map((c) => (c.correct ? { text: c.label, correct: true, feedback: q.explain } : { text: c.label, feedback: c.why ?? '', misconception: c.misconception })),
+        hints: [q.hints[0], q.hints[1], `The answer is outlined: ${right.label}`],
+      },
+      () => audio.hint(),
+    );
+    fig.remove();
+    recordAnswer(this.save.learner, 'trench-talk', { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
+    this.persist();
+    if (i < CHECKPOINTS.length - 1) {
+      this.talk.end();
+      this.renderDiveBar('trench', shots);
+      dive.resume();
+      return;
+    }
+    // the bottom: the Trench Dive is done
+    await this.talk.say(lani, TRENCH.done, 'proud');
+    this.talk.end();
+    this.save.trenchDone = true;
+    this.persist();
+    this.leaveDive('evening');
+    await this.glowShow();
+  }
+
+  /** The finale's last scene: back at camp at night, the waves glow with living light. */
+  private async glowShow(): Promise<void> {
+    this.mode = 'busy';
+    this.touch?.setVisible(false);
+    audio.play('lab');
+    const frames = [0, 1, 2, 3].map((f) => paintGlowBay(200, 112, f).toDataURL(1));
+    const img = h('img', { class: 'odd-glow-img', src: frames[0], alt: 'Night at the camp’s beach: the waves glow bright blue', width: 600, height: 336 }) as HTMLImageElement;
+    let f = 0;
+    const timer = settings.reducedMotion ? 0 : window.setInterval(() => (img.src = frames[(f = (f + 1) % frames.length)]), 260);
+    const sv = this.save;
+    const facts = h(
+      'ul',
+      { class: 'odd-glow-facts' },
+      h('li', { text: `Zones explored: ${STATIONS.filter((st) => sv.done.includes(st)).length} of ${STATIONS.length}, plus the trench` }),
+      h('li', { text: `Field guide photos: ${sv.photos.length} of ${ANIMAL_ORDER.length}` }),
+      h('li', { text: `Creature Designer challenges: ${sv.challenges.length} of ${CHALLENGES.length}` }),
+      h('li', { text: `Creatures saved: ${sv.creatures.length}` }),
+    );
+    // a plain overlay, not a modal, so the talk box below it keeps the keyboard
+    const root = h(
+      'div',
+      { class: 'panel odd-glow', role: 'region', 'aria-labelledby': 'glow-title' },
+      h('header', {}, h('h2', { id: 'glow-title', text: 'The Glow Show' })),
+      h('div', { class: 'content' }, img, facts),
+    );
+    this.host.append(root);
+    const tala = this.speakers.tala;
+    await this.talk.say(tala, GLOW.intro, 'smile');
+    await this.talk.say(this.speakers.lani, GLOW.lines, 'smile');
+    await this.talk.say(tala, GLOW.end, 'proud');
+    this.talk.end();
+    if (!sv.glowSeen) {
+      sv.glowSeen = true;
+      this.persist();
+    }
+    window.parent?.postMessage({ type: 'game-complete', score: sv.photos.length }, '*');
+    await new Promise<void>((resolve) => {
+      const back = h('button', { class: 'btn primary', type: 'button', text: 'Back to camp', onclick: () => resolve() });
+      root.querySelector('.content')!.append(back);
+      back.focus();
+    });
+    window.clearInterval(timer);
+    root.remove();
+    audio.play('camp');
+    this.mode = 'world';
+    this.updateMarkers();
+    this.renderHud();
+    this.touch?.setVisible(touchControlsVisible());
   }
 
   /** The dive's work is done: back to camp, and on to the logbook. */
@@ -625,11 +793,11 @@ export class Game {
     this.touch?.setVisible(touchControlsVisible());
   }
 
-  private renderDiveBar(zone: Station, shots: Set<AnimalId>): void {
+  private renderDiveBar(zone: DiveZone, shots: Set<AnimalId>): void {
     const list = ANIMALS_IN[zone];
     const st = this.dive?.state;
     this.diveBar.hidden = false;
-    const parts: HTMLElement[] = [h('strong', { text: EXPEDITIONS[zone].name })];
+    const parts: HTMLElement[] = [h('strong', { text: zone === 'trench' ? TRENCH.name : EXPEDITIONS[zone].name })];
     if (st?.chase)
       parts.push(
         h(
@@ -643,11 +811,16 @@ export class Game {
           ),
         ),
       );
-    else
+    else {
+      parts.push(...list.map((id) => h('span', { class: `odd-shot${shots.has(id) ? ' got' : ''}`, text: ANIMALS[id].name })));
+      if (zone === 'vents') parts.push(h('span', { class: `odd-shot${st?.sample ? ' got' : ''}`, text: 'Water sample' }));
       parts.push(
-        ...list.map((id) => h('span', { class: `odd-shot${shots.has(id) ? ' got' : ''}`, text: ANIMALS[id].name })),
-        h('span', { class: 'odd-shot-count', text: `Photos ${list.filter((id) => shots.has(id)).length} of ${list.length}` }),
+        h('span', {
+          class: 'odd-shot-count',
+          text: zone === 'trench' ? `Checkpoints ${st?.checkpoint ?? 0} of ${CHECKPOINTS.length}` : `Photos ${list.filter((id) => shots.has(id)).length} of ${list.length}`,
+        }),
       );
+    }
     parts.push(
       h('button', { class: 'btn small', type: 'button', text: 'Back to camp', onclick: () => this.mode === 'dive' && !this.talk.isOpen && !document.querySelector('.modal-back') && this.leaveDive() }),
     );
@@ -795,9 +968,13 @@ export class Game {
   private renderPic(): void {
     const pnl = this.panel;
     if (!pnl) return;
-    const q = pnl.q;
-    const done = pnl.answered;
-    const hinted = (m: typeof q.model) => pnl.hintRung >= 2 && !done && q.model === m;
+    pnl.pic.replaceChildren(this.buildPic(pnl.q, pnl.answered, pnl.hintRung));
+    if (pnl.hintRung >= 2 && !pnl.answered) this.renderModel();
+  }
+
+  /** A question's picture (also shown above the Trench Dive's radio questions). */
+  private buildPic(q: Question, done: boolean, hintRung: number): HTMLElement {
+    const hinted = (m: typeof q.model) => hintRung >= 2 && !done && q.model === m;
     const pic = q.pic;
     let el: HTMLElement;
     if (pic.k === 'animal') {
@@ -853,6 +1030,21 @@ export class Game {
       );
     } else if (pic.k === 'dials') {
       el = this.dialPic(pic.depth);
+    } else if (pic.k === 'vent') {
+      el = h(
+        'div',
+        { class: 'odd-sky' },
+        pix('vent', () => paintVentScene(140, 72), 2.2, 'A hot vent on the dark sea floor: a smoking chimney, tube worms and a yeti crab'),
+        this.tag('Hot water gushes out', 0.5, 0.04, 'small'),
+        this.tag('Tube worms', 0.27, 0.9, 'small'),
+        this.tag('Yeti crab', 0.7, 0.9, 'small'),
+      );
+    } else if (pic.k === 'snow') {
+      el = this.snowPic(2.2);
+    } else if (pic.k === 'chemo') {
+      el = this.chemoPic(done || hinted('chemo'), 2);
+    } else if (pic.k === 'depthbar') {
+      el = this.depthPic(2);
     } else {
       el = h(
         'div',
@@ -862,8 +1054,58 @@ export class Game {
         this.tag('Night', 0.75, 0.86, 'small'),
       );
     }
-    pnl.pic.replaceChildren(el);
-    if (pnl.hintRung >= 2 && !done) this.renderModel();
+    return el;
+  }
+
+  private snowPic(scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'odd-sky' },
+      pix('snow', () => paintSnowFall(120, 72), scale, 'Marine snow drifting down from the sunny top to the dark sea floor'),
+      this.tag('Plankton near the top', 0.5, 0.02, 'small'),
+      this.tag('Marine snow sinks down', 0.5, 0.46, 'small'),
+      this.tag('The sea floor', 0.3, 0.86, 'small'),
+    );
+  }
+
+  /** Two food chains: one starting with sunlight, one with the chemicals in vent water. */
+  private chemoPic(labels: boolean, scale: number): HTMLElement {
+    const top: ChainLink[] = ['sun', 'plankton', 'smallfish'];
+    const bottom: ChainLink[] = ['chemicals', 'bacteria', 'tubeworm'];
+    const a = paintChain(120, 40, top);
+    const b = paintChain(120, 40, bottom);
+    return h(
+      'div',
+      { class: 'odd-row odd-chemo' },
+      h(
+        'div',
+        { class: 'odd-sky' },
+        pix('chain-sun3', () => a.buf, scale, 'A food chain that starts with sunlight'),
+        ...top.map((l, i) => this.tag(LINK_NAME[l], a.xs[i], 0.8, 'small')),
+        ...(labels ? [this.tag('Starts with sunlight', 0.5, 0.02, 'small')] : []),
+      ),
+      h(
+        'div',
+        { class: 'odd-sky odd-dark' },
+        pix('chain-vent3', () => b.buf, scale, 'A food chain at a hot vent, starting with chemicals'),
+        ...bottom.map((l, i) => this.tag(LINK_NAME[l], b.xs[i], 0.8, 'small')),
+        ...(labels ? [this.tag('Starts with chemicals', 0.5, 0.02, 'small')] : []),
+      ),
+    );
+  }
+
+  /** The deepest trench, with Mount Everest standing on its floor and the deepest fish. */
+  private depthPic(scale: number): HTMLElement {
+    const { buf, everestTop, fish } = paintDepthBar(64, 96);
+    return h(
+      'div',
+      { class: 'odd-sky odd-tall' },
+      pix('depthbar', () => buf, scale, 'The deepest trench, with Mount Everest standing on its floor, and the deepest fish ever seen'),
+      this.tag('The surface', 0.5, 0.01, 'small'),
+      this.tag('Top of Everest', 0.3, Math.max(0.06, everestTop - 0.07), 'small'),
+      this.tag('Deepest fish', 0.78, fish - 0.08, 'small'),
+      this.tag('About 11,000 m', 0.5, 0.9, 'small'),
+    );
   }
 
   private zoneChart(mark: Zone | null, labels: boolean, scale = 2.2): HTMLElement {
@@ -959,6 +1201,9 @@ export class Game {
           this.tag(`At ${q.pic.k === 'dials' && q.pic.depth !== 200 ? q.pic.depth : 200} meters`, 0.5, 0.02, 'small'),
         ),
       );
+    else if (q.model === 'chemo' && q.pic.k !== 'chemo') show(this.chemoPic(true, 1.5));
+    else if (q.model === 'snow' && q.pic.k !== 'snow') show(this.snowPic(1.6));
+    else if (q.model === 'everest' && q.pic.k !== 'depthbar') show(this.depthPic(1.6));
     else if (q.model === 'card' && q.pic.k === 'animal') {
       const a = ANIMALS[q.pic.id];
       pnl.model.hidden = false;
@@ -1112,12 +1357,12 @@ export class Game {
     this.persist();
     this.updateMarkers();
     audio.levelUp();
-    toast(`${info.name} is on the zone chart! ${this.save.done.length} of 3`, 'reward');
+    toast(`${info.name} is on the zone chart! ${this.save.done.length} of ${PARTS.length}`, 'reward');
     await this.talk.say(lani, info.done, 'proud');
     this.talk.end();
     this.renderHud();
     if (this.allDone) {
-      await this.talk.say(this.speakers.tala, 'Wow, you have done it all! Come and see me by the campfire.', 'proud');
+      await this.talk.say(this.speakers.tala, 'Wow, you have done it all! Come and see me by the campfire. Then Dr. Lani has one more dive for you.', 'proud');
       this.talk.end();
     }
     this.mode = 'world';
@@ -1153,7 +1398,7 @@ export class Game {
         h(
           'h3',
           { class: 'odd-guide-head' },
-          pix(`badge-${z}-${this.save.done.includes(z as Station)}`, () => paintZoneBadge(z, this.save.done.includes(z as Station)), 2),
+          pix(`badge-${z}-${this.zoneLit(z)}`, () => paintZoneBadge(z, this.zoneLit(z)), 2),
           h('span', { text: `${ZONE_INFO[z].name} (${ZONE_INFO[z].depth}): ${got} of ${list.length}` }),
         ),
         h('div', { class: 'odd-guide-grid' }, ...list.map(card)),
@@ -1187,13 +1432,19 @@ export class Game {
         { class: 'content' },
         ...section('sunlight'),
         ...section('twilight'),
-        h('h3', { class: 'odd-guide-head', text: 'Deeper down' }),
-        h('p', { class: 'odd-guide-soon', text: 'The midnight zone and the deep sea floor come with the next expeditions.' }),
+        ...section('midnight'),
+        ...section('vents'),
+        ...section('trench'),
         h('h3', { class: 'odd-guide-head', text: `My creatures: ${this.save.creatures.length} of ${MAX_CREATURES}` }),
         creatures,
       ),
     );
     const modal = new Modal(this.host, root);
+  }
+
+  /** A zone's badge is lit when its expedition is done (the trench: when the Trench Dive is done). */
+  private zoneLit(z: Zone): boolean {
+    return z === 'trench' ? this.save.trenchDone : this.save.done.includes(z);
   }
 
   /** Read a field guide card again (from the guide). */
@@ -1231,12 +1482,11 @@ export class Game {
     const sv = this.save;
     const n = sv.done.length;
     this.badgeEl.replaceChildren(
-      pix(`badge-sunlight-${sv.done.includes('sunlight')}`, () => paintZoneBadge('sunlight', sv.done.includes('sunlight')), 2),
-      pix(`badge-twilight-${sv.done.includes('twilight')}`, () => paintZoneBadge('twilight', sv.done.includes('twilight')), 2),
+      ...STATIONS.map((st) => pix(`badge-${st}-${sv.done.includes(st)}`, () => paintZoneBadge(st, sv.done.includes(st)), 2)),
       pix(`designer-${sv.done.includes('designer')}`, () => paintDesignerIcon(sv.done.includes('designer')), 1.4),
-      h('span', { class: 'odd-badge-text', text: `${n} of 3 · Photos ${sv.photos.length}/${ANIMAL_ORDER.length}` }),
+      h('span', { class: 'odd-badge-text', text: `${n} of ${PARTS.length} · Photos ${sv.photos.length}/${ANIMAL_ORDER.length}` }),
     );
-    this.badgeEl.setAttribute('aria-label', `${n} of 3 done. ${sv.photos.length} of ${ANIMAL_ORDER.length} photos in the field guide.`);
+    this.badgeEl.setAttribute('aria-label', `${n} of ${PARTS.length} done. ${sv.photos.length} of ${ANIMAL_ORDER.length} photos in the field guide.`);
     const away = this.mode === 'dive';
     for (const id of ['jobs', 'guide']) {
       const b = this.toolbar.button(id);
@@ -1256,13 +1506,13 @@ export class Game {
     const rows = PARTS.map((p) => {
       const done = sv.done.includes(p);
       const isZone = p !== 'designer';
-      const open = p === 'sunlight' || (p === 'twilight' && sv.done.includes('sunlight')) || (p === 'designer' && sv.dived.includes('sunlight'));
+      const open = p === 'designer' ? sv.dived.includes('sunlight') : this.isOpen(p);
       const status = done
         ? 'Done!'
         : !open
-          ? p === 'twilight'
-            ? 'Opens after the sunlight zone.'
-            : 'Opens after your first dive.'
+          ? p === 'designer'
+            ? 'Opens after your first dive.'
+            : `Opens after ${PART_NAME[STATIONS[STATIONS.indexOf(p) - 1]].toLowerCase()}.`
           : isZone
             ? sv.dived.includes(p as Station)
               ? `Photos done. Logbook: ${sv.stars[p as Station]} of 5 stars.`
@@ -1291,9 +1541,25 @@ export class Game {
         h('p', {
           class: 'small-note',
           style: 'margin:0 0 10px',
-          text: 'Each expedition is a dive with photos, then the logbook with Dr. Lani: 5 stars finishes it. A star is for getting it right the first time. The Creature Designer is finished when all four challenges are met.',
+          text: `Each expedition is a dive with photos, then the logbook with Dr. Lani: 5 stars finishes it. A star is for getting it right the first time. The Creature Designer is finished when all ${CHALLENGES.length} challenges are met. Then comes the Trench Dive.`,
         }),
-        h('ul', { class: 'belt-list' }, ...rows),
+        h(
+          'ul',
+          { class: 'belt-list' },
+          ...rows,
+          h(
+            'li',
+            { class: `belt-row${this.trenchReady ? '' : ' soon'}` },
+            pix(`badge-trench-${sv.trenchDone}-${this.trenchReady}`, () => paintZoneBadge('trench', sv.trenchDone, this.trenchReady), 2),
+            h(
+              'div',
+              { class: 'belt-info' },
+              h('strong', { text: TRENCH.name }),
+              h('span', { text: sv.trenchDone ? 'Done! Dive again any time.' : this.trenchReady ? 'Ready! See Dr. Lani on the dock.' : 'Opens when everything above is done.' }),
+            ),
+            h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo('lani') }),
+          ),
+        ),
       ),
     );
     const modal = new Modal(this.host, root);
@@ -1368,27 +1634,45 @@ export class Game {
       'bright-hide': 'thinking a bright fish hides well from below',
       'pressure-push': 'thinking deep animals push the water away',
       'one-best': 'thinking one creature design is best everywhere',
+      'glow-lava': 'thinking the deep glow comes from lava',
+      'glow-hot': 'thinking living light is hot',
+      'sun-deep': 'thinking sunlight reaches the deep sea',
+      'snow-up': 'thinking marine snow floats back up',
+      'lights-hide-dark': 'thinking lights hide an animal in total darkness',
+      'no-hunters': 'thinking there are no hunters in the deep',
+      'chemo-sun': 'thinking life at hot vents runs on sunlight',
+      'crab-plant': 'thinking a vent crab is a plant',
+      'deep-empty': 'thinking the deep sea floor has no life',
+      'shark-myth': 'believing sharks smell blood from miles away',
+      'trench-depth': 'mixing up how deep the trenches are',
     };
-    const rows = [...STATIONS, 'designer' as const].map((s) => {
-      const rec = this.save.learner[s === 'designer' ? 'designer-talk' : s];
+    const rows = [...STATIONS, 'designer' as const, 'trench' as const].map((s) => {
+      const rec = this.save.learner[s === 'designer' ? 'designer-talk' : s === 'trench' ? 'trench-talk' : s];
       const mis = topMisconception(rec);
-      const name = s === 'designer' ? 'The Creature Designer (challenges and the talk-it-through question)' : `${EXPEDITIONS[s].name} (${EXPEDITIONS[s].skill.toLowerCase()})`;
-      const status = this.save.done.includes(s)
+      const name =
+        s === 'designer'
+          ? 'The Creature Designer (challenges and the talk-it-through question)'
+          : s === 'trench'
+            ? 'The Trench Dive (review questions on the way down)'
+            : `${EXPEDITIONS[s].name} (${EXPEDITIONS[s].skill.toLowerCase()})`;
+      const status = (s === 'trench' ? this.save.trenchDone : this.save.done.includes(s))
         ? 'Done'
-        : s === 'designer'
-          ? `${this.save.challenges.length} of ${CHALLENGES.length} challenges`
-          : this.save.dived.includes(s)
-            ? 'Dived; logbook in progress'
-            : rec
-              ? 'In progress'
-              : 'Not started';
+        : s === 'trench'
+          ? 'Not yet'
+          : s === 'designer'
+            ? `${this.save.challenges.length} of ${CHALLENGES.length} challenges`
+            : this.save.dived.includes(s)
+              ? 'Dived; logbook in progress'
+              : rec
+                ? 'In progress'
+                : 'Not started';
       return h(
         'tr',
         {},
         h('th', { scope: 'row', text: name }),
         h('td', { text: status }),
         h('td', { text: rec ? `${rec.correct} of ${rec.attempts} right first time` : '–' }),
-        h('td', { text: rec && s !== 'designer' ? `Level ${rec.tier}` : '–' }),
+        h('td', { text: rec && s !== 'designer' && s !== 'trench' ? `Level ${rec.tier}` : '–' }),
         h('td', { text: mis ? (WORDS[mis] ?? '–') : '–' }),
       );
     });
@@ -1396,7 +1680,7 @@ export class Game {
       'div',
       {},
       h('p', {
-        text: `This summary is kept only in this browser. Done: ${this.save.done.length} of 3. Field guide photos: ${this.save.photos.length} of ${ANIMAL_ORDER.length}. Creatures saved: ${this.save.creatures.length}.`,
+        text: `This summary is kept only in this browser. Done: ${this.save.done.length} of ${PARTS.length}${this.save.trenchDone ? ', and the Trench Dive' : ''}. Field guide photos: ${this.save.photos.length} of ${ANIMAL_ORDER.length}. Creatures saved: ${this.save.creatures.length}.`,
       }),
       h(
         'div',

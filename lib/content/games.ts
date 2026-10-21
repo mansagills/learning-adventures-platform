@@ -411,10 +411,11 @@ export const games: PlayableGame[] = [
     grades: '3–5',
     difficulty: 'medium',
     description:
-      'Dive down through the ocean layers and discover who lives there.',
-    skills: ['Ocean Zones', 'Marine Life'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/ocean-depth-diver.html',
+      'Join Dr. Lani Kahale and Finn the robot camera at a field camp by the sea. Steer the Little Nautilus down through the ocean’s layers, photograph the animals that live in each one, design your own sea creatures, take a sample at the hot vents, then dive all the way to the bottom of a trench.',
+    skills: ['Ocean Zones', 'Marine Life', 'Food Chains', 'Adaptations'],
+    estimatedTime: '30–45 min',
+    // Rebuilt with the Adventure Kit in the Wild Lands world (UX-4 Phase 2, Science)
+    htmlPath: '/games/play/ocean-depth-diver/index.html',
     thumbnail: '/games/thumbnails/ocean-depth-diver.jpg',
   },
   {

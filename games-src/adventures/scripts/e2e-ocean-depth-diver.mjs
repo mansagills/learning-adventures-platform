@@ -1,4 +1,4 @@
-// Browser check for Ocean Depth Diver (half 1): plays a new game from the
+// Browser check for Ocean Depth Diver (halves 1 and 2): plays a new game from the
 // title screen with real clicks and keys. Ranger Tala and Finn open the
 // story; the lab tent is still closed; the player clicks Dr. Lani, who sends
 // them on the first dive. In the sub they steer with the keys, photograph the
@@ -11,9 +11,16 @@
 // twilight dive: the headlamp comes on, three animals are photographed, the
 // lanternfish swim up at dusk and the sub follows them all the way, the camp
 // is at dusk on the way back, and the logbook finishes the twilight zone. A
-// twilight creature meets the last three challenges and the designer's
-// debrief. Ranger Tala says goodbye for this part. Then the field guide, the
-// grown-ups report, a reload, and the phone layout.
+// twilight creature meets three more challenges. Half 2: the midnight dive
+// (past 2,000 meters, three animals, the atolla's alarm, winched back up)
+// and its logbook; the sea floor dive (the hot vents on the bottom, three
+// animals and the water sample, with Finn's thermometer) and its logbook;
+// a midnight creature meets the last two challenges and the designer's
+// debrief. Ranger Tala sends the diver to the Trench Dive: five radio
+// questions at the bottom of each zone, the snailfish photo near 8,300
+// meters, the trench floor, and the Glow Show (which tells the site player
+// the game is complete). Then the field guide, the grown-ups report, a
+// reload, and the phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-ocean-depth-diver.mjs [url]
@@ -236,7 +243,10 @@ try {
   // the Creature Designer
   await page.keyboard.press('j');
   await wait(page, 300);
-  check('J opens the expedition list (twilight now open)', (await page.locator('.belt-row').count()) === 3 && (await page.locator('.belt-row.soon').count()) === 0);
+  check(
+    'J opens the expedition list (twilight now open, the deeper ones and the Trench Dive not yet)',
+    (await page.locator('.belt-row').count()) === 6 && (await page.locator('.belt-row.soon').count()) === 3,
+  );
   await page
     .locator('.belt-row')
     .nth(2)
@@ -338,22 +348,203 @@ try {
     s.challenges.join(','),
   );
   await page.screenshot({ path: `${OUT}/12-designer-twilight.png` });
+  check('the midnight zone is still locked for tests', (await page.locator('.odd-part.locked[data-zone="midnight"]').count()) === 1);
   await page.keyboard.press('Escape');
-  check('all four challenges start the designer’s debrief', await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30));
+  await wait(page, 400);
+  s = await st(page);
+  check('four of six challenges: the designer is not finished yet', s.mode === 'world' && !s.done.includes('designer'));
+
+  // half 2: the midnight dive
+  const deeper = async (re) => {
+    await page.evaluate(() => window.__odd.teleport(23.3, 9.6));
+    await wait(page, 300);
+    await page.keyboard.press('Space');
+    await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+    return choose(page, re);
+  };
+  check('Dr. Lani offers the midnight zone', await deeper(/dive deeper: the midnight zone/i));
+  const midIntro = await talkThrough(page);
+  check('she explains that no sunlight reaches the midnight zone', /No sunlight ever reaches it/.test(midIntro));
+  check('the midnight dive starts', await waitFor(page, async () => (await page.locator('.odd-dive-canvas').count()) > 0, 40));
+  let mid = 0;
+  for (const id of ['atolla', 'anglerfish']) if (await photograph(page, id)) mid++;
+  s = await st(page);
+  check(
+    'below 1,000 meters the dials say midnight zone, near freezing',
+    s.dive.depth > 1700 && /Midnight zone/.test(await page.locator('.odd-dials').innerText()) && /[2-4] °C/.test(await page.locator('.odd-dials').innerText()),
+  );
+  await page.screenshot({ path: `${OUT}/17-midnight.png` });
+  const eel = await page.evaluate(() => window.__odd.critter('gulpereel'));
+  await page.evaluate(([x, m]) => window.__odd.diveTo(x - 18, m), [eel.x, eel.m]);
+  await wait(page, 300);
+  await page.screenshot({ path: `${OUT}/18-gulper-eel.png` });
+  if (await photograph(page, 'gulpereel')) mid++;
+  check('three midnight animals photographed', mid === 3 && (await st(page)).photos.length === 12, `${mid}`);
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+  const winch = await talkThrough(page);
+  check('Finn says Dr. Lani is winching the sub back up', /winching/.test(winch));
+  check('back at camp, the midnight logbook opens', await waitFor(page, async () => (await page.locator('.odd-midnight.odd-panel').count()) > 0, 40));
+  await page.screenshot({ path: `${OUT}/19-midnight-logbook.png` });
+  await playLogbook(page);
+  s = await st(page);
+  check('five stars start the midnight debrief', s.stars.midnight === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
   await talkThrough(page);
   s = await st(page);
-  check('the Creature Designer is done: 3 of 3', s.done.length === 3 && s.done.includes('designer'));
+  check('the midnight zone is done', s.done.includes('midnight'));
+
+  // the deep sea floor and its hot vents
+  check('Dr. Lani offers the deep sea floor', await deeper(/dive deeper: the deep sea floor/i));
+  const ventIntro = await talkThrough(page);
+  check('she explains the hot vents (found in 1977)', /1977/.test(ventIntro));
+  check('the sea floor dive starts', await waitFor(page, async () => (await page.locator('.odd-dive-canvas').count()) > 0, 40));
+  let vents = 0;
+  for (const id of ['tubeworm', 'yeticrab']) if (await photograph(page, id)) vents++;
+  s = await st(page);
+  check('on the bottom, the dials say sea floor', s.dive.depth > 2450 && /Sea floor/.test(await page.locator('.odd-dials').innerText()), `${s.dive.depth}`);
+  await page.screenshot({ path: `${OUT}/20-hot-vents.png` });
+  if (await photograph(page, 'ventshrimp')) vents++;
+  check('three vent animals photographed', vents === 3 && (await st(page)).photos.length === 15, `${vents}`);
+  s = await st(page);
+  check('the dive is not over until the water sample is taken', s.mode === 'dive' && !s.dive.sample && !(await page.locator('.dialogue').count()));
+  const spot = await page.evaluate(() => window.__odd.sample());
+  await page.evaluate(([x, m]) => window.__odd.diveTo(x - 20, m + 2), [spot.x, spot.m]);
+  await wait(page, 300);
+  check('next to the chimney, Finn offers to take the sample', (await page.locator('.odd-photo').innerText()).includes('Sample'));
+  await page.screenshot({ path: `${OUT}/21-sample.png` });
+  await page.keyboard.press('Space');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+  const sample = await talkThrough(page);
+  check('Finn reads the thermometer: 360 °C, and it does not boil', /360 °C/.test(sample) && /doesn’t boil/.test(sample));
+  check('photos and sample done: winched back up, the logbook opens', await waitFor(page, async () => (await page.locator('.odd-vents.odd-panel').count()) > 0, 60));
+  s = await st(page);
+  await page.screenshot({ path: `${OUT}/22-vents-logbook.png` });
+  // a vent question shows its picture
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.evaluate(() => window.__odd.ask('vents', 'vent-which-chain'));
+  await wait(page, 400);
+  check('the vent food chain question shows two chains: sunlight and chemicals', (await page.locator('.odd-chemo .odd-sky').count()) === 2);
+  await page.screenshot({ path: `${OUT}/23-vent-chains.png` });
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.evaluate(() => window.__odd.open('vents'));
+  await wait(page, 400);
+  await playLogbook(page);
+  s = await st(page);
+  check('five stars start the sea floor debrief', s.stars.vents === 5 && (await page.locator('.dialogue').count()) > 0, JSON.stringify(s.stars));
+  await talkThrough(page);
+  s = await st(page);
+  check('the deep sea floor is done', s.done.includes('vents'));
+
+  // a midnight creature: a huge mouth, red skin and a round body
+  await page.evaluate(() => window.__odd.designer());
+  await waitFor(page, async () => (await page.locator('.odd-designer').count()) > 0, 30);
+  for (const [k, v] of [
+    ['body', 'round'],
+    ['eyes', 'small'],
+    ['skin', 'red'],
+    ['light', 'none'],
+    ['mouth', 'wide'],
+  ])
+    await page.locator(`.odd-part[data-part="${k}"][data-value="${v}"]`).click();
+  await page.locator('.odd-part[data-zone="midnight"]').click();
+  await page.getByRole('button', { name: /test dive/i }).click();
+  await wait(page, 400);
+  s = await st(page);
+  check('a red, round creature with a huge mouth thrives in the midnight zone', s.challenges.length === 6 && (await page.locator('.odd-summary.thrives').count()) === 1, s.challenges.join(','));
+  await page.screenshot({ path: `${OUT}/24-designer-midnight.png` });
+  await page.keyboard.press('Escape');
+  check('all six challenges start the designer’s debrief', await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30));
+  await talkThrough(page);
+  s = await st(page);
+  check('everything is done: 5 of 5', s.done.length === 5 && s.done.includes('designer'));
   await page.evaluate(() => window.__odd.teleport(13.4, 10.8));
   await wait(page, 300);
   await page.keyboard.press('Space');
   await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
   const bye = await talkThrough(page);
-  check('Ranger Tala celebrates and says the midnight zone comes next time', /midnight zone/.test(bye));
+  check('Ranger Tala celebrates and sends the diver to the Trench Dive', /Trench Dive/.test(bye));
+  // (talking it through picked her first choice, the field guide: close it)
+  if (await page.locator('.odd-guide').count()) await page.keyboard.press('Escape');
+  await wait(page, 300);
+
+  // the Trench Dive
+  await page.evaluate(() => window.addEventListener('message', (e) => (window.__msgs = [...(window.__msgs ?? []), e.data])));
+  await page.evaluate(() => window.__odd.teleport(23.3, 9.6));
+  await wait(page, 300);
+  await page.keyboard.press('Space');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+  check('Dr. Lani offers the Trench Dive', await choose(page, /trench dive/i));
+  const trIntro = await talkThrough(page);
+  check('she explains it goes almost 11,000 meters down', /11,000 meters/.test(trIntro));
+  check('the Trench Dive starts', await waitFor(page, async () => (await page.locator('.odd-dive-canvas').count()) > 0, 40));
+  let radio = 0;
+  let radioPic = false;
+  const answerRadio = async () => {
+    // the talk box: skip the lines, answer the question (the first try may be wrong; the ladder always ends right), then go on
+    for (let i = 0; i < 60 && (await page.locator('.dialogue').count()); i++) {
+      // (after the last one the Glow Show starts straight away: leave its lines to the check below)
+      if (await page.locator('.odd-glow').count()) break;
+      if (!radioPic && (await page.locator('.dialogue .choices button').count()) && (await page.locator('.odd-radio-pic').count())) {
+        radioPic = true;
+        await page.screenshot({ path: `${OUT}/25-trench-radio-question.png` });
+      }
+      const opt = page.locator('.dialogue .choices button:not([disabled])');
+      if (await opt.count()) await opt.first().click();
+      else await page.keyboard.press('Space');
+      await wait(page, 160);
+    }
+  };
+  const depths = [200, 1000, 4000, 6000];
+  for (const [i, m] of depths.entries()) {
+    await page.evaluate(([mm]) => window.__odd.diveTo(176, mm - 6), [m]);
+    await page.keyboard.down('ArrowDown');
+    const got = await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 60);
+    await page.keyboard.up('ArrowDown');
+    if (got) radio++;
+    if (i === 3) await page.screenshot({ path: `${OUT}/25-trench-radio.png` });
+    await answerRadio();
+    await wait(page, 200);
+  }
+  s = await st(page);
+  check('four radio questions on the way down (one at the bottom of each zone)', radio === 4 && s.dive.checkpoint === 4, `${radio} ${s.dive?.checkpoint}`);
+  check('each radio question shows its picture', radioPic);
+  await page.evaluate(() => window.__odd.diveTo(176, 7000));
+  await wait(page, 500);
+  await page.screenshot({ path: `${OUT}/26-trench-walls.png` });
+  // the bottom waits for the snailfish
+  await page.evaluate(() => window.__odd.diveTo(176, 10860));
+  await wait(page, 600);
+  s = await st(page);
+  check('the bottom waits for the snailfish photo', s.dive.checkpoint === 4 && !(await page.locator('.dialogue').count()));
+  check('Finn photographs the snailfish, the deepest fish ever seen', await photograph(page, 'snailfish'));
+  await page.screenshot({ path: `${OUT}/27-snailfish.png` });
+  await page.evaluate(() => window.__odd.diveTo(176, 10860));
+  await page.keyboard.down('ArrowDown');
+  const bottom = await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 60);
+  await page.keyboard.up('ArrowDown');
+  check('on the trench floor, the last radio question', bottom && /bottom/.test((await page.locator('.dialogue').textContent()) ?? ''));
+  await page.screenshot({ path: `${OUT}/28-trench-floor.png` });
+  await answerRadio();
+  check('the Glow Show opens back at camp', await waitFor(page, async () => (await page.locator('.odd-glow').count()) > 0, 60));
+  await wait(page, 600);
+  await page.screenshot({ path: `${OUT}/29-glow-show.png` });
+  const glow = await talkThrough(page);
+  check('the waves glow: living light from tiny plankton', /plankton/.test(glow) && /bioluminescence/.test(glow));
+  const msgs = await page.evaluate(() => window.__msgs ?? []);
+  check(
+    'the game tells the site player it is complete',
+    msgs.some((m) => m && m.type === 'game-complete'),
+  );
+  await page.getByRole('button', { name: /back to camp/i }).click();
+  await wait(page, 400);
+  s = await st(page);
+  check('back to the camp after the Glow Show', s.mode === 'world' && !(await page.locator('.odd-glow').count()));
 
   // the field guide and the grown-ups report
   await page.keyboard.press('b');
   await wait(page, 400);
-  check('B opens the field guide: 9 of 9 photos and the saved creature', (await page.locator('.odd-guide-card').count()) >= 10 && (await page.getByText('9 of 9').count()) > 0);
+  check('B opens the field guide: 16 of 16 photos and the saved creature', (await page.locator('.odd-guide-card').count()) >= 17 && (await page.getByText('16 of 16').count()) > 0);
   await page.screenshot({ path: `${OUT}/13-field-guide.png`, fullPage: false });
   await page.keyboard.press('Escape');
   await wait(page, 300);
@@ -366,7 +557,7 @@ try {
     await tab.first().click();
     await wait(page, 200);
   }
-  check('the grown-ups report lists both zones and the designer', (await page.locator('.progress-table tbody tr').count()) === 3);
+  check('the grown-ups report lists the four expeditions, the designer and the Trench Dive', (await page.locator('.progress-table tbody tr').count()) === 6);
   await page.screenshot({ path: `${OUT}/14-grownups.png` });
   await page.keyboard.press('Escape');
   await wait(page, 200);
@@ -377,7 +568,7 @@ try {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 500);
   s = await st(page);
-  check('a reload keeps the photos, stars, challenges and creatures', s.photos.length === 9 && s.done.length === 3 && s.creatures === 1);
+  check('a reload keeps the photos, stars, challenges and creatures', s.photos.length === 16 && s.done.length === 5 && s.creatures === 1);
 
   // the phone layout: the camp, and a dive
   const phone = await newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });

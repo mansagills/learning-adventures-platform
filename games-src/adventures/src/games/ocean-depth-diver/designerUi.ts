@@ -9,6 +9,7 @@ import { paintCreature } from './art';
 import { DESIGNER } from './content';
 import {
   CHALLENGES,
+  TEST_ZONES,
   CHECK_NAMES,
   creatureName,
   GRADE_WORDS,
@@ -29,8 +30,8 @@ import { pix } from './pix';
 export interface DesignerOptions {
   /** Challenges already met. */
   met: ChallengeId[];
-  /** Is the twilight zone open for test dives (after the twilight dive)? */
-  twilightOpen: boolean;
+  /** Zones open for test dives (each deep zone opens after its dive). */
+  openZones: TestZone[];
   /** How many creatures are already saved. */
   saved: number;
   maxSaved: number;
@@ -40,8 +41,8 @@ export interface DesignerOptions {
   onClose: () => void;
 }
 
-const ZONE_LABEL: Record<TestZone, string> = { sunlight: 'The sunny reef', twilight: 'The twilight zone' };
-const ZONE_DEPTH: Record<TestZone, number> = { sunlight: 27, twilight: 520 };
+const ZONE_LABEL: Record<TestZone, string> = { sunlight: 'The sunny reef', twilight: 'The twilight zone', midnight: 'The midnight zone' };
+const ZONE_DEPTH: Record<TestZone, number> = { sunlight: 27, twilight: 520, midnight: 1900 };
 
 /**
  * The lab tent's Creature Designer: pick a body, eyes, skin, lights and a
@@ -88,7 +89,7 @@ export function openDesigner(host: HTMLElement, o: DesignerOptions): Modal {
     const key = `cr-${PART_KEYS.map((k) => parts[k]).join('-')}`;
     const img = pix(key, () => paintCreature(parts, 3, 0, true), 1, `Your creature: ${describe(parts)}`);
     img.classList.add('odd-creature-img');
-    if (zone === 'twilight') img.classList.add('dim');
+    if (zone !== 'sunlight') img.classList.add(zone === 'twilight' ? 'dim' : 'dark');
     preview.style.backgroundImage = `url(${bg(zone)})`;
     preview.replaceChildren(img);
     nameEl.textContent = name;
@@ -128,8 +129,8 @@ export function openDesigner(host: HTMLElement, o: DesignerOptions): Modal {
   function renderZones(): void {
     zoneRow.replaceChildren(
       h('span', { class: 'odd-part-name', text: 'Test it in' }),
-      ...(['sunlight', 'twilight'] as TestZone[]).map((z) => {
-        const locked = z === 'twilight' && !o.twilightOpen;
+      ...TEST_ZONES.map((z) => {
+        const locked = !o.openZones.includes(z);
         return h(
           'button',
           {
@@ -140,7 +141,7 @@ export function openDesigner(host: HTMLElement, o: DesignerOptions): Modal {
             'data-zone': z,
             onclick: () => {
               if (locked) {
-                toast(DESIGNER.twilightLocked, 'hint');
+                toast(DESIGNER.locked[z], 'hint');
                 return;
               }
               zone = z;
@@ -160,14 +161,14 @@ export function openDesigner(host: HTMLElement, o: DesignerOptions): Modal {
   function renderChallenges(): void {
     challengeList.replaceChildren(
       ...CHALLENGES.map((c) => {
-        const locked = c.zone === 'twilight' && !o.twilightOpen;
+        const locked = !o.openZones.includes(c.zone);
         const done = met.has(c.id);
         const hint = h('span', { class: 'odd-ch-hint', hidden: true, text: c.hint });
         return h(
           'li',
           { class: `odd-ch${done ? ' done' : ''}${locked ? ' locked' : ''}`, 'data-ch': c.id },
           iconImg(done ? 'check' : locked ? 'lock' : 'starEmpty', '', 18),
-          h('span', { class: 'odd-ch-text' }, h('span', { text: locked ? `${c.text} (opens after the twilight dive)` : c.text }), hint),
+          h('span', { class: 'odd-ch-text' }, h('span', { text: locked ? `${c.text} (opens after the ${c.zone} dive)` : c.text }), hint),
           ...(!done && !locked
             ? [
                 h(

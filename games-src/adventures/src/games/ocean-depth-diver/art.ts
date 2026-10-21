@@ -1,6 +1,6 @@
 import { PixelBuffer } from '../../kit/art/pixel';
 import { Paint, hash, mixHex, ramp, type Ramp } from '../../kit/worlds/shade';
-import { WILD, paintClownfish, paintLanternfish, paintOctopus, paintRay, paintSub, paintTurtle } from '../../kit/worlds/wild-lands/art';
+import { WILD, paintAnglerfish, paintClownfish, paintLanternfish, paintOctopus, paintRay, paintSub, paintTurtle } from '../../kit/worlds/wild-lands/art';
 import type { AnimalId, Zone } from './animals';
 import type { Parts } from './designer';
 import type { ChainLink } from './problems';
@@ -11,7 +11,10 @@ import type { ChainLink } from './problems';
  * phytoplankton under Finn's microscope camera, seagrass and a coral head,
  * the Creature Designer's creatures (built from parts), and the question
  * pictures (the zone chart, food chains, the colors of light going down, a
- * fish seen from below, the sub's dials and the nightly trip).
+ * fish seen from below, the sub's dials and the nightly trip). Half 2 adds
+ * the deep animals (the atolla jelly, the gulper eel, the vent animals and
+ * the snailfish), the hot vent chimneys, and the deep question pictures
+ * (a vent, marine snow, food from chemicals and the depth bar).
  */
 
 // ------------------------------------------------------------------ animals
@@ -165,6 +168,191 @@ export function paintCoralHead(W: number, H: number): PixelBuffer {
   return p.toBuffer();
 }
 
+/** An atolla jelly: a deep red bell with a ring of blue lights that flash when it is touched (frames pulse; `alarm` lights the ring). */
+export function paintAtolla(s: number, frame = 0, alarm = false): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(16 * s), Math.round(14 * s));
+  const red = ramp('#a8243a');
+  const sq = frame % 2 ? 0.5 : 0;
+  p.ellipse(S(8), S(5), S(6.4 - sq), S(3.6 + sq * 0.4), red, { sep: true, form: 'sphere' });
+  // the dark red middle, and the frilly rim
+  p.ellipse(S(8), S(4.6), S(3), S(2), ramp('#5a0e20'), { form: 'flat', level: 2 });
+  for (let k = 0; k < 9; k++) p.pix(S(2 + k * 1.5), S(8 + (k % 2) * 0.6), '#7a1a2a');
+  // one long tentacle and some short ones
+  p.line(S(8), S(8), S(9 + Math.sin(frame) * 0.8), S(13.6), ramp('#d86a7a'), 1);
+  for (let k = 0; k < 5; k++) p.line(S(4 + k * 2), S(8.4), S(4 + k * 2 + Math.sin(k + frame) * 0.6), S(10.6), ramp('#8a2a3a'), 1);
+  // the ring of lights
+  for (let k = 0; k < 10; k++) {
+    const a = (k / 10) * Math.PI * 2;
+    p.pix(S(8) + Math.cos(a) * S(5.4), S(5.6) + Math.sin(a) * S(1.6), alarm ? '#7ad8ff' : '#3a2a4a');
+  }
+  return p.toBuffer();
+}
+
+/** A gulper eel: a huge loose mouth, a long thin body and a glowing tail tip (frames wave the tail). */
+export function paintGulperEel(s: number, frame = 0): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(32 * s), Math.round(14 * s));
+  const b = ramp('#2a2236');
+  // the long tail, waving
+  let lx = S(18);
+  let ly = S(6);
+  for (let i = 1; i <= 16; i++) {
+    const x = S(18 - i * 1.1);
+    const y = S(6 + Math.sin(i * 0.55 + frame * 0.9) * 1.6);
+    p.line(lx, ly, x, y, b, Math.max(1, Math.round(S(1.6 - i * 0.08))));
+    lx = x;
+    ly = y;
+  }
+  p.ellipse(lx, ly, S(0.9), S(0.9), ramp('#ff8ab0'), { form: 'flat', level: 4 });
+  // the giant mouth, like a pouch
+  p.poly(
+    [
+      [S(17), S(5)],
+      [S(31), S(1)],
+      [S(29), S(6)],
+      [S(31), S(12.6)],
+      [S(17), S(7.4)],
+    ],
+    b,
+    { sep: true },
+  );
+  p.poly(
+    [
+      [S(20), S(6)],
+      [S(29), S(4)],
+      [S(29), S(9)],
+    ],
+    ramp('#120c1a'),
+    { form: 'flat', level: 1 },
+  );
+  // a tiny eye near the front
+  p.pix(S(21.6), S(4), '#bfe0ff');
+  return p.toBuffer();
+}
+
+/** A clump of giant tube worms: white tubes with red plumes (frames sway). */
+export function paintTubeWorms(s: number, frame = 0): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(22 * s), Math.round(26 * s));
+  const tube = ramp('#e8e2d0');
+  const plume = ramp('#e0303a');
+  const worms: Array<[number, number]> = [
+    [4, 15],
+    [8, 21],
+    [12, 17],
+    [16, 23],
+    [19, 13],
+  ];
+  worms.forEach(([x, h], i) => {
+    const sway = Math.sin(frame * 0.7 + i) * 0.8;
+    p.capsule(S(x), p.h - 1, S(x + sway * 0.4), p.h - 1 - S(h - 3), S(1.4), tube, { sep: true });
+    p.ellipse(S(x + sway), p.h - 1 - S(h - 1.6), S(1.8), S(2.6), plume, { sep: true });
+  });
+  return p.toBuffer();
+}
+
+/** A yeti crab: a pale crab with long hairy arms (frames wave the arms). */
+export function paintYetiCrab(s: number, frame = 0): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(22 * s), Math.round(14 * s));
+  const shell = ramp('#e8e0d0');
+  const hair = ramp('#f6f0e0');
+  const wave = frame % 2 ? -1 : 1;
+  // legs
+  for (let k = 0; k < 3; k++) {
+    p.line(S(9 - k), S(9), S(5 - k * 2), S(13.4), shell, 1);
+    p.line(S(13 + k), S(9), S(17 + k * 2), S(13.4), shell, 1);
+  }
+  // the hairy arms, held up
+  for (const side of [-1, 1]) {
+    const x0 = S(11 + side * 3);
+    const x1 = S(11 + side * 8);
+    const y1 = S(2.4 + (side === 1 ? wave : -wave) * 0.6);
+    p.line(x0, S(7), x1, y1, shell, Math.max(1, Math.round(s)));
+    for (let t = 0.2; t <= 1; t += 0.12) {
+      const x = x0 + (x1 - x0) * t;
+      const y = S(7) + (y1 - S(7)) * t;
+      p.pix(x - 1, y - 1, hair[3]);
+      p.pix(x + 1, y + 1, hair[2]);
+    }
+  }
+  p.ellipse(S(11), S(8.4), S(4.4), S(2.8), shell, { sep: true, form: 'sphere' });
+  return p.toBuffer();
+}
+
+/** A vent shrimp: pale, with a shiny patch on its back instead of eyes (frames flick the legs). */
+export function paintVentShrimp(s: number, frame = 0): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(14 * s), Math.round(8 * s));
+  const b = ramp('#f0c8b0');
+  p.poly(
+    [
+      [S(2), S(4)],
+      [S(0), S(2)],
+      [S(0), S(6)],
+    ],
+    b,
+    {},
+  );
+  p.ellipse(S(7), S(4), S(5), S(2.2), b, { sep: true, form: 'sphere' });
+  p.ellipse(S(8), S(2.8), S(2), S(0.8), ramp('#f4f0ff'), { form: 'flat', level: 4 });
+  for (let k = 0; k < 4; k++) p.pix(S(5 + k * 1.4), S(6.4 + ((k + frame) % 2) * 0.6), '#c89a88');
+  p.line(S(11.6), S(3.4), S(13.8), S(1), ramp('#c89a88'), 1);
+  return p.toBuffer();
+}
+
+/** A snailfish: soft, pale pink and see-through, with a big head and a long tapering tail (frames wave the tail). */
+export function paintSnailfish(s: number, frame = 0): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(20 * s), Math.round(9 * s));
+  const b = ramp('#f2c8d0');
+  const t = Math.sin(frame * 0.9) * 0.8;
+  p.poly(
+    [
+      [S(10), S(2.4)],
+      [S(1), S(4 + t)],
+      [S(0), S(5 + t)],
+      [S(10), S(7.2)],
+    ],
+    b,
+    { sep: true },
+  );
+  p.ellipse(S(13.4), S(4.6), S(5.4), S(3.6), b, { sep: true, form: 'sphere' });
+  // see-through: a lighter middle
+  p.ellipse(S(12.4), S(5), S(2.6), S(1.6), ramp('#fbe8ec'), { form: 'flat', level: 3 });
+  p.ellipse(S(16.4), S(3.6), S(0.9), S(0.9), ramp('#2a1a2a'), { form: 'flat', level: 1 });
+  return p.toBuffer();
+}
+
+/**
+ * A hot vent chimney: a dark, knobbly tower of minerals with black "smoke"
+ * pouring out of the top (the frame rolls the plume). Shrimp crowd its sides.
+ */
+export function paintVentChimney(s: number, frame = 0, shrimp = true): PixelBuffer {
+  const S = (v: number) => v * s;
+  const p = new Paint(Math.round(20 * s), Math.round(44 * s));
+  const rock = ramp('#4a3a32');
+  const top = S(18);
+  for (let y = top; y < p.h; y++) {
+    const k = (y - top) / (p.h - top);
+    const w = S(2.6 + k * 5.4) + Math.round(hash(y, 1, 77) * 2);
+    for (let x = Math.round(S(10) - w); x <= S(10) + w; x++) p.dot(x, y, rock, x < S(10) - w * 0.3 ? 1 : x > S(10) + w * 0.5 ? 3 : 2);
+  }
+  // orange and yellow mineral streaks, warm near the top
+  for (let i = 0; i < 9; i++) p.dot(S(8 + hash(i, 2, 77) * 4), top + S(1 + hash(i, 3, 77) * 20), ramp(i % 3 ? '#c87a3a' : '#e8c04a'), 3);
+  // the black plume rising
+  for (let i = 0; i < 26; i++) {
+    const t = (i / 26 + frame * 0.07) % 1;
+    const y = top - t * S(17);
+    const x = S(10) + Math.sin(t * 6 + i) * S(1 + t * 4);
+    const r = S(1 + t * 2.6);
+    p.ellipse(x, y, r, r * 0.8, ramp(t < 0.25 ? '#3a2a24' : '#1a1418'), { form: 'flat', level: t < 0.5 ? 2 : 1 });
+  }
+  if (shrimp) for (let i = 0; i < 7; i++) p.dot(S(10 + (i % 2 ? 3.6 : -3.4) + hash(i, 4, 77)), top + S(5 + i * 2.6), ramp('#f0c8b0'), 3);
+  return p.toBuffer({ outline: false });
+}
+
 /** One animal as a sprite (for the dive and the field guide). */
 export function paintAnimal(id: AnimalId, s: number, frame = 0): PixelBuffer {
   switch (id) {
@@ -186,6 +374,20 @@ export function paintAnimal(id: AnimalId, s: number, frame = 0): PixelBuffer {
       return paintHatchetfish(s, frame);
     case 'combjelly':
       return paintCombJelly(s, frame);
+    case 'atolla':
+      return paintAtolla(s, frame);
+    case 'anglerfish':
+      return paintAnglerfish(s, frame);
+    case 'gulpereel':
+      return paintGulperEel(s, frame);
+    case 'tubeworm':
+      return paintTubeWorms(s, frame);
+    case 'yeticrab':
+      return paintYetiCrab(s, frame);
+    case 'ventshrimp':
+      return paintVentShrimp(s, frame);
+    case 'snailfish':
+      return paintSnailfish(s, frame);
   }
 }
 
@@ -194,6 +396,7 @@ const WATER: Record<Zone, [string, string]> = {
   twilight: ['#1a4a8e', '#0c1a40'],
   midnight: ['#070d24', '#02040a'],
   vents: ['#070d24', '#2a1a10'],
+  trench: ['#04060e', '#010205'],
 };
 
 /** A field guide card picture: the animal on a patch of its zone's water. */
@@ -208,7 +411,10 @@ export function paintAnimalCard(id: AnimalId, zone: Zone, W = 96, H = 64): Pixel
   const s = Math.min(1, (W - 6) / sp.w, (H - 6) / sp.h);
   const small = s < 1 ? shrink(sp, s) : sp;
   out.blit(small, Math.round((W - small.w) / 2), Math.round((H - small.h) / 2));
-  if (zone !== 'sunlight' && (id === 'lanternfish' || id === 'hatchetfish' || id === 'combjelly')) halo(out, W / 2, H / 2, Math.min(W, H) * 0.45, id === 'combjelly' ? '#c8a8ff' : '#7ff0ff', 0.25);
+  const glowCol: Partial<Record<AnimalId, string>> = { lanternfish: '#7ff0ff', hatchetfish: '#7ff0ff', combjelly: '#c8a8ff', anglerfish: '#d8ff8a', gulpereel: '#ff8ab0' };
+  if (zone !== 'sunlight' && glowCol[id]) halo(out, W / 2, H / 2, Math.min(W, H) * 0.45, glowCol[id]!, 0.25);
+  // deep animals are seen in the sub's lamp: a soft light on them
+  else if (zone !== 'sunlight' && zone !== 'twilight') halo(out, W / 2, H / 2, Math.min(W, H) * 0.5, '#5a7aa8', 0.22);
   return out;
 }
 
@@ -442,6 +648,37 @@ function chainSprite(l: ChainLink): PixelBuffer {
       return paintTurtle(1, 0);
     case 'lanternfish':
       return paintLanternfish(2, 0);
+    case 'snow': {
+      // marine snow: soft white flakes drifting down
+      const out = new PixelBuffer(22, 22);
+      for (let i = 0; i < 16; i++) {
+        const x = Math.round(2 + hash(i, 1, 9) * 18);
+        const y = Math.round(2 + hash(i, 2, 9) * 18);
+        out.set(x, y, '#f2f4ec');
+        if (i % 3 === 0) out.set(x + 1, y, '#c8d0d8');
+      }
+      return out;
+    }
+    case 'gulpereel':
+      return paintGulperEel(0.8, 0);
+    case 'chemicals': {
+      // a little vent chimney with its plume: the chemicals in hot vent water
+      return paintVentChimney(0.55, 2, false);
+    }
+    case 'bacteria': {
+      // tiny bacteria under a microscope: little rods and dots in a round view
+      const p = new Paint(22, 22);
+      p.ellipse(11, 11, 10, 10, ramp('#e8f0e0'), { sep: true, form: 'flat', level: 3 });
+      for (let i = 0; i < 9; i++) {
+        const x = 5 + hash(i, 1, 11) * 12;
+        const y = 5 + hash(i, 2, 11) * 12;
+        if (i % 2) p.capsule(x, y, x + 2.4, y + 1, 0.9, ramp('#d87a3a'), { form: 'flat', level: 2 });
+        else p.ellipse(x, y, 1, 1, ramp('#b85a8a'), { form: 'flat', level: 2 });
+      }
+      return p.toBuffer();
+    }
+    case 'tubeworm':
+      return paintTubeWorms(0.8, 0);
   }
 }
 
@@ -582,4 +819,133 @@ export function paintZoneBadge(z: Zone, lit: boolean, open = true): PixelBuffer 
 /** The Creature Designer's icon: a little fish built from parts. */
 export function paintDesignerIcon(lit: boolean): PixelBuffer {
   return paintCreature({ body: 'round', eyes: 'big', skin: lit ? 'bright' : 'silver', light: 'lure', mouth: 'wide' }, 0.6, 0, lit);
+}
+
+// ------------------------------------------------------------------ half 2 question pictures
+
+/** A hot vent on the dark sea floor: a smoking chimney, giant tube worms, a yeti crab and shrimp, seen in the sub's lights. */
+export function paintVentScene(W: number, H: number): PixelBuffer {
+  const out = new PixelBuffer(W, H);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      // the sub's lights from the left, fading into the black
+      const l = Math.max(0, 1 - Math.hypot(x - W * 0.15, y - H * 0.35) / (W * 0.9));
+      out.set(x, y, mixHex('#02040a', '#1a3050', l * ((x + y) % 2 ? 0.85 : 1)));
+    }
+  const floorY = (x: number) => Math.round(H * 0.82 + Math.sin(x / 9) * 1.5 + Math.sin(x / 3.1) * 0.6);
+  for (let x = 0; x < W; x++) for (let y = floorY(x); y < H; y++) out.set(x, y, y === floorY(x) ? '#a89c88' : (x + y) % 3 ? '#4a4038' : '#3a322c');
+  const put = (b: PixelBuffer, cx: number) => out.blit(b, Math.round(cx - b.w / 2), floorY(Math.round(cx)) - b.h + 1);
+  put(paintVentChimney(1.6, 3), W * 0.5);
+  put(paintVentChimney(1, 5, false), W * 0.84);
+  put(paintTubeWorms(1.1, 0), W * 0.27);
+  put(paintYetiCrab(1, 0), W * 0.68);
+  return out;
+}
+
+/**
+ * Marine snow: bits of dead plankton and waste drifting down from the busy,
+ * sunlit top, through the dark, all the way to the sea floor.
+ */
+export function paintSnowFall(W: number, H: number): PixelBuffer {
+  const out = new PixelBuffer(W, H);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const k = y / H;
+      out.set(x, y, k < 0.18 ? mixHex('#5ad8e6', '#2a9ad0', k / 0.18) : mixHex('#1a4a8e', '#02040a', Math.min(1, ((k - 0.18) / 0.6) ** 0.7)));
+    }
+  for (let x = 0; x < W; x++) {
+    out.set(x, 0, '#ffffff');
+    for (let y = Math.round(H * 0.9); y < H; y++) out.set(x, y, y === Math.round(H * 0.9) ? '#8a8070' : '#4a4038');
+  }
+  // the busy top: plankton specks
+  for (let i = 0; i < 30; i++) out.set(Math.round(hash(i, 1, 51) * W), Math.round(2 + hash(i, 2, 51) * H * 0.14), i % 4 ? '#6ad05a' : '#e8d870');
+  // the snow, getting sparser on the way down
+  for (let i = 0; i < 90; i++) {
+    const y = Math.round(H * (0.14 + hash(i, 3, 51) ** 1.3 * 0.75));
+    const x = Math.round(hash(i, 4, 51) * W);
+    out.set(x, y, '#f2f4ec');
+    if (i % 3 === 0) out.set(x, y + 1, '#a8b0b8');
+  }
+  // a sea cucumber on the floor, eating what lands
+  const p = new Paint(18, 7);
+  p.ellipse(9, 4, 8, 2.6, ramp('#c87a8a'), { sep: true, form: 'sphere' });
+  out.blit(p.toBuffer(), Math.round(W * 0.66), Math.round(H * 0.9) - 6);
+  return out;
+}
+
+/**
+ * How deep the deepest trench is: a slice of the ocean from the surface to
+ * the trench floor (about 11,000 meters), with Mount Everest standing on the
+ * floor (its top still about 2,000 meters under the waves) and a mark where
+ * the deepest fish was seen (8,336 meters). Returns where the marks are (0-1).
+ */
+export function paintDepthBar(W: number, H: number): { buf: PixelBuffer; everestTop: number; fish: number } {
+  const out = new PixelBuffer(W, H);
+  const yOf = (m: number) => Math.round(2 + (m / 11000) * (H - 4));
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const m = ((y - 2) / (H - 4)) * 11000;
+      out.set(x, y, y < 2 ? '#cfeef6' : m < 200 ? '#5ad8e6' : m < 1000 ? '#1f5aa0' : m < 4000 ? '#0a1438' : '#04060e');
+    }
+  for (let x = 0; x < W; x++) out.set(x, 2, '#ffffff');
+  // the trench walls (narrowing down) and the floor
+  for (let y = yOf(6000); y < H; y++) {
+    const k = (y - yOf(6000)) / (H - yOf(6000));
+    const hw = W * (0.36 - 0.16 * k);
+    for (let x = 0; x < W; x++) if (Math.abs(x - W * 0.5) > hw) out.set(x, y, (x + y) % 2 ? '#4a3a32' : '#3a2e28');
+  }
+  for (let x = 0; x < W; x++) out.set(x, H - 1, '#4a3a32');
+  // Mount Everest, standing on the trench floor
+  const top = yOf(11000 - 8849);
+  for (let y = top; y < H - 1; y++) {
+    const half = ((y - top) / (H - 1 - top)) * W * 0.16;
+    for (let x = Math.round(W * 0.42 - half); x <= W * 0.42 + half; x++) out.set(x, y, y - top < 4 ? '#f2f4ec' : x < W * 0.42 ? '#8a7a6a' : '#6a5a4a');
+  }
+  // the deepest fish ever seen
+  const fy = yOf(8336);
+  out.blit(paintSnailfish(0.7, 0), Math.round(W * 0.66), fy - 3);
+  return { buf: out, everestTop: top / H, fish: fy / H };
+}
+
+/**
+ * The Glow Show: the camp's beach at night, with stars and the Moon, the
+ * dark rainforest behind, and waves whose crests glow bright blue where tiny
+ * plankton flash as the water moves (frames roll the waves in).
+ */
+export function paintGlowBay(W: number, H: number, frame = 0): PixelBuffer {
+  const out = new PixelBuffer(W, H);
+  const sky = Math.round(H * 0.42);
+  const shore = (x: number) => Math.round(H * 0.8 + Math.sin(x / 23) * 2);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      if (y < sky) out.set(x, y, mixHex('#0a0c2a', '#1a2050', y / sky));
+      else if (y < shore(x)) out.set(x, y, mixHex('#0a1638', '#050a1c', (y - sky) / (H * 0.4)));
+      else out.set(x, y, (x + y) % 3 ? '#3a3430' : '#2e2a26');
+    }
+  // stars and the Moon, and its path on the water
+  for (let i = 0; i < 40; i++) out.set(Math.round(hash(i, 1, 71) * W), Math.round(hash(i, 2, 71) * sky * 0.8), (i + frame) % 7 ? '#d8e0ff' : '#ffffff');
+  const moon = new Paint(12, 12);
+  moon.ellipse(6, 6, 5, 5, ramp('#f2ecd8'), { sep: true });
+  out.blit(moon.toBuffer(), Math.round(W * 0.78), Math.round(sky * 0.18));
+  for (let y = sky + 2; y < H * 0.78; y += 2) for (let k = -3; k <= 3; k++) if (hash(k, y, 72) > 0.5) out.set(Math.round(W * 0.8 + k * 2 + Math.sin(y) * 2), y, '#5a6a9a');
+  // the dark rainforest on the far shore (left)
+  for (let x = 0; x < W * 0.45; x++) {
+    const top = Math.round(sky - 6 - Math.abs(Math.sin(x / 7)) * 8 - (x < W * 0.2 ? 6 : 0) + (x / W) * 18);
+    for (let y = Math.max(0, top); y < sky + 2; y++) out.set(x, y, '#060a14');
+  }
+  // the waves: rows that roll toward the shore, each crest glowing blue
+  for (let row = 0; row < 5; row++) {
+    const t = (row + frame / 4) / 5;
+    const y0 = Math.round(sky + 6 + t * (H * 0.8 - sky - 8));
+    const bright = 0.35 + t * 0.65;
+    for (let x = 0; x < W; x++) {
+      const yy = y0 + Math.round(Math.sin(x / 9 + row * 2 + frame * 0.5) * 1.5);
+      if (hash(x >> 1, row, 73) < 0.15 + t * 0.2) continue;
+      out.set(x, yy, mixHex('#0a1638', '#7af0ff', bright));
+      if (t > 0.5) out.set(x, yy + 1, mixHex('#0a1638', '#3ac8ff', bright * 0.7));
+    }
+  }
+  // glowing wet sand where the last wave just washed up
+  for (let x = 0; x < W; x++) if (hash(x, frame, 74) < 0.3) out.set(x, shore(x), '#4ab8e8');
+  return out;
 }
