@@ -205,6 +205,21 @@ export const games: PlayableGame[] = [
     htmlPath: '/games/play/equation-balance-scale/index.html',
     thumbnail: '/games/thumbnails/equation-balance-scale.jpg',
   },
+  {
+    slug: 'decimal-warp-mission',
+    title: 'Decimal Warp Mission',
+    subject: 'math',
+    kind: 'activity',
+    grades: '4–6',
+    difficulty: 'medium',
+    description:
+      'Fly a starship through hyperspace sectors to master decimals. Read place values, line up decimal points to add and subtract, then finish with a practice mission.',
+    skills: ['Decimal Place Value', 'Adding Decimals', 'Subtracting Decimals'],
+    estimatedTime: '15–20 min',
+    // A partner game (React + Tailwind) hosted as built. Source: games-src/decimal-warp-mission/ (npm run game:decimal:build)
+    htmlPath: '/games/decimal-warp-mission/index.html',
+    thumbnail: '/games/thumbnails/decimal-warp-mission.jpg',
+  },
 
   // ── Science ─────────────────────────────────────────────────────────────
   {
