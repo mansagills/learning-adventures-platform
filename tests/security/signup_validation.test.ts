@@ -65,6 +65,27 @@ describe('Signup API Security Validation', () => {
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 
+  it('should block signup with subdomain of learningadventures.org (Subdomain Bypass Prevention)', async () => {
+    const req = new NextRequest('http://localhost:3000/api/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Attacker',
+        email: 'attacker@subdomain.learningadventures.org',
+        password: 'password123',
+        role: 'STUDENT',
+      }),
+    });
+
+    (prisma.user.findUnique as any).mockResolvedValue(null);
+
+    const res = await POST(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(403);
+    expect(data.error).toContain('learningadventures.org');
+    expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
   it('should block signup with short password (Password Policy)', async () => {
     const req = new NextRequest('http://localhost:3000/api/auth/signup', {
       method: 'POST',
