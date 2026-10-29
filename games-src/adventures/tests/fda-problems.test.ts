@@ -1,7 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
 import { FOSSIL_IDS } from '../src/kit/worlds/wild-lands/dig-art';
-import { dig, digDone, gridName, hidden, layerCards, layerWhy, newDig, rightLayer, rightSlot, slotWhy, sniff } from '../src/games/fossil-dig-adventure/dig-logic';
+import {
+  dig,
+  digDone,
+  gridName,
+  hidden,
+  hipHeightCm,
+  layerCards,
+  layerWhy,
+  newDig,
+  newPrep,
+  prepDone,
+  prepRightTool,
+  prepUse,
+  rightLayer,
+  rightSlot,
+  sayLength,
+  slotWhy,
+  sniff,
+  TRACK,
+} from '../src/games/fossil-dig-adventure/dig-logic';
+import { trackwayLayout } from '../src/kit/worlds/wild-lands/dig-views';
 import { CLIFF_FINDS, DRAWER_ORDER, FOSSILS, LAYERS, QUARRY_FINDS } from '../src/games/fossil-dig-adventure/fossils';
 import { bank, makeQuestion, STATIONS, TIERS } from '../src/games/fossil-dig-adventure/problems';
 
@@ -139,5 +159,84 @@ describe('the Cliff Wall puzzles', () => {
     expect(rightLayer('mammoth-tusk', 'river')).toBe(false);
     expect(layerWhy('mammoth-tusk', 'sea')).toMatch(/Ice Age/);
     expect(layerWhy('fern', 'today')).toMatch(/too young/);
+  });
+});
+
+describe('half 2: the Prep Lab and the Trackway', () => {
+  it('has the four stations in order, with questions at every level', () => {
+    expect(STATIONS).toEqual(['quarry', 'cliff', 'lab', 'trackway']);
+    for (const s of ['lab', 'trackway'] as const) expect(bank(s).length).toBe(18);
+    const all = STATIONS.flatMap((s) => bank(s));
+    const find = (id: string) => all.find((d) => d.id === id)!;
+    expect(find('l-elephant').right).toMatch(/elephant/);
+    expect(find('l-birds').right).toMatch(/living dinosaurs/);
+    expect(find('l-pterosaur').right).toMatch(/[Ff]lying reptiles/);
+    expect(find('l-raptor').right).toMatch(/turkey/);
+    expect(find('t-crossing').right).toMatch(/three-toed/);
+    expect(find('t-pebble').right).toMatch(/farther apart/);
+  });
+
+  it('uses the hip rule the same way in every question', () => {
+    expect(hipHeightCm(50)).toBe(200);
+    expect(hipHeightCm(25)).toBe(100);
+    expect(hipHeightCm(TRACK.printCm)).toBe(160);
+    expect(sayLength(200)).toBe('2 meters');
+    expect(sayLength(100)).toBe('1 meter');
+    expect(sayLength(160)).toBe('1.6 meters');
+    expect(sayLength(40)).toBe('40 centimeters');
+    expect(TRACK.runStepM).toBeGreaterThan(TRACK.walkStepM);
+    expect(TRACK.pebbleRunCm).toBeGreaterThan(TRACK.pebbleWalkCm);
+  });
+
+  it('cleans a fossil on the prep bench: the chisel for rock, the brush near the bone and on it, glue for cracks', () => {
+    // a 5 x 3 bench with a bone across the middle row
+    const mask = [false, false, false, false, false, false, true, true, true, false, false, false, false, false, false];
+    const p = newPrep(mask, 5, 3, mulberry32(1), 1);
+    expect(p.cells.filter((c) => c.kind === 'bone').length).toBe(3);
+    expect(p.cells[0].kind).toBe('rock');
+    expect(p.cells[1].kind).toBe('near');
+    expect(p.cells.filter((c) => c.cracked).length).toBe(1);
+    expect(prepUse(p, 0, 'brush').k).toBe('too-slow');
+    expect(prepUse(p, 0, 'chisel').k).toBe('cleared');
+    // the chisel next to the bone clears the rock but cracks the bone
+    const r = prepUse(p, 1, 'chisel');
+    expect(r.k).toBe('cracked');
+    expect(p.accidents).toBe(1);
+    expect(prepUse(p, 2, 'brush').k).toBe('cleared');
+    // the chisel on the bone itself cracks it
+    expect(prepUse(p, 6, 'chisel').k).toBe('cracked');
+    // play the rest with the right tools: it finishes, every crack glued
+    for (let guard = 0; guard < 200 && !prepDone(p); guard++) {
+      const i = p.cells.findIndex((c) => prepRightTool(c));
+      prepUse(p, i, prepRightTool(p.cells[i])!);
+    }
+    expect(prepDone(p)).toBe(true);
+    expect(p.cells.every((c) => !c.covered && !c.cracked)).toBe(true);
+    expect(prepUse(p, 0, 'glue').k).toBe('no-crack');
+  });
+
+  it('places the trackway’s prints walking, then running', () => {
+    const t = trackwayLayout(240, 140);
+    expect(t.three.length).toBeGreaterThanOrEqual(7);
+    const gap = (k: number) => t.three[k + 1].heel[0] - t.three[k].heel[0];
+    expect(gap(5)).toBeGreaterThan(gap(1) * 1.5);
+    expect(t.pawRun[1][0] - t.pawRun[0][0]).toBeGreaterThan(t.pawWalk[1][0] - t.pawWalk[0][0]);
+    for (const p of t.three) expect(p.toe[0]).toBeGreaterThan(p.heel[0]);
+  });
+});
+
+describe('the prep bench’s air chisel', () => {
+  it('clears the plain rock round a square, but never rock touching the fossil', () => {
+    // a 5 x 5 bench with one bone square in the middle
+    const mask = Array.from({ length: 25 }, (_, i) => i === 12);
+    const p = newPrep(mask, 5, 5, mulberry32(2), 0);
+    expect(prepUse(p, 0, 'chisel').k).toBe('cleared');
+    expect(p.cells[1].covered).toBe(false);
+    expect(p.cells[5].covered).toBe(false);
+    // square 6 is plain rock; its neighbours 7 and 11 touch the bone and stay covered
+    expect(prepUse(p, 6, 'chisel').k).toBe('cleared');
+    expect(p.cells[7].covered).toBe(true);
+    expect(p.cells[11].covered).toBe(true);
+    expect(p.accidents).toBe(0);
   });
 });

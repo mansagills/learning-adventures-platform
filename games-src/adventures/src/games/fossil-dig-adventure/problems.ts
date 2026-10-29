@@ -2,8 +2,8 @@
  * Fossil Dig Adventure: the science, as data and pure functions (no drawing,
  * no timers) so every rule can be unit tested.
  *
- * Each station ends at a logbook of questions at three levels. Half 1 has
- * two stations:
+ * Each station ends at a logbook of questions at three levels. There are
+ * four stations:
  *   The Quarry (Dr. Mateo Ruiz): what a fossil is and how it forms
  *     1. what counts as a fossil, hard parts last, the brush near a bone,
  *        people and dinosaurs never met, quick burial, Pebble's find
@@ -22,6 +22,21 @@
  *     3. a fault is younger than what it cuts, the layers came before the
  *        canyon, a gap where rock was worn away, the land changed, where to
  *        look for dinosaurs, today's mud goes on top (4-ESS1-1, 4-ESS2-1)
+ *   The Prep Lab (Sam Bello): what fossils tell about life long ago
+ *     1. living cousins (mammoth and elephant, ammonite and nautilus,
+ *        trilobite and horseshoe crab, ferns), gentle tools, glue
+ *     2. teeth tell what it ate, sea shells on a hill, ferns in the cold,
+ *        what fossil poop holds, big bones (3-LS4-1, 4-LS1-1)
+ *     3. extinct means gone forever, birds are living dinosaurs,
+ *        pterosaurs were not dinosaurs, trace fossils, the real size of
+ *        Velociraptor, bone turned to stone
+ *   The Trackway (Ranger Tala and Pebble): footprints as clues
+ *     1. three toes or round feet, bigger prints, one line, soft mud,
+ *        Pebble walking and running
+ *     2. longer steps mean running, groups, 10 times longer, footprints are
+ *        trace fossils, speeding up, which way it went
+ *     3. hip height is about 4 times the print, prints on top came later,
+ *        the age of the rock, young ones in a herd (3-LS4-1, 4-ESS1-1)
  *
  * Every wrong answer names the real mistake behind it (a misconception tag)
  * and carries one plain sentence that explains it without giving the
@@ -34,8 +49,8 @@
 import type { FossilId } from '../../kit/worlds/wild-lands/dig-art';
 import type { LayerId } from './fossils';
 
-export type Station = 'quarry' | 'cliff';
-export const STATIONS: Station[] = ['quarry', 'cliff'];
+export type Station = 'quarry' | 'cliff' | 'lab' | 'trackway';
+export const STATIONS: Station[] = ['quarry', 'cliff', 'lab', 'trackway'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -62,7 +77,17 @@ export type Misconception =
   | 'thick-old' // thinks a thicker layer is older
   | 'fault-older' // thinks a crack is older than the layers it cuts
   | 'canyon-first' // thinks the canyon formed before the layers
-  | 'gap-missing'; // does not see that layers can be worn away, leaving a gap
+  | 'gap-missing' // does not see that layers can be worn away, leaving a gap
+  | 'relative-mixup' // picked the wrong living cousin
+  | 'birds-not-dinos' // thinks birds are not related to dinosaurs
+  | 'raptor-huge' // thinks Velociraptor was huge, as in films
+  | 'big-old' // thinks a bigger print or bone means an older animal
+  | 'far-walk' // thinks prints far apart mean walking slowly
+  | 'toes-mixup' // misreads the toes of a print
+  | 'group-random' // misreads one trackway or many
+  | 'crossing-order' // thinks a print on top came first
+  | 'measure-mixup' // adds or subtracts instead of comparing
+  | 'hip-rule'; // misuses the hip height rule (4 times the print)
 
 /** What the panel shows above the question (the words in the question match it). */
 export type Pic =
@@ -77,10 +102,26 @@ export type Pic =
   /** The cliff's layers up close, with one layer (or the crack) marked. */
   | { k: 'cliff'; mark: LayerId | 'fault' | null }
   /** Two cliffs far apart, with the same ammonite layer in each. */
-  | { k: 'match' };
+  | { k: 'match' }
+  /** A fossil next to its living cousin (or look-alike). */
+  | { k: 'relative'; id: FossilId }
+  /** A meat eater's knife tooth, or a plant eater's rows of teeth. */
+  | { k: 'teeth'; kind: 'sharp' | 'flat' }
+  /** A fossil in its rock on Sam's prep bench, half cleaned. */
+  | { k: 'prep' }
+  /** The young Triceratops skeleton. */
+  | { k: 'skeleton' }
+  /** The trackway slab from above. */
+  | { k: 'tracks' }
+  /** A three-toed print and a big round print, side by side. */
+  | { k: 'prints' }
+  /** Pebble's prints walking (close) and running (far apart). */
+  | { k: 'stride' }
+  /** A dinosaur side on, with its footprint and its hip height. */
+  | { k: 'hip' };
 
 /** The picture model that hint 2 adds (or that changes the picture itself). */
-export type Model = 'form' | 'cliff' | 'tools' | 'card' | 'match' | 'stack';
+export type Model = 'form' | 'cliff' | 'tools' | 'card' | 'match' | 'stack' | 'relative' | 'teeth' | 'tracks' | 'prints' | 'stride' | 'hip';
 
 export interface Choice {
   value: string;
@@ -638,7 +679,529 @@ const CLIFF: QDef[] = [
   },
 ];
 
-const BANKS: Record<Station, QDef[]> = { quarry: QUARRY, cliff: CLIFF };
+// ------------------------------------------------------------------ the Prep Lab (Sam)
+
+const rel = (id: FossilId): Pic => ({ k: 'relative', id });
+
+const LAB: QDef[] = [
+  // level 1
+  {
+    id: 'l-elephant',
+    tier: 1,
+    ask: 'This tusk came from a woolly mammoth. Mammoths are gone now. Which animal alive today is its closest cousin?',
+    right: 'The elephant',
+    wrong: [
+      ['The walrus', 'relative-mixup', 'Walruses have tusks too, but they are sea mammals, not close cousins of mammoths.'],
+      ['The rhinoceros', 'relative-mixup', 'A rhino has horns, not tusks. It is only a distant relative.'],
+    ],
+    explain: 'Mammoths and elephants are close cousins: big ears, a trunk and long tusks. Mammoths also had thick fur for the cold.',
+    hints: ['Look for an animal with a trunk and long tusks.', 'Put the tusk next to living animals. Which one has the same tusks and trunk?'],
+    pic: rel('mammoth-tusk'),
+    model: 'relative',
+  },
+  {
+    id: 'l-nautilus',
+    tier: 1,
+    ask: 'This ammonite had a coiled shell with rooms inside. Which animal alive today has a shell like that?',
+    right: 'The nautilus',
+    wrong: [
+      ['The garden snail', 'relative-mixup', 'A snail shell is coiled, but it has no rooms inside, and snails are a different group.'],
+      ['The crab', 'relative-mixup', 'A crab has a hard shell, but it is not coiled.'],
+    ],
+    explain: 'The nautilus lives in the sea today. Its coiled shell has rooms inside, just like an ammonite’s.',
+    hints: ['Look for a coiled shell with rooms inside it.', 'The nautilus is a cousin of the squid and the octopus, like the ammonite was.'],
+    pic: rel('ammonite'),
+    model: 'relative',
+  },
+  {
+    id: 'l-horseshoe',
+    tier: 1,
+    ask: 'Trilobites crawled on the sea floor long ago. They are extinct now. Which animal alive today looks a lot like one?',
+    right: 'The horseshoe crab',
+    wrong: [
+      ['The ladybug', 'relative-mixup', 'A ladybug is a small insect with wings. It does not crawl on the sea floor.'],
+      ['The goldfish', 'all-dinosaurs', 'A fish has fins and a backbone. A trilobite had a hard shell in parts, and legs.'],
+    ],
+    explain: 'Horseshoe crabs crawl on the sea floor with a hard, curved shell, a lot like trilobites did.',
+    hints: ['Look for a sea animal with a hard, curved shell and legs underneath.', 'Put the fossil next to the living animal. Which shape is the same?'],
+    pic: rel('trilobite'),
+    model: 'relative',
+  },
+  {
+    id: 'l-fern',
+    tier: 1,
+    ask: 'This fern leaf turned to stone 300 million years ago. Ferns still grow today. What does it tell us?',
+    right: 'Ferns have lived on Earth for a very long time',
+    wrong: [
+      ['Ferns only grew long ago', 'extinct-hiding', 'Ferns still grow in forests today.'],
+      ['It is a seaweed', 'rock-env', 'This came from a swamp forest on land, not from the sea.'],
+    ],
+    explain: 'Some kinds of living things, like ferns, have lasted for hundreds of millions of years.',
+    hints: ['Look at the fossil leaf and the fern alive today. Are they alike?', 'Ferns grew in the old swamp forests, and they still grow in shady forests now.'],
+    pic: rel('fern'),
+    model: 'relative',
+  },
+  {
+    id: 'l-clean',
+    tier: 1,
+    ask: 'Sam cleans fossils in the Prep Lab. Rock is stuck right next to the bone. Which tool does Sam use there?',
+    right: 'A soft brush and great care',
+    wrong: [
+      ['A big hammer', 'rough-tools', 'A hammer could crack the bone into pieces.'],
+      ['The fastest tool there is', 'rough-tools', 'Fast tools are for rock far from the bone. Next to it, slow is safe.'],
+    ],
+    explain: 'Away from the bone, a tiny air chisel takes off rock. Right next to it, a soft brush keeps it safe.',
+    hints: ['The bone is right there. Which tool is the gentlest?', 'Strong tools far away, gentle tools up close.'],
+    pic: { k: 'prep' },
+    model: 'tools',
+  },
+  {
+    id: 'l-glue',
+    tier: 1,
+    ask: 'A fossil can have old cracks from being buried. Sam finds a crack in this bone. What does Sam do?',
+    right: 'Fill the crack with glue so it holds together',
+    wrong: [
+      ['Throw the fossil away', 'wrong-reason', 'A cracked fossil is still a great find. It can be fixed.'],
+      ['Paint over the crack to hide it', 'wrong-reason', 'Paint would only hide it. The crack could still break.'],
+    ],
+    explain: 'Preparators fill cracks with special glue, so the fossil stays in one piece.',
+    hints: ['How do you mend something cracked so it does not break?', 'Glue holds the pieces together. That keeps the fossil safe for years.'],
+    pic: { k: 'prep' },
+    model: 'tools',
+  },
+  // level 2
+  {
+    id: 'l-sharp-teeth',
+    tier: 2,
+    ask: 'This tooth is long and pointed, with jagged edges like a steak knife. What did its owner eat?',
+    right: 'Meat',
+    wrong: [
+      ['Leaves', 'diet-mixup', 'Plant eaters have flat or chopping teeth, not knife teeth.'],
+      ['Nothing at all', 'wrong-reason', 'Every animal needs food. Its teeth show which food.'],
+    ],
+    explain: 'Sharp, jagged teeth slice meat. This is a T. rex tooth, from a meat eater.',
+    hints: ['What would a knife-shaped tooth be good at?', 'Sharp teeth cut meat. Flat teeth grind or chop plants.'],
+    pic: { k: 'teeth', kind: 'sharp' },
+    model: 'teeth',
+  },
+  {
+    id: 'l-flat-teeth',
+    tier: 2,
+    ask: 'Triceratops had rows of teeth that sliced like scissors, and a sharp beak in front. What did it eat?',
+    right: 'Tough plants',
+    wrong: [
+      ['Other dinosaurs', 'diet-mixup', 'Meat eaters had pointed, knife teeth, not rows of slicing teeth.'],
+      ['Only water', 'wrong-reason', 'Animals need food as well as water.'],
+    ],
+    explain: 'A beak to snip and rows of scissor teeth to slice: perfect for tough plants.',
+    hints: ['A beak snips. Rows of scissor teeth slice. What is tough and needs lots of slicing?', 'Put the two kinds of teeth side by side: knife teeth and plant teeth.'],
+    pic: { k: 'teeth', kind: 'flat' },
+    model: 'teeth',
+  },
+  {
+    id: 'l-sea-hill',
+    tier: 2,
+    ask: 'Hana found sea shells high on a dry hill, far from any ocean. What do the shells tell us?',
+    right: 'A sea once covered this place',
+    wrong: [
+      ['Birds dropped the shells there', 'sea-carried', 'The shells are inside the rock, all through it. Birds could not put them there.'],
+      ['The shells grew on the hill', 'rock-env', 'Sea shells only grow in water.'],
+    ],
+    explain: 'Fossils show what a place was like. Sea animals mean that the land was once under the sea.',
+    hints: ['Where do shelled sea animals live?', 'The rock with the shells formed under water. Later the land rose.'],
+    pic: fossil('ammonite'),
+    model: 'card',
+  },
+  {
+    id: 'l-fern-cold',
+    tier: 2,
+    ask: 'Fern fossils were found in a frozen place near the North Pole. Ferns like warm, wet places. What does that tell us?',
+    right: 'That place was once warm',
+    wrong: [
+      ['Ferns love snow', 'rock-env', 'These ferns needed warm, wet weather to grow.'],
+      ['The wind blew them there', 'sea-carried', 'They are inside the rock, where they grew and were buried.'],
+    ],
+    explain: 'Fossils tell us about past climates. Long ago, that frozen place was warm enough for ferns.',
+    hints: ['Where do ferns grow best?', 'If ferns grew there, the weather there was once warm and wet.'],
+    pic: fossil('fern'),
+    model: 'card',
+  },
+  {
+    id: 'l-coprolite',
+    tier: 2,
+    ask: 'Sam cuts open a coprolite, fossil poop. Inside are tiny bits of crushed bone. What did the animal eat?',
+    right: 'Other animals',
+    wrong: [
+      ['Only plants', 'diet-mixup', 'Plant eaters do not swallow bone.'],
+      ['Rocks', 'wrong-reason', 'The bits are bone, not rock. They came from its food.'],
+    ],
+    explain: 'What is inside fossil poop shows what an animal ate. Bone bits mean a meat eater.',
+    hints: ['Where would bone in poop come from?', 'An animal’s poop holds bits of its food.'],
+    pic: fossil('coprolite'),
+    model: 'card',
+  },
+  {
+    id: 'l-big-bone',
+    tier: 2,
+    ask: 'This leg bone is as tall as a grown-up. What does it tell us about the animal?',
+    right: 'It was a very big animal',
+    wrong: [
+      ['It was very old when it died', 'big-old', 'Bone size tells how big the animal was, not how old.'],
+      ['It could fly', 'wrong-reason', 'Heavy, thick bones are for holding up a big body on the ground.'],
+    ],
+    explain: 'Bigger bones mean a bigger animal. Scientists use bone size to work out how big a dinosaur was.',
+    hints: ['How long is your own leg bone? And this one?', 'A bigger body needs bigger bones to hold it up.'],
+    pic: { k: 'skeleton' },
+    model: 'card',
+  },
+  // level 3
+  {
+    id: 'l-extinct',
+    tier: 3,
+    ask: 'Triceratops is extinct. What does extinct mean?',
+    right: 'Gone forever: none are alive anywhere',
+    wrong: [
+      ['Hiding deep in a jungle', 'extinct-hiding', 'People have searched the whole Earth. No Triceratops is alive.'],
+      ['Asleep under the ground', 'extinct-hiding', 'The bones are fossils. The animals died out about 66 million years ago.'],
+    ],
+    explain: 'Extinct means a kind of living thing is gone forever. Fossils are how we know it lived.',
+    hints: ['Can anyone find a living Triceratops today?', 'When the last one died, the kind was gone for good.'],
+    pic: { k: 'skeleton' },
+    model: 'card',
+  },
+  {
+    id: 'l-birds',
+    tier: 3,
+    ask: 'Birds have feathers and a wishbone. Many dinosaur fossils show feathers and a wishbone too. What does that tell scientists?',
+    right: 'Birds are living dinosaurs',
+    wrong: [
+      ['Birds and dinosaurs are not related', 'birds-not-dinos', 'Shared feathers and wishbones are clues that they are family.'],
+      ['Feathers turn into scales', 'wrong-reason', 'The fossils show feathers, kept as feathers.'],
+    ],
+    explain: 'Birds came from small feathered dinosaurs. So the sparrow outside is a living dinosaur!',
+    hints: ['What do the two have in common?', 'Living things that share many body parts are often family.'],
+    pic: fossil('raptor-claw'),
+    model: 'card',
+  },
+  {
+    id: 'l-pterosaur',
+    tier: 3,
+    ask: 'Pterosaurs flew over the dinosaurs on wings of skin. They were reptiles, but they were not dinosaurs. What were they?',
+    right: 'Flying reptiles',
+    wrong: [
+      ['Flying dinosaurs', 'all-dinosaurs', 'They lived at the same time, but they were a different group of reptiles.'],
+      ['Big birds', 'birds-not-dinos', 'Birds have feathers. Pterosaurs had wings of skin.'],
+    ],
+    explain: 'Pterosaurs were flying reptiles, close cousins of the dinosaurs but not dinosaurs.',
+    hints: ['Read it again: reptiles, but not dinosaurs.', 'Not every animal from long ago was a dinosaur. Mammoths and trilobites were not either.'],
+    pic: fossil('pterosaur-bone'),
+    model: 'card',
+  },
+  {
+    id: 'l-trace',
+    tier: 3,
+    ask: 'A footprint, a burrow and fossil poop are not body parts. Scientists still call them fossils. Why?',
+    right: 'They are signs left by living things long ago',
+    wrong: [
+      ['They are not really fossils', 'trace-not-fossil', 'Scientists call them trace fossils. They count.'],
+      ['They are made of bone', 'real-bone', 'A footprint has no bone in it. It is a mark in stone.'],
+    ],
+    explain: 'Trace fossils show what an animal did: walked, dug or ate. They count as fossils too.',
+    hints: ['What did the animal leave behind?', 'Body fossils are parts of the body. Trace fossils are signs of what it did.'],
+    pic: fossil('burrow'),
+    model: 'card',
+  },
+  {
+    id: 'l-raptor',
+    tier: 3,
+    ask: 'In films, raptors are as tall as people. Real Velociraptor fossils show a much smaller animal. How big was it?',
+    right: 'About the size of a turkey',
+    wrong: [
+      ['As big as a bus', 'raptor-huge', 'The bones are small. A bus is far too big.'],
+      ['As tall as a house', 'raptor-huge', 'Films made raptors big. The fossils tell the true size.'],
+    ],
+    explain: 'Fossils tell the truth about size. Velociraptor was turkey-sized, with feathers.',
+    hints: ['Who do we trust: a film, or the fossil bones?', 'The claw is about as long as your finger.'],
+    pic: fossil('raptor-claw'),
+    model: 'card',
+  },
+  {
+    id: 'l-stone',
+    tier: 3,
+    ask: 'Sam taps the bone. It is heavy and hard, like a rock. Over millions of years, minerals took the place of the bone. What is it made of now?',
+    right: 'Stone, in the shape of the bone',
+    wrong: [
+      ['The same bone, just old', 'real-bone', 'The minerals slowly took the place of the bone.'],
+      ['Plastic, made by people', 'rock-fossil', 'It formed in the ground, long before any people.'],
+    ],
+    explain: 'Most fossils are stone copies: minerals filled and replaced the bone, keeping its shape.',
+    hints: ['Why does it feel like a rock?', 'Look at the steps: the bone is buried, then minerals turn it to stone.'],
+    pic: fossil('trike-horn'),
+    model: 'form',
+  },
+];
+
+// ------------------------------------------------------------------ the Trackway (Ranger Tala and Pebble)
+
+const TRACKWAY: QDef[] = [
+  // level 1
+  {
+    id: 't-three-toes',
+    tier: 1,
+    ask: 'These prints have three long, pointed toes, like a bird’s. What kind of dinosaur made them?',
+    right: 'One that walked on two legs',
+    wrong: [
+      ['One with four round feet', 'toes-mixup', 'Four round feet leave big round prints, not three pointed toes.'],
+      ['A fish', 'all-dinosaurs', 'Fish have fins, not feet with toes.'],
+    ],
+    explain: 'Three-toed prints come from dinosaurs that walked on two legs, like T. rex and its cousins.',
+    hints: ['Which animals today have three pointed toes?', 'Birds walk on two legs with three-toed feet, like their dinosaur family.'],
+    pic: { k: 'prints' },
+    model: 'prints',
+  },
+  {
+    id: 't-round',
+    tier: 1,
+    ask: 'These prints are big and round, with short, blunt toes. What made them?',
+    right: 'A heavy plant eater on four legs',
+    wrong: [
+      ['A small bird', 'toes-mixup', 'Small birds leave small three-toed prints.'],
+      ['Raindrops', 'rock-fossil', 'Raindrops leave tiny dents, not big feet in a row.'],
+    ],
+    explain: 'Big round prints come from heavy four-legged plant eaters.',
+    hints: ['Big round feet hold up a heavy body.', 'Compare the two prints: pointed toes, and big round feet.'],
+    pic: { k: 'prints' },
+    model: 'prints',
+  },
+  {
+    id: 't-bigger',
+    tier: 1,
+    ask: 'One print is twice as long as another. What does a bigger print tell us?',
+    right: 'A bigger animal made it',
+    wrong: [
+      ['An older animal made it', 'big-old', 'Size shows how big the animal was, not when it lived.'],
+      ['It rained harder that day', 'wrong-reason', 'Rain does not make feet bigger.'],
+    ],
+    explain: 'Bigger feet belong to bigger animals.',
+    hints: ['Think of your shoe and a grown-up’s shoe.', 'Big bodies need big feet.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+  {
+    id: 't-line',
+    tier: 1,
+    ask: 'These prints go in one line: left, right, left, right. What made them?',
+    right: 'One animal walking',
+    wrong: [
+      ['A big group all at once', 'group-random', 'A group would leave many lines of prints side by side.'],
+      ['Animals jumping around', 'wrong-reason', 'Jumping leaves pairs of prints, not left, right, left, right.'],
+    ],
+    explain: 'One line of left and right prints is one animal walking.',
+    hints: ['How many feet made these prints, and how many lines are there?', 'You leave left, right, left, right when you walk.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+  {
+    id: 't-mud',
+    tier: 1,
+    ask: 'Feet only sink into soft ground. Where did dinosaurs leave the best prints?',
+    right: 'In soft mud by the water',
+    wrong: [
+      ['On hard, dry rock', 'buried-needed', 'Feet do not sink into hard rock, so no print is left.'],
+      ['In flowing water', 'buried-needed', 'Moving water washes prints away.'],
+    ],
+    explain: 'Prints form in soft mud. Then the mud dries, gets buried, and slowly turns to stone.',
+    hints: ['Where do your shoes leave deep prints?', 'The slab was once mud on a river bank.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+  {
+    id: 't-pebble',
+    tier: 1,
+    ask: 'Pebble walks across the creek mud, then runs. How do Pebble’s prints change when running?',
+    right: 'They are farther apart',
+    wrong: [
+      ['They are closer together', 'far-walk', 'Short steps are for walking. Running takes long steps.'],
+      ['They get bigger', 'big-old', 'Pebble’s paws stay the same size.'],
+    ],
+    explain: 'Running takes longer steps, so the prints are farther apart.',
+    hints: ['Try it: take walking steps, then running steps. Which are longer?', 'Look at Pebble’s prints in the mud: on the left walking, on the right running.'],
+    pic: { k: 'stride' },
+    model: 'stride',
+  },
+  // level 2
+  {
+    id: 't-speed-up',
+    tier: 2,
+    ask: 'On the slab, the dinosaur’s prints get farther and farther apart. What was it doing?',
+    right: 'Speeding up to a run',
+    wrong: [
+      ['Slowing down to a stop', 'far-walk', 'Slowing down makes the steps shorter, not longer.'],
+      ['Getting smaller', 'wrong-reason', 'The prints stay the same size.'],
+    ],
+    explain: 'Longer steps mean it sped up. It may have been chasing something, or running away!',
+    hints: ['Compare with Pebble’s prints. When were Pebble’s far apart?', 'Long steps mean running.'],
+    pic: { k: 'tracks' },
+    model: 'stride',
+  },
+  {
+    id: 't-group',
+    tier: 2,
+    ask: 'Twenty trackways go the same way, side by side, all on the same day. What does that tell us?',
+    right: 'A group travelled together',
+    wrong: [
+      ['One animal walked back and forth', 'group-random', 'Back and forth would point both ways. These all go one way.'],
+      ['The prints are from different millions of years', 'crossing-order', 'They are in the same layer of mud, made at the same time.'],
+    ],
+    explain: 'Many trackways side by side, going one way, show animals travelling in a herd or pack.',
+    hints: ['Which way do all the toes point?', 'One line is one animal. Many lines side by side are many animals.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+  {
+    id: 't-ten-times',
+    tier: 2,
+    ask: 'A dinosaur print is 40 centimeters long. Pebble’s paw print is 4 centimeters. How many times longer is the dinosaur’s print?',
+    right: '10 times longer',
+    wrong: [
+      ['4 times longer', 'measure-mixup', 'Check: 4 times 4 is only 16.'],
+      ['36 times longer', 'measure-mixup', 'That is how many centimeters longer, 40 take away 4. The question asks how many times.'],
+    ],
+    explain: '4 times 10 is 40, so the dinosaur’s print is 10 times as long as Pebble’s.',
+    hints: ['How many 4s make 40?', 'Count by 4s: 4, 8, 12 ... all the way to 40.'],
+    pic: { k: 'stride' },
+    model: 'tracks',
+  },
+  {
+    id: 't-footprint-fossil',
+    tier: 2,
+    ask: 'A footprint is not part of the dinosaur’s body. It is a mark it left in mud that turned to stone. Is it a fossil?',
+    right: 'Yes, a trace fossil',
+    wrong: [
+      ['No, only bones are fossils', 'trace-not-fossil', 'Signs that animals left, like prints, count as trace fossils.'],
+      ['No, it is just a rock', 'rock-fossil', 'It is rock, but its shape was made by a living animal.'],
+    ],
+    explain: 'Footprints are trace fossils. They show how an animal moved.',
+    hints: ['What made the shape in the stone?', 'Fossils are remains of living things, or signs they left.'],
+    pic: fossil('footprint'),
+    model: 'card',
+  },
+  {
+    id: 't-steps',
+    tier: 2,
+    ask: 'At first the prints are 1 meter apart. Later they are 3 meters apart. Did the animal speed up or slow down?',
+    right: 'It sped up',
+    wrong: [
+      ['It slowed down', 'far-walk', 'Steps got longer, and longer steps mean faster.'],
+      ['It stayed the same speed', 'wrong-reason', 'The steps changed, so the speed changed.'],
+    ],
+    explain: 'From 1 meter to 3 meters apart: longer steps, so it sped up.',
+    hints: ['Which is longer, 1 meter or 3 meters?', 'Long steps mean running.'],
+    pic: { k: 'tracks' },
+    model: 'stride',
+  },
+  {
+    id: 't-direction',
+    tier: 2,
+    ask: 'The toes of every print point to the right. Which way was the dinosaur going?',
+    right: 'To the right',
+    wrong: [
+      ['To the left', 'toes-mixup', 'Toes point the way an animal walks. The heel is behind.'],
+      ['Round in a circle', 'wrong-reason', 'The prints go in a straight line.'],
+    ],
+    explain: 'Toes point forward, so the prints show which way the animal walked.',
+    hints: ['Look at your own feet. Which way do your toes point when you walk?', 'Heel behind, toes in front.'],
+    pic: { k: 'tracks' },
+    model: 'prints',
+  },
+  // level 3
+  {
+    id: 't-hip-50',
+    tier: 3,
+    ask: 'Scientists use a rule: the hip height is about 4 times the footprint’s length. A print is 50 centimeters long. About how high were the hips?',
+    right: 'About 2 meters',
+    wrong: [
+      ['About 50 centimeters', 'hip-rule', 'That is the print. The hips are about 4 times higher.'],
+      ['About 54 centimeters', 'hip-rule', 'That adds 4. The rule says 4 times.'],
+    ],
+    explain: '50 × 4 = 200 centimeters, which is 2 meters. That is taller than a grown-up!',
+    hints: ['What is 50 times 4?', '200 centimeters is the same as 2 meters.'],
+    pic: { k: 'hip' },
+    model: 'hip',
+  },
+  {
+    id: 't-hip-25',
+    tier: 3,
+    ask: 'The rule: hip height is about 4 times the footprint’s length. A print is 25 centimeters long. About how high were the hips?',
+    right: 'About 1 meter',
+    wrong: [
+      ['About 29 centimeters', 'hip-rule', 'That adds 4. The rule says 4 times.'],
+      ['About 4 meters', 'hip-rule', 'That would need a print 100 centimeters long.'],
+    ],
+    explain: '25 × 4 = 100 centimeters, which is 1 meter: about as high as a grown-up’s hips.',
+    hints: ['What is 25 times 4?', '100 centimeters is 1 meter.'],
+    pic: { k: 'hip' },
+    model: 'hip',
+  },
+  {
+    id: 't-hip-compare',
+    tier: 3,
+    ask: 'A print is 30 centimeters long. Using the rule of 4 times, its hips were about 120 centimeters high. A grown-up’s hips are about 100 centimeters high. Whose are higher?',
+    right: 'The dinosaur’s',
+    wrong: [
+      ['The grown-up’s', 'measure-mixup', 'Which is bigger, 120 or 100?'],
+      ['They are the same', 'measure-mixup', '120 and 100 are not the same.'],
+    ],
+    explain: '120 centimeters is more than 100, so the dinosaur’s hips were a little higher than a grown-up’s.',
+    hints: ['Compare 120 and 100.', 'The bigger number is the higher hip.'],
+    pic: { k: 'hip' },
+    model: 'hip',
+  },
+  {
+    id: 't-crossing',
+    tier: 3,
+    ask: 'The round prints are pressed on top of the three-toed prints. Which animal walked here first?',
+    right: 'The three-toed one',
+    wrong: [
+      ['The round-footed one', 'crossing-order', 'A print on top was pressed in later, over the older one.'],
+      ['Both at the very same moment', 'crossing-order', 'One print squashed the other, so one came first.'],
+    ],
+    explain: 'Like layers, a print on top came later. The three-toed dinosaur walked by first.',
+    hints: ['Which print is squashed by the other?', 'It is like the cliff: what is on top came later.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+  {
+    id: 't-which-time',
+    tier: 3,
+    ask: 'The trackway is in rock about 70 million years old. Which animal could have made it?',
+    right: 'A dinosaur',
+    wrong: [
+      ['A woolly mammoth', 'layers-random', 'Mammoths lived in the Ice Age, millions of years later.'],
+      ['A person', 'people-dinos', 'People came along about 66 million years after the last big dinosaurs.'],
+    ],
+    explain: 'Rock 70 million years old is from the time of the dinosaurs, the same layer as the quarry.',
+    hints: ['Which layer of the cliff is about 70 million years old?', 'Mammoths and people are in much younger layers, or none at all.'],
+    pic: cliff('river'),
+    model: 'cliff',
+  },
+  {
+    id: 't-young',
+    tier: 3,
+    ask: 'In a group’s tracks, some prints are much smaller than the rest. They go the same way, on the same day. What might that mean?',
+    right: 'Young ones travelled with the adults',
+    wrong: [
+      ['The small prints are much older', 'big-old', 'They are in the same mud, made the same day.'],
+      ['Small prints were made by the wind', 'rock-fossil', 'Wind does not make toes and heels.'],
+    ],
+    explain: 'Small prints walking with big ones suggest that young dinosaurs stayed with the group.',
+    hints: ['Who has smaller feet: a baby or a grown-up?', 'Same day, same way: they were walking together.'],
+    pic: { k: 'tracks' },
+    model: 'tracks',
+  },
+];
+
+const BANKS: Record<Station, QDef[]> = { quarry: QUARRY, cliff: CLIFF, lab: LAB, trackway: TRACKWAY };
 
 export type Rand = () => number;
 

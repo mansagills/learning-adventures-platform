@@ -345,10 +345,12 @@ export const games: PlayableGame[] = [
     kind: 'game',
     grades: '3–5',
     difficulty: 'medium',
-    description: 'Excavate a dig site and uncover dinosaur mysteries.',
-    skills: ['Fossils', 'Paleontology'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/fossil-dig-adventure.html',
+    description:
+      'Join Dr. Mateo Ruiz and Pebble the sniffer dog at a fossil dig in the badlands. Dig with the right tools, read the rock layers of a tall cliff, clean your finds in the Prep Lab, measure real dinosaur footprints, then put a Triceratops back together for Museum Night.',
+    skills: ['Fossils', 'Rock Layers', 'Paleontology', 'Footprints'],
+    estimatedTime: '30–45 min',
+    // Rebuilt with the Adventure Kit in the Wild Lands world (UX-4 Phase 2, Science)
+    htmlPath: '/games/play/fossil-dig-adventure/index.html',
     thumbnail: '/games/thumbnails/fossil-dig-adventure.jpg',
   },
   {

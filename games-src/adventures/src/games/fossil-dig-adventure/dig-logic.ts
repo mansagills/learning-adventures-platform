@@ -192,3 +192,182 @@ export function layerWhy(id: FossilId, layer: LayerId): string {
   if (f.layer === 'ice') return 'Mammoths lived in the Ice Age, long after the dinosaurs. Which layer is that?';
   return `A ${f.name.toLowerCase()} comes from the time of the dinosaurs. Which layer has dinosaur bones?`;
 }
+
+// ------------------------------------------------------------------ the Prep Lab's bench
+
+/**
+ * Sam's prep bench: a fossil still in its block of rock, split into a grid.
+ * Squares of plain rock come off with the tiny air chisel, which is fast: it
+ * takes off the plain rock round the square too (the brush is too slow for
+ * rock). Squares of rock right next to the bone need the brush:
+ * the chisel clears them too, but its buzzing cracks the bone beside it.
+ * Bone squares are under a film of dust that only the brush clears (the
+ * chisel on the bone cracks it). Cracks, old ones from being buried and any
+ * new ones, are fixed with glue. The fossil is ready when every square is
+ * clear and every crack is glued.
+ */
+export type PrepTool = 'chisel' | 'brush' | 'glue';
+export const PREP_TOOLS: PrepTool[] = ['chisel', 'brush', 'glue'];
+
+export interface PrepCell {
+  kind: 'rock' | 'near' | 'bone';
+  /** Still covered (rock, or dust on the bone). */
+  covered: boolean;
+  cracked: boolean;
+  glued: boolean;
+}
+
+export interface Prep {
+  cols: number;
+  rows: number;
+  cells: PrepCell[];
+  /** Cracks made by the chisel (for the grown-ups page). */
+  accidents: number;
+}
+
+export type PrepResult =
+  | { k: 'cleared' }
+  | { k: 'revealed'; cracked: boolean }
+  | { k: 'cracked'; at: number }
+  | { k: 'glued' }
+  | { k: 'too-slow' }
+  | { k: 'no-crack' }
+  | { k: 'crack-here' }
+  | { k: 'done-here' };
+
+/** A new bench from a mask of the fossil's squares (true = bone), with `oldCracks` bone squares cracked from being buried. */
+export function newPrep(mask: boolean[], cols: number, rows: number, r: Rand, oldCracks = 2): Prep {
+  const at = (x: number, y: number) => x >= 0 && y >= 0 && x < cols && y < rows && mask[y * cols + x];
+  const cells: PrepCell[] = mask.map((bone, i) => {
+    const x = i % cols;
+    const y = Math.floor(i / cols);
+    const near = !bone && (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1));
+    return { kind: bone ? 'bone' : near ? 'near' : 'rock', covered: true, cracked: false, glued: false };
+  });
+  const bones = shuffle(
+    r,
+    cells.map((c, i) => (c.kind === 'bone' ? i : -1)).filter((i) => i >= 0),
+  );
+  for (const i of bones.slice(0, oldCracks)) cells[i].cracked = true;
+  return { cols, rows, cells, accidents: 0 };
+}
+
+/** The bone square next to square `i` (for the chisel's crack), or -1. */
+function boneNextTo(p: Prep, i: number): number {
+  const x = i % p.cols;
+  const y = Math.floor(i / p.cols);
+  for (const [dx, dy] of [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]) {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (nx < 0 || ny < 0 || nx >= p.cols || ny >= p.rows) continue;
+    const j = ny * p.cols + nx;
+    if (p.cells[j].kind === 'bone') return j;
+  }
+  return -1;
+}
+
+/** Use a tool on a square of the bench. */
+export function prepUse(p: Prep, i: number, tool: PrepTool): PrepResult {
+  const c = p.cells[i];
+  if (c.covered) {
+    if (tool === 'glue') return { k: 'no-crack' };
+    if (c.kind === 'rock') {
+      if (tool === 'brush') return { k: 'too-slow' };
+      // the air chisel is fast: it also takes off the plain rock right round this square (never rock touching the fossil)
+      c.covered = false;
+      const x = i % p.cols;
+      const y = Math.floor(i / p.cols);
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ]) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= p.cols || ny >= p.rows) continue;
+        const n = p.cells[ny * p.cols + nx];
+        if (n.kind === 'rock') n.covered = false;
+      }
+      return { k: 'cleared' };
+    }
+    if (c.kind === 'near') {
+      c.covered = false;
+      if (tool === 'brush') return { k: 'cleared' };
+      const j = boneNextTo(p, i);
+      if (j >= 0) {
+        p.cells[j].cracked = true;
+        p.cells[j].glued = false;
+        p.accidents++;
+        return { k: 'cracked', at: j };
+      }
+      return { k: 'cleared' };
+    }
+    // dust on the bone
+    c.covered = false;
+    if (tool === 'chisel') {
+      c.cracked = true;
+      c.glued = false;
+      p.accidents++;
+      return { k: 'cracked', at: i };
+    }
+    return { k: 'revealed', cracked: c.cracked };
+  }
+  if (c.cracked) {
+    if (tool !== 'glue') return { k: 'crack-here' };
+    c.cracked = false;
+    c.glued = true;
+    return { k: 'glued' };
+  }
+  return tool === 'glue' ? { k: 'no-crack' } : { k: 'done-here' };
+}
+
+/** Squares still to do: covered, or cracked and not glued. */
+export function prepLeft(p: Prep): number {
+  return p.cells.filter((c) => c.covered || c.cracked).length;
+}
+
+export function prepDone(p: Prep): boolean {
+  return prepLeft(p) === 0;
+}
+
+/** The right tool for a square as it is now (for hints and the browser test). */
+export function prepRightTool(c: PrepCell): PrepTool | null {
+  if (c.covered) return c.kind === 'rock' ? 'chisel' : 'brush';
+  return c.cracked ? 'glue' : null;
+}
+
+// ------------------------------------------------------------------ the Trackway's numbers
+
+/**
+ * The trackway's measurements, as the tape reads them: the three-toed
+ * dinosaur's print, its walking steps at the start and its running steps at
+ * the end, and Pebble's prints in the creek mud for comparing.
+ */
+export const TRACK = {
+  printCm: 40,
+  walkStepM: 1.5,
+  runStepM: 3,
+  pebblePrintCm: 4,
+  pebbleWalkCm: 30,
+  pebbleRunCm: 90,
+} as const;
+
+/** The paleontologists' rule of thumb: hip height is about 4 times the footprint's length. */
+export function hipHeightCm(printCm: number): number {
+  return printCm * 4;
+}
+
+/** "1.6 meters" or "80 centimeters", for a height in centimeters. */
+export function sayLength(cm: number): string {
+  if (cm >= 100) {
+    const m = Math.round(cm / 10) / 10;
+    return `${m} ${m === 1 ? 'meter' : 'meters'}`;
+  }
+  return `${cm} centimeters`;
+}
