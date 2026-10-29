@@ -16,6 +16,7 @@ import { showSheet } from './sheet';
  * Body System Heroes: #body-cast, #body-lungs, #body-blood, #body-stomach.
  * Solar System Explorer: #space-cast, #space-observatory, #space-mars, #space-mercury, #space-jupiter.
  * Wild Lands and Ocean Depth Diver: #wild-cast, #wild-camp, #wild-camp-evening, #wild-reef (-sunlight, -twilight, -midnight).
+ * Fossil Dig Adventure: #dig-cast, #dig-site, #dig-site-evening, #dig-quarry, #dig-cliff, #dig-trackway, #dig-glow, #dig-glow-uv.
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -39,4 +40,10 @@ if (view === 'scene') {
   import('./wild').then((m) => m.showWildCast(host));
 } else if (view === 'wild-reef') {
   import('./wild').then((m) => m.showWildReef(host, q));
+} else if (view === 'dig-site') {
+  import('./dig').then((m) => m.showDigSite(host, q));
+} else if (view === 'dig-cast') {
+  import('./dig').then((m) => m.showDigCast(host));
+} else if (view === 'dig-view') {
+  import('./dig').then((m) => m.showDigView(host, q));
 } else showSheet(host, q);
