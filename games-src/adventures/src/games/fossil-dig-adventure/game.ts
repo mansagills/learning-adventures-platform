@@ -20,32 +20,52 @@ import '../../kit/worlds/worlds.css';
 import '../../kit/worlds/wild-lands/wild.css';
 import { RANGER_TALA } from '../../kit/worlds/wild-lands/art';
 import { HANA_SATO, MATEO_RUIZ, SAM_BELLO, SKELETON_PARTS, paintFossil, paintPebblePortrait, paintSkeleton, type FossilId, type SkeletonPart } from '../../kit/worlds/wild-lands/dig-art';
-import { paintCliffView, paintQuarryView, sampleQuarry } from '../../kit/worlds/wild-lands/dig-views';
-import { paintBadge, paintDrawerIcon, paintFormStep, paintMatch, paintStack, paintTools } from './art';
+import { paintCliffView, paintGlowRoom, paintQuarryView, paintTrackwayView, sampleQuarry } from '../../kit/worlds/wild-lands/dig-views';
+import {
+  paintBadge,
+  paintDrawerIcon,
+  paintFormStep,
+  paintHip,
+  paintMatch,
+  paintMuralScene,
+  paintPrepBench,
+  paintPrints,
+  paintRelative,
+  paintStack,
+  paintStride,
+  paintTeeth,
+  paintTools,
+  prepFossil,
+} from './art';
 import { openCliff, type CliffHandle } from './cliffUi';
 import {
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
+  ALL_DONE,
   GROWNUPS,
-  HALF_DONE,
   JACKET,
   LOCKED,
+  MURAL_QUESTIONS,
+  MUSEUM,
   OPENING,
   OPENING_END,
   PEBBLE,
   PEBBLE_HELLO,
   PEOPLE,
   praise,
+  PREP_TELLS,
   STARS_PER_STATION,
   STATION_INFO,
   type PersonId,
 } from './content';
-import { CLIFF_FINDS, DRAWER_ORDER, FOSSILS, LAYER_INFO, LAYERS, QUARRY_FINDS, type LayerId } from './fossils';
+import { CLIFF_FINDS, DRAWER_ORDER, FOSSILS, LAYER_INFO, LAYERS, nameInText, QUARRY_FINDS, type LayerId } from './fossils';
 import { CAMP_SONG, DIG_SONG, LAB_SONG } from './music';
 import { pix } from './pix';
 import { bank, makeQuestion, shuffle, STATIONS, type Choice, type Misconception, type Question, type Station, type Tier } from './problems';
+import { openPrep, type PrepHandle } from './prepUi';
 import { openQuarry, type QuarryHandle } from './quarryUi';
-import { freshSave, store, type DigSave } from './save';
+import { cleanName, freshSave, store, type DigSave } from './save';
+import { openTrack, type TrackHandle } from './trackUi';
 import { DigWorld, type Target } from './world';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
@@ -58,15 +78,31 @@ const CLIFF_FOSSILS = 3;
 const LOOKS: Record<PersonId, Look16> = { mateo: MATEO_RUIZ, hana: HANA_SATO, sam: SAM_BELLO, tala: RANGER_TALA };
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 /** Who runs each station. */
-const HOST: Record<Station, PersonId> = { quarry: 'mateo', cliff: 'hana' };
-/** The skeleton piece each station gives to the field museum (the Prep Lab and the Trackway give the rest in the next part). */
-const PIECE: Record<Station, SkeletonPart> = { quarry: 'skull', cliff: 'backbone' };
-/** The four stations of the whole game, for the badges (the last two open in the next part). */
-const ALL_STATIONS = ['quarry', 'cliff', 'lab', 'trackway'] as const;
-const ALL_NAMES: Record<(typeof ALL_STATIONS)[number], string> = { quarry: 'The Quarry', cliff: 'The Cliff Wall', lab: 'The Prep Lab', trackway: 'The Trackway' };
+const HOST: Record<Station, PersonId> = { quarry: 'mateo', cliff: 'hana', lab: 'sam', trackway: 'tala' };
+/** The skeleton part each station gives to the field museum. */
+const PIECE: Record<Station, SkeletonPart> = { quarry: 'skull', cliff: 'backbone', lab: 'legs', trackway: 'tail' };
+const PIECE_NAME: Record<SkeletonPart, string> = { skull: 'skull', backbone: 'backbone', legs: 'legs', tail: 'tail' };
+/** Where each part goes on the museum's skeleton picture, as a box in its 66 x 40 units (x, y, w, h). */
+const PIECE_SPOT: Record<SkeletonPart, [number, number, number, number]> = {
+  skull: [45, 1, 20, 22],
+  backbone: [20, 11, 26, 11],
+  legs: [15, 25, 33, 13],
+  tail: [0, 18, 16, 15],
+};
+const STATION_NAME: Record<Station, string> = { quarry: 'The Quarry', cliff: 'The Cliff Wall', lab: 'The Prep Lab', trackway: 'The Trackway' };
+/** A sentence with each station's job, for the station list. */
+const JOB_TEXT: Record<Station, string> = {
+  quarry: 'Dig a square of the quarry with Dr. Mateo.',
+  cliff: 'Rebuild the cliff with Hana.',
+  lab: 'Clean a fossil on Sam’s prep bench.',
+  trackway: 'Measure the footprints with Ranger Tala.',
+};
+const JOB_LABEL: Record<Station, string> = { quarry: 'Dig a new square', cliff: 'Rebuild the cliff', lab: 'Clean a fossil', trackway: 'Measure the tracks' };
 const FORM_STEPS = ['Alive', 'Buried in mud', 'Turned to stone', 'Uncovered'];
 
 type Mode = 'title' | 'world' | 'busy' | 'panel' | 'job';
+
+type Found = { id: FossilId; chipped: boolean; isNew: boolean; where: string };
 
 interface Panel {
   modal: Modal;
@@ -105,6 +141,10 @@ export class Game {
   private panel: Panel | null = null;
   private quarry: QuarryHandle | null = null;
   private cliff: CliffHandle | null = null;
+  private prep: PrepHandle | null = null;
+  private track: TrackHandle | null = null;
+  /** Museum Night's current step, for the browser test. */
+  private museumInfo: { phase: string; right: string } | null = null;
   private praiseCount = 0;
 
   constructor(private readonly host: HTMLElement) {
@@ -196,6 +236,25 @@ export class Game {
         this.openPanel(s);
         return true;
       },
+      prep: () => this.mode === 'world' && this.startPrep(),
+      /** On the bench: clean one square with the right tool, as many times as it needs. */
+      prepOut: (i: number) => {
+        const p = this.prep;
+        if (!p) return null;
+        const out = [];
+        for (let k = 0; k < 4; k++) {
+          const c = p.prep.cells[i];
+          const t = c.covered ? (c.kind === 'rock' ? 'chisel' : 'brush') : c.cracked ? 'glue' : null;
+          if (!t) break;
+          out.push(p.use(i, t));
+        }
+        return out;
+      },
+      prepWith: (i: number, tool: 'chisel' | 'brush' | 'glue') => this.prep?.use(i, tool) ?? null,
+      prepState: () => (this.prep ? this.prep.prep : null),
+      track: () => this.mode === 'world' && this.startTrack(),
+      trackState: () => this.track?.state() ?? null,
+      museum: () => this.mode === 'world' && void this.museumNight(),
       drawer: () => this.mode === 'world' && this.openDrawer(),
       evening: () => this.world.setTime('evening'),
       /** The walkable map, one row per line ('#' blocked). */
@@ -227,7 +286,7 @@ export class Game {
     return look16FromAppearance(this.save.appearance);
   }
 
-  private get halfDone(): boolean {
+  private get allDone(): boolean {
     return STATIONS.every((s) => this.save.done.includes(s));
   }
 
@@ -241,7 +300,7 @@ export class Game {
       title: 'Fossil Dig Adventure',
       subtitle: 'Dig up the story in the rocks',
       intro: [
-        'Join Dr. Mateo Ruiz, Hana Sato and Pebble the sniffer dog at a fossil dig in a dry, striped valley. Dig for fossils with the right tools, read the rock layers of a tall cliff, and fill the Fossil Drawer.',
+        'Join Dr. Mateo Ruiz, Hana Sato, Sam Bello and Pebble the sniffer dog at a fossil dig in a dry, striped valley. Dig for fossils with the right tools, read the rock layers of a tall cliff, clean your finds, follow real dinosaur footprints, and put a Triceratops back together for Museum Night.',
         'For grades 3 to 5. Every line can be read aloud.',
       ],
       hasSave: store.exists(),
@@ -327,10 +386,12 @@ export class Game {
   }
 
   private updateMarkers(): void {
+    const museum = this.allDone && !this.save.museumDone;
     this.world.setMarkers({
-      mateo: this.needsYou('quarry') ? 'new' : null,
+      mateo: this.needsYou('quarry') || museum ? 'new' : null,
       hana: this.needsYou('cliff') ? 'new' : null,
-      tala: this.halfDone && !this.save.halfDoneSeen ? 'new' : null,
+      sam: this.needsYou('lab') ? 'new' : null,
+      tala: this.needsYou('trackway') || (this.allDone && !this.save.allDoneSeen) ? 'new' : null,
     });
   }
 
@@ -389,9 +450,10 @@ export class Game {
     this.world.stopWalking();
     if (t.id === 'mateo') void this.talkToHost('quarry');
     else if (t.id === 'hana') void this.talkToHost('cliff');
-    else if (t.id === 'tala') void this.talkToTala();
-    else if (t.id === 'sam') void this.sayOnce(this.speakers.sam, LOCKED.sam);
-    else void this.sayOnce(this.speakers.tala, LOCKED.museum);
+    else if (t.id === 'sam') void this.talkToHost('lab');
+    else if (t.id === 'tala') void (this.isOpen('trackway') ? this.talkToHost('trackway') : this.talkToTala());
+    else if (this.allDone) void this.museumNight();
+    else void this.sayOnce(this.speakers.mateo, MUSEUM.notYet);
   }
 
   private async sayOnce(who: Speaker, text: string | string[]): Promise<void> {
@@ -401,13 +463,19 @@ export class Game {
     this.mode = 'world';
   }
 
-  /** Dr. Mateo at the quarry, or Hana at the cliff. */
+  /** A station's host: Dr. Mateo at the quarry, Hana at the cliff, Sam in the Prep Lab, Ranger Tala at the trackway. */
   private async talkToHost(st: Station): Promise<void> {
     const who = this.speakers[HOST[st]];
     const sv = this.save;
     const info = STATION_INFO[st];
-    if (!this.isOpen(st)) return this.sayOnce(who, LOCKED.cliff);
+    if (!this.isOpen(st)) return this.sayOnce(who, st === 'lab' ? LOCKED.lab : LOCKED.cliff);
     this.mode = 'busy';
+    if (st === 'trackway' && this.allDone && !sv.allDoneSeen) {
+      await this.talk.say(who, ALL_DONE, 'proud');
+      sv.allDoneSeen = true;
+      this.persist();
+      this.updateMarkers();
+    }
     // the first time: the intro, then straight into the hands-on job
     if (!sv.introduced.includes(st)) {
       await this.talk.say(who, info.intro);
@@ -420,13 +488,16 @@ export class Game {
     }
     const worked = sv.worked.includes(st);
     const done = sv.done.includes(st);
-    const job = st === 'quarry' ? 'Dig a new square' : 'Rebuild the cliff';
     const options: Array<{ label: string; run: () => void }> = [];
+    // once every station is done, Dr. Mateo starts Museum Night
+    if (st === 'quarry' && this.allDone) options.push({ label: this.save.museumDone ? 'Museum Night again' : 'Start Museum Night', run: () => void this.museumNight() });
     if (worked && !done) options.push({ label: 'Write up the logbook', run: () => this.openPanel(st) });
-    options.push({ label: job, run: () => this.startJob(st) });
+    options.push({ label: JOB_LABEL[st], run: () => this.startJob(st) });
     if (done) options.push({ label: 'Logbook practice', run: () => this.openPanel(st) });
+    // Ranger Tala is also the guide: the drawer and the character
+    if (st === 'trackway') options.push({ label: 'Open the Fossil Drawer', run: () => this.openDrawer() }, { label: 'Change how I look', run: () => this.customize(false, () => undefined) });
     options.push({ label: 'Not now', run: () => undefined });
-    const text = !worked ? info.again : !done ? `${info.logbook}` : info.again;
+    const text = st === 'quarry' && this.allDone && !this.save.museumDone ? MUSEUM.invite : !worked ? info.again : !done ? `${info.logbook}` : info.again;
     const i = await this.talk.offer(
       who,
       text,
@@ -441,19 +512,13 @@ export class Game {
     this.mode = 'busy';
     const tala = this.speakers.tala;
     const sv = this.save;
-    if (this.halfDone && !sv.halfDoneSeen) {
-      await this.talk.say(tala, HALF_DONE, 'proud');
-      sv.halfDoneSeen = true;
-      this.persist();
-      this.updateMarkers();
-    }
     const tip = !sv.worked.includes('quarry')
       ? 'Dr. Mateo is waiting by the quarry, in the middle of the camp.'
       : !sv.done.includes('quarry')
         ? 'Dr. Mateo has the quarry logbook ready. Five stars finishes the Quarry.'
         : !sv.done.includes('cliff')
           ? 'Hana is at the Cliff Wall, on the left. The cliff tells the story of this valley.'
-          : 'The quarry always has more to find. Can you fill the whole Fossil Drawer?';
+          : 'Sam is waiting in the Prep Lab tent with your finds. Next, come back to me at the footprint slab!';
     const options = ['Open the Fossil Drawer', 'Change how I look', 'Not now'];
     const pick = options[await this.talk.offer(tala, tip, options)];
     this.talk.end();
@@ -466,7 +531,9 @@ export class Game {
 
   private startJob(st: Station): void {
     if (st === 'quarry') this.startDig();
-    else this.startCliff();
+    else if (st === 'cliff') this.startCliff();
+    else if (st === 'lab') this.startPrep();
+    else this.startTrack();
   }
 
   /** Pick `n` fossils from `pool`, ones not yet in the drawer first. */
@@ -498,7 +565,7 @@ export class Game {
     this.touch?.setVisible(false);
     this.promptEl.hidden = true;
     audio.play('dig');
-    const finds: Array<{ id: FossilId; chipped: boolean; isNew: boolean; where: string }> = [];
+    const finds: Found[] = [];
     let finished = false;
     this.quarry = openQuarry(this.host, {
       finds: this.pickFinds(QUARRY_FINDS, FINDS_PER_DIG),
@@ -521,7 +588,7 @@ export class Game {
     });
   }
 
-  private async afterDig(finished: boolean, finds: Array<{ id: FossilId; chipped: boolean; isNew: boolean; where: string }>): Promise<void> {
+  private async afterDig(finished: boolean, finds: Found[]): Promise<void> {
     audio.play('camp');
     const sv = this.save;
     if (!finished) {
@@ -553,7 +620,7 @@ export class Game {
     this.touch?.setVisible(false);
     this.promptEl.hidden = true;
     audio.play('lab');
-    const placed: Array<{ id: FossilId; chipped: boolean; isNew: boolean; where: string }> = [];
+    const placed: Found[] = [];
     let result: { clean: number; total: number } | null = null;
     this.cliff = openCliff(this.host, {
       tier: skill(this.save.learner, 'cliff').tier as Tier,
@@ -579,7 +646,7 @@ export class Game {
     });
   }
 
-  private async afterCliff(result: { clean: number; total: number } | null, placed: Array<{ id: FossilId; chipped: boolean; isNew: boolean; where: string }>): Promise<void> {
+  private async afterCliff(result: { clean: number; total: number } | null, placed: Found[]): Promise<void> {
     audio.play('camp');
     const sv = this.save;
     if (!result) {
@@ -602,6 +669,111 @@ export class Game {
     this.backToWorld();
   }
 
+  /** The fossil for the prep bench: one of the child's quarry finds not yet cleaned, else any quarry find. */
+  private prepPick(): FossilId {
+    const sv = this.save;
+    const mine = sv.drawer.map((f) => f.id).filter((id) => QUARRY_FINDS.includes(id));
+    const fresh = mine.filter((id) => !sv.prepped.includes(id));
+    const pool = fresh.length ? fresh : mine.length ? mine : QUARRY_FINDS;
+    return pool[Math.floor(mulberry32(sv.seed++)() * pool.length) % pool.length];
+  }
+
+  private startPrep(): void {
+    this.mode = 'job';
+    this.touch?.setVisible(false);
+    this.promptEl.hidden = true;
+    audio.play('lab');
+    const id = this.prepPick();
+    let done = false;
+    this.prep = openPrep(this.host, {
+      fossil: id,
+      seed: this.save.seed++,
+      onSlip: (kind) => {
+        if (kind === 'cracked') recordAnswer(this.save.learner, 'lab-prep', { correct: false, hintRung: 0, misconception: 'rough-tools' }, RULES);
+        this.persist();
+      },
+      onDone: (accidents) => {
+        done = true;
+        recordAnswer(this.save.learner, 'lab-prep', { correct: accidents === 0, hintRung: 0 }, RULES);
+        this.persist();
+        this.prep?.modal.close();
+      },
+      onClose: () => {
+        this.prep = null;
+        void this.afterPrep(done, id);
+      },
+    });
+  }
+
+  private async afterPrep(done: boolean, id: FossilId): Promise<void> {
+    audio.play('camp');
+    const sv = this.save;
+    if (!done) return this.backToWorld();
+    sv.preps++;
+    if (!sv.prepped.includes(id)) sv.prepped.push(id);
+    const isNew = this.addToDrawer(id, false, 'The Prep Lab');
+    if (!sv.worked.includes('lab')) sv.worked.push('lab');
+    this.persist();
+    await this.showFinds('Clean and ready to study', [{ id, chipped: false, isNew, where: 'The Prep Lab' }]);
+    this.mode = 'busy';
+    const sam = this.speakers.sam;
+    await this.talk.say(sam, PREP_TELLS[id] ?? FOSSILS[id].facts[1], 'smile');
+    if (!sv.done.includes('lab')) {
+      await this.talk.say(sam, STATION_INFO.lab.logbook, 'smile');
+      this.talk.end();
+      this.backToWorld();
+      this.openPanel('lab');
+      return;
+    }
+    this.talk.end();
+    this.backToWorld();
+  }
+
+  private startTrack(): void {
+    this.mode = 'job';
+    this.touch?.setVisible(false);
+    this.promptEl.hidden = true;
+    audio.play('dig');
+    let result: { clean: number; total: number } | null = null;
+    this.track = openTrack(this.host, {
+      tier: skill(this.save.learner, 'trackway').tier as Tier,
+      seed: this.save.seed++,
+      onSlip: (m) => {
+        recordAnswer(this.save.learner, 'trackway-tape', { correct: false, hintRung: 0, misconception: m }, RULES);
+        this.persist();
+      },
+      onDone: (clean, total) => {
+        result = { clean, total };
+        recordAnswer(this.save.learner, 'trackway-tape', { correct: clean === total, hintRung: 0 }, RULES);
+        this.persist();
+      },
+      onClose: () => {
+        this.track = null;
+        void this.afterTrack(result);
+      },
+    });
+  }
+
+  private async afterTrack(result: { clean: number; total: number } | null): Promise<void> {
+    audio.play('camp');
+    const sv = this.save;
+    if (!result) return this.backToWorld();
+    sv.tracks++;
+    if (!sv.worked.includes('trackway')) sv.worked.push('trackway');
+    const isNew = this.addToDrawer('footprint', false, 'The Trackway');
+    this.persist();
+    await this.showFinds('From the trackway', [{ id: 'footprint', chipped: false, isNew, where: 'The Trackway' }]);
+    if (!sv.done.includes('trackway')) {
+      this.mode = 'busy';
+      await this.talk.say(this.speakers.tala, STATION_INFO.trackway.logbook, 'smile');
+      this.talk.end();
+      this.backToWorld();
+      this.openPanel('trackway');
+      return;
+    }
+    this.backToWorld();
+  }
+
   private backToWorld(): void {
     this.mode = 'world';
     this.updateMarkers();
@@ -610,7 +782,7 @@ export class Game {
   }
 
   /** The finds from a dig (or the cliff), each with its picture and first fact. */
-  private showFinds(title: string, finds: Array<{ id: FossilId; chipped: boolean; isNew: boolean; where: string }>): Promise<void> {
+  private showFinds(title: string, finds: Found[]): Promise<void> {
     if (!finds.length) return Promise.resolve();
     this.mode = 'busy';
     audio.itemGet();
@@ -783,7 +955,102 @@ export class Game {
     if (pic.k === 'tools') return this.toolsPic(2);
     if (pic.k === 'form') return this.formPic(pic.step, 2.2);
     if (pic.k === 'cliff') return this.cliffPic(pic.mark, done || hinted('cliff'), 2.2);
+    if (pic.k === 'relative') return this.relativePic(pic.id, 2);
+    if (pic.k === 'teeth') return this.teethPic(pic.kind, 2.2);
+    if (pic.k === 'prep') return this.prepPic(2);
+    if (pic.k === 'skeleton')
+      return h(
+        'div',
+        { class: 'fda-sky' },
+        pix('skeleton-all', () => paintSkeleton(2), 2, 'The young Triceratops skeleton on its stand'),
+        this.tag('Young Triceratops', 0.5, 0.02, 'small'),
+      );
+    if (pic.k === 'tracks') return this.tracksPic(done || hinted('tracks') || hinted('stride'), 1.4);
+    if (pic.k === 'prints') return this.printsPic(2);
+    if (pic.k === 'stride') return this.stridePic(2);
+    if (pic.k === 'hip') return this.hipPic(done || hinted('hip'), 2);
     return this.matchPic(2.2);
+  }
+
+  private relativePic(id: FossilId, scale: number): HTMLElement {
+    const cousin: Record<string, string> = { 'mammoth-tusk': 'An elephant today', ammonite: 'A nautilus today', trilobite: 'A horseshoe crab today', fern: 'A fern today' };
+    const key = id as 'mammoth-tusk' | 'ammonite' | 'trilobite' | 'fern';
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix(`relative-${id}`, () => paintRelative(key), scale, `A ${nameInText(id)} fossil next to ${cousin[id]?.toLowerCase() ?? 'a living cousin'}`),
+      this.tag(`Fossil: ${FOSSILS[id].name}`, 0.25, 0.86, 'small'),
+      this.tag(cousin[id] ?? 'Alive today', 0.72, 0.86, 'small'),
+    );
+  }
+
+  private teethPic(kind: 'sharp' | 'flat', scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix(`teeth-${kind}`, () => paintTeeth(kind), scale, kind === 'sharp' ? 'A long, pointed tooth with jagged edges' : 'A jaw with a beak in front and rows of small slicing teeth'),
+      this.tag(kind === 'sharp' ? 'Jagged edges' : 'Beak, then rows of teeth', 0.5, 0.86, 'small'),
+    );
+  }
+
+  private prepPic(scale: number): HTMLElement {
+    const cols = 10;
+    const rows = 7;
+    const { mask } = prepFossil('trike-horn', cols, rows, 10);
+    const cells = mask.map((bone, i) => ({ kind: bone ? ('bone' as const) : ('rock' as const), covered: !bone && i % cols < 6, cracked: bone && i % 7 === 3, glued: false }));
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix('prep-sample', () => paintPrepBench('trike-horn', cells, cols, rows, 10), scale, 'A fossil horn on the prep bench, half cleaned out of its rock, with a crack'),
+      this.tag('Rock still on', 0.3, 0.02, 'small'),
+      this.tag('Clean fossil', 0.75, 0.02, 'small'),
+    );
+  }
+
+  private tracksPic(labels: boolean, scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix(
+        'trackway-view',
+        () => paintTrackwayView(240, 140),
+        scale,
+        'The footprint slab from above: three-toed prints in a line, big round prints crossing them, and Pebble’s paw prints in the creek mud',
+      ),
+      this.tag('Pebble’s prints', 0.2, 0.92, 'small'),
+      ...(labels ? [this.tag('Walking', 0.16, 0.18, 'small'), this.tag('Running', 0.8, 0.18, 'small'), this.tag('Round prints on top', 0.62, 0.02, 'small')] : []),
+    );
+  }
+
+  private printsPic(scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix('prints', () => paintPrints(), scale, 'A three-toed print and a big round print, side by side'),
+      this.tag('Three pointed toes', 0.22, 0.02, 'small'),
+      this.tag('Big and round', 0.75, 0.02, 'small'),
+    );
+  }
+
+  private stridePic(scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix('stride', () => paintStride(), scale, 'Pebble’s paw prints: close together walking, far apart running'),
+      this.tag('Walking', 0.5, 0.02, 'small'),
+      this.tag('Running', 0.5, 0.5, 'small'),
+    );
+  }
+
+  private hipPic(labels: boolean, scale: number): HTMLElement {
+    const { buf, hip } = paintHip();
+    return h(
+      'div',
+      { class: 'fda-sky' },
+      pix('hip', () => buf, scale, 'A two-legged dinosaur side on, with a dashed line at its hip and four footprint lengths stacked up to it'),
+      this.tag('Hip height', 0.24, hip - 0.12, 'small'),
+      ...(labels ? [this.tag('4 print lengths', 0.78, 0.92, 'small')] : []),
+    );
   }
 
   private toolsPic(scale: number): HTMLElement {
@@ -842,6 +1109,12 @@ export class Game {
     else if (q.model === 'cliff' && q.pic.k !== 'cliff') show(this.cliffPic(null, true, 1.4));
     else if (q.model === 'tools' && q.pic.k !== 'tools') show(this.toolsPic(1.4));
     else if (q.model === 'match' && q.pic.k !== 'match') show(this.matchPic(1.4));
+    else if (q.model === 'relative' && q.pic.k === 'relative') show(this.relativePic(q.pic.id, 1.4));
+    else if (q.model === 'teeth') show(this.teethPic('sharp', 1.2), this.teethPic('flat', 1.2));
+    else if (q.model === 'tracks' && q.pic.k !== 'tracks') show(this.tracksPic(true, 1));
+    else if (q.model === 'prints' && q.pic.k !== 'prints') show(this.printsPic(1.4));
+    else if (q.model === 'stride') show(this.stridePic(1.4));
+    else if (q.model === 'hip' && q.pic.k !== 'hip') show(this.hipPic(true, 1.4));
     else if (q.model === 'stack') {
       const { buf, mids } = paintStack(100, 72);
       const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -1007,20 +1280,244 @@ export class Game {
     this.persist();
     this.updateMarkers();
     audio.levelUp();
-    toast(`${info.name} badge! The skeleton’s ${PIECE[st] === 'skull' ? 'skull' : 'backbone'} goes to the museum.`, 'reward');
+    toast(`${info.name} badge! The skeleton’s ${PIECE_NAME[PIECE[st]]} goes to the museum.`, 'reward');
     await this.talk.say(who, info.done, 'proud');
     this.talk.end();
     this.renderHud();
-    if (this.halfDone) {
-      await this.talk.say(this.speakers.tala, 'You did it! Come and see me by the footprint slab.', 'proud');
+    if (this.allDone && !this.save.museumDone) {
+      // the last station: the sun sets, and Dr. Mateo calls everyone to the museum
+      this.world.setTime('evening');
+      await this.talk.say(this.speakers.mateo, MUSEUM.invite, 'proud');
       this.talk.end();
+      this.updateMarkers();
     }
     this.mode = 'world';
   }
 
+  // ------------------------------------------------------------ Museum Night (the finale)
+
+  private async museumNight(): Promise<void> {
+    if (!this.allDone || this.mode !== 'world') return;
+    this.mode = 'busy';
+    this.touch?.setVisible(false);
+    this.promptEl.hidden = true;
+    this.world.setTime('evening');
+    audio.play('lab');
+    const sv = this.save;
+    const { mateo, hana, sam, tala } = this.speakers;
+    const stage = h('div', { class: 'fda-museum-stage' });
+    const ask = h('h3', { class: 'fda-museum-ask' });
+    const controls = h('div', { class: 'fda-museum-controls' });
+    const status = h('p', { class: 'fda-dig-status', role: 'status', 'aria-live': 'polite' });
+    // a plain overlay, not a modal, so the talk box below it keeps the keyboard
+    const root = h(
+      'div',
+      { class: 'panel fda-museum', role: 'region', 'aria-labelledby': 'museum-title' },
+      h('header', {}, h('h2', { id: 'museum-title', text: 'Museum Night' })),
+      h('div', { class: 'content' }, ask, stage, controls, status),
+    );
+    this.host.append(root);
+    const say = (text: string) => {
+      status.textContent = text;
+      speak(text);
+    };
+    const focusFirst = () => requestAnimationFrame(() => root.querySelector<HTMLButtonElement>('.fda-museum-controls button:not([disabled]), .fda-spot, input')?.focus());
+
+    // 1. the skeleton, part by part
+    await this.talk.say(mateo, MUSEUM.intro, 'smile');
+    this.talk.end();
+    const have: SkeletonPart[] = [];
+    for (const part of ['backbone', 'legs', 'tail', 'skull'] as SkeletonPart[]) {
+      this.museumInfo = { phase: 'skeleton', right: part };
+      await new Promise<void>((resolve) => {
+        ask.textContent = MUSEUM.partAsk(PIECE_NAME[part]);
+        const pic = h(
+          'div',
+          { class: 'fda-board fda-skeleton-board' },
+          pix(`museum-skel-${have.join('.')}`, () => paintSkeleton(3, have), 3, `The skeleton so far: ${have.length} of 4 parts`),
+        );
+        const spots = h('div', { class: 'fda-cells' });
+        for (const p of SKELETON_PARTS) {
+          if (have.includes(p)) continue;
+          const [x, y, w, hh] = PIECE_SPOT[p];
+          const b = h('button', { class: 'fda-part-spot', type: 'button', 'data-part': p, 'aria-label': `The place for the ${PIECE_NAME[p]}` }) as HTMLButtonElement;
+          Object.assign(b.style, { left: `${(x / 66) * 100}%`, top: `${(y / 40) * 100}%`, width: `${(w / 66) * 100}%`, height: `${(hh / 40) * 100}%` });
+          b.addEventListener('click', () => {
+            if (p === part) {
+              audio.correct();
+              have.push(part);
+              resolve();
+            } else {
+              audio.retry();
+              say(MUSEUM.partWrong(PIECE_NAME[part]));
+            }
+          });
+          spots.append(b);
+        }
+        pic.append(spots);
+        stage.replaceChildren(pic);
+        controls.replaceChildren();
+        speak(ask.textContent);
+        requestAnimationFrame(() => spots.querySelector<HTMLButtonElement>('button')?.focus());
+      });
+    }
+    stage.replaceChildren(
+      h(
+        'div',
+        { class: 'fda-board fda-skeleton-board' },
+        pix('museum-skel-all', () => paintSkeleton(3), 3, 'The whole young Triceratops skeleton on its stand'),
+      ),
+    );
+    ask.textContent = '';
+    audio.levelUp();
+    await this.talk.say(mateo, MUSEUM.built, 'proud');
+    this.talk.end();
+
+    // 2. a nickname
+    this.museumInfo = { phase: 'name', right: '' };
+    const name = await new Promise<string>((resolve) => {
+      ask.textContent = MUSEUM.nameAsk;
+      const input = h('input', {
+        class: 'fda-name-input',
+        type: 'text',
+        maxlength: '14',
+        value: sv.trikeName || 'Trixie',
+        'aria-label': 'The Triceratops’s nickname',
+        autocomplete: 'off',
+      }) as HTMLInputElement;
+      const go = () => resolve(cleanName(input.value) || 'Trixie');
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          go();
+        }
+      });
+      controls.replaceChildren(input, h('button', { class: 'btn primary', type: 'button', text: 'Name it', onclick: go }));
+      speak(MUSEUM.nameAsk);
+      requestAnimationFrame(() => {
+        input.focus();
+        input.select();
+      });
+    });
+    sv.trikeName = name;
+    this.persist();
+    controls.replaceChildren();
+    ask.textContent = '';
+    await this.talk.say(mateo, MUSEUM.named(name), 'proud');
+    this.talk.end();
+
+    // 3. the mural: the valley's story, oldest first, with a question for each scene
+    await this.talk.say(hana, MUSEUM.muralIntro, 'smile');
+    this.talk.end();
+    const cards = shuffle(mulberry32(sv.seed++), [...LAYERS]);
+    const placed: LayerId[] = [];
+    const wall = h('ol', { class: 'fda-mural' });
+    const renderWall = () =>
+      wall.replaceChildren(
+        ...LAYERS.map((_, i) => {
+          const l = placed[i];
+          return h(
+            'li',
+            { class: `fda-mural-slot${l ? ' filled' : ''}` },
+            ...(l ? [pix(`mural-${l}`, () => paintMuralScene(l), 1.6, LAYER_INFO[l].place), h('span', { text: LAYER_INFO[l].name })] : [h('span', { text: '?' })]),
+          );
+        }),
+      );
+    renderWall();
+    stage.replaceChildren(h('p', { class: 'small-note', text: 'Oldest on the left, youngest on the right' }), wall);
+    for (let n = 0; n < LAYERS.length; n++) {
+      const right = LAYERS[n];
+      this.museumInfo = { phase: 'mural', right };
+      await new Promise<void>((resolve) => {
+        ask.textContent = MUSEUM.muralAsk(n);
+        controls.replaceChildren(
+          ...cards
+            .filter((l) => !placed.includes(l))
+            .map((l) => {
+              const b = h(
+                'button',
+                { class: 'btn fda-mural-card', type: 'button', 'data-layer': l },
+                pix(`mural-${l}`, () => paintMuralScene(l), 1.2, ''),
+                h('span', { text: LAYER_INFO[l].place.charAt(0).toUpperCase() + LAYER_INFO[l].place.slice(1) }),
+              ) as HTMLButtonElement;
+              b.addEventListener('click', () => {
+                if (b.disabled) return;
+                if (l === right) {
+                  audio.correct();
+                  placed.push(l);
+                  renderWall();
+                  resolve();
+                } else {
+                  audio.retry();
+                  b.disabled = true;
+                  b.classList.add('nope');
+                  recordAnswer(sv.learner, 'museum-mural', { correct: false, hintRung: 0, misconception: 'layers-random' }, RULES);
+                  say(MUSEUM.muralWrong);
+                }
+              });
+              return b;
+            }),
+        );
+        speak(ask.textContent);
+        focusFirst();
+      });
+      controls.replaceChildren();
+      status.textContent = '';
+      this.museumInfo = { phase: 'question', right };
+      if (n === 0) await this.talk.say(hana, MUSEUM.noStars, 'smile');
+      const res = await this.talk.ask(hana, MURAL_QUESTIONS[right], () => audio.hint());
+      recordAnswer(sv.learner, 'museum-talk', { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
+      this.talk.end();
+      this.persist();
+    }
+    ask.textContent = '';
+    await this.talk.say(hana, MUSEUM.muralDone, 'proud');
+    this.talk.end();
+
+    // 4. the Glow Room
+    this.museumInfo = { phase: 'glow', right: 'lamp' };
+    const room = (uv: boolean) => paintGlowRoom(200, 112, uv).toDataURL(1);
+    const img = h('img', {
+      class: 'fda-glow-img',
+      src: room(false),
+      alt: 'The Glow Room with the lights on: fossils on shelves and the Triceratops in the middle',
+      width: 600,
+      height: 336,
+    }) as HTMLImageElement;
+    stage.replaceChildren(img);
+    await this.talk.say(sam, MUSEUM.glowIntro, 'smile');
+    this.talk.end();
+    await new Promise<void>((resolve) => {
+      controls.replaceChildren(h('button', { class: 'btn primary', type: 'button', text: 'Turn on the ultraviolet lamp', onclick: () => resolve() }));
+      focusFirst();
+    });
+    controls.replaceChildren();
+    img.src = room(true);
+    img.alt = 'The Glow Room under the ultraviolet lamp: the room is dark violet, and many fossils glow';
+    audio.levelUp();
+    this.museumInfo = { phase: 'end', right: '' };
+    await this.talk.say(sam, MUSEUM.glowLines, 'smile');
+    await this.talk.say(tala, MUSEUM.glowEnd(name), 'proud');
+    this.talk.end();
+    sv.museumDone = true;
+    this.persist();
+    window.parent?.postMessage({ type: 'game-complete', score: sv.drawer.length }, '*');
+    await new Promise<void>((resolve) => {
+      controls.replaceChildren(h('button', { class: 'btn primary', type: 'button', text: 'Back to the dig site', onclick: () => resolve() }));
+      focusFirst();
+    });
+    root.remove();
+    this.museumInfo = null;
+    audio.play('camp');
+    this.mode = 'world';
+    this.updateMarkers();
+    this.renderHud();
+    this.touch?.setVisible(touchControlsVisible());
+  }
+
   // ------------------------------------------------------------ the Fossil Drawer
 
-  /** The skeleton pieces the finished stations have given (the skull, then the backbone; the rest come in the next part). */
+  /** The skeleton parts the finished stations have given. */
   private pieces(): SkeletonPart[] {
     return SKELETON_PARTS.filter((p) => STATIONS.some((s) => PIECE[s] === p && this.save.done.includes(s)));
   }
@@ -1031,13 +1528,7 @@ export class Game {
     const card = (id: FossilId) => {
       const f = FOSSILS[id];
       const got = sv.drawer.find((x) => x.id === id);
-      if (!got)
-        return h(
-          'figure',
-          { class: 'fda-guide-card' },
-          h('div', { class: 'fda-guide-empty', text: '?' }),
-          h('figcaption', { text: f.where === 'trackway' ? 'Found at the Trackway (coming soon)' : 'Not found yet' }),
-        );
+      if (!got) return h('figure', { class: 'fda-guide-card' }, h('div', { class: 'fda-guide-empty', text: '?' }), h('figcaption', { text: 'Not found yet' }));
       return h(
         'button',
         {
@@ -1078,7 +1569,10 @@ export class Game {
           pix(`skeleton-${have.join('.')}`, () => paintSkeleton(2, have), 2, `The young Triceratops skeleton: ${have.length} of 4 parts ready`),
           h('p', {
             class: 'small-note',
-            text: `The young Triceratops for the field museum: ${have.length} of 4 parts ready. Each finished station adds a part.`,
+            text:
+              sv.museumDone && sv.trikeName
+                ? `${sv.trikeName}, the young Triceratops, stands in the field museum.`
+                : `The young Triceratops for the field museum: ${have.length} of 4 parts ready. Each finished station adds a part.`,
           }),
         ),
         ...[...LAYERS].reverse().flatMap(section),
@@ -1147,15 +1641,19 @@ export class Game {
     const sv = this.save;
     const n = sv.done.length;
     this.badgeEl.replaceChildren(
-      ...ALL_STATIONS.map((s) => {
-        const lit = (STATIONS as readonly string[]).includes(s) && sv.done.includes(s as Station);
-        const open = (STATIONS as readonly string[]).includes(s) && this.isOpen(s as Station);
-        return pix(`badge-${s}-${lit}-${open}`, () => paintBadge(s, lit, open), 2);
+      ...STATIONS.map((s) => {
+        const lit = sv.done.includes(s);
+        const open = this.isOpen(s);
+        return pix(`badge-${s}-${lit}-${open}`, () => paintBadge(s === 'lab' ? 'lab' : s, lit, open), 2);
       }),
+      pix(`badge-museum-${sv.museumDone}-${this.allDone}`, () => paintBadge('museum', sv.museumDone, this.allDone), 2),
       pix('drawer-icon', () => paintDrawerIcon(), 1.4),
-      h('span', { class: 'fda-badge-text', text: `${n} of ${ALL_STATIONS.length} · Fossils ${sv.drawer.length}/${DRAWER_ORDER.length}` }),
+      h('span', { class: 'fda-badge-text', text: `${n} of ${STATIONS.length} · Fossils ${sv.drawer.length}/${DRAWER_ORDER.length}` }),
     );
-    this.badgeEl.setAttribute('aria-label', `${n} of ${ALL_STATIONS.length} stations done. ${sv.drawer.length} of ${DRAWER_ORDER.length} fossils in the drawer.`);
+    this.badgeEl.setAttribute(
+      'aria-label',
+      `${n} of ${STATIONS.length} stations done${sv.museumDone ? ', and Museum Night' : ''}. ${sv.drawer.length} of ${DRAWER_ORDER.length} fossils in the drawer.`,
+    );
     this.touch?.setVisible(this.mode === 'world' && touchControlsVisible());
   }
 
@@ -1167,27 +1665,22 @@ export class Game {
       const t = this.world.targets.find((x) => x.id === id);
       if (t) this.world.walkTo(t);
     };
-    const rows = ALL_STATIONS.map((s) => {
-      const real = (STATIONS as readonly string[]).includes(s) ? (s as Station) : null;
-      const done = !!real && sv.done.includes(real);
-      const open = !!real && this.isOpen(real);
-      const status = !real
-        ? 'Opens in the next part of the game.'
-        : done
-          ? 'Done!'
-          : !open
-            ? 'Opens after the Quarry.'
-            : sv.worked.includes(real)
-              ? `Logbook: ${sv.stars[real]} of ${STARS_PER_STATION} stars.`
-              : real === 'quarry'
-                ? 'Dig a square of the quarry with Dr. Mateo.'
-                : 'Rebuild the cliff with Hana.';
+    const rows = STATIONS.map((s, i) => {
+      const done = sv.done.includes(s);
+      const open = this.isOpen(s);
+      const status = done
+        ? 'Done!'
+        : !open
+          ? `Opens after ${STATION_NAME[STATIONS[i - 1]].replace('The', 'the')}.`
+          : sv.worked.includes(s)
+            ? `Logbook: ${sv.stars[s]} of ${STARS_PER_STATION} stars.`
+            : JOB_TEXT[s];
       return h(
         'li',
         { class: `belt-row${open || done ? '' : ' soon'}` },
         pix(`badge-${s}-${done}-${open}`, () => paintBadge(s, done, open), 2),
-        h('div', { class: 'belt-info' }, h('strong', { text: ALL_NAMES[s] }), h('span', { text: status })),
-        h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo(s === 'quarry' ? 'mateo' : s === 'cliff' ? 'hana' : s === 'lab' ? 'sam' : 'tala') }),
+        h('div', { class: 'belt-info' }, h('strong', { text: STATION_NAME[s] }), h('span', { text: status })),
+        h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo(HOST[s]) }),
       );
     });
     const root = h(
@@ -1213,9 +1706,14 @@ export class Game {
           ...rows,
           h(
             'li',
-            { class: 'belt-row soon' },
-            pix('badge-museum', () => paintBadge('museum', false, false), 2),
-            h('div', { class: 'belt-info' }, h('strong', { text: 'Museum Night' }), h('span', { text: 'Opens when all four stations are done.' })),
+            { class: `belt-row${this.allDone ? '' : ' soon'}` },
+            pix(`badge-museum-${sv.museumDone}-${this.allDone}`, () => paintBadge('museum', sv.museumDone, this.allDone), 2),
+            h(
+              'div',
+              { class: 'belt-info' },
+              h('strong', { text: 'Museum Night' }),
+              h('span', { text: sv.museumDone ? 'Done! Visit again any time.' : this.allDone ? 'Ready! Meet Dr. Mateo at the field museum.' : 'Opens when all four stations are done.' }),
+            ),
             h('button', { class: 'btn small', type: 'button', text: 'Walk there', onclick: walkTo('museum') }),
           ),
         ),
@@ -1277,13 +1775,24 @@ export class Game {
       'fault-older': 'thinking a crack is older than the layers it cuts',
       'canyon-first': 'thinking the canyon formed before its layers',
       'gap-missing': 'not seeing that a layer can be worn away',
+      'relative-mixup': 'picking the wrong living cousin',
+      'birds-not-dinos': 'thinking birds are not related to dinosaurs',
+      'raptor-huge': 'thinking Velociraptor was huge, as in films',
+      'big-old': 'thinking a bigger print or bone means an older animal',
+      'far-walk': 'thinking prints far apart mean walking slowly',
+      'toes-mixup': 'misreading the toes of a footprint',
+      'group-random': 'mixing up one trackway and many',
+      'crossing-order': 'thinking a print on top came first',
+      'measure-mixup': 'adding or subtracting instead of comparing',
+      'hip-rule': 'misusing the hip height rule (4 times the print)',
     };
     const rows = STATIONS.flatMap((s) => {
-      const job = this.save.learner[s === 'quarry' ? 'quarry-dig' : 'cliff-puzzle'];
+      const job = this.save.learner[{ quarry: 'quarry-dig', cliff: 'cliff-puzzle', lab: 'lab-prep', trackway: 'trackway-tape' }[s]];
       const rec = this.save.learner[s];
       const mis = topMisconception(rec) ?? topMisconception(job);
       const info = STATION_INFO[s];
-      const status = this.save.done.includes(s) ? 'Done' : this.save.worked.includes(s) ? `${s === 'quarry' ? 'Dug' : 'Rebuilt'}; logbook in progress` : rec ? 'In progress' : 'Not started';
+      const worked = { quarry: 'Dug', cliff: 'Rebuilt', lab: 'Cleaned a fossil', trackway: 'Measured' }[s];
+      const status = this.save.done.includes(s) ? 'Done' : this.save.worked.includes(s) ? `${worked}; logbook in progress` : rec ? 'In progress' : 'Not started';
       return [
         h(
           'tr',
@@ -1296,12 +1805,26 @@ export class Game {
         ),
       ];
     });
+    const mus = this.save.learner['museum-talk'];
+    const musMis = topMisconception(mus) ?? topMisconception(this.save.learner['museum-mural']);
+    rows.push(
+      h(
+        'tr',
+        {},
+        h('th', { scope: 'row', text: 'Museum Night (the skeleton, the mural and its review questions)' }),
+        h('td', { text: this.save.museumDone ? 'Done' : this.allDone ? 'Ready' : 'Not yet' }),
+        h('td', { text: mus ? `${mus.correct} of ${mus.attempts} right first time` : '–' }),
+        h('td', { text: '–' }),
+        h('td', { text: musMis ? (WORDS[musMis] ?? '–') : '–' }),
+      ),
+    );
     const dig = this.save.learner['quarry-dig'];
+    const prep = this.save.learner['lab-prep'];
     return h(
       'div',
       {},
       h('p', {
-        text: `This summary is kept only in this browser. Stations done: ${this.save.done.length} of ${ALL_STATIONS.length} (the Prep Lab and the Trackway come in the next part). Fossil Drawer: ${this.save.drawer.length} of ${DRAWER_ORDER.length}. Quarry squares dug: ${this.save.digs}${dig ? ` (${dig.correct} of ${dig.attempts} finds dug out without a chip)` : ''}. Cliffs rebuilt: ${this.save.cliffs}.`,
+        text: `This summary is kept only in this browser. Stations done: ${this.save.done.length} of ${STATIONS.length}${this.save.museumDone ? ', and Museum Night' : ''}. Fossil Drawer: ${this.save.drawer.length} of ${DRAWER_ORDER.length}. Quarry squares dug: ${this.save.digs}${dig ? ` (${dig.correct} of ${dig.attempts} finds dug out without a chip)` : ''}. Cliffs rebuilt: ${this.save.cliffs}. Fossils cleaned: ${this.save.preps}${prep && prep.attempts - prep.correct > 0 ? ` (${prep.attempts - prep.correct} cracks from the air chisel, all glued)` : ''}. Trackways measured: ${this.save.tracks}.${this.save.trikeName ? ` The Triceratops is called ${this.save.trikeName}.` : ''}`,
       }),
       h(
         'div',
@@ -1339,6 +1862,13 @@ export class Game {
       time: this.world.timeOfDay,
       quarry: !!this.quarry,
       cliff: this.cliff ? this.cliff.state() : null,
+      prep: !!this.prep,
+      track: this.track ? this.track.state() : null,
+      museum: this.museumInfo,
+      museumDone: this.save.museumDone,
+      trikeName: this.save.trikeName,
+      preps: this.save.preps,
+      tracks: this.save.tracks,
       panel:
         pnl && q
           ? {

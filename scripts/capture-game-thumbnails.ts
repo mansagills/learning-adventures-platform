@@ -174,6 +174,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     ],
     delay: 1500,
   },
+  // Fossil Dig Adventure: start, read Ranger Tala's welcome, then the dig site with the cliff, the quarry and the camp.
+  'fossil-dig-adventure': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      'button:has-text("I\'m ready!")',
+      ...Array(12).fill('.dialogue'),
+    ],
+    delay: 1500,
+  },
 };
 
 const contentTypes: Record<string, string> = {

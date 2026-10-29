@@ -25,22 +25,32 @@ export interface DigSave {
   introduced: Station[];
   /** Stations whose hands-on job has been done at least once (a dug square, a rebuilt cliff). */
   worked: Station[];
-  /** Squares dug in the quarry, and cliffs rebuilt. */
+  /** Squares dug in the quarry, cliffs rebuilt, fossils cleaned in the Prep Lab and trackways read. */
   digs: number;
   cliffs: number;
+  preps: number;
+  tracks: number;
+  /** Fossils cleaned on the prep bench. */
+  prepped: FossilId[];
   /** The Fossil Drawer: each fossil the first time it was found (a later clean find replaces a chipped one). */
   drawer: FoundFossil[];
   openingSeen: boolean;
-  /** Ranger Tala's goodbye for half 1 has been said. */
+  /** Ranger Tala's goodbye for half 1 has been said (kept for old saves). */
   halfDoneSeen: boolean;
+  /** Ranger Tala's "every station done" has been said. */
+  allDoneSeen: boolean;
+  /** Museum Night is finished. */
+  museumDone: boolean;
+  /** The Triceratops's nickname (given at Museum Night). */
+  trikeName: string;
   /** Question ids seen lately at each station (so every question comes up before any repeats). */
   recent: Record<Station, string[]>;
   learner: LearnerState;
   seed: number;
 }
 
-const zeroes = (): Record<Station, number> => ({ quarry: 0, cliff: 0 });
-const noLists = (): Record<Station, string[]> => ({ quarry: [], cliff: [] });
+const zeroes = (): Record<Station, number> => ({ quarry: 0, cliff: 0, lab: 0, trackway: 0 });
+const noLists = (): Record<Station, string[]> => ({ quarry: [], cliff: [], lab: [], trackway: [] });
 
 export function freshSave(): DigSave {
   return {
@@ -53,13 +63,30 @@ export function freshSave(): DigSave {
     worked: [],
     digs: 0,
     cliffs: 0,
+    preps: 0,
+    tracks: 0,
+    prepped: [],
     drawer: [],
     openingSeen: false,
     halfDoneSeen: false,
+    allDoneSeen: false,
+    museumDone: false,
+    trikeName: '',
     recent: noLists(),
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
   };
+}
+
+/** A nickname: letters, spaces and hyphens only, at most 14 characters. */
+export function cleanName(v: unknown): string {
+  return typeof v === 'string'
+    ? v
+        .replace(/[^A-Za-z -]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 14)
+    : '';
 }
 
 export function cleanSave(raw: unknown): DigSave {
@@ -110,9 +137,15 @@ export function cleanSave(raw: unknown): DigSave {
     worked: only(r.worked, STATIONS),
     digs: count(r.digs),
     cliffs: count(r.cliffs),
+    preps: count(r.preps),
+    tracks: count(r.tracks),
+    prepped: only(r.prepped, FOSSIL_IDS),
     drawer,
     openingSeen: r.openingSeen === true,
     halfDoneSeen: r.halfDoneSeen === true,
+    allDoneSeen: r.allDoneSeen === true,
+    museumDone: r.museumDone === true,
+    trikeName: cleanName(r.trikeName),
     recent,
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,

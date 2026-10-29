@@ -1,4 +1,4 @@
-// Browser check for Fossil Dig Adventure (half 1): plays a new game from the
+// Browser check for Fossil Dig Adventure (both halves): plays a new game from the
 // title screen with real clicks and keys. Ranger Tala and Pebble open the
 // story; Hana and Sam are not ready yet; the player clicks Dr. Mateo, who
 // sends them into the quarry. In the dig: the brush is too soft for loose
@@ -10,10 +10,16 @@
 // until five stars and the debrief finish the Quarry. Hana's Cliff Wall:
 // a wrong layer at the bottom is crossed out, the five layers are stacked
 // oldest first, three fossils go into their layers, and the logbook and
-// debrief finish the Cliff Wall. Ranger Tala's goodbye for this part, the
-// Fossil Drawer with the skeleton's first two parts, the level 3 cliff with
-// the match across the valley, the grown-ups report, a reload, and the
-// phone layout.
+// debrief finish the Cliff Wall. Ranger Tala points to Sam, the Fossil
+// Drawer shows the skeleton's first two parts, and the level 3 cliff ends
+// with the match across the valley. Half 2: Sam's prep bench (the brush is
+// too slow for rock, the air chisel next to the fossil cracks it, glue
+// fixes cracks) and its logbook; Ranger Tala's trackway (the tape measures
+// a print, a walking step and a running step, then what the tracks tell)
+// and its logbook; Museum Night (the skeleton part by part, a nickname,
+// the mural in order with a question per scene, the ultraviolet Glow Room,
+// and the message to the site player); the level 3 trackway; the
+// grown-ups report, a reload, and the phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-fossil-dig-adventure.mjs [url]
@@ -159,7 +165,7 @@ try {
   await wait(page, 300);
   await page.keyboard.press('Space');
   await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
-  check('Sam’s Prep Lab opens in the next part', (await page.locator('.dialogue').textContent())?.includes('opens soon'));
+  check('Sam’s Prep Lab waits for the Cliff Wall', (await page.locator('.dialogue').textContent())?.includes('Cliff Wall'));
   await talkThrough(page);
 
   // Dr. Mateo, reached by clicking: the intro, then the quarry dig
@@ -303,10 +309,10 @@ try {
   s = await st(page);
   check('the debrief asks how sea shells got into the cliff, and the Cliff Wall is done', /shells/i.test(deb2) && s.done.includes('cliff'));
 
-  // Ranger Tala's goodbye for this part, and the Fossil Drawer
+  // Ranger Tala points the way to Sam, and the Fossil Drawer
   check('Ranger Tala talks', await clickPerson(page, 'tala', [19.6, 12.2]));
-  const bye = await talkThrough(page);
-  check('Tala says the Prep Lab and the Trackway come next', /Prep Lab and the Trackway/.test(bye));
+  const tip = await talkThrough(page);
+  check('Tala sends the player to Sam’s Prep Lab next', /Prep Lab/.test(tip));
   await page.keyboard.press('b');
   await wait(page, 400);
   s = await st(page);
@@ -344,17 +350,180 @@ try {
   s = await st(page);
   check('back on the dig site, two cliffs rebuilt', s.mode === 'world' && s.cliffs === 2, `${s.mode} ${s.cliffs}`);
 
+  // half 2: Sam's Prep Lab
+  await page.evaluate(() => window.addEventListener('message', (e) => (window.__msgs = [...(window.__msgs ?? []), e.data])));
+  check('Sam talks', await clickPerson(page, 'sam', [23.4, 8.4]));
+  const sIntro = await talkThrough(page);
+  check('Sam explains the bench: the air chisel, the brush and glue', /air chisel/.test(sIntro) && /glue/.test(sIntro));
+  check('the prep bench opens with three tools and 70 squares', await waitFor(page, async () => (await page.locator('.fda-cell').count()) === 70, 40));
+  let pr = await page.evaluate(() => window.__fda.prepState());
+  const rock = pr.cells.findIndex((c) => c.kind === 'rock');
+  const near = pr.cells.findIndex((c) => c.kind === 'near');
+  await page.keyboard.press('2');
+  await page.locator('.fda-cell').nth(rock).click();
+  await wait(page, 200);
+  check('the brush is too slow for plain rock', /too slow/.test(await page.locator('.fda-dig-status').innerText()));
+  await page.keyboard.press('1');
+  await page.locator('.fda-cell').nth(rock).click();
+  await page.locator('.fda-cell').nth(near).click();
+  await wait(page, 200);
+  pr = await page.evaluate(() => window.__fda.prepState());
+  check('the air chisel takes off rock, but next to the fossil it cracks it', !pr.cells[rock].covered && pr.accidents === 1 && /Crack/.test(await page.locator('.fda-dig-status').innerText()));
+  await page.screenshot({ path: `${OUT}/17-prep-bench.png` });
+  for (let i = 0; i < 70; i++) await page.evaluate((k) => window.__fda.prepOut(k), i);
+  check('cleaning every square and gluing every crack finishes the fossil', await waitFor(page, async () => (await page.getByText('Clean and ready to study').count()) > 0, 40));
+  await page.screenshot({ path: `${OUT}/18-prep-clean.png` });
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+  await talkThrough(page);
+  check('then the Prep Lab logbook opens', await waitFor(page, async () => (await page.locator('.fda-lab.fda-panel').count()) > 0, 40));
+  s = await st(page);
+  check('a lab question has its picture', (await page.locator('.fda-pic img').count()) === 1, s.panel.id);
+  await page.screenshot({ path: `${OUT}/19-lab-logbook.png` });
+  await playLogbook(page);
+  const deb3 = await talkThrough(page);
+  s = await st(page);
+  check('the lab debrief is about what fossils tell us, and the Prep Lab is done', /fossils tell/i.test(deb3) && s.done.includes('lab') && s.preps === 1);
+
+  // Ranger Tala's trackway
+  check('Ranger Tala talks at the trackway', await clickPerson(page, 'tala', [19.6, 12.2]));
+  const tIntro = await talkThrough(page);
+  check('Tala explains trace fossils and Pebble’s prints', /trace fossils/.test(tIntro) && /Pebble/.test(tIntro));
+  check('the trackway opens with a tape spot to tap', await waitFor(page, async () => (await page.locator('.fda-spot').count()) === 1, 40));
+  for (let k = 0; k < 6; k++) {
+    await page.locator('.fda-spot').click();
+    await wait(page, 200);
+  }
+  check(
+    'the tape measures a print, a walking step and a running step',
+    (await page.locator('.fda-readings li').count()) === 3 && /40 centimeters/.test(await page.locator('.fda-readings').innerText()),
+  );
+  await page.screenshot({ path: `${OUT}/20-trackway-tape.png` });
+  let tr = await page.evaluate(() => window.__fda.trackState());
+  check('then a question about the longer steps', tr.kind === 'choose');
+  const twrong = [0, 1, 2].find((i) => i !== tr.right);
+  await page.locator('.fda-track .fda-choice').nth(twrong).click();
+  await wait(page, 200);
+  check('a wrong answer is crossed out with a reason', (await page.locator('.fda-track .fda-choice.nope').count()) === 1);
+  await page.keyboard.press(String(tr.right + 1));
+  await wait(page, 300);
+  tr = await page.evaluate(() => window.__fda.trackState());
+  check('it started to run: the trackway is read (level 1)', tr.kind === 'done' && /run/.test(await page.locator('.fda-readings').innerText()));
+  await page.getByRole('button', { name: /back to ranger tala/i }).click();
+  check('the footprint goes into the drawer', await waitFor(page, async () => (await page.getByText('From the trackway').count()) > 0, 30));
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+  await talkThrough(page);
+  check('then the Trackway logbook opens', await waitFor(page, async () => (await page.locator('.fda-trackway.fda-panel').count()) > 0, 40));
+  await page.screenshot({ path: `${OUT}/21-trackway-logbook.png` });
+  await playLogbook(page);
+  const deb4 = await talkThrough(page);
+  s = await st(page);
+  check('the trackway debrief, then every station is done and Dr. Mateo calls everyone to the museum', /run/.test(deb4) && s.done.length === 4 && /museum/i.test(deb4) && s.time === 'evening');
+
+  // Museum Night
+  check('Dr. Mateo starts Museum Night', await clickPerson(page, 'mateo', [16.4, 12.6]));
+  await choose(page, /Start Museum Night/);
+  await talkThrough(page);
+  check('the museum opens: the skeleton, part by part', await waitFor(page, async () => (await page.locator('.fda-part-spot').count()) === 4, 40));
+  let mu = (await st(page)).museum;
+  const wrongPart = ['skull', 'backbone', 'legs', 'tail'].find((p) => p !== mu.right);
+  await page.locator(`.fda-part-spot[data-part="${wrongPart}"]`).click();
+  await wait(page, 200);
+  check('a part in the wrong place gets a gentle nudge', /different part/.test(await page.locator('.fda-museum .fda-dig-status').innerText()));
+  await page.screenshot({ path: `${OUT}/22-museum-skeleton.png` });
+  for (let k = 0; k < 4; k++) {
+    mu = (await st(page)).museum;
+    if (mu.phase !== 'skeleton') break;
+    await page.locator(`.fda-part-spot[data-part="${mu.right}"]`).click();
+    await wait(page, 250);
+  }
+  await talkThrough(page);
+  check('the skeleton is together, and the nickname box opens', await waitFor(page, async () => (await page.locator('.fda-name-input').count()) > 0, 30));
+  await page.locator('.fda-name-input').fill('Rex2 <b>');
+  await page.getByRole('button', { name: /name it/i }).click();
+  await wait(page, 300);
+  const named = await talkThrough(page);
+  s = await st(page);
+  check('the nickname is kept to letters', s.trikeName === 'Rex b' && named.includes('Rex b'), s.trikeName);
+  check('the mural opens with five scenes to order', await waitFor(page, async () => (await page.locator('.fda-mural-card').count()) === 5, 30));
+  mu = (await st(page)).museum;
+  const wrongScene = await page.locator('.fda-mural-card').evaluateAll((els, r) => els.findIndex((e) => e.dataset.layer !== r), mu.right);
+  await page.locator('.fda-mural-card').nth(wrongScene).click();
+  await wait(page, 200);
+  check('a scene out of order is crossed out', (await page.locator('.fda-mural-card.nope').count()) === 1);
+  await page.screenshot({ path: `${OUT}/23-museum-mural.png` });
+  let questions = 0;
+  let filled = 0;
+  for (let k = 0; k < 5; k++) {
+    mu = (await st(page)).museum;
+    await page.locator(`.fda-mural-card[data-layer="${mu.right}"]`).click();
+    filled = await page.locator('.fda-mural-slot.filled').count();
+    if (k === 4) await page.screenshot({ path: `${OUT}/23b-museum-mural-done.png` });
+    await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 30);
+    const said = await talkThrough(page);
+    if (/\?/.test(said)) questions++;
+  }
+  check('each scene goes up with a question (five in all)', questions === 5 && filled === 5, `${questions} questions, ${filled} placed`);
+  check('then the Glow Room', await waitFor(page, async () => (await page.getByRole('button', { name: /ultraviolet lamp/i }).count()) > 0, 30));
+  await page.screenshot({ path: `${OUT}/24-glow-room.png` });
+  await page.getByRole('button', { name: /ultraviolet lamp/i }).click();
+  await wait(page, 400);
+  await page.screenshot({ path: `${OUT}/25-glow-room-uv.png` });
+  const glow = await talkThrough(page);
+  check('the fossils glow: Sam explains the ultraviolet light, and Tala says goodbye with the nickname', /ultraviolet/.test(glow) && /Rex b/.test(glow));
+  const msgs = await page.evaluate(() => window.__msgs ?? []);
+  check(
+    'the game tells the site player it is complete',
+    msgs.some((m) => m && m.type === 'game-complete'),
+  );
+  await page.getByRole('button', { name: /back to the dig site/i }).click();
+  await wait(page, 400);
+  s = await st(page);
+  check('back at the dig site, Museum Night is done', s.mode === 'world' && s.museumDone && !(await page.locator('.fda-museum').count()));
+  await page.keyboard.press('b');
+  await wait(page, 400);
+  check('the drawer shows the named Triceratops', (await page.getByText(/Rex b, the young Triceratops/).count()) > 0);
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+
+  // level 3 at the trackway: which came first, and the hip height rule
+  await page.evaluate(() => {
+    window.__fda.setTier('trackway', 3);
+    window.__fda.track();
+  });
+  await wait(page, 400);
+  for (let k = 0; k < 6; k++) {
+    await page.locator('.fda-spot').click();
+    await wait(page, 150);
+  }
+  const asks = [];
+  for (let k = 0; k < 4; k++) {
+    tr = await page.evaluate(() => window.__fda.trackState());
+    if (tr.kind !== 'choose') break;
+    asks.push(await page.locator('.fda-track-ask').innerText());
+    if (k === 2) await page.screenshot({ path: `${OUT}/26-trackway-hip.png` });
+    await page.keyboard.press(String(tr.right + 1));
+    await wait(page, 250);
+  }
+  check('the level 3 trackway asks which came first and the hip height', asks.length === 3 && /first/.test(asks[1]) && /hip/.test(asks[2]), asks.join(' | '));
+  await page.getByRole('button', { name: /back to ranger tala/i }).click();
+  await wait(page, 300);
+  if (await page.getByRole('button', { name: /^done$/i }).count()) await page.getByRole('button', { name: /^done$/i }).click();
+  await wait(page, 300);
+  await talkThrough(page);
+
   // the grown-ups report
   await page.keyboard.press('g');
   await wait(page, 400);
   const gu = page.locator('.modal');
-  check('G opens the grown-ups page (with the NGSS standards)', (await gu.count()) > 0 && (await gu.innerText()).includes('NGSS 4-ESS1-1'));
+  check('G opens the grown-ups page (with the NGSS standards)', (await gu.count()) > 0 && (await gu.innerText()).includes('NGSS 4-ESS1-1') && (await gu.innerText()).includes('NGSS 4-LS1-1'));
   const tab = page.getByRole('tab', { name: /how it is going|progress/i });
   if (await tab.count()) {
     await tab.first().click();
     await wait(page, 200);
   }
-  check('the grown-ups report lists the Quarry and the Cliff Wall', (await page.locator('.progress-table tbody tr').count()) === 2);
+  check('the grown-ups report lists the four stations and Museum Night', (await page.locator('.progress-table tbody tr').count()) === 5);
   await page.screenshot({ path: `${OUT}/13-grownups.png` });
   await page.keyboard.press('Escape');
   await wait(page, 200);
@@ -366,7 +535,10 @@ try {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 500);
   s = await st(page);
-  check('a reload keeps the drawer, the stars and the stations', s.drawer.length === before.drawer.length && s.done.length === 2 && s.stars.quarry === 5);
+  check(
+    'a reload keeps the drawer, the stars, the stations and the nickname',
+    s.drawer.length === before.drawer.length && s.done.length === 4 && s.stars.quarry === 5 && s.museumDone && s.trikeName === 'Rex b',
+  );
 
   // the phone layout: the dig site, the quarry and the cliff
   const phone = await newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
@@ -387,6 +559,18 @@ try {
   await phone.page.evaluate(() => window.__fda.cliff());
   await wait(phone.page, 600);
   await phone.page.screenshot({ path: `${OUT}/16-phone-cliff.png` });
+  sideways = sideways && (await phone.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+  await phone.page.keyboard.press('Escape');
+  await wait(phone.page, 300);
+  await phone.page.evaluate(() => window.__fda.prep());
+  await wait(phone.page, 600);
+  await phone.page.screenshot({ path: `${OUT}/27-phone-prep.png` });
+  sideways = sideways && (await phone.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+  await phone.page.keyboard.press('Escape');
+  await wait(phone.page, 300);
+  await phone.page.evaluate(() => window.__fda.track());
+  await wait(phone.page, 600);
+  await phone.page.screenshot({ path: `${OUT}/28-phone-track.png` });
   sideways = sideways && (await phone.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
   check('no sideways scrolling at phone width', sideways);
 } catch (err) {

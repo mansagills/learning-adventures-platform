@@ -218,6 +218,33 @@ export function paintCliffView(W: number, H: number, opts: { fossils?: boolean; 
  * are pressed on top), Pebble's walking and running prints in the creek mud
  * at the bottom for comparing, and a tape measure laid from print to print.
  */
+/** Where the trackway's prints are, in a view W x H pixels: the three-toed prints (heel and toe tip, walking then running), the round prints that cross them later, and Pebble's paw prints (walking, then running). */
+export function trackwayLayout(
+  W: number,
+  H: number,
+): {
+  three: Array<{ heel: [number, number]; toe: [number, number] }>;
+  round: Array<[number, number]>;
+  pawWalk: Array<[number, number]>;
+  pawRun: Array<[number, number]>;
+  mudTop: number;
+} {
+  const s = 1.8;
+  const three: Array<{ heel: [number, number]; toe: [number, number] }> = [];
+  let x = W * 0.06;
+  for (let k = 0; k < 9; k++) {
+    const y = H * 0.38 + (k % 2 ? -H * 0.06 : H * 0.06);
+    three.push({ heel: [x - 2 * s, y], toe: [x + 8 * s, y] });
+    x += k < 4 ? W * 0.07 : W * 0.13;
+    if (x > W * 0.94) break;
+  }
+  const round: Array<[number, number]> = [0, 1, 2, 3].map((k) => [W * 0.5 + k * W * 0.04, H * 0.1 + k * H * 0.17]);
+  const mudTop = Math.round(H * 0.8);
+  const pawWalk: Array<[number, number]> = [0, 1, 2, 3, 4, 5].map((k) => [W * 0.06 + k * W * 0.035, mudTop + H * 0.06 + (k % 2) * 5]);
+  const pawRun: Array<[number, number]> = [0, 1, 2, 3].map((k) => [W * 0.55 + k * W * 0.1, mudTop + H * 0.06 + (k % 2) * 5]);
+  return { three, round, pawWalk, pawRun, mudTop };
+}
+
 export function paintTrackwayView(W: number, H: number): PixelBuffer {
   const p = new Paint(W, H);
   const mudTop = Math.round(H * 0.8);

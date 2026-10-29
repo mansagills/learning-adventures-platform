@@ -420,6 +420,10 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: auto;
+}
+.fda-dig .content > * {
+  flex-shrink: 0;
 }
 .fda-dig-top {
   display: flex;
@@ -609,4 +613,205 @@
 .fda-skeleton .px-icon {
   max-width: 100%;
   height: auto;
+}
+
+/* ---------- half 2: the prep bench, the trackway, Museum Night ---------- */
+.fda-bench {
+  width: min(520px, 100%, calc((100dvh - 330px) * 1.43));
+}
+.fda-slab {
+  width: min(640px, 100%, calc((100dvh - 430px) * 1.71));
+  min-width: min(300px, 100%);
+}
+.fda-slab > .px-icon {
+  width: 100%;
+  height: auto;
+}
+.fda-tape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.fda-tape line.tape {
+  stroke: #f2c94c;
+  stroke-width: 3;
+  stroke-dasharray: 4 2;
+}
+.fda-spot {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  border: 3px solid #e0503a;
+  background: rgba(255, 225, 74, 0.45);
+  cursor: pointer;
+  animation: fda-pulse 1s ease-in-out infinite alternate;
+}
+.fda-spot:focus-visible {
+  outline: 3px solid #1d1a30;
+  outline-offset: 2px;
+}
+@keyframes fda-pulse {
+  from {
+    box-shadow: 0 0 0 0 rgba(255, 225, 74, 0.9);
+  }
+  to {
+    box-shadow: 0 0 0 8px rgba(255, 225, 74, 0);
+  }
+}
+.reduced-motion .fda-spot {
+  animation: none;
+}
+.fda-track-ask {
+  margin: 0;
+  font-size: var(--text);
+}
+.fda-readings {
+  margin: 0;
+  padding-left: 20px;
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.fda-track .fda-cards {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.fda-track .fda-cards .fda-choice.fda-card-btn {
+  flex: 1 1 160px;
+}
+
+/* Museum Night: a plain overlay over the dig site, so the talk box keeps the keyboard */
+.fda-museum {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: min(720px, calc(100% - 32px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  padding: 10px 14px 12px;
+}
+.fda-museum header h2 {
+  margin: 0 0 6px;
+}
+.fda-museum .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.fda-museum-ask {
+  margin: 0;
+  min-height: 1.2em;
+  text-align: center;
+}
+.fda-museum-stage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.fda-skeleton-board {
+  width: min(420px, 100%);
+  background: #efe3c6;
+  border: 3px solid #7a5236;
+  border-radius: 10px;
+}
+.fda-skeleton-board > .px-icon {
+  width: 100%;
+  height: auto;
+}
+.fda-part-spot {
+  position: absolute;
+  border: 2px dashed rgba(122, 82, 54, 0.7);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+.fda-part-spot:hover,
+.fda-part-spot:focus-visible {
+  background: rgba(224, 80, 58, 0.12);
+  outline: 3px solid #e0503a;
+}
+.fda-museum-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.fda-name-input {
+  font: inherit;
+  font-size: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 2px solid #7a5236;
+  min-width: 0;
+  width: 12em;
+}
+.fda-mural {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+.fda-mural-slot {
+  min-height: 70px;
+  border: 2px dashed #b8a888;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  text-align: center;
+}
+.fda-mural-slot.filled {
+  border-style: solid;
+  border-color: #7a5236;
+  background: #fffaf0;
+}
+.fda-mural-slot .px-icon {
+  max-width: 100%;
+  height: auto;
+}
+.fda-mural-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 150px;
+  font-size: var(--text-small);
+}
+.fda-mural-card.nope {
+  opacity: 0.5;
+}
+.fda-glow-img {
+  display: block;
+  width: 100%;
+  max-height: 46vh;
+  object-fit: contain;
+  height: auto;
+  image-rendering: pixelated;
+  border-radius: 10px;
+  border: 3px solid #1d1a30;
+  background: #140e28;
+}
+@media (max-width: 640px) {
+  .fda-mural {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .fda-mural-card {
+    max-width: 110px;
+  }
 }
