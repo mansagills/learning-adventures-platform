@@ -41,15 +41,19 @@ export function sampleQuarry(cols = 8, rows = 6): QuarryCell[] {
 
 const LAYER_COL: Ramp[] = [DIG.clay, DIG.riverRock, DIG.tan, DIG.dust];
 
+/** Where the grid squares sit in a quarry view W x H pixels (so a page can lay its buttons over them). */
+export function quarryGrid(W: number, H: number, cols = 8, rows = 6): { cw: number; ch: number; ox: number; oy: number } {
+  const cw = Math.floor((W - 16) / cols);
+  const ch = Math.floor((H - 16) / rows);
+  return { cw, ch, ox: Math.floor((W - cw * cols) / 2), oy: Math.floor((H - ch * rows) / 2) };
+}
+
 /** The quarry square seen from above, `cols` x `rows` grid squares, with the tool chosen highlighted by the page. */
 export function paintQuarryView(W: number, H: number, cells: QuarryCell[], cols = 8, rows = 6): PixelBuffer {
   const p = new Paint(W, H);
   // the quarry's rim of dusty ground
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) p.dot(x, y, DIG.dust, hash(x >> 1, y >> 1, 3) < 0.05 ? 1 : (x + y) % 7 === 0 ? 3 : 2);
-  const cw = Math.floor((W - 16) / cols);
-  const ch = Math.floor((H - 16) / rows);
-  const ox = Math.floor((W - cw * cols) / 2);
-  const oy = Math.floor((H - ch * rows) / 2);
+  const { cw, ch, ox, oy } = quarryGrid(W, H, cols, rows);
   cells.forEach((c, i) => {
     const gx = i % cols;
     const gy = Math.floor(i / cols);
@@ -120,7 +124,9 @@ export const LAYER_FOSSILS: Record<string, FossilId[]> = {
  * and a time arrow down the left edge. Returns where each layer's middle is
  * (0-1 from the top), for the page's labels.
  */
-export function paintCliffView(W: number, H: number): { buf: PixelBuffer; mids: Record<string, number> } {
+export function paintCliffView(W: number, H: number, opts: { fossils?: boolean; mark?: string | null } = {}): { buf: PixelBuffer; mids: Record<string, number> } {
+  const showFossils = opts.fossils ?? true;
+  const bounds: Record<string, [number, number]> = {};
   const p = new Paint(W, H);
   const sky = ramp('#a8d4ee');
   const top = Math.round(H * 0.08);
@@ -132,6 +138,7 @@ export function paintCliffView(W: number, H: number): { buf: PixelBuffer; mids: 
     const h = Math.round((H - top) * layer.h);
     const yTop = y0 - h;
     mids[layer.id] = (yTop + h / 2) / H;
+    bounds[layer.id] = [Math.max(top, yTop), y0];
     for (let y = Math.max(top, yTop); y < y0; y++)
       for (let x = 0; x < W; x++) {
         let lv = 2;
@@ -144,16 +151,17 @@ export function paintCliffView(W: number, H: number): { buf: PixelBuffer; mids: 
         p.dot(x, y, r, lv);
       }
     // the fossils in this layer
-    LAYER_FOSSILS[layer.id].forEach((id, k) => {
-      const f = paintFossil(id, Math.min(h / 20, 2.2));
-      const fx = Math.round(W * (0.28 + k * 0.3) - f.w / 2);
-      const fy = Math.round(yTop + (h - f.h) / 2);
-      for (let y = 0; y < f.h; y++)
-        for (let x = 0; x < f.w; x++) {
-          const c = f.get(x, y);
-          if (c) p.pix(fx + x, fy + y, c);
-        }
-    });
+    if (showFossils)
+      LAYER_FOSSILS[layer.id].forEach((id, k) => {
+        const f = paintFossil(id, Math.min(h / 20, 2.2));
+        const fx = Math.round(W * (0.28 + k * 0.3) - f.w / 2);
+        const fy = Math.round(yTop + (h - f.h) / 2);
+        for (let y = 0; y < f.h; y++)
+          for (let x = 0; x < f.w; x++) {
+            const c = f.get(x, y);
+            if (c) p.pix(fx + x, fy + y, c);
+          }
+      });
     y0 = yTop;
   }
   // the grassy top with sage
@@ -163,6 +171,29 @@ export function paintCliffView(W: number, H: number): { buf: PixelBuffer; mids: 
     const fx = Math.round(W * 0.84 - (y / H) * W * 0.08);
     p.pix(fx, y, '#2a1e18');
     p.pix(fx + 1, y, '#5a4a3a');
+  }
+  // a marked layer (or the crack) gets a bright dashed outline
+  const mark = opts.mark ?? null;
+  if (mark === 'fault')
+    for (let y = top; y < H; y++) {
+      const fx = Math.round(W * 0.84 - (y / H) * W * 0.08);
+      if ((y >> 1) % 2 === 0) {
+        p.pix(fx - 2, y, '#ffe14a');
+        p.pix(fx + 3, y, '#ffe14a');
+      }
+    }
+  else if (mark && bounds[mark]) {
+    const [a, b] = bounds[mark];
+    for (let x = 1; x < W - 1; x++)
+      if ((x >> 1) % 2 === 0) {
+        p.pix(x, a + 1, '#ffe14a');
+        p.pix(x, b - 2, '#ffe14a');
+      }
+    for (let y = a + 1; y < b - 1; y++)
+      if ((y >> 1) % 2 === 0) {
+        p.pix(1, y, '#ffe14a');
+        p.pix(W - 2, y, '#ffe14a');
+      }
   }
   // the time arrow down the left edge: "older" at the bottom
   const ar = ramp('#f2f4ec');

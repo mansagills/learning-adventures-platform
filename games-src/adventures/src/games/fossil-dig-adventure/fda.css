@@ -1,0 +1,612 @@
+/* Fossil Dig Adventure: the HUD, the station list, the logbook panel, the quarry dig, the cliff puzzles and the Fossil Drawer. */
+:root {
+  --fda-gold: #ffc23a;
+  --fda-leaf: #2f6b2c;
+  --fda-leaf-bg: #dcebc9;
+  --fda-rust: #a8502a;
+}
+.title-card .logo {
+  color: #8a3a1a;
+}
+.px-icon {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- HUD ---------- */
+.fda-hudbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+}
+.fda-lenses {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* the station list */
+.belt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.belt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.belt-row.soon {
+  opacity: 0.75;
+}
+.belt-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-small);
+}
+.belt-info strong {
+  font-size: var(--text);
+}
+.belt-stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- the question panel ---------- */
+.fda-panel {
+  width: min(720px, 100%);
+}
+.fda-panel header {
+  background: linear-gradient(90deg, #cdeee8, var(--paper-2));
+}
+.fda-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.fda-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.fda-stars {
+  display: flex;
+  gap: 2px;
+}
+.fda-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.fda-host {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #d8f0e8;
+}
+.fda-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.fda-speak {
+  flex: none;
+}
+.fda-body {
+  padding: 10px 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.fda-pic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-width: 100%;
+  padding: 6px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 40%, #1f5a8a, #0a1a30);
+  border: 3px solid #1d1a30;
+}
+.fda-pic .px-icon,
+.fda-model .px-icon {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+/* keep the panel on one screen: big pictures (the Sun, Uranus with its rings) are capped in height */
+.fda-pic > .px-icon,
+.fda-sky .px-icon {
+  max-height: min(34vh, 230px);
+  object-fit: contain;
+}
+.fda-sky {
+  position: relative;
+}
+.fda-model[hidden] {
+  display: none;
+}
+.fda-row {
+  position: relative;
+  max-width: 100%;
+  margin-bottom: 14px;
+}
+.fda-tag {
+  position: absolute;
+  transform: translate(-50%, 0);
+  padding: 0 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1d1a30;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.fda-tag.small {
+  font-size: 11px;
+  padding: 0 3px;
+}
+.fda-choices {
+  padding: 10px 16px 0;
+}
+.fda-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.fda-choice {
+  min-height: 52px;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 180px;
+  max-width: 320px;
+}
+.fda-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.fda-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text);
+  line-height: 1.25;
+  text-align: left;
+}
+.fda-choice.nope {
+  opacity: 0.35;
+}
+.fda-choice.nope .fda-choice-text {
+  text-decoration: line-through;
+}
+.fda-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  border-color: var(--fda-leaf);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--fda-leaf);
+  outline-offset: 3px;
+  animation: fda-worked 1s ease-in-out infinite;
+}
+@keyframes fda-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+.fda-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.fda-feedback[hidden] {
+  display: none;
+}
+.fda-feedback img {
+  flex: none;
+}
+.fda-feedback.good {
+  background: var(--fda-leaf-bg);
+  color: #1d4a1b;
+}
+.fda-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.fda-feedback.hint {
+  background: #e3e8f6;
+  color: #1c2f66;
+}
+.fda-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.fda-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .fda-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+  }
+  .fda-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .fda-host {
+    width: 48px;
+    height: 48px;
+  }
+  .fda-prompt {
+    font-size: var(--text);
+  }
+  .fda-body {
+    padding: 8px 10px 0;
+  }
+  .fda-pic {
+    min-height: 0;
+  }
+  .fda-choices {
+    padding: 6px 10px 0;
+  }
+  .fda-head-right .fda-level {
+    display: none;
+  }
+  .fda-options {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .fda-choice {
+    min-height: 46px;
+    max-width: none;
+    flex: none;
+  }
+  .fda-feedback {
+    margin: 6px 10px 0;
+    font-size: var(--text-small);
+  }
+  .fda-foot {
+    padding: 8px 10px 10px;
+  }
+  .fda-tag.small {
+    font-size: 9px;
+  }
+}
+/* ---------- the HUD badges ---------- */
+.fda-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fda-badge-text {
+  font-size: var(--text-small);
+}
+
+/* ---------- the dive ---------- */
+.fda-card {
+  width: min(560px, 100%, calc((100dvh - 370px) * 1.28));
+  min-width: min(260px, 100%);
+}
+.fda-card-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.fda-card-body .px-icon {
+  flex: none;
+  border-radius: 8px;
+  border: 3px solid #1d1a30;
+  max-width: 45%;
+  height: auto;
+}
+.fda-card-body p {
+  margin: 0 0 8px;
+}
+.fda-card-lives {
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.fda-guide {
+  width: min(760px, 100%);
+}
+.fda-guide-head {
+  margin: 14px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fda-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.fda-guide-card {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  text-align: center;
+  border-radius: 8px;
+  min-height: 0;
+}
+.fda-guide-card .px-icon {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.fda-guide-empty {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--paper-3);
+  border-radius: 8px;
+  font-size: 28px;
+  color: var(--ink-soft);
+}
+.fda-guide-soon {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  font-size: var(--text-small);
+}
+
+/* ---------- the Creature Designer ---------- */
+.fda-model-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.fda-model-fact {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f6ead2;
+  color: #4a2a10;
+  font-weight: 700;
+}
+
+/* ---------- the quarry dig ---------- */
+.fda-dig {
+  width: min(760px, 100%);
+}
+.fda-dig .content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fda-dig-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fda-tools {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.fda-tool {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.fda-tool.on {
+  outline: 3px solid var(--fda-gold);
+  outline-offset: 1px;
+  background: #fff4d0;
+}
+.fda-board {
+  position: relative;
+  align-self: center;
+  width: min(560px, 100%, calc((100dvh - 370px) * 1.28));
+  min-width: min(260px, 100%);
+  line-height: 0;
+}
+.fda-board > .px-icon {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.fda-cells {
+  position: absolute;
+  inset: 0;
+}
+.fda-cell {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.fda-cell:focus-visible,
+.fda-cell.cur {
+  outline: 3px solid #ffe14a;
+  outline-offset: -3px;
+  z-index: 1;
+}
+.fda-cell:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.fda-dig-status {
+  margin: 0;
+  min-height: 1.4em;
+  font-weight: 700;
+}
+.fda-finds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.fda-find {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.fda-find.got {
+  background: #fff1c2;
+  color: #5a3d00;
+}
+
+/* ---------- the cliff puzzles ---------- */
+.fda-cliff {
+  width: min(760px, 100%);
+}
+.fda-cliff .content {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 12px;
+}
+.fda-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fda-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 2px dashed #b8a888;
+  background: var(--paper-2);
+  font-size: var(--text-small);
+  font-weight: 700;
+}
+.fda-slot.filled {
+  border-style: solid;
+  border-color: #7a5236;
+  background: #fffaf0;
+}
+.fda-slot.cur {
+  border-color: var(--fda-gold);
+  background: #fff4d0;
+}
+.fda-slot-end {
+  font-size: var(--text-small);
+  opacity: 0.8;
+  text-align: center;
+}
+.fda-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fda-cards h3 {
+  margin: 0;
+  font-size: var(--text);
+}
+.fda-cards .fda-choice.fda-card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  text-align: left;
+  flex: none;
+  max-width: none;
+  min-height: 46px;
+  padding: 4px 10px;
+}
+.fda-card-btn .px-icon {
+  flex: none;
+}
+.fda-cliff-fossil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* the drawer's cards, opened */
+.fda-drawer-card .px-icon {
+  image-rendering: pixelated;
+}
+
+@media (max-width: 640px) {
+  .fda-cliff .content {
+    grid-template-columns: 1fr;
+  }
+  .fda-guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fda-card-body {
+    flex-direction: column;
+  }
+  .fda-card-body .px-icon {
+    max-width: 100%;
+  }
+  .fda-tool span:not(.kbd) {
+    font-size: var(--text-small);
+  }
+}
+
+/* the skeleton at the top of the Fossil Drawer */
+.fda-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f6ead2;
+}
+.fda-skeleton .px-icon {
+  max-width: 100%;
+  height: auto;
+}
