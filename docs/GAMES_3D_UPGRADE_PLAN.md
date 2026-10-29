@@ -1755,7 +1755,7 @@ Provisional score (half 1): 8.8/10.
 | Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, smooth on software rendering, and saves are checked when loaded. |
 | Completeness | 0.6 / 1.0 | Half 1 only: the midnight zone, the vents, the Trench Dive, the Glow Show and the site listing come in half 2. |
 
-#### S2 Earth: Fossil Dig Adventure, the second Wild Lands game: PLAN WRITTEN (2026-10-26), waiting for the owner's approval
+#### S2 Earth: Fossil Dig Adventure, the second Wild Lands game: PLAN APPROVED (2026-10-29); look preview built, waiting for the owner's look
 
 > Source: the old site game `public/games/fossil-dig-adventure.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-26, over Animal Kingdom Match, Pollution Solution Squad and Rock Cycle Racing. Grades 3–5, slug `fossil-dig-adventure` (the new game replaces the old one at the same address when it ships).
 
@@ -1828,8 +1828,12 @@ Provisional score (half 1): 8.8/10.
   - Replay: new digs (fossils in new places), logbook practice and a free dig mode.
 - **Difficulty change from the original:** from a clicking game with facts to three levels per station that reach grade 5: superposition with faults and erosion gaps, index fossils, reading past environments, and a multiplication rule for dinosaur size. Every wrong answer names a real mistake.
 
+**Owner answers (2026-10-29: "1a, 2a, 3a, 4 keep"):** the walking dig site with four stations, the ultraviolet Glow Room, a young Triceratops, and the draft names (Dr. Mateo Ruiz, Hana Sato, Sam Bello, Pebble) and the title Fossil Dig Adventure.
+
 ##### How it would be built (each step ends with the owner's look)
-1. **Look preview:** the `dig-site` setting by day and at dusk, the cast (Dr. Mateo, Hana, Sam, Pebble, with Ranger Tala), the quarry grid, the cliff wall, the trackway slab, the 16 fossils and the Glow Room. Dev server only (`/lookdev/#dig-*`), kept out of the shared lists like the other previews.
+1. **Look preview: BUILT (2026-10-29), waiting for the owner's look.** The `dig-site` setting by day and at dusk, the cast (Dr. Mateo, Hana, Sam, Pebble, with Ranger Tala), the quarry grid, the cliff wall, the trackway slab, the 16 fossils and the Glow Room. Dev server only (`/lookdev/#dig-*`), kept out of the shared lists like the other previews.
+   - Pages: `#dig-cast` (the people, Pebble, the 16 fossils, the same fossils under the ultraviolet lamp, the skeleton as it fills in, the props), `#dig-site` and `#dig-site-evening` (the walkable dig site), `#dig-quarry`, `#dig-cliff`, `#dig-trackway`, `#dig-glow` and `#dig-glow-uv` (the station close-ups). Screenshots: `node scripts/dig-lookdev-shots.mjs`.
+   - Code: `src/kit/worlds/wild-lands/dig-art.ts` (the cast, Pebble, the fossils, the skeleton, the props), `dig.ts` (the setting and the cliff face) and `dig-views.ts` (the close-ups). Five more unit tests in `tests/wild-lands.test.ts`. The finished games build byte-for-byte the same.
 2. **Half 1:** the dig site, the Quarry and the Cliff Wall, the Fossil Drawer, saving and the grown-ups page.
 3. **Half 2:** the Prep Lab, the Trackway, the Museum Night with the Glow Room, the site listing at the same address and a new card picture.
 
@@ -1896,6 +1900,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-08:** Game worlds W1 approved. M6 plan written with the `remaster-game` skill; owner chose the name Forum Fraction Feast, a walking Roman forum with four jobs, built in two halves. Half 1 (the Bakery and Milestone Road) built.
 - **2026-10-09:** Half 2 built (the Market Stall, the Mosaic, the Festival Feast and Frenzy mode); the site lists Forum Fraction Feast and `/games/fraction-pizza-party` redirects. 9.1/10, 27 unit tests and 51 browser checks. Owner approved and merged PR #220. **M6 COMPLETED ✅: 9 of the 11 Math games are done.** Next: M7 (Multiplication Space Quest with Multiplication Bingo Bonanza and Multiplication Tables Adventure merged in, and Equation Balance Scale) in the Star Station world, plan first. Handoff: `docs/M7_STAR_STATION_HANDOFF.md`.
 - **2026-10-09:** M7 plan written (the M7 section above), after studying and playing the four originals. Found two problems in the live games: about 55% of Bingo Bonanza's calls have no answer on the card, and the Balance Scale freezes on subtraction with a negative answer. Waiting for the owner's choices and approval.
+- **2026-10-29:** The owner merged the plan (PR #245) and answered "1a, 2a, 3a, 4 keep": the walking dig site, the ultraviolet Glow Room, a young Triceratops and the draft names. The look preview is built: the dig site by day and at dusk (the striped cliff with its five layers, the quarry with grid strings, the lab tent, the field museum, the footprint slab by the creek), the cast with Pebble the dog, the 16 fossils (and how they look under the ultraviolet lamp), the Triceratops skeleton, and close-ups of the four stations. Waiting for the owner's look before half 1.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.

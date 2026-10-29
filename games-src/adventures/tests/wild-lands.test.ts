@@ -41,3 +41,54 @@ describe('Wild Lands (look development)', () => {
     }
   });
 });
+
+import { CLIFF_LAYERS, DIG_LAYOUT, DIG_SITE, DIG_SPOTS, QUARRY, SLAB } from '../src/kit/worlds/wild-lands/dig';
+import { FOSSIL_IDS, SKELETON_PARTS, glowsUnderUV, paintFossil, paintSkeleton } from '../src/kit/worlds/wild-lands/dig-art';
+import { LAYER_FOSSILS, sampleQuarry } from '../src/kit/worlds/wild-lands/dig-views';
+
+describe('the dig site (Fossil Dig Adventure, look development)', () => {
+  it('is a Wild Lands setting that stays out of the shared list', () => {
+    expect(DIG_SITE.world).toBe('wild-lands');
+    expect(DIG_SITE.id).toBe('dig-site');
+  });
+
+  it('stacks the cliff’s five layers oldest at the bottom, filling the whole cliff', () => {
+    expect(CLIFF_LAYERS.map((l) => l.id)).toEqual(['sea', 'swamp', 'river', 'ice', 'today']);
+    expect(CLIFF_LAYERS.reduce((a, l) => a + l.h, 0)).toBeCloseTo(1);
+    // sea animals in the oldest layer, mammoths near the top, nothing in today's soil
+    expect(LAYER_FOSSILS.sea).toContain('trilobite');
+    expect(LAYER_FOSSILS.ice).toContain('mammoth-tusk');
+    expect(LAYER_FOSSILS.today).toEqual([]);
+  });
+
+  it('has 16 different fossils, each painted, and only some glow under ultraviolet light', () => {
+    expect(new Set(FOSSIL_IDS).size).toBe(16);
+    for (const id of FOSSIL_IDS) {
+      const b = paintFossil(id, 1);
+      let filled = 0;
+      for (let y = 0; y < b.h; y++) for (let x = 0; x < b.w; x++) if (b.get(x, y)) filled++;
+      expect(filled, id).toBeGreaterThan(20);
+    }
+    const glowing = FOSSIL_IDS.filter(glowsUnderUV);
+    expect(glowing.length).toBeGreaterThan(8);
+    expect(glowing.length).toBeLessThan(16);
+    expect(glowsUnderUV('coprolite')).toBe(false);
+  });
+
+  it('builds the Triceratops from four parts', () => {
+    expect(SKELETON_PARTS).toEqual(['skull', 'backbone', 'legs', 'tail']);
+    expect(paintSkeleton(1, []).w).toBe(paintSkeleton(1).w);
+  });
+
+  it('keeps every station and person on the map, with the quarry and the slab on the ground', () => {
+    for (const [k, s] of Object.entries(DIG_SPOTS)) {
+      expect(s.x, k).toBeGreaterThan(0);
+      expect(s.x, k).toBeLessThan(DIG_LAYOUT.w);
+      expect(s.y, k).toBeGreaterThan(DIG_LAYOUT.floorTop);
+      expect(s.y, k).toBeLessThan(DIG_LAYOUT.h);
+    }
+    expect(QUARRY.x1).toBeGreaterThan(QUARRY.x0 + 4);
+    expect(SLAB.y1).toBeLessThan(DIG_LAYOUT.h - 2);
+    expect(sampleQuarry().length).toBe(48);
+  });
+});

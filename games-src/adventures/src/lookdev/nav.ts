@@ -34,6 +34,14 @@ export const PAGES: Array<[string, string]> = [
   ['wild-reef-sunlight', 'Dive: sunlight zone'],
   ['wild-reef-twilight', 'Dive: twilight zone'],
   ['wild-reef-midnight', 'Dive: midnight zone'],
+  ['dig-cast', 'Fossil Dig: the cast and fossils'],
+  ['dig-site', 'Fossil Dig: the dig site'],
+  ['dig-site-evening', 'Dig site at dusk'],
+  ['dig-quarry', 'The Quarry'],
+  ['dig-cliff', 'The Cliff Wall'],
+  ['dig-trackway', 'The Trackway'],
+  ['dig-glow', 'The Glow Room'],
+  ['dig-glow-uv', 'Glow Room: ultraviolet lamp on'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -65,6 +73,18 @@ export function pageParams(): URLSearchParams {
       q.set('area', area);
     }
     if (flag === 'quiet') q.set('talk', '0');
+    return q;
+  }
+  // Fossil Dig Adventure: #dig-cast, #dig-site[-evening], #dig-quarry, #dig-cliff, #dig-trackway, #dig-glow[-uv] (add -quiet to hide the talk box)
+  if (token.startsWith('dig-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'dig-cast' : area === 'site' ? 'dig-site' : 'dig-view');
+    if (area !== 'cast' && area !== 'site') q.set('area', area);
+    for (const r of rest) {
+      if (r === 'evening') q.set('time', 'evening');
+      else if (r === 'quiet') q.set('talk', '0');
+      else if (r === 'uv') q.set('uv', '1');
+    }
     return q;
   }
   // Wild Lands: #wild-cast, #wild-camp[-evening], #wild-reef[-sunlight|-twilight|-midnight] (add -quiet to hide the talk box)
