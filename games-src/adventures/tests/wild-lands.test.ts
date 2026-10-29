@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { WORLD_STYLES } from '../src/kit/worlds/styles';
 import { OCEAN_ZONES, depthAtRow, rowOfDepth, sunlightAt, viewSpan } from '../src/kit/worlds/wild-lands/ocean';
 import { WILD_LANDS } from '../src/kit/worlds/wild-lands/style';
+import { ANIMAL_HOME, ANIMAL_IDS, HABITATS, paintAnimal, paintHabitatMap, paintKiki } from '../src/kit/worlds/wild-lands/animal-art';
+import { DESERT_SPOTS, HABITAT_LAYOUT, HABITAT_SETTINGS, POLAR_SEA, POLAR_SPOTS, RAINFOREST_SPOTS, WETLAND_SPOTS } from '../src/kit/worlds/wild-lands/habitats';
 
 describe('Wild Lands (look development)', () => {
   it('uses the 16-bit style of the other new worlds', () => {
@@ -90,5 +92,57 @@ describe('the dig site (Fossil Dig Adventure, look development)', () => {
     expect(QUARRY.x1).toBeGreaterThan(QUARRY.x0 + 4);
     expect(SLAB.y1).toBeLessThan(DIG_LAYOUT.h - 2);
     expect(sampleQuarry().length).toBe(48);
+  });
+});
+
+describe('Animal Kingdom Match (look development)', () => {
+  const filled = (b: { w: number; h: number; get(x: number, y: number): string | null }) => {
+    let n = 0;
+    for (let y = 0; y < b.h; y++) for (let x = 0; x < b.w; x++) if (b.get(x, y)) n++;
+    return n;
+  };
+
+  it('paints all 20 new animals in three frames (still, moving, blinking), and Kiki in four', () => {
+    expect(new Set(ANIMAL_IDS).size).toBe(20);
+    for (const id of ANIMAL_IDS)
+      for (const f of [0, 1, 2]) {
+        const b = paintAnimal(id, 24, f);
+        expect(filled(b), `${id} ${f}`).toBeGreaterThan(40);
+      }
+    for (const f of [0, 1, 2, 3]) expect(filled(paintKiki(24, f))).toBeGreaterThan(60);
+  });
+
+  it('puts every animal in a real home: polar bears in the north, penguins in the south', () => {
+    expect(ANIMAL_HOME['polar-bear']).toBe('arctic');
+    expect(ANIMAL_HOME.walrus).toBe('arctic');
+    expect(ANIMAL_HOME.penguin).toBe('antarctic');
+    expect(ANIMAL_HOME.seal).toBe('antarctic');
+    expect(ANIMAL_HOME.camel).toBe('desert');
+    expect(ANIMAL_HOME.dolphin).toBe('sea');
+    expect(ANIMAL_HOME.beaver).toBe('wetland');
+  });
+
+  it('keeps the Arctic and Antarctica apart, with the sea between them', () => {
+    expect(POLAR_SPOTS.north.x).toBeLessThan(POLAR_SEA.x0);
+    expect(POLAR_SPOTS.south.x).toBeGreaterThan(POLAR_SEA.x1);
+    expect(POLAR_SPOTS.player.x).toBeLessThan(POLAR_SEA.x0);
+  });
+
+  it('keeps every habitat’s spots on the map', () => {
+    for (const sp of [RAINFOREST_SPOTS, DESERT_SPOTS, POLAR_SPOTS, WETLAND_SPOTS])
+      for (const [k, s] of Object.entries(sp)) {
+        expect(s.x, k).toBeGreaterThan(0);
+        expect(s.x, k).toBeLessThan(HABITAT_LAYOUT.w);
+        expect(s.y, k).toBeGreaterThan(HABITAT_LAYOUT.floorTop);
+        expect(s.y, k).toBeLessThan(HABITAT_LAYOUT.h);
+      }
+    expect(HABITAT_SETTINGS.map((s) => s.id)).toEqual(['rainforest', 'desert', 'polar', 'wetland']);
+  });
+
+  it('lights the map one habitat at a time', () => {
+    expect(HABITATS).toEqual(['rainforest', 'desert', 'poles', 'wetland']);
+    const none = paintHabitatMap(24, []);
+    const all = paintHabitatMap(24, [...HABITATS]);
+    expect(all.w).toBe(none.w);
   });
 });

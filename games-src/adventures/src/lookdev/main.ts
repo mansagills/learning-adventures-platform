@@ -17,6 +17,7 @@ import { showSheet } from './sheet';
  * Solar System Explorer: #space-cast, #space-observatory, #space-mars, #space-mercury, #space-jupiter.
  * Wild Lands and Ocean Depth Diver: #wild-cast, #wild-camp, #wild-camp-evening, #wild-reef (-sunlight, -twilight, -midnight).
  * Fossil Dig Adventure: #dig-cast, #dig-site, #dig-site-evening, #dig-quarry, #dig-cliff, #dig-trackway, #dig-glow, #dig-glow-uv.
+ * Animal Kingdom Match: #animal-cast, #animal-camp, #animal-rainforest, #animal-desert, #animal-polar, #animal-wetland (each with -evening).
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -46,4 +47,8 @@ if (view === 'scene') {
   import('./dig').then((m) => m.showDigCast(host));
 } else if (view === 'dig-view') {
   import('./dig').then((m) => m.showDigView(host, q));
+} else if (view === 'animal') {
+  import('./animal').then((m) => m.showAnimalScene(host, q));
+} else if (view === 'animal-cast') {
+  import('./animal').then((m) => m.showAnimalCast(host));
 } else showSheet(host, q);

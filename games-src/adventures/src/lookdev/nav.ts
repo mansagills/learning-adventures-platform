@@ -42,6 +42,17 @@ export const PAGES: Array<[string, string]> = [
   ['dig-trackway', 'The Trackway'],
   ['dig-glow', 'The Glow Room'],
   ['dig-glow-uv', 'Glow Room: ultraviolet lamp on'],
+  ['animal-cast', 'Animal Kingdom: the cast and animals'],
+  ['animal-camp', 'Animal Kingdom: the Rescue Center'],
+  ['animal-camp-evening', 'Rescue Center at dusk'],
+  ['animal-rainforest', 'The rainforest'],
+  ['animal-rainforest-evening', 'Rainforest at dusk'],
+  ['animal-desert', 'The desert'],
+  ['animal-desert-evening', 'Desert at dusk'],
+  ['animal-polar', 'The poles'],
+  ['animal-polar-evening', 'The poles at dusk'],
+  ['animal-wetland', 'The wetland and the sea'],
+  ['animal-wetland-evening', 'Wetland at dusk'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -84,6 +95,18 @@ export function pageParams(): URLSearchParams {
       if (r === 'evening') q.set('time', 'evening');
       else if (r === 'quiet') q.set('talk', '0');
       else if (r === 'uv') q.set('uv', '1');
+    }
+    return q;
+  }
+  // Animal Kingdom Match: #animal-cast, #animal-<area>[-evening] (add -quiet to hide the talk box, -kiki for Kiki's talk box)
+  if (token.startsWith('animal-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'animal-cast' : 'animal');
+    if (area !== 'cast') q.set('area', area);
+    for (const r of rest) {
+      if (r === 'evening') q.set('time', 'evening');
+      else if (r === 'quiet') q.set('talk', '0');
+      else if (r === 'kiki') q.set('kiki', '1');
     }
     return q;
   }
