@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): IN PROGRESS (Body System Heroes and Solar System Explorer are COMPLETED ✅; 2 of 14 done)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (Body System Heroes, Solar System Explorer and Ocean Depth Diver are COMPLETED ✅; 3 of 14 done)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -1674,7 +1674,7 @@ Score (both halves): **9.3/10.**
 | Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, and saves are checked when loaded. |
 | Completeness | 1.0 / 1.0 | Both halves, the site listing, the redirect and a new card picture. |
 
-#### S4 Ocean: Ocean Depth Diver: IN PROGRESS (plan approved 2026-10-17; look approved 2026-10-20; half 1 approved 2026-10-21; half 2 built, waiting for the owner's look)
+#### S4 Ocean: Ocean Depth Diver: COMPLETED ✅ (owner merged PR #238 and PR #240 on 2026-10-21; both halves, 9.2/10)
 
 The first game in the **Wild Lands** world (section 7c of `docs/GAME_WORLDS_PROPOSAL.md`). Grades 3–5, slug `ocean-depth-diver` (the old game is replaced at the same address when the new one ships). The owner accepted Claude's picks for the world, asked for a walkthrough of how the game plays, and said: "I like all of these ideas, especially the creature design. Let's start building" (2026-10-17). The owner kept the draft names after the look preview (2026-10-20: "Keep the names, build half 1").
 
@@ -1694,9 +1694,9 @@ The first game in the **Wild Lands** world (section 7c of `docs/GAME_WORLDS_PROP
 ##### How it is built (each step ends with the owner's look)
 1. **Look preview: APPROVED (2026-10-20; the owner merged PR #235 and said "Keep the names, build half 1").** The Wild Lands style, the cast (Ranger Tala, Dr. Lani Kahale, Finn, the submarine), 14 animals, the field camp by day and at dusk, and the side-view dive through the sunlight, twilight and midnight zones. Pages: `/lookdev/#wild-cast`, `#wild-camp`, `#wild-camp-evening`, `#wild-reef` (and `-sunlight`, `-twilight`, `-midnight`); dev server only. Details in section 7c of `docs/GAME_WORLDS_PROPOSAL.md`.
 2. **Half 1: APPROVED (built 2026-10-20; the owner merged PR #238 and said "Go for half 2").** The camp, the sunlight and twilight expeditions, the Creature Designer, the field guide, saving and the grown-ups page (details below).
-3. **Half 2: BUILT (2026-10-21), waiting for the owner's look:** the midnight and sea floor expeditions, the Trench Dive, the Glow Show, the site listing and a new card picture (details below).
+3. **Half 2: COMPLETED ✅ (built 2026-10-21; the owner merged PR #240 the same day):** the midnight and sea floor expeditions, the Trench Dive, the Glow Show, the site listing and a new card picture (details below).
 
-##### Half 2: BUILT (2026-10-21), waiting for the owner's look
+##### Half 2: COMPLETED ✅ (PR #240, merged 2026-10-21)
 
 The game now replaces the old one at `/games/ocean-depth-diver` (new card picture: the field camp). Play it directly at `/games/play/ocean-depth-diver/index.html`. The old file `public/games/ocean-depth-diver.html` stays in the repo but is no longer listed.
 
@@ -1754,6 +1754,96 @@ Provisional score (half 1): 8.8/10.
 | Usability and accessibility | 1.35 / 1.5 | Keyboard, mouse and touch, read-aloud, the sonar arrow, no way to lose a dive, reduced motion, and the phone layout fits (the dive fills a phone screen and shows more of the sea). |
 | Technical reliability | 1.4 / 1.5 | No console errors, no requests to other websites, smooth on software rendering, and saves are checked when loaded. |
 | Completeness | 0.6 / 1.0 | Half 1 only: the midnight zone, the vents, the Trench Dive, the Glow Show and the site listing come in half 2. |
+
+#### S2 Earth: Fossil Dig Adventure, the second Wild Lands game: PLAN WRITTEN (2026-10-26), waiting for the owner's approval
+
+> Source: the old site game `public/games/fossil-dig-adventure.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-26, over Animal Kingdom Match, Pollution Solution Squad and Rock Cycle Racing. Grades 3–5, slug `fossil-dig-adventure` (the new game replaces the old one at the same address when it ships).
+
+##### What the original does
+- **Teaches:** almost nothing directly. It is a 6x6 or 8x8 grid of dirt squares. The player clicks squares with a brush (1 layer), a pickaxe (2) or a shovel (3, "may damage fossils", though nothing is ever damaged) until six hidden fossils turn up. Each fossil opens a card with a fact, a time period and an age. There are no questions, no levels and no hints, and the "layer 1 of 3" counter is just a click count. Nothing is about rock layers, how fossils form or what they tell us.
+- **Keeps:**
+  - the dig with three tools, and the idea that careful tools matter near a fossil (it will now really matter)
+  - the eight fossils and their facts: T. rex tooth, trilobite, ammonite, fern, raptor claw, ancient fish, mammoth tusk, pterosaur wing bone
+  - the museum collection
+- **Facts checked:** most are right. Fixes for the new game:
+  - Woolly mammoth tusks grew up to about 4 meters (13 feet), not 16 feet.
+  - "Paleozoic" and "Mesozoic" are eras, not periods like the other labels. The new game names the times simply ("long before the dinosaurs", "the time of the dinosaurs", "the Ice Age") and gives rounded ages.
+  - Pterosaurs are flying reptiles, not dinosaurs. The old game doesn't say they are dinosaurs, but children often think so, so it becomes a question.
+- **Missing against the standard:** questions and levels, misconceptions, hints, debriefs, characters, a story, the Carver pixel art (it uses emoji), sound, saving, a grown-ups page, and anything about rock layers (4-ESS1-1), which is half of what the grade band asks about fossils.
+
+##### The game
+- **Setting:** a new Wild Lands setting, `dig-site`: a field camp in dry, striped badlands, with the tents and jeep of the world style, a roped-off quarry, a tall cliff with colored rock layers, a creek with a flat rock slab of dinosaur footprints, and the lab tent. By day it is sun-baked and dusty; at dusk the cliffs glow orange and the stars come out. The valley is made up, but each layer is true to life: a shallow sea at the bottom, then a swampy fern forest, then a dinosaur river plain, then an Ice Age grassland, then today's badlands.
+- **Characters (draft names, as before):**
+  - **Dr. Mateo Ruiz**, the paleontologist who runs the dig (host; the Quarry)
+  - **Hana Sato**, a geologist who reads rock layers (the Cliff Wall)
+  - **Sam Bello**, a fossil preparator who cleans and studies fossils (the Prep Lab)
+  - **Ranger Tala**, the Wild Lands guide, visiting for the footprints (the Trackway)
+  - **Pebble**, the camp's sniffer dog, who points out good places to dig (a game idea; real dogs have been trained to find old bones at dig sites). Pebble also leaves prints in the creek mud, walking and running, which the Trackway uses.
+- **How it plays:** walk round the dig site like the Ocean Depth Diver camp, and visit four stations.
+  - **The Quarry (dig):** the original's grid, redrawn as a real quarry square marked with grid strings. Loose dirt comes off with the shovel and hard rock with the pick. Close to a bone (Pebble sniffs, and the dirt changes color) only the brush is safe. A shovel or pick next to a bone chips it: the bone is never lost, but it isn't perfect. Each find is mapped on the grid, wrapped in a plaster jacket and carried to the lab.
+  - **The Cliff Wall:** put fossils into the layer they came from, put layers in order, and match the same layer across the canyon.
+  - **The Prep Lab:** clean a fossil out of its rock (brush, then a tiny air chisel, then glue), then work out what it tells us.
+  - **The Trackway:** measure footprints with a tape (click toe to heel, then print to print), compare them with Pebble's walking and running prints, and tell the story of the tracks.
+  - Each station has a logbook of questions (three levels), and five stars plus a talk-it-through question finish it.
+  - Finds go into the **Fossil Drawer**, the game's field guide: 16 fossils, including trace fossils such as a footprint, a burrow and fossil poop (coprolite), plus amber, petrified wood and a dinosaur eggshell.
+- **Finale, the Museum Night:**
+  - Every station gave a bone of the skeleton found in the quarry (draft: a young Triceratops, nicknamed by the child). The child puts the skeleton together in the camp's little field museum.
+  - Then the child orders the valley's story on a mural, oldest scene to youngest, with one question per scene.
+  - At night, Sam turns on an ultraviolet lamp in the **Glow Room**: some fossils and minerals glow under ultraviolet light, which scientists really use to spot hidden details. It is this game's glow: Wild Lands' glow is living light, and in a desert at night it comes from the rocks instead.
+  - Then the game tells the site it is complete.
+- **Modeled on:**
+  - Ocean Depth Diver: the walking camp, Talk, the logbook panel with pictures and the hint ladder, the field guide, the debriefs, the save and the grown-ups page.
+  - Solar System Explorer's orrery: putting things in order in slots (the cliff layers and the mural).
+  - New code: the quarry grid (top-down, painted with `PixelBuffer`), the prep bench and the trackway tape.
+
+##### Learning design
+
+| Station (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| The Quarry (Dr. Mateo) | What a fossil is and how it forms | A fossil is what is left of a living thing from long ago, or a sign it left; bones, teeth and shells last best; the right tool near a bone | It forms when mud or sand buries it quickly and, over a very long time, minerals turn it to stone; most living things never become fossils; wind and water wear rock away and uncover fossils | Why jellyfish fossils are rare but shells are common; which place makes a fossil (a quickly buried river bend or open ground); why mapping each bone's spot matters | 3-LS4-1, 4-ESS2-1 |
+| The Cliff Wall (Hana) | Rock layers as a time record | Layers stack up: the bottom one is the oldest | The same fossil in two cliffs means the same layer (an "index fossil"); what each rock tells about the place (shells = sea, ferns and coal = swamp, ripples = river or beach) | A crack (fault) that cuts the layers is younger than them; the river carved the canyon after the layers formed; a missing layer was worn away | 4-ESS1-1, 4-ESS2-1 |
+| The Prep Lab (Sam) | What fossils tell about life long ago | Match a fossil to a living relative or look-alike (mammoth and elephant, ammonite and nautilus, trilobite and horseshoe crab, fern and fern) | Teeth tell what it ate (sharp for meat, flat for plants); sea fossils high on a hill mean the sea was once there; fern fossils in a cold place mean it was once warm | Extinct means gone forever; birds are living dinosaurs (feathers, wishbones); body fossils and trace fossils; pterosaurs flew but were not dinosaurs | 3-LS4-1, 4-LS1-1 |
+| The Trackway (Ranger Tala, Pebble) | Footprints as clues | Three pointed toes or round prints; a bigger print means a bigger animal; tracks in a line mean one animal walking | Prints farther apart mean running; many tracks going the same way mean a group travelling together | Hip height is about 4 times the footprint's length (a rule paleontologists use), so a 50 cm print means hips about 2 meters up; reading crossing trackways (prints pressed on top of other prints came later) | 3-LS4-1, 4-ESS1-1 |
+
+- **Mistakes the wrong answers come from:**
+  - fossils are the real, original bones
+  - every animal becomes a fossil
+  - fossils form in a few days or years
+  - people and dinosaurs lived at the same time
+  - the deepest layer is the youngest
+  - every fossil is a dinosaur (mammoths, trilobites, pterosaurs)
+  - sea fossils on land were carried there by animals or people
+  - prints far apart mean walking slowly
+  - a bigger print means an older animal
+  - extinct means hiding somewhere
+  - birds are not related to dinosaurs
+  - footprints and fossil poop are not "real" fossils
+  - Velociraptor was huge, as in films (it was about the size of a turkey)
+- **Steps** (level 3 at the Trackway): measure the print → multiply by 4 → compare with Pebble or a grown-up.
+- **Hint ladder:** a nudge ("Which layer was laid down first?") → a picture (the cliff with "oldest" and "youngest" labels, the fossil next to its living cousin, the stride drawn on the slab) → the answer outlined.
+- **Debriefs:** one reason question per station, for example "Shells of sea animals are high up in this dry cliff. How did they get there?" (the sea once covered this place).
+- **Progress and finale:**
+  - Five stars and a debrief finish a station. Each finished station adds a bone to the skeleton and lights a case in the field museum.
+  - The Museum Night opens when all four are done.
+  - Replay: new digs (fossils in new places), logbook practice and a free dig mode.
+- **Difficulty change from the original:** from a clicking game with facts to three levels per station that reach grade 5: superposition with faults and erosion gaps, index fossils, reading past environments, and a multiplication rule for dinosaur size. Every wrong answer names a real mistake.
+
+##### How it would be built (each step ends with the owner's look)
+1. **Look preview:** the `dig-site` setting by day and at dusk, the cast (Dr. Mateo, Hana, Sam, Pebble, with Ranger Tala), the quarry grid, the cliff wall, the trackway slab, the 16 fossils and the Glow Room. Dev server only (`/lookdev/#dig-*`), kept out of the shared lists like the other previews.
+2. **Half 1:** the dig site, the Quarry and the Cliff Wall, the Fossil Drawer, saving and the grown-ups page.
+3. **Half 2:** the Prep Lab, the Trackway, the Museum Night with the Glow Room, the site listing at the same address and a new card picture.
+
+##### Choices for the owner
+1. **How it plays:**
+   - **(a) A walking dig site with four stations, as above** (recommended). It keeps the original's dig and adds the rock layers, the lab and the footprints, each with its own hands-on job.
+   - (b) "Dig down through time": a side-view digger that tunnels down through the layers, where deeper means older, collecting fossils on the way. This is very clear for superposition, but it plays a lot like Ocean Depth Diver's dives.
+   - (c) Keep the original's dig grid as the whole game and add the logbook questions. This is the smallest job, but it has the least play.
+2. **The glow at the finale:** **an ultraviolet Glow Room for fossils and minerals** (recommended; true to life and new), or no glow (a starry sky and lanterns only).
+3. **The skeleton to rebuild:** **a young Triceratops** (recommended: a plant-eater with a famous horned skull), a T. rex, or a duck-billed dinosaur.
+4. **Names:** Dr. Mateo Ruiz, Hana Sato, Sam Bello and Pebble the dog are drafts, and the title stays **Fossil Dig Adventure**. Keep them, or change any.
+
+##### Checks it will ship with
+Unit tests for every station and level; a browser test playing title → Museum Night; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
 
 ### Phase 3: English and History (2): NOT STARTED
 
@@ -1828,3 +1918,5 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-17:** The Wild Lands plan was written (section 7c of `docs/GAME_WORLDS_PROPOSAL.md`) and the owner accepted all of Claude's picks: the name Wild Lands, a rainforest field camp and a coral reef as the proof settings, living light as the glow, Ranger Tala as the test guide, eight games and **Ocean Depth Diver** first. After a walkthrough of how it plays, the owner approved the game's plan (the S4 section above). The look preview is built (the cast, the field camp by day and at dusk, and the side-view dive). Waiting for the owner's look before half 1.
 - **2026-10-20:** The owner merged the look preview (PR #235) and said "Keep the names, build half 1". Ocean Depth Diver half 1 built: the field camp, the sunlight and twilight dives (photos for the field guide, the headlamp and living light, the lanternfish night trip), the logbook (36 questions), the Creature Designer with four challenges, the field guide, saving and the grown-ups page. 12 unit tests, 56/56 browser checks, provisional score 8.8. Waiting for the owner's look before half 2.
 - **2026-10-21:** The owner merged half 1 (PR #238) and said "Go for half 2". Half 2 built: the midnight zone (atolla jelly, anglerfish, gulper eel), the deep sea floor with its hot vents and the water sample, 36 more logbook questions, the Creature Designer's midnight zone and two more challenges, the Trench Dive (five radio questions on the way down to about 10,900 meters and the snailfish photo) and the Glow Show (the game tells the site it is complete). The game now replaces the old one at `/games/ocean-depth-diver`, with a new card picture. 16 unit tests, 92/92 browser checks, score 9.2. Waiting for the owner's look.
+- **2026-10-21:** The owner merged half 2 (PR #240). **Ocean Depth Diver COMPLETED ✅** (both halves; 9.2/10; 92/92 browser checks). It replaces the old game on the site at the same address. That is 3 of the 14 Science games.
+- **2026-10-26:** The owner asked for the next Wild Lands game and picked **Fossil Dig Adventure** (over Animal Kingdom Match, Pollution Solution Squad and Rock Cycle Racing). Its plan is written (the S2 section above): a walking dig site in the badlands with four stations (the Quarry, the Cliff Wall, the Prep Lab, the Trackway) and a Museum Night finale with an ultraviolet Glow Room. Waiting for the owner's choices and approval.
