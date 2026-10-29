@@ -1872,6 +1872,95 @@ Score (both halves): 9.1/10.
 ##### Checks it will ship with
 Unit tests for every station and level; a browser test playing title → Museum Night; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1, scored 9.1).
 
+#### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN WRITTEN (2026-10-29), waiting for the owner's choices
+
+> Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
+
+##### What the original does
+- **Teaches:** almost nothing beyond names. Three rounds against the clock (60, 75 and 90 seconds): drag 4, 6 or 8 emoji animals onto habitat boxes (savanna, arctic, ocean, rainforest, desert, forest, wetland, grassland, mountains). A right drop gives points plus a time bonus; a wrong drop takes 25 points away, with no reason given. A fun fact pops up between rounds. There are no questions, no hints and no "why".
+- **Keeps:**
+  - the core idea: matching an animal with the place it lives
+  - the round-by-round feel (now three levels that adapt to the child)
+  - a fast replay mode for children who loved racing the clock (optional, see choice 4)
+- **Facts to fix:**
+  - **The penguin is put in the Arctic.** Wild penguins live in the southern half of the world (Antarctica, and coasts as far north as the Galápagos), never in the Arctic. Polar bears live only in the Arctic, so the two never meet in the wild. This is a very common mix-up, so it becomes a question.
+  - "Parrots can live for over 80 years in the wild": that is a record for parrots kept by people. Wild parrots live much less. It is dropped.
+  - "Lions are the only cats that live in groups": lions are the only cats that live in big family groups called prides (male cheetahs can team up in small groups). It is reworded.
+  - "Fish → ocean" and "Bear → forest" are too simple (many fish live in rivers and lakes, and bears live in many places). The new game asks what an animal needs, not just one box.
+- **Missing against the standard:** questions and levels, misconceptions, hints, debriefs, characters, a story, the Carver pixel art (it uses emoji), sound, saving, a grown-ups page, and anything about *why* an animal lives where it does: food, water, shelter and space, and the body parts that help it there.
+
+##### The game
+- **Setting:** the `field-camp` from Ocean Depth Diver is the home base (it is already built, and children who played Ocean Depth Diver will know it). A **Wildlife Rescue Center** tent is added there, with a big map of the Wild Lands on its wall. From the camp the child goes on **four habitat trips**, each one a small walkable scene in a new Wild Lands setting:
+  - `rainforest`: the forest floor, the understory and the canopy, with rope bridges between the trees (in the world plan already)
+  - `desert`: red dunes, rocky outcrops, cactus and a water hole, hot by day and cool at night (new)
+  - `polar`: a two-sided map, the Arctic in the north (sea ice, tundra) and Antarctica in the south (ice shelf, penguin colony), with a globe at the camp showing which is which (new)
+  - `wetland`: the camp's own river, a pond with lily pads, a beaver dam and the river mouth into the sea, with a short snorkel down the reef view built for Ocean Depth Diver (new, reusing the reef)
+- **Characters (draft names):**
+  - **Ranger Tala**, the Wild Lands ranger children already know from the other two games, as the host for the first time
+  - **Dr. Amara Osei**, a wildlife vet who runs the Rescue Center
+  - **Kiki**, a kinkajou (a small, friendly rainforest night animal) who rides on the child's backpack and points with her tail
+- **How it plays:** walk round the camp like the other Wild Lands games, and pick a trip on the map. Each trip has three parts:
+  - **Spot them (look and find):** walk through the habitat with binoculars. Animals hide where they really live, many of them camouflaged. Tap or press Space to snap a photo for the **Ranger Journal**, the game's field guide (about 28 animals, each with a picture card and two facts read aloud). Kiki's tail twitches near an animal still to find, so nobody gets stuck.
+  - **Bring them home (the original's match, with reasons):** back at the Rescue Center, Dr. Amara has animals that wandered off and are ready to go home (always healthy and happy; animals are never shown hurt). The child picks the right habitat on the map, and for each one says what it gives the animal: food, water, shelter or space. A wrong habitat gets a gentle reason ("A camel needs dry, sandy ground. The rainforest is wet all year.").
+  - **The Ranger Journal (logbook):** questions at three levels with a picture for each, the hint ladder, five stars and a talk-it-through question with Ranger Tala.
+  - Each finished trip earns a **Junior Ranger patch** and lights that habitat on the map.
+- **Finale, the Night Safari:**
+  - Once all four habitats are lit, the sun sets over the camp and the fireflies come out (the world's living light).
+  - With a flashlight, the child finds night animals by their eye shine (an owl, a frog, a bat, a kinkajou like Kiki, a jaguar resting far off) and learns why some animals are busy at night.
+  - Then every animal in the journal comes together on the lit map, and the game tells the site it is complete.
+- **Modeled on:**
+  - Ocean Depth Diver: the camp, the field guide, the photo cards and the logbook.
+  - Fossil Dig Adventure: walking stations, the hint ladder, the debriefs and the save.
+  - New code: the binoculars scan, the Rescue Center map and three new settings (`rainforest`, `desert`, `polar`), plus a `wetland` built from the camp's river.
+
+##### Learning design
+
+| Trip (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| The Rainforest (Ranger Tala) | What a habitat gives an animal | Which animals live here; every animal needs food, water, shelter and space; the rainforest is warm and wet all year | The layers (floor, understory, canopy) and who lives in each; camouflage (a green tree frog, a sloth with green algae in its fur); bright colors can mean "don't eat me" (poison dart frogs) | More kinds of animals live in rainforests than anywhere else on land; what happens to an animal if its trees are cut down; body parts that fit the forest (a monkey's gripping tail, a toucan's long beak) | K-ESS3-1, 2-LS4-1, 3-LS4-3 |
+| The Desert (Dr. Amara) | Living with heat and little water | Deserts get very little rain; which animals live here; animals find shade and come out when it is cool | A camel's hump stores fat, not water; a fennec fox's big ears let out heat; many desert animals are busy at night; a cactus stores water in its stem | Deserts can be cold at night; not every desert is hot (Antarctica is the biggest desert of all, because it gets so little snow and rain); which body part helps in the desert, and why it would not help in the Arctic | 1-LS1-1, 3-LS4-3, 4-LS1-1 |
+| The Poles (Ranger Tala) | North and south, and staying warm | Polar bears live in the Arctic (north); penguins live in the south; both places are very cold and icy | Polar bears and wild penguins never meet; thick fur and a layer of fat called blubber keep animals warm; white fur helps a polar bear hide on the snow | Some animals travel long ways each year (migration); polar bears hunt from sea ice, so less ice makes hunting harder (said gently); a penguin's wings are flippers for swimming | 1-LS1-1, 3-LS4-3, 4-LS1-1 |
+| The Wetland and the Sea (Dr. Amara and Kiki) | Water homes | Fish breathe underwater with gills; frogs need water to lay their eggs; some water is fresh (rivers, ponds) and some is salty (the sea) | A frog's life cycle (egg, tadpole, froglet, frog); whales and dolphins are mammals that breathe air at the surface; a beaver builds a dam and a lodge for shelter | A sea fish could not live in a river (salt), and most river fish could not live in the sea; a pond's food chain; a wetland is a nursery for young animals | K-ESS3-1, 2-LS4-1, 3-LS4-3 |
+
+- **Mistakes the wrong answers come from:**
+  - penguins live in the Arctic, or polar bears and penguins live together
+  - any animal could live anywhere if it tried
+  - a habitat is just a place, not food, water, shelter and space
+  - a camel's hump holds water
+  - every desert is hot, all the time
+  - a whale is a fish, or a dolphin breathes water
+  - an animal changes its body because it wants to (body parts come with the animal, passed down from its parents)
+  - camouflage means an animal can change color whenever it likes (only a few can, like a chameleon or an octopus)
+  - bats are blind; owls can see in total darkness
+  - all fish live in the sea
+- **Steps** (level 3 at the Rescue Center): name the animal's needs → find the habitat that meets all of them → say which body part helps it there.
+- **Hint ladder:** a nudge ("Where can a camel find dry, sandy ground?") → a picture (the habitat map with each place's weather and food, or the animal next to its home) → the answer outlined.
+- **Debriefs:** one reason question per trip, for example "Why can't a polar bear live in the desert?" (its thick fur and blubber are for the cold; the desert is hot and dry, with no ice to hunt from).
+- **For grades 1–2:** every question and answer is read aloud, answers can be picture buttons, sentences stay very short, and level 1 never asks for reading alone. Grades 3–4 meet levels 2 and 3, which reach 3-LS4-3 and 4-LS1-1.
+- **Progress and finale:**
+  - Photos, the Rescue Center and five stars plus a debrief finish a trip. Each finished trip lights its habitat on the map and earns a patch.
+  - The Night Safari opens when all four are done.
+  - Replay: new animals hide in new places each trip, journal practice, and an optional Speed Match mode (choice 4).
+- **Difficulty change from the original:** from a timed drag-and-drop with names only to three levels per trip that reach grade 4: what a habitat provides, adaptations, survive well / less well / not at all, and mammals in the water. Every wrong answer names a real mistake.
+
+##### How it would be built (each step ends with the owner's look)
+1. **Look preview:** the three new settings (`rainforest`, `desert`, `polar`), each by day and at dusk; the `wetland` corner of the camp; the Rescue Center tent and its map; the cast (Ranger Tala, Dr. Amara, Kiki); and about 20 new animals in the Wild Lands style, each with idle, move and blink frames. Dev server only (`/lookdev/#animal-*`), kept out of the shared lists like the other previews.
+2. **Half 1:** the camp with the Rescue Center, the Rainforest and the Desert trips (spot, bring home, journal), the Ranger Journal, saving and the grown-ups page.
+3. **Half 2:** the Poles and the Wetland and Sea trips, the Night Safari, the optional Speed Match, and the site listing at the same address with a new card picture.
+
+##### Choices for the owner
+1. **How it plays:**
+   - **(a) The camp as home base, with four habitat trips, each with spotting, the Rescue Center and the journal, as above** (recommended). It keeps the original's matching but adds the "why", and every trip feels different.
+   - (b) One big walkable map with all the habitats side by side, and no trips. It is simpler, but each habitat gets less room and fewer animals.
+   - (c) Keep the original's drag-and-drop as the whole game and add the journal questions. This is the smallest job, but it has the least play.
+2. **The four habitats:** **Rainforest, Desert, the Poles, and the Wetland and Sea** (recommended: very different places, and the Poles fix the penguin mix-up), or swap one for a **grassland/savanna** (lions, zebras, elephants).
+3. **The finale:** **the Night Safari with a flashlight and eye shine** (recommended: it uses the world's living light and teaches night animals), or a Release Day parade where every animal goes home.
+4. **The clock:** **no timer in the trips** (recommended for grades 1–4), **plus an optional Speed Match** after the game is finished for children who loved racing the clock; or no timer anywhere.
+5. **Names:** Ranger Tala as the host, Dr. Amara Osei, Kiki the kinkajou, and the title **Animal Kingdom Match** are drafts. Keep them, or change any.
+
+##### Checks it will ship with
+Unit tests for every trip and level, the Rescue Center's rules and the animal list (every animal in a real habitat, no penguins in the north); a browser test playing title → Night Safari; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
+
 ### Phase 3: English and History (2): NOT STARTED
 
 - **Spelling Bee Challenge** (3–5): spelling patterns (vowel teams, prefixes and suffixes, homophones) with word meaning in context, not just memorizing lists (L.3.2, L.4.2).
@@ -1926,6 +2015,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-29:** The owner merged the plan (PR #245) and answered "1a, 2a, 3a, 4 keep": the walking dig site, the ultraviolet Glow Room, a young Triceratops and the draft names. The look preview is built: the dig site by day and at dusk (the striped cliff with its five layers, the quarry with grid strings, the lab tent, the field museum, the footprint slab by the creek), the cast with Pebble the dog, the 16 fossils (and how they look under the ultraviolet lamp), the Triceratops skeleton, and close-ups of the four stations. Waiting for the owner's look before half 1.
 - **2026-10-29:** The owner approved the look ("This is good") and PR #248 was merged, with the owner's standing approval to merge PRs once every automated check passes. **Fossil Dig Adventure half 1 is built:** the dig site, the Quarry dig with three tools and Pebble's sniff, the Cliff Wall puzzles, the two logbooks, the Fossil Drawer, saving and the grown-ups page (58/58 browser checks). Next: half 2 (the Prep Lab, the Trackway, and the Museum Night with the Glow Room).
 - **2026-10-29:** PR #249 (half 1) merged under the owner's standing approval. The owner said "Build half 2". **Fossil Dig Adventure half 2 is built:** the Prep Lab bench, the Trackway tape, 36 more questions, Museum Night with the skeleton, the nickname, the mural and the ultraviolet Glow Room, and the site listing at the same address with a new card picture. 91/91 browser checks; 9.1/10. With its merge, **Fossil Dig Adventure is COMPLETED ✅**: 4 of the 14 Science games.
+- **2026-10-29:** The owner merged half 2 (PR #250) under the standing approval, asked for the next Wild Lands game and picked **Animal Kingdom Match** (over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad). Its plan is written (the S3 section above): the field camp as home base with a Wildlife Rescue Center, four habitat trips (the Rainforest, the Desert, the Poles, the Wetland and Sea), each with spotting, bringing lost animals home with reasons and a Ranger Journal, and a Night Safari finale. Waiting for the owner's choices.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.
