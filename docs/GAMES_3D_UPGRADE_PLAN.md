@@ -1872,7 +1872,7 @@ Score (both halves): 9.1/10.
 ##### Checks it will ship with
 Unit tests for every station and level; a browser test playing title → Museum Night; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1, scored 9.1).
 
-#### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN WRITTEN (2026-10-29), waiting for the owner's choices
+#### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN APPROVED (2026-10-29); look preview BUILT, waiting for the owner's look
 
 > Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
 
@@ -1944,7 +1944,18 @@ Unit tests for every station and level; a browser test playing title → Museum 
 - **Difficulty change from the original:** from a timed drag-and-drop with names only to three levels per trip that reach grade 4: what a habitat provides, adaptations, survive well / less well / not at all, and mammals in the water. Every wrong answer names a real mistake.
 
 ##### How it would be built (each step ends with the owner's look)
-1. **Look preview:** the three new settings (`rainforest`, `desert`, `polar`), each by day and at dusk; the `wetland` corner of the camp; the Rescue Center tent and its map; the cast (Ranger Tala, Dr. Amara, Kiki); and about 20 new animals in the Wild Lands style, each with idle, move and blink frames. Dev server only (`/lookdev/#animal-*`), kept out of the shared lists like the other previews.
+1. **Look preview: BUILT (2026-10-29), waiting for the owner's look.** Dev server only, kept out of the shared lists like the other previews; the finished games build byte-for-byte the same.
+   - **Pages:**
+     - `#animal-cast`: Dr. Amara Osei, Kiki the kinkajou (sitting, pointing with her tail, blinking, walking, and in the talk box), the 20 new animals in three frames each, grouped by habitat, and the props.
+     - `#animal-camp`: the field camp with the Rescue Center tent and the Wild Lands map.
+     - `#animal-rainforest`, `#animal-desert`, `#animal-polar` and `#animal-wetland`: each habitat, and each also at dusk (`-evening`).
+   - **The places:**
+     - **The rainforest:** giant trees, ferns, a stream and glowing mushrooms; the canopy and a rope bridge behind; animals on the floor, in the middle and high in the trees.
+     - **The desert:** rippled sand and red rock, saguaros and a water hole with palms.
+     - **The poles:** the Arctic on the left and Antarctica on the right, with the sea between, so polar bears and penguins are never together; a green aurora at dusk.
+     - **The wetland and sea:** a pond with lily pads and a beaver lodge, a river with a resting crocodile, the beach, and the sea with a dolphin and a humpback whale; fireflies and glowing plankton at dusk.
+   - **New animals:** a poison dart frog, a tapir, a camel, a fennec fox, a gecko, a desert tortoise, a roadrunner, a polar bear, an Arctic fox, a walrus, emperor penguins, a Weddell seal, a snowy owl, a beaver, a crocodile, a duck, a dolphin, a humpback whale, a spectacled owl and a fruit bat. Big animals are drawn bigger (a camel is taller than a child). Eye shine for the Night Safari.
+   - **Code:** `src/kit/worlds/wild-lands/animal-art.ts` (the cast, Kiki, the animals, the Rescue Center, the map and the props) and `habitats.ts` (the four settings); pages in `src/lookdev/animal.ts`; screenshots with `node scripts/animal-lookdev-shots.mjs`; five more unit tests in `tests/wild-lands.test.ts`.
 2. **Half 1:** the camp with the Rescue Center, the Rainforest and the Desert trips (spot, bring home, journal), the Ranger Journal, saving and the grown-ups page.
 3. **Half 2:** the Poles and the Wetland and Sea trips, the Night Safari, the optional Speed Match, and the site listing at the same address with a new card picture.
 
@@ -1957,6 +1968,8 @@ Unit tests for every station and level; a browser test playing title → Museum 
 3. **The finale:** **the Night Safari with a flashlight and eye shine** (recommended: it uses the world's living light and teaches night animals), or a Release Day parade where every animal goes home.
 4. **The clock:** **no timer in the trips** (recommended for grades 1–4), **plus an optional Speed Match** after the game is finished for children who loved racing the clock; or no timer anywhere.
 5. **Names:** Ranger Tala as the host, Dr. Amara Osei, Kiki the kinkajou, and the title **Animal Kingdom Match** are drafts. Keep them, or change any.
+
+**Owner answers (2026-10-29: "1a, 2a, 3a, 4a, 5 keep"):** the camp as home base with four habitat trips; the Rainforest, the Desert, the Poles, and the Wetland and Sea; the Night Safari finale; no timer in the trips, plus an optional Speed Match after the game is finished; and the draft names (Ranger Tala as host, Dr. Amara Osei, Kiki the kinkajou) and the title Animal Kingdom Match.
 
 ##### Checks it will ship with
 Unit tests for every trip and level, the Rescue Center's rules and the animal list (every animal in a real habitat, no penguins in the north); a browser test playing title → Night Safari; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
@@ -2016,6 +2029,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-29:** The owner approved the look ("This is good") and PR #248 was merged, with the owner's standing approval to merge PRs once every automated check passes. **Fossil Dig Adventure half 1 is built:** the dig site, the Quarry dig with three tools and Pebble's sniff, the Cliff Wall puzzles, the two logbooks, the Fossil Drawer, saving and the grown-ups page (58/58 browser checks). Next: half 2 (the Prep Lab, the Trackway, and the Museum Night with the Glow Room).
 - **2026-10-29:** PR #249 (half 1) merged under the owner's standing approval. The owner said "Build half 2". **Fossil Dig Adventure half 2 is built:** the Prep Lab bench, the Trackway tape, 36 more questions, Museum Night with the skeleton, the nickname, the mural and the ultraviolet Glow Room, and the site listing at the same address with a new card picture. 91/91 browser checks; 9.1/10. With its merge, **Fossil Dig Adventure is COMPLETED ✅**: 4 of the 14 Science games.
 - **2026-10-29:** The owner merged half 2 (PR #250) under the standing approval, asked for the next Wild Lands game and picked **Animal Kingdom Match** (over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad). Its plan is written (the S3 section above): the field camp as home base with a Wildlife Rescue Center, four habitat trips (the Rainforest, the Desert, the Poles, the Wetland and Sea), each with spotting, bringing lost animals home with reasons and a Ranger Journal, and a Night Safari finale. Waiting for the owner's choices.
+- **2026-10-29:** The owner answered "1a, 2a, 3a, 4a, 5 keep". The plan was merged (PR #251), and the look preview is built: the cast with Kiki the kinkajou, 20 new animals, the Rescue Center and the four habitats (the rainforest, the desert, the poles and the wetland and sea) by day and at dusk. It is waiting for the owner's look before half 1.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.
