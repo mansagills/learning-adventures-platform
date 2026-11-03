@@ -1,6 +1,6 @@
 import { PixelBuffer } from '../../kit/art/pixel';
 import { Paint, hash, ramp, type Ramp } from '../../kit/worlds/shade';
-import { paintSaguaro, type Habitat } from '../../kit/worlds/wild-lands/animal-art';
+import { paintAnimal, paintKiki, paintSaguaro, type Habitat } from '../../kit/worlds/wild-lands/animal-art';
 import { WILD, paintPalm, paintRainTree } from '../../kit/worlds/wild-lands/art';
 import { paintCritter, type Critter } from '../../kit/worlds/wild-lands/habitats';
 
@@ -19,7 +19,8 @@ interface Look {
   far: Ramp;
 }
 
-const LOOK: Record<Habitat, Look> = {
+const LOOK: Record<Habitat | 'sea', Look> = {
+  sea: { sky: '#bfe0f2', ground: ramp('#2f8fc8'), far: ramp('#5aa8d8') },
   rainforest: { sky: '#bfe2dc', ground: ramp('#4a7a3a'), far: ramp('#2f7a4a') },
   desert: { sky: '#d8e8ee', ground: ramp('#e8c088', { warm: 1.2 }), far: ramp('#c8784a', { warm: 1.2 }) },
   poles: { sky: '#d8ecf8', ground: ramp('#f2f6fa'), far: ramp('#a8c8e0', { cool: 1 }) },
@@ -27,7 +28,15 @@ const LOOK: Record<Habitat, Look> = {
 };
 
 /** Which home a critter comes from (for its card's colors). */
-const HOME_OF: Partial<Record<Critter, Habitat>> = {
+const HOME_OF: Partial<Record<Critter, Habitat | 'sea'>> = {
+  beaver: 'wetland',
+  duck: 'wetland',
+  heron: 'wetland',
+  crocodile: 'wetland',
+  dolphin: 'sea',
+  whale: 'sea',
+  owl: 'rainforest',
+  bat: 'rainforest',
   jaguar: 'rainforest',
   tapir: 'rainforest',
   'dart-frog': 'rainforest',
@@ -298,4 +307,156 @@ export function paintPatch(hab: Habitat, lit: boolean, open = true): PixelBuffer
       { level: 1 },
     );
   return p.toBuffer({ outline: false });
+}
+
+// ------------------------------------------------------------------ half 2: the globe, the frog's life cycle, fresh and salt water
+
+/** The Earth: the Arctic at the top with a polar bear, Antarctica at the bottom with a penguin. Returns where each sits (0-1) for labels. */
+export function paintGlobe(W = 150, H = 120): { buf: PixelBuffer; north: number; south: number } {
+  const p = new Paint(W, H);
+  const cx = W / 2;
+  const cy = H / 2;
+  const r = Math.min(W, H) / 2 - 16;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) p.dot(x, y, ramp('#1e2a4a'), hash(x, y, 3) < 0.01 ? 4 : 2);
+  p.ellipse(cx, cy, r, r, ramp('#2f8fc8'), { form: 'sphere', sep: true });
+  // land
+  for (const [dx, dy, rx, ry] of [
+    [-0.35, -0.15, 0.28, 0.22],
+    [0.3, 0.1, 0.22, 0.3],
+    [-0.05, 0.35, 0.18, 0.12],
+  ])
+    p.ellipse(cx + dx * r, cy + dy * r, rx * r, ry * r, WILD.grass, { form: 'sphere' });
+  // the ice caps
+  p.ellipse(cx, cy - r * 0.86, r * 0.5, r * 0.18, ramp('#f2f6fa'), { form: 'flat', level: 3 });
+  p.ellipse(cx, cy + r * 0.86, r * 0.55, r * 0.18, ramp('#f2f6fa'), { form: 'flat', level: 3 });
+  const bear = fitCritter('polar-bear', 34, 22);
+  put(p, bear, cx - bear.w / 2, cy - r * 0.86 - bear.h + 4);
+  const peng = fitCritter('penguin', 18, 22);
+  put(p, peng, cx - peng.w / 2, cy + r * 0.86 - peng.h + 6);
+  return { buf: p.toBuffer({ outline: false }), north: (cy - r * 0.86 - bear.h) / H, south: (cy + r * 0.86 + 6) / H };
+}
+
+/** A frog's life cycle in four panels: eggs, a tadpole, a froglet with legs and a tail, and a frog. */
+export function paintLifeCycle(W = 184, H = 56): PixelBuffer {
+  const p = new Paint(W, H);
+  const cell = Math.floor((W - 18) / 4);
+  const pond = ramp('#5ab8c8');
+  for (let i = 0; i < 4; i++) {
+    const x0 = i * (cell + 6);
+    p.rect(x0, 0, cell, H, pond, { level: 2 });
+    const cx = x0 + cell / 2;
+    const cy = H / 2;
+    if (i === 0)
+      for (let k = 0; k < 9; k++) {
+        const ex = cx - 10 + (k % 3) * 9 + (Math.floor(k / 3) % 2) * 3;
+        const ey = cy - 8 + Math.floor(k / 3) * 8;
+        p.ellipse(ex, ey, 3.4, 3.4, ramp('#e8f0d8'), { form: 'sphere' });
+        p.ellipse(ex, ey, 1.2, 1.2, ramp('#2a2a2a'), { form: 'flat', level: 1 });
+      }
+    else if (i === 1 || i === 2) {
+      p.ellipse(cx - 4, cy, 7, 5.4, ramp('#4a5a3a'), { form: 'sphere', sep: true });
+      p.poly(
+        [
+          [cx + 2, cy - 2],
+          [cx + 16, cy - 5],
+          [cx + 16, cy + 5],
+          [cx + 2, cy + 2],
+        ],
+        ramp('#5a6a4a'),
+        { sep: true },
+      );
+      p.pix(cx - 8, cy - 2, '#ffffff');
+      if (i === 2) {
+        p.capsule(cx - 6, cy + 4, cx - 10, cy + 11, 1.4, ramp('#5aa84a'), {});
+        p.capsule(cx - 1, cy + 4, cx + 2, cy + 11, 1.4, ramp('#5aa84a'), {});
+      }
+    } else {
+      const f = fitCritter('frog', cell - 8, H - 10);
+      put(p, f, cx - f.w / 2, H - 6 - f.h);
+    }
+    if (i < 3) {
+      const ax = x0 + cell + 1;
+      p.line(ax, cy, ax + 4, cy, ramp('#2a3a3a'), 1);
+      p.line(ax + 4, cy, ax + 2, cy - 2, ramp('#2a3a3a'), 1);
+      p.line(ax + 4, cy, ax + 2, cy + 2, ramp('#2a3a3a'), 1);
+    }
+  }
+  return p.toBuffer({ outline: false });
+}
+
+/** Fresh water (a pond with reeds and a duck) next to salt water (the sea with waves and a dolphin). */
+export function paintWaters(W = 176, H = 80): PixelBuffer {
+  const p = new Paint(W, H);
+  const half = Math.floor(W / 2);
+  const horizon = Math.round(H * 0.38);
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const sea = x >= half;
+      if (y < horizon) p.dot(x, y, ramp('#cfe6f2'), 3);
+      else if (sea) p.dot(x, y, WILD.sea, (x + y * 2) % 13 === 0 ? 4 : 2);
+      else p.dot(x, y, y < horizon + 6 ? WILD.grass : WILD.river, (x * 3 + y) % 17 === 0 ? 4 : 2);
+    }
+  for (let k = 0; k < 7; k++) p.line(6 + k * 4, horizon + 10, 7 + k * 4, horizon - 6, ramp('#7a9a3a'), 2);
+  for (let x = half + 4; x < W; x += 12) p.line(x, horizon + 4, x + 5, horizon + 2, ramp('#e8f4f8'), 3);
+  const duck = fitCritter('duck', 30, 22);
+  put(p, duck, half * 0.55 - duck.w / 2, H * 0.72 - duck.h);
+  const dol = fitCritter('dolphin', 40, 26);
+  put(p, dol, half + half * 0.5 - dol.w / 2, H * 0.78 - dol.h);
+  for (let y = 0; y < H; y++) p.pix(half, y, '#1a1414');
+  return p.toBuffer({ outline: false });
+}
+
+// ------------------------------------------------------------------ the Night Safari
+
+/**
+ * The forest beyond the camp at night (lit = what the flashlight shows:
+ * moonlit greens; otherwise the deep blue dark). Tree trunks, branches and
+ * leaves stand where the night animals sit.
+ */
+export function paintNightForest(W: number, H: number, lit: boolean): PixelBuffer {
+  const p = new Paint(W, H);
+  const sky = ramp(lit ? '#3a5a7a' : '#0e1428');
+  const leaf = ramp(lit ? '#3f8f4a' : '#10241c');
+  const leaf2 = ramp(lit ? '#5aa84a' : '#16301f');
+  const bark = ramp(lit ? '#7a5236' : '#1a1410');
+  const ground = ramp(lit ? '#4a6a3a' : '#0c1a12');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) p.dot(x, y, y > H * 0.78 ? ground : sky, y < H * 0.3 ? 2 : 1);
+  if (!lit) for (let i = 0; i < 40; i++) p.pix(Math.floor(hash(i, 1, 5) * W), Math.floor(hash(i, 2, 5) * H * 0.35), i % 3 ? '#8a8ab8' : '#fff6e0');
+  p.ellipse(W * 0.84, H * 0.12, 9, 9, ramp(lit ? '#f2f0d8' : '#c8c8a8'), { form: 'flat', level: 3 });
+  // trunks and branches (the owl's on the left, the kinkajou's in the middle, the bat's on the right)
+  for (const [x, w] of [
+    [W * 0.17, 12],
+    [W * 0.64, 10],
+    [W * 0.84, 9],
+  ])
+    p.rect(x - w / 2, H * 0.1, w, H * 0.72, bark, { form: 'cylV' });
+  p.rect(W * 0.12, H * 0.4, W * 0.16, 4, bark, {});
+  p.rect(W * 0.6, H * 0.52, W * 0.12, 4, bark, {});
+  p.rect(W * 0.76, H * 0.24, W * 0.12, 3, bark, {});
+  for (let k = 0; k < 18; k++) {
+    const x = hash(k, 3, 6) * W;
+    const y = hash(k, 4, 6) * H * 0.3;
+    p.ellipse(x, y, 16 + hash(k, 5, 6) * 10, 9, k % 2 ? leaf : leaf2, { sep: true });
+  }
+  // ferns and the big leaf the frog sits on
+  for (let k = 0; k < 10; k++) p.ellipse(hash(k, 7, 6) * W, H * 0.8 + hash(k, 8, 6) * 8, 14, 6, k % 2 ? leaf : leaf2, { sep: true });
+  p.ellipse(W * 0.47, H * 0.72, 16, 5, leaf2, { sep: true });
+  return p.toBuffer({ outline: false });
+}
+
+/** A night animal's picture, as tall as `size` scene pixels. */
+export function paintNightAnimal(id: 'owl' | 'bat' | 'frog' | 'kinkajou' | 'jaguar', size: number): PixelBuffer {
+  if (id === 'kinkajou') {
+    for (let T = 40; T >= 8; T -= 2) {
+      const b = paintKiki(T, 0, 'left');
+      if (b.h <= size) return b;
+    }
+    return paintKiki(8, 0, 'left');
+  }
+  if (id === 'owl' || id === 'bat')
+    for (let T = 48; T >= 8; T -= 2) {
+      const b = paintAnimal(id, T, 0);
+      if (b.h <= size) return b;
+    }
+  return fitCritter(id === 'frog' ? 'frog' : 'jaguar', size * 2, size);
 }

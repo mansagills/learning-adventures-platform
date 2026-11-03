@@ -39,6 +39,10 @@ export interface AnimalInfo {
   gives: string;
   /** A body part that helps it live there (the Rescue Center's level 3 step). */
   part: string;
+  /** At the Poles: the Arctic (north) or Antarctica (south). */
+  side?: 'north' | 'south';
+  /** In the wetland: fresh water (pond and river) or salt water (the sea). */
+  water?: 'fresh' | 'salt';
 }
 
 export const ANIMALS: Partial<Record<Critter, AnimalInfo>> = {
@@ -183,6 +187,152 @@ export const ANIMALS: Partial<Record<Critter, AnimalInfo>> = {
     gives: 'Open ground to run on and lizards to catch',
     part: 'Long, strong legs for running',
   },
+  // ---------------------------------------------------------------- the Poles (the Arctic on the left, Antarctica on the right)
+  'polar-bear': {
+    id: 'polar-bear',
+    name: 'Polar bear',
+    the: 'the polar bear',
+    home: 'poles',
+    side: 'north',
+    where: 'Look on the snow near the bottom of the Arctic side, on the left. It is big and white.',
+    facts: ['Polar bears live only in the Arctic, at the top of the world.', 'Under its white fur, a polar bear’s skin is black. Dark skin soaks up the sun’s warmth.'],
+    needs: 'freezing cold, with sea ice to hunt seals from',
+    gives: 'Sea ice to hunt from and seals to eat',
+    part: 'Thick fur and a layer of fat called blubber',
+  },
+  'arctic-fox': {
+    id: 'arctic-fox',
+    name: 'Arctic fox',
+    the: 'the Arctic fox',
+    home: 'poles',
+    side: 'north',
+    where: 'Look far on the left, on the snow of the Arctic side.',
+    facts: ['Its fur is white in winter and brown in summer, so it always blends in.', 'Small ears and a big bushy tail help it keep warm.'],
+    needs: 'cold, snowy land with small animals to hunt',
+    gives: 'Snowy land to hide in and lemmings to hunt',
+    part: 'Thick winter fur and small ears',
+  },
+  walrus: {
+    id: 'walrus',
+    name: 'Walrus',
+    the: 'the walrus',
+    home: 'poles',
+    side: 'north',
+    where: 'Look near the water, in the middle of the Arctic side.',
+    facts: ['A walrus hooks its long tusks on the ice to pull itself out of the water.', 'Thick blubber keeps it warm in icy water.'],
+    needs: 'icy water with clams on the sea floor',
+    gives: 'Icy water full of clams and ice to rest on',
+    part: 'Long tusks and thick blubber',
+  },
+  'snowy-owl': {
+    id: 'snowy-owl',
+    name: 'Snowy owl',
+    the: 'the snowy owl',
+    home: 'poles',
+    side: 'north',
+    where: 'Look far on the left, near the top of the Arctic side.',
+    facts: ['In the Arctic summer the sun never sets, so snowy owls hunt in daylight too.', 'Feathers cover even its feet, like warm slippers.'],
+    needs: 'open, snowy land with lemmings to catch',
+    gives: 'Open, snowy land and lemmings to catch',
+    part: 'Feathers all the way down to its toes',
+  },
+  penguin: {
+    id: 'penguin',
+    name: 'Emperor penguin',
+    the: 'the emperor penguin',
+    home: 'poles',
+    side: 'south',
+    where: 'Sail south to Antarctica! The penguins stand together on the right.',
+    facts: ['Emperor penguins live in Antarctica, at the bottom of the world. No wild penguins live in the Arctic.', 'Its wings are flippers. Penguins cannot fly, but they swim very fast.'],
+    needs: 'icy southern seas full of fish',
+    gives: 'Icy seas full of fish and ice to nest on',
+    part: 'Wings shaped like flippers for swimming',
+  },
+  seal: {
+    id: 'seal',
+    name: 'Weddell seal',
+    the: 'the Weddell seal',
+    home: 'poles',
+    side: 'south',
+    where: 'Sail south to Antarctica! It is lying on the ice near the bottom right.',
+    facts: ['Weddell seals live farther south than any other mammal.', 'They keep breathing holes in the ice open by scraping them with their teeth.'],
+    needs: 'icy southern water with fish to catch',
+    gives: 'Icy water with fish, and ice to rest on',
+    part: 'Blubber and flippers for swimming',
+  },
+  // ---------------------------------------------------------------- the wetland and the sea
+  beaver: {
+    id: 'beaver',
+    name: 'Beaver',
+    the: 'the beaver',
+    home: 'wetland',
+    water: 'fresh',
+    where: 'Look by the pond, next to the beaver lodge in the middle.',
+    facts: ['Beavers build dams of sticks and mud across streams. The dam makes a pond.', 'Their home, called a lodge, has an underwater door to keep them safe.'],
+    needs: 'a stream or pond with trees nearby',
+    gives: 'Fresh water and trees to eat and build with',
+    part: 'Strong front teeth for cutting wood',
+  },
+  duck: {
+    id: 'duck',
+    name: 'Mallard duck',
+    the: 'the duck',
+    home: 'wetland',
+    water: 'fresh',
+    where: 'Look on the pond, a little to the left.',
+    facts: ['A duck’s feathers are waterproof, so it stays dry even in the water.', 'Webbed feet push the duck along like paddles.'],
+    needs: 'a calm pond with plants and bugs to eat',
+    gives: 'Calm fresh water with plants and bugs',
+    part: 'Webbed feet and waterproof feathers',
+  },
+  heron: {
+    id: 'heron',
+    name: 'Great blue heron',
+    the: 'the heron',
+    home: 'wetland',
+    water: 'fresh',
+    where: 'Look at the edge of the water, far on the left.',
+    facts: ['A heron stands very still in shallow water, then grabs a fish with its sharp bill.', 'Long legs let it wade without getting its feathers wet.'],
+    needs: 'shallow water with fish and frogs to catch',
+    gives: 'Shallow water full of fish to catch',
+    part: 'Long legs for wading and a sharp bill',
+  },
+  crocodile: {
+    id: 'crocodile',
+    name: 'Crocodile',
+    the: 'the crocodile',
+    home: 'wetland',
+    water: 'fresh',
+    where: 'Look by the river, near the bottom in the middle.',
+    facts: ['A crocodile can lie in the water with just its eyes and nose showing.', 'Crocodiles lay their eggs in a nest on land.'],
+    needs: 'a warm river or swamp with fish to catch',
+    gives: 'A warm river to hide in and fish to catch',
+    part: 'Eyes and nose on top of its head',
+  },
+  dolphin: {
+    id: 'dolphin',
+    name: 'Bottlenose dolphin',
+    the: 'the dolphin',
+    home: 'wetland',
+    water: 'salt',
+    where: 'Walk to the beach on the right and look out to sea.',
+    facts: ['Dolphins are mammals. They breathe air through a blowhole on top of their heads.', 'Dolphins live in groups called pods and talk with clicks and whistles.'],
+    needs: 'salty sea water with fish to catch',
+    gives: 'The open sea, full of fish',
+    part: 'A blowhole for breathing air at the surface',
+  },
+  whale: {
+    id: 'whale',
+    name: 'Humpback whale',
+    the: 'the humpback whale',
+    home: 'wetland',
+    water: 'salt',
+    where: 'Walk to the beach on the right. Look far out to sea, near the bottom.',
+    facts: ['A humpback whale is a mammal, not a fish. It comes up to breathe air.', 'Humpbacks swim thousands of kilometers each year, from cold seas to warm ones.'],
+    needs: 'a huge, salty ocean with tiny krill to eat',
+    gives: 'The huge ocean, full of krill',
+    part: 'A blowhole and flippers as long as a car',
+  },
 };
 
 /** One animal's info (every critter on a trip has some). */
@@ -204,7 +354,7 @@ export interface HabitatInfo {
   is: string;
   /** The weather and the land, for the map picture's caption. */
   short: string;
-  /** Opened in this half of the game (the Poles and the Wetland come in half 2). */
+  /** Built and open to play (all four since half 2). */
   open: boolean;
 }
 
@@ -218,22 +368,27 @@ export const HABITAT_INFO: Record<Habitat, HabitatInfo> = {
     open: true,
   },
   desert: { id: 'desert', name: 'The Desert', the: 'the desert', is: 'The desert is very dry, with sand, rocks and very little rain.', short: 'Dry, sandy, little rain', open: true },
-  poles: { id: 'poles', name: 'The Poles', the: 'the Poles', is: 'The Poles are freezing cold, with ice and snow.', short: 'Freezing, icy, snowy', open: false },
-  wetland: { id: 'wetland', name: 'The Wetland and Sea', the: 'the wetland', is: 'The wetland is full of water: a pond, a river and the sea.', short: 'Ponds, rivers, the sea', open: false },
+  poles: { id: 'poles', name: 'The Poles', the: 'the Poles', is: 'The Poles are freezing cold, with ice and snow.', short: 'Freezing, icy, snowy', open: true },
+  wetland: { id: 'wetland', name: 'The Wetland and Sea', the: 'the wetland', is: 'The wetland is full of water: a pond, a river and the sea.', short: 'Ponds, rivers, the sea', open: true },
 };
 
 /** The trips, in order (each opens when the one before it is done). */
 export type Trip = 'rainforest' | 'desert' | 'poles' | 'wetland';
 export const TRIPS: Trip[] = ['rainforest', 'desert', 'poles', 'wetland'];
-/** The trips built so far (half 1). */
+/** The trips that can be played (all four since half 2). */
 export const OPEN_TRIPS: Trip[] = TRIPS.filter((t) => HABITAT_INFO[t].open);
 
-/** The animals to spot on each trip, in the order they stand in the scene (penguins counted once). */
+/**
+ * The animals to spot on each trip, in the order they stand in the scene:
+ * each kind once (the penguin group counts as one), and only the trip's own
+ * animals (the wetland's tree frog is in the rainforest's journal page).
+ */
+const own = (t: Trip, list: readonly HabitatAnimal[]) => list.filter((a, i, all) => all.findIndex((b) => b.who === a.who) === i && ANIMALS[a.who]?.home === t);
 export const TRIP_ANIMALS: Record<Trip, readonly HabitatAnimal[]> = {
-  rainforest: RAINFOREST_ANIMALS,
-  desert: DESERT_ANIMALS,
-  poles: POLAR_ANIMALS.filter((a, i, all) => all.findIndex((b) => b.who === a.who) === i),
-  wetland: WETLAND_ANIMALS,
+  rainforest: own('rainforest', RAINFOREST_ANIMALS),
+  desert: own('desert', DESERT_ANIMALS),
+  poles: own('poles', POLAR_ANIMALS),
+  wetland: own('wetland', WETLAND_ANIMALS),
 };
 
 /** The kinds of animal to spot on a trip. */

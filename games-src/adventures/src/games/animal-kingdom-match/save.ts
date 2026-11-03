@@ -25,8 +25,17 @@ export interface AnimalSave {
   homes: number;
   openingSeen: boolean;
   amaraMet: boolean;
-  /** Ranger Tala's goodbye for half 1 has been said. */
+  /** Ranger Tala's goodbye for half 1 has been said (kept for old saves). */
   halfDoneSeen: boolean;
+  /** Ranger Tala's "four patches, tonight is the Night Safari" has been said. */
+  allDoneSeen: boolean;
+  /** The Night Safari is finished (the game is complete). */
+  nightDone: boolean;
+  /** Ranger Tala has explained the boat ride to Antarctica. */
+  sailed: boolean;
+  /** Speed Match: the best score, and rounds played. */
+  speedBest: number;
+  speedRounds: number;
   /** Question ids seen lately on each trip (so every question comes up before any repeats). */
   recent: Record<Trip, string[]>;
   learner: LearnerState;
@@ -51,6 +60,11 @@ export function freshSave(): AnimalSave {
     openingSeen: false,
     amaraMet: false,
     halfDoneSeen: false,
+    allDoneSeen: false,
+    nightDone: false,
+    sailed: false,
+    speedBest: 0,
+    speedRounds: 0,
     recent: noLists(),
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
@@ -103,6 +117,11 @@ export function cleanSave(raw: unknown): AnimalSave {
     openingSeen: r.openingSeen === true,
     amaraMet: r.amaraMet === true,
     halfDoneSeen: r.halfDoneSeen === true,
+    allDoneSeen: r.allDoneSeen === true,
+    nightDone: r.nightDone === true,
+    sailed: r.sailed === true,
+    speedBest: Math.min(999, count(r.speedBest)),
+    speedRounds: count(r.speedRounds),
     recent,
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,

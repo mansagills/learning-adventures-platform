@@ -9,7 +9,8 @@ import { placer } from '../../kit/worlds/place';
 import { Walker16, type Marker16 } from '../../kit/worlds/walker';
 import { paintHabitatMap, paintKiki, paintRescueTent, type Habitat } from '../../kit/worlds/wild-lands/animal-art';
 import { CAMP_SPOTS, FIELD_CAMP } from '../../kit/worlds/wild-lands/camp';
-import { DESERT, POLAR, RAINFOREST, WETLAND, type Critter } from '../../kit/worlds/wild-lands/habitats';
+import { DESERT, POLAR, POLAR_SEA, RAINFOREST, WETLAND, type Critter } from '../../kit/worlds/wild-lands/habitats';
+import { paintSub } from '../../kit/worlds/wild-lands/art';
 import { WILD_LANDS } from '../../kit/worlds/wild-lands/style';
 import { TRIP_ANIMALS, type Trip } from './animals';
 import type { PersonId } from './content';
@@ -17,7 +18,10 @@ import type { PersonId } from './content';
 export type Area = 'camp' | Trip;
 
 /** Everything the player can walk up to: a person, the Wild Lands map, or an animal still to spot. */
-export type TargetId = PersonId | 'map' | `animal:${number}`;
+export type TargetId = PersonId | 'map' | `animal:${number}` | 'ship-south' | 'ship-north';
+
+/** The Poles: the research boat waits in the sea between the Arctic (left) and Antarctica (right). */
+export const SHIP = { x: (POLAR_SEA.x0 + POLAR_SEA.x1) / 2, y: 11.8, north: { x: POLAR_SEA.x0 - 0.9, y: 11.2 }, south: { x: POLAR_SEA.x1 + 1.1, y: 11.2 } };
 
 export interface Target {
   id: TargetId;
@@ -169,10 +173,19 @@ export class AnimalWorld {
       const host = opts.host ?? 'tala';
       person(host, built.spots.host.x, built.spots.host.y);
       TRIP_ANIMALS[area].forEach((a, i) => {
-        // stand below an animal up a tree; others can be walked right up to
-        const y = a.lift ? Math.max(walk.y0 + 0.3, a.y + 0.6) : a.y + 0.5;
-        this.targets.push({ id: `animal:${i}`, x: a.x, y, label: 'Look with the binoculars', who: a.who });
+        // stand below an animal up a tree, or on the beach for one out at sea; others can be walked right up to
+        const y = a.lift ? Math.max(walk.y0 + 0.3, a.y + 0.6) : Math.min(walk.y1 - 0.3, a.y + 0.5);
+        const x = Math.max(walk.x0 + 0.4, Math.min(walk.x1 - 0.5, a.x));
+        this.targets.push({ id: `animal:${i}`, x, y, label: 'Look with the binoculars', who: a.who });
       });
+      if (area === 'poles') {
+        // the research boat crosses the sea between the north and the south
+        prop(paintSub(T, 'left', 0).toCanvas(), SHIP.x, SHIP.y, 1.6);
+        this.targets.push(
+          { id: 'ship-south', x: SHIP.north.x, y: SHIP.north.y, label: 'Sail south to Antarctica' },
+          { id: 'ship-north', x: SHIP.south.x, y: SHIP.south.y, label: 'Sail north to the Arctic' },
+        );
+      }
     }
     // Kiki trots along behind the player
     this.kiki.tex.right = [0, 1, 2, 3].map((f) => pixelTexture(paintKiki(T, f, 'right').toCanvas()));

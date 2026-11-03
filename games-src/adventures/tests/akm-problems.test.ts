@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mulberry32 } from '../src/kit/core/rng';
 import { ANIMALS, animal, HABITAT_INFO, JOURNAL_ORDER, OPEN_TRIPS, toSpot, TRIP_ANIMALS } from '../src/games/animal-kingdom-match/animals';
 import { bank, makeQuestion, STATIONS, TIERS } from '../src/games/animal-kingdom-match/problems';
+import { BEAM_R, HIT_R, NIGHT_ANIMALS, NIGHT_H, NIGHT_W, nearestNight, shineHit, whereIs } from '../src/games/animal-kingdom-match/night';
 import { givesStep, partStep, pickRescues, stepsFor, wrongHomeReason } from '../src/games/animal-kingdom-match/rescue';
 import { ANIMAL_HOME } from '../src/kit/worlds/wild-lands/animal-art';
 import { POLAR_ANIMALS, POLAR_SEA } from '../src/kit/worlds/wild-lands/habitats';
@@ -68,6 +69,17 @@ describe('Animal Kingdom Match questions', () => {
     expect(find('r-spots').right).toMatch(/parents/);
     // nothing claims a parrot lives 80 years in the wild, or that lions are the only cats in groups
     for (const d of all) expect(`${d.ask} ${d.right} ${d.explain}`).not.toMatch(/80 years|only cats/);
+    // penguins live in the south; polar bears and wild penguins never meet
+    expect(find('p-penguins').right).toMatch(/south/);
+    expect(find('p-penguins').wrong.find((w) => /Arctic/.test(w[0]))?.[1]).toBe('penguin-north');
+    expect(find('p-never-meet').right).toMatch(/^No/);
+    // whales and dolphins are mammals that breathe air
+    expect(find('w-whale').right).toMatch(/mammal/);
+    expect(find('w-dolphin').wrong.some((w) => w[1] === 'breathe-water')).toBe(true);
+    // the sea is the salty one; migration is not hibernation
+    expect(find('w-salty').right).toBe('The sea');
+    expect(find('p-migration').right).toBe('Migration');
+    expect(find('w-cycle').right).toBe('A frog');
   });
 });
 
@@ -81,14 +93,23 @@ describe('Animal Kingdom Match animals', () => {
         expect(a.facts[1].length).toBeGreaterThan(20);
         expect(a.where.length).toBeGreaterThan(10);
       }
-    expect(JOURNAL_ORDER.length).toBe(12);
-    expect(new Set(JOURNAL_ORDER).size).toBe(12);
+    expect(JOURNAL_ORDER.length).toBe(24);
+    expect(new Set(JOURNAL_ORDER).size).toBe(24);
+    expect(toSpot('poles').filter((id) => id === 'penguin').length).toBe(1);
+    // the wetland's tree frog belongs to the rainforest page
+    expect(toSpot('wetland')).not.toContain('frog');
+    for (const id of toSpot('poles')) expect(animal(id).side, id).toBeTruthy();
+    for (const id of toSpot('wetland')) expect(animal(id).water, id).toBeTruthy();
   });
 
   it('agrees with the art about where each new animal lives', () => {
     for (const a of Object.values(ANIMALS)) {
       const art = ANIMAL_HOME[a!.id as keyof typeof ANIMAL_HOME];
-      if (art) expect(art, a!.id).toBe(a!.home);
+      const habitat = { arctic: 'poles', antarctic: 'poles', sea: 'wetland', wetland: 'wetland', rainforest: 'rainforest', desert: 'desert', night: null }[art ?? 'night'];
+      if (habitat) expect(habitat, a!.id).toBe(a!.home);
+      if (art === 'arctic') expect(a!.side).toBe('north');
+      if (art === 'antarctic') expect(a!.side).toBe('south');
+      if (art === 'sea') expect(a!.water).toBe('salt');
     }
   });
 
@@ -100,8 +121,8 @@ describe('Animal Kingdom Match animals', () => {
     expect(TRIP_ANIMALS.poles.filter((a) => a.who === 'penguin').length).toBe(1);
   });
 
-  it('describes all four habitats, with only the first two open in half 1', () => {
-    expect(OPEN_TRIPS).toEqual(['rainforest', 'desert']);
+  it('describes all four habitats, all open', () => {
+    expect(OPEN_TRIPS).toEqual(['rainforest', 'desert', 'poles', 'wetland']);
     for (const h of Object.values(HABITAT_INFO)) expect(h.is.length).toBeGreaterThan(20);
   });
 });
@@ -117,6 +138,8 @@ describe('the Rescue Center', () => {
       expect(new Set(second).size).toBe(3);
       expect(second.filter((id) => animal(id).home === 'desert').length).toBe(2);
       expect(second.filter((id) => animal(id).home === 'rainforest').length).toBe(1);
+      const last = pickRescues('wetland', ['rainforest', 'desert', 'poles'], mulberry32(seed));
+      expect(last.filter((id) => animal(id).home === 'wetland').length).toBe(2);
     }
   });
 
@@ -143,5 +166,42 @@ describe('the Rescue Center', () => {
     expect(stepsFor('camel', 1, r).length).toBe(0);
     expect(stepsFor('camel', 2, r).map((s) => s.kind)).toEqual(['gives']);
     expect(stepsFor('camel', 3, r).map((s) => s.kind)).toEqual(['gives', 'part']);
+  });
+});
+
+describe('the Night Safari', () => {
+  it('has five night animals, each with its eyes inside the scene and a question with a mistake behind each wrong answer', () => {
+    expect(NIGHT_ANIMALS.length).toBe(5);
+    expect(new Set(NIGHT_ANIMALS.map((a) => a.id)).size).toBe(5);
+    for (const a of NIGHT_ANIMALS) {
+      expect(a.eyes.x).toBeGreaterThan(BEAM_R / 2);
+      expect(a.eyes.x).toBeLessThan(NIGHT_W - BEAM_R / 2);
+      expect(a.eyes.y).toBeGreaterThan(0);
+      expect(a.eyes.y).toBeLessThan(NIGHT_H);
+      expect(a.ask.endsWith('?')).toBe(true);
+      expect(a.wrong.length).toBe(2);
+      for (const [, mis, why] of a.wrong) {
+        expect(mis).toBeTruthy();
+        expect(why.toLowerCase().includes(a.right.toLowerCase())).toBe(false);
+      }
+    }
+    expect(NIGHT_ANIMALS.find((a) => a.id === 'bat')!.wrong.some((w) => w[1] === 'bats-blind')).toBe(true);
+    expect(NIGHT_ANIMALS.find((a) => a.id === 'owl')!.wrong.some((w) => w[1] === 'owl-dark')).toBe(true);
+  });
+
+  it('finds an animal only when the beam is on its eyes, and only once', () => {
+    const owl = NIGHT_ANIMALS.find((a) => a.id === 'owl')!;
+    expect(shineHit(owl.eyes.x, owl.eyes.y, [])?.id).toBe('owl');
+    expect(shineHit(owl.eyes.x + HIT_R + 2, owl.eyes.y, [])).toBe(null);
+    expect(shineHit(owl.eyes.x, owl.eyes.y, ['owl'])).toBe(null);
+    expect(nearestNight(owl.eyes.x, owl.eyes.y, ['owl'])?.id).not.toBe('owl');
+    expect(
+      nearestNight(
+        0,
+        0,
+        NIGHT_ANIMALS.map((a) => a.id),
+      ),
+    ).toBe(null);
+    expect(whereIs(owl)).toMatch(/left/);
   });
 });

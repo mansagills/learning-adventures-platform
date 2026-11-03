@@ -18,17 +18,20 @@ import { showTitle } from '../../kit/ui/title';
 import { HAIR16, look16FromAppearance, paintHero, paintPortrait16, type Look16, type Mood } from '../../kit/worlds';
 import '../../kit/worlds/worlds.css';
 import '../../kit/worlds/wild-lands/wild.css';
-import { AMARA_OSEI, HABITATS, paintBinoculars, paintKikiPortrait, type Habitat } from '../../kit/worlds/wild-lands/animal-art';
+import { AMARA_OSEI, HABITATS, paintBinoculars, paintHabitatMap, paintKikiPortrait, type Habitat } from '../../kit/worlds/wild-lands/animal-art';
 import { RANGER_TALA } from '../../kit/worlds/wild-lands/art';
 import type { Critter } from '../../kit/worlds/wild-lands/habitats';
 import { animal, HABITAT_INFO, JOURNAL_ORDER, OPEN_TRIPS, RAINFOREST_LAYERS, toSpot, TRIP_ANIMALS, TRIPS, type Trip } from './animals';
-import { paintAnimalCard, paintDayNight, paintHabitatCard, paintLayers, paintNeeds, paintPair, paintPatch } from './art';
+import { fitCritter, paintAnimalCard, paintDayNight, paintGlobe, paintHabitatCard, paintLayers, paintLifeCycle, paintNeeds, paintPair, paintPatch, paintWaters } from './art';
 import {
   AMARA_HELLO,
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
   GROWNUPS,
-  HALF_DONE,
+  AFTER_ALL,
+  ALL_DONE,
+  NIGHT_DONE,
+  NIGHT_INVITE,
   KIKI,
   KIKI_HELLO,
   KIKI_HELP_DONE,
@@ -43,14 +46,17 @@ import {
   TRIP_INFO,
   type PersonId,
 } from './content';
-import { CAMP_SONG, DESERT_SONG, FOREST_SONG, JOURNAL_SONG } from './music';
+import { CAMP_SONG, DESERT_SONG, FOREST_SONG, ICE_SONG, JOURNAL_SONG, NIGHT_SONG, WETLAND_SONG } from './music';
+import type { NightId } from './night';
+import { openNight, type NightHandle } from './nightUi';
+import { openSpeed, type SpeedHandle } from './speedUi';
 import { pix } from './pix';
 import { bank, makeQuestion, STATIONS, type Choice, type Misconception, type Question, type Tier } from './problems';
 import { pickRescues } from './rescue';
 import { openRescue, type RescueHandle } from './rescueUi';
 import { freshSave, store, type AnimalSave } from './save';
 import { openSpot, type SpotHandle } from './spotUi';
-import { AnimalWorld, CAMP_PEOPLE, MAP_SIGN, type Area, type Target } from './world';
+import { AnimalWorld, CAMP_PEOPLE, MAP_SIGN, SHIP, type Area, type Target } from './world';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_TRIP = 12;
@@ -98,6 +104,10 @@ export class Game {
   private panel: Panel | null = null;
   private spot: SpotHandle | null = null;
   private rescue: RescueHandle | null = null;
+  private night: NightHandle | null = null;
+  private speed: SpeedHandle | null = null;
+  /** The message last sent to the site's game player (for the browser test). */
+  private lastComplete: { type: string; score: number } | null = null;
   /** The trip being walked now (null at camp). */
   private trip: Trip | null = null;
   /** Animals (by index in the trip's list) spotted on this visit. */
@@ -142,6 +152,9 @@ export class Game {
     audio.addSong('forest', FOREST_SONG);
     audio.addSong('desert', DESERT_SONG);
     audio.addSong('journal', JOURNAL_SONG);
+    audio.addSong('ice', ICE_SONG);
+    audio.addSong('wetland', WETLAND_SONG);
+    audio.addSong('night', NIGHT_SONG);
     this.world.onArrive = (t) => this.use(t);
     window.addEventListener('resize', () => this.world.resize());
     this.world.stage.canvas.addEventListener('pointerdown', (e) => this.onPointer(e));
@@ -195,6 +208,27 @@ export class Game {
         return true;
       },
       journal: () => this.mode === 'world' && this.openJournal(),
+      nightSafari: () => this.mode === 'world' && this.startNight(),
+      nightState: () => this.night?.state() ?? null,
+      nightAim: (id: NightId) => this.night?.aim(id),
+      nightShine: () => this.night?.shine() ?? false,
+      nightAnswer: (i: number) => this.night?.answer(i),
+      speedMatch: () => this.mode === 'world' && this.startSpeed(),
+      speedState: () => this.speed?.state() ?? null,
+      speedPick: (i: number) => this.speed?.pick(i),
+      speedFinish: () => this.speed?.finish(),
+      /** Mark trips as finished (for screenshots of later parts). */
+      finishTrips: (trips: Trip[]) => {
+        for (const t of trips) {
+          for (const id of toSpot(t)) if (!this.save.journal.includes(id)) this.save.journal.push(id);
+          for (const list of [this.save.visited, this.save.spottedAll, this.save.rescued, this.save.done]) if (!list.includes(t)) list.push(t);
+          this.save.stars[t] = 5;
+        }
+        this.persist();
+        this.world.setMapLit(this.save.done);
+        this.updateMarkers();
+        this.renderHud();
+      },
       map: () => this.world.debugMap(),
     };
   }
@@ -202,6 +236,7 @@ export class Game {
   start(): void {
     const names = Object.fromEntries((Object.keys(PEOPLE) as PersonId[]).map((id) => [id, PEOPLE[id].name])) as Record<PersonId, string>;
     this.world.setCast(this.playerLook(), LOOKS, names);
+    this.world.timeOfDay = this.timeFor('camp');
     this.world.load('camp', { lit: this.save.done });
     this.updateMarkers();
     this.world.establishing = true;
@@ -244,8 +279,17 @@ export class Game {
     return OPEN_TRIPS.find((t) => this.stepOf(t) !== null) ?? null;
   }
 
-  private get halfDone(): boolean {
-    return OPEN_TRIPS.every((t) => this.save.done.includes(t));
+  private get allDone(): boolean {
+    return TRIPS.every((t) => this.save.done.includes(t));
+  }
+
+  /** The time of day at an area: the camp is at dusk once every trip is done (the Night Safari). */
+  private timeFor(area: Area): 'day' | 'evening' {
+    return area === 'camp' && this.allDone ? 'evening' : 'day';
+  }
+
+  private songFor(area: Area): string {
+    return area === 'camp' ? (this.allDone ? 'night' : 'camp') : { rainforest: 'forest', desert: 'desert', poles: 'ice', wetland: 'wetland' }[area];
   }
 
   // ------------------------------------------------------------ title and start
@@ -258,7 +302,7 @@ export class Game {
       title: 'Animal Kingdom Match',
       subtitle: 'Spot them, then help them home',
       intro: [
-        'Be a Junior Ranger with Ranger Tala, Dr. Amara Osei and Kiki the kinkajou. Visit the rainforest and the desert, spot their animals with your binoculars, and help lost animals get back home at the Wildlife Rescue Center.',
+        'Be a Junior Ranger with Ranger Tala, Dr. Amara Osei and Kiki the kinkajou. Visit the rainforest, the desert, the Poles and the wetland, spot their animals with your binoculars, help lost animals get back home at the Wildlife Rescue Center, and find night animals by their shining eyes on the Night Safari.',
         'For grades 1 to 4. Everything can be read aloud, and nothing is timed.',
       ],
       hasSave: store.exists(),
@@ -303,6 +347,7 @@ export class Game {
       ]);
       if (ok !== 'yes') return;
       this.save = store.reset();
+      this.world.timeOfDay = 'day';
       this.world.load('camp', { lit: [] });
       this.updateMarkers();
     }
@@ -316,7 +361,7 @@ export class Game {
     this.titleEl = null;
     this.hud.hidden = false;
     this.mode = 'world';
-    audio.play('camp');
+    audio.play(this.songFor(this.world.area));
     this.renderHud();
     if (!this.save.openingSeen) void this.opening();
   }
@@ -344,7 +389,7 @@ export class Game {
     const cur = this.current;
     const step = cur ? this.stepOf(cur) : null;
     this.world.setMarkers({
-      tala: step === 'spot' || step === 'journal' || (this.halfDone && !this.save.halfDoneSeen) ? 'new' : null,
+      tala: step === 'spot' || step === 'journal' || (this.allDone && !this.save.nightDone) ? 'new' : null,
       amara: step === 'rescue' || !this.save.amaraMet ? (step === 'rescue' ? 'turnin' : 'new') : null,
     });
   }
@@ -405,6 +450,7 @@ export class Game {
     this.world.stopWalking();
     if (t.who) return this.startSpot(t);
     if (t.id === 'map') return void this.openMap();
+    if (t.id === 'ship-south' || t.id === 'ship-north') return void this.sail(t.id === 'ship-south' ? 'south' : 'north');
     if (this.world.area !== 'camp') return void this.talkToHost();
     if (t.id === 'tala') void this.talkToTala();
     else void this.talkToAmara();
@@ -423,15 +469,15 @@ export class Game {
     this.mode = 'busy';
     const tala = this.speakers.tala;
     const sv = this.save;
-    if (this.halfDone && !sv.halfDoneSeen) {
-      await this.talk.say(tala, HALF_DONE, 'proud');
-      sv.halfDoneSeen = true;
+    if (this.allDone && !sv.allDoneSeen) {
+      await this.talk.say(tala, ALL_DONE, 'proud');
+      sv.allDoneSeen = true;
       this.persist();
-      this.updateMarkers();
     }
     const cur = this.current;
     const step = cur ? this.stepOf(cur) : null;
     const options: Array<{ label: string; run: () => void }> = [];
+    if (this.allDone) options.push({ label: sv.nightDone ? 'The Night Safari again' : 'Start the Night Safari', run: () => this.startNight() });
     if (cur && step === 'spot') options.push({ label: `Go to ${AREA_NAME[cur]}`, run: () => void this.goOnTrip(cur) });
     if (cur && step === 'journal') options.push({ label: `Write up ${AREA_NAME[cur]} in the journal`, run: () => this.openPanel(cur) });
     for (const t of OPEN_TRIPS) if (sv.done.includes(t)) options.push({ label: `Journal practice: ${AREA_NAME[t]}`, run: () => this.openPanel(t) });
@@ -441,7 +487,9 @@ export class Game {
       { label: 'Not now', run: () => undefined },
     );
     const tip = !cur
-      ? 'You can visit any habitat again from the map, or practise in your Ranger Journal.'
+      ? sv.nightDone
+        ? AFTER_ALL
+        : NIGHT_INVITE
       : step === 'spot'
         ? `${TRIP_INFO[cur].name} is next. Shall we go?`
         : step === 'rescue'
@@ -494,10 +542,12 @@ export class Game {
       this.mode = 'world';
       return;
     }
-    const i = await this.talk.offer(amara, RESCUE_AGAIN, ['Help them get home', 'Not now']);
+    const opts = ['Help them get home', ...(sv.nightDone ? [`Speed Match (${sv.speedBest ? `best: ${sv.speedBest}` : '60 seconds'})`] : []), 'Not now'];
+    const i = await this.talk.offer(amara, RESCUE_AGAIN, opts);
     this.talk.end();
     this.mode = 'world';
     if (i === 0) this.startRescue();
+    else if (opts[i].startsWith('Speed Match')) this.startSpeed();
   }
 
   // ------------------------------------------------------------ travel
@@ -513,9 +563,10 @@ export class Game {
     const sv = this.save;
     this.spottedNow = new Set(area !== 'camp' && !sv.spottedAll.includes(area) ? TRIP_ANIMALS[area].map((a, i) => (sv.journal.includes(a.who) ? i : -1)).filter((i) => i >= 0) : []);
     const host = area === 'camp' ? undefined : TRIP_INFO[area].host;
+    this.world.timeOfDay = this.timeFor(area);
     this.world.load(area, { lit: sv.done, host, spotted: [...this.spottedNow] });
     this.updateMarkers();
-    audio.play(area === 'camp' ? 'camp' : area === 'desert' ? 'desert' : 'forest');
+    audio.play(this.songFor(area));
     this.renderHud();
     veil.classList.add('out');
     window.setTimeout(() => veil.remove(), 420);
@@ -675,6 +726,147 @@ export class Game {
     this.openPanel(due);
   }
 
+  // ------------------------------------------------------------ the Poles: the research boat
+
+  /** Sail between the Arctic and Antarctica (the first time, Ranger Tala says how far apart they really are). */
+  private async sail(to: 'north' | 'south'): Promise<void> {
+    this.mode = 'busy';
+    this.touch?.setVisible(false);
+    const veil = h('div', { class: 'akm-travel', role: 'status', 'aria-live': 'polite' }, h('span', { text: to === 'south' ? 'Sailing south to Antarctica...' : 'Sailing north to the Arctic...' }));
+    this.host.append(veil);
+    await new Promise((r) => window.setTimeout(r, 420));
+    const at = to === 'south' ? SHIP.south : SHIP.north;
+    this.world.placePlayer(at.x + (to === 'south' ? 0.6 : -0.6), at.y, to === 'south' ? 'right' : 'left');
+    veil.classList.add('out');
+    window.setTimeout(() => veil.remove(), 420);
+    if (to === 'south' && !this.save.sailed) {
+      this.save.sailed = true;
+      this.persist();
+      await this.talk.say(
+        this.speakers.tala,
+        'This is Antarctica, at the bottom of the world. In real life, this trip is more than 15,000 kilometers! Penguins live here. Polar bears never do.',
+        'smile',
+      );
+      this.talk.end();
+    }
+    this.mode = 'world';
+    this.touch?.setVisible(touchControlsVisible());
+  }
+
+  // ------------------------------------------------------------ the Night Safari (the finale)
+
+  private startNight(): void {
+    if (!this.allDone || this.mode !== 'world') return;
+    if (this.world.area !== 'camp') {
+      void this.travel('camp').then(() => this.startNight());
+      return;
+    }
+    this.mode = 'job';
+    this.touch?.setVisible(false);
+    this.promptEl.hidden = true;
+    audio.play('night');
+    let finished = false;
+    this.night = openNight(this.host, {
+      seed: this.save.seed++,
+      onAnswer: (id, correct, misconception) => {
+        recordAnswer(this.save.learner, 'night', { correct, hintRung: 0, misconception }, RULES);
+        this.persist();
+        void id;
+      },
+      onAllFound: () => {
+        finished = true;
+      },
+      onClose: () => {
+        this.night = null;
+        if (finished) void this.finale();
+        else this.backToWorld();
+      },
+    });
+  }
+
+  /** Every animal in the journal on the lit Wild Lands map, and the message to the site player. */
+  private async finale(): Promise<void> {
+    const sv = this.save;
+    const first = !sv.nightDone;
+    sv.nightDone = true;
+    this.persist();
+    audio.levelUp();
+    this.lastComplete = { type: 'game-complete', score: sv.journal.length };
+    window.parent?.postMessage(this.lastComplete, '*');
+    this.mode = 'busy';
+    await new Promise<void>((resolve) => {
+      const group = (hab: Habitat) =>
+        h(
+          'div',
+          { class: `akm-finale-group akm-finale-${hab}` },
+          h('strong', { text: HABITAT_INFO[hab].name }),
+          h(
+            'div',
+            { class: 'akm-finale-animals' },
+            ...toSpot(hab)
+              .filter((id) => sv.journal.includes(id))
+              .map((id) => pix(`mini-${id}`, () => fitCritter(id, 30, 26), 1.5, animal(id).name)),
+          ),
+        );
+      const root = h(
+        'div',
+        { class: 'panel modal akm-finale', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'finale-title' },
+        h('header', {}, h('h2', { id: 'finale-title', text: 'Every animal is home' })),
+        h(
+          'div',
+          { class: 'content akm-finale-body' },
+          group('rainforest'),
+          group('desert'),
+          h(
+            'div',
+            { class: 'akm-finale-map' },
+            pix('map-all', () => paintHabitatMap(48, [...HABITATS]), 1.5, 'The Wild Lands map, every habitat lit up'),
+          ),
+          group('poles'),
+          group('wetland'),
+          h('p', { class: 'akm-finale-note', text: `Junior Ranger: ${sv.journal.length} animals in your Ranger Journal, ${sv.homes} taken home, 4 patches and the Night Safari.` }),
+        ),
+        h('footer', { class: 'akm-foot' }, h('span', {}), h('button', { class: 'btn primary', type: 'button', text: 'Done', 'data-autofocus': true, onclick: () => modal.close() })),
+      );
+      const modal = new Modal(this.host, root, () => {
+        stopSpeaking();
+        resolve();
+      });
+      speak(NIGHT_DONE[0]);
+    });
+    await this.talk.say(this.speakers.tala, first ? NIGHT_DONE : NIGHT_DONE[1], 'proud');
+    if (first) await this.talk.say(this.speakers.amara, 'And if you like racing the clock, try Speed Match with me at the Rescue Center!', 'smile');
+    this.talk.end();
+    this.backToWorld();
+    audio.play('night');
+  }
+
+  // ------------------------------------------------------------ Speed Match (optional, after the game)
+
+  private startSpeed(): void {
+    if (!this.save.nightDone || this.mode !== 'world') return;
+    this.mode = 'job';
+    this.touch?.setVisible(false);
+    this.promptEl.hidden = true;
+    audio.play('forest');
+    const sv = this.save;
+    this.speed = openSpeed(this.host, {
+      animals: JOURNAL_ORDER.filter((id) => sv.journal.includes(id)),
+      seed: sv.seed++,
+      best: sv.speedBest,
+      onDone: (score) => {
+        sv.speedRounds++;
+        if (score > sv.speedBest) sv.speedBest = score;
+        this.persist();
+      },
+      onClose: () => {
+        this.speed = null;
+        audio.play(this.songFor(this.world.area));
+        this.backToWorld();
+      },
+    });
+  }
+
   private backToWorld(): void {
     this.mode = 'world';
     this.updateMarkers();
@@ -814,7 +1006,40 @@ export class Game {
     }
     if (pic.k === 'scene') return this.habitatPic(pic.hab, 2.2);
     if (pic.k === 'layers') return this.layersPic(labels, 2);
+    if (pic.k === 'globe') return this.globePic(2);
+    if (pic.k === 'lifecycle') return this.lifeCyclePic(2);
+    if (pic.k === 'water') return this.watersPic(2);
     return this.dayNightPic(2);
+  }
+
+  private globePic(scale: number): HTMLElement {
+    const { buf, north, south } = paintGlobe(150, 120);
+    return h(
+      'div',
+      { class: 'akm-sky' },
+      pix('globe', () => buf, scale, 'The Earth: the Arctic at the top with a polar bear, Antarctica at the bottom with a penguin'),
+      this.tag('North: the Arctic', 0.5, Math.max(0, north - 0.12), 'small'),
+      this.tag('South: Antarctica', 0.5, Math.min(0.9, south), 'small'),
+    );
+  }
+
+  private lifeCyclePic(scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'akm-sky akm-needs' },
+      pix('lifecycle', () => paintLifeCycle(184, 56), scale, 'A frog’s life cycle: eggs, a tadpole, a froglet with legs and a tail, and a frog'),
+      ...['Eggs', 'Tadpole', 'Froglet', 'Frog'].map((t, i) => this.tag(t, (i + 0.5) / 4, 0.98, 'small')),
+    );
+  }
+
+  private watersPic(scale: number): HTMLElement {
+    return h(
+      'div',
+      { class: 'akm-sky' },
+      pix('waters', () => paintWaters(176, 80), scale, 'Fresh water (a pond with reeds and a duck) next to salt water (the sea with waves and a dolphin)'),
+      this.tag('Fresh water: pond and river', 0.25, 0.02, 'small'),
+      this.tag('Salt water: the sea', 0.75, 0.02, 'small'),
+    );
   }
 
   private habitatPic(hab: Habitat, scale: number): HTMLElement {
@@ -870,6 +1095,9 @@ export class Game {
     else if (q.model === 'layers' && q.pic.k !== 'layers') show(this.layersPic(true, 1.2));
     else if (q.model === 'map') show(...HABITATS.map((hab) => this.habitatPic(hab, 1)));
     else if (q.model === 'daynight' && q.pic.k !== 'daynight') show(this.dayNightPic(1.2));
+    else if (q.model === 'globe' && q.pic.k !== 'globe') show(this.globePic(1.2));
+    else if (q.model === 'lifecycle' && q.pic.k !== 'lifecycle') show(this.lifeCyclePic(1.2));
+    else if (q.model === 'water' && q.pic.k !== 'water') show(this.watersPic(1.2));
     else if (q.model === 'card' && (q.pic.k === 'animal' || q.pic.k === 'pair')) {
       const id = q.pic.k === 'animal' ? q.pic.id : q.pic.a;
       const a = animal(id);
@@ -1006,7 +1234,7 @@ export class Game {
     this.panel = null;
     if (this.mode === 'panel') {
       this.mode = 'world';
-      audio.play(this.world.area === 'camp' ? 'camp' : this.world.area === 'desert' ? 'desert' : 'forest');
+      audio.play(this.songFor(this.world.area));
     }
     this.touch?.setVisible(this.mode === 'world' && touchControlsVisible());
     this.renderHud();
@@ -1027,9 +1255,12 @@ export class Game {
     audio.levelUp();
     toast(`Junior Ranger patch: ${info.name}! It lights up on the map.`, 'reward');
     await this.talk.say(who, info.done, 'proud');
-    if (this.halfDone && !this.save.halfDoneSeen) {
-      await this.talk.say(this.speakers.tala, HALF_DONE, 'proud');
-      this.save.halfDoneSeen = true;
+    if (this.allDone && !this.save.allDoneSeen) {
+      // the last trip: the sun sets over the camp, and Ranger Tala hands over the flashlight
+      this.world.setTime('evening');
+      audio.play('night');
+      await this.talk.say(this.speakers.tala, ALL_DONE, 'proud');
+      this.save.allDoneSeen = true;
       this.persist();
     }
     this.talk.end();
@@ -1083,7 +1314,12 @@ export class Game {
         h('h2', { id: 'journal-title', text: `Ranger Journal: ${sv.journal.length} of ${JOURNAL_ORDER.length} animals` }),
         h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() }),
       ),
-      h('div', { class: 'content' }, h('p', { class: 'small-note', text: `Patches: ${sv.done.length} of 4. The Poles and the Wetland and Sea come next.` }), ...OPEN_TRIPS.flatMap(section)),
+      h(
+        'div',
+        { class: 'content' },
+        h('p', { class: 'small-note', text: `Patches: ${sv.done.length} of 4.${sv.nightDone ? ' Night Safari: done!' : this.allDone ? ' The Night Safari is ready.' : ''}` }),
+        ...OPEN_TRIPS.flatMap(section),
+      ),
     );
     const modal = new Modal(this.host, root);
   }
@@ -1256,6 +1492,17 @@ export class Game {
       'change-color': 'thinking animals change color whenever they like',
       'bright-safe': 'thinking bright colors mean safe or friendly',
       'trees-no-matter': 'thinking losing its trees would not matter to an animal',
+      'home-loss': 'thinking losing part of its home (trees, sea ice) would not matter',
+      'penguin-north': 'thinking penguins live in the Arctic',
+      'bears-penguins-meet': 'thinking polar bears and wild penguins live together',
+      'migration-mixup': 'mixing up migration with getting lost or hibernating',
+      'whale-fish': 'thinking a whale or dolphin is a fish',
+      'breathe-water': 'thinking dolphins breathe water',
+      'fresh-salt': 'mixing up fresh water and salt water',
+      'all-fish-sea': 'thinking all fish live in the sea, or in any water',
+      'frog-cycle': 'mixing up a frog’s life cycle',
+      'owl-dark': 'thinking owls see in total darkness',
+      'bats-blind': 'thinking bats are blind',
       'choose-body': 'thinking an animal can choose or change its body',
       'part-mixup': 'picking a body part that helps somewhere else',
       'hump-water': 'thinking a camel’s hump holds water',
@@ -1294,11 +1541,13 @@ export class Game {
     const res = sv.learner.rescue;
     const resMis = topMisconception(res) ?? topMisconception(sv.learner['rescue-gives']) ?? topMisconception(sv.learner['rescue-part']);
     rows.push(row('The Rescue Center (matching animals with their homes)', `${sv.homes} animals taken home`, res, resMis));
+    const night = sv.learner.night;
+    rows.push(row('The Night Safari (night animals and eye shine)', sv.nightDone ? 'Done' : this.allDone ? 'Ready' : 'Not yet', night, topMisconception(night), false));
     return h(
       'div',
       {},
       h('p', {
-        text: `This summary is kept only in this browser. Patches: ${sv.done.length} of 4 (the Poles and the Wetland and Sea come in the next update). Ranger Journal: ${sv.journal.length} of ${JOURNAL_ORDER.length} animals photographed. Animals taken home from the Rescue Center: ${sv.homes}.`,
+        text: `This summary is kept only in this browser. Patches: ${sv.done.length} of 4${sv.nightDone ? ', and the Night Safari' : ''}. Ranger Journal: ${sv.journal.length} of ${JOURNAL_ORDER.length} animals photographed. Animals taken home from the Rescue Center: ${sv.homes}.${sv.speedRounds ? ` Speed Match: best ${sv.speedBest} in ${sv.speedRounds} ${sv.speedRounds === 1 ? 'round' : 'rounds'}.` : ''}`,
       }),
       h(
         'div',
@@ -1339,7 +1588,13 @@ export class Game {
       talking: this.talk.isOpen,
       spot: this.spot ? this.spot.state() : null,
       rescue: this.rescue ? this.rescue.state() : null,
-      halfDoneSeen: this.save.halfDoneSeen,
+      allDoneSeen: this.save.allDoneSeen,
+      nightDone: this.save.nightDone,
+      speedBest: this.save.speedBest,
+      night: this.night ? this.night.state() : null,
+      speed: this.speed ? this.speed.state() : null,
+      complete: this.lastComplete,
+      timeOfDay: this.world.timeOfDay,
       mapAt: MAP_SIGN,
       panel:
         pnl && q
