@@ -106,26 +106,33 @@ function paintBackdrop(
 
 // ------------------------------------------------------------------ building a habitat scene
 
-type Painter = (T: number, frame: number) => PixelBuffer;
+/** Every animal a habitat scene can hold: the new ones (animal-art.ts) and the rainforest ones from art.ts. */
+export type Critter = AnimalId | 'toucan' | 'monkey' | 'sloth' | 'jaguar' | 'frog' | 'heron' | 'butterfly';
 
-/** The legacy rainforest animals (art.ts) and the new ones (animal-art.ts), each as frames. */
-function framesOf(who: AnimalId | 'toucan' | 'monkey' | 'sloth' | 'jaguar' | 'frog' | 'heron' | 'butterfly', T: number): HTMLCanvasElement[] {
-  const old: Record<string, [Painter, number]> = {
-    toucan: [paintToucan, 2],
-    monkey: [paintMonkey, 2],
-    sloth: [paintSloth, 2],
-    jaguar: [paintJaguar, 2],
-    frog: [paintFrog, 2],
-    heron: [paintHeron, 2],
-    butterfly: [paintButterfly, 3],
-  };
-  if (old[who]) {
-    const [f, n] = old[who];
-    return Array.from({ length: n }, (_, i) => f(T, i).toCanvas());
-  }
-  // big animals are drawn bigger, so they look right next to a child
-  const big = BIG[who as AnimalId] ?? 1;
-  return [0, 1, 2].map((i) => paintAnimal(who as AnimalId, Math.round(T * big), i).toCanvas());
+/** How many frames a critter has (the old art.ts animals have two or three; the new ones three). */
+export function critterFrames(who: Critter): number {
+  return who === 'butterfly' ? 3 : OLD[who] ? 2 : 3;
+}
+
+const OLD: Partial<Record<Critter, (T: number, frame: number) => PixelBuffer>> = {
+  toucan: paintToucan,
+  monkey: paintMonkey,
+  sloth: paintSloth,
+  jaguar: paintJaguar,
+  frog: paintFrog,
+  heron: paintHeron,
+  butterfly: paintButterfly,
+};
+
+/** One critter's picture at its scene size (big animals are drawn bigger, so they look right next to a child). */
+export function paintCritter(who: Critter, T: number, frame = 0): PixelBuffer {
+  const old = OLD[who];
+  if (old) return old(T, frame);
+  return paintAnimal(who as AnimalId, Math.round(T * (BIG[who as AnimalId] ?? 1)), frame);
+}
+
+function framesOf(who: Critter, T: number): HTMLCanvasElement[] {
+  return Array.from({ length: critterFrames(who) }, (_, i) => paintCritter(who, T, i).toCanvas());
 }
 
 /** Animals drawn larger than one tile per 16 design pixels (a camel is taller than a child). */
@@ -150,7 +157,7 @@ function sceneKit(ctx: SceneCtx) {
   };
   const animals: Placed[] = [];
   /** An animal at tile (x, y), lifted `lift` tiles (for a bird on a branch or a sloth in a tree). */
-  const animal = (who: Parameters<typeof framesOf>[0], x: number, y: number, lift = 0, shadowW = 0.8) => {
+  const animal = (who: Critter, x: number, y: number, lift = 0, shadowW = 0.8) => {
     const frames = framesOf(who, T);
     const m = prop(frames[0], x, y, lift ? 0 : shadowW, lift);
     animals.push({ m, tex: frames.map((c) => pixelTexture(c)), ph: hash(Math.round(x * 10), Math.round(y * 10), 5) * 7, rate: 3 + hash(Math.round(x), 3, 6) * 3 });
@@ -210,6 +217,18 @@ function paintGround(T: number, at: (tx: number, ty: number, x: number, y: numbe
   return p.toBuffer({ outline: false });
 }
 
+/** An animal in a habitat scene: where it stands (tiles), how high it sits (a sloth up a tree) and its shadow's width. */
+export interface HabitatAnimal {
+  who: Critter;
+  x: number;
+  y: number;
+  lift: number;
+  shadow: number;
+}
+
+const placeAll = (k: ReturnType<typeof sceneKit>, list: readonly HabitatAnimal[]) => list.forEach((a) => k.animal(a.who, a.x, a.y, a.lift, a.shadow));
+const A = (who: Critter, x: number, y: number, lift = 0, shadow = 0.8): HabitatAnimal => ({ who, x, y, lift, shadow });
+
 const spots = (o: Record<string, [number, number]>) => Object.fromEntries(Object.entries(o).map(([k, [x, y]]) => [k, { x, y }]));
 
 // ------------------------------------------------------------------ the rainforest
@@ -265,6 +284,17 @@ export const RAINFOREST_SPOTS = spots({
   canopy: [21.8, 6.4],
 });
 
+/** The rainforest's animals, each in its layer: the floor, the understory and the canopy. */
+export const RAINFOREST_ANIMALS: readonly HabitatAnimal[] = [
+  A('jaguar', 25.4, 15.2),
+  A('tapir', 6.6, 15.6),
+  A('dart-frog', 13.4, 13.6),
+  A('frog', 17.8, 11.4),
+  A('monkey', 9.8, 5.7, 2.4),
+  A('sloth', 21.2, 5.5, 3.2),
+  A('toucan', 3.2, 6.5, 3.4),
+];
+
 export const RAINFOREST: Setting = {
   id: 'rainforest',
   world: 'wild-lands',
@@ -311,13 +341,7 @@ export const RAINFOREST: Setting = {
       return k.add(glow(k.lighting, T, Math.round(T * 1.1), WILD.glow, x, y, 0.4, 0.7));
     });
     // the animals, each in its layer: the floor, the understory and the canopy
-    k.animal('jaguar', 25.4, 15.2);
-    k.animal('tapir', 6.6, 15.6);
-    k.animal('dart-frog', 13.4, 13.6);
-    k.animal('frog', 17.8, 11.4);
-    k.animal('monkey', 9.8, 5.7, 2.4);
-    k.animal('sloth', 21.2, 5.5, 3.2);
-    k.animal('toucan', 3.2, 6.5, 3.4);
+    placeAll(k, RAINFOREST_ANIMALS);
     const flies = [5, 11, 20].map((x, i) => ({ m: k.prop(paintButterfly(T, 0).toCanvas(), x, 9 + i, 0, 1.2), x, y: 9 + i, ph: i * 2 }));
     const flyTex = [0, 1, 2].map((f) => pixelTexture(paintButterfly(T, f).toCanvas()));
     const ff = k.fireflies(18, 3, 27, 6, 15);
@@ -395,6 +419,8 @@ export const DESERT_SPOTS = spots({
   hole: [HOLE.x, HOLE.y],
 });
 
+export const DESERT_ANIMALS: readonly HabitatAnimal[] = [A('camel', 9.4, 12.6, 0, 2), A('fennec', 4.6, 12.6), A('tortoise', 14.2, 13.4), A('gecko', 18.6, 9.8), A('roadrunner', 27.2, 13.4)];
+
 export const DESERT: Setting = {
   id: 'desert',
   world: 'wild-lands',
@@ -429,11 +455,7 @@ export const DESERT: Setting = {
       [20.4, 11.4, 1],
     ])
       k.solid(paintPalm(T, s).toCanvas(), x, y, 1.6, 0.4);
-    k.animal('camel', 9.4, 12.6, 0, 2);
-    k.animal('fennec', 4.6, 12.6);
-    k.animal('tortoise', 14.2, 13.4);
-    k.animal('gecko', 18.6, 9.8);
-    k.animal('roadrunner', 27.2, 13.4);
+    placeAll(k, DESERT_ANIMALS);
     return {
       map: { w: L.w, h: L.h },
       focus: { x: 15, feet: 11, top: 0.6 },
@@ -503,6 +525,18 @@ export const POLAR_SPOTS = spots({
   south: [22.4, 9],
 });
 
+export const POLAR_ANIMALS: readonly HabitatAnimal[] = [
+  A('polar-bear', 9.4, 13.6, 0, 2.4),
+  A('arctic-fox', 4.2, 12.4),
+  A('walrus', 11.6, 10.4, 0, 2),
+  A('snowy-owl', 2.4, 9.6),
+  A('penguin', 20, 11.6),
+  A('penguin', 21.4, 12.2),
+  A('penguin', 22.6, 11.4),
+  A('penguin', 24, 12.4),
+  A('seal', 25.6, 14.6, 0, 2),
+];
+
 export const POLAR: Setting = {
   id: 'polar',
   world: 'wild-lands',
@@ -533,19 +567,8 @@ export const POLAR: Setting = {
     ])
       k.solid(paintIce(T, kind).toCanvas(), x, y, 0, 0.4);
     // the north: the Arctic
-    k.animal('polar-bear', 9.4, 13.6, 0, 2.4);
-    k.animal('arctic-fox', 4.2, 12.4);
-    k.animal('walrus', 11.6, 10.4, 0, 2);
-    k.animal('snowy-owl', 2.4, 9.6);
-    // the south: Antarctica
-    for (const [x, y] of [
-      [20, 11.6],
-      [21.4, 12.2],
-      [22.6, 11.4],
-      [24, 12.4],
-    ])
-      k.animal('penguin', x, y);
-    k.animal('seal', 25.6, 14.6, 0, 2);
+    // the north (the Arctic) on the left, the south (Antarctica) on the right
+    placeAll(k, POLAR_ANIMALS);
     const setLights = () => huts.forEach((m) => swapFrame(m, time === 'evening' ? hutLit : hutDay));
     setLights();
     const lamps = [
@@ -623,6 +646,16 @@ export const WETLAND_SPOTS = spots({
   beach: [21.4, 9],
 });
 
+export const WETLAND_ANIMALS: readonly HabitatAnimal[] = [
+  A('beaver', 13.4, 12.2),
+  A('duck', 9.4, 11.2),
+  A('heron', 5.4, 12.2),
+  A('crocodile', 17, 14.4, 0, 2.4),
+  A('frog', 11.6, 13.6),
+  A('dolphin', 25.2, 11.4),
+  A('whale', 26.6, 15.2),
+];
+
 export const WETLAND: Setting = {
   id: 'wetland',
   world: 'wild-lands',
@@ -654,13 +687,7 @@ export const WETLAND: Setting = {
       [6.4, 14.8, 2],
     ])
       k.solid(paintFern(T, s).toCanvas(), x, y, 0, 0.3);
-    k.animal('beaver', 13.4, 12.2);
-    k.animal('duck', 9.4, 11.2);
-    k.animal('heron', 5.4, 12.2);
-    k.animal('crocodile', 17, 14.4, 0, 2.4);
-    k.animal('frog', 11.6, 13.6);
-    k.animal('dolphin', 25.2, 11.4);
-    k.animal('whale', 26.6, 15.2);
+    placeAll(k, WETLAND_ANIMALS);
     // blue plankton glow in the sea at dusk, fireflies over the marsh
     const plankton = k.fireflies(14, 22, 29, 6, 16, '#7ad8ff', 91);
     const ff = k.fireflies(12, 2, 18, 7, 15);
