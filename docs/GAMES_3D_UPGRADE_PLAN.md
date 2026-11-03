@@ -1872,6 +1872,107 @@ Score (both halves): 9.1/10.
 ##### Checks it will ship with
 Unit tests for every station and level; a browser test playing title → Museum Night; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1, scored 9.1).
 
+#### S2 Earth: Weather Wizard Battle, the fourth Wild Lands game and the first side-scroller: PLAN WRITTEN (2026-11-03), waiting for the owner's choices
+
+> Source: the old site game `public/games/weather-wizard-battle.html`, with the activity `public/lessons/water-cycle-journey.html` merged in (the merge map in section 4). The owner picked it on 2026-11-03 and asked for games that are "a little more action oriented, but still educational", suggesting "some kind of side scroller". Grades 3–5, slug `weather-wizard-battle` (the new game replaces the old one at the same address, and `/games/water-cycle-journey` redirects to it when it ships).
+
+##### What the originals do
+- **Weather Wizard Battle teaches:** what each kind of weather is for, and little else. A village asks for weather ("Our crops need water! Make it rain!") and the child taps one of eight buttons (sunshine, clouds, rain, storm, snow, wind, fog, rainbow). A right pick gives points and a fact; a wrong one gives a hint. Five levels, no movement, no "why", and no battle at all. 62 emoji are the art.
+- **The Water Cycle Journey teaches:** the four stages (evaporation, condensation, precipitation, collection) as four pages of reading, each with one multiple-choice question. It follows a water droplet, which is a good idea, but there is nothing to play.
+- **Keeps:**
+  - the village requests, as short bonus jobs inside the levels
+  - the weather powers, now tied to what really causes each kind of weather
+  - the droplet's journey round the water cycle, which becomes the route through the whole game
+  - the good facts (a typical cumulus cloud weighs about 1.1 million pounds, no two snowflakes are alike, rainbows are really full circles, lightning is about five times hotter than the Sun's surface)
+- **Facts to fix:**
+  - "The fastest wind ever recorded was 253 mph during a tornado": 253 mph is the fastest gust measured *outside* a tornado (Barrow Island, Australia, 1996). Radar has measured winds over 300 mph inside a tornado (Oklahoma, 1999). It is reworded.
+  - "Snow brings cold temperatures": it is the other way round. Cold air makes snow. This becomes a question, because it is a common mix-up.
+  - "Hurricanes release energy equal to 10 atomic bombs per second" does not match the National Weather Service's figure. It is dropped.
+  - "A single thunderstorm can produce 500 million gallons of water" is too rough to check. It is dropped.
+  - The fog request ("Airport needs mystery: create low visibility!") would be dangerous for planes. It is dropped.
+  - The premise itself: people cannot make or stop the weather. The game keeps the wizard as make-believe and says so plainly. Professor Nimbus's "spells" are nature's own processes (the Sun's heat, cooling air, wind), and Dr. Iris, a meteorologist, shows the real job: measuring and forecasting the weather.
+- **Missing against the standard:** action, levels and misconceptions, hints, debriefs, characters, a story, the pixel art, sound, saving, a grown-ups page, and the "why": the Sun drives the water cycle, water vapor is invisible, clouds are tiny drops, the temperature decides rain or snow, and weather can be measured and forecast.
+
+##### The game
+- **A side-scroller (new for the kit):** the child runs and jumps left to right through five regions of the Wild Lands, following the real path water takes: the warm sea, up into the clouds, over the mountains, down the river and back to the sea. It is drawn side on, like Ocean Depth Diver's dives, in the Wild Lands style.
+- **The weather powers are the platforming tools,** so the science is how you move, not a quiz that stops the action:
+  - **Sun (heat):** warms a puddle or the sea, and the water rises as invisible vapor. **Cool air** turns vapor into a cloud you can stand on. That is evaporation and condensation.
+  - **Wind:** pushes clouds into place as moving platforms, and carries your glider. Warm air rises, so warm spots lift you up.
+  - **Cold:** freezes a river into an ice bridge, or turns the rain to snow. **Sun** melts it again.
+  - **Rain:** only falls from a cloud that is full and heavy. It fills a dry riverbed so a raft can float, or waters seeds into vines you can climb.
+  - Each power only works where it really would: you cannot make rain from a clear sky, or snow when the thermometer reads 20 °C. A small thermometer and a cloud gauge on the screen show why.
+- **Characters (draft names):**
+  - **Professor Nimbus,** an old weather wizard (make-believe) who teaches each power and the real process behind it
+  - **Dr. Iris Okoro,** a meteorologist at the weather station by the field camp, who reads the forecasts (the real science job)
+  - **Drip,** a water droplet who travels with the player round the whole water cycle (from the Water Cycle Journey). Drip changes with each stage: vapor, a cloud drop, a snowflake, a river drop.
+  - Ranger Tala appears at the field camp, as in the other Wild Lands games.
+- **The five regions** (each with two or three short levels, a map between them):
+  1. **Sunny Shore (evaporation):** warm the sea and the tide pools to make vapor steps; crabs and rolling coconuts to dodge; the Sun powers the whole water cycle.
+  2. **Cloud Heights (condensation):** cool vapor into clouds, push them with wind and climb above the camp. Cloud types tell the weather (puffy cumulus: fair; tall, dark cumulonimbus: a storm is coming).
+  3. **Mountain Pass (precipitation):** high up it is colder. Rain at 5 °C, snow at −5 °C; freeze a waterfall into a ladder, melt an ice wall with the Sun. Avalanche-free, but slippery.
+  4. **River Run (collection):** a fast, auto-scrolling raft ride down the river (the original's arcade feel). Rain fills the dry stretches; some water soaks into the ground, and a cave shows the groundwater under the hills; plants pull water up and breathe it out from their leaves.
+  5. **Storm Front (the finale):** a big thunderstorm heads for the village by the sea. Dr. Iris reads the radar; the child counts the seconds from flash to thunder to know how far away it is (about 3 seconds for every kilometer), gets the villagers to shelter ("When thunder roars, go indoors"), and guides the storm out over the sea, where it rains itself out. Drip lands back in the ocean, and the cycle starts again.
+- **Forecast stops:** between levels, Dr. Iris shows one real tool (a thermometer, a rain gauge, a wind vane, a weather map, a graph of a week's weather) and asks one question, at three levels. The right forecast picks the power you start the next level with.
+- **Village requests (from the original):** each level hides a villager who needs something: a farmer whose crops need rain, a sailor who needs wind, children who want a rainbow (the Sun behind you and rain in front). Getting it right earns a badge for the Weather Book.
+- **The Weather Book (the logbook):** every power, cloud type and tool you meet goes in, with a picture and two facts, and the questions at three levels with the hint ladder, five stars and a talk-it-through question per region.
+- **Gentle by default:** no lives and no game over. A fall into the water returns you to the last checkpoint and Drip loses a few drops, which you collect back. An easy setting slows the action and adds a double jump.
+- **Modeled on:** Multiplication Space Quest's action screen (a small pixel canvas drawn with Three.js and scaled up by whole numbers) and Ocean Depth Diver's side view; the Wild Lands logbook, hint ladder and save from the last three games.
+
+##### Learning design
+
+| Region (host) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Sunny Shore (Professor Nimbus) | The Sun drives the water cycle | The Sun's heat makes water evaporate; water vapor is an invisible gas; puddles dry up on sunny days | Evaporation happens without boiling (warm is enough); warmer water evaporates faster; the salt stays behind when sea water evaporates | Most of Earth's water is salty sea water (about 97%); most fresh water is frozen in ice or under the ground; water is used again and again, never made new | 5-ESS2-1, 5-ESS2-2, 5-PS1-1 |
+| Cloud Heights (Professor Nimbus) | Clouds and condensation | Clouds are made of tiny water drops (or ice), not smoke or cotton; cooling vapor makes clouds | Water on the outside of a cold glass is condensation, not a leak; cloud types and the weather they bring; warm air rises | Dew and fog are clouds on the ground; why a tall, dark cumulonimbus means a storm; air cools as it rises, so mountaintops are colder | 5-ESS2-1, 3-ESS2-1 |
+| Mountain Pass (Dr. Iris) | Rain, snow and temperature | Below 0 °C (32 °F) water freezes; snow falls when the air is cold; rain, snow, sleet and hail are all precipitation | Cold air makes snow, not the other way round; reading a thermometer to say rain or snow; hail grows in storm clouds | Why one mountain side is wet and the other dry; snow on mountains melts into rivers in spring; every snowflake has six sides | 3-ESS2-1, 5-PS1-1 |
+| River Run (Dr. Iris) | Where water goes | Rain flows downhill into rivers, lakes and the sea; some soaks into the ground | Groundwater; plants pull water up and give it off from their leaves; reading a rain gauge and a bar graph of a week's rain | Why a desert river can be dry for months; what a dam or a reservoir is for; weather (today) and climate (over many years) are different | 3-ESS2-1, 3-ESS2-2, 5-ESS2-1 |
+| Storm Front (Dr. Iris and Professor Nimbus) | Storms and staying safe | Lightning is a giant spark; thunder is the sound it makes; go indoors when thunder roars | Light is faster than sound, so you see the flash first; count the seconds to find the distance; a weather map shows a storm moving | Storms lose strength over cold water or land; how forecasts and warnings keep people safe; what people build to stay safe (lightning rods, storm shelters) | 3-ESS3-1, 3-ESS2-1 |
+
+- **Mistakes the wrong answers come from:**
+  - water vapor is visible (steam, clouds and mist are tiny liquid drops; vapor itself is invisible)
+  - water only evaporates when it boils
+  - clouds are made of smoke, cotton or vapor
+  - a cloud is a sponge that gets squeezed, or clouds "break" to make rain
+  - snow makes the air cold (cold air makes snow)
+  - the water cycle makes new water, or water gets used up
+  - a puddle disappears only because the ground drinks it
+  - most of Earth's water is fresh
+  - a rainbow needs only rain, or the Sun in front of you
+  - lightning never strikes the same place twice
+  - you hear thunder and see lightning at the same time
+  - weather and climate are the same thing
+  - people can make or stop the weather
+- **Steps** (level 3 forecasts): read the tool → say what the weather will be → pick the power that fits.
+- **Hint ladder:** a nudge ("What does the thermometer say?") → a picture (the water cycle diagram with the stage marked, or the thermometer with 0 °C outlined) → the answer outlined.
+- **Debriefs:** one reason question per region, for example "Why can't Professor Nimbus make rain from a clear blue sky?" (rain falls from clouds full of heavy drops; with no water vapor to cool, there is no cloud and no rain).
+
+##### How it would be built (each step ends with the owner's look)
+1. **Look preview and a movement test:**
+   - the cast (Professor Nimbus, Dr. Iris, Drip in its five forms, the player as a young wizard running, jumping and casting)
+   - the five regions side on, with layered backgrounds and day and storm skies
+   - the power effects
+   - the storm
+   - **a short playable test level**, so the owner can try the running and jumping before any level is built. In a side-scroller, the feel of the jump matters most.
+   - New kit code: a side-scroller module (a tile map, gravity, jumping, moving platforms, checkpoints, a camera that follows), kept out of the shared lists like the other previews so the finished games build the same.
+2. **Half 1:** the field camp start, Sunny Shore, Cloud Heights and Mountain Pass, the powers, the forecast stops, the village requests, the Weather Book, saving and the grown-ups page.
+3. **Half 2:** River Run, the Storm Front finale, the last two regions' questions, the site listing at the same address with a new card picture, and `/games/water-cycle-journey` redirecting to it.
+
+##### Choices for the owner
+1. **How it plays:**
+   - **(a) A platformer at your own pace** (run, jump and use powers to cross each level), plus one fast auto-scrolling river ride and the storm finale (recommended). Children can stop and think, and still get the action.
+   - (b) An auto-runner the whole way (always moving; jump and cast at the right moment). It is more arcade, but harder for some children, and there is less time to think.
+   - (c) Shorter levels with more puzzles than action.
+2. **The finale:**
+   - **(a) Storm Front: protect the village and guide the storm out to sea** (read the radar, count flash to thunder, get everyone to shelter; the storm weakens over cold water) (recommended). It is true to science.
+   - (b) A classic boss fight against a storm monster called the Thunderhead, countered with the right weather. It is more of a "battle", but it is less true to how storms work.
+3. **Falling and lives:**
+   - **(a) Gentle: no lives.** A fall returns you to the last checkpoint and Drip drops a few droplets to collect again (recommended for grades 3–5).
+   - (b) Classic: three hearts, then restart the level.
+4. **Names:** the title stays Weather Wizard Battle; Professor Nimbus, Dr. Iris Okoro and Drip the droplet are drafts. Keep them, or change any.
+
+##### Checks it will ship with
+Unit tests for the questions, the powers' rules (no rain without a full cloud, snow only below 0 °C) and the side-scroller's physics (jump height, landing, moving platforms); a browser test that plays from the title screen through the Storm Front; a speed check (the side-scroller must keep a smooth 60 frames a second on a school laptop); screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
+
 #### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN APPROVED (2026-10-29); look APPROVED (2026-11-03); half 1 MERGED (PR #253); half 2 BUILT (2026-11-03): COMPLETED ✅ with its merge
 
 > Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
@@ -2059,6 +2160,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-29:** The owner answered "1a, 2a, 3a, 4a, 5 keep". The plan was merged (PR #251), and the look preview is built: the cast with Kiki the kinkajou, 20 new animals, the Rescue Center and the four habitats (the rainforest, the desert, the poles and the wetland and sea) by day and at dusk. It is waiting for the owner's look before half 1.
 - **2026-11-03:** The look preview was merged (PR #252) and the owner approved the look ("yes"). **Animal Kingdom Match half 1 is built:** the camp with the Rescue Center and the Wild Lands map, the Rainforest and Desert trips with Kiki and the binoculars, the Rescue Center at three levels, 36 Ranger Journal questions, the journal's cards, saving and the grown-ups page. Next: half 2 (the Poles, the Wetland and Sea, the Night Safari, the optional Speed Match and the site listing).
 - **2026-11-03:** PR #253 (half 1) merged under the owner's standing approval. The owner said "Build half 2". **Animal Kingdom Match half 2 is built:** the Poles with the research boat to Antarctica, the Wetland and Sea, 36 more questions, the Night Safari with the flashlight and eye shine, every animal on the lit map, Speed Match, and the site listing at the same address with a new card picture. 71/71 browser checks; 9.0/10. With its merge, **Animal Kingdom Match is COMPLETED ✅**: 5 of the 14 Science games.
+- **2026-11-03:** The owner merged half 2 (PR #254). **Animal Kingdom Match is COMPLETED ✅: 5 of the 14 Science games.** The owner asked what Weather Wizard Battle is, asked for games that are "a little more action oriented, but still educational", suggested a side-scroller, and chose to plan Weather Wizard Battle. Its plan is written (the Weather Wizard Battle section above): the first side-scroller, following a water droplet round the water cycle through five Wild Lands regions, with the weather powers as the platforming tools, forecast stops, village requests and a Storm Front finale. Waiting for the owner's choices.
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.
