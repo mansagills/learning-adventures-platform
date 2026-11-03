@@ -64,3 +64,64 @@ export const JOURNAL_SONG: Song = {
   ],
   lead: 'triangle',
 };
+
+/** The Poles: crisp and sparkly in E minor, like wind over the ice. */
+export const ICE_SONG: Song = {
+  bpm: 90,
+  chords: [
+    [52, 55, 59],
+    [48, 52, 55],
+    [43, 47, 50],
+    [47, 51, 54],
+  ],
+  bass: [40, 36, 31, 35],
+  // prettier-ignore
+  melody: [
+    83, null, 79, null, 76, null, 79, 83,
+    84, null, 83, null, 79, null, null, null,
+    76, null, 79, null, 81, null, 79, 76,
+    75, null, null, null, 71, null, null, null,
+  ],
+  lead: 'triangle',
+};
+
+/** The wetland: a lazy, rippling tune in G major. */
+export const WETLAND_SONG: Song = {
+  bpm: 96,
+  chords: [
+    [55, 59, 62],
+    [52, 55, 59],
+    [48, 52, 55],
+    [50, 54, 57],
+  ],
+  bass: [43, 40, 36, 38],
+  // prettier-ignore
+  melody: [
+    71, 74, 79, null, 78, null, 74, null,
+    72, null, 71, null, 69, null, null, null,
+    67, 71, 74, null, 76, null, 74, 72,
+    71, null, 69, null, 67, null, null, null,
+  ],
+  lead: 'triangle',
+  drums: true,
+};
+
+/** The Night Safari: hushed and mysterious, in A minor. */
+export const NIGHT_SONG: Song = {
+  bpm: 70,
+  chords: [
+    [45, 48, 52],
+    [41, 45, 48],
+    [43, 47, 50],
+    [40, 44, 47],
+  ],
+  bass: [33, 29, 31, 28],
+  // prettier-ignore
+  melody: [
+    76, null, null, null, 72, null, 74, null,
+    76, null, null, null, 79, null, null, null,
+    77, null, null, 76, 74, null, 72, null,
+    71, null, null, null, null, null, null, null,
+  ],
+  lead: 'sine',
+};

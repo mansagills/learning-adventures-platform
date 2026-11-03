@@ -13,9 +13,17 @@
 // stars plus the talk-it-through question earn the Rainforest patch, which
 // lights the map. The desert trip runs at level 3: the Rescue Center adds
 // "what does its home give it" and "which body part helps", one animal from
-// the rainforest comes too, and the Desert patch ends half 1 with Ranger
-// Tala's goodbye. Then the Ranger Journal's cards, the trip list, the
-// grown-ups report, a reload, and the phone layout.
+// the rainforest comes too. The Poles: four Arctic animals, then the
+// research boat (walk up, Space) sails to Antarctica for the penguins and
+// the seal. The Wetland and Sea: the dolphin and whale are spotted from the
+// beach. The fourth patch sets the sun over the camp, and Ranger Tala
+// starts the Night Safari: an empty shine says to look for eyes, Kiki
+// points, the arrow keys move the beam, a click shines it, and each of the
+// five night animals has a question (bats are not blind). Every animal then
+// appears on the lit map, the game tells the site player it is complete,
+// and Speed Match opens at the Rescue Center (a 60-second round, a best
+// score). Then the Ranger Journal's cards, the trip list, the grown-ups
+// report, a reload, and the phone layout.
 //
 //   npm run build && npx vite preview --port 4174 &
 //   node scripts/e2e-animal-kingdom-match.mjs [url]
@@ -117,7 +125,7 @@ async function debrief(page, wrongFirst) {
     const opts = page.locator('.dialogue .choices button:not([disabled])');
     if ((await opts.count()) >= 2) {
       const texts = await opts.allTextContents();
-      const right = texts.findIndex((t) => /needs tall trees|for the cold/i.test(t));
+      const right = texts.findIndex((t) => /needs tall trees|for the cold|whole world is between|breathes air, so/i.test(t));
       const pickI = wrongFirst && !seen.includes('wrong') ? texts.findIndex((t, k) => k !== right) : right;
       if (pickI !== right) seen.push('wrong');
       await opts.nth(pickI).click();
@@ -365,8 +373,205 @@ async function playRescue(page) {
   await playJournal(page);
   const ds = await debrief(page, false);
   s = await st(page);
-  check('the Desert patch, and Ranger Tala’s goodbye for half 1', s.done.includes('desert') && s.halfDoneSeen && /open soon/.test(ds));
+  check('the Desert patch', s.done.includes('desert') && /Desert patch/.test(ds));
   await page.screenshot({ path: `${OUT}/21-two-patches.png` });
+
+  // the Poles: the Arctic first, then the research boat to Antarctica
+  await clickTarget(page, 'tala', [10.6, 12.4]);
+  await choose(page, /Go to the Poles/);
+  await waitFor(page, async () => (await st(page)).area === 'poles' && (await page.locator('.dialogue').count()) > 0, 60);
+  const poles = await talkThrough(page);
+  check('the Poles: the Arctic at the top of the world, Antarctica across the sea', /top of the world/.test(poles) && /Antarctica/.test(poles));
+  await page.screenshot({ path: `${OUT}/40-poles-arctic.png` });
+  for (const i of [0, 1, 2, 3]) await spotWithKeys(page, i);
+  s = await st(page);
+  check(
+    'the four Arctic animals are spotted; the penguins and the seal are across the sea',
+    s.unspotted.length === 2 && s.unspotted.includes('penguin') && s.unspotted.includes('seal') && s.player.x < 13.6,
+  );
+  const boat = await page.evaluate(() => window.__akm.screenOf('ship-south'));
+  await page.evaluate(() => window.__akm.teleport(11.6, 11.2));
+  await wait(page, 300);
+  await page.mouse.click(boat.x, boat.y - 10);
+  await waitFor(page, async () => (await st(page)).target === 'ship-south' || (await page.locator('.dialogue').count()) > 0, 60);
+  if (!(await page.locator('.dialogue').count())) await page.keyboard.press('Space');
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0, 60);
+  const sail = await talkThrough(page);
+  s = await st(page);
+  check('the research boat sails to Antarctica, and Ranger Tala says how far it really is', s.player.x > 16.4 && /15,000 kilometers/.test(sail), `x ${s.player.x.toFixed(1)}`);
+  await page.screenshot({ path: `${OUT}/41-poles-antarctica.png` });
+  await spotWithKeys(page, 4);
+  await spotWithKeys(page, 5);
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0);
+  await talkThrough(page);
+  await waitFor(page, async () => (await st(page)).area === 'camp', 60);
+  check('all six polar animals spotted; back at camp', (await st(page)).spottedAll.includes('poles'));
+  await clickTarget(page, 'amara', [13.4, 12]);
+  await waitFor(page, async () => !!(await st(page)).rescue, 60);
+  const pk = await playRescue(page);
+  check('the Poles’ Rescue Center: three animals home', pk.home === 3, JSON.stringify(pk));
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0);
+  await talkThrough(page);
+  await waitFor(page, async () => !!(await st(page)).panel, 40);
+  s = await st(page);
+  check('the Poles journal opens', s.panel?.trip === 'poles');
+  await page.evaluate(() => window.__akm.closeModal());
+  await wait(page, 300);
+  await page.evaluate(() => window.__akm.ask('poles', 'p-penguins'));
+  await wait(page, 300);
+  await page.screenshot({ path: `${OUT}/42-poles-globe.png` });
+  s = await st(page);
+  const pw = s.panel.wrong.find((w) => w.misconception === 'penguin-north');
+  await page.locator(`.akm-choice[data-value="${pw.value}"]`).click();
+  await wait(page, 250);
+  check('“penguins live in the Arctic” is answered with a reason', /No wild penguins live in the Arctic/.test(await page.locator('.akm-feedback').textContent()));
+  await page.keyboard.press(String(s.panel.right + 1));
+  await wait(page, 200);
+  await page.keyboard.press('Space');
+  await wait(page, 300);
+  await playJournal(page);
+  const pd = await debrief(page, true);
+  check('the Poles patch, after the talk-it-through question about polar bears and penguins', (await st(page)).done.includes('poles') && /opposite|top of the Earth/.test(pd));
+
+  // the Wetland and Sea: the dolphin and the whale from the beach
+  await clickTarget(page, 'tala', [10.6, 12.4]);
+  await choose(page, /Go to the wetland/);
+  await waitFor(page, async () => (await st(page)).area === 'wetland' && (await page.locator('.dialogue').count()) > 0, 60);
+  const wet = await talkThrough(page);
+  check('the wetland: fresh water in the pond, salt water in the sea', /fresh water/.test(wet) && /salty/.test(wet));
+  await page.screenshot({ path: `${OUT}/43-wetland.png` });
+  s = await st(page);
+  check('the wetland has six animals to spot (its tree frog is already in the journal)', s.unspotted.length === 6 && !s.unspotted.includes('frog'));
+  await page.evaluate(() => window.__akm.teleport(20.6, 11.4));
+  await wait(page, 600);
+  s = await st(page);
+  check('from the beach, the binoculars reach the dolphin out at sea', s.target === 'animal:4', s.target);
+  for (const i of [0, 1, 2, 3, 4]) await spotWithKeys(page, i);
+  await spotWithKeys(page, 5);
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0);
+  await talkThrough(page);
+  await waitFor(page, async () => (await st(page)).area === 'camp', 60);
+  await clickTarget(page, 'amara', [13.4, 12]);
+  await waitFor(page, async () => !!(await st(page)).rescue, 60);
+  await playRescue(page);
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0);
+  await talkThrough(page);
+  await waitFor(page, async () => !!(await st(page)).panel, 40);
+  check('the wetland journal opens', (await st(page)).panel?.trip === 'wetland');
+  await page.evaluate(() => window.__akm.closeModal());
+  await wait(page, 300);
+  await page.evaluate(() => window.__akm.ask('wetland', 'w-cycle'));
+  await wait(page, 300);
+  await page.screenshot({ path: `${OUT}/44-life-cycle.png` });
+  await page.keyboard.press('Escape');
+  await wait(page, 300);
+  await page.evaluate(() => window.__akm.ask('wetland', 'w-salty'));
+  await wait(page, 300);
+  await page.screenshot({ path: `${OUT}/45-fresh-salt.png` });
+  await playJournal(page);
+  const wd = await debrief(page, true);
+  s = await st(page);
+  check('the fourth patch: the sun sets over the camp and Ranger Tala hands over the flashlight', s.done.length === 4 && s.timeOfDay === 'evening' && s.allDoneSeen && /Night Safari/.test(wd));
+  check('the dolphin talk-it-through question: a mammal that breathes air', /breathe air/.test(wd));
+  await page.screenshot({ path: `${OUT}/46-camp-dusk.png` });
+
+  // the Night Safari
+  await clickTarget(page, 'tala', [10.6, 12.4]);
+  await choose(page, /Start the Night Safari/);
+  await waitFor(page, async () => !!(await st(page)).night, 60);
+  await wait(page, 400);
+  await page.screenshot({ path: `${OUT}/47-night-dark.png` });
+  await page.evaluate(() => window.__akm.nightShine());
+  await wait(page, 200);
+  check('shining at nothing says to look for eyes', /Look for two shining eyes/.test(await page.locator('.akm-night .akm-spot-status').textContent()));
+  await page.keyboard.press('k');
+  await wait(page, 300);
+  check('Kiki points where to look', /Kiki points her tail/.test(await page.locator('.akm-night .akm-spot-status').textContent()));
+  const b0 = (await st(page)).night.beam;
+  await page
+    .locator('.akm-night-canvas')
+    .focus()
+    .catch(() => {});
+  await page.evaluate(() => document.activeElement && document.activeElement.blur());
+  for (let k = 0; k < 4; k++) await page.keyboard.press('ArrowRight');
+  const b1 = (await st(page)).night.beam;
+  check('the arrow keys move the flashlight', b1.x > b0.x, `${b0.x} → ${b1.x}`);
+  // the owl with a real click on its eyes
+  const canvasBox = await page.locator('.akm-night-canvas').boundingBox();
+  await page.mouse.click(canvasBox.x + (62 / 320) * canvasBox.width, canvasBox.y + (52 / 180) * canvasBox.height);
+  await wait(page, 300);
+  s = await st(page);
+  check('clicking on the owl’s shining eyes finds it, with a question', s.night.found.includes('owl') && s.night.asking === 'owl');
+  await page.screenshot({ path: `${OUT}/48-night-owl.png` });
+  await page.keyboard.press(String(s.night.right + 1));
+  await wait(page, 250);
+  await page.keyboard.press('Space');
+  await wait(page, 250);
+  // the bat: a wrong answer first
+  await page.evaluate(() => window.__akm.nightAim('bat'));
+  await page.evaluate(() => window.__akm.nightShine());
+  await wait(page, 250);
+  s = await st(page);
+  const wrongBat = [0, 1, 2].find((i) => i !== s.night.right);
+  await page.evaluate((i) => window.__akm.nightAnswer(i), wrongBat);
+  await wait(page, 250);
+  check('a wrong answer about bats gets a reason', /Not quite/.test(await page.locator('.akm-night-ask .akm-feedback').textContent()));
+  await page.evaluate((i) => window.__akm.nightAnswer(i), s.night.right);
+  await wait(page, 250);
+  await page.screenshot({ path: `${OUT}/49-night-bat.png` });
+  await page.keyboard.press('Space');
+  await wait(page, 250);
+  for (const id of ['frog', 'kinkajou', 'jaguar']) {
+    await page.evaluate((x) => window.__akm.nightAim(x), id);
+    await page.evaluate(() => window.__akm.nightShine());
+    await wait(page, 200);
+    const n = (await st(page)).night;
+    await page.evaluate((i) => window.__akm.nightAnswer(i), n.right);
+    await wait(page, 200);
+    if (id !== 'jaguar') {
+      await page.keyboard.press('Space');
+      await wait(page, 200);
+    }
+  }
+  check('all five night animals found', (await st(page)).night.found.length === 5);
+  await page.getByRole('button', { name: /see the whole wild lands/i }).click();
+  await waitFor(page, async () => (await page.locator('.akm-finale').count()) > 0, 40);
+  await wait(page, 300);
+  await page.screenshot({ path: `${OUT}/50-finale.png` });
+  s = await st(page);
+  check(
+    'every animal on the lit map, and the game tells the site player it is complete',
+    s.nightDone && s.complete?.type === 'game-complete' && s.complete.score === 24 && (await page.locator('.akm-finale-animals img').count()) === 24,
+  );
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await waitFor(page, async () => (await page.locator('.dialogue').count()) > 0);
+  const fin = await talkThrough(page);
+  check('Ranger Tala names a full Junior Ranger, and Dr. Amara offers Speed Match', /full Junior Ranger/.test(fin) && /Speed Match/.test(fin));
+
+  // Speed Match
+  await clickTarget(page, 'amara', [13.4, 12]);
+  await choose(page, /Speed Match/);
+  await waitFor(page, async () => !!(await st(page)).speed, 40);
+  await page.screenshot({ path: `${OUT}/51-speed-start.png` });
+  await page.evaluate(() => window.__akm.speedPick(0));
+  await wait(page, 200);
+  for (let k = 0; k < 4; k++) {
+    const sp = (await st(page)).speed;
+    await page.keyboard.press(String(sp.right + 1));
+    await wait(page, 120);
+  }
+  const sp = (await st(page)).speed;
+  await page.keyboard.press(String(((sp.right + 1) % 4) + 1));
+  await wait(page, 150);
+  check('Speed Match: a wrong home just costs time, with the reason', /needs/.test(await page.locator('.akm-speed .akm-feedback').textContent()) && (await st(page)).speed.score === 4);
+  await page.screenshot({ path: `${OUT}/52-speed.png` });
+  await page.evaluate(() => window.__akm.speedFinish());
+  await wait(page, 300);
+  check('Speed Match ends with the score, and keeps the best', /4 animals home/.test(await page.locator('.akm-speed-result').textContent()) && (await st(page)).speedBest === 4);
+  await page.getByRole('button', { name: /^done$/i }).click();
+  await wait(page, 400);
 
   // a question by id (the pair picture), the journal, the trip list and the grown-ups page
   await page.evaluate(() => window.__akm.ask('desert', 'd-arctic-ears'));
@@ -385,7 +590,7 @@ async function playRescue(page) {
   await wait(page, 300);
   await page.keyboard.press('b');
   await wait(page, 400);
-  check('the Ranger Journal shows 12 of 12 animals', /12 of 12/.test(await page.locator('#journal-title').textContent()));
+  check('the Ranger Journal shows 24 of 24 animals', /24 of 24/.test(await page.locator('#journal-title').textContent()));
   await page.screenshot({ path: `${OUT}/24-journal-cards.png` });
   await page.locator('.akm-guide-card', { hasText: 'Camel' }).click();
   await wait(page, 300);
@@ -398,7 +603,7 @@ async function playRescue(page) {
   await page.keyboard.press('j');
   await wait(page, 300);
   const trips = await page.locator('.belt-list').textContent();
-  check('the trip list: two patches, two coming soon', (trips.match(/Patch earned/g) ?? []).length === 2 && (trips.match(/Coming soon/g) ?? []).length === 2);
+  check('the trip list: four patches', (trips.match(/Patch earned/g) ?? []).length === 4);
   await page.screenshot({ path: `${OUT}/26-trips.png` });
   await page.keyboard.press('Escape');
   await wait(page, 300);
@@ -411,8 +616,8 @@ async function playRescue(page) {
   await wait(page, 300);
   const report = (await page.locator('.progress-table').textContent()) ?? '';
   check(
-    'the grown-ups report lists both trips and the Rescue Center',
-    (await page.locator('.progress-table tbody tr').count()) === 3 && /The Rainforest/.test(report) && /6 animals taken home/.test(report),
+    'the grown-ups report lists the four trips, the Rescue Center and the Night Safari',
+    (await page.locator('.progress-table tbody tr').count()) === 6 && /The Poles/.test(report) && /12 animals taken home/.test(report) && /Night Safari/.test(report),
   );
   await page.screenshot({ path: `${OUT}/27-grownups.png` });
   await page.keyboard.press('Escape');
@@ -424,7 +629,10 @@ async function playRescue(page) {
   await page.getByRole('button', { name: /continue/i }).click();
   await wait(page, 800);
   s = await st(page);
-  check('after a reload the patches and the journal are kept', s.done.length === 2 && s.journal.length === 12 && s.homes === 6);
+  check(
+    'after a reload the patches, the journal, the Night Safari and the best Speed Match are kept',
+    s.done.length === 4 && s.journal.length === 24 && s.homes === 12 && s.nightDone && s.speedBest === 4 && s.timeOfDay === 'evening',
+  );
   await ctx.close();
 }
 
