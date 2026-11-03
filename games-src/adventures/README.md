@@ -55,6 +55,7 @@ node scripts/wild-lookdev-shots.mjs   # the Wild Lands look preview pages (needs
 node scripts/dig-lookdev-shots.mjs   # the Fossil Dig Adventure look preview pages: the cast and fossils, the dig site, the station close-ups (needs npx vite --port 5179)
 node scripts/animal-lookdev-shots.mjs   # the Animal Kingdom Match look preview pages: the cast and animals, the Rescue Center, the four habitats by day and at dusk (needs npx vite --port 5179)
 node scripts/e2e-fossil-dig-adventure.mjs  # Fossil Dig Adventure: all four stations, every logbook, Museum Night, a reload and the phone layout (needs npx vite preview --port 4174)
+node scripts/e2e-animal-kingdom-match.mjs  # Animal Kingdom Match half 1: the rainforest and desert trips, the binoculars, the Rescue Center, the Ranger Journal, a reload and the phone layout (needs npx vite preview --port 4174)
 node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
