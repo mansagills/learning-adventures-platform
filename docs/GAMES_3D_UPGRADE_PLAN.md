@@ -1872,7 +1872,7 @@ Score (both halves): 9.1/10.
 ##### Checks it will ship with
 Unit tests for every station and level; a browser test playing title → Museum Night; screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1, scored 9.1).
 
-#### S2 Earth: Weather Wizard Battle, the fourth Wild Lands game and the first side-scroller: PLAN APPROVED (2026-11-04); look preview and movement test BUILT (2026-11-04), waiting for the owner's look
+#### S2 Earth: Weather Wizard Battle, the fourth Wild Lands game and the first side-scroller: PLAN APPROVED (2026-11-04); look APPROVED (2026-11-04: "The jump feels good, build half 1"); half 1 BUILT (2026-11-05)
 
 > Source: the old site game `public/games/weather-wizard-battle.html`, with the activity `public/lessons/water-cycle-journey.html` merged in (the merge map in section 4). The owner picked it on 2026-11-03 and asked for games that are "a little more action oriented, but still educational", suggesting "some kind of side scroller". Grades 3–5, slug `weather-wizard-battle` (the new game replaces the old one at the same address, and `/games/water-cycle-journey` redirects to it when it ships).
 
@@ -1982,6 +1982,43 @@ Unit tests for every station and level; a browser test playing title → Museum 
 - **Pages** (dev server only): `/lookdev/#weather-cast`, `#weather-shore`, `#weather-clouds`, `#weather-mountain`, `#weather-river`, `#weather-storm` (`#weather-shore-storm` for the storm sky) and **`#weather-play`, the movement test**: Sunny Shore into Mountain Pass, with 14 droplets, three weather vanes, two crabs, a tide pool to warm with the Sun and cool into a cloud, Wind to push the cloud across the sea, Cold to freeze the river (it only works up the mountain, at −6 °C; at the shore it says 26 °C is too warm), and Sun to melt an ice wall. Keys: arrows or A/D, Space/W/Up, 1–4 for the powers, E for the easy setting; on-screen buttons for touch.
 - **Checks:** `scripts/weather-lookdev-shots.mjs` takes the screenshots and plays the test level to the flag with the keyboard (19/19 checks, no console errors, no sideways scrolling on a phone held sideways).
 - **Still to do in half 1:** the Professor's talk-box portrait gets a hat; sound; the real levels.
+
+##### Half 1 built (2026-11-05): the camp, Sunny Shore, Cloud Heights and Mountain Pass
+- **Code:** `src/games/weather-wizard-battle/` (built to `public/games/play/weather-wizard-battle/`; not listed on the site yet, so the old game still plays at `/games/weather-wizard-battle` until half 2):
+  - `play.ts`, the side-scrolling play screen
+  - `levels.ts`, the levels drawn as grids of letters
+  - `powers.ts`, the weather rules
+  - `problems.ts`, 54 questions
+  - `art.ts`, the question pictures
+  - `content.ts`, `save.ts`, `music.ts` and `game.ts`
+- **The camp:** a side-on field camp. Professor Nimbus says what is next, Dr. Iris runs the forecast stops and Weather Book practice, Ranger Tala gives tips, and the map board opens the water cycle map.
+- **Six levels, two per region,** each with droplets to collect, weather vanes (checkpoints), tips along the way and a villager with a request:
+  - **Sunny Shore** (Professor Nimbus; 25–26 °C). *The Beach:* run, jump, ledges and crabs, then the Sun on a tide pool makes rising warm air that carries you up a cliff; the Sun dries Mrs. Adebayo's washing. *The Tide Pools:* Sun then Cool air makes a cloud over the sea, and a sea breeze carries it once you stand on it; a cloud gives Koa's picnic shade.
+  - **Cloud Heights** (12 and 9 °C). *Island Hopping:* Wind pushes clouds across the gaps between floating islands, and Wind turns Mr. Tanaka's windmill. *The Grey Clouds:* Rain falls only from full, grey clouds (white ones are "not full enough"), grows seeds into vines to climb walls, and waters Farmer Okafor's beans; a cloud that has rained turns small and white.
+  - **Mountain Pass** (Dr. Iris). *The Foothills* (8, 2 and −6 °C as you climb): Cold will not freeze the 2 °C pond (it says why), but freezes the −6 °C river and a waterfall into icy steps; rain from a grey cloud falls as snow for Amara and Leo's sled. *The High Pass* (−5 °C, then 4 °C in the valley): the Sun melts an ice wall, Cold freezes a waterfall, the Sun melts a snowbank whose water fills Mr. Petrov's dry stream (spring melt), and the warm valley river is crossed on a cloud.
+- **The powers** (keys 1–5, or the buttons under the game): Sun, Cool air, Wind, Rain, Cold, learned one or two per level. Each says in one sentence what happened or why nothing did.
+- **Between levels:**
+  - Dr. Iris's forecast stop: two right answers, then an offer to play level 2.
+  - After level 2, the Weather Book questions until five stars, then a talk-it-through question and the region's badge.
+  - The questions have pictures (the water cycle with the stage outlined, a thermometer, cloud types, a kettle, a cold glass, a mountain, 100 drops of Earth's water) and the three-step hint ladder.
+- **The Weather Book (B):** 14 pages (powers, cloud types, tools, facts) that fill in as levels are finished, plus the badges.
+- **Also:** gentle falls (back to the last weather vane, up to 3 droplets dropped to collect again), Easy jumps (a slower run and a double jump), saving, music for each region, and the grown-ups page with a progress table and the misconception names.
+- **Fixed while testing, all found by the browser test playing like a child would:**
+  - The first gap came straight after a step, so a running player landed in it; it was moved.
+  - Clouds drifted away on the breeze before you could jump on.
+  - A cloud at the second sea counted as the picnic's shade and paused you mid-ride.
+  - The vines grew one tile short of their walls.
+  - Wind pushed the wrong cloud.
+  - The Sun's warm air could carry you out over the water, and the cloud then formed above your feet. Now it forms under your feet.
+  - The question text overlapped the panel's title.
+- **Checks:**
+  - 15 unit tests (`tests/wwb.test.ts`: the questions, the powers' rules, the levels).
+  - `scripts/e2e-weather-wizard-battle.mjs` plays from the title screen through all six levels with the keyboard, every request, the forecast stops, the Weather Book and the three talk-it-through questions, then checks the Book, saving, Easy jumps, the grown-ups page and a phone (97 checks).
+- **Score so far: 8.8/10, provisional** (gameplay 2.1, learning 1.9, look and sound 1.3, ease of use 1.3, reliability 1.35, completeness 0.85). It loses points on:
+  - River Run and the Storm Front finale are still to come (half 2).
+  - There are no sound effects for rain and wind yet.
+  - On a phone the power buttons are small.
+  - The old game still shows on the site until half 2.
 
 ##### Checks it will ship with
 Unit tests for the questions, the powers' rules (no rain without a full cloud, snow only below 0 °C) and the side-scroller's physics (jump height, landing, moving platforms); a browser test that plays from the title screen through the Storm Front; a speed check (the side-scroller must keep a smooth 60 frames a second on a school laptop); screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
@@ -2175,6 +2212,7 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-11-03:** PR #253 (half 1) merged under the owner's standing approval. The owner said "Build half 2". **Animal Kingdom Match half 2 is built:** the Poles with the research boat to Antarctica, the Wetland and Sea, 36 more questions, the Night Safari with the flashlight and eye shine, every animal on the lit map, Speed Match, and the site listing at the same address with a new card picture. 71/71 browser checks; 9.0/10. With its merge, **Animal Kingdom Match is COMPLETED ✅**: 5 of the 14 Science games.
 - **2026-11-03:** The owner merged half 2 (PR #254). **Animal Kingdom Match is COMPLETED ✅: 5 of the 14 Science games.** The owner asked what Weather Wizard Battle is, asked for games that are "a little more action oriented, but still educational", suggested a side-scroller, and chose to plan Weather Wizard Battle. Its plan is written (the Weather Wizard Battle section above): the first side-scroller, following a water droplet round the water cycle through five Wild Lands regions, with the weather powers as the platforming tools, forecast stops, village requests and a Storm Front finale. Waiting for the owner's choices.
 - **2026-11-04:** The owner chose "1a, 2a, 3a, 4 keep" (a platformer at your own pace with a river ride, the Storm Front finale, gentle falls with no lives, and the draft names). Step 1 built: the side-scroller physics in the kit, the art of the cast and the five regions, and a playable movement test at `/lookdev/#weather-play`. Waiting for the owner to try the jump and approve the look before half 1.
+- **2026-11-04/05:** The owner tried the movement test ("The jump feels good, build half 1"). Half 1 built: the camp, six levels across Sunny Shore, Cloud Heights and Mountain Pass, the five powers, 54 questions, forecast stops, villager requests, the Weather Book, saving and the grown-ups page. 15 unit tests, 97 browser checks, provisional score 8.8. Waiting for the owner's look before half 2 (River Run and the Storm Front).
 - **2026-10-09:** Owner's first answers: Space Quest first, kept names, the deck and the planet, and **the main game becomes a space shooter** (with the station and planet around it). Game 1 of the M7 plan was rewritten as a shooter: flights through the Static cloud, answer rocks, rescued ships joining the fleet, a Bingo Boss finale and a landing on the alien planet. Waiting for approval of the revised plan.
 - **2026-10-09:** Owner chose a vertical shooter and the friendly Static rocks, and **approved the revised plan**. Building Space Quest half 1.
 - **2026-10-09:** Space Quest half 1 built: the station deck, the Formations and Engines flights, upgrades, the Star Map, saving and the grown-ups page. 10 unit tests, 41/41 browser checks, 44 fps. Provisional score 8.7. Waiting for the owner's look before half 2.

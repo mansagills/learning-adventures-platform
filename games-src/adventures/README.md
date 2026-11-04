@@ -59,6 +59,7 @@ node scripts/e2e-animal-kingdom-match.mjs  # Animal Kingdom Match: all four trip
 node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
 node scripts/weather-lookdev-shots.mjs [base] [outDir]   # Weather Wizard Battle look pages and the playable test level, played through to the flag (needs `npx vite --port 5179`)
+node scripts/e2e-weather-wizard-battle.mjs [base] [outDir]   # Weather Wizard Battle: plays every level of half 1 with the keyboard, the requests, forecast stops and Weather Book (ONLY=shore,clouds,mountain,extras picks parts)
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
