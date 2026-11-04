@@ -484,15 +484,9 @@ export const GROWNUPS: GrownupsContent = {
     'The wizard stays outside in the storm to help the village. In real life, the right thing is always to go indoors.',
     'Temperatures are rounded, and they change in steps across a level instead of smoothly.',
   ],
-  sources: [
-    { name: 'NOAA SciJinks: the water cycle', url: 'https://scijinks.gov/water-cycle/' },
-    { name: 'USGS Water Science School', url: 'https://www.usgs.gov/special-topics/water-science-school' },
-    { name: 'National Weather Service: cloud types', url: 'https://www.weather.gov/jetstream/clouds' },
-    { name: 'National Weather Service: lightning safety', url: 'https://www.weather.gov/safety/lightning' },
-    { name: 'USGS: groundwater and transpiration', url: 'https://www.usgs.gov/special-topics/water-science-school/science/groundwater-what-groundwater' },
-  ],
   credits: [
     'Learning design based on the original Weather Wizard Battle game and the Water Cycle Journey activity, rebuilt by Learning Adventures. Facts from the old game were corrected: the 253 mph wind gust was not in a tornado; cold air makes snow (not the other way round); a hurricane claim that did not match the National Weather Service was dropped.',
+    'Facts checked against NOAA SciJinks (the water cycle), the USGS Water Science School (groundwater, transpiration, where Earth’s water is) and the National Weather Service (cloud types and lightning safety).',
     'Art, music and sound by Learning Adventures, made in code. No images, sounds or fonts are loaded from other websites.',
   ],
 };

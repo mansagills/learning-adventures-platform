@@ -1,3 +1,4 @@
+import { iconImg } from '../../kit/art/icons';
 import { PixelBuffer } from '../../kit/art/pixel';
 import {
   Cell,
@@ -529,8 +530,8 @@ export class Play {
     box.append(hud, this.msg, this.prompt, this.countEl);
 
     const bar = h('div', { class: 'wwb-bar' });
-    const hold = (label: string, aria: string, key: 'left' | 'right' | 'jump') => {
-      const btn = h('button', { class: 'btn wwb-padbtn', type: 'button', 'aria-label': aria, text: label });
+    const hold = (icon: string, aria: string, key: 'left' | 'right' | 'jump') => {
+      const btn = h('button', { class: 'btn wwb-padbtn', type: 'button', 'aria-label': aria }, iconImg(icon, '', 24));
       const on = (e: Event) => {
         e.preventDefault();
         if (key === 'jump' && !this.held.jump) this.jumpPressed = true;
@@ -546,7 +547,7 @@ export class Play {
       btn.addEventListener('pointercancel', off);
       return btn;
     };
-    this.pad = h('div', { class: 'wwb-pad' }, hold('◀', 'Run left', 'left'), hold('▶', 'Run right', 'right'), hold('▲', 'Jump', 'jump'));
+    this.pad = h('div', { class: 'wwb-pad' }, hold('arrowLeft', 'Run left', 'left'), hold('arrowRight', 'Run right', 'right'), hold('arrowUp', 'Jump', 'jump'));
     bar.append(this.pad);
     for (const p of this.def.powers) {
       const n = POWER_ORDER.indexOf(p) + 1;
