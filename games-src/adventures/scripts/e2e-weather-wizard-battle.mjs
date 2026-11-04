@@ -53,7 +53,7 @@ function helpers(p) {
       if (!s.onGround) left = true;
       if (left && (s.y > prev || s.onGround)) break;
       prev = s.y;
-      await p.waitForTimeout(15);
+      await p.waitForTimeout(25);
     }
     await p.keyboard.up('Space');
   };
@@ -105,6 +105,8 @@ function helpers(p) {
     const s0 = await ps();
     const cl = s0.clouds[s0.clouds.length - 1];
     const mid = cl.x + 1.5;
+    // the cloud may have formed right under the wizard's feet: then there is nothing to jump to
+    if (s0.standingOn === cl.id) return;
     await p.keyboard.down('Space');
     let held = null;
     let left = false;
@@ -129,7 +131,7 @@ function helpers(p) {
       prev = s.y;
       if (s.standingOn) break;
       if (left && s.onGround) break;
-      await p.waitForTimeout(15);
+      await p.waitForTimeout(25);
     }
     if (held) await p.keyboard.up(held);
     if (!released) await p.keyboard.up('Space');
@@ -342,7 +344,9 @@ if (want('shore')) {
   c = await ps();
   check(c.clouds.length === 1, 'Cool air turns the vapor into a cloud');
   await p.waitForTimeout(1500);
-  check(Math.abs((await ps()).clouds[0].x - c.clouds[0].x) < 0.01, 'the cloud waits for the wizard before the breeze takes it');
+  // (if the warm air had lifted the wizard, the cloud forms under their feet and sets off with them at once)
+  const aboard = c.standingOn === c.clouds[0].id || (await ps()).standingOn === c.clouds[0].id;
+  check(aboard || Math.abs((await ps()).clouds[0].x - c.clouds[0].x) < 0.01, 'the cloud waits for the wizard before the breeze takes it');
   await hopOn();
   c = await ps();
   check(c.standingOn && c.standingOn.startsWith('made'), 'stands on the cloud');
@@ -410,7 +414,7 @@ async function rideWind(p, h, untilX, gusts = 4) {
       if (process.env.HOP) console.log('ride', id, at()?.x.toFixed(2), c.x.toFixed(2), c.y.toFixed(2), c.standingOn, c.falls);
       if (!at() || at().x > untilX) return c;
     }
-    if (Math.abs((at()?.x ?? -1) - before) < 0.05) return c;
+    if (Math.abs((at()?.x ?? -1) - before) < 0.05 && i >= 5) return c;
   }
   return c;
 }
@@ -478,12 +482,15 @@ if (want('clouds')) {
   await power(1, 250);
   await power(2, 250);
   c = await ps();
-  check(c.clouds.some((q) => q.made), 'Sun then Cool air makes a cloud over the gap');
+  check(
+    c.clouds.some((q) => q.made),
+    'Sun then Cool air makes a cloud over the gap',
+  );
   await hopOn();
   c = await ps();
   check(!!c.standingOn, 'stands on the new cloud');
   await p.evaluate(() => (window.__wwbTrace = []));
-  c = await rideWind(p, h, 44.5, 4);
+  c = await rideWind(p, h, 44.5, 6);
   if ((await ps()).falls) console.log('TRACE', JSON.stringify(await p.evaluate(() => window.__wwbTrace)));
   check(c.clouds.find((q) => q.id === c.standingOn)?.x > 44 || (c.x > 43 && c.falls === 0), 'Wind blows the cloud across the long gap');
   await p.screenshot({ path: `${out}/21-ride.png` });
@@ -557,7 +564,7 @@ if (want('clouds')) {
   await power(2, 250);
   await p.evaluate(() => (window.__wwbTrace = []));
   await hopOn();
-  c = await rideWind(p, h, 40.5, 4);
+  c = await rideWind(p, h, 40.5, 6);
   if ((await ps()).falls) console.log('TRACE2', JSON.stringify(await p.evaluate(() => window.__wwbTrace)));
   c = await runTo(44, 5000);
   check(c.x > 42 && c.falls === 0, 'crosses the pond on a cloud');

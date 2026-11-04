@@ -413,8 +413,7 @@ export function hatOnPortrait(p: PixelBuffer): PixelBuffer {
     b.set(x, 11, '#f2c94c');
     b.set(x, 12, '#f2c94c');
   }
-  for (let x = 10; x <= 64; x++)
-    for (let y = 14; y <= 18; y++) if (((x - 37) / 27) ** 2 + ((y - 16) / 2.6) ** 2 <= 1) b.set(x, y, y === 14 ? ind[3] : y >= 17 ? ind[0] : ind[1]);
+  for (let x = 10; x <= 64; x++) for (let y = 14; y <= 18; y++) if (((x - 37) / 27) ** 2 + ((y - 16) / 2.6) ** 2 <= 1) b.set(x, y, y === 14 ? ind[3] : y >= 17 ? ind[0] : ind[1]);
   for (const [x, y] of [
     [32, 4],
     [42, 7],

@@ -408,10 +408,7 @@ export const LEVELS: LevelDef[] = [
       [0, -5],
       [40, 4],
     ],
-    intro: [
-      'The High Pass! It is −5 °C up here. We go over the top and down into the valley, where it is warmer.',
-      'Ice blocks the way at the start. The Sun can melt it.',
-    ],
+    intro: ['The High Pass! It is −5 °C up here. We go over the top and down into the valley, where it is warmer.', 'Ice blocks the way at the start. The Sun can melt it.'],
     tips: [
       [11, 'An ice wall. Face it and press 1 for the Sun.'],
       [19, 'Freeze the waterfall with Cold (5) to make steps.'],

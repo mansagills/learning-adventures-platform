@@ -63,7 +63,11 @@ export const REGION_INFO: Record<Region, RegionInfo> = {
     debrief: {
       text: 'One to talk through: on a sunny day, a puddle dries up. Where did the water go?',
       options: [
-        { text: 'The Sun warmed it, and it rose into the air as invisible water vapor.', correct: true, feedback: 'Exactly! It is still water, just a gas now, floating in the air. One day it will fall again as rain.' },
+        {
+          text: 'The Sun warmed it, and it rose into the air as invisible water vapor.',
+          correct: true,
+          feedback: 'Exactly! It is still water, just a gas now, floating in the air. One day it will fall again as rain.',
+        },
         { text: 'It disappeared. Water can be used up.', misconception: 'water-gone', feedback: 'Water never disappears. It always goes somewhere. Where could it go on a hot, sunny day?' },
         { text: 'The ground drank all of it.', misconception: 'ground-only', feedback: 'A little soaks in, but this puddle sat in the hot sun all day. What does the Sun do to water?' },
       ],
@@ -101,11 +105,23 @@ export const REGION_INFO: Record<Region, RegionInfo> = {
     debrief: {
       text: 'One to talk through: a grey cloud drops rain in the valley but snow at the top of the mountain. Why?',
       options: [
-        { text: 'It is below 0 °C at the top, so the water freezes into snow.', correct: true, feedback: 'Right! The air gets colder as you climb. Below 0 °C, water freezes, so the same cloud gives snow up high.' },
+        {
+          text: 'It is below 0 °C at the top, so the water freezes into snow.',
+          correct: true,
+          feedback: 'Right! The air gets colder as you climb. Below 0 °C, water freezes, so the same cloud gives snow up high.',
+        },
         { text: 'The top is closer to the Sun, so it is warmer.', misconception: 'closer-sun', feedback: 'Higher up is colder, not warmer. Think of the snow on the top. What does cold do to water?' },
-        { text: 'The snow up there makes the air cold.', misconception: 'snow-makes-cold', feedback: 'It is the other way round. The air must be cold first. What does cold air do to the water in a cloud?' },
+        {
+          text: 'The snow up there makes the air cold.',
+          misconception: 'snow-makes-cold',
+          feedback: 'It is the other way round. The air must be cold first. What does cold air do to the water in a cloud?',
+        },
       ],
-      hints: ['Is it warmer or colder at the top?', 'Look at the thermometer. What happens below 0 °C?', 'At the top it is below 0 °C, so the water freezes into snowflakes. In the warm valley, it falls as rain.'],
+      hints: [
+        'Is it warmer or colder at the top?',
+        'Look at the thermometer. What happens below 0 °C?',
+        'At the top it is below 0 °C, so the water freezes into snowflakes. In the warm valley, it falls as rain.',
+      ],
     },
     done: 'Mountain Pass is done! Rain or snow, it depends on the temperature, and you can read a thermometer to forecast it. Good work, weather scientist!',
     badge: 'Snowflake badge',
@@ -159,20 +175,98 @@ export interface BookPage {
 }
 
 export const BOOK: BookPage[] = [
-  { id: 'sun', title: 'The Sun', pic: 'power:sun', facts: ['The Sun’s heat warms water so it evaporates: it rises as invisible water vapor.', 'The Sun powers the whole water cycle. Without it, the water would stop moving.'], from: 'shore-1' },
-  { id: 'vapor', title: 'Water vapor', pic: 'states', facts: ['Water vapor is water as a gas. It is invisible, like the rest of the air.', 'Steam, clouds and mist are not vapor. They are tiny liquid drops you can see.'], from: 'shore-1' },
-  { id: 'warm-air', title: 'Warm air rises', pic: 'cycle:evaporation', facts: ['Warm air is lighter than the cool air around it, so it rises.', 'Rising air carries water vapor high into the sky, where it is cold.'], from: 'shore-1' },
-  { id: 'cool', title: 'Cool air and condensation', pic: 'power:cool', facts: ['When water vapor cools, it turns back into tiny liquid drops. That is condensation.', 'Billions of tiny drops together make a cloud.'], from: 'shore-2' },
-  { id: 'salt', title: 'Salt stays behind', pic: 'salt', facts: ['When sea water evaporates, only the water rises. The salt stays behind.', 'That is why rain is fresh, even though it came from the salty sea.'], from: 'shore-2' },
-  { id: 'wind', title: 'Wind', pic: 'power:wind', facts: ['Wind is moving air. It carries clouds across the sky.', 'Wind helps puddles and washing dry, by carrying damp air away.'], from: 'clouds-1' },
-  { id: 'cumulus', title: 'Cumulus clouds', pic: 'cloud:cumulus', facts: ['Puffy white clouds with flat bottoms. They usually mean fair weather.', 'A big one can hold about 1.1 million pounds of water, in drops too tiny to fall.'], from: 'clouds-1' },
-  { id: 'rain', title: 'Rain', pic: 'power:rain', facts: ['Rain falls from full, grey clouds, when tiny drops bump together and grow heavy.', 'No cloud, no rain: nobody can make rain from a clear sky.'], from: 'clouds-2' },
-  { id: 'cumulonimbus', title: 'Storm clouds', pic: 'cloud:cumulonimbus', facts: ['A cumulonimbus is very tall and dark, with a flat top like an anvil.', 'It brings thunderstorms: heavy rain, lightning, thunder and sometimes hail.'], from: 'clouds-2' },
+  {
+    id: 'sun',
+    title: 'The Sun',
+    pic: 'power:sun',
+    facts: ['The Sun’s heat warms water so it evaporates: it rises as invisible water vapor.', 'The Sun powers the whole water cycle. Without it, the water would stop moving.'],
+    from: 'shore-1',
+  },
+  {
+    id: 'vapor',
+    title: 'Water vapor',
+    pic: 'states',
+    facts: ['Water vapor is water as a gas. It is invisible, like the rest of the air.', 'Steam, clouds and mist are not vapor. They are tiny liquid drops you can see.'],
+    from: 'shore-1',
+  },
+  {
+    id: 'warm-air',
+    title: 'Warm air rises',
+    pic: 'cycle:evaporation',
+    facts: ['Warm air is lighter than the cool air around it, so it rises.', 'Rising air carries water vapor high into the sky, where it is cold.'],
+    from: 'shore-1',
+  },
+  {
+    id: 'cool',
+    title: 'Cool air and condensation',
+    pic: 'power:cool',
+    facts: ['When water vapor cools, it turns back into tiny liquid drops. That is condensation.', 'Billions of tiny drops together make a cloud.'],
+    from: 'shore-2',
+  },
+  {
+    id: 'salt',
+    title: 'Salt stays behind',
+    pic: 'salt',
+    facts: ['When sea water evaporates, only the water rises. The salt stays behind.', 'That is why rain is fresh, even though it came from the salty sea.'],
+    from: 'shore-2',
+  },
+  {
+    id: 'wind',
+    title: 'Wind',
+    pic: 'power:wind',
+    facts: ['Wind is moving air. It carries clouds across the sky.', 'Wind helps puddles and washing dry, by carrying damp air away.'],
+    from: 'clouds-1',
+  },
+  {
+    id: 'cumulus',
+    title: 'Cumulus clouds',
+    pic: 'cloud:cumulus',
+    facts: ['Puffy white clouds with flat bottoms. They usually mean fair weather.', 'A big one can hold about 1.1 million pounds of water, in drops too tiny to fall.'],
+    from: 'clouds-1',
+  },
+  {
+    id: 'rain',
+    title: 'Rain',
+    pic: 'power:rain',
+    facts: ['Rain falls from full, grey clouds, when tiny drops bump together and grow heavy.', 'No cloud, no rain: nobody can make rain from a clear sky.'],
+    from: 'clouds-2',
+  },
+  {
+    id: 'cumulonimbus',
+    title: 'Storm clouds',
+    pic: 'cloud:cumulonimbus',
+    facts: ['A cumulonimbus is very tall and dark, with a flat top like an anvil.', 'It brings thunderstorms: heavy rain, lightning, thunder and sometimes hail.'],
+    from: 'clouds-2',
+  },
   { id: 'cold', title: 'Cold and freezing', pic: 'power:cold', facts: ['Water freezes into ice below 0 °C (32 °F).', 'Cold air makes snow. Snow does not make the air cold.'], from: 'mountain-1' },
-  { id: 'thermometer', title: 'The thermometer', pic: 'therm', facts: ['A thermometer measures how warm or cold the air is.', 'Dr. Iris reads it to forecast rain (above 0 °C) or snow (below 0 °C).'], from: 'mountain-1' },
-  { id: 'snow', title: 'Snowflakes', pic: 'snowflake', facts: ['Every snowflake has six sides or six arms, because frozen water joins in a six-sided pattern.', 'No two snowflakes are exactly alike.'], from: 'mountain-1' },
-  { id: 'melt', title: 'Spring melt', pic: 'cycle:collection', facts: ['In spring, snow on the mountains melts and runs downhill into streams and rivers.', 'Many towns get their drinking water from melted mountain snow.'], from: 'mountain-2' },
-  { id: 'higher', title: 'Higher is colder', pic: 'height', facts: ['The air gets about 6 °C colder for every 1,000 meters you climb.', 'That is why mountain tops can be snowy when the valley is warm.'], from: 'mountain-2' },
+  {
+    id: 'thermometer',
+    title: 'The thermometer',
+    pic: 'therm',
+    facts: ['A thermometer measures how warm or cold the air is.', 'Dr. Iris reads it to forecast rain (above 0 °C) or snow (below 0 °C).'],
+    from: 'mountain-1',
+  },
+  {
+    id: 'snow',
+    title: 'Snowflakes',
+    pic: 'snowflake',
+    facts: ['Every snowflake has six sides or six arms, because frozen water joins in a six-sided pattern.', 'No two snowflakes are exactly alike.'],
+    from: 'mountain-1',
+  },
+  {
+    id: 'melt',
+    title: 'Spring melt',
+    pic: 'cycle:collection',
+    facts: ['In spring, snow on the mountains melts and runs downhill into streams and rivers.', 'Many towns get their drinking water from melted mountain snow.'],
+    from: 'mountain-2',
+  },
+  {
+    id: 'higher',
+    title: 'Higher is colder',
+    pic: 'height',
+    facts: ['The air gets about 6 °C colder for every 1,000 meters you climb.', 'That is why mountain tops can be snowy when the valley is warm.'],
+    from: 'mountain-2',
+  },
 ];
 
 // ------------------------------------------------------------------ for grown-ups

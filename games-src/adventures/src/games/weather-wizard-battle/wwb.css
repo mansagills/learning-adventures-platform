@@ -48,7 +48,9 @@
   font-weight: 700;
   font-size: 15px;
   pointer-events: none;
-  text-shadow: 0 1px 0 #000, 0 0 3px #000;
+  text-shadow:
+    0 1px 0 #000,
+    0 0 3px #000;
 }
 .wwb-hud .gap {
   flex: 1;
@@ -547,4 +549,3 @@
   color: #4a2a10;
   font-weight: 700;
 }
-

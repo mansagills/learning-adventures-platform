@@ -1,5 +1,21 @@
 import { PixelBuffer } from '../../kit/art/pixel';
-import { Cell, EASY, follow, newBody, NORMAL, parseLevel, placeAt, step, type Body, type Camera, type Controls, type Level, type LevelThing, type Platform, type Tuning } from '../../kit/scroller/physics';
+import {
+  Cell,
+  EASY,
+  follow,
+  newBody,
+  NORMAL,
+  parseLevel,
+  placeAt,
+  step,
+  type Body,
+  type Camera,
+  type Controls,
+  type Level,
+  type LevelThing,
+  type Platform,
+  type Tuning,
+} from '../../kit/scroller/physics';
 import { touchControlsVisible } from '../../kit/systems/settings';
 import { speak } from '../../kit/systems/speech';
 import { h } from '../../kit/ui/dom';
@@ -573,8 +589,7 @@ export class Play {
     const feet = Math.floor(this.body.y + this.body.h);
     for (let i = 0; i <= 4; i++) {
       const x = Math.floor(this.cx + this.body.facing * (i + 0.5));
-      for (let y = feet - 2; y <= feet + 3; y++)
-        if (map.get(x, y) === Cell.Water && map.get(x, y - 1) !== Cell.Water && map.get(x, y - 1) !== Cell.Solid) return { x: x + 0.5, y };
+      for (let y = feet - 2; y <= feet + 3; y++) if (map.get(x, y) === Cell.Water && map.get(x, y - 1) !== Cell.Water && map.get(x, y - 1) !== Cell.Solid) return { x: x + 0.5, y };
     }
     return null;
   }
@@ -805,7 +820,18 @@ export class Play {
     const ev = step(b, c, map, plats, this.tuning, dt);
     if ((window as unknown as { __wwbTrace?: unknown[] }).__wwbTrace) {
       const tr = (window as unknown as { __wwbTrace: unknown[] }).__wwbTrace;
-      tr.push([+this.time.toFixed(2), +b.x.toFixed(2), +b.y.toFixed(3), b.standingOn, +b.vy.toFixed(2), c.left, c.right, c.jump, c.jumpHeld, this.clouds.map((q) => [q.id, +q.x.toFixed(2), +(q.dx ?? 0).toFixed(3), +q.push.toFixed(2)])]);
+      tr.push([
+        +this.time.toFixed(2),
+        +b.x.toFixed(2),
+        +b.y.toFixed(3),
+        b.standingOn,
+        +b.vy.toFixed(2),
+        c.left,
+        c.right,
+        c.jump,
+        c.jumpHeld,
+        this.clouds.map((q) => [q.id, +q.x.toFixed(2), +(q.dx ?? 0).toFixed(3), +q.push.toFixed(2)]),
+      ]);
       if (tr.length > 400) tr.shift();
     }
     if (ev.jumped) this.cb.onSound('jump');
@@ -931,8 +957,7 @@ export class Play {
   private updatePrompt(): void {
     let best: { id: string; x: number; y: number; label: string } | null = null;
     if (!this.paused && !this.done) {
-      for (const p of this.people)
-        if (Math.abs(p.x + 0.5 - this.cx) < 1.6) best = { id: p.id, x: p.x + 0.5, y: p.y - 0.6, label: p.id === 'X' ? 'Map' : 'Talk' };
+      for (const p of this.people) if (Math.abs(p.x + 0.5 - this.cx) < 1.6) best = { id: p.id, x: p.x + 0.5, y: p.y - 0.6, label: p.id === 'X' ? 'Map' : 'Talk' };
       if (this.villager && this.villager.asked && Math.abs(this.villager.x + 0.5 - this.cx) < 1.8) best = { id: 'R', x: this.villager.x + 0.5, y: this.villager.y - 0.6, label: 'Talk' };
     }
     this.target = best?.id ?? null;
@@ -1105,7 +1130,12 @@ export class Play {
       put(`drip-${form}-${df}-${form === 'vapor' ? f % 4 : 0}`, () => paintDrip(T, form, form === 'vapor' ? f % 4 : df, false), this.dripX, this.dripY + 0.7);
     }
     for (const e of this.fx) this.drawFx(e);
-    if (temp < 0 && this.def.num) ctx.drawImage(cached(`snow-${f % 16}`, () => paintRain(VW, VH, f % 16, true)), 0, 0);
+    if (temp < 0 && this.def.num)
+      ctx.drawImage(
+        cached(`snow-${f % 16}`, () => paintRain(VW, VH, f % 16, true)),
+        0,
+        0,
+      );
     // HUD text
     if (this.def.num) this.dropText.textContent = `${this.carried} / ${this.total}`;
     if (this.thermBox.dataset.t !== String(temp)) {
@@ -1148,7 +1178,11 @@ export class Play {
     } else if (e.kind === 'wind') {
       ctx.globalAlpha = 1 - k;
       const fr = Math.floor(e.t * 12) % 6;
-      ctx.drawImage(cached(`gust-${fr}`, () => paintGust(T, 3, fr)), Math.round(tx - T * 1.5 - (1 - k) * 20 * Math.sign(tx - sx || 1)), Math.round(ty - 8));
+      ctx.drawImage(
+        cached(`gust-${fr}`, () => paintGust(T, 3, fr)),
+        Math.round(tx - T * 1.5 - (1 - k) * 20 * Math.sign(tx - sx || 1)),
+        Math.round(ty - 8),
+      );
       ctx.globalAlpha = 1;
     } else {
       ctx.globalAlpha = 1 - k;

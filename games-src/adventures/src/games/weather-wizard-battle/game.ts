@@ -383,7 +383,12 @@ export class Game {
         return;
       }
       if (step.kind === 'level') await this.talk.say(n, `Next: ${step.level.name}, in ${REGION_INFO[step.level.region].name}. Open the map when you are ready.`, 'smile');
-      else await this.talk.say(n, `Dr. Iris has ${step.kind === 'forecast' ? 'a forecast question or two' : 'your Weather Book questions'} for ${REGION_INFO[step.region].name}. She is at the weather station.`, 'smile');
+      else
+        await this.talk.say(
+          n,
+          `Dr. Iris has ${step.kind === 'forecast' ? 'a forecast question or two' : 'your Weather Book questions'} for ${REGION_INFO[step.region].name}. She is at the weather station.`,
+          'smile',
+        );
     });
   }
 
@@ -427,7 +432,11 @@ export class Game {
       const rows = regionLevels(r).map((l) => {
         const reached = sv.levelsDone.includes(l.id);
         const lo = this.levelOpen(l);
-        const status = reached ? `Done. Best: ${sv.bestDrops[l.id] ?? 0} droplets.${sv.requests.includes(l.id) ? ' Helped the villager.' : ''}` : lo ? 'Ready to play.' : 'Opens after the level before.';
+        const status = reached
+          ? `Done. Best: ${sv.bestDrops[l.id] ?? 0} droplets.${sv.requests.includes(l.id) ? ' Helped the villager.' : ''}`
+          : lo
+            ? 'Ready to play.'
+            : 'Opens after the level before.';
         return h(
           'div',
           { class: 'wwb-lv' },
@@ -510,9 +519,26 @@ export class Game {
         if (k === 'jump') audio.hop(true);
         else if (k === 'land') audio.land();
         else if (k === 'drop') audio.blip(84);
-        else if (k === 'cast') audio.fx([[72, 0, 0.08], [79, 0.06, 0.1]], 'triangle', 0.1);
+        else if (k === 'cast')
+          audio.fx(
+            [
+              [72, 0, 0.08],
+              [79, 0.06, 0.1],
+            ],
+            'triangle',
+            0.1,
+          );
         else if (k === 'fail') audio.retry();
-        else if (k === 'splash') audio.fx([[60, 0, 0.1], [55, 0.08, 0.14], [48, 0.18, 0.2]], 'sine', 0.12);
+        else if (k === 'splash')
+          audio.fx(
+            [
+              [60, 0, 0.1],
+              [55, 0.08, 0.14],
+              [48, 0.18, 0.2],
+            ],
+            'sine',
+            0.12,
+          );
         else if (k === 'vane') audio.correct();
         else if (k === 'bump') audio.hop(false);
       },
@@ -575,11 +601,7 @@ export class Game {
     const host = REGION_INFO[region].host === 'iris' ? this.speakers.iris : this.speakers.nimbus;
     const all = r.drops === r.total;
     await this.busy(async () => {
-      await this.talk.say(
-        host,
-        `You made it! You brought ${r.drops} of ${r.total} droplets to the flag${all ? ', every single one' : ''}.${first ? ` ${newPages(def.id)}` : ''}`,
-        'proud',
-      );
+      await this.talk.say(host, `You made it! You brought ${r.drops} of ${r.total} droplets to the flag${all ? ', every single one' : ''}.${first ? ` ${newPages(def.id)}` : ''}`, 'proud');
     });
     const step = this.nextStep();
     if (step && step.kind !== 'level' && step.region === region) {
@@ -649,7 +671,26 @@ export class Game {
     const modal = new Modal(this.host, root, () => this.closePanel(), { closeOnBackdrop: false });
     hintBtn.addEventListener('click', () => this.hint());
     next.addEventListener('click', () => this.afterAnswer());
-    this.panel = { modal, region, kind, rightNow: 0, q: null as unknown as Question, hintRung: 0, tries: 0, recorded: false, answered: false, pic, model, feedback, hintBtn, next, choices, stars, level, prompt };
+    this.panel = {
+      modal,
+      region,
+      kind,
+      rightNow: 0,
+      q: null as unknown as Question,
+      hintRung: 0,
+      tries: 0,
+      recorded: false,
+      answered: false,
+      pic,
+      model,
+      feedback,
+      hintBtn,
+      next,
+      choices,
+      stars,
+      level,
+      prompt,
+    };
     this.nextQuestion();
   }
 
@@ -717,14 +758,23 @@ export class Game {
         return sky(pix('puddle', () => paintPuddle(W, H), 2, 'A puddle in the sun, with a faint shimmer of warm air rising from it'));
       case 'sunshade':
         return sky(
-          pix(`sunshade-${p.thing}`, () => paintSunShade(W, H, p.thing), 2, p.thing === 'towel' ? 'Two wet towels: one in the sun, one in the shade of a tree' : 'Two cups of water: one warm in the sun, one cold in the shade'),
+          pix(
+            `sunshade-${p.thing}`,
+            () => paintSunShade(W, H, p.thing),
+            2,
+            p.thing === 'towel' ? 'Two wet towels: one in the sun, one in the shade of a tree' : 'Two cups of water: one warm in the sun, one cold in the shade',
+          ),
           this.tag('In the sun', 0.3, 0.02, 'small'),
           this.tag('In the shade', 0.72, 0.02, 'small'),
         );
       case 'states':
         return this.statesPic(2);
       case 'kettle':
-        return sky(pix('kettle', () => paintKettle(W, H), 2, 'A boiling kettle: a clear gap at the spout, then a white cloud of steam'), this.tag('Clear gap', 0.5, 0.42, 'small'), this.tag('White steam', 0.8, 0.02, 'small'));
+        return sky(
+          pix('kettle', () => paintKettle(W, H), 2, 'A boiling kettle: a clear gap at the spout, then a white cloud of steam'),
+          this.tag('Clear gap', 0.5, 0.42, 'small'),
+          this.tag('White steam', 0.8, 0.02, 'small'),
+        );
       case 'salt':
         return sky(pix('salt', () => paintSalt(W, H), 2, 'A tide pool drying in the sun, with a ring of white crystals on the rocks'));
       case 'earth':
@@ -734,19 +784,37 @@ export class Game {
           this.tag(labels ? 'White: frozen fresh water' : 'White and light blue: fresh', 0.78, 0.86, 'small'),
         );
       case 'therm':
-        return sky(pix(`therm-${p.c}`, () => paintTherm(W, H, p.c), 2, `A thermometer reading ${deg(p.c)}`), this.tag(deg(p.c), 0.66, 0.4), this.tag('0 °C line', 0.3, 0.55, 'small'));
+        return sky(
+          pix(`therm-${p.c}`, () => paintTherm(W, H, p.c), 2, `A thermometer reading ${deg(p.c)}`),
+          this.tag(deg(p.c), 0.66, 0.4),
+          this.tag('0 °C line', 0.3, 0.55, 'small'),
+        );
       case 'cloud':
-        return sky(pix(`cloud-${p.kind}`, () => paintCloudPic(W, H, p.kind), 2, CLOUD_ALT[p.kind]), labels ? this.tag(CLOUD_NAME[p.kind], 0.5, 0.02, 'small') : null);
+        return sky(
+          pix(`cloud-${p.kind}`, () => paintCloudPic(W, H, p.kind), 2, CLOUD_ALT[p.kind]),
+          labels ? this.tag(CLOUD_NAME[p.kind], 0.5, 0.02, 'small') : null,
+        );
       case 'glass':
         return sky(pix('glass', () => paintGlass(W, H), 2, 'A glass of ice water on a sunny day, with drops on the outside'));
       case 'mountain':
-        return sky(pix('mountain', () => paintMountain(W, H), 2, 'A mountain: damp air blows up the green left side, where a grey cloud rains; the right side is dry and sandy'), this.tag('Wet side', 0.22, 0.86, 'small'), this.tag('Dry side', 0.8, 0.86, 'small'));
+        return sky(
+          pix('mountain', () => paintMountain(W, H), 2, 'A mountain: damp air blows up the green left side, where a grey cloud rains; the right side is dry and sandy'),
+          this.tag('Wet side', 0.22, 0.86, 'small'),
+          this.tag('Dry side', 0.8, 0.86, 'small'),
+        );
       case 'height':
-        return sky(pix('height', () => paintHeight(W, H), 2, `A mountain with snow on top; the thermometer at the bottom reads ${deg(p.bottom)}`), this.tag(`Bottom: ${deg(p.bottom)}`, 0.2, 0.62, 'small'), this.tag('Top', 0.55, 0.02, 'small'));
+        return sky(
+          pix('height', () => paintHeight(W, H), 2, `A mountain with snow on top; the thermometer at the bottom reads ${deg(p.bottom)}`),
+          this.tag(`Bottom: ${deg(p.bottom)}`, 0.2, 0.62, 'small'),
+          this.tag('Top', 0.55, 0.02, 'small'),
+        );
       case 'snowflake':
         return sky(pix('snowflake', () => paintSnowflake(W, H), 2, 'A big snowflake with six arms'));
       case 'dew':
-        return sky(pix(`dew-${p.fog}`, () => paintDew(W, H, p.fog), 2, p.fog ? 'Fog lying over a lake at sunrise' : 'Grass with drops of dew at sunrise'), this.tag('Early morning', 0.5, 0.02, 'small'));
+        return sky(
+          pix(`dew-${p.fog}`, () => paintDew(W, H, p.fog), 2, p.fog ? 'Fog lying over a lake at sunrise' : 'Grass with drops of dew at sunrise'),
+          this.tag('Early morning', 0.5, 0.02, 'small'),
+        );
     }
   }
 
@@ -783,7 +851,14 @@ export class Game {
     if (q.model === 'cycle' && q.pic.k !== 'cycle') show(this.cyclePic(null, true, 1.3));
     else if (q.model === 'states' && q.pic.k !== 'states') show(this.statesPic(1.3));
     else if (q.model === 'therm' && q.pic.k !== 'therm')
-      show(h('div', { class: 'wwb-sky' }, pix('therm-model', () => paintThermometer(48, 0), 1.4, 'A thermometer with its 0 °C line'), this.tag('0 °C: water freezes', 0.5, 0.92, 'small')));
+      show(
+        h(
+          'div',
+          { class: 'wwb-sky' },
+          pix('therm-model', () => paintThermometer(48, 0), 1.4, 'A thermometer with its 0 °C line'),
+          this.tag('0 °C: water freezes', 0.5, 0.92, 'small'),
+        ),
+      );
     else if (q.model === 'clouds')
       show(
         h(
@@ -988,10 +1063,7 @@ export class Game {
       if (!got) return h('div', { class: 'wwb-page' }, h('div', { class: 'wwb-guide-empty', text: '?', style: 'width:96px;flex:none' }), h('p', { text: `Found in ${level(p.from).name}.` }));
       return h('div', { class: 'wwb-page' }, this.bookPic(p.pic), h('div', {}, h('strong', { text: p.title }), h('p', { text: p.facts[0] }), h('p', { text: p.facts[1] })));
     };
-    const badges = [
-      ...OPEN_REGIONS.filter((r) => sv.done.includes(r)).map((r) => REGION_INFO[r].badge),
-      ...LEVELS.filter((l) => sv.requests.includes(l.id) && l.request).map((l) => l.request!.badge),
-    ];
+    const badges = [...OPEN_REGIONS.filter((r) => sv.done.includes(r)).map((r) => REGION_INFO[r].badge), ...LEVELS.filter((l) => sv.requests.includes(l.id) && l.request).map((l) => l.request!.badge)];
     const step = this.nextStep();
     const root = h(
       'div',
@@ -1006,7 +1078,11 @@ export class Game {
         'div',
         { class: 'content' },
         h('p', { class: 'small-note', style: 'margin:0', text: `Stars: ${OPEN_REGIONS.map((r) => `${REGION_INFO[r].name} ${sv.stars[r]}/${STARS_PER_REGION}`).join(', ')}.` }),
-        h('div', { class: 'wwb-badges' }, ...(badges.length ? badges.map((b) => h('span', { class: 'wwb-badge', text: b })) : [h('span', { class: 'small-note', text: 'No badges yet. Help a villager, or finish a region.' })])),
+        h(
+          'div',
+          { class: 'wwb-badges' },
+          ...(badges.length ? badges.map((b) => h('span', { class: 'wwb-badge', text: b })) : [h('span', { class: 'small-note', text: 'No badges yet. Help a villager, or finish a region.' })]),
+        ),
         step && step.kind !== 'level' && this.mode === 'camp'
           ? h('button', {
               class: 'btn primary',
