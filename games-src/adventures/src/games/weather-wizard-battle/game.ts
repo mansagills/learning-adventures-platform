@@ -36,7 +36,14 @@ import {
   paintStates,
   paintSunShade,
   paintTherm,
+  paintBars,
+  paintDam,
+  paintFlash,
+  paintGauge,
   paintGearIcon,
+  paintGround,
+  paintPlant,
+  paintRadar,
 } from './art';
 import {
   BOOK,
@@ -45,6 +52,9 @@ import {
   DRIP_HELLO,
   FORECAST_RIGHT,
   GROWNUPS,
+  FINALE,
+  FINALE_BADGE,
+  FIRST_REGIONS,
   HALF_DONE,
   IRIS_HELLO,
   MISCONCEPTION_WORDS,
@@ -60,7 +70,7 @@ import {
   type PersonId,
 } from './content';
 import { CAMP, LEVELS, level, regionLevels, type LevelDef } from './levels';
-import { BOOK_SONG, CAMP_SONG, CLOUDS_SONG, MOUNTAIN_SONG, SHORE_SONG } from './music';
+import { BOOK_SONG, CAMP_SONG, CLOUDS_SONG, MOUNTAIN_SONG, RIVER_SONG, SHORE_SONG, STORM_SONG } from './music';
 import { pix } from './pix';
 import { Play, type FinishResult } from './play';
 import { bank, makeQuestion, type Choice, type CycleStage, type Misconception, type Question, type Tier } from './problems';
@@ -72,7 +82,7 @@ const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_REGION = 12;
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 const LOOKS: Record<Exclude<PersonId, 'drip'>, Look16> = { nimbus: NIMBUS, iris: IRIS_OKORO, tala: RANGER_TALA };
-const SONG: Record<Region, string> = { shore: 'shore', clouds: 'clouds', mountain: 'mountain', river: 'camp', storm: 'camp' };
+const SONG: Record<Region, string> = { shore: 'shore', clouds: 'clouds', mountain: 'mountain', river: 'river', storm: 'storm' };
 
 type Mode = 'title' | 'camp' | 'level' | 'busy' | 'panel';
 
@@ -159,6 +169,8 @@ export class Game {
     audio.addSong('clouds', CLOUDS_SONG);
     audio.addSong('mountain', MOUNTAIN_SONG);
     audio.addSong('book', BOOK_SONG);
+    audio.addSong('river', RIVER_SONG);
+    audio.addSong('storm', STORM_SONG);
     bus.on('settings:changed', () => {
       this.toolbar?.setIcon('sound', settings.muted ? 'soundOff' : 'soundOn', settings.muted ? 'Sound off' : 'Sound');
       this.play?.showTouch(touchControlsVisible());
@@ -379,11 +391,7 @@ export class Game {
     await this.busy(async () => {
       const n = this.speakers.nimbus;
       if (!step) {
-        if (!this.save.halfDoneSeen && OPEN_REGIONS.every((r) => this.save.done.includes(r))) {
-          await this.talk.say(n, HALF_DONE, 'proud');
-          this.save.halfDoneSeen = true;
-          this.persist();
-        } else await this.talk.say(n, 'Play any level again from the map, and try to bring every droplet to the flag!', 'smile');
+        await this.talk.say(n, 'Drip has been all the way round the water cycle! Play any level again from the map, and try to bring every droplet to the flag.', 'smile');
         return;
       }
       if (step.kind === 'level') await this.talk.say(n, `Next: ${step.level.name}, in ${REGION_INFO[step.level.region].name}. Open the map when you are ready.`, 'smile');
@@ -514,6 +522,7 @@ export class Game {
       onFinish: (r: FinishResult) => void this.finishLevel(def, r),
       onTalk: (id: string) => this.onTalk(id),
       onRequest: (stage: 'ask' | 'done') => void this.request(def, stage),
+      onCount: () => void this.countStop(),
       onEasy: (on: boolean) => {
         this.save.easy = on;
         this.persist();
@@ -545,6 +554,16 @@ export class Game {
           );
         else if (k === 'vane') audio.correct();
         else if (k === 'bump') audio.hop(false);
+        else if (k === 'thunder')
+          audio.fx(
+            [
+              [31, 0, 0.5],
+              [29, 0.15, 0.7],
+              [26, 0.4, 0.9],
+            ],
+            'sawtooth',
+            0.07,
+          );
       },
     };
   }
@@ -752,6 +771,40 @@ export class Game {
     if (this.save.gear.length === GEAR.length && this.save.wallet === 0) return;
     if (!GEAR.some((g) => !this.save.gear.includes(g.id) && g.cost <= this.save.wallet)) return;
     await this.openShop();
+  }
+
+  /** The Storm Front, level 1: Dr. Iris's weather station. Watch the flash, count the seconds to the thunder, and work out how far away the storm is. */
+  private async countStop(): Promise<void> {
+    const iris = this.speakers.iris;
+    const SECONDS = 6;
+    await this.busy(async () => {
+      await this.talk.say(iris, [
+        'My weather station! Let’s work out how far away the storm is.',
+        'Light is much faster than sound. So watch for the flash, then count the seconds until you hear the thunder.',
+      ]);
+      this.talk.end();
+      this.play?.strike(SECONDS);
+      await new Promise((r) => window.setTimeout(r, SECONDS * 1000 + 900));
+      const res = await this.talk.ask(
+        iris,
+        {
+          text: `You counted ${SECONDS} seconds from the flash to the thunder. Sound travels about 1 kilometer every 3 seconds. How far away is the storm?`,
+          options: [
+            { text: 'About 2 kilometers', correct: true, feedback: '6 ÷ 3 = 2. About 2 kilometers away, and coming closer. Time to get everyone indoors!' },
+            { text: 'About 6 kilometers', misconception: 'count-mixup', feedback: '6 is the number of seconds. How many 3s are in 6?' },
+            { text: 'About 18 kilometers', misconception: 'count-mixup', feedback: 'Divide by 3, do not times by 3.' },
+          ],
+          hints: ['Every 3 seconds is about 1 kilometer.', 'How many 3s are in 6?', '6 ÷ 3 = 2, so the storm is about 2 kilometers away.'],
+        },
+        () => audio.hint(),
+      );
+      recordAnswer(this.save.learner, 'storm', { correct: res.tries === 1, hintRung: res.tries - 1, misconception: (res.misconceptions[0] ?? null) as Misconception | null }, RULES);
+      const bonus = bonusFor('forecast', res.tries === 1);
+      this.earn(bonus);
+      toast(`+${bonus} droplets for the Weather Shop`, 'reward');
+      if (this.play) this.play.countDone = true;
+      await this.talk.say(iris, 'Remember: if you can hear thunder, lightning is close enough to strike. Now, back to the village!', 'smile');
+    });
   }
 
   private villagerSpeaker(def: LevelDef): Speaker {
@@ -1010,6 +1063,52 @@ export class Game {
           pix(`dew-${p.fog}`, () => paintDew(W, H, p.fog), 2, p.fog ? 'Fog lying over a lake at sunrise' : 'Grass with drops of dew at sunrise'),
           this.tag('Early morning', 0.5, 0.02, 'small'),
         );
+      case 'ground':
+        return sky(
+          pix('ground', () => paintGround(W, H), 2, 'Rain falls on a field and soaks into the soil; below it, water fills the gaps in the rock; a well reaches down to it'),
+          this.tag('Soil', 0.08, 0.46, 'small'),
+          this.tag(labels ? 'Groundwater' : 'Rock', 0.08, 0.8, 'small'),
+          this.tag('Well', 0.72, 0.02, 'small'),
+        );
+      case 'plant':
+        return sky(
+          pix('plant', () => paintPlant(W, H), 2, 'A tree in the sun: water moves up from its roots, and a faint shimmer of vapor rises from its leaves'),
+          labels ? this.tag('Water vapor', 0.42, 0.0, 'small') : null,
+        );
+      case 'gauge':
+        return sky(
+          pix(`gauge-${p.mm}`, () => paintGauge(W, H, p.mm), 2, `A rain gauge with ${p.mm} millimeters of rain in it`),
+          this.tag(`${p.mm} mm`, 0.72, 0.4),
+          this.tag('Rain gauge', 0.18, 0.06, 'small'),
+        );
+      case 'bars': {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const step = (W - 22) / p.mm.length;
+        return sky(
+          pix(`bars-${p.mm.join('-')}`, () => paintBars(W, H, p.mm), 2, `A bar graph of a week of rain: ${p.mm.map((v, i) => `${days[i]} ${v} millimeters`).join(', ')}`),
+          ...days.map((d, i) => this.tag(d, (18 + i * step + step / 2 - 3) / W, 0.84, 'small')),
+          ...(labels ? p.mm.map((v, i) => this.tag(String(v), (18 + i * step + step / 2 - 3) / W, 0.02, 'small')) : []),
+          this.tag('mm', 0.0, 0.0, 'small'),
+        );
+      }
+      case 'flash':
+        return sky(
+          pix(`flash-${p.s}`, () => paintFlash(W, H, p.s), 2, p.s ? `A lightning flash, and a clock: ${p.s} seconds until the thunder` : 'A storm cloud with a lightning bolt over a hill'),
+          p.s ? this.tag(`${p.s} seconds`, 0.78, 0.8) : null,
+        );
+      case 'radar':
+        return sky(
+          pix('radar', () => paintRadar(W, H), 2, 'A weather radar map: a storm (red, yellow and green) over the land, with an arrow showing it moving toward a town by the sea'),
+          this.tag('Storm', 0.12, 0.02, 'small'),
+          this.tag('Town', 0.46, 0.7, 'small'),
+          this.tag('Sea', 0.82, 0.02, 'small'),
+        );
+      case 'dam':
+        return sky(
+          pix('dam', () => paintDam(W, H), 2, 'A stone dam across a valley: a big lake behind it on the left, a small river flowing on below it'),
+          this.tag(labels ? 'Reservoir' : 'Lake', 0.18, 0.5, 'small'),
+          this.tag('Dam', 0.54, 0.2, 'small'),
+        );
     }
   }
 
@@ -1246,10 +1345,18 @@ export class Game {
       audio.levelUp();
       toast(`${info.badge} for ${info.name}!`, 'reward');
       await this.talk.say(who, info.done, 'proud');
-      if (OPEN_REGIONS.every((x) => this.save.done.includes(x)) && !this.save.halfDoneSeen) {
+      if (r === 'mountain' && FIRST_REGIONS.every((x) => this.save.done.includes(x)) && !this.save.halfDoneSeen) {
         await this.talk.say(this.speakers.nimbus, HALF_DONE, 'proud');
         this.save.halfDoneSeen = true;
         this.persist();
+      }
+      if (OPEN_REGIONS.every((x) => this.save.done.includes(x))) {
+        audio.play('camp');
+        await this.talk.say(this.speakers.drip, 'Plip! I am back in the sea. Soon the Sun will warm me, and up I go again!', 'proud');
+        await this.talk.say(this.speakers.nimbus, FINALE, 'proud');
+        audio.levelUp();
+        toast(`${FINALE_BADGE}!`, 'reward');
+        window.parent?.postMessage({ type: 'game-complete', score: OPEN_REGIONS.reduce((n, x) => n + this.save.stars[x], 0) }, '*');
       }
     });
     await this.shopAfterLevel();
@@ -1265,7 +1372,11 @@ export class Game {
       if (!got) return h('div', { class: 'wwb-page' }, h('div', { class: 'wwb-guide-empty', text: '?', style: 'width:96px;flex:none' }), h('p', { text: `Found in ${level(p.from).name}.` }));
       return h('div', { class: 'wwb-page' }, this.bookPic(p.pic), h('div', {}, h('strong', { text: p.title }), h('p', { text: p.facts[0] }), h('p', { text: p.facts[1] })));
     };
-    const badges = [...OPEN_REGIONS.filter((r) => sv.done.includes(r)).map((r) => REGION_INFO[r].badge), ...LEVELS.filter((l) => sv.requests.includes(l.id) && l.request).map((l) => l.request!.badge)];
+    const badges = [
+      ...OPEN_REGIONS.filter((r) => sv.done.includes(r)).map((r) => REGION_INFO[r].badge),
+      ...(OPEN_REGIONS.every((r) => sv.done.includes(r)) ? [FINALE_BADGE] : []),
+      ...LEVELS.filter((l) => sv.requests.includes(l.id) && l.request).map((l) => l.request!.badge),
+    ];
     const step = this.nextStep();
     const root = h(
       'div',
@@ -1331,6 +1442,11 @@ export class Game {
     if (k === 'salt') return pix('bk-salt', () => paintSalt(176, 96), 0.6, '');
     if (k === 'therm') return pix('bk-therm', () => paintThermometer(32, -3), 1.5, '');
     if (k === 'snowflake') return pix('bk-flake', () => paintSnowflake(176, 96), 0.6, '');
+    if (k === 'gauge') return pix('bk-gauge', () => paintGauge(176, 96, 12), 0.6, '');
+    if (k === 'ground') return pix('bk-ground', () => paintGround(176, 96), 0.6, '');
+    if (k === 'plant') return pix('bk-plant', () => paintPlant(176, 96), 0.6, '');
+    if (k === 'flash') return pix(`bk-flash-${arg}`, () => paintFlash(176, 96, Number(arg)), 0.6, '');
+    if (k === 'radar') return pix('bk-radar', () => paintRadar(176, 96), 0.6, '');
     return pix('bk-height', () => paintHeight(176, 96), 0.6, '');
   }
 

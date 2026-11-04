@@ -1,7 +1,7 @@
 import { PixelBuffer } from '../../kit/art/pixel';
 import { mixHex } from '../../kit/worlds/shade';
 import { WILD } from '../../kit/worlds/wild-lands/art';
-import { paintCloud, paintDrip, paintPine, paintRain, paintStormCloud, paintThermometer, SKY } from '../../kit/worlds/wild-lands/weather-art';
+import { paintBolt, paintCloud, paintDrip, paintPine, paintRain, paintStormCloud, paintThermometer, SKY } from '../../kit/worlds/wild-lands/weather-art';
 import type { CloudPic, CycleStage } from './problems';
 
 /**
@@ -485,6 +485,200 @@ export function paintGearIcon(id: 'radar' | 'grip' | 'magnet' | 'bigcloud' | 'gl
       for (let t = -1; t <= 2; t++) b.set(x, y + t, t === -1 || t === 2 ? '#b07a3a' : '#d9a85a');
     }
     for (let k = 0; k < 9; k++) b.set(5 + k, 12 - Math.round(k * 0.9), '#8a5a2b');
+  }
+  return b;
+}
+
+// ------------------------------------------------------------------ half 2: River Run and the Storm Front
+
+/** Under the ground: rain on a field soaks into the soil; groundwater fills the gaps in the rock below; a well reaches down to it. */
+export function paintGround(w: number, h: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  sky(b, '#8fb4c8', '#cfe0e8');
+  const cl = paintCloud(14, 4, 'grey');
+  b.blit(cl, 20, 2);
+  b.blit(paintRain(cl.w - 8, 18, 1), 24, 2 + cl.h);
+  const top = Math.round(h * 0.38);
+  for (let x = 0; x < w; x++) {
+    b.set(x, top, WILD.grass[3]);
+    b.set(x, top + 1, WILD.grass[2]);
+    for (let y = top + 2; y < h; y++) {
+      const t = (y - top) / (h - top);
+      let c = t < 0.35 ? WILD.dirt[(x * 5 + y * 3) % 9 ? 2 : 1] : WILD.stone[(x * 3 + y * 7) % 7 ? 2 : 1];
+      // groundwater: blue in the gaps of the lower rock
+      if (t > 0.62 && (x * 7 + y * 5) % 4 !== 0) c = (x + y) % 5 ? '#4a9cd0' : '#7cc0ec';
+      b.set(x, y, c);
+    }
+  }
+  // drops soaking down
+  for (let k = 0; k < 7; k++) for (let j = 0; j < 3; j++) b.set(26 + k * 4, top + 4 + j * 5 + (k % 2) * 2, '#7cc0ec');
+  arrow(b, 44, top + 6, 44, top + 22, '#7cc0ec');
+  // the well
+  const wx = Math.round(w * 0.72);
+  b.rect(wx - 7, top - 10, 14, 10, WILD.stone[2]);
+  b.rect(wx - 8, top - 18, 16, 2, WILD.bark[2]);
+  b.rect(wx - 7, top - 16, 1, 6, WILD.bark[1]);
+  b.rect(wx + 6, top - 16, 1, 6, WILD.bark[1]);
+  for (let y = top; y < Math.round(h * 0.86); y++) {
+    b.set(wx - 3, y, WILD.stone[0]);
+    b.set(wx + 3, y, WILD.stone[0]);
+    for (let x = wx - 2; x <= wx + 2; x++) b.set(x, y, y > h * 0.62 ? '#4a9cd0' : '#2a2420');
+  }
+  return b;
+}
+
+/** A tree pulling water up from its roots, with a shimmer of water vapor rising from its leaves. */
+export function paintPlant(w: number, h: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  sky(b);
+  sun(b, w - 18, 14, 8);
+  const gy = Math.round(h * 0.66);
+  for (let y = gy; y < h; y++) for (let x = 0; x < w; x++) b.set(x, y, y < gy + 2 ? WILD.grass[2] : WILD.dirt[(x * 5 + y) % 9 ? 2 : 1]);
+  const cx = Math.round(w * 0.42);
+  // roots, with blue water drops moving up them
+  for (const [dx, dy] of [
+    [-16, 22],
+    [-6, 26],
+    [6, 26],
+    [16, 22],
+  ]) {
+    const n = 24;
+    for (let i = 0; i <= n; i++) {
+      const x = Math.round(cx + (dx * i) / n);
+      const y = Math.round(gy + (dy * i) / n);
+      b.set(x, y, WILD.bark[1]);
+      if (i % 6 === 3) b.set(x + 1, y, '#7cc0ec');
+    }
+  }
+  b.rect(cx - 3, gy - 30, 6, 30, WILD.bark[2]);
+  for (let y = gy - 30; y < gy; y += 5) b.set(cx, y, '#7cc0ec');
+  for (let y = 6; y < gy - 22; y++) for (let x = cx - 30; x < cx + 30; x++) if (Math.hypot(x - cx, (y - (gy - 40)) * 1.4) < 28) b.set(x, y, WILD.leaf2[(x + y) % 5 ? 2 : 1]);
+  shimmer(b, cx - 22, 10, 44, 10, 2);
+  arrow(b, cx, gy - 4, cx, gy - 26, '#7cc0ec');
+  return b;
+}
+
+/** A rain gauge: a clear tube with millimeter marks and this much rain in it. */
+export function paintGauge(w: number, h: number, mm: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  sky(b, '#9fc4d8', '#dfeef4');
+  const gy = h - 8;
+  for (let y = gy; y < h; y++) for (let x = 0; x < w; x++) b.set(x, y, WILD.grass[2]);
+  const x0 = Math.round(w / 2) - 10;
+  const top = 10;
+  // the funnel
+  for (let k = 0; k < 6; k++) b.hline(x0 - 6 + k, x0 + 20 + 6 - k, top - 6 + k, '#c8d8e0');
+  // the tube
+  b.rect(x0, top, 20, gy - top, '#e8f4f8');
+  b.vline(x0, top, gy, '#7a8a94');
+  b.vline(x0 + 19, top, gy, '#7a8a94');
+  b.hline(x0, x0 + 19, gy - 1, '#7a8a94');
+  const perMm = (gy - top - 4) / 25;
+  const lvl = Math.round(gy - 2 - mm * perMm);
+  b.rect(x0 + 1, lvl, 18, gy - 2 - lvl, '#4a9cd0');
+  b.hline(x0 + 1, x0 + 18, lvl, '#9ad8ff');
+  for (let m = 0; m <= 25; m += 5) {
+    const y = Math.round(gy - 2 - m * perMm);
+    b.hline(x0 + 20, x0 + (m % 10 === 0 ? 27 : 24), y, '#123247');
+  }
+  return b;
+}
+
+/** A bar graph of a week's rain (Monday to Sunday), in millimeters. The day names and numbers are added as text by the game. */
+export function paintBars(w: number, h: number, mm: number[]): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  b.rect(0, 0, w, h, '#fbf6e8');
+  const base = h - 16;
+  const max = Math.max(...mm, 1);
+  for (let y = 10; y <= base; y += Math.round((base - 10) / 4)) b.hline(14, w - 4, y, '#e4dcc4');
+  b.vline(14, 6, base, '#123247');
+  b.hline(14, w - 4, base, '#123247');
+  const step = (w - 22) / mm.length;
+  mm.forEach((v, i) => {
+    const bh = Math.round(((base - 10) * v) / max);
+    const x = Math.round(18 + i * step);
+    if (bh) {
+      b.rect(x, base - bh, Math.round(step) - 6, bh, '#4a9cd0');
+      b.hline(x, x + Math.round(step) - 7, base - bh, '#9ad8ff');
+    }
+  });
+  return b;
+}
+
+/** A storm at night: a lightning bolt, and a clock face counting the seconds until the thunder. */
+export function paintFlash(w: number, h: number, s: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  sky(b, '#2a3048', '#4a5068');
+  const storm = paintStormCloud(16, 0, true);
+  b.blit(storm, 4, 2);
+  b.blit(paintBolt(Math.round(h * 0.6), 3), 4 + Math.round(storm.w * 0.5), Math.round(h * 0.3));
+  const gy = h - 10;
+  for (let y = gy; y < h; y++) for (let x = 0; x < w; x++) b.set(x, y, WILD.grass[1]);
+  // a lone tree on the hill, and a lighthouse with its rod
+  b.rect(Math.round(w * 0.36), gy - 14, 2, 14, WILD.bark[1]);
+  b.ellipse(Math.round(w * 0.36) - 6, gy - 24, 14, 12, WILD.leaf2[1]);
+  if (s > 0) {
+    // the clock
+    const cx = w - 30;
+    const cy = Math.round(h * 0.45);
+    for (let y = -16; y <= 16; y++) for (let x = -16; x <= 16; x++) if (x * x + y * y <= 256) b.set(cx + x, cy + y, x * x + y * y > 210 ? '#123247' : '#fbf6e8');
+    for (let k = 0; k < 12; k++) {
+      const a = (k / 12) * Math.PI * 2 - Math.PI / 2;
+      b.set(Math.round(cx + Math.cos(a) * 12), Math.round(cy + Math.sin(a) * 12), '#123247');
+    }
+    const a = (s / 60) * Math.PI * 2 - Math.PI / 2;
+    for (let i = 0; i < 11; i++) b.set(Math.round(cx + Math.cos(a) * i), Math.round(cy + Math.sin(a) * i), '#d84a3a');
+    for (let i = 0; i < 10; i++) b.set(cx, cy - i, '#123247'); // where the count started
+  }
+  return b;
+}
+
+/** A weather radar map: the coast, a town, and a storm (green, yellow and red) with an arrow showing it moving toward the town. */
+export function paintRadar(w: number, h: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  b.rect(0, 0, w, h, '#2a5a7a');
+  // the land on the left, the sea on the right
+  const coast = (y: number) => Math.round(w * 0.62 + Math.sin(y * 0.2) * 4);
+  for (let y = 0; y < h; y++) for (let x = 0; x < coast(y); x++) b.set(x, y, (x + y) % 7 ? '#5a8a4a' : '#4a7a3a');
+  // the town
+  const tx = Math.round(w * 0.5);
+  const ty = Math.round(h * 0.55);
+  for (const [dx, dy] of [
+    [0, 0],
+    [4, -2],
+    [-4, 2],
+    [3, 4],
+  ])
+    b.rect(tx + dx, ty + dy, 3, 3, '#f4e8c8');
+  // the storm blob on the left
+  const sx = Math.round(w * 0.18);
+  const sy = Math.round(h * 0.45);
+  for (let y = -20; y <= 20; y++)
+    for (let x = -24; x <= 24; x++) {
+      const d = Math.hypot(x / 24, y / 20) + Math.sin(x * 0.7 + y) * 0.06;
+      if (d < 1) b.set(sx + x, sy + y, d < 0.35 ? '#d84a3a' : d < 0.65 ? '#f0c63a' : '#4ab84a');
+    }
+  arrow(b, sx + 26, sy, tx - 10, ty - 2, '#ffffff');
+  return b;
+}
+
+/** A dam across a river valley, with a lake (the reservoir) behind it and a small river below. */
+export function paintDam(w: number, h: number): PixelBuffer {
+  const b = new PixelBuffer(w, h);
+  sky(b);
+  const hill = (x: number) => Math.round(h * 0.34 + Math.sin(x * 0.05) * 3);
+  for (let x = 0; x < w; x++) for (let y = hill(x); y < h; y++) b.set(x, y, WILD.grass[(x + y) % 6 ? 2 : 1]);
+  // the reservoir on the left
+  for (let y = Math.round(h * 0.42); y < Math.round(h * 0.82); y++) for (let x = 6; x < Math.round(w * 0.52); x++) b.set(x, y, (x + y) % 9 ? '#4a9cd0' : '#7cc0ec');
+  // the dam wall
+  const dx = Math.round(w * 0.52);
+  b.rect(dx, Math.round(h * 0.38), 10, Math.round(h * 0.5), WILD.stone[2]);
+  for (let y = Math.round(h * 0.38); y < Math.round(h * 0.88); y += 4) b.hline(dx, dx + 9, y, WILD.stone[1]);
+  // the river below the dam
+  for (let x = dx + 10; x < w; x++) {
+    const y = Math.round(h * 0.82 + (x - dx) * 0.06);
+    b.hline(x, x, y, '#4a9cd0');
+    b.set(x, y + 1, '#4a9cd0');
   }
   return b;
 }

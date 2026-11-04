@@ -290,10 +290,12 @@ export const games: PlayableGame[] = [
     kind: 'game',
     grades: '3–5',
     difficulty: 'medium',
-    description: 'Control the weather to solve puzzles and help the world.',
-    skills: ['Weather', 'Problem Solving'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/weather-wizard-battle.html',
+    description:
+      'Run, jump and use real weather powers to follow Drip the water droplet all the way round the water cycle: warm the sea, make clouds, rain on the mountains, ride a raft down the river, and steer a thunderstorm out to sea. Professor Nimbus and Dr. Iris Okoro teach the science on the way.',
+    skills: ['Water Cycle', 'Weather', 'Clouds', 'Storm Safety'],
+    estimatedTime: '45–60 min',
+    // Rebuilt with the Adventure Kit in the Wild Lands world (UX-4 Phase 2, Science); The Water Cycle Journey is merged in
+    htmlPath: '/games/play/weather-wizard-battle/index.html',
     thumbnail: '/games/thumbnails/weather-wizard-battle.jpg',
   },
   {
@@ -474,20 +476,6 @@ export const games: PlayableGame[] = [
     estimatedTime: '25–30 min',
     htmlPath: '/lessons/volcano-explorer-lab.html',
     thumbnail: '/games/thumbnails/volcano-explorer-lab.jpg',
-  },
-  {
-    slug: 'water-cycle-journey',
-    title: 'The Water Cycle Journey',
-    subject: 'science',
-    kind: 'activity',
-    grades: '3–5',
-    difficulty: 'easy',
-    description:
-      'Follow a water droplet through evaporation, condensation and rain.',
-    skills: ['Water Cycle', 'Weather'],
-    estimatedTime: '20–25 min',
-    htmlPath: '/lessons/water-cycle-journey.html',
-    thumbnail: '/games/thumbnails/water-cycle-journey.jpg',
   },
   {
     slug: 'simple-machines-lab',

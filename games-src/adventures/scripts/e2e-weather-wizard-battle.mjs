@@ -196,7 +196,7 @@ async function startAt(p, regions = [], extra = {}) {
   await p.goto(base);
   await p.evaluate(
     ([rs, ex]) => {
-      const lv = { shore: ['shore-1', 'shore-2'], clouds: ['clouds-1', 'clouds-2'], mountain: ['mountain-1', 'mountain-2'] };
+      const lv = { shore: ['shore-1', 'shore-2'], clouds: ['clouds-1', 'clouds-2'], mountain: ['mountain-1', 'mountain-2'], river: ['river-1', 'river-2'], storm: ['storm-1', 'storm-2'] };
       const zero = { shore: 0, clouds: 0, mountain: 0, river: 0, storm: 0 };
       const save = {
         version: 1,
@@ -769,8 +769,295 @@ if (want('mountain')) {
   await talkThrough();
   s = await st();
   check(s.done.includes('mountain'), 'Mountain Pass is finished');
-  check(s.next === null, 'all three regions of half 1 are done');
+  check(s.next === 'level:river-1', 'with the first three regions done, River Run opens');
   await p.screenshot({ path: `${out}/34-done.png` });
+  await p.close();
+}
+
+// ---------------------------------------------------------------- River Run (half 2)
+
+const ALL_POWERS = ['sun', 'cool', 'wind', 'rain', 'cold'];
+
+/** Wait until the raft has stopped (a dry stretch or the bank) past column minX. Talks are clicked through. */
+async function raftStops(p, h, minX, ms = 40000) {
+  const t0 = Date.now();
+  let prev = null;
+  let c = await h.ps();
+  while (Date.now() - t0 < ms) {
+    if (await h.talking()) await h.talkThrough();
+    c = await h.ps();
+    if (!c || c.level === 'camp') return c;
+    if (c.raft && c.raft.x > minX && prev !== null && Math.abs(c.raft.x - prev) < 0.005) return c;
+    prev = c.raft ? c.raft.x : null;
+    await p.waitForTimeout(250);
+  }
+  return c;
+}
+
+if (want('river')) {
+  const p = await openPage();
+  const h = helpers(p);
+  const { st, ps, talkThrough, runTo, pushOn, face, power, answerUntilClosed, debrief } = h;
+  await startAt(p, ['shore', 'clouds', 'mountain'], { powersSeen: ALL_POWERS, halfDoneSeen: true });
+  let s = await st();
+  check(s.mode === 'camp' && s.next === 'level:river-1', 'a save with the first three regions done continues at camp, with River Run next');
+  await p.keyboard.press('KeyJ');
+  await p.waitForTimeout(300);
+  check((await p.textContent('.wwb-map')).includes('The Raft Ride') && !(await p.textContent('.wwb-map')).includes('Coming soon'), 'the map shows River Run and the Storm Front (no "coming soon")');
+  await p.keyboard.press('Escape');
+  await p.waitForTimeout(200);
+  await p.evaluate(() => window.__wwb.startLevel('river-1'));
+  await p.waitForTimeout(400);
+  await talkThrough();
+  let c = await ps();
+  check(c.level === 'river-1' && c.raft && !c.raft.moving, 'River Run level 1, The Raft Ride, starts with a raft waiting on the river');
+  await p.screenshot({ path: `${out}/50-river.png` });
+  c = await runTo(9.3, 3000);
+  await p.waitForTimeout(600);
+  c = await ps();
+  check(c.standingOn === 'raft' && c.raft.moving && c.raft.x > 8.2, 'stepping onto the raft starts it floating downstream');
+  c = await raftStops(p, h, 25);
+  check(c.raft.x > 31 && c.raft.x < 34.5 && c.falls === 0, `the raft stops at the dry riverbed (raft at ${c.raft.x.toFixed(1)})`);
+  await p.screenshot({ path: `${out}/51-dry.png` });
+  await face(1);
+  await power(4, 1800);
+  c = await ps();
+  check(c.beds[0] === true, 'Rain from the grey cloud fills the dry riverbed');
+  c = await raftStops(p, h, 40);
+  check(c.raft.y === 12 && c.raft.x > 64 && c.falls === 0, 'over the waterfall to the lower river, then stops at the second dry stretch');
+  await face(1);
+  await power(4, 600);
+  c = await ps();
+  check(c.beds[1] === false, 'the grey cloud is not over the second dry stretch yet, so rain there does not fill it');
+  const kind1 = async () => (await ps()).clouds.find((k) => k.id === 'cloud1').kind;
+  for (let i = 0; i < 30 && (await kind1()) === 'grey'; i++) await p.waitForTimeout(250);
+  check((await kind1()) === 'cumulus', 'after raining, the cloud is small and white');
+  for (let i = 0; i < 60 && (await kind1()) !== 'grey'; i++) await p.waitForTimeout(250);
+  check((await ps()).clouds.find((k) => k.id === 'cloud1').kind === 'grey', 'a cloud that rained in the wrong place grows full and grey again (no dead end)');
+  const before = (await ps()).clouds.find((k) => k.id === 'cloud1').x;
+  await face(1);
+  await power(3, 2800);
+  c = await ps();
+  check(c.clouds.find((k) => k.id === 'cloud1').x > before + 4, 'Wind pushes the grey cloud over the dry stretch');
+  await power(4, 1800);
+  await talkThrough();
+  c = await ps();
+  check(c.beds[1] === true, 'Rain fills the second dry stretch');
+  if (process.env.ENDS) console.log('after rain 2', JSON.stringify(c).slice(0, 900), await p.textContent('.wwb-msg'));
+  c = await raftStops(p, h, 90);
+  await talkThrough();
+  s = await st();
+  check(s.requests.includes('river-1'), 'Mr. Okoye’s river is full again: request done');
+  c = await runTo(122, 6000);
+  await p.waitForTimeout(300);
+  s = await st();
+  check(s.levelsDone.includes('river-1') && s.lastFinish.falls === 0, 'reaches the far bank and the flag with no falls');
+  await talkThrough();
+  await p.waitForTimeout(400);
+  await talkThrough();
+  s = await st();
+  check(s.panel && s.panel.kind === 'forecast' && s.panel.region === 'river', 'the River Run forecast stop opens');
+  await p.screenshot({ path: `${out}/52-river-question.png` });
+  await answerUntilClosed(8);
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.waitForTimeout(300);
+  await p.click('text=Play it now');
+  await p.waitForTimeout(500);
+  await talkThrough();
+  await p.waitForTimeout(300);
+
+  // ---- river-2: the tree's vapor, the cave and its groundwater, the dry well, the raft to the sea
+  c = await ps();
+  check(c.level === 'river-2', 'River Run level 2, Under the Hills, plays');
+  c = await runTo(6.2, 3000);
+  await face(1);
+  await power(1, 300);
+  c = await ps();
+  check(c.vapors === 1, 'the Sun on the tree’s leaves makes rising water vapor');
+  await p.keyboard.down('ArrowRight');
+  for (let i = 0; i < 80; i++) {
+    c = await ps();
+    if (c.onGround && c.y < 7) break;
+    await p.waitForTimeout(40);
+  }
+  await p.keyboard.up('ArrowRight');
+  check(c.onGround && c.y < 7, 'the warm, damp air from the tree lifts the wizard onto the hills');
+  c = await runTo(28, 6000);
+  check(c.y > 10, 'down into the cave');
+  await p.screenshot({ path: `${out}/53-cave.png` });
+  c = await pushOn(47, [32.2, 36.2]);
+  check(c.x > 46 && c.y > 10 && c.falls === 0, 'jumps over the groundwater pools in the cave');
+  c = await runTo(49.6, 2000);
+  c = await climb(p, h, 12, 4);
+  if (process.env.ENDS) console.log('shaft 1', JSON.stringify(c).slice(0, 140));
+  await jumpOver(p, h);
+  c = await h.ps();
+  if (process.env.ENDS) console.log('shaft 2', JSON.stringify(c).slice(0, 140));
+  c = await climb(p, h, 8, 4);
+  if (process.env.ENDS) console.log('shaft 3', JSON.stringify(c).slice(0, 140));
+  c = await ps();
+  check(c.y < 7, 'climbs the ledges up the shaft and out of the cave');
+  c = await runTo(67.5, 6000);
+  await talkThrough();
+  await face(1);
+  await power(4, 3200);
+  await talkThrough();
+  c = await ps();
+  s = await st();
+  check(c.beds[0] === true && s.requests.includes('river-2'), 'rain soaks into the ground and fills Mrs. Mensah’s well: request done');
+  c = await pushOn(79, [69.4]);
+  await p.waitForTimeout(600);
+  c = await raftStops(p, h, 85, 15000);
+  c = await runTo(95, 4000);
+  await p.waitForTimeout(300);
+  s = await st();
+  check(s.levelsDone.includes('river-2'), 'rides the raft down the river and reaches the flag');
+  await talkThrough();
+  await p.waitForTimeout(400);
+  await talkThrough();
+  await answerUntilClosed(20);
+  await p.waitForTimeout(400);
+  await debrief(/seeps slowly back out/);
+  await p.waitForTimeout(300);
+  await talkThrough();
+  s = await st();
+  check(s.done.includes('river') && s.next === 'level:storm-1', 'River Run is finished and the Storm Front opens');
+  await p.close();
+}
+
+// ---------------------------------------------------------------- the Storm Front (half 2)
+
+if (want('storm')) {
+  const p = await openPage();
+  const h = helpers(p);
+  const { st, ps, talkThrough, talking, runTo, pushOn, face, power, answerUntilClosed, debrief } = h;
+  await startAt(p, ['shore', 'clouds', 'mountain', 'river'], { powersSeen: ALL_POWERS, halfDoneSeen: true });
+  let s;
+  await p.evaluate(() => window.__wwb.startLevel('storm-1'));
+  await p.waitForTimeout(400);
+  await talkThrough();
+  let c = await ps();
+  check(c.level === 'storm-1' && c.folks.length === 3, 'the Storm Front, level 1: three villagers are outside');
+  c = await runTo(16, 6000);
+  await talkThrough();
+  c = await ps();
+  check(c.folks[0].going, 'touching a villager sends them indoors');
+  c = await pushOn(41, [19.2, 24.4]);
+  c = await ps();
+  check(c.folks[1].going && c.falls === 0, 'over the stream, past the crab, and the second villager goes indoors');
+  await p.screenshot({ path: `${out}/60-storm.png` });
+  // Dr. Iris's weather station: flash, count, thunder, how far?
+  await p.keyboard.down('ArrowRight');
+  for (let i = 0; i < 80 && !(await talking()); i++) await p.waitForTimeout(50);
+  await p.keyboard.up('ArrowRight');
+  for (let i = 0; i < 20 && (await talking()); i++) {
+    await p.keyboard.press('Space');
+    await p.waitForTimeout(250);
+  }
+  await p.waitForTimeout(1600);
+  check(await p.isVisible('.wwb-count'), 'a flash, then the seconds are counted on screen');
+  const counted = await p.textContent('.wwb-count');
+  check(/Counting: 1/.test(counted), `the counter counts the seconds (“${counted}”)`);
+  await p.screenshot({ path: `${out}/61-count.png` });
+  for (let i = 0; i < 40 && !(await p.$('.dialogue .choices button')); i++) await p.waitForTimeout(250);
+  check(/Boom!/.test(await p.textContent('.wwb-count')), 'the thunder comes after the count');
+  const w0 = (await st()).wallet;
+  await debrief(/About 2 kilometers/);
+  await talkThrough();
+  c = await ps();
+  check(c.countDone && (await st()).wallet > w0, '6 seconds ÷ 3 = about 2 kilometers: the question is answered, and earns droplets');
+  c = await runTo(60.4, 8000);
+  for (let i = 0; i < 24 && !(await st()).requests.includes('storm-1'); i++) {
+    await talkThrough();
+    await p.waitForTimeout(250);
+  }
+  c = await ps();
+  s = await st();
+  check(c.folks.every((f) => f.going) && s.requests.includes('storm-1'), 'everyone is indoors: Mayor Bello’s request done');
+  await face(1);
+  await power(1, 250);
+  await p.keyboard.down('ArrowRight');
+  for (let i = 0; i < 80; i++) {
+    c = await ps();
+    if (c.onGround && c.y < 5) break;
+    await p.waitForTimeout(40);
+  }
+  await p.keyboard.up('ArrowRight');
+  check(c.onGround && c.y < 5, 'warm air from the tide pool lifts the wizard over the sea wall');
+  c = await runTo(98, 9000);
+  await p.waitForTimeout(300);
+  s = await st();
+  check(s.levelsDone.includes('storm-1'), 'reaches the flag of Storm Warning');
+  await talkThrough();
+  await p.waitForTimeout(400);
+  await talkThrough();
+  s = await st();
+  check(s.panel && s.panel.kind === 'forecast' && s.panel.region === 'storm', 'the Storm Front forecast stop opens');
+  await answerUntilClosed(8);
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.waitForTimeout(300);
+  await p.click('text=Play it now');
+  await p.waitForTimeout(500);
+  await talkThrough();
+  await p.waitForTimeout(300);
+
+  // ---- storm-2: push the storm out to sea with Wind
+  c = await ps();
+  check(c.level === 'storm-2' && c.storm && !c.storm.out, 'Out to Sea: the storm is over the village');
+  const jumps = [32.4, 54.4, 64.4];
+  let pushes = 0;
+  for (let i = 0; i < 24 && !(await ps()).storm.out; i++) {
+    c = await ps();
+    if (c.storm.cx - c.x > 6) {
+      let tx = Math.min(83, c.storm.cx - 3);
+      if (tx > 53.5 && tx < 60) tx = 60; // never stop beside the stream
+      c = await pushOn(
+        tx,
+        jumps.filter((j) => j > c.x - 1.6 && j < tx),
+      );
+      await talkThrough();
+    }
+    await face(1);
+    await power(3, 2600);
+    pushes++;
+    if (process.env.ENDS) console.log('push', pushes, JSON.stringify((await ps()).storm), (await ps()).x.toFixed(1));
+  }
+  c = await ps();
+  if (process.env.ENDS) console.log('storm push', JSON.stringify(c).slice(0, 900));
+  check(c.storm.out && c.falls === 0, `Wind pushes the storm out over the cold sea (${pushes} pushes)`);
+  check(c.storm.rod, 'lightning strikes the lighthouse’s rod on the way');
+  await p.screenshot({ path: `${out}/62-storm-out.png` });
+  for (let i = 0; i < 60 && !(await st()).requests.includes('storm-2'); i++) {
+    await talkThrough();
+    await p.waitForTimeout(250);
+  }
+  await talkThrough();
+  s = await st();
+  c = await ps();
+  check(c.storm.gone && s.requests.includes('storm-2'), 'the storm rains itself out and the sky clears: Keeper Larsen’s request done');
+  await p.screenshot({ path: `${out}/63-clear.png` });
+  c = await pushOn(97, [83.4]);
+  await p.waitForTimeout(300);
+  s = await st();
+  check(s.levelsDone.includes('storm-2'), 'reaches the end of the pier');
+  await talkThrough();
+  await p.waitForTimeout(400);
+  await talkThrough();
+  await answerUntilClosed(20);
+  await p.waitForTimeout(400);
+  await debrief(/Go indoors now/);
+  await p.waitForTimeout(300);
+  await talkThrough();
+  s = await st();
+  check(s.done.length === 5 && s.next === null, 'the Storm Front is finished: Drip has been all the way round the water cycle');
+  await p.keyboard.press('KeyB');
+  await p.waitForTimeout(300);
+  check(await p.isVisible('text=Water Cycle badge'), 'the Weather Book shows the Water Cycle badge');
+  const pages = await p.$$eval('.wwb-page strong', (e) => e.map((x) => x.textContent));
+  check(pages.includes('Groundwater') && pages.includes('Flash to thunder'), 'the Book has the River Run and Storm Front pages');
+  await p.screenshot({ path: `${out}/64-book-done.png` });
   await p.close();
 }
 

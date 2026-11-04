@@ -16,16 +16,19 @@ import {
   type Platform,
   type Tuning,
 } from '../../kit/scroller/physics';
-import { touchControlsVisible } from '../../kit/systems/settings';
+import { settings, touchControlsVisible } from '../../kit/systems/settings';
 import type { GearId } from './shop';
 import { speak } from '../../kit/systems/speech';
 import { h } from '../../kit/ui/dom';
 import { paintHero, type Look16 } from '../../kit/worlds/hero16';
-import { paintPalm, paintTent, paintWeatherMast, RANGER_TALA, WILD } from '../../kit/worlds/wild-lands/art';
+import { paintPalm, paintRainTree, paintTent, paintWeatherMast, RANGER_TALA, WILD } from '../../kit/worlds/wild-lands/art';
 import {
   IRIS_OKORO,
   NIMBUS,
   paintBackdrop,
+  paintBolt,
+  paintLighthouse,
+  paintRaft,
   paintCloud,
   paintCrab,
   paintDrip,
@@ -89,7 +92,9 @@ export interface PlayCallbacks {
   onRequest(stage: 'ask' | 'done'): void;
   onEasy(on: boolean): void;
   onMenu(): void;
-  onSound(kind: 'jump' | 'land' | 'drop' | 'cast' | 'fail' | 'splash' | 'vane' | 'bump'): void;
+  onSound(kind: 'jump' | 'land' | 'drop' | 'cast' | 'fail' | 'splash' | 'vane' | 'bump' | 'thunder'): void;
+  /** The Storm Front: Dr. Iris's count-the-seconds stop has been reached. */
+  onCount?(): void;
 }
 
 export interface PlayOptions {
@@ -127,7 +132,50 @@ interface Cloud extends Platform {
   boarded: boolean;
   rain: number;
   snow: boolean;
+  /** A level's own grey cloud that has rained grows full again after this many seconds (so no puzzle is ever lost). */
+  refill?: number;
 }
+interface Raft extends Platform {
+  moving: boolean;
+  /** Where it starts (and comes back to after a fall before any weather vane). */
+  x0: number;
+  y0: number;
+  /** The dry stretch it is waiting at (so the hint is said once). */
+  waitingAt: number | null;
+}
+/** A dry stretch of riverbed or a dry well (V cells side by side): rain nearby fills it. */
+interface DryBed {
+  cells: LevelThing[];
+  cx: number;
+  filled: boolean;
+  /** Seconds until the water arrives (the rain has to run in, or soak down). */
+  fillT: number;
+}
+interface Folk {
+  x: number;
+  y: number;
+  look: number;
+  /** The house they are walking to, once told to go indoors. */
+  goTo: number | null;
+  inside: boolean;
+}
+interface Storm {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  x0: number;
+  push: number;
+  vx: number;
+  /** Over the cold sea: it is raining itself out. */
+  out: boolean;
+  /** 1 while it is strong; it fades to 0 over the sea. */
+  left: number;
+  gone: boolean;
+  rodStruck: boolean;
+  pushed: number;
+}
+
 interface Fx {
   kind: Power;
   x: number;
@@ -296,6 +344,24 @@ export class Play {
   private windmill: { x: number; y: number; spin: number } | null = null;
   private villager: { x: number; y: number; look: number; asked: boolean } | null = null;
   private people: Array<{ id: string; x: number; y: number }> = [];
+  private raft: Raft | null = null;
+  private beds: DryBed[] = [];
+  private trees: LevelThing[] = [];
+  private folks: Folk[] = [];
+  private storm: Storm | null = null;
+  private lighthouse: LevelThing | null = null;
+  /** Lightning: the white flash fading, the bolt drawn, the time to the next one. */
+  private flashA = 0;
+  private bolt: { x: number; y0: number; y1: number; t: number } | null = null;
+  private nextFlash = 4;
+  /** Counting from the flash to the thunder. */
+  private count: { t: number; delay: number; after: number } | null = null;
+  private countEl!: HTMLElement;
+  private countAsked = false;
+  /** Dr. Iris's count-the-seconds question is answered (the Storm Front, level 1). */
+  countDone = false;
+  private gateT = 0;
+  private calm = false;
   private decor: LevelThing[] = [];
   /** Cells drawn by something else (a vine, a frozen waterfall), not as plain tiles. */
   private skip = new Set<number>();
@@ -389,6 +455,24 @@ export class Play {
     if (r) this.villager = { x: r.x, y: r.y, look: def.request?.look ?? 0, asked: this.requestDone };
     this.people = th.filter((t) => 'NJAX'.includes(t.kind)).map((t) => ({ id: t.kind, x: t.x, y: t.y }));
     this.decor = th.filter((t) => 'pnhtwQ'.includes(t.kind));
+    const rf = of('r')[0];
+    if (rf) this.raft = { id: 'raft', x: rf.x, y: rf.y + 1, w: 2.5, h: 0.4, oneWay: true, moving: false, x0: rf.x, y0: rf.y + 1, waitingAt: null };
+    this.trees = of('E');
+    this.folks = of('e').map((t, i) => ({ x: t.x, y: t.y, look: i % 3, goTo: null, inside: false }));
+    this.lighthouse = of('u')[0] ?? null;
+    const so = of('O')[0];
+    if (so) this.storm = { x: so.x, y: so.y, w: 7.5, h: 6, x0: so.x, push: 0, vx: 0, out: false, left: 1, gone: false, rodStruck: false, pushed: 0 };
+    if (def.region === 'river') {
+      // group the dry cells side by side into stretches (each fills on its own)
+      const vs = this.stream.slice().sort((a, b) => a.x - b.x || a.y - b.y);
+      for (const v of vs) {
+        const last = this.beds[this.beds.length - 1];
+        if (last && v.x - Math.max(...last.cells.map((c) => c.x)) <= 1) last.cells.push(v);
+        else this.beds.push({ cells: [v], cx: 0, filled: false, fillT: 0 });
+      }
+      for (const bd of this.beds) bd.cx = (Math.min(...bd.cells.map((c) => c.x)) + Math.max(...bd.cells.map((c) => c.x)) + 1) / 2;
+    }
+    this.calm = settings.reducedMotion;
     this.flag = of('F')[0] ?? { kind: 'F', x: -10, y: -10 };
     placeAt(this.body, this.respawn.x, this.respawn.y);
     this.cam = follow(this.cam, this.body, VIEW_W, VIEW_H, this.level.map, 0, true);
@@ -441,7 +525,8 @@ export class Play {
     this.msg = h('div', { class: 'wwb-msg', role: 'status', 'aria-live': 'polite' });
     this.msg.style.opacity = '0';
     this.prompt = h('button', { class: 'panel prompt wwb-talkbtn', type: 'button', hidden: true, onclick: () => this.interact() }) as HTMLButtonElement;
-    box.append(hud, this.msg, this.prompt);
+    this.countEl = h('div', { class: 'wwb-count', role: 'status', 'aria-live': 'polite', hidden: true });
+    box.append(hud, this.msg, this.prompt, this.countEl);
 
     const bar = h('div', { class: 'wwb-bar' });
     const hold = (label: string, aria: string, key: 'left' | 'right' | 'jump') => {
@@ -647,8 +732,25 @@ export class Play {
       this.completeRequest();
       return;
     }
+    // Wind and the storm cloud (the Storm Front)
+    const st = this.storm;
+    if (p === 'wind' && st && !st.out && !st.gone && Math.abs(st.x + st.w / 2 - this.cx) < 11) {
+      st.push = 2.4;
+      st.vx = this.body.facing * 4;
+      st.pushed++;
+      effect(st.x + st.w / 2, st.y + st.h * 0.6);
+      this.say(
+        st.pushed === 1
+          ? 'The wind pushes the storm cloud along. (Make-believe! Real storms are steered by winds high up, and no one can push one.)'
+          : this.body.facing < 0
+            ? 'Oops, that pushes it back toward the village. The sea is the other way!'
+            : 'Whoosh! Keep it moving toward the sea.',
+      );
+      return;
+    }
     const pool = this.level.things.find((t) => t.kind === 'T' && this.ahead(t.x + 1));
-    const water = pool ? { x: pool.x + 1, y: pool.y + 1 } : this.waterAhead();
+    const tree = p === 'sun' ? this.trees.find((t) => this.ahead(t.x + 0.5)) : undefined;
+    const water = pool ? { x: pool.x + 1, y: pool.y + 1 } : tree ? { x: tree.x + 0.5, y: tree.y + 1 } : this.waterAhead();
     const fall = this.falls.find((f) => !f.frozen && this.ahead(f.x + 0.5, 3.5));
     const iceWall = this.ice.find((b) => !b.gone && !b.melting && this.ahead(b.x + 0.5));
     const bank = this.snowbank && this.snowbank.left > 0 && !this.snowbank.melting && this.ahead(this.snowbank.x + 1) ? this.snowbank : null;
@@ -669,6 +771,7 @@ export class Play {
         }
         break;
       case 'evaporate': {
+        if (tree && !pool) say = 'The Sun warms the tree’s leaves. They give off water vapor, and the warm, damp air rises.';
         const at = water ?? { x: fall!.x + 0.5, y: fall!.bottom + 1 };
         this.vapors = this.vapors.filter((v) => Math.abs(v.x - at.x) > 1.5);
         this.vapors.push({ x: at.x, surface: at.y, t: 9 });
@@ -722,6 +825,7 @@ export class Play {
         const under = (x: number) => x >= c.x - 0.5 && x <= c.x + c.w + 0.5;
         if (res.effect === 'rain') {
           for (const s of this.seeds) if (!s.rows && under(s.x + 1)) this.growVine(s);
+          for (const bd of this.beds) if (!bd.filled && !bd.fillT && Math.abs(bd.cx - (c.x + c.w / 2)) < 7) bd.fillT = 1.2;
           if (this.field && !this.field.wet && (under(this.field.x + 1) || under(this.field.x + 4))) {
             this.field.wet = true;
             this.completeRequest();
@@ -785,6 +889,34 @@ export class Play {
     const map = this.level.map;
     // clouds: pushed by the wind, carried by the breeze, raining
     const plats: Platform[] = [];
+    if (this.raft) {
+      this.stepRaft(dt);
+      plats.push(this.raft);
+    }
+    for (const bd of this.beds)
+      if (!bd.filled && bd.fillT > 0) {
+        bd.fillT -= dt;
+        if (bd.fillT <= 0) {
+          bd.filled = true;
+          for (const v of bd.cells) map.set(v.x, v.y, Cell.Water);
+          const well = this.def.request?.kind === 'well' && this.villager && Math.abs(this.villager.x - bd.cx) < 10;
+          this.say(
+            well
+              ? 'The rain soaks into the ground and fills the gaps in the rock. The groundwater rises, and the well fills up.'
+              : 'The rain runs into the dry riverbed and fills it. The river flows again!',
+            6,
+          );
+          if (this.villager && Math.abs(this.villager.x - bd.cx) < 12 && (this.def.request?.kind === 'fill' || well)) this.completeRequest();
+        }
+      }
+    this.stepFolks(dt);
+    this.stepStorm(dt);
+    if (this.def.stormy) this.stepLightning(dt);
+    if (this.def.countAt !== undefined && !this.countAsked && this.cx >= this.def.countAt) {
+      this.countAsked = true;
+      this.release();
+      this.cb.onCount?.();
+    }
     for (const cl of this.clouds) {
       cl.dx = 0;
       let vx = 0;
@@ -802,7 +934,18 @@ export class Play {
       }
       if (cl.rain > 0) {
         cl.rain -= dt;
-        if (cl.rain <= 0) cl.kind = 'cumulus';
+        if (cl.rain <= 0) {
+          if (cl.kind === 'grey' && !cl.made) cl.refill = 6;
+          cl.kind = 'cumulus';
+        }
+      }
+      if (cl.refill !== undefined) {
+        cl.refill -= dt;
+        if (cl.refill <= 0) {
+          cl.refill = undefined;
+          cl.kind = 'grey';
+          if (Math.abs(cl.x + cl.w / 2 - this.cx) < 14) this.say('More water vapor has condensed into the cloud. It is full and grey again.', 4);
+        }
       }
       plats.push(cl);
     }
@@ -916,7 +1059,15 @@ export class Play {
       this.cb.onRequest('ask');
     }
     // the finish
-    if (Math.abs(this.flag.x + 0.5 - this.cx) < 0.8 && Math.abs(this.flag.y + 1 - (b.y + b.h)) < 1.5) {
+    if (this.gateT > 0) this.gateT -= dt;
+    const atFlag = Math.abs(this.flag.x + 0.5 - this.cx) < 0.8 && Math.abs(this.flag.y + 1 - (b.y + b.h)) < 1.5;
+    const wait = atFlag ? this.finishBlocked() : null;
+    if (wait) {
+      if (this.gateT <= 0) {
+        this.say(wait, 5);
+        this.gateT = 5;
+      }
+    } else if (atFlag) {
       this.done = true;
       this.release();
       this.cb.onFinish({ drops: this.carried, total: this.total, falls: this.falls_, time: this.time });
@@ -931,6 +1082,179 @@ export class Play {
     for (const f of this.fx) f.t += dt;
     this.fx = this.fx.filter((f) => f.t < 0.7);
     if (this.windmill && this.windmill.spin) this.windmill.spin += dt;
+  }
+
+  /** The top row of the water at column x, looking down from row y0 (null if ground or a dry bed comes first). */
+  private surfaceAt(x: number, y0: number): number | null {
+    const map = this.level.map;
+    const cx = Math.floor(x);
+    for (let y = Math.max(0, y0); y < map.h; y++) {
+      const c = map.get(cx, y);
+      if (c === Cell.Water) return y;
+      if (c === Cell.Solid || c === Cell.Ice || c === Cell.Ledge) {
+        if (c === Cell.Ledge) continue;
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /** The raft floats on the water, and once you stand on it the river carries it downstream, until a dry stretch or the bank. */
+  private stepRaft(dt: number): void {
+    const r = this.raft!;
+    r.dx = 0;
+    r.dy = 0;
+    if (this.body.standingOn === r.id) r.moving = true;
+    const row = Math.floor(r.y + 0.01);
+    const here = this.surfaceAt(r.x + r.w / 2, row);
+    if (here !== null && Math.abs(here - r.y) > 0.001) {
+      // over the waterfall: drop down to the lower river
+      const ny = r.y + Math.sign(here - r.y) * Math.min(Math.abs(here - r.y), 7 * dt);
+      r.dy = ny - r.y;
+      r.y = ny;
+    }
+    if (!r.moving) return;
+    const ahead = this.surfaceAt(r.x + r.w + 0.15, row);
+    if (ahead !== null && ahead >= row) {
+      r.dx = 3 * dt;
+      r.x += r.dx;
+      r.waitingAt = null;
+    } else {
+      // stopped: a dry stretch (air, then the riverbed) or the bank
+      const map = this.level.map;
+      const fx = Math.floor(r.x + r.w + 0.15);
+      const dry = map.get(fx, row) === Cell.Air;
+      if (dry && r.waitingAt !== fx) {
+        r.waitingAt = fx;
+        this.say('The raft is stuck! The riverbed ahead is dry. Can a full, grey cloud rain on it?', 6);
+      }
+    }
+  }
+
+  /** Villagers outside in the storm hurry indoors when you reach them. */
+  private stepFolks(dt: number): void {
+    if (!this.folks.length) return;
+    const houses = this.decor.filter((d) => d.kind === 'h');
+    for (const f of this.folks) {
+      if (f.inside) continue;
+      if (f.goTo === null && Math.abs(f.x + 0.5 - this.cx) < 1.2 && Math.abs(f.y - this.body.y) < 2.5) {
+        const home = houses.slice().sort((a, b) => Math.abs(a.x - f.x) - Math.abs(b.x - f.x))[0];
+        f.goTo = home ? home.x : f.x;
+        const left = this.folks.filter((o) => o.goTo === null).length;
+        this.say(left ? `“Thank you! Going indoors!” ${left} more to go. When thunder roars, go indoors.` : 'Everyone is heading indoors. A building keeps you safe from lightning.', 5);
+        this.cb.onSound('vane');
+      }
+      if (f.goTo !== null) {
+        const d = f.goTo - f.x;
+        if (Math.abs(d) < 0.15) {
+          f.inside = true;
+          if (this.def.request?.kind === 'shelter' && this.folks.every((o) => o.inside)) this.completeRequest();
+        } else f.x += Math.sign(d) * Math.min(Math.abs(d), 4 * dt);
+      }
+    }
+  }
+
+  /** The storm cloud: pushed by Wind; over the cold sea it rains itself out and fades away. */
+  private stepStorm(dt: number): void {
+    const st = this.storm;
+    if (!st || st.gone) return;
+    if (!st.out && st.push > 0) {
+      st.push -= dt;
+      st.x = Math.max(st.x0 - 2, Math.min(this.level.map.w - st.w, st.x + st.vx * dt));
+    }
+    // the lighthouse's lightning rod
+    if (this.lighthouse && !st.rodStruck && Math.abs(st.x + st.w / 2 - (this.lighthouse.x + 0.5)) < 2) {
+      st.rodStruck = true;
+      this.strikeAt(this.lighthouse.x + 0.5, this.lighthouse.y - 1.5, 0);
+      this.say('Lightning hits the lighthouse’s rod! The thick wire carries it safely down into the ground. That is what a lightning rod is for.', 7);
+    }
+    if (!st.out && this.def.seaAt !== undefined && st.x + st.w / 2 > this.def.seaAt) {
+      st.out = true;
+      this.say('Over the cold sea, the storm gets less warm, wet air. It rains itself out and grows weaker.', 6);
+    }
+    if (st.out) {
+      st.x += 0.6 * dt;
+      st.left = Math.max(0, st.left - dt / 5);
+      if (st.left === 0) {
+        st.gone = true;
+        if (this.def.request?.kind === 'storm') this.completeRequest();
+        this.say('The storm has rained itself out! Its water has fallen back into the sea. Drip is home. Head for the end of the pier.', 7);
+        this.cb.onSound('vane');
+      }
+    }
+  }
+
+  /** Lightning now and then on the Storm Front, with the seconds counted until the thunder. */
+  private stepLightning(dt: number): void {
+    const st = this.storm;
+    if (st?.gone) return;
+    this.nextFlash -= dt;
+    if (this.nextFlash > 0 || this.count) return;
+    this.nextFlash = 7 + Math.random() * 4;
+    let delay: number;
+    let x: number;
+    if (st) {
+      x = st.x + st.w / 2;
+      delay = Math.round(Math.min(9, Math.abs(x - this.cx) / 4));
+    } else {
+      const far = this.decor.find((d) => d.kind === 'Q');
+      x = far ? far.x + 0.5 : this.cx + 20;
+      delay = Math.max(4, Math.round(9 - (4 * this.cx) / this.level.map.w));
+    }
+    this.strikeAt(x, (st ? st.y + st.h : 5) + 4, delay);
+  }
+
+  /** A flash at (x, y), with the thunder after this many seconds (the counter on screen counts them). */
+  strikeAt(x: number, y: number, delay: number): void {
+    const top = this.storm && !this.storm.gone ? this.storm.y + this.storm.h * 0.8 : 3;
+    this.bolt = { x, y0: top, y1: y, t: 0.35 };
+    this.flashA = this.calm ? 0.12 : 0.45;
+    this.count = { t: 0, delay, after: 0 };
+    if (delay === 0) this.cb.onSound('thunder');
+  }
+
+  /** Flash, count and thunder for Dr. Iris's question (it runs while the game is paused). */
+  strike(delay: number): void {
+    const far = this.decor.find((d) => d.kind === 'Q');
+    this.strikeAt(far ? far.x + 0.5 : this.cx + 18, 8, delay);
+  }
+
+  /** The flash and the seconds counter, every frame (also while paused, for Dr. Iris's count). */
+  private tickFlash(dt: number): void {
+    if (this.flashA > 0) this.flashA = Math.max(0, this.flashA - dt * 2.5);
+    if (this.bolt) {
+      this.bolt.t -= dt;
+      if (this.bolt.t <= 0) this.bolt = null;
+    }
+    const c = this.count;
+    if (!c) {
+      this.countEl.hidden = true;
+      return;
+    }
+    if (c.t < c.delay) {
+      c.t += dt;
+      this.countEl.hidden = false;
+      const n = Math.min(c.delay, Math.floor(c.t) + 1);
+      const text = `Flash! Counting: ${Array.from({ length: n }, (_, i) => i + 1).join(', ')}…`;
+      if (this.countEl.textContent !== text) this.countEl.textContent = text;
+      if (c.t >= c.delay) this.cb.onSound('thunder');
+    } else {
+      c.after += dt;
+      const km = c.delay / 3;
+      const kmText = c.delay === 0 ? 'Right overhead!' : `${c.delay} second${c.delay === 1 ? '' : 's'}: about ${Number.isInteger(km) ? km : km.toFixed(1)} km away.`;
+      const text = `Boom! Thunder. ${kmText}`;
+      if (this.countEl.textContent !== text) this.countEl.textContent = text;
+      this.countEl.hidden = false;
+      if (c.after > 3) this.count = null;
+    }
+  }
+
+  /** Why the flag cannot be reached yet, if it cannot. */
+  private finishBlocked(): string | null {
+    if (this.def.request?.kind === 'shelter' && this.folks.some((f) => f.goTo === null)) return 'Wait! Some people are still outside. Get everyone indoors first.';
+    if (this.def.countAt !== undefined && !this.countDone) return 'Stop at Dr. Iris’s weather station first.';
+    if (this.storm && !this.storm.gone) return 'The storm is still here. Push it out over the cold sea with Wind (3).';
+    return null;
   }
 
   private blocked(x: number, y: number, w: number, hh: number): boolean {
@@ -948,6 +1272,20 @@ export class Play {
     const lost = Math.min(3, this.carried);
     this.carried -= lost;
     placeAt(this.body, this.respawn.x, this.respawn.y);
+    if (this.raft) {
+      const r = this.raft;
+      const s = this.surfaceAt(this.respawn.x + 0.5, 0);
+      if (s === null) {
+        r.x = r.x0;
+        r.y = r.y0;
+      } else {
+        r.x = this.respawn.x + 0.5 - r.w / 2;
+        r.y = s;
+        this.body.y = s - this.body.h;
+      }
+      r.moving = false;
+      r.waitingAt = null;
+    }
     // a cloud made before the vane drifts back to where it can be reached again
     for (const c of this.clouds)
       if (c.made && Math.abs(c.x - this.respawn.x) > 12) {
@@ -970,6 +1308,7 @@ export class Play {
       this.stepGame(DT);
       this.acc -= DT;
     }
+    this.tickFlash(1 / 60);
     if (this.msgT > 0) {
       this.msgT -= 1 / 60;
       if (this.msgT <= 0) this.msg.style.opacity = '0';
@@ -1050,8 +1389,17 @@ export class Play {
     const ctx = this.ctx;
     const b = this.body;
     const temp = this.tempHere();
-    this.drawBackdrop(this.def.region);
+    if (this.storm?.gone) this.drawBackdrop('shore');
+    else this.drawBackdrop(this.def.region);
     const put = this.put.bind(this);
+    for (const [x0, y0, x1, y1] of this.def.caves ?? []) {
+      ctx.fillStyle = '#2e2620';
+      ctx.fillRect(Math.round((x0 - this.cam.x) * T), Math.round((y0 - this.cam.y) * T), (x1 - x0 + 1) * T, (y1 - y0 + 1) * T);
+      ctx.fillStyle = '#3a3028';
+      for (let x = x0; x <= x1; x += 3) ctx.fillRect(Math.round((x + 0.4 - this.cam.x) * T), Math.round((y0 + ((x * 7) % 4) - this.cam.y) * T), 3, 3);
+    }
+    for (const t of this.trees) put(`tree-${t.x % 2}`, () => paintRainTree(T, t.x % 2), t.x + 0.5, t.y + 1);
+    if (this.lighthouse) put(`lighthouse-${!!this.storm?.gone}`, () => paintLighthouse(T, !!this.storm?.gone), this.lighthouse.x + 0.5, this.lighthouse.y + 1);
     // scenery behind
     for (const d of this.decor) {
       if (d.kind === 'p') put(`palm-${d.x % 2}`, () => paintPalm(T, d.x % 2), d.x + 0.5, d.y + 1);
@@ -1123,6 +1471,12 @@ export class Play {
       }
     }
     for (const k of this.vanes) put(`vane-${k.lit}-${k.lit ? f % 8 : 0}`, () => paintVane(T, k.lit, f % 8), k.x + 0.5, k.y + 1);
+    if (this.raft) put('raft', () => paintRaft(T), this.raft.x + this.raft.w / 2, this.raft.y + 0.4);
+    for (const fk of this.folks)
+      if (!fk.inside) {
+        const face = fk.goTo !== null ? (fk.goTo < fk.x ? 'left' : 'right') : this.cx < fk.x + 0.5 ? 'left' : 'right';
+        put(`folk-${fk.look}-${face}`, () => paintHero(VILLAGERS[fk.look], 1.5, face), fk.x + 0.5, fk.y + 1);
+      }
     put(`flag-${f % 4}`, () => paintFlag(T, f % 4), this.flag.x + 0.5, this.flag.y + 1);
     // people
     if (this.villager) {
@@ -1155,6 +1509,21 @@ export class Play {
       put(`drip-${form}-${df}-${form === 'vapor' ? f % 4 : 0}`, () => paintDrip(T, form, form === 'vapor' ? f % 4 : df, false), this.dripX, this.dripY + 0.7);
     }
     for (const e of this.fx) this.drawFx(e);
+    const st = this.storm;
+    if (st && !st.gone) {
+      ctx.globalAlpha = st.left;
+      put(`rain-storm-${f % 8}`, () => paintRain(5 * T, 8 * T, f % 8), st.x + st.w / 2, st.y + st.h + 7);
+      put(`stormcloud-${f % 4}-${this.flashA > 0.2}`, () => paintStormCloud(T, f, this.flashA > 0.2), st.x + st.w / 2, st.y + st.h);
+      ctx.globalAlpha = 1;
+    }
+    if (this.bolt) {
+      const hh = Math.max(2, Math.round((this.bolt.y1 - this.bolt.y0) * T));
+      put(`bolt-${hh}`, () => paintBolt(hh, 3), this.bolt.x, this.bolt.y1);
+    }
+    if (this.flashA > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${this.flashA.toFixed(3)})`;
+      ctx.fillRect(0, 0, VW, VH);
+    }
     if (temp < 0 && this.def.num)
       ctx.drawImage(
         cached(`snow-${f % 16}`, () => paintRain(VW, VH, f % 16, true)),
@@ -1288,6 +1657,12 @@ export class Play {
       paused: this.paused,
       easy: this.easy,
       gear: [...this.gear],
+      raft: this.raft ? { x: this.raft.x, y: this.raft.y, moving: this.raft.moving } : null,
+      beds: this.beds.map((b) => b.filled),
+      folks: this.folks.map((f) => ({ x: f.x, going: f.goTo !== null, inside: f.inside })),
+      storm: this.storm ? { x: this.storm.x, cx: this.storm.x + this.storm.w / 2, out: this.storm.out, gone: this.storm.gone, rod: this.storm.rodStruck } : null,
+      countDone: this.countDone,
+      counting: this.count ? { t: this.count.t, delay: this.count.delay } : null,
     };
   }
 

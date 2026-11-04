@@ -12,12 +12,17 @@ import type { Power, Region } from '../../kit/worlds/wild-lands/weather-art';
  *   W  waterfall top (it falls to the ground; Cold freezes it into steps)
  *   Z  snowbank (the Sun melts it into a stream)     R  the villager with a request
  *   L  wet washing on a line   M  windmill   Y  a dry field   Q  a tall storm cloud (scenery)
- *   V  the dry stream bed (fills when the snowbank melts)
+ *   V  the dry stream bed (fills when the snowbank melts; on River Run, rain fills it)
+ *   r  a raft on the river (it floats downstream once you stand on it)
+ *   E  a tree (the Sun on its leaves makes rising water vapor)
+ *   e  a villager outside in the storm (touch them to send them indoors)
+ *   O  the storm cloud (Wind pushes it; over the cold sea it rains itself out)
+ *   u  the lighthouse, with its lightning rod
  *   p  palm   n  pine   h  house   t  tent   w  weather station   s  sign
  *   N  Professor Nimbus   J  Dr. Iris Okoro   A  Ranger Tala   X  the map board (camp only)
  */
 
-export type RequestKind = 'dry' | 'shade' | 'windmill' | 'field' | 'snow' | 'melt';
+export type RequestKind = 'dry' | 'shade' | 'windmill' | 'field' | 'snow' | 'melt' | 'fill' | 'well' | 'shelter' | 'storm';
 
 export interface Request {
   kind: RequestKind;
@@ -48,6 +53,14 @@ export interface LevelDef {
   /** A gentle breeze that carries clouds to the right by itself (tiles a second), before the wizard has Wind. */
   breeze?: number;
   request?: Request;
+  /** Dark cave areas drawn behind the tiles: [x0, y0, x1, y1]. */
+  caves?: Array<[number, number, number, number]>;
+  /** A storm sky with lightning (the Storm Front). */
+  stormy?: boolean;
+  /** Dr. Iris's count-the-seconds stop starts at this column. */
+  countAt?: number;
+  /** Where the cold sea starts (the storm rains itself out past it). */
+  seaAt?: number;
 }
 
 /** A blank grid with helpers to paint it. */
@@ -253,6 +266,109 @@ function mountain2(): string[] {
     .rows();
 }
 
+// ------------------------------------------------------------------ River Run
+
+function river1(): string[] {
+  const g = grid(124, 16)
+    .fill(0, 123, 12, 15, '#') // the riverbed
+    .fill(0, 7, 10, 11, '#') // the start bank
+    .put(2, 9, 'P')
+    .fill(8, 49, 10, 11, '~') // the upper river
+    .put(8, 9, 'r') // the raft
+    .many('D', [14, 7], [20, 7], [26, 8], [44, 7], [47, 7])
+    .put(30, 9, 'C')
+    .fill(36, 41, 10, 11, 'V') // a dry stretch: rain fills it
+    .put(37, 3, 'G')
+    .fill(50, 123, 12, 13, '.') // the waterfall: the river drops two rows
+    .fill(50, 113, 12, 13, '~') // the lower river
+    .many('D', [55, 10], [58, 9], [64, 9], [84, 9], [90, 9], [96, 10], [102, 9], [108, 9])
+    .put(60, 11, 'C')
+    .fill(70, 75, 12, 13, 'V') // a second dry stretch: blow the cloud over it first
+    .put(63, 4, 'G')
+    .fill(77, 81, 9, 9, '=') // Mr. Okoye's pier
+    .put(79, 8, 'R')
+    .put(88, 11, 'C')
+    .fill(114, 123, 12, 15, '#') // the far bank
+    .put(119, 11, 'F')
+    .many('n', [4, 9], [116, 11]);
+  return g.rows();
+}
+
+function river2(): string[] {
+  return grid(96, 16)
+    .fill(0, 95, 13, 15, '#')
+    .put(2, 12, 'P')
+    .put(8, 12, 'E') // a tree: its leaves give off water vapor
+    .fill(11, 60, 8, 15, '#') // the hills (5 tiles: too high to jump)
+    .many('D', [14, 7], [16, 7], [20, 7])
+    .put(18, 7, 'C')
+    .fill(24, 25, 8, 8, '.') // the way down into the cave
+    .fill(24, 52, 9, 13, '.') // the cave
+    .fill(33, 35, 14, 14, '~') // groundwater, in the cave floor
+    .fill(37, 39, 14, 14, '~')
+    .many('D', [29, 13], [36, 11], [44, 13])
+    .put(42, 13, 'C')
+    .fill(49, 52, 8, 8, '.') // the way out: ledges up a shaft
+    .fill(49, 50, 12, 12, '=')
+    .fill(51, 52, 10, 10, '=')
+    .fill(51, 52, 8, 8, '=')
+    .put(56, 7, 'D')
+    .put(66, 12, 'R')
+    .fill(70, 71, 13, 14, 'V') // the dry well
+    .put(64, 4, 'G')
+    .put(74, 12, 'C')
+    .fill(78, 90, 13, 14, '~') // the river, on to the sea
+    .put(78, 12, 'r')
+    .many('D', [82, 10], [86, 10])
+    .put(93, 12, 'F')
+    .many('n', [4, 12], [58, 7], [76, 12])
+    .rows();
+}
+
+// ------------------------------------------------------------------ Storm Front
+
+function storm1(): string[] {
+  return grid(100, 14)
+    .fill(0, 99, 11, 13, '#')
+    .put(2, 10, 'P')
+    .put(6, 10, 'R')
+    .many('h', [10, 10], [30, 10], [52, 10], [74, 10])
+    .many('e', [15, 10], [37, 10], [58, 10])
+    .fill(20, 22, 11, 13, '~') // a stream: jump it
+    .many('D', [21, 8], [26, 10], [33, 7], [47, 10], [64, 4], [68, 4], [86, 10])
+    .put(26, 10, 'K')
+    .fill(32, 34, 8, 8, '=')
+    .put(42, 10, 'C')
+    .put(45, 10, 'w') // Dr. Iris's weather station
+    .put(62, 10, 'T') // a tide pool: ride the warm air
+    .fill(65, 70, 6, 10, '#') // the sea wall
+    .put(78, 10, 'C')
+    .put(90, 1, 'Q')
+    .put(96, 10, 'F')
+    .rows();
+}
+
+function storm2(): string[] {
+  return grid(112, 14)
+    .fill(0, 84, 11, 13, '#')
+    .fill(85, 111, 11, 13, '~') // the cold sea
+    .put(2, 10, 'P')
+    .put(6, 2, 'O') // the storm cloud
+    .many('h', [14, 10], [22, 10], [44, 10], [50, 10])
+    .many('D', [12, 10], [28, 8], [36, 7], [58, 9], [70, 8], [76, 10], [90, 8], [94, 8])
+    .put(30, 10, 'K')
+    .fill(34, 37, 9, 10, '#') // a wall to jump
+    .put(40, 10, 'C')
+    .fill(56, 58, 11, 13, '~') // a stream
+    .fill(66, 68, 9, 10, '#')
+    .put(72, 10, 'C')
+    .put(77, 10, 'R')
+    .put(80, 10, 'u') // the lighthouse
+    .fill(85, 97, 10, 10, '=') // the pier
+    .put(95, 9, 'F')
+    .rows();
+}
+
 const NIMBUS_SHORE_1 = [
   'Welcome to Sunny Shore, my young apprentice! Every journey of the water cycle starts here, with the Sun.',
   'First, the basics. Run with the arrow keys and jump with Space. Hold Space for a higher jump.',
@@ -422,6 +538,122 @@ export const LEVELS: LevelDef[] = [
       ask: 'Our stream is dry, and the cows are thirsty. Every spring the snow melts and fills it. Could you help it along?',
       thanks: 'Here comes the water! Melted snow flows downhill into the stream. That is how mountains fill the rivers every spring.',
       badge: 'Spring meltwater',
+    },
+  },
+  {
+    id: 'river-1',
+    region: 'river',
+    num: 1,
+    name: 'The Raft Ride',
+    rows: river1(),
+    powers: ['sun', 'cool', 'wind', 'rain', 'cold'],
+    temps: [[0, 16]],
+    intro: [
+      'Welcome to River Run! Drip’s snow has melted, and now the water is going downhill, all the way to the sea.',
+      'Hop on the raft. The river will carry you. Jump for the droplets, and watch out: in dry weather, parts of a river can dry up.',
+    ],
+    tips: [
+      [12, 'The river flows downhill, so it carries the raft along. Jump to catch the droplets.'],
+      [30, 'The riverbed ahead is dry! Rain from a full, grey cloud can fill it. Press 4 for Rain.'],
+      [49, 'A waterfall! Water always flows downhill.'],
+      [64, 'Another dry stretch, but the grey cloud is not over it yet. Wind (3) can push it there.'],
+      [100, 'Nearly at the bank. Rivers like this one carry rain and melted snow all the way to the sea.'],
+    ],
+    request: {
+      kind: 'fill',
+      look: 0,
+      name: 'Mr. Okoye',
+      ask: 'My boat is stuck in the mud! The river by my pier has dried up. It only needs rain to fill it again.',
+      thanks: 'The water is back! Rain ran into the riverbed and filled it. That is collection: water gathering in rivers.',
+      badge: 'Full river',
+    },
+  },
+  {
+    id: 'river-2',
+    region: 'river',
+    num: 2,
+    name: 'Under the Hills',
+    rows: river2(),
+    powers: ['sun', 'cool', 'wind', 'rain', 'cold'],
+    temps: [[0, 14]],
+    intro: [
+      'Some rain does not run into rivers. It soaks into the ground. Today we follow it underground!',
+      'First, those hills are too high to jump. But trees give off water vapor from their leaves. Try the Sun on that tree.',
+    ],
+    tips: [
+      [5, 'Face the tree and press 1. The Sun warms its leaves, and they give off water vapor. Ride the warm air up.'],
+      [24, 'A cave! Climb down. Look at the water in the rock.'],
+      [30, 'This is groundwater: rain that soaked down and filled the gaps in the rock. Jump over it.'],
+      [47, 'Climb the ledges up the shaft to get out.'],
+      [62, 'Mrs. Mensah’s well is dry. Rain on the ground nearby will soak down and fill it.'],
+      [76, 'Hop on the raft. This river carries the water on to the sea.'],
+    ],
+    caves: [[24, 9, 52, 13]],
+    request: {
+      kind: 'well',
+      look: 1,
+      name: 'Mrs. Mensah',
+      ask: 'Our well has gone dry. It has not rained for weeks. Is that grey cloud full?',
+      thanks: 'The well is filling! The rain soaked into the ground and refilled the groundwater, so the well has water again.',
+      badge: 'Full well',
+    },
+  },
+  {
+    id: 'storm-1',
+    region: 'storm',
+    num: 1,
+    name: 'Storm Warning',
+    rows: storm1(),
+    powers: ['sun', 'cool', 'wind', 'rain', 'cold'],
+    temps: [[0, 24]],
+    stormy: true,
+    countAt: 44,
+    intro: [
+      'The Storm Front! A big thunderstorm is coming in from the sea. Warm, wet air feeds it, and it grows very tall.',
+      'People in the village are still outside. Touch each one to send them indoors. When thunder roars, go indoors!',
+      'And stop at my weather station. We will work out how far away the storm is.',
+    ],
+    tips: [
+      [12, 'Run into each villager outside. They will hurry indoors.'],
+      [40, 'Dr. Iris’s weather station is just ahead.'],
+      [60, 'The sea wall is too high to jump. Use the warm air from the tide pool.'],
+    ],
+    request: {
+      kind: 'shelter',
+      look: 2,
+      name: 'Mayor Bello',
+      ask: 'A storm is coming, and three people are still outside! Can you get them all indoors?',
+      thanks: 'Everyone is safe inside. A building keeps you safe from lightning. Thank you!',
+      badge: 'Everyone indoors',
+    },
+  },
+  {
+    id: 'storm-2',
+    region: 'storm',
+    num: 2,
+    name: 'Out to Sea',
+    rows: storm2(),
+    powers: ['sun', 'cool', 'wind', 'rain', 'cold'],
+    temps: [[0, 22]],
+    stormy: true,
+    seaAt: 88,
+    intro: [
+      'The storm is over the village now! Everyone is safe indoors.',
+      'Here is the make-believe part: in this game, Wind can push the storm. In real life nobody can. Storms are steered by winds high in the sky.',
+      'Push it past the lighthouse and out over the cold sea. Cold water gives a storm less warm, wet air, so it rains itself out.',
+    ],
+    tips: [
+      [3, 'Face the storm and press 3 for Wind. Keep pushing it toward the sea.'],
+      [60, 'Count from each flash to the thunder. The more seconds, the farther away the storm.'],
+      [76, 'The lighthouse has a lightning rod on top.'],
+    ],
+    request: {
+      kind: 'storm',
+      look: 0,
+      name: 'Keeper Larsen',
+      ask: 'I keep the lighthouse. Its light guides the boats home, but nobody can see it in this storm. Is it moving out to sea?',
+      thanks: 'The sky is clearing! The storm rained itself out over the cold sea, and my light shines again. Thank you!',
+      badge: 'Clear skies',
     },
   },
 ];

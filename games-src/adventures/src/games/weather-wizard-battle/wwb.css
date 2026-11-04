@@ -623,3 +623,19 @@
     flex-direction: column;
   }
 }
+
+/* ---------- the Storm Front: counting from the flash to the thunder ---------- */
+.wwb-count {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(18, 24, 40, 0.85);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--text-small);
+  white-space: nowrap;
+  pointer-events: none;
+}
