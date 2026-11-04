@@ -53,6 +53,14 @@ export const PAGES: Array<[string, string]> = [
   ['animal-polar-evening', 'The poles at dusk'],
   ['animal-wetland', 'The wetland and the sea'],
   ['animal-wetland-evening', 'Wetland at dusk'],
+  ['weather-play', 'Weather Wizard: try the test level'],
+  ['weather-cast', 'Weather Wizard: the cast and powers'],
+  ['weather-shore', 'Sunny Shore'],
+  ['weather-clouds', 'Cloud Heights'],
+  ['weather-mountain', 'Mountain Pass'],
+  ['weather-river', 'River Run'],
+  ['weather-storm', 'Storm Front'],
+  ['weather-shore-storm', 'Sunny Shore with a storm sky'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -108,6 +116,14 @@ export function pageParams(): URLSearchParams {
       else if (r === 'quiet') q.set('talk', '0');
       else if (r === 'kiki') q.set('kiki', '1');
     }
+    return q;
+  }
+  // Weather Wizard Battle: #weather-cast, #weather-play, #weather-<region>[-storm]
+  if (token.startsWith('weather-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'weather-cast' : area === 'play' ? 'weather-play' : 'weather');
+    if (area !== 'cast' && area !== 'play') q.set('area', area);
+    if (rest.includes('storm')) q.set('time', 'storm');
     return q;
   }
   // Wild Lands: #wild-cast, #wild-camp[-evening], #wild-reef[-sunlight|-twilight|-midnight] (add -quiet to hide the talk box)

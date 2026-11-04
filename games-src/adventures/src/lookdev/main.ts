@@ -18,6 +18,7 @@ import { showSheet } from './sheet';
  * Wild Lands and Ocean Depth Diver: #wild-cast, #wild-camp, #wild-camp-evening, #wild-reef (-sunlight, -twilight, -midnight).
  * Fossil Dig Adventure: #dig-cast, #dig-site, #dig-site-evening, #dig-quarry, #dig-cliff, #dig-trackway, #dig-glow, #dig-glow-uv.
  * Animal Kingdom Match: #animal-cast, #animal-camp, #animal-rainforest, #animal-desert, #animal-polar, #animal-wetland (each with -evening).
+ * Weather Wizard Battle: #weather-play (the test level), #weather-cast, #weather-shore, -clouds, -mountain, -river, -storm (add -storm for the storm sky).
  */
 const q = pageParams();
 window.addEventListener('hashchange', () => location.reload());
@@ -51,4 +52,10 @@ if (view === 'scene') {
   import('./animal').then((m) => m.showAnimalScene(host, q));
 } else if (view === 'animal-cast') {
   import('./animal').then((m) => m.showAnimalCast(host));
+} else if (view === 'weather') {
+  import('./weather').then((m) => m.showWeatherRegion(host, q));
+} else if (view === 'weather-cast') {
+  import('./weather').then((m) => m.showWeatherCast(host));
+} else if (view === 'weather-play') {
+  import('./weather').then((m) => m.showWeatherPlay(host));
 } else showSheet(host, q);
