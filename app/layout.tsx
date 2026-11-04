@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Nunito, Inter, Outfit, Plus_Jakarta_Sans, Press_Start_2P } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import GameRegistryInitializer from '@/components/GameRegistryInitializer';
 import HeaderFooterWrapper, {
@@ -14,40 +14,46 @@ import {
   createJSONLD,
 } from '@/lib/seo';
 
+// The fonts are kept in app/fonts/ (the Latin files from Google Fonts, all
+// under the SIL Open Font License) so the build never has to download them.
+// Downloading them from Google during the build broke CI on 2026-11-04.
+
 // Legacy fonts (keeping for compatibility)
-const nunito = Nunito({
-  subsets: ['latin'],
+const nunito = localFont({
+  src: './fonts/nunito-latin.woff2',
+  weight: '200 1000',
   display: 'swap',
   variable: '--font-nunito',
   preload: true,
 });
 
-const inter = Inter({
-  subsets: ['latin'],
+const inter = localFont({
+  src: './fonts/inter-latin.woff2',
+  weight: '100 900',
   display: 'swap',
   variable: '--font-inter',
 });
 
 // Playful Geometric Design System fonts
-const outfit = Outfit({
-  subsets: ['latin'],
+const outfit = localFont({
+  src: './fonts/outfit-latin.woff2',
+  weight: '400 800',
   display: 'swap',
   variable: '--font-outfit',
-  weight: ['400', '500', '600', '700', '800'],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
+const plusJakartaSans = localFont({
+  src: './fonts/plus-jakarta-sans-latin.woff2',
+  weight: '400 700',
   display: 'swap',
   variable: '--font-plus-jakarta',
-  weight: ['400', '500', '600', '700'],
 });
 
-const pressStart2P = Press_Start_2P({
-  subsets: ['latin'],
+const pressStart2P = localFont({
+  src: './fonts/press-start-2p-latin.woff2',
+  weight: '400',
   display: 'swap',
   variable: '--font-pixel',
-  weight: '400',
 });
 
 export const metadata: Metadata = generateMetadata();
