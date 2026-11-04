@@ -28,6 +28,25 @@
  *        the rivers; six-sided snowflakes, no two alike; glaciers; air
  *        cools about 6 °C for every 1,000 meters up
  *
+ * Half 2 adds:
+ *   River Run (Dr. Iris Okoro): where water goes
+ *     1. water flows downhill into rivers, lakes and the sea; some soaks
+ *        in; collection; a rain gauge; rivers are fresh (3-ESS2-1, 5-ESS2-1)
+ *     2. groundwater and wells; leaves give off water vapor; reading a bar
+ *        graph of a week's rain; runoff on bare slopes (3-ESS2-1)
+ *     3. weather and climate (3-ESS2-2); desert rivers; dams and
+ *        reservoirs; more fresh water underground than in rivers and lakes
+ *        (5-ESS2-2); the cycle goes round for ever
+ *   Storm Front (Dr. Iris and Professor Nimbus): storms and staying safe
+ *     1. lightning is a giant spark; thunder is its sound; go indoors when
+ *        thunder roars; cumulonimbus; lightning hits tall things (3-ESS3-1)
+ *     2. light is faster than sound: count the seconds and divide by 3 for
+ *        kilometers; radar maps; hail; wait 30 minutes after the last
+ *        thunder
+ *     3. storms weaken over cold water; lightning rods; lightning can
+ *        strike twice; how warnings help; what feeds a storm; a car is
+ *        safer than a tree
+ *
  * Every wrong answer names the real mistake behind it (a misconception tag)
  * and carries one plain sentence that explains it without giving the
  * answer away.
@@ -39,8 +58,8 @@
 import type { Region } from '../../kit/worlds/wild-lands/weather-art';
 
 export type Station = Region;
-/** The regions with a question bank so far (half 1). */
-export const STATIONS: Station[] = ['shore', 'clouds', 'mountain'];
+/** Every region has a question bank. */
+export const STATIONS: Station[] = ['shore', 'clouds', 'mountain', 'river', 'storm'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -69,6 +88,20 @@ export type Misconception =
   | 'hail-mixup' // mixed up hail, sleet and snow
   | 'snowflakes-same' // thinks snowflakes are all the same
   | 'people-weather' // thinks people (or wizards) can make or stop the weather
+  | 'downhill-mixup' // thinks water can flow uphill, or that rivers end on mountains
+  | 'groundwater-mixup' // mixed up where well water and groundwater come from
+  | 'plants-mixup' // thinks plants keep all their water, or do not slow it down
+  | 'gauge-mixup' // mixed up what a rain gauge (or another weather tool) measures
+  | 'graph-mixup' // read the bar graph wrong
+  | 'weather-climate' // mixed up weather and climate
+  | 'lightning-mixup' // mixed up what lightning is, or what a lightning rod does
+  | 'thunder-mixup' // thinks thunder is clouds bumping or rain on a roof
+  | 'light-sound' // mixed up light and sound (which arrives first, and why)
+  | 'lightning-safe' // picked an unsafe place or time in a thunderstorm
+  | 'lightning-twice' // thinks lightning never strikes the same place twice
+  | 'count-mixup' // counted the seconds but did not divide by 3
+  | 'storm-mixup' // thinks a storm gets stronger over cold water
+  | 'forecast-mixup' // thinks no one can tell where a storm is going
   | 'wrong-reason'; // gave a reason that does not explain it
 
 export type CycleStage = 'evaporation' | 'condensation' | 'precipitation' | 'collection';
@@ -102,7 +135,21 @@ export type Pic =
   /** A big snowflake. */
   | { k: 'snowflake' }
   /** Grass with dew, or fog over a lake at dawn. */
-  | { k: 'dew'; fog: boolean };
+  | { k: 'dew'; fog: boolean }
+  /** Under the ground: rain soaking into soil, groundwater in the rock, a well reaching down to it. */
+  | { k: 'ground' }
+  /** A tree pulling water up from its roots, with a shimmer of vapor above its leaves. */
+  | { k: 'plant' }
+  /** A rain gauge with this many millimeters of rain in it. */
+  | { k: 'gauge'; mm: number }
+  /** A bar graph of a week's rain, Monday to Sunday, in millimeters. */
+  | { k: 'bars'; mm: number[] }
+  /** A lightning flash, and a clock counting this many seconds until the thunder (0: just the flash). */
+  | { k: 'flash'; s: number }
+  /** A weather radar map: a storm moving toward a town by the sea. */
+  | { k: 'radar' }
+  /** A dam across a river, with the reservoir behind it. */
+  | { k: 'dam' };
 
 export type CloudPic = 'cumulus' | 'grey' | 'cumulonimbus' | 'stratus';
 
@@ -926,7 +973,529 @@ const MOUNTAIN: QDef[] = [
   },
 ];
 
-const BANKS: Partial<Record<Station, QDef[]>> = { shore: SHORE, clouds: CLOUDS, mountain: MOUNTAIN };
+// ------------------------------------------------------------------ River Run (Dr. Iris Okoro)
+
+const WEEK = [2, 0, 8, 15, 4, 0, 1];
+
+const RIVER: QDef[] = [
+  // level 1
+  {
+    id: 'r-downhill',
+    tier: 1,
+    ask: 'Rain falls on a hill. Which way does the rain water flow?',
+    right: 'Downhill, into streams and rivers',
+    wrong: [
+      ['Uphill, to the top', 'downhill-mixup', 'Water always runs down a slope, never up it.'],
+      ['It stays just where it lands', 'water-gone', 'On a slope, water cannot sit still. It moves.'],
+    ],
+    explain: 'Water flows downhill. Little trickles join into streams, and streams join into rivers.',
+    hints: ['If you pour water on a slide, which way does it go?', 'Look at the water cycle. Follow the river from the hill.'],
+    pic: cycle('collection'),
+    model: 'cycle',
+  },
+  {
+    id: 'r-soak',
+    tier: 1,
+    ask: 'Rain falls on a field. Some runs off into the river. Where does most of the rest go?',
+    right: 'It soaks into the ground',
+    wrong: [
+      ['It vanishes', 'water-gone', 'Water never just vanishes. It always goes somewhere.'],
+      ['It turns into rock', 'state-mixup', 'Water can be ice, liquid or vapor, but it never turns into rock.'],
+    ],
+    explain: 'Lots of rain soaks into the soil. Plants drink some, and some sinks deeper to become groundwater.',
+    hints: ['Think of a sponge. Where does the water go?', 'Look under the field in the picture.'],
+    pic: { k: 'ground' },
+    model: 'fact',
+  },
+  {
+    id: 'r-sea',
+    tier: 1,
+    ask: 'A river flows on and on, downhill. Where do most rivers end?',
+    right: 'In the sea or a lake',
+    wrong: [
+      ['In the clouds', 'stage-mixup', 'River water flows along the ground. It rises to the clouds only when it evaporates.'],
+      ['On top of a mountain', 'downhill-mixup', 'Mountain tops are high. Water flows down, away from them.'],
+    ],
+    explain: 'Rivers flow downhill until they reach the sea or a lake. Then the Sun can lift the water up again.',
+    hints: ['Which way does a river flow: up or down?', 'Look at the water cycle. Where does the river go?'],
+    pic: cycle('collection'),
+    model: 'cycle',
+  },
+  {
+    id: 'r-collection',
+    tier: 1,
+    ask: 'Water gathers in rivers, lakes and the sea. What is this part of the water cycle called?',
+    right: 'Collection',
+    wrong: [
+      ['Evaporation', 'stage-mixup', 'Evaporation is water rising into the air.'],
+      ['Condensation', 'stage-mixup', 'Condensation is vapor turning into cloud drops.'],
+    ],
+    explain: 'Collection is water gathering on the ground: in rivers, lakes, the sea, and under the ground.',
+    hints: ['Is the water rising, falling, or gathering together?', 'Look at the water cycle. Find the river and the sea.'],
+    pic: cycle('collection'),
+    model: 'cycle',
+  },
+  {
+    id: 'r-gauge',
+    tier: 1,
+    ask: 'This is a rain gauge. It catches rain. After the storm, it shows 12 millimeters. What does a rain gauge measure?',
+    right: 'How much rain fell',
+    wrong: [
+      ['How hot it is', 'gauge-mixup', 'A thermometer measures how hot or cold it is.'],
+      ['How fast the wind blows', 'gauge-mixup', 'An anemometer, with little spinning cups, measures the wind’s speed.'],
+    ],
+    explain: 'A rain gauge collects the rain that falls into it. The deeper the water, the more it rained.',
+    hints: ['What is inside the gauge?', 'Look at the marks on the side. They show how deep the water is.'],
+    pic: { k: 'gauge', mm: 12 },
+    model: 'fact',
+  },
+  {
+    id: 'r-fresh',
+    tier: 1,
+    ask: 'Rain is fresh water, not salty. A river is filled by rain. Is most river water fresh or salty?',
+    right: 'Fresh',
+    wrong: [
+      ['Salty, like the sea', 'fresh-where', 'Only the sea is salty. Rivers are filled by rain, and rain is not salty.'],
+      ['It turns salty as soon as it lands', 'wrong-reason', 'Rain does not turn salty on the land. It meets salt only in the sea.'],
+    ],
+    explain: 'River water comes from rain and melted snow, so it is fresh. It gets salty only when it reaches the sea.',
+    hints: ['Is rain salty?', 'Where does the river’s water come from?'],
+    pic: cycle('collection'),
+    model: 'cycle',
+  },
+  // level 2
+  {
+    id: 'r-groundwater',
+    tier: 2,
+    ask: 'Some rain soaks deep down, into tiny gaps in the soil and rock. What is that water called?',
+    right: 'Groundwater',
+    wrong: [
+      ['Water vapor', 'state-mixup', 'Water vapor is a gas in the air. This water is liquid, under the ground.'],
+      ['A glacier', 'fresh-where', 'A glacier is a river of ice on top of the land.'],
+    ],
+    explain: 'Groundwater fills tiny gaps in soil and rock, like water in a sponge. Wells and springs bring it up.',
+    hints: ['Where is this water: in the air, or in the ground?', 'Look at the blue below the soil in the picture.'],
+    pic: { k: 'ground' },
+    model: 'fact',
+  },
+  {
+    id: 'r-well',
+    tier: 2,
+    ask: 'A farmer digs a deep well. Water seeps into the bottom. Where does that water come from?',
+    right: 'Groundwater, in the soil and rock',
+    wrong: [
+      ['A pipe from the sea', 'groundwater-mixup', 'Sea water is salty. Well water is fresh, and it comes from the ground around it.'],
+      ['A cloud under the ground', 'groundwater-mixup', 'Clouds float in the sky. Under the ground, water fills tiny gaps in the rock.'],
+    ],
+    explain: 'Rain soaks down and fills the gaps in the soil and rock. A well reaches down to that groundwater.',
+    hints: ['Where did the rain go when it soaked in?', 'Look at the well in the picture. What does it reach?'],
+    pic: { k: 'ground' },
+    model: 'fact',
+  },
+  {
+    id: 'r-plant',
+    tier: 2,
+    ask: 'A tree pulls water up from its roots. Its leaves give some of the water off into the air. What do the leaves give off?',
+    right: 'Water vapor',
+    wrong: [
+      ['Smoke', 'cloud-smoke', 'Smoke comes from fires. Leaves give off water.'],
+      ['Nothing. Leaves keep all the water.', 'plants-mixup', 'Plants give off lots of water through tiny holes in their leaves.'],
+    ],
+    explain: 'Leaves give off invisible water vapor through tiny holes. Plants help lift water into the air, like evaporation.',
+    hints: ['What did the roots pull up?', 'Look at the shimmer above the leaves.'],
+    pic: { k: 'plant' },
+    model: 'fact',
+  },
+  {
+    id: 'r-graph',
+    tier: 2,
+    ask: 'Dr. Iris measured the rain every day for a week. The bar graph shows it in millimeters. Which day was the wettest?',
+    right: 'Thursday',
+    wrong: [
+      ['Monday', 'graph-mixup', 'Monday comes first, but its bar is short.'],
+      ['Saturday', 'graph-mixup', 'Saturday has no bar at all. It did not rain.'],
+    ],
+    explain: 'Thursday has the tallest bar: 15 millimeters of rain. The taller the bar, the more rain fell.',
+    hints: ['More rain makes a taller bar.', 'Find the tallest bar. Read the day under it.'],
+    pic: { k: 'bars', mm: WEEK },
+    model: 'fact',
+  },
+  {
+    id: 'r-graph-dry',
+    tier: 2,
+    ask: 'The bar graph shows a week of rain. On how many days did no rain fall at all?',
+    right: '2 days',
+    wrong: [
+      ['No days', 'graph-mixup', 'Look for days with no bar. There are some.'],
+      ['5 days', 'graph-mixup', 'A short bar still means a little rain fell.'],
+    ],
+    explain: 'Tuesday and Saturday have no bar. No rain fell on those 2 days.',
+    hints: ['A day with no rain has no bar.', 'Count the days with nothing above them.'],
+    pic: { k: 'bars', mm: WEEK },
+    model: 'fact',
+  },
+  {
+    id: 'r-runoff',
+    tier: 2,
+    ask: 'Heavy rain falls on a steep, bare hill and on a flat field of grass. Where does more water rush away fast?',
+    right: 'The steep, bare hill',
+    wrong: [
+      ['The grassy field', 'plants-mixup', 'Grass and roots slow the water down and help it soak in.'],
+      ['Both just the same', 'wrong-reason', 'A slope and bare ground make water run off faster.'],
+    ],
+    explain: 'On a steep, bare slope, water runs off fast. On flat, grassy ground, more of it soaks in.',
+    hints: ['Water runs fastest down a slope.', 'What do roots and grass do to the water?'],
+    pic: { k: 'ground' },
+    model: 'fact',
+  },
+  // level 3
+  {
+    id: 'r-climate',
+    tier: 3,
+    ask: 'Weather is what the sky is doing today. What is climate?',
+    right: 'The usual weather of a place, over many years',
+    wrong: [
+      ['The weather tomorrow', 'weather-climate', 'Tomorrow’s weather is still weather. Climate is the pattern over many years.'],
+      ['Only how hot it is', 'weather-climate', 'Climate includes rain, wind and seasons too.'],
+    ],
+    explain: 'Weather changes every day. Climate is what the weather is usually like in a place, over 30 years or more.',
+    hints: ['One week of rain is weather. What about many years?', 'Think of a desert: dry almost every year. That is its climate.'],
+    pic: { k: 'bars', mm: WEEK },
+    model: 'fact',
+  },
+  {
+    id: 'r-desert',
+    tier: 3,
+    ask: 'A desert river is dry for months. Then a big storm comes, and the river suddenly flows. Why?',
+    right: 'The storm’s rain ran downhill into the riverbed',
+    wrong: [
+      ['The sand turned into water', 'state-mixup', 'Sand stays sand. The water came from somewhere else.'],
+      ['The river was hiding and jumped out', 'wrong-reason', 'Rivers do not hide. Something filled this one.'],
+    ],
+    explain: 'Rain from the storm ran off the hills and collected in the low riverbed. When it stops raining, the river dries up again.',
+    hints: ['Where did the new water come from?', 'Water flows downhill into the lowest place.'],
+    pic: cycle('collection'),
+    model: 'cycle',
+  },
+  {
+    id: 'r-dam',
+    tier: 3,
+    ask: 'People build a dam across a river. A big lake fills up behind it. What is the lake for?',
+    right: 'Storing water to use in dry times',
+    wrong: [
+      ['Making new water', 'new-water', 'No one can make new water. The dam saves the river water that flows in.'],
+      ['Stopping the rain', 'people-weather', 'A dam cannot change the weather. It only holds water back.'],
+    ],
+    explain: 'A dam holds river water in a lake called a reservoir. Towns use it for drinking water, farms and power.',
+    hints: ['What does the wall do to the river?', 'Look at the lake behind the dam.'],
+    pic: { k: 'dam' },
+    model: 'fact',
+  },
+  {
+    id: 'r-tree',
+    tier: 3,
+    ask: 'A big oak tree can give off about 150,000 liters of water vapor in a year. Where does that water go next?',
+    right: 'Up into the air, and later into clouds',
+    wrong: [
+      ['Back down into the roots', 'plants-mixup', 'The leaves gave it off into the air. It does not go back down the tree.'],
+      ['Nowhere. It is gone for good.', 'water-gone', 'Water is never gone for good. Vapor in the air will cool and make clouds.'],
+    ],
+    explain: 'The vapor from leaves rises like vapor from the sea. It cools into clouds, and falls again as rain.',
+    hints: ['What happens to water vapor when it rises and cools?', 'Look at the shimmer above the tree.'],
+    pic: { k: 'plant' },
+    model: 'fact',
+  },
+  {
+    id: 'r-underground',
+    tier: 3,
+    ask: 'Think of all of Earth’s fresh water that is not frozen. Is there more in rivers and lakes, or under the ground?',
+    right: 'Under the ground',
+    wrong: [
+      ['In rivers and lakes', 'fresh-where', 'Rivers and lakes are easy to see, but there is far more water out of sight.'],
+      ['About the same in both', 'fresh-where', 'Underground there is much, much more.'],
+    ],
+    explain: 'There is far more groundwater than water in all the rivers and lakes. That is why wells are so useful.',
+    hints: ['Some water you can see. Some is hidden.', 'Look at how much blue is under the ground in the picture.'],
+    pic: { k: 'ground' },
+    model: 'fact',
+  },
+  {
+    id: 'r-again',
+    tier: 3,
+    ask: 'A raindrop lands in the river and flows to the sea. Will that water ever be in a cloud again?',
+    right: 'Yes, the water cycle goes round and round',
+    wrong: [
+      ['No, it has been used up', 'water-gone', 'Water is never used up. It just moves on.'],
+      ['Only if a wizard lifts it', 'people-weather', 'No wizard is needed. What lifts sea water every day?'],
+    ],
+    explain: 'The Sun will warm it in the sea, and it will rise again as vapor. The same water goes round for ever.',
+    hints: ['What does the Sun do to sea water?', 'Look at the water cycle. Follow the arrows round.'],
+    pic: cycle(null),
+    model: 'cycle',
+  },
+];
+
+// ------------------------------------------------------------------ Storm Front (Dr. Iris and Professor Nimbus)
+
+const STORM: QDef[] = [
+  // level 1
+  {
+    id: 't-lightning',
+    tier: 1,
+    ask: 'A storm cloud flashes with lightning. What is lightning?',
+    right: 'A giant spark of electricity',
+    wrong: [
+      ['Fire falling from the cloud', 'lightning-mixup', 'Lightning is not fire, though it is very hot.'],
+      ['Sunlight bouncing off the cloud', 'lightning-mixup', 'Lightning flashes even at night, with no sunlight.'],
+    ],
+    explain: 'Lightning is a huge spark of electricity, between a cloud and the ground or inside the cloud.',
+    hints: ['Have you ever felt a tiny spark from a door handle?', 'Lightning is like that spark, but giant.'],
+    pic: { k: 'flash', s: 0 },
+    model: 'fact',
+  },
+  {
+    id: 't-thunder',
+    tier: 1,
+    ask: 'After lightning comes a loud rumble. What is thunder?',
+    right: 'The sound that lightning makes',
+    wrong: [
+      ['Clouds bumping together', 'thunder-mixup', 'Clouds are soft drops of water. They cannot bang together.'],
+      ['Rain hitting the roof', 'thunder-mixup', 'You can hear thunder even before the rain comes.'],
+    ],
+    explain: 'Lightning heats the air so fast that it bursts out with a boom. That boom is thunder.',
+    hints: ['Thunder always comes with lightning.', 'Lightning makes the air very hot, very fast.'],
+    pic: { k: 'flash', s: 0 },
+    model: 'fact',
+  },
+  {
+    id: 't-indoors',
+    tier: 1,
+    ask: 'You are playing outside and you hear thunder. What should you do?',
+    right: 'Go inside a building',
+    wrong: [
+      ['Stand under a tall tree', 'lightning-safe', 'Lightning often hits tall trees. That is a dangerous place.'],
+      ['Keep playing until it rains', 'lightning-safe', 'If you can hear thunder, lightning is close enough to hit you.'],
+    ],
+    explain: 'When thunder roars, go indoors! A building keeps you safe from lightning.',
+    hints: ['If you can hear thunder, lightning is near.', 'Where can lightning not reach you?'],
+    pic: { k: 'flash', s: 3 },
+    model: 'fact',
+  },
+  {
+    id: 't-cloud',
+    tier: 1,
+    ask: 'Look at this very tall, dark cloud with a flat top. What weather does it bring?',
+    right: 'A thunderstorm',
+    wrong: [
+      ['Sunny, fair weather', 'cloud-type-mixup', 'Small puffy white clouds mean fair weather. This one is huge and dark.'],
+      ['Nothing at all', 'cloud-type-mixup', 'Dark, tall clouds are full of water and energy.'],
+    ],
+    explain: 'This is a cumulonimbus. It brings thunderstorms: heavy rain, lightning, thunder and sometimes hail.',
+    hints: ['Dark clouds are full of water.', 'Look at the cloud chart. Find the tallest cloud.'],
+    pic: cloud('cumulonimbus'),
+    model: 'clouds',
+  },
+  {
+    id: 't-first',
+    tier: 1,
+    ask: 'Lightning flashes far away. Do you see the flash or hear the thunder first?',
+    right: 'See the flash first',
+    wrong: [
+      ['Hear the thunder first', 'light-sound', 'Sound is slow. It arrives after the light.'],
+      ['Always both at once', 'light-sound', 'Only when the storm is right overhead. Far away, there is a wait.'],
+    ],
+    explain: 'Light travels super fast, so you see the flash first. The thunder’s sound comes a few seconds later.',
+    hints: ['Which is faster: light or sound?', 'Look at the clock in the picture. It counts the wait.'],
+    pic: { k: 'flash', s: 6 },
+    model: 'fact',
+  },
+  {
+    id: 't-tall',
+    tier: 1,
+    ask: 'Lightning often hits the tallest thing around. Which of these is most likely to be hit?',
+    right: 'A tall tree alone on a hill',
+    wrong: [
+      ['A small bush in a valley', 'lightning-safe', 'It is low down. Lightning usually hits something taller.'],
+      ['A puddle on the path', 'lightning-safe', 'Puddles are flat on the ground. Lightning looks for something tall.'],
+    ],
+    explain: 'Lightning often strikes tall, pointy things. That is why you should never shelter under a lone tree.',
+    hints: ['Which one sticks up highest?', 'Lightning takes the shortest path to the ground.'],
+    pic: { k: 'flash', s: 0 },
+    model: 'fact',
+  },
+  // level 2
+  {
+    id: 't-count9',
+    tier: 2,
+    ask: 'You see a flash. You count 9 seconds until the thunder. Sound travels about 1 kilometer every 3 seconds. How far away is the storm?',
+    right: 'About 3 kilometers',
+    wrong: [
+      ['About 9 kilometers', 'count-mixup', '9 is the seconds, not the kilometers. Every 3 seconds is 1 kilometer.'],
+      ['About 27 kilometers', 'count-mixup', 'Divide by 3, do not times by 3.'],
+    ],
+    explain: '9 seconds ÷ 3 = 3. The storm is about 3 kilometers away.',
+    hints: ['Every 3 seconds is 1 kilometer.', 'How many 3s are in 9?'],
+    pic: { k: 'flash', s: 9 },
+    model: 'fact',
+  },
+  {
+    id: 't-count6',
+    tier: 2,
+    ask: 'Flash! You count 6 seconds until the thunder. Every 3 seconds is about 1 kilometer. How far away is the storm?',
+    right: 'About 2 kilometers',
+    wrong: [
+      ['About 6 kilometers', 'count-mixup', '6 is the seconds. Every 3 seconds is 1 kilometer.'],
+      ['About 18 kilometers', 'count-mixup', 'Divide by 3, do not times by 3.'],
+    ],
+    explain: '6 seconds ÷ 3 = 2. The storm is about 2 kilometers away, so it is time to go indoors.',
+    hints: ['Every 3 seconds is 1 kilometer.', 'How many 3s are in 6?'],
+    pic: { k: 'flash', s: 6 },
+    model: 'fact',
+  },
+  {
+    id: 't-faster',
+    tier: 2,
+    ask: 'Lightning and thunder happen at the same moment. So why do you see the flash before you hear the thunder?',
+    right: 'Light travels much faster than sound',
+    wrong: [
+      ['The thunder starts later', 'light-sound', 'They start at the same moment. Something about the trip is different.'],
+      ['Eyes work faster than ears', 'wrong-reason', 'Your eyes and ears are both quick. The light and sound travel at different speeds.'],
+    ],
+    explain: 'Light reaches you almost at once. Sound is much slower: about 1 kilometer every 3 seconds.',
+    hints: ['They start together. Which one travels faster?', 'Light is the fastest thing there is.'],
+    pic: { k: 'flash', s: 6 },
+    model: 'fact',
+  },
+  {
+    id: 't-map',
+    tier: 2,
+    ask: 'Dr. Iris’s weather map shows a storm moving toward the town. What should the town do?',
+    right: 'Get ready and go indoors before it arrives',
+    wrong: [
+      ['Nothing. Maps can’t tell where storms go.', 'forecast-mixup', 'Meteorologists track storms on radar and can tell which way they are moving.'],
+      ['Try to stop the storm', 'people-weather', 'Nobody can stop a storm. People can get ready for it.'],
+    ],
+    explain: 'Weather radar shows where a storm is and where it is going, so people have time to get to safety.',
+    hints: ['Which way is the arrow pointing?', 'What can people do that keeps them safe?'],
+    pic: { k: 'radar' },
+    model: 'fact',
+  },
+  {
+    id: 't-hail',
+    tier: 2,
+    ask: 'Hail can fall from a thunderstorm, even in summer. Where do hailstones grow?',
+    right: 'High up in the storm cloud, where it is freezing',
+    wrong: [
+      ['On the ground, in winter', 'hail-mixup', 'Hail falls from the sky. It does not grow on the ground.'],
+      ['In the sea', 'hail-mixup', 'Hail is ice. It grows somewhere very cold.'],
+    ],
+    explain: 'Storm winds toss drops high up, where it is below 0 °C. They freeze and grow layers of ice, then fall as hail.',
+    hints: ['Hail is ice. Where is it freezing, even in summer?', 'Higher up is colder.'],
+    pic: cloud('cumulonimbus'),
+    model: 'clouds',
+  },
+  {
+    id: 't-wait',
+    tier: 2,
+    ask: 'The rain has stopped. The last thunder was 5 minutes ago. When is it safe to go back outside?',
+    right: '30 minutes after the last thunder',
+    wrong: [
+      ['Right away, the rain stopped', 'lightning-safe', 'Lightning can strike after the rain stops.'],
+      ['As soon as you see the Sun', 'lightning-safe', 'Lightning can strike far from the storm, even in sunshine.'],
+    ],
+    explain: 'Wait 30 minutes after the last thunder. Lightning can still strike as a storm moves away.',
+    hints: ['Can lightning strike after the rain stops?', 'Weather scientists say: wait half an hour.'],
+    pic: { k: 'flash', s: 12 },
+    model: 'fact',
+  },
+  // level 3
+  {
+    id: 't-sea',
+    tier: 3,
+    ask: 'Warm, wet air feeds a storm. The storm moves out over cold sea water. What usually happens to it?',
+    right: 'It gets weaker',
+    wrong: [
+      ['It gets stronger', 'storm-mixup', 'Cold water gives the storm less warm, wet air to feed on.'],
+      ['It turns into snow', 'temp-mixup', 'The sea is cold, but the air is not below 0 °C.'],
+    ],
+    explain: 'Over cold water, the storm gets less warm, wet air. It rains itself out and gets weaker.',
+    hints: ['What feeds a storm?', 'Is there much warm air over cold water?'],
+    pic: { k: 'radar' },
+    model: 'fact',
+  },
+  {
+    id: 't-rod',
+    tier: 3,
+    ask: 'The lighthouse has a metal rod on top, joined by a thick wire to the ground. What is it for?',
+    right: 'It carries lightning safely into the ground',
+    wrong: [
+      ['It makes lightning', 'lightning-mixup', 'Lightning comes from storm clouds, not from rods.'],
+      ['It keeps storms away', 'lightning-mixup', 'Storms still come. The rod just gives lightning a safe path.'],
+    ],
+    explain: 'A lightning rod is a safe path. If lightning hits, the wire carries it into the ground, not through the building.',
+    hints: ['Lightning hits tall things.', 'Follow the wire. Where does it go?'],
+    pic: { k: 'flash', s: 0 },
+    model: 'fact',
+  },
+  {
+    id: 't-twice',
+    tier: 3,
+    ask: 'Some people say lightning never strikes the same place twice. Is that true?',
+    right: 'No. Tall buildings are hit many times a year.',
+    wrong: [
+      ['Yes, never twice', 'lightning-twice', 'Tall, pointy places are hit again and again.'],
+      ['Only in the same storm', 'lightning-twice', 'The same place can be hit in many storms, year after year.'],
+    ],
+    explain: 'Lightning can hit the same place again and again. Very tall buildings are struck many times every year.',
+    hints: ['What does lightning look for?', 'Does a tall building get shorter after a strike?'],
+    pic: { k: 'flash', s: 0 },
+    model: 'fact',
+  },
+  {
+    id: 't-warning',
+    tier: 3,
+    ask: 'Weather forecasts send out storm warnings. How do warnings keep people safe?',
+    right: 'People learn early, so they can get ready and find shelter',
+    wrong: [
+      ['Warnings stop the storm', 'people-weather', 'Nothing can stop a storm. A warning gives people time.'],
+      ['Warnings make the storm smaller', 'people-weather', 'A warning does not change the storm at all.'],
+    ],
+    explain: 'Forecasts and warnings give people time: to come indoors, tie things down, and keep boats in the harbor.',
+    hints: ['Can a warning change the weather?', 'What can people do with extra time?'],
+    pic: { k: 'radar' },
+    model: 'fact',
+  },
+  {
+    id: 't-feed',
+    tier: 3,
+    ask: 'Thunderstorms grow on hot, sticky summer days. What feeds a thunderstorm?',
+    right: 'Warm, wet air rising fast',
+    wrong: [
+      ['Cold, dry air sinking', 'heat-mixup', 'Sinking, dry air brings calm weather.'],
+      ['Snow on the ground', 'wrong-reason', 'There is no snow on a hot summer day.'],
+    ],
+    explain: 'Warm, wet air rises fast. Its vapor condenses into a giant cloud, and the storm grows.',
+    hints: ['Remember Sunny Shore: what does warm air do?', 'Rising, cooling vapor makes clouds.'],
+    pic: cloud('cumulonimbus'),
+    model: 'clouds',
+  },
+  {
+    id: 't-car',
+    tier: 3,
+    ask: 'A thunderstorm comes, and you cannot get to a building. Which is the safer place?',
+    right: 'Inside a hard-roofed car, windows shut',
+    wrong: [
+      ['Under a lone tall tree', 'lightning-safe', 'Lightning often hits tall trees. Stay away from them.'],
+      ['In the middle of an open field', 'lightning-safe', 'In an open field, you are the tallest thing around.'],
+    ],
+    explain: 'A car’s metal body carries lightning around you into the ground. (It is the metal, not the rubber tires!)',
+    hints: ['Where are you not the tallest thing around?', 'Metal can carry electricity around you.'],
+    pic: { k: 'flash', s: 3 },
+    model: 'fact',
+  },
+];
+
+const BANKS: Partial<Record<Station, QDef[]>> = { shore: SHORE, clouds: CLOUDS, mountain: MOUNTAIN, river: RIVER, storm: STORM };
 
 export type Rand = () => number;
 

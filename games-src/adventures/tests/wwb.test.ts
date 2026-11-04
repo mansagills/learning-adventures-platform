@@ -135,10 +135,11 @@ describe('Weather Wizard Battle levels', () => {
       expect(kinds.filter((k) => k === 'D').length, l.id).toBeGreaterThanOrEqual(6);
       expect(kinds.filter((k) => k === 'R').length, l.id).toBe(1);
       expect(l.request, l.id).toBeTruthy();
-      // the start and every vane stand on something solid
+      // the start and every vane stand on something solid (on a river with a raft, a vane can stand in the water: the raft comes back to it)
+      const raft = kinds.includes('r');
       for (const t of [lv.spawn, ...lv.things.filter((x) => x.kind === 'C' || x.kind === 'F')]) {
         const below = lv.map.get(t.x, t.y + 1);
-        expect(below === Cell.Solid || below === Cell.Ice, `${l.id} at ${t.x},${t.y}`).toBe(true);
+        expect(below === Cell.Solid || below === Cell.Ice || below === Cell.Ledge || (raft && (t as { kind?: string }).kind === 'C' && below === Cell.Water), `${l.id} at ${t.x},${t.y}`).toBe(true);
       }
     }
   });
@@ -232,5 +233,71 @@ describe('Weather Wizard Battle power cards and the Weather Shop', () => {
     expect(s.powersSeen).toEqual(['sun']);
     expect(cleanSave({ wallet: 42.7 }).wallet).toBe(42);
     expect(cleanSave(null).wallet).toBe(0);
+  });
+});
+
+describe('Weather Wizard Battle half 2: River Run and the Storm Front', () => {
+  const lv = (id: string) => {
+    const l = LEVELS.find((x) => x.id === id)!;
+    return { l, p: parseLevel(l.rows) };
+  };
+
+  it('has six questions at every level for River Run and the Storm Front', () => {
+    for (const s of ['river', 'storm'] as const) for (const t of TIERS) expect(bank(s).filter((d) => d.tier === t).length, `${s} ${t}`).toBe(6);
+  });
+
+  it('counts the seconds and divides by 3 in every flash-to-thunder question', () => {
+    for (const d of bank('storm')) {
+      if (d.pic.k !== 'flash' || !/kilometer/.test(d.right)) continue;
+      const km = Number(/(\d+)/.exec(d.right)![1]);
+      expect(km * 3, d.id).toBe(d.pic.s);
+    }
+  });
+
+  it('reads the week of rain right: Thursday is wettest, and 2 days had none', () => {
+    const g = bank('river').find((d) => d.id === 'r-graph')!;
+    const mm = (g.pic as { mm: number[] }).mm;
+    expect(mm.indexOf(Math.max(...mm))).toBe(3);
+    expect(mm.filter((v) => v === 0).length).toBe(2);
+  });
+
+  it('puts a grey cloud near every dry stretch on River Run, and a raft on each river', () => {
+    for (const id of ['river-1', 'river-2']) {
+      const { p } = lv(id);
+      const greys = p.things.filter((t) => t.kind === 'G');
+      const dry = p.things.filter((t) => t.kind === 'V');
+      expect(dry.length, id).toBeGreaterThan(0);
+      for (const v of dry)
+        expect(
+          greys.some((g) => Math.abs(g.x + 1.5 - v.x) < 13),
+          `${id} ${v.x}`,
+        ).toBe(true);
+      expect(p.things.filter((t) => t.kind === 'r').length, id).toBe(1);
+    }
+  });
+
+  it('keeps the river cool enough that Cold will not freeze it', () => {
+    for (const id of ['river-1', 'river-2']) expect(tempAt(lv(id).l, 50), id).toBeGreaterThan(0);
+  });
+
+  it('gives everyone outside in the storm a house to go to', () => {
+    const { p, l } = lv('storm-1');
+    const folks = p.things.filter((t) => t.kind === 'e');
+    const houses = p.things.filter((t) => t.kind === 'h');
+    expect(folks.length).toBe(3);
+    expect(houses.length).toBeGreaterThanOrEqual(folks.length);
+    expect(l.countAt).toBeGreaterThan(0);
+    expect(l.request?.kind).toBe('shelter');
+  });
+
+  it('starts the storm over the village, with the lighthouse before the sea and the flag past it', () => {
+    const { p, l } = lv('storm-2');
+    const storm = p.things.find((t) => t.kind === 'O')!;
+    const light = p.things.find((t) => t.kind === 'u')!;
+    const flag = p.things.find((t) => t.kind === 'F')!;
+    expect(storm.x).toBeLessThan(light.x);
+    expect(light.x).toBeLessThan(l.seaAt!);
+    expect(flag.x).toBeGreaterThan(l.seaAt!);
+    expect(p.map.get(l.seaAt!, 11)).toBe(Cell.Water);
   });
 });

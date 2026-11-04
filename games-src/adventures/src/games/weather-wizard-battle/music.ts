@@ -86,3 +86,45 @@ export const BOOK_SONG: Song = {
   ],
   lead: 'triangle',
 };
+
+/** River Run: a rolling, quick tune in E major for riding the raft downstream. */
+export const RIVER_SONG: Song = {
+  bpm: 132,
+  chords: [
+    [52, 56, 59],
+    [49, 52, 56],
+    [45, 49, 52],
+    [47, 51, 54],
+  ],
+  bass: [40, 37, 33, 35],
+  // prettier-ignore
+  melody: [
+    76, 78, 80, null, 83, null, 80, 78,
+    76, null, 73, null, 71, null, null, null,
+    73, 76, 78, null, 81, null, 80, 78,
+    76, null, 75, null, 71, null, null, null,
+  ],
+  lead: 'triangle',
+  drums: true,
+};
+
+/** The Storm Front: dramatic and brave in D minor, with low rumbling chords. */
+export const STORM_SONG: Song = {
+  bpm: 108,
+  chords: [
+    [50, 53, 57],
+    [46, 50, 53],
+    [48, 52, 55],
+    [45, 49, 52],
+  ],
+  bass: [38, 34, 36, 33],
+  // prettier-ignore
+  melody: [
+    74, null, 77, null, 81, null, 79, 77,
+    76, null, 74, null, 73, null, null, null,
+    74, null, 77, 79, 81, null, 82, 81,
+    79, null, 77, null, 76, null, null, null,
+  ],
+  lead: 'square',
+  drums: true,
+};

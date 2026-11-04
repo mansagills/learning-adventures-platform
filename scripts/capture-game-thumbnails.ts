@@ -174,6 +174,15 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     ],
     delay: 1500,
   },
+  // Weather Wizard Battle: start, pick a look, read Professor Nimbus's welcome, then the field camp with the hosts and the map board.
+  'weather-wizard-battle': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      '.modal button.primary',
+      ...Array(14).fill('.dialogue'),
+    ],
+    delay: 1500,
+  },
   // Fossil Dig Adventure: start, read Ranger Tala's welcome, then the dig site with the cliff, the quarry and the camp.
   'animal-kingdom-match': {
     clicks: [

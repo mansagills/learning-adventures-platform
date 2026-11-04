@@ -132,9 +132,29 @@ export const REGION_INFO: Record<Region, RegionInfo> = {
     stage: 'Collection',
     host: 'iris',
     skill: 'Where water goes',
-    book: '',
-    debrief: { text: '', options: [], hints: ['', '', ''] },
-    done: '',
+    book: 'Weather Book time! River Run questions: where does all that water go?',
+    debrief: {
+      text: 'One to talk through: rain falls on the hills, but the river keeps flowing for days after. Where does that water come from?',
+      options: [
+        {
+          text: 'Rain that soaked into the ground seeps slowly back out into the river.',
+          correct: true,
+          feedback: 'Yes! Groundwater moves slowly through the soil and rock, and feeds rivers long after the rain has stopped.',
+        },
+        { text: 'The river makes new water by itself.', misconception: 'new-water', feedback: 'No one, and no river, can make new water. Where did the rain go when it soaked in?' },
+        {
+          text: 'The sea pushes water back up the river.',
+          misconception: 'downhill-mixup',
+          feedback: 'River water flows down to the sea, not up from it. Think about the rain that soaked into the ground.',
+        },
+      ],
+      hints: [
+        'Where does rain go when it soaks in?',
+        'Look under the ground: the groundwater moves slowly, downhill too.',
+        'Groundwater seeps slowly into the river for days and weeks after the rain.',
+      ],
+    },
+    done: 'River Run is done! Water flows downhill, soaks into the ground, and gathers in rivers, lakes and the sea. One more region: the Storm Front.',
     badge: 'River badge',
   },
   storm: {
@@ -143,20 +163,46 @@ export const REGION_INFO: Record<Region, RegionInfo> = {
     stage: 'The storm',
     host: 'iris',
     skill: 'Storms and staying safe',
-    book: '',
-    debrief: { text: '', options: [], hints: ['', '', ''] },
-    done: '',
+    book: 'Last Weather Book questions: storms and staying safe!',
+    debrief: {
+      text: 'One to talk through: you are at the beach. You see a flash, and count 3 seconds to the thunder. What do you do, and why?',
+      options: [
+        {
+          text: 'Go indoors now. 3 seconds means the storm is only about 1 kilometer away.',
+          correct: true,
+          feedback: 'Exactly. Every 3 seconds is about 1 kilometer, so it is very close. When thunder roars, go indoors, and wait 30 minutes after the last thunder.',
+        },
+        { text: 'Stay, because it is not raining yet.', misconception: 'lightning-safe', feedback: 'Lightning can strike before the rain arrives. If you can hear thunder, it is close enough.' },
+        { text: 'Hide under the tallest tree.', misconception: 'lightning-safe', feedback: 'Lightning often hits tall trees. Where can lightning not reach you?' },
+      ],
+      hints: [
+        'How far away is it? Every 3 seconds is about 1 kilometer.',
+        'Is 1 kilometer near or far for lightning?',
+        'Go indoors now: the storm is about 1 kilometer away, close enough for lightning to strike.',
+      ],
+    },
+    done: 'The Storm Front is done! You know what lightning and thunder are, how to tell how far away a storm is, and how to stay safe.',
     badge: 'Storm badge',
   },
 };
 
-/** The regions open in this build (half 1). */
-export const OPEN_REGIONS: Region[] = ['shore', 'clouds', 'mountain'];
+/** The regions open in this build: all five. */
+export const OPEN_REGIONS: Region[] = ['shore', 'clouds', 'mountain', 'river', 'storm'];
+/** The first three regions (after them, Professor Nimbus says what is next). */
+export const FIRST_REGIONS: Region[] = ['shore', 'clouds', 'mountain'];
 
 export const HALF_DONE = [
   'Three regions done! Drip has risen from the sea, become a cloud and fallen as snow on the mountain.',
-  'Next comes River Run, then the Storm Front. They are still being built. Come back soon!',
+  'Now the snow melts and runs downhill. Dr. Iris will take you down River Run, and then we face the Storm Front!',
 ];
+
+/** The very end, after the Storm Front. */
+export const FINALE = [
+  'You did it! Drip has gone all the way round: up from the sea, into a cloud, down as snow, along the river, through the storm and back to the sea.',
+  'And it will go round again, and again, for ever. The same water has been going round since long before the dinosaurs.',
+  'You are a true weather scientist now. Here is the Water Cycle badge. Thank you, apprentice!',
+];
+export const FINALE_BADGE = 'Water Cycle badge';
 
 export function praise(i: number): string {
   return ['Great job!', 'You got it!', 'Brilliant!', 'Yes, that’s right!', 'Spot on!', 'Exactly right!'][i % 6];
@@ -267,6 +313,62 @@ export const BOOK: BookPage[] = [
     facts: ['The air gets about 6 °C colder for every 1,000 meters you climb.', 'That is why mountain tops can be snowy when the valley is warm.'],
     from: 'mountain-2',
   },
+  {
+    id: 'downhill',
+    title: 'Water flows downhill',
+    pic: 'cycle:collection',
+    facts: ['Rain and melted snow run downhill. Trickles join into streams, and streams into rivers.', 'Most rivers end in the sea or a lake. That gathering of water is called collection.'],
+    from: 'river-1',
+  },
+  {
+    id: 'gauge',
+    title: 'The rain gauge',
+    pic: 'gauge',
+    facts: ['A rain gauge catches rain and measures how deep it is, in millimeters.', 'Dr. Iris writes it down every day, and draws a bar graph of the week.'],
+    from: 'river-1',
+  },
+  {
+    id: 'groundwater',
+    title: 'Groundwater',
+    pic: 'ground',
+    facts: ['Rain soaks into the ground and fills tiny gaps in the soil and rock.', 'There is far more fresh water under the ground than in all the rivers and lakes.'],
+    from: 'river-2',
+  },
+  {
+    id: 'plants',
+    title: 'Plants give off water',
+    pic: 'plant',
+    facts: ['Roots pull water up, and leaves give some off into the air as invisible vapor.', 'A big oak tree can give off about 150,000 liters of water in a year.'],
+    from: 'river-2',
+  },
+  {
+    id: 'lightning',
+    title: 'Lightning and thunder',
+    pic: 'flash:0',
+    facts: ['Lightning is a giant spark of electricity. Thunder is the sound it makes.', 'When thunder roars, go indoors, and wait 30 minutes after the last thunder.'],
+    from: 'storm-1',
+  },
+  {
+    id: 'count',
+    title: 'Flash to thunder',
+    pic: 'flash:9',
+    facts: ['Light is much faster than sound, so you see the flash first.', 'Count the seconds to the thunder and divide by 3: that is about how many kilometers away the storm is.'],
+    from: 'storm-1',
+  },
+  {
+    id: 'radar',
+    title: 'Radar and warnings',
+    pic: 'radar',
+    facts: ['Weather radar shows where storms are and which way they are moving.', 'Warnings give people time to get ready and find shelter.'],
+    from: 'storm-2',
+  },
+  {
+    id: 'rod',
+    title: 'Lightning rods',
+    pic: 'flash:0',
+    facts: ['A lightning rod gives lightning a safe path into the ground.', 'Lightning can strike the same place twice. Tall buildings are hit many times a year.'],
+    from: 'storm-2',
+  },
 ];
 
 // ------------------------------------------------------------------ for grown-ups
@@ -297,13 +399,27 @@ export const MISCONCEPTION_WORDS: Record<string, string> = {
   'snowflakes-same': 'thinking snowflakes are all the same',
   'people-weather': 'thinking people (or wizards) can make or stop the weather',
   'wrong-reason': 'picking a reason that does not explain it',
+  'downhill-mixup': 'thinking water can flow uphill, or that rivers end on mountains',
+  'groundwater-mixup': 'mixing up where well water (groundwater) comes from',
+  'plants-mixup': 'thinking plants keep all their water, or do not slow runoff',
+  'gauge-mixup': 'mixing up what a rain gauge measures',
+  'graph-mixup': 'reading the bar graph wrong',
+  'weather-climate': 'mixing up weather (today) and climate (over many years)',
+  'lightning-mixup': 'mixing up what lightning is, or what a lightning rod does',
+  'thunder-mixup': 'thinking thunder is clouds bumping or rain on a roof',
+  'light-sound': 'mixing up light and sound (the flash comes first, because light is faster)',
+  'lightning-safe': 'picking an unsafe place or time in a thunderstorm',
+  'lightning-twice': 'thinking lightning never strikes the same place twice',
+  'count-mixup': 'counting the seconds but not dividing by 3 to get kilometers',
+  'storm-mixup': 'thinking a storm grows stronger over cold water',
+  'forecast-mixup': 'thinking no one can tell where a storm is going',
 };
 
 export const GROWNUPS: GrownupsContent = {
   game: 'Weather Wizard Battle',
   grades: 'Grades 3–5',
   summary:
-    'An action game about the water cycle. Your child is the apprentice of Professor Nimbus, a make-believe weather wizard, and follows Drip, a drop of sea water, round the water cycle through the regions of the Wild Lands. Each region is a side-scrolling level where they run and jump, collect droplets, and use weather powers to get past obstacles: the Sun warms water so it evaporates and warm air rises; Cool air turns rising vapor into a cloud; Wind pushes clouds; Rain falls only from full, grey clouds; Cold freezes water, but only below 0 °C. Every power only works where it really would in nature, and the game says why when it does not. Between levels, Dr. Iris Okoro, a meteorologist, asks forecast questions, and each region ends with questions at three levels in the Weather Book and a talk-it-through question. Villagers along the way ask for help (dry washing, shade for a picnic, rain for a dry field, snow for sledding). There are no lives: a fall sends you back to the last weather vane and drops a few droplets to collect again. This first part has three regions: Sunny Shore (evaporation), Cloud Heights (condensation) and Mountain Pass (precipitation). River Run and the Storm Front finale come next.',
+    'An action game about the water cycle. Your child is the apprentice of Professor Nimbus, a make-believe weather wizard, and follows Drip, a drop of sea water, round the water cycle through the regions of the Wild Lands. Each region is a side-scrolling level where they run and jump, collect droplets, and use weather powers to get past obstacles: the Sun warms water so it evaporates and warm air rises; Cool air turns rising vapor into a cloud; Wind pushes clouds; Rain falls only from full, grey clouds; Cold freezes water, but only below 0 °C. Every power only works where it really would in nature, and the game says why when it does not. Between levels, Dr. Iris Okoro, a meteorologist, asks forecast questions, and each region ends with questions at three levels in the Weather Book and a talk-it-through question. Villagers along the way ask for help (dry washing, shade for a picnic, rain for a dry field, snow for sledding). There are no lives: a fall sends you back to the last weather vane and drops a few droplets to collect again. The five regions are Sunny Shore (evaporation), Cloud Heights (condensation), Mountain Pass (precipitation), River Run (collection, with a raft ride down the river) and the Storm Front finale (lightning, thunder and staying safe). Droplets and right answers buy optional power-ups in the Weather Shop, each with the science behind it.',
   teaches: [
     {
       title: 'Sunny Shore: the Sun drives the water cycle',
@@ -318,6 +434,14 @@ export const GROWNUPS: GrownupsContent = {
       text: 'Water freezes below 0 °C (32 °F). Rain, snow, sleet and hail are all precipitation. Cold air makes snow, not the other way round. Reading a thermometer to say rain or snow; hail grows in tall storm clouds, even in summer. At level 3: why one side of a mountain is wet and the other dry, spring meltwater filling rivers, six-sided snowflakes (no two alike), glaciers, and the air cooling about 6 °C for every 1,000 meters up.',
     },
     {
+      title: 'River Run: where water goes',
+      text: 'Water flows downhill into streams, rivers, lakes and the sea (collection); some soaks into the ground. A rain gauge measures rain in millimeters. At level 2: groundwater and wells, leaves giving off water vapor, reading a bar graph of a week’s rain, and runoff on bare slopes. At level 3: weather and climate, desert rivers after a storm, dams and reservoirs, and more fresh water under the ground than in all the rivers and lakes.',
+    },
+    {
+      title: 'Storm Front: storms and staying safe',
+      text: 'Lightning is a giant spark of electricity, thunder is its sound, and "when thunder roars, go indoors". Lightning often hits tall things, so never shelter under a lone tree. At level 2: light is faster than sound, so count the seconds from flash to thunder and divide by 3 for kilometers; radar maps; hail; wait 30 minutes after the last thunder. At level 3: storms weaken over cold water, lightning rods, lightning can strike the same place twice, how warnings help, what feeds a storm, and why a hard-roofed car is safer than a tree.',
+    },
+    {
       title: 'Mistakes and hints',
       text: 'Every wrong answer gets one sentence about the likely mistake (for example "water vapor is visible", "snow makes the air cold" or "it is warmer up high, closer to the Sun"). Hints go from a nudge, to a picture (the water cycle, a thermometer, a cloud chart), to the answer outlined. Hints never cost progress; a star is for getting it right the first time.',
     },
@@ -327,6 +451,8 @@ export const GROWNUPS: GrownupsContent = {
     { code: 'NGSS 5-ESS2-2', text: 'Most of Earth’s water is salty, in the oceans; most fresh water is in glaciers or underground.' },
     { code: 'NGSS 5-PS1-1', text: 'Matter is made of particles too small to be seen (water vapor in the air).' },
     { code: 'NGSS 3-ESS2-1', text: 'Represent data to describe typical weather conditions (temperature, precipitation, wind).' },
+    { code: 'NGSS 3-ESS2-2', text: 'Describe the climates of different regions (weather over many years).' },
+    { code: 'NGSS 3-ESS3-1', text: 'Evaluate solutions that reduce the impact of weather hazards (shelter, warnings, lightning rods).' },
   ],
   talk: [
     'Where does a puddle go on a sunny day?',
@@ -337,6 +463,9 @@ export const GROWNUPS: GrownupsContent = {
     'Does snow make the air cold, or does cold air make snow?',
     'Look at the sky together. What kind of clouds can you see? What weather might they bring?',
     'Professor Nimbus is make-believe. Can people really make the weather? What can meteorologists do?',
+    'Where does the water in our tap come from? A river, a reservoir, or a well?',
+    'Next time there is a storm, count from the flash to the thunder together. How far away is it?',
+    'What is our family’s plan when we hear thunder outside?',
   ],
   help: [
     'There are no lives and no game over. A fall goes back to the last weather vane, and a few droplets drop out to collect again.',
@@ -351,15 +480,13 @@ export const GROWNUPS: GrownupsContent = {
     'Rising warm air lifting the wizard is a game version of real rising air (it can lift birds, gliders and balloons, not people).',
     'In the game, the Sun melts ice even where the air is below freezing. Real sunshine can do that on a bright day, but slowly.',
     'Clouds form and rain in seconds in the game. Real clouds take minutes to hours.',
+    'In the Storm Front, the wizard pushes the storm out to sea with Wind. No one can move a real storm; real storms are steered by the winds high up, and the game says so.',
+    'The wizard stays outside in the storm to help the village. In real life, the right thing is always to go indoors.',
     'Temperatures are rounded, and they change in steps across a level instead of smoothly.',
-  ],
-  sources: [
-    { name: 'NOAA SciJinks: the water cycle', url: 'https://scijinks.gov/water-cycle/' },
-    { name: 'USGS Water Science School', url: 'https://www.usgs.gov/special-topics/water-science-school' },
-    { name: 'National Weather Service: cloud types', url: 'https://www.weather.gov/jetstream/clouds' },
   ],
   credits: [
     'Learning design based on the original Weather Wizard Battle game and the Water Cycle Journey activity, rebuilt by Learning Adventures. Facts from the old game were corrected: the 253 mph wind gust was not in a tornado; cold air makes snow (not the other way round); a hurricane claim that did not match the National Weather Service was dropped.',
+    'Facts checked against NOAA SciJinks (the water cycle), the USGS Water Science School (groundwater, transpiration, where Earth’s water is) and the National Weather Service (cloud types and lightning safety).',
     'Art, music and sound by Learning Adventures, made in code. No images, sounds or fonts are loaded from other websites.',
   ],
 };
