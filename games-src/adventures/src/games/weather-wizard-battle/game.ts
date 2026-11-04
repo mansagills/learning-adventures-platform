@@ -36,6 +36,7 @@ import {
   paintStates,
   paintSunShade,
   paintTherm,
+  paintGearIcon,
 } from './art';
 import {
   BOOK,
@@ -64,7 +65,9 @@ import { pix } from './pix';
 import { Play, type FinishResult } from './play';
 import { bank, makeQuestion, type Choice, type CycleStage, type Misconception, type Question, type Tier } from './problems';
 import { freshSave, store, type WeatherSave } from './save';
+import { bonusFor, GEAR, POWER_CARDS, tryBuy, type Gear, type GearId } from './shop';
 
+const POWER_KEYS: Power[] = ['sun', 'cool', 'wind', 'rain', 'cold'];
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_REGION = 12;
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
@@ -169,6 +172,7 @@ export class Game {
       const k = e.key.toLowerCase();
       if (k === 'j') this.openMap();
       else if (k === 'b') this.openBook();
+      else if (k === 'p') void this.openShop();
       else if (k === 'm') this.toggleMute();
     });
     (window as unknown as { __wwb: unknown }).__wwb = {
@@ -319,7 +323,7 @@ export class Game {
 
   private mountCamp(): void {
     this.play?.destroy();
-    this.play = new Play(this.host, CAMP, { easy: this.save.easy, look: this.look, requestDone: true }, this.callbacks(CAMP));
+    this.play = new Play(this.host, CAMP, { easy: this.save.easy, look: this.look, requestDone: true, gear: [] }, this.callbacks(CAMP));
     this.play.showTouch(touchControlsVisible());
   }
 
@@ -549,7 +553,7 @@ export class Game {
     if (!this.levelOpen(def)) return;
     this.closePanelQuietly();
     this.play?.destroy();
-    this.play = new Play(this.host, def, { easy: this.save.easy, look: this.look, requestDone: this.save.requests.includes(def.id) }, this.callbacks(def));
+    this.play = new Play(this.host, def, { easy: this.save.easy, look: this.look, requestDone: this.save.requests.includes(def.id), gear: this.activeGear() }, this.callbacks(def));
     this.play.showTouch(touchControlsVisible());
     this.play.paused = true;
     this.mode = 'level';
@@ -563,6 +567,191 @@ export class Game {
         this.persist();
       } else await this.talk.say(host, `${def.name} again! Try to bring every droplet to the flag.`, 'smile');
     });
+    await this.showPowerCards(def);
+  }
+
+  private activeGear(): GearId[] {
+    return this.save.gear.filter((g) => !this.save.gearOff.includes(g));
+  }
+
+  // ------------------------------------------------------------ power cards and the Weather Shop
+
+  /** The first time a level gives a power, its card says what it does in the game and the real science behind it. */
+  private showPowerCards(def: LevelDef): Promise<void> {
+    const sv = this.save;
+    const fresh = def.powers.filter((p) => !sv.powersSeen.includes(p));
+    if (!fresh.length || this.mode !== 'level') return Promise.resolve();
+    return new Promise((resolve) => {
+      const many = fresh.length > 1;
+      const cards = fresh.map((p) => {
+        const c = POWER_CARDS[p];
+        return h(
+          'section',
+          { class: 'wwb-card' },
+          pix(`card-${p}`, () => paintPowerIcon(48, p), 1.5, ''),
+          h(
+            'div',
+            {},
+            h('h3', { text: `${c.name} (key ${POWER_KEYS.indexOf(p) + 1})` }),
+            h('p', {}, h('strong', { text: 'In the game: ' }), c.game),
+            h('p', {}, h('strong', { text: 'The science: ' }), c.science),
+            h('p', { class: 'small-note' }, h('strong', { text: 'When it won’t work: ' }), c.limit),
+          ),
+        );
+      });
+      const root = h(
+        'div',
+        { class: 'panel modal wwb-cards', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'cards-title' },
+        h('header', {}, h('h2', { id: 'cards-title', text: many ? 'Your weather powers' : `New power: ${POWER_CARDS[fresh[0]].name}!` })),
+        h('div', { class: 'content' }, ...cards, h('button', { class: 'btn primary', type: 'button', text: 'Got it!', 'data-autofocus': true, onclick: () => modal.close() })),
+      );
+      const modal = new Modal(this.host, root, () => {
+        for (const p of fresh) if (!sv.powersSeen.includes(p)) sv.powersSeen.push(p);
+        this.persist();
+        stopSpeaking();
+        resolve();
+      });
+      this.pauseFor(modal);
+      speak(fresh.map((p) => `${POWER_CARDS[p].name}. ${POWER_CARDS[p].game} ${POWER_CARDS[p].science}`).join(' '));
+    });
+  }
+
+  /** Add droplets to spend in the Weather Shop. */
+  private earn(n: number): void {
+    if (n <= 0) return;
+    this.save.wallet += n;
+    this.persist();
+  }
+
+  /**
+   * The Weather Shop: power-ups bought with droplets. None is needed to
+   * finish a level; each one comes with the science behind it. It opens
+   * after a level's questions, and from the toolbar at camp.
+   */
+  openShop(): Promise<void> {
+    if (this.mode !== 'camp') {
+      if (this.mode === 'level') toast('The Weather Shop is back at camp. Finish the level, or use the map to go back.', 'hint');
+      return Promise.resolve();
+    }
+    if (document.querySelector('.modal-back')) return Promise.resolve();
+    const sv = this.save;
+    return new Promise((resolve) => {
+      const wallet = h('p', { class: 'wwb-wallet' });
+      const list = h('div', { class: 'wwb-shop-list' });
+      const note = h('p', { class: 'small-note', role: 'status' });
+      const render = () => {
+        wallet.replaceChildren(
+          pix('shop-drop', () => paintDrip(16, 'drop', 0, false), 2, ''),
+          h('span', { text: `You have ${sv.wallet} droplets to spend.` }),
+        );
+        list.replaceChildren(...GEAR.map(row));
+      };
+      const row = (g: Gear) => {
+        const owned = sv.gear.includes(g.id);
+        const on = owned && !sv.gearOff.includes(g.id);
+        const short = g.cost - sv.wallet;
+        const btn = owned
+          ? h('button', {
+              class: `btn small${on ? ' primary' : ''}`,
+              type: 'button',
+              'aria-pressed': String(on),
+              'data-gear': g.id,
+              text: on ? 'On' : 'Off',
+              onclick: () => {
+                if (on) sv.gearOff.push(g.id);
+                else sv.gearOff = sv.gearOff.filter((x) => x !== g.id);
+                this.persist();
+                note.textContent = `${g.name} is ${on ? 'off' : 'on'} for your next level.`;
+                render();
+                (list.querySelector(`[data-gear="${g.id}"]`) as HTMLElement | null)?.focus();
+              },
+            })
+          : h('button', {
+              class: `btn small${short <= 0 ? ' primary' : ''}`,
+              type: 'button',
+              'data-gear': g.id,
+              disabled: short > 0,
+              text: short > 0 ? `Need ${short} more` : `Buy: ${g.cost}`,
+              onclick: () => void buy(g),
+            });
+        return h(
+          'div',
+          { class: `wwb-gear${owned ? ' owned' : ''}` },
+          pix(`gear-${g.id}`, () => paintGearIcon(g.id), 3, ''),
+          h('div', {}, h('strong', { text: `${g.name}${owned ? '' : ` (${g.cost} droplets)`}` }), h('span', { text: g.short })),
+          btn,
+        );
+      };
+      const buy = async (g: Gear) => {
+        const r = tryBuy(sv.wallet, sv.gear, g.id);
+        if (!r.ok) return;
+        sv.wallet = r.wallet;
+        sv.gear.push(g.id);
+        this.persist();
+        audio.levelUp();
+        toast(`New power-up: ${g.name}!`, 'reward');
+        render();
+        await this.gearCard(g);
+        (list.querySelector(`[data-gear="${g.id}"]`) as HTMLElement | null)?.focus();
+      };
+      const root = h(
+        'div',
+        { class: 'panel modal wwb-shop', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'shop-title' },
+        h(
+          'header',
+          {},
+          h('h2', { id: 'shop-title', text: 'Weather Shop' }),
+          h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Close' : 'Close (Esc)', 'data-autofocus': true, onclick: () => modal.close() }),
+        ),
+        h(
+          'div',
+          { class: 'content' },
+          wallet,
+          list,
+          note,
+          h('p', {
+            class: 'small-note',
+            text: 'Earn droplets by bringing them to the flag, and by answering Dr. Iris’s questions (more for getting it right the first time). Power-ups make the game easier, but you never need one to finish a level. Each one comes with the science behind it.',
+          }),
+        ),
+      );
+      const modal = new Modal(this.host, root, () => resolve());
+      render();
+    });
+  }
+
+  /** The science card for a power-up just bought. */
+  private gearCard(g: Gear): Promise<void> {
+    return new Promise((resolve) => {
+      const root = h(
+        'div',
+        { class: 'panel modal wwb-cards', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'gear-title' },
+        h('header', {}, h('h2', { id: 'gear-title', text: `You got ${g.name}!` })),
+        h(
+          'div',
+          { class: 'content' },
+          h(
+            'section',
+            { class: 'wwb-card' },
+            pix(`gear-big-${g.id}`, () => paintGearIcon(g.id), 4, ''),
+            h('div', {}, h('p', {}, h('strong', { text: 'In the game: ' }), g.game), h('p', {}, h('strong', { text: 'The science: ' }), g.science)),
+          ),
+          h('button', { class: 'btn primary', type: 'button', text: 'Got it!', 'data-autofocus': true, onclick: () => modal.close() }),
+        ),
+      );
+      const modal = new Modal(this.host, root, () => {
+        stopSpeaking();
+        resolve();
+      });
+      speak(`${g.name}. ${g.game} ${g.science}`);
+    });
+  }
+
+  /** After a level's questions, open the shop if there is something new to buy or switch. */
+  private async shopAfterLevel(): Promise<void> {
+    if (this.save.gear.length === GEAR.length && this.save.wallet === 0) return;
+    if (!GEAR.some((g) => !this.save.gear.includes(g.id) && g.cost <= this.save.wallet)) return;
+    await this.openShop();
   }
 
   private villagerSpeaker(def: LevelDef): Speaker {
@@ -594,6 +783,7 @@ export class Game {
     const first = !sv.levelsDone.includes(def.id);
     if (first) sv.levelsDone.push(def.id);
     sv.bestDrops[def.id] = Math.max(sv.bestDrops[def.id] ?? 0, r.drops);
+    sv.wallet += r.drops;
     this.persist();
     this.lastFinish = { ...r, level: def.id };
     audio.levelUp();
@@ -601,7 +791,11 @@ export class Game {
     const host = REGION_INFO[region].host === 'iris' ? this.speakers.iris : this.speakers.nimbus;
     const all = r.drops === r.total;
     await this.busy(async () => {
-      await this.talk.say(host, `You made it! You brought ${r.drops} of ${r.total} droplets to the flag${all ? ', every single one' : ''}.${first ? ` ${newPages(def.id)}` : ''}`, 'proud');
+      await this.talk.say(
+        host,
+        `You made it! You brought ${r.drops} of ${r.total} droplets to the flag${all ? ', every single one' : ''}. They go in your Weather Shop purse.${first ? ` ${newPages(def.id)}` : ''}`,
+        'proud',
+      );
     });
     const step = this.nextStep();
     if (step && step.kind !== 'level' && step.region === region) {
@@ -612,6 +806,7 @@ export class Game {
       return;
     }
     this.enterCamp();
+    await this.shopAfterLevel();
   }
 
   // ------------------------------------------------------------ the Weather Book questions
@@ -900,10 +1095,12 @@ export class Game {
     pnl.rightNow++;
     if (pnl.kind === 'forecast') this.save.forecast[st] = Math.max(this.save.forecast[st], pnl.rightNow);
     if (clean && this.save.stars[st] < STARS_PER_REGION) this.save.stars[st]++;
+    const bonus = bonusFor(pnl.kind, clean);
+    this.save.wallet += bonus;
     this.persist();
     if (clean) audio.itemGet();
     else audio.correct();
-    const msg = clean ? `${praise(this.praiseCount++)} You win a star.` : 'You got it! Stars are for getting it right the first time.';
+    const msg = `${clean ? `${praise(this.praiseCount++)} You win a star` : 'You got it! Stars are for getting it right the first time, but you still earn'} and ${bonus} droplet${bonus === 1 ? '' : 's'} for the shop.`;
     this.showFeedback(`${msg} ${q.explain}`, 'good');
     pnl.next.hidden = false;
     pnl.hintBtn.disabled = true;
@@ -992,6 +1189,7 @@ export class Game {
   private async afterForecast(r: Region): Promise<void> {
     const l2 = regionLevels(r)[1];
     await this.busy(() => this.talk.say(this.speakers.iris, `That is a good forecast! ${l2.name} is open now. Off you go!`, 'proud'));
+    await this.shopAfterLevel();
     const go = await choose(this.host, `${REGION_INFO[r].name}: ${l2.name}`, 'Play the next level now?', [
       { id: 'go', label: 'Play it now', kind: 'primary' },
       { id: 'camp', label: 'Stay at camp' },
@@ -1040,6 +1238,9 @@ export class Game {
       await this.talk.say(who, 'Five stars! Before we finish, one question to talk through.', 'proud');
       const res = await this.talk.ask(who, info.debrief, () => audio.hint());
       recordAnswer(this.save.learner, `${r}-talk`, { correct: res.tries === 1, hintRung: res.tries - 1, misconception: res.misconceptions[0] ?? null }, RULES);
+      const bonus = bonusFor('talk', res.tries === 1);
+      this.earn(bonus);
+      toast(`+${bonus} droplets for the Weather Shop`, 'reward');
       this.save.done.push(r);
       this.persist();
       audio.levelUp();
@@ -1051,6 +1252,7 @@ export class Game {
         this.persist();
       }
     });
+    await this.shopAfterLevel();
   }
 
   // ------------------------------------------------------------ the Weather Book (pages and badges)
@@ -1095,6 +1297,25 @@ export class Game {
             })
           : null,
         h('div', { class: 'wwb-guide-grid', style: 'grid-template-columns:repeat(auto-fill,minmax(260px,1fr));margin-top:10px' }, ...BOOK.map(page)),
+        sv.gear.length
+          ? h(
+              'div',
+              {},
+              h('h3', { text: 'Your power-ups', style: 'margin:14px 0 6px' }),
+              h(
+                'div',
+                { class: 'wwb-guide-grid', style: 'grid-template-columns:repeat(auto-fill,minmax(260px,1fr))' },
+                ...GEAR.filter((g) => sv.gear.includes(g.id)).map((g) =>
+                  h(
+                    'div',
+                    { class: 'wwb-page' },
+                    pix(`gear-bk-${g.id}`, () => paintGearIcon(g.id), 4, ''),
+                    h('div', {}, h('strong', { text: g.name }), h('p', { text: g.science })),
+                  ),
+                ),
+              ),
+            )
+          : null,
       ),
     );
     const modal = new Modal(this.host, root);
@@ -1121,6 +1342,7 @@ export class Game {
     this.toolbar = new Toolbar(this.hud, [
       { id: 'map', label: 'Map', icon: 'scroll', key: 'J', onClick: () => this.openMap() },
       { id: 'book', label: 'Book', icon: 'star', key: 'B', onClick: () => this.openBook() },
+      { id: 'shop', label: 'Shop', icon: 'bulb', key: 'P', onClick: () => void this.openShop() },
       { id: 'sound', label: settings.muted ? 'Sound off' : 'Sound', icon: settings.muted ? 'soundOff' : 'soundOn', key: 'M', onClick: () => this.toggleMute() },
       { id: 'settings', label: 'Settings', icon: 'gear', key: 'Esc', onClick: () => this.openSettingsPanel() },
     ]);
@@ -1212,6 +1434,9 @@ export class Game {
       done: [...this.save.done],
       bestDrops: { ...this.save.bestDrops },
       easy: this.save.easy,
+      wallet: this.save.wallet,
+      gear: [...this.save.gear],
+      powersSeen: [...this.save.powersSeen],
       next: (() => {
         const s = this.nextStep();
         return s ? (s.kind === 'level' ? `level:${s.level.id}` : `${s.kind}:${s.region}`) : null;
