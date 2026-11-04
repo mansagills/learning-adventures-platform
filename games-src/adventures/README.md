@@ -58,6 +58,7 @@ node scripts/e2e-fossil-dig-adventure.mjs  # Fossil Dig Adventure: all four stat
 node scripts/e2e-animal-kingdom-match.mjs  # Animal Kingdom Match: all four trips, the binoculars, the boat to Antarctica, the Rescue Center, the Ranger Journal, the Night Safari, Speed Match, a reload and the phone layout (needs npx vite preview --port 4174)
 node scripts/bsh-tour.mjs <url> <outDir> [w] [h]    # Body System Heroes screenshots: the med bay, each mission's dive (a scan with a miss and a hint, the nest, the heal), the habit games, germ files and the body map (MISSIONS=gut,heart,brain PRE=skin,mouth,lungs to skip ahead; EXPLORE=gut for the fact cards)
 node scripts/msq-tour.mjs <url> <outDir> [w] [h]    # Multiplication Space Quest screenshots: the deck, all four sectors at levels 1-3 with a miss and hints (SECTORS=cargo,constellations for some), the Static core, upgrades, the Star Map, the Bingo Boss, the landing and Meteor Run
+node scripts/weather-lookdev-shots.mjs [base] [outDir]   # Weather Wizard Battle look pages and the playable test level, played through to the flag (needs `npx vite --port 5179`)
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -90,6 +91,7 @@ src/kit/                   the Adventure Kit, shared by every game
   learning/mastery.ts      the learner model: tiers, streaks, mastery, misconceptions
   systems/                 sound (made in code), settings (shared by all games), saving, keyboard input, read-aloud
   ui/                      talk box, title, character creator, settings, grown-ups page, toolbar, toasts, touch pad
+  scroller/physics.ts      the side-scroller's physics (Weather Wizard Battle): a tile map, gravity, jumping with coyote time and a jump buffer, ledges, moving platforms, a following camera; unit tested in tests/scroller.test.ts
 src/games/<slug>/          one folder per game
   worlds/                  the world theme layer: world styles, settings, the 16-bit painter and characters
 src/lookdev/               look development pages for the worlds (character test, every setting; not shipped)
