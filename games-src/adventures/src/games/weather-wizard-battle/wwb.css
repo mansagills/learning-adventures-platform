@@ -549,3 +549,77 @@
   color: #4a2a10;
   font-weight: 700;
 }
+
+/* ---------- power cards and the Weather Shop ---------- */
+.wwb-cards,
+.wwb-shop {
+  width: min(620px, 100%);
+}
+.wwb-cards .content,
+.wwb-shop .content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.wwb-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.wwb-card .px-icon {
+  flex: none;
+  border-radius: 6px;
+}
+.wwb-card h3 {
+  margin: 0 0 6px;
+}
+.wwb-card p {
+  margin: 0 0 6px;
+  line-height: 1.45;
+}
+.wwb-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 700;
+}
+.wwb-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wwb-gear {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.wwb-gear.owned {
+  border: 2px solid var(--wwb-gold);
+}
+.wwb-gear strong {
+  display: block;
+}
+.wwb-gear span {
+  font-size: var(--text-small);
+}
+@media (max-width: 480px) {
+  .wwb-gear {
+    grid-template-columns: auto 1fr;
+  }
+  .wwb-gear .btn {
+    grid-column: 1 / -1;
+  }
+  .wwb-card {
+    flex-direction: column;
+  }
+}

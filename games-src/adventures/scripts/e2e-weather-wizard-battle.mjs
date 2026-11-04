@@ -35,11 +35,22 @@ function helpers(p) {
   const st = () => p.evaluate(() => window.__wwb.state());
   const ps = () => p.evaluate(() => window.__wwb.play());
   const talking = async () => (await st()).talking;
+  /** Click through talks; also close a power card or the Weather Shop if one opens (counted in seen). */
+  const seen = { cards: 0, shops: 0 };
   const talkThrough = async (max = 60) => {
     for (let i = 0; i < max; i++) {
-      if (!(await talking())) return;
-      await p.keyboard.press('Space');
-      await p.waitForTimeout(200);
+      if (await talking()) {
+        await p.keyboard.press('Space');
+        await p.waitForTimeout(200);
+      } else if (await p.isVisible('.wwb-cards')) {
+        seen.cards++;
+        await p.click('.wwb-cards button.primary');
+        await p.waitForTimeout(250);
+      } else if (await p.isVisible('.wwb-shop')) {
+        seen.shops++;
+        await p.keyboard.press('Escape');
+        await p.waitForTimeout(250);
+      } else return;
     }
   };
   /** Press jump and hold it until the top of the jump (so a slow frame rate never cuts it short). */
@@ -82,6 +93,12 @@ function helpers(p) {
     if (process.env.TRACE || process.env.ENDS) console.log('runTo end', x, Date.now() - t0, JSON.stringify(await ps()).slice(0, 160));
     await p.keyboard.up(dir);
     await p.waitForTimeout(120);
+    // if the target was passed in mid-jump, wait for the landing before checking anything
+    for (let i = 0; i < 40; i++) {
+      const e = await ps();
+      if (!e || e.done || e.level !== startLevel || e.onGround || e.standingOn) break;
+      await p.waitForTimeout(40);
+    }
     return ps();
   };
   /** Keep going right past crabs: a bump only knocks you back a little. */
@@ -171,7 +188,7 @@ function helpers(p) {
       await p.waitForTimeout(250);
     }
   };
-  return { debrief, st, ps, talking, talkThrough, runTo, pushOn, jump, hopOn, face, power, answerUntilClosed };
+  return { debrief, st, ps, talking, talkThrough, runTo, pushOn, jump, hopOn, face, power, answerUntilClosed, seen };
 }
 
 /** A fresh game with a save that starts at a region (earlier regions finished). */
@@ -215,7 +232,7 @@ async function startAt(p, regions = [], extra = {}) {
 
 if (want('shore')) {
   const p = await openPage();
-  const { debrief, st, ps, talkThrough, runTo, pushOn, jump, hopOn, face, power, answerUntilClosed } = helpers(p);
+  const { debrief, st, ps, talkThrough, runTo, pushOn, jump, hopOn, face, power, answerUntilClosed, seen } = helpers(p);
   await p.goto(base);
   await p.evaluate(() => localStorage.clear());
   await p.reload();
@@ -251,6 +268,17 @@ if (want('shore')) {
   await p.waitForTimeout(500);
   s = await st();
   check(s.mode === 'busy' && s.talking, 'the level starts with Professor Nimbus’s welcome');
+  for (let i = 0; i < 60 && (await st()).talking; i++) {
+    await p.keyboard.press('Space');
+    await p.waitForTimeout(200);
+  }
+  check(await p.isVisible('.wwb-cards'), 'a power card opens for the first power');
+  const cardText = await p.textContent('.wwb-cards');
+  check(/Sun/.test(cardText) && /In the game/.test(cardText) && /The science/.test(cardText) && /evaporates/.test(cardText), 'the Sun card says what it does in the game and the real science');
+  await p.screenshot({ path: `${out}/04b-power-card.png` });
+  await p.click('.wwb-cards button.primary');
+  await p.waitForTimeout(300);
+  check((await st()).powersSeen.includes('sun') && !(await p.isVisible('.wwb-cards')), 'Got it closes the card, and it is not shown again');
   await talkThrough();
   check((await ps()).level === 'shore-1', 'Sunny Shore level 1, The Beach, is playing');
 
@@ -310,11 +338,30 @@ if (want('shore')) {
   await p.keyboard.press('KeyH');
   await p.waitForTimeout(200);
   await p.screenshot({ path: `${out}/08-hint.png` });
+  const before = (await st()).wallet;
   await answerUntilClosed(8);
   await p.waitForTimeout(300);
-  await talkThrough();
+  for (let i = 0; i < 40 && (await st()).talking; i++) {
+    await p.keyboard.press('Space');
+    await p.waitForTimeout(200);
+  }
   s = await st();
   check(s.forecast.shore >= 2, 'two right answers finish the forecast stop');
+  check(s.wallet > before, `right answers add droplets to the purse (${before} → ${s.wallet})`);
+  check(await p.isVisible('.wwb-shop'), 'the Weather Shop opens after the forecast stop');
+  await p.screenshot({ path: `${out}/08b-shop.png` });
+  check(await p.isDisabled('.wwb-shop [data-gear="glider"]'), 'a power-up that costs too much cannot be bought yet');
+  const w0 = s.wallet;
+  await p.click('.wwb-shop [data-gear="radar"]');
+  await p.waitForTimeout(300);
+  check(await p.isVisible('.wwb-cards'), 'buying a power-up shows its science card');
+  check(/radio waves/.test(await p.textContent('.wwb-cards')), 'the Weather Radar card explains how real radar works');
+  await p.click('.wwb-cards button.primary');
+  await p.waitForTimeout(250);
+  s = await st();
+  check(s.gear.includes('radar') && s.wallet === w0 - 12, 'the radar is bought for 12 droplets');
+  await p.keyboard.press('Escape');
+  await p.waitForTimeout(300);
   const goNow = await p.isVisible('text=Play it now');
   check(goNow, 'it offers the next level');
   await p.click('text=Play it now');
@@ -325,6 +372,7 @@ if (want('shore')) {
   // ---- shore-2: warm air to the ledges, then a cloud over the sea, carried by the breeze
   c = await ps();
   check(c.level === 'shore-2', 'Sunny Shore level 2, The Tide Pools, is playing');
+  check(c.gear.includes('radar'), 'the power-up is on in the next level');
   await power(1, 250);
   check((await ps()).vapors === 1, 'the Sun warms the first tide pool');
   c = await runTo(6.3, 1500);
@@ -376,9 +424,11 @@ if (want('shore')) {
     if (c.clouds.some((k) => k.x > 53.5)) break;
     await p.waitForTimeout(50);
   }
-  c = await pushOn(67, [57, 60.5]);
-  await p.waitForTimeout(300);
+  c = await pushOn(70, [57, 60.5]);
+  // the flag may be reached in mid-jump: wait for the landing
+  for (let i = 0; i < 30 && !(await st()).levelsDone.includes('shore-2'); i++) await p.waitForTimeout(100);
   s = await st();
+  if (process.env.ENDS) console.log('after shore-2', JSON.stringify(await ps()).slice(0, 600), JSON.stringify(s).slice(0, 300));
   check(s.levelsDone.includes('shore-2') && (await ps()).falls === 0, 'crosses the second stretch of sea and reaches the flag');
   await talkThrough();
   await p.waitForTimeout(400);
@@ -391,8 +441,10 @@ if (want('shore')) {
   s = await st();
   check(s.talking, 'five stars lead to a talk-it-through question');
   await debrief(/Sun warmed it/);
+  await talkThrough();
   s = await st();
   check(s.done.includes('shore') && s.next === 'level:clouds-1', 'Sunny Shore is finished and Cloud Heights opens');
+  check(seen.cards >= 1, 'the Cool air card showed when the power was new');
   await p.close();
 }
 
@@ -736,6 +788,37 @@ if (want('extras')) {
   check(pages.includes('Water vapor') && pages.includes('Salt stays behind'), 'the Book has the pages from finished levels');
   check(await p.isVisible('text=Dry washing'), 'the Book shows the villager badges');
   await p.screenshot({ path: `${out}/40-book.png` });
+  await p.keyboard.press('Escape');
+  await p.waitForTimeout(300);
+  await p.evaluate(() => {
+    const sv = JSON.parse(localStorage.getItem('weatherWizardBattle.save'));
+    localStorage.setItem('weatherWizardBattle.save', JSON.stringify({ ...sv, wallet: 40 }));
+  });
+  await p.reload();
+  await p.waitForTimeout(800);
+  await p.click('text=Continue');
+  await p.waitForTimeout(500);
+  await p.keyboard.press('KeyP');
+  await p.waitForTimeout(300);
+  check(await p.isVisible('.wwb-shop'), 'P opens the Weather Shop at camp');
+  check(/40 droplets/.test(await p.textContent('.wwb-wallet')), 'the shop shows the purse');
+  await p.click('.wwb-shop [data-gear="bigcloud"]');
+  await p.waitForTimeout(300);
+  check(/More water vapor/.test(await p.textContent('.wwb-cards')), 'the Big Clouds card explains the science');
+  await p.click('.wwb-cards button.primary');
+  await p.waitForTimeout(250);
+  await p.click('.wwb-shop [data-gear="bigcloud"]');
+  await p.waitForTimeout(250);
+  let sv = await st();
+  check(sv.gear.includes('bigcloud') && sv.wallet === 10, 'Big Clouds bought for 30 droplets');
+  check((await p.getAttribute('.wwb-shop [data-gear="bigcloud"]', 'aria-pressed')) === 'false', 'a bought power-up can be switched off');
+  await p.click('.wwb-shop [data-gear="bigcloud"]');
+  await p.waitForTimeout(200);
+  await p.keyboard.press('Escape');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('KeyB');
+  await p.waitForTimeout(300);
+  check(await p.isVisible('text=Your power-ups'), 'the Weather Book lists the power-ups with their science');
   await p.keyboard.press('Escape');
   await p.waitForTimeout(300);
   await p.evaluate(() => window.__wwb.startLevel('clouds-1'));

@@ -4,6 +4,8 @@ import { Cell, parseLevel } from '../src/kit/scroller/physics';
 import { CAMP, LEVELS, tempAt } from '../src/games/weather-wizard-battle/levels';
 import { cast, freezes } from '../src/games/weather-wizard-battle/powers';
 import { bank, makeQuestion, STATIONS, TIERS } from '../src/games/weather-wizard-battle/problems';
+import { cleanSave } from '../src/games/weather-wizard-battle/save';
+import { BONUS, bonusFor, GEAR, POWER_CARDS, tryBuy } from '../src/games/weather-wizard-battle/shop';
 
 describe('Weather Wizard Battle questions', () => {
   it('has six questions at every level of each region, with unique ids', () => {
@@ -174,5 +176,61 @@ describe('Weather Wizard Battle levels', () => {
   it('has a camp with the three hosts and the map', () => {
     const kinds = parseLevel(CAMP.rows).things.map((t) => t.kind);
     for (const k of ['N', 'J', 'A', 'X']) expect(kinds).toContain(k);
+  });
+});
+
+describe('Weather Wizard Battle power cards and the Weather Shop', () => {
+  it('has a card for every weather power, with the game use, the science and when it will not work', () => {
+    for (const p of ['sun', 'cool', 'wind', 'rain', 'cold'] as const) {
+      const c = POWER_CARDS[p];
+      expect(c.game.length, p).toBeGreaterThan(20);
+      expect(c.science.length, p).toBeGreaterThan(40);
+      expect(c.limit.length, p).toBeGreaterThan(20);
+    }
+    expect(POWER_CARDS.cold.science).toMatch(/0 °C/);
+    expect(POWER_CARDS.rain.limit).toMatch(/grey/);
+  });
+
+  it('sells power-ups in price order, each with its science', () => {
+    const costs = GEAR.map((g) => g.cost);
+    expect([...costs].sort((a, b) => a - b)).toEqual(costs);
+    expect(new Set(GEAR.map((g) => g.id)).size).toBe(GEAR.length);
+    for (const g of GEAR) {
+      expect(g.science.length, g.id).toBeGreaterThan(40);
+      expect(g.game.length, g.id).toBeGreaterThan(20);
+    }
+  });
+
+  it('half 1 earns enough droplets to buy everything, but not all at once after the first level', () => {
+    const drops = LEVELS.reduce((n, l) => n + parseLevel(l.rows).things.filter((t) => t.kind === 'D').length, 0);
+    const bonuses = 3 * (2 * BONUS.forecast.first + 5 * BONUS.book.first + BONUS.talk.first);
+    const all = GEAR.reduce((n, g) => n + g.cost, 0);
+    expect(drops + bonuses).toBeGreaterThanOrEqual(all);
+    const first = parseLevel(LEVELS[0].rows).things.filter((t) => t.kind === 'D').length + 2 * BONUS.forecast.first;
+    expect(first).toBeGreaterThanOrEqual(GEAR[0].cost);
+    expect(first).toBeLessThan(GEAR[0].cost + GEAR[1].cost);
+  });
+
+  it('only sells what you can afford and do not own yet', () => {
+    expect(tryBuy(10, [], 'radar')).toEqual({ ok: false, why: 'short' });
+    expect(tryBuy(15, [], 'radar')).toEqual({ ok: true, wallet: 3 });
+    expect(tryBuy(99, ['radar'], 'radar')).toEqual({ ok: false, why: 'owned' });
+  });
+
+  it('pays more for a first-try answer, and something for every right answer', () => {
+    for (const k of ['forecast', 'book', 'talk'] as const) {
+      expect(bonusFor(k, true)).toBeGreaterThan(bonusFor(k, false));
+      expect(bonusFor(k, false)).toBeGreaterThan(0);
+    }
+  });
+
+  it('keeps a save’s purse and power-ups safe from bad data', () => {
+    const s = cleanSave({ wallet: -5, gear: ['radar', 'rocket', 'radar'], gearOff: ['grip'], powersSeen: ['sun', 'lava'] });
+    expect(s.wallet).toBe(0);
+    expect(s.gear).toEqual(['radar']);
+    expect(s.gearOff).toEqual(['grip']);
+    expect(s.powersSeen).toEqual(['sun']);
+    expect(cleanSave({ wallet: 42.7 }).wallet).toBe(42);
+    expect(cleanSave(null).wallet).toBe(0);
   });
 });

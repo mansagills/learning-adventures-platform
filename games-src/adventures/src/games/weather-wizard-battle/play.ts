@@ -17,6 +17,7 @@ import {
   type Tuning,
 } from '../../kit/scroller/physics';
 import { touchControlsVisible } from '../../kit/systems/settings';
+import type { GearId } from './shop';
 import { speak } from '../../kit/systems/speech';
 import { h } from '../../kit/ui/dom';
 import { paintHero, type Look16 } from '../../kit/worlds/hero16';
@@ -95,6 +96,8 @@ export interface PlayOptions {
   easy: boolean;
   look: Look16;
   requestDone: boolean;
+  /** Weather Shop power-ups switched on. */
+  gear: GearId[];
 }
 
 interface Pickup {
@@ -274,6 +277,7 @@ export class Play {
   paused = false;
   private tuning: Tuning;
   private easy: boolean;
+  private readonly gear: Set<GearId>;
   private cam: Camera = { x: 0, y: 0 };
   private respawn: { x: number; y: number };
   private pickups: Pickup[] = [];
@@ -338,7 +342,8 @@ export class Play {
   ) {
     this.level = parseLevel(def.rows);
     this.easy = opts.easy;
-    this.tuning = opts.easy ? EASY : NORMAL;
+    this.gear = new Set(opts.gear);
+    this.tuning = this.tune();
     this.requestDone = opts.requestDone;
     this.look = opts.look;
     this.body = newBody(0, 0);
@@ -483,9 +488,15 @@ export class Play {
     this.pad.hidden = !touchControlsVisible();
   }
 
+  /** Grip Boots stop you on ice as fast as on the ground. */
+  private tune(): Tuning {
+    const t = this.easy ? EASY : NORMAL;
+    return this.gear.has('grip') ? { ...t, iceStop: t.stop } : t;
+  }
+
   setEasy(on: boolean): void {
     this.easy = on;
-    this.tuning = on ? EASY : NORMAL;
+    this.tuning = this.tune();
     if (this.easyBtn) {
       this.easyBtn.textContent = `Easy jumps: ${on ? 'on' : 'off'}`;
       this.easyBtn.setAttribute('aria-pressed', String(on));
@@ -666,7 +677,8 @@ export class Play {
       }
       case 'condense': {
         const v = vapor!;
-        const c: Cloud = { id: `made${this.frame}`, x: v.x - 1.5, y: v.surface - 2, w: 3, h: 0.6, oneWay: true, kind: 'cumulus', vx: 0, push: 0, made: true, boarded: false, rain: 0, snow: false };
+        const cw = this.gear.has('bigcloud') ? 4.5 : 3;
+        const c: Cloud = { id: `made${this.frame}`, x: v.x - cw / 2, y: v.surface - 2, w: cw, h: 0.6, oneWay: true, kind: 'cumulus', vx: 0, push: 0, made: true, boarded: false, rain: 0, snow: false };
         // if the warm air has lifted the wizard out over the water, below where the cloud would form, it forms under their feet
         const feet = this.body.y + this.body.h;
         const over = this.body.x + this.body.w > c.x && this.body.x < c.x + c.w;
@@ -818,6 +830,8 @@ export class Play {
       if (Math.abs(v.x - this.cx) < 2 && feet > v.surface - 7.5 && feet < v.surface + 0.5) b.vy = Math.max(b.vy - 120 * dt, -7.5);
     }
     const ev = step(b, c, map, plats, this.tuning, dt);
+    // Maple Wings: holding jump while falling floats you down slowly
+    if (this.gear.has('glider') && this.held.jump && !b.onGround && b.vy > 2.6) b.vy = 2.6;
     if ((window as unknown as { __wwbTrace?: unknown[] }).__wwbTrace) {
       const tr = (window as unknown as { __wwbTrace: unknown[] }).__wwbTrace;
       tr.push([
@@ -862,6 +876,17 @@ export class Play {
         if (below === Cell.Solid || below === Cell.Ice) {
           p.y = Math.floor(p.y + 0.2) - 0.05;
           p.vy = undefined;
+        }
+      }
+      // Sticky Drops: droplets close by float over and join you
+      if (this.gear.has('magnet') && p.vy === undefined) {
+        const dx = this.cx - p.x;
+        const dy = b.y + b.h / 2 - p.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 2.6 && d > 0.05) {
+          const k = Math.min(1, (9 * dt) / d);
+          p.x += dx * k;
+          p.y += dy * k;
         }
       }
       if (Math.abs(p.x - this.cx) < 0.7 && p.y > b.y && p.y < b.y + b.h + 0.4) {
@@ -1136,6 +1161,7 @@ export class Play {
         0,
         0,
       );
+    if (this.gear.has('radar') && this.def.num) this.drawRadar();
     // HUD text
     if (this.def.num) this.dropText.textContent = `${this.carried} / ${this.total}`;
     if (this.thermBox.dataset.t !== String(temp)) {
@@ -1143,6 +1169,46 @@ export class Play {
       this.thermBox.replaceChildren(h('img', { src: paintThermometer(16, temp).toDataURL(1), alt: '', width: 8, height: 28, class: 'px' }));
       this.tempText.textContent = `${temp < 0 ? '−' : ''}${Math.abs(temp)} °C`;
     }
+  }
+
+  /** Weather Radar: an arrow at the edge of the screen points to the nearest droplet still to collect, when it is off screen. */
+  private drawRadar(): void {
+    let best: Pickup | null = null;
+    let bd = Infinity;
+    for (const p of [...this.pickups, ...this.loose]) {
+      if (p.got) continue;
+      const d = Math.hypot(p.x - this.cx, p.y - this.body.y);
+      if (d < bd) ((bd = d), (best = p));
+    }
+    if (!best) return;
+    const sx = (best.x - this.cam.x) * T;
+    const sy = (best.y - this.cam.y) * T;
+    const m = 14;
+    if (sx > m && sx < VW - m && sy > m && sy < VH - m) return;
+    const px = Math.max(m, Math.min(VW - m, sx));
+    const py = Math.max(m, Math.min(VH - m, sy));
+    const a = Math.atan2(sy - VH / 2, sx - VW / 2);
+    const ctx = this.ctx;
+    const pulse = 0.65 + 0.35 * Math.sin(this.frame * 0.15);
+    ctx.save();
+    ctx.translate(Math.round(px), Math.round(py));
+    ctx.rotate(a);
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = '#123247';
+    ctx.beginPath();
+    ctx.moveTo(9, 0);
+    ctx.lineTo(-6, -7);
+    ctx.lineTo(-6, 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#7fe0ff';
+    ctx.beginPath();
+    ctx.moveTo(6, 0);
+    ctx.lineTo(-4, -5);
+    ctx.lineTo(-4, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
   }
 
   private drawShimmer(v: Vapor): void {
@@ -1221,6 +1287,7 @@ export class Play {
       target: this.target,
       paused: this.paused,
       easy: this.easy,
+      gear: [...this.gear],
     };
   }
 

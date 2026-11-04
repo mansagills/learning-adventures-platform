@@ -424,3 +424,67 @@ export function hatOnPortrait(p: PixelBuffer): PixelBuffer {
   }
   return b;
 }
+
+/** Little 16 x 16 icons for the Weather Shop power-ups. */
+export function paintGearIcon(id: 'radar' | 'grip' | 'magnet' | 'bigcloud' | 'glider'): PixelBuffer {
+  const b = new PixelBuffer(16, 16);
+  const ink = '#123247';
+  const disc = (cx: number, cy: number, r: number, c: string) => {
+    for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * 0.6) b.set(cx + x, cy + y, c);
+  };
+  const drop = (cx: number, cy: number, s: number) => {
+    for (let y = 0; y <= s * 2; y++) {
+      const half = y < s ? Math.floor((y * s) / (s * 1.6)) : Math.round(Math.sqrt(Math.max(0, s * s - (y - s) * (y - s))));
+      for (let x = -half; x <= half; x++) b.set(cx + x, cy - s + y, x === -half || x === half ? ink : y < s + 1 && x === -half + 1 ? '#e6fbff' : '#4cc3f0');
+    }
+  };
+  if (id === 'radar') {
+    disc(8, 8, 7, '#1f6b4a');
+    disc(8, 8, 5, '#2f8c62');
+    disc(8, 8, 2, '#1f6b4a');
+    for (let k = 0; k < 7; k++) b.set(8 + k, 8 - Math.round(k * 0.6), '#a8ffcf');
+    b.set(11, 5, '#4cc3f0');
+    b.set(12, 5, '#4cc3f0');
+    b.set(11, 6, '#4cc3f0');
+  } else if (id === 'grip') {
+    for (let y = 2; y < 11; y++) for (let x = 4; x < 9; x++) b.set(x, y, x === 4 || y === 2 ? ink : '#b0603a');
+    for (let y = 9; y < 13; y++) for (let x = 4; x < 14; x++) b.set(x, y, y === 12 || x === 13 ? ink : '#c8743f');
+    for (let x = 4; x < 14; x += 2) b.set(x, 13, '#6d4a2a');
+    for (let x = 1; x < 15; x++) b.set(x, 14, '#bfe6f5');
+    for (let x = 1; x < 15; x++) b.set(x, 15, '#8ccbe6');
+  } else if (id === 'magnet') {
+    drop(5, 9, 3);
+    drop(11, 9, 3);
+    for (const [x, y] of [
+      [7, 3],
+      [8, 2],
+      [9, 3],
+    ] as Pt[])
+      b.set(x, y, '#ffd23a');
+    b.set(8, 4, '#ffd23a');
+  } else if (id === 'bigcloud') {
+    disc(5, 9, 3, '#ffffff');
+    disc(9, 7, 4, '#ffffff');
+    disc(12, 10, 3, '#ffffff');
+    for (let x = 2; x < 15; x++) b.set(x, 13, '#c9d8e6');
+    for (const [x, y] of [
+      [1, 2],
+      [2, 1],
+      [1, 1],
+      [14, 2],
+      [13, 1],
+      [14, 1],
+    ] as Pt[])
+      b.set(x, y, '#ffd23a');
+  } else {
+    // a maple seed: a round seed with one long wing
+    disc(4, 12, 2, '#8a5a2b');
+    for (let k = 0; k < 10; k++) {
+      const x = 5 + k;
+      const y = 11 - Math.round(k * 0.9);
+      for (let t = -1; t <= 2; t++) b.set(x, y + t, t === -1 || t === 2 ? '#b07a3a' : '#d9a85a');
+    }
+    for (let k = 0; k < 9; k++) b.set(5 + k, 12 - Math.round(k * 0.9), '#8a5a2b');
+  }
+  return b;
+}

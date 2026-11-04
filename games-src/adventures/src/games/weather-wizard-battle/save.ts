@@ -2,8 +2,11 @@ import { DEFAULT_APPEARANCE, type Appearance } from '../../kit/art/characters';
 import { ACCESSORIES, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from '../../kit/art/palette';
 import { cleanLearner, type LearnerState } from '../../kit/learning/mastery';
 import { SaveStore } from '../../kit/systems/save';
-import type { Region } from '../../kit/worlds/wild-lands/weather-art';
+import type { Power, Region } from '../../kit/worlds/wild-lands/weather-art';
 import { LEVELS } from './levels';
+import { GEAR_IDS, type GearId } from './shop';
+
+const POWERS: Power[] = ['sun', 'cool', 'wind', 'rain', 'cold'];
 
 const REGIONS: Region[] = ['shore', 'clouds', 'mountain', 'river', 'storm'];
 
@@ -33,6 +36,13 @@ export interface WeatherSave {
   recent: Record<Region, string[]>;
   learner: LearnerState;
   seed: number;
+  /** Droplets to spend in the Weather Shop. */
+  wallet: number;
+  /** Power-ups bought, and the ones switched off for now. */
+  gear: GearId[];
+  gearOff: GearId[];
+  /** Weather powers whose card has been shown. */
+  powersSeen: Power[];
 }
 
 const zeroes = (): Record<Region, number> => ({ shore: 0, clouds: 0, mountain: 0, river: 0, storm: 0 });
@@ -57,6 +67,10 @@ export function freshSave(): WeatherSave {
     recent: noLists(),
     learner: {},
     seed: Math.floor(Math.random() * 1e9),
+    wallet: 0,
+    gear: [],
+    gearOff: [],
+    powersSeen: [],
   };
 }
 
@@ -114,6 +128,10 @@ export function cleanSave(raw: unknown): WeatherSave {
     recent,
     learner: cleanLearner(r.learner),
     seed: typeof r.seed === 'number' && Number.isFinite(r.seed) ? Math.floor(Math.abs(r.seed)) % 2 ** 31 : d.seed,
+    wallet: typeof r.wallet === 'number' && Number.isFinite(r.wallet) ? Math.max(0, Math.min(9999, Math.floor(r.wallet))) : 0,
+    gear: only(r.gear, GEAR_IDS),
+    gearOff: only(r.gearOff, GEAR_IDS),
+    powersSeen: only(r.powersSeen, POWERS),
   };
 }
 
