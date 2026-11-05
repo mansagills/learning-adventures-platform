@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
 const ALLOWED_ROLES = ['STUDENT', 'PARENT', 'TEACHER'] as const;
-const ADMIN_DOMAIN = '@learningadventures.org';
+const ADMIN_DOMAIN = 'learningadventures.org';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    if (email.toLowerCase().endsWith(ADMIN_DOMAIN)) {
+    const emailDomain = email.split('@').pop()?.toLowerCase();
+    if (emailDomain === ADMIN_DOMAIN || emailDomain?.endsWith(`.${ADMIN_DOMAIN}`)) {
       return NextResponse.json(
         { error: 'Signups with @learningadventures.org are restricted.' },
         { status: 403 }
