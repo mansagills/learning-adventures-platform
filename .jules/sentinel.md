@@ -11,3 +11,8 @@
 **Vulnerability:** Direct instantiation of `PrismaClient` in API routes (`new PrismaClient()`) combined with `await prisma.$disconnect()` in a serverless environment (Next.js API routes). This creates new connection pools on every request, which can rapidly exhaust the database connection limits, causing a Denial-of-Service (DoS) condition.
 **Learning:** In a serverless architecture like Next.js, each API route invocation may spawn a new execution context. Creating a new PrismaClient instance in each handler leads to uncontrolled connection pooling. The `.disconnect()` method does not resolve this completely and adds overhead.
 **Prevention:** Never instantiate `new PrismaClient()` directly inside API route handlers or module scope within API routes. Always import the shared Prisma singleton instance (e.g., `import { prisma } from '@/lib/prisma'`), which reuses a single connection pool across hot reloads in development and execution contexts in production. Remove any manual `prisma.$disconnect()` calls.
+
+## 2025-02-28 - Privilege Escalation via Subdomain Bypass
+**Vulnerability:** The email validation logic for `ADMIN_DOMAIN` (`@learningadventures.org`) used `email.endsWith(ADMIN_DOMAIN)`, which allowed signups from subdomains like `user@sub.learningadventures.org` since they correctly match the end of the string.
+**Learning:** `endsWith()` should not be used for email domain validation because it checks suffixes rather than exact domain parts, making it susceptible to subdomain bypass attacks.
+**Prevention:** Always extract the domain from the email (e.g. `email.split('@').pop()`) and validate using exact match or subdomain matching (e.g., `domain.endsWith('.' + targetDomain)`).

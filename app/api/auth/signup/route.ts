@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    if (email.toLowerCase().endsWith(ADMIN_DOMAIN)) {
+    const targetDomain = ADMIN_DOMAIN.replace(/^@/, '');
+    const emailDomain = email.toLowerCase().split('@').pop() || '';
+    if (emailDomain === targetDomain || emailDomain.endsWith('.' + targetDomain)) {
       return NextResponse.json(
         { error: 'Signups with @learningadventures.org are restricted.' },
         { status: 403 }
