@@ -9,18 +9,17 @@ We've all watched a child light up when they figure something out on their own. 
 ## What we believe
 
 - **Fun comes first, and the learning is built in.** Every game teaches a real skill, but kids should be having too much fun to notice they're practicing.
-- **Stories make learning stick.** Our games and books share one world, the Academy, where Jaylen and his robot buddy SPARK discover that every question a kid asks helps keep the Academy full of wonder.
+- **Stories make learning stick.** Our games share one world, the Academy, where every question a kid asks helps keep the Academy full of wonder.
 - **Learning should be safe and simple for families.** Every game on our site is free to play, with no accounts, no ads and no chatting with strangers.
 
 ## What you can explore today
 
 - **[Free games by subject](/games).** Quick games and activities for math, science, reading and history, made for kids in grades K–5. Pick one and start playing in seconds.
-- **[Interactive ebooks](/books).** Children's stories set in the same world as the games, with free sample pages to read together.
 - **[The Learning Adventures World demo](/demo).** An early look at the pixel-art Academy campus we're building, where kids will explore, follow a story and play games in every building.
 
 ## For kids
 
-Here's a secret: the best learners aren't the ones who know every answer. They're the ones who keep asking questions. So go ahead, pick a game, get a few wrong, try again, and see how far you can go. Jaylen and SPARK will be cheering you on.
+Here's a secret: the best learners aren't the ones who know every answer. They're the ones who keep asking questions. So go ahead, pick a game, get a few wrong, try again, and see how far you can go. We'll be cheering you on.
 
 ## For parents
 

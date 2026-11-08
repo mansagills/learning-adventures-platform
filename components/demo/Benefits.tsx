@@ -9,7 +9,7 @@ export default function Benefits() {
       icon: 'open-book' as const,
       title: 'A Season-Long Story',
       description:
-        'Help Jaylen and SPARK uncover the mystery behind the Hush across the Math, Science, English and History wings.',
+        'Help uncover the mystery behind the Hush across the Math, Science, English and History wings.',
       color: 'violet' as const,
     },
     {

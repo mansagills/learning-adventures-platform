@@ -42,8 +42,8 @@ export default function AboutPage() {
       <p>
         Kids learn best when they&apos;re curious. Our games aim to be fun
         first, with the learning built into how you play. Our stories give that
-        curiosity a reason: in the Spark Chronicles, every question a kid asks
-        helps keep the Academy full of wonder.
+        curiosity a reason, and every question a kid asks helps keep the Academy
+        full of wonder.
       </p>
       <p>
         We also think kids&apos; learning should be simple and safe for

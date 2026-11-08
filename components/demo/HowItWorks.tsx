@@ -24,7 +24,7 @@ export default function HowItWorks() {
       number: '03',
       title: 'Follow the Story',
       description:
-        'Talk to Jaylen, SPARK and the students around campus, and help with the first story quests.',
+        'Talk to the students around campus, and help with the first story quests.',
       icon: 'chat' as const,
       color: 'yellow' as const,
     },

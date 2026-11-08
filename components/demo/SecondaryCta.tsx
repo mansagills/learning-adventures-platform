@@ -38,7 +38,7 @@ export default function SecondaryCta() {
         className="absolute bottom-16 left-16 hidden h-10 w-10 items-center justify-center rounded-sm border-2 border-white/30 bg-pg-mint opacity-80 lg:flex"
         aria-hidden
       >
-        <SiteIcon name="spark-bot" size={32} />
+        <SiteIcon name="controller" size={32} />
       </div>
 
       <Container>
@@ -73,7 +73,7 @@ export default function SecondaryCta() {
           </h2>
 
           <p className="mx-auto mb-10 max-w-2xl font-plus-jakarta text-xl leading-relaxed text-white/90 md:text-2xl">
-            Step onto the Academy campus, say hi to Jaylen and SPARK, and see
+            Step onto the Academy campus, say hi to the students, and see
             what the Learning Adventures World is becoming.
           </p>
 

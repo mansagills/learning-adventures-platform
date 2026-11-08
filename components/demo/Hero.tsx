@@ -88,8 +88,8 @@ export default function Hero() {
 
             <p className="mb-10 font-plus-jakarta text-xl leading-relaxed text-foreground/80 md:text-2xl">
               Take an early look at the pixel-art Academy campus we&apos;re
-              building. Walk between the subject buildings, meet Jaylen and
-              SPARK, and jump into games along the way.
+              building. Walk between the subject buildings, meet the students,
+              and jump into games along the way.
             </p>
 
             {/* CTAs */}

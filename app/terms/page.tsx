@@ -35,7 +35,7 @@ export default function TermsPage() {
 
       <h2>Our content</h2>
       <p>
-        The games, stories, characters (including Jaylen and SPARK), artwork and
+        The games, stories, characters, artwork and
         other content on this site belong to Learning Adventures or its
         licensors. You may not reproduce or sell them without permission.
       </p>

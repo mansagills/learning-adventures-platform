@@ -21,7 +21,7 @@ export default function Faq() {
       id: 'what-is-it',
       question: 'What is the Learning Adventures World demo?',
       answer:
-        'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet Jaylen and SPARK, follow the first story quests and play games. It’s a showcase of where we’re headed, and it’s still in development.',
+        'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet the students, follow the first story quests and play games. It’s a showcase of where we’re headed, and it’s still in development.',
     },
     {
       id: 'controls',

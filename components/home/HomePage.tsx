@@ -86,16 +86,18 @@ export default function HomePage() {
             </div>
 
             <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-              <div className="rotate-1 rounded-3xl border-2 border-pg-border bg-white p-2 shadow-pop transition-transform duration-300 hover:rotate-0">
-                <Image
-                  src="/images/jaylen-and-spark.png"
-                  alt="Jaylen and his robot buddy SPARK, the heroes of Learning Adventures"
-                  width={1376}
-                  height={768}
-                  className="h-auto w-full rounded-2xl"
-                  priority
-                />
-              </div>
+              {spotlight && (
+                <div className="rotate-1 rounded-3xl border-2 border-pg-border bg-white p-2 shadow-pop transition-transform duration-300 hover:rotate-0">
+                  <Image
+                    src={spotlight.thumbnail}
+                    alt={`A look at ${spotlight.title}, one of our free games`}
+                    width={1376}
+                    height={768}
+                    className="h-auto w-full rounded-2xl"
+                    priority
+                  />
+                </div>
+              )}
               <span className="absolute -left-3 -top-4 rotate-[-6deg] rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-left-6">
                 {games.length} free games
               </span>

@@ -15,7 +15,7 @@ const faqs = [
   {
     question: 'What is the Learning Adventures World demo?',
     answer:
-      'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet Jaylen and SPARK, and play games. The demo is a showcase of where we’re headed and is still in development. It saves progress only in your browser, and you can restart it any time.',
+      'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet the students, and play games. The demo is a showcase of where we’re headed and is still in development. It saves progress only in your browser, and you can restart it any time.',
   },
   {
     question: 'What devices does it work on?',
