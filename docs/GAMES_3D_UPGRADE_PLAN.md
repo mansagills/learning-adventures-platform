@@ -2053,6 +2053,76 @@ The owner said "Build half 2". The game now replaces the old one at `/games/weat
 ##### Checks it will ship with
 Unit tests for the questions, the powers' rules (no rain without a full cloud, snow only below 0 °C) and the side-scroller's physics (jump height, landing, moving platforms); a browser test that plays from the title screen through the Storm Front; a speed check (the side-scroller must keep a smooth 60 frames a second on a school laptop); screenshots at desktop and phone width; a score against the rubric (8.5 to pass; projected about 9.1).
 
+#### S3 Life: Ecosystem Building Tycoon, the fifth Wild Lands game and the first roguelike builder: PLAN WRITTEN (2026-11-08, revised the same day to a roguelike builder), waiting for the owner's choices
+
+> Source: the old site game `public/games/ecosystem-building-tycoon.html` (no merges: the merge map keeps it as its own game). The owner asked about it on 2026-11-08 and chose the direction: a builder, not an action game, and then a roguelike builder (see The game). Slug `ecosystem-building-tycoon` (the new game replaces the old one at the same address). Grades 3–5 (the old game said 4–5; level 1 reaches down to grade 3 for 3-LS4-4).
+
+##### What the original does
+- **Teaches:** producers, herbivores, carnivores and decomposers, and that an ecosystem needs more plants than plant-eaters and more plant-eaters than meat-eaters. You spend 100 "energy" points on grass, flowers, a tree, a rabbit, a deer, a butterfly, a fox, an owl, a wolf and a mushroom, press "Next Year" and watch a balance meter; you win with 20 living things above 70% balance for 10 years.
+- **Keeps:** the builder idea, the four roles (producers, herbivores, carnivores, decomposers), the animals and plants it names, the balance meter, the years going by, and the goal of a balanced ecosystem.
+- **Fixes:** it spends "energy" like money, which mixes up a real science idea (energy flowing from the Sun to plants to animals) with shopping; the 5:3:1 ratio is made up; the mushroom does almost nothing; there is no way to see why a population crashed; no questions, levels, hints, characters, saving or sound; emoji art.
+- **Answer check:** the facts it states are right (wolves, foxes and owls are carnivores; rabbits, deer and butterflies eat plants; mushrooms are decomposers). Nothing to flag.
+
+##### The game
+- **The owner's direction (2026-11-08):** first "a kid-friendly city builder game like Sim City, or some of the city-builder mobile games"; then, the same day, **"a roguelike city builder"** in the style of the indie game Combolands. That kind of game: a small new map every run, tiles placed so that neighbors set off combos, a target to reach in a limited number of turns, and new tiles unlocked between runs. We build our own game in that genre; the tiles, rules and scoring all come from real ecology, not from that game.
+- **Setting:** small **islands of the Wild Lands**, each one bare after a storm, a fire or an old quarry. Every run is a new island with a different shape, soil, water and weather. The camp's research boat drops the player off; the player rebuilds the island's ecosystem one tile at a time.
+- **Characters (draft names, the owner can change them):**
+  - **Warden Nia Achieng**, an ecologist who runs the restoration program (the host).
+  - **Lupe Fonoti**, a botanist (plants and the Sun).
+  - **Theo Park**, a pond biologist (food chains and webs).
+  - **Bramble**, a hedgehog who comes on every run, sniffs out combos and points at problems (the sidekick).
+- **How a run plays (10–15 minutes):**
+  1. **The island.** A small grid of plots: soil, rock, water, sand. The weather this run (a dry year, a wet year) changes which tiles do well.
+  2. **Each season, a hand of tiles.** The player is offered 3 tiles (a plant, an animal, a decomposer, a habitat feature like a pond or a log) and places one. A limited number of rerolls swaps the hand. Each season is one turn.
+  3. **Neighbors make combos, and every combo is real science:**
+     - a plant scores more in sunshine and next to water;
+     - a rabbit scores when it is next to grass it can eat; a fox scores when it is next to rabbits; the chain grass → rabbit → fox scores a **food chain combo**;
+     - a bee next to flowers makes the flowers spread (pollination);
+     - a mushroom or worms next to a fallen log or dead leaves turn them into rich soil, which **boosts every plant around it** (decomposers close the loop);
+     - a complete loop (Sun → plant → plant-eater → meat-eater → decomposer → soil) is the big multiplier, the **circle of life combo**.
+  4. **Bad placements teach too.** A fox with no prey nearby scores nothing and Bramble says why. Too many foxes for the rabbits make the fox score drop (more predators than prey can feed). An invasive plant spreads and crowds out the others unless a native plant is placed next to it.
+  5. **Milestones.** Each run has three **health targets** to reach by a set season (like a city builder's population milestones). Reaching one opens a **research choice**: pick 1 of 3 upgrades ("Frogs score +2 next to ponds", "One more reroll", "Owls hunt from 2 tiles away"). Answering Field Notebook questions right earns a better choice (a 4th card or a free reroll).
+  6. **End of the run.** Hit all three targets and the island is restored: a census of the animals (read the bar chart), the island's food web drawn on the board, and fireflies and glowing mushrooms at night. Miss a target and the run ends gently: Warden Nia explains what held the island back ("No decomposers, so the soil ran out of nutrients"). Either way, the player keeps what they unlocked.
+- **Between runs:** new tiles unlock in the **Field Guide** (a collection with a page and a fact for every living thing), new island types open (meadow island, pond island, forest island, wetland), and harder targets appear. The **food web board** in the research hut lets the player draw arrows between the living things they have found.
+- **Finale: the Archipelago.** After the four island types, the last run joins them all: a big island with a meadow, a pond, a forest and a wetland, a surprise event (a drought), and an Open Day with visitors at the end. After it, endless runs with a high score for replay.
+- **Modeled on:** Shape Town Builders (`geometry-builder-challenge`: placing things on a town grid) for the map and placing, and the Weather Shop (`weather-wizard-battle/shop.ts`) for upgrade cards. The scoring is a new set of pure functions (each combo rule is one small, unit-tested function), so every rule can be checked against the science.
+
+##### Learning design
+
+| Island type (helper) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| The Meadow (Lupe) | Producers and the Sun | Plants make their own food from sunlight, water and air; animals cannot | The energy in every animal's food came from the Sun; plants need light, water, air and space (not food from the soil) | Bees and flowers need each other (pollination, seeds); what happens to the meadow without bees | 5-PS3-1, 5-LS1-1, 3-LS4-3 |
+| The Pond (Theo) | Food chains and food webs | Who eats whom; the arrow points to the eater | A food web with several links; herbivore, carnivore or omnivore | Take one living thing away and follow what changes (fewer frogs, more insects, less algae); the algae bloom | 5-LS2-1, 3-LS4-4 |
+| The Woods (Lupe and Bramble) | Decomposers and recycling | Mushrooms, worms and bacteria break down dead things into soil | Matter goes round and round: soil to plant to animal to soil | With no decomposers, dead leaves pile up and plants run out of nutrients; energy flows one way, matter cycles | 5-LS2-1 |
+| Balance (Warden Nia) | Populations and change | More plants than plant-eaters, more plant-eaters than meat-eaters | Predator and prey numbers rise and fall in turns (read the graph) | Only a little energy passes up each step, so there are few top predators; invasive species and how people help (5-ESS3-1) | 5-LS2-1, 3-LS4-4, 5-ESS3-1 |
+
+- **Mistakes the wrong answers come from:**
+  - plants get their food from the soil
+  - food chain arrows point from the eater to the eaten
+  - predators are bad, so removing them helps
+  - more animals is always better
+  - dead things just disappear (decomposers do nothing)
+  - energy is recycled like matter
+  - a change only affects the animals that touch it directly
+  - mixing up herbivores, carnivores and omnivores
+  - the food chain starts with an animal (forgetting the Sun and plants)
+  - an invasive species is good because it adds more life
+- **Hint ladder:** nudge ("What does the frog eat?") → picture (the food web board with that link lit) → the answer outlined.
+- **Debriefs:** one talk-it-through question per habitat, e.g. "The foxes moved away and soon the meadow had no flowers. Why?"
+- **Progress:** each island type has five Field Notebook stars and a restored-island badge; all four open the Archipelago finale. Questions come at the research choice between milestones and in the Field Notebook in the research hut, never in the middle of placing tiles.
+- **Difficulty change from the original:** from one balance rule to three levels per island, cause and effect ("what happens if"), reading the census graph, the one-way flow of energy and the cycling of matter (grade 5), and combo rules that are themselves the science, so planning a good island means understanding the food web.
+
+##### Choices for the owner
+1. **Run length:** **(a) short runs of 10–15 minutes, 3 targets each (recommended for grades 3–5)**; or (b) longer runs of 25–30 minutes with 5 targets.
+2. **The grid:** **(a) square tiles on the kit's 45° view (recommended)**, the same look as the other Wild Lands games; or (b) hexagon tiles (six neighbors each, common in this kind of game), which means more drawing and a new look for the kit.
+3. **When a run fails:** **(a) the run ends, Warden Nia explains what held the island back, and the player keeps every unlock (recommended)**; or (b) no failing at all: missing a target only lowers the final score.
+4. **Names:** keep the title "Ecosystem Building Tycoon" and the draft names (Warden Nia Achieng, Lupe Fonoti, Theo Park, Bramble the hedgehog), or change them.
+
+Built in two halves, with a look preview first (an island, the tiles, the plants and animals, and a combo going off): **half 1** is the run (hand, placing, combos, targets, research choices), the meadow island and the pond island; **half 2** is the forest and wetland islands, the Field Guide and food web board, the Archipelago finale, and the site listing.
+
+##### Checks it will ship with
+Unit tests for every combo rule (each checked against the science), the seasons and targets, seeded islands that can always be won and for every habitat's questions at every level; a browser test that plays a run from the title screen to a restored island, and the Archipelago finale; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
+
 #### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN APPROVED (2026-10-29); look APPROVED (2026-11-03); half 1 MERGED (PR #253); half 2 BUILT (2026-11-03): COMPLETED ✅ with its merge
 
 > Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
