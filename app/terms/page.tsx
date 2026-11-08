@@ -27,8 +27,7 @@ export default function TermsPage() {
     >
       <h2>Using the site</h2>
       <p>
-        You&apos;re welcome to play the games, read the free ebook samples and
-        try the Learning Adventures World demo for personal and classroom
+        You&apos;re welcome to play the games for personal and classroom
         learning. Please don&apos;t try to disrupt the site, copy it, or use it
         for anything unlawful.
       </p>
@@ -45,12 +44,6 @@ export default function TermsPage() {
         Interactive ebooks are bought and read in a separate ebook reader. Your
         purchase and use of an ebook are also covered by that service&apos;s own
         terms.
-      </p>
-
-      <h2>The demo</h2>
-      <p>
-        The <Link href="/demo">Learning Adventures World demo</Link> is an early
-        preview. Features may change or be removed, and progress may be reset.
       </p>
 
       <h2>No warranties</h2>

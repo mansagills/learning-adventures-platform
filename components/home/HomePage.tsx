@@ -71,9 +71,8 @@ export default function HomePage() {
                 Explore.
               </h1>
               <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-ink-700 lg:mx-0">
-                Colorful mini-games for math, science, reading and history, plus
-                an early look at the Learning Adventures World. No sign-up
-                needed.
+                Colorful mini-games for math, science, reading and history. No
+                sign-up needed.
               </p>
               <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                 <Link
@@ -299,50 +298,6 @@ export default function HomePage() {
                 showSubject
               />
             )}
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Learning Adventures World demo teaser ───────────────────── */}
-      <section className="pb-16 md:pb-20" aria-labelledby="hub-heading">
-        <Container>
-          <div className="relative overflow-hidden rounded-[2rem] border-2 border-pg-border bg-ink-900 p-8 text-white shadow-pop md:p-12">
-            <div
-              className="absolute inset-0 bg-dot-grid opacity-10"
-              aria-hidden
-            />
-            <div
-              className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-pg-violet/40 blur-3xl"
-              aria-hidden
-            />
-            <div className="relative grid items-center gap-8 md:grid-cols-[1fr_auto]">
-              <div>
-                <p className="inline-block rounded-full border-2 border-white/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-pg-yellow">
-                  Early preview demo
-                </p>
-                <h2
-                  id="hub-heading"
-                  className="mt-4 font-display text-3xl font-extrabold md:text-4xl"
-                >
-                  Take a peek at the Learning Adventures World
-                </h2>
-                <p className="mt-3 max-w-2xl text-lg text-white/80">
-                  We&apos;re building a pixel-art Academy campus where kids walk
-                  between subject buildings, meet characters from the stories and
-                  play games together. Try the early demo and see where Learning
-                  Adventures is headed.
-                </p>
-              </div>
-              <Link
-                href="/demo"
-                className={cn(
-                  primaryButton,
-                  'justify-self-start bg-pg-yellow text-ink-900 md:justify-self-end'
-                )}
-              >
-                <SiteIcon name="map" size={26} /> See the demo
-              </Link>
-            </div>
           </div>
         </Container>
       </section>

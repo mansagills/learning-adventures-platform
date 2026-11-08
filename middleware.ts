@@ -33,6 +33,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/games', request.url));
   }
 
+  // The World and its demo are hidden for now.
+  if (
+    !siteConfig.features.world &&
+    (matchesRoute(pathname, '/world') || matchesRoute(pathname, '/demo'))
+  ) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   // With accounts switched off, account-only pages send visitors home.
   if (!siteConfig.features.accounts && isAccountOnlyRoute(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));

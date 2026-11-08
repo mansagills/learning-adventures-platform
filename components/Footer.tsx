@@ -16,12 +16,6 @@ const columns = [
     ],
   },
   {
-    title: 'Read & Explore',
-    links: [
-      { href: '/demo', label: 'World Demo' },
-    ],
-  },
-  {
     title: 'About',
     links: [
       { href: '/about', label: 'About us' },
@@ -48,8 +42,7 @@ export default function Footer() {
               <span>Learning Adventures</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-300">
-              Free learning games for grades K–5, plus an early look at the
-              Learning Adventures World.
+              Free learning games for kids in grades K–5.
             </p>
             {contactEmail && (
               <a

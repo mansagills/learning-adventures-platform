@@ -13,11 +13,6 @@ const faqs = [
       'Yes. Every game on this site is free to play, with no sign-up and no account. Just pick a game and press play.',
   },
   {
-    question: 'What is the Learning Adventures World demo?',
-    answer:
-      'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet the students, and play games. The demo is a showcase of where we’re headed and is still in development. It saves progress only in your browser, and you can restart it any time.',
-  },
-  {
     question: 'What devices does it work on?',
     answer:
       'Everything runs in a web browser, so there’s nothing to install. Games work best on a computer or tablet; many also work on phones.',

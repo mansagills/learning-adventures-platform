@@ -12,6 +12,14 @@ export const siteConfig = {
 
   features: {
     /**
+     * The Learning Adventures World and its public demo (/world, /demo). Off
+     * while the mascots are being reconsidered: those routes redirect home and
+     * every link to them is hidden. Set NEXT_PUBLIC_ENABLE_WORLD=true to bring
+     * them back.
+     */
+    world: process.env.NEXT_PUBLIC_ENABLE_WORLD === 'true',
+
+    /**
      * Accounts, dashboards, courses, the full campus world and admin tools.
      * Off for v1: those routes redirect home and their nav links are hidden.
      * The code stays in place so it can be switched back on later by setting

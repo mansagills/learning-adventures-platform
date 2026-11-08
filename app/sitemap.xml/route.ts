@@ -10,8 +10,7 @@ type Entry = MetadataRoute.Sitemap[number];
 
 /**
  * Public pages of the v1 site, built from the content data so new games and
- * books are listed automatically. /demo/play is left out on purpose (it's
- * noindex; /demo is the page to find).
+ * books are listed automatically. The World demo is hidden for now (siteConfig.features.world).
  */
 export function GET(): Response {
   const base = seoConfig.siteUrl;
@@ -40,7 +39,6 @@ export function GET(): Response {
           ...books.map((book) => page(`/books/${book.slug}`, 'monthly', 0.7)),
         ]
       : []),
-    page('/demo', 'monthly', 0.7),
     page('/blog', 'weekly', 0.6),
     ...publishedPosts.map((post) => page(`/blog/${post.slug}`, 'monthly', 0.5)),
     ...(getNewsletterStatus() === 'live'

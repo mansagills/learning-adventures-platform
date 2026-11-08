@@ -41,7 +41,7 @@ export function generateWebSiteSchema(): WebSiteSchema {
     name: 'Learning Adventures',
     url: 'https://learningadventures.org',
     description:
-      'Free math, science, reading and history games for grades K–5, plus an early look at the Learning Adventures World.',
+      'Free math, science, reading and history games for grades K–5.',
     publisher: {
       '@type': 'Organization',
       name: 'Learning Adventures',
@@ -58,9 +58,9 @@ export function createJSONLD(
 // SEO metadata helpers
 export const seoConfig = {
   defaultTitle:
-    'Learning Adventures | Free Learning Games and Interactive Ebooks for Kids',
+    'Learning Adventures | Free Learning Games for Kids',
   defaultDescription:
-    'Free math, science, reading and history mini-games for grades K–5, plus an early look at the Learning Adventures World. No sign-up needed.',
+    'Free math, science, reading and history mini-games for grades K–5. No sign-up needed.',
   defaultImage: '/og-image.png',
   siteUrl: 'https://learningadventures.org',
   twitterHandle: '@learningadventures',

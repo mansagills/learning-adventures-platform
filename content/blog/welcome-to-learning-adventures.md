@@ -15,7 +15,6 @@ We've all watched a child light up when they figure something out on their own. 
 ## What you can explore today
 
 - **[Free games by subject](/games).** Quick games and activities for math, science, reading and history, made for kids in grades K–5. Pick one and start playing in seconds.
-- **[The Learning Adventures World demo](/demo).** An early look at the pixel-art Academy campus we're building, where kids will explore, follow a story and play games in every building.
 
 ## For kids
 
