@@ -9,7 +9,6 @@ import { iconNames } from '@/components/icons/art';
 
 const publicDir = resolve(__dirname, '../../public');
 const subjectIds = new Set(subjects.map((subject) => subject.id));
-const gameSlugs = new Set(games.map((game) => game.slug));
 
 function duplicates(values: string[]): string[] {
   return values.filter((value, index) => values.indexOf(value) !== index);
