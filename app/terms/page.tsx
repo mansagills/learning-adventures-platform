@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import ContentPage from '@/components/ContentPage';
 import { siteConfig } from '@/lib/siteConfig';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
