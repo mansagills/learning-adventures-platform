@@ -640,6 +640,47 @@ export function paintSea(w: number, h: number, frame = 0, shallow: (x: number, y
   return b;
 }
 
+/** Small icons for what a plant needs (the Field Notebook pictures): the Sun, rain water and moving air. */
+export function paintNeedIcon(T: number, kind: 'sun' | 'water' | 'air'): PixelBuffer {
+  const u = T / 16;
+  const S = (v: number) => v * u;
+  const p = new Paint(T, T);
+  if (kind === 'sun') {
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      p.line(S(8 + Math.cos(a) * 4.5), S(8 + Math.sin(a) * 4.5), S(8 + Math.cos(a) * 7.2), S(8 + Math.sin(a) * 7.2), ramp('#ffb627'), 2);
+    }
+    p.ellipse(S(8), S(8), S(4), S(4), ramp('#ffd23a'), { sep: true });
+  } else if (kind === 'water') {
+    for (const [x, y] of [
+      [5, 4],
+      [10, 6],
+      [6, 10],
+      [11, 12],
+    ])
+      p.poly(
+        [
+          [S(x), S(y - 2.4)],
+          [S(x + 1.6), S(y + 0.6)],
+          [S(x), S(y + 1.8)],
+          [S(x - 1.6), S(y + 0.6)],
+        ],
+        ramp('#4ab4ea'),
+        { sep: true },
+      );
+  } else {
+    for (const [y, x0, x1] of [
+      [5, 2, 12],
+      [9, 4, 14],
+      [13, 2, 10],
+    ]) {
+      p.line(S(x0), S(y), S(x1), S(y), ramp('#9ab8d0'), 2);
+      p.ellipse(S(x1), S(y - 1), S(1.4), S(1.4), ramp('#9ab8d0'), { level: 2 });
+    }
+  }
+  return p.toBuffer();
+}
+
 // ------------------------------------------------------------------ props for the board
 
 /** A card in the hand: a parchment card with a colored top band for the role, the piece in the middle. Text is added by the page. */
