@@ -5,22 +5,12 @@ import UiIcon from '@/components/icons/UiIcon';
 const faqs = [
   {
     question: 'What is Learning Adventures?',
-    answer: `A collection of ${games.length} free mini-games and activities for kids in grades K–5, organized by subject: math, science, reading and history. Our interactive ebooks continue the stories behind the games, so kids can play and read in the same world.`,
+    answer: `A collection of ${games.length} free mini-games and activities for kids in grades K–5, organized by subject: math, science, reading and history.`,
   },
   {
     question: 'Is it really free? Do we need an account?',
     answer:
       'Yes. Every game on this site is free to play, with no sign-up and no account. Just pick a game and press play.',
-  },
-  {
-    question: 'How do the interactive ebooks work?',
-    answer:
-      'Each interactive ebook is a children’s story set in the same world as our games, with Jaylen and SPARK. Every ebook has a free sample right here on the site. To buy and read the full ebook, you’ll open it in our interactive ebook reader, which has its own sign-in, separate from this website.',
-  },
-  {
-    question: 'What is the Learning Adventures World demo?',
-    answer:
-      'It’s an early preview of the Learning Adventures World: a pixel-art Academy campus where kids walk between subject buildings, meet Jaylen and SPARK, and play games. The demo is a showcase of where we’re headed and is still in development. It saves progress only in your browser, and you can restart it any time.',
   },
   {
     question: 'What devices does it work on?',

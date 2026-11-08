@@ -1,16 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Container from '@/components/Container';
-import BookCard from '@/components/books/BookCard';
 import { cn } from '@/lib/utils';
 import {
   games,
   getFeaturedGames,
-  getGame,
   getHomeFeaturedGames,
 } from '@/lib/content/games';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
-import { books } from '@/lib/content/books';
 import { getSubject, subjects } from '@/lib/content/subjects';
 import GameRow from './GameRow';
 import HomeFaq from './HomeFaq';
@@ -74,9 +71,8 @@ export default function HomePage() {
                 Explore.
               </h1>
               <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-ink-700 lg:mx-0">
-                Colorful mini-games for math, science, reading and history, plus
-                interactive ebooks that turn every game into a story. No sign-up
-                needed.
+                Colorful mini-games for math, science, reading and history. No
+                sign-up needed.
               </p>
               <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
                 <Link
@@ -85,31 +81,24 @@ export default function HomePage() {
                 >
                   <SiteIcon name="controller" size={30} /> Play a game
                 </Link>
-                <Link
-                  href="/books"
-                  className={cn(primaryButton, 'bg-white text-ink-900')}
-                >
-                  <SiteIcon name="books" size={30} /> Meet the books
-                </Link>
               </div>
             </div>
 
             <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-              <div className="rotate-1 rounded-3xl border-2 border-pg-border bg-white p-2 shadow-pop transition-transform duration-300 hover:rotate-0">
-                <Image
-                  src="/images/jaylen-and-spark.png"
-                  alt="Jaylen and his robot buddy SPARK, the heroes of Learning Adventures"
-                  width={1376}
-                  height={768}
-                  className="h-auto w-full rounded-2xl"
-                  priority
-                />
-              </div>
+              {spotlight && (
+                <div className="rotate-1 rounded-3xl border-2 border-pg-border bg-white p-2 shadow-pop transition-transform duration-300 hover:rotate-0">
+                  <Image
+                    src={spotlight.thumbnail}
+                    alt={`A look at ${spotlight.title}, one of our free games`}
+                    width={1376}
+                    height={768}
+                    className="h-auto w-full rounded-2xl"
+                    priority
+                  />
+                </div>
+              )}
               <span className="absolute -left-3 -top-4 rotate-[-6deg] rounded-2xl border-2 border-pg-border bg-pg-yellow px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-left-6">
                 {games.length} free games
-              </span>
-              <span className="absolute -bottom-4 -right-2 inline-flex rotate-[4deg] items-center gap-1.5 rounded-2xl border-2 border-pg-border bg-pg-pink px-3 py-2 text-sm font-extrabold text-ink-900 shadow-pop md:-right-5">
-                <SiteIcon name="books" size={22} /> Stories to read
               </span>
             </div>
           </div>
@@ -309,112 +298,6 @@ export default function HomePage() {
                 showSubject
               />
             )}
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Books ────────────────────────────────────────────────────── */}
-      <section className="py-16 md:py-20" aria-labelledby="books-heading">
-        <Container>
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="font-bold uppercase tracking-wider text-coral-700">
-              Interactive ebooks
-            </p>
-            <h2
-              id="books-heading"
-              className="mt-2 font-display text-3xl font-extrabold text-ink-900 md:text-4xl"
-            >
-              Stories behind the games
-            </h2>
-            <p className="mt-3 text-lg text-ink-600">
-              Follow Jaylen and SPARK through the Academy in interactive ebooks
-              that pick up where the games leave off. Read a story, then play
-              the games that go with it.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-8 md:grid-cols-3">
-            {books.map((book) => (
-              <div key={book.slug} className="flex flex-col">
-                <BookCard book={book} />
-                <div className="mt-4 flex flex-wrap items-center gap-2 px-1 text-sm">
-                  <span className="font-semibold text-ink-500">
-                    Play along:
-                  </span>
-                  {book.companionGameSlugs.map((slug) => {
-                    const game = getGame(slug);
-                    if (!game) return null;
-                    return (
-                      <Link
-                        key={slug}
-                        href={`/games/${slug}`}
-                        className="inline-flex items-center gap-1.5 rounded-full border-2 border-pg-border bg-white py-0.5 pl-0.5 pr-2.5 font-semibold text-ink-800 hover:bg-pg-yellow"
-                      >
-                        <Image
-                          src={game.thumbnail}
-                          alt=""
-                          width={32}
-                          height={20}
-                          className="h-5 w-8 rounded-full object-cover object-top"
-                        />
-                        {game.title}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href="/books"
-              className={cn(primaryButton, 'bg-pg-pink text-ink-900')}
-            >
-              <SiteIcon name="books" size={30} /> See all books
-            </Link>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Learning Adventures World demo teaser ───────────────────── */}
-      <section className="pb-16 md:pb-20" aria-labelledby="hub-heading">
-        <Container>
-          <div className="relative overflow-hidden rounded-[2rem] border-2 border-pg-border bg-ink-900 p-8 text-white shadow-pop md:p-12">
-            <div
-              className="absolute inset-0 bg-dot-grid opacity-10"
-              aria-hidden
-            />
-            <div
-              className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-pg-violet/40 blur-3xl"
-              aria-hidden
-            />
-            <div className="relative grid items-center gap-8 md:grid-cols-[1fr_auto]">
-              <div>
-                <p className="inline-block rounded-full border-2 border-white/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-pg-yellow">
-                  Early preview demo
-                </p>
-                <h2
-                  id="hub-heading"
-                  className="mt-4 font-display text-3xl font-extrabold md:text-4xl"
-                >
-                  Take a peek at the Learning Adventures World
-                </h2>
-                <p className="mt-3 max-w-2xl text-lg text-white/80">
-                  We&apos;re building a pixel-art Academy campus where kids walk
-                  between subject buildings, meet characters from the books and
-                  play games together. Try the early demo and see where Learning
-                  Adventures is headed.
-                </p>
-              </div>
-              <Link
-                href="/demo"
-                className={cn(
-                  primaryButton,
-                  'justify-self-start bg-pg-yellow text-ink-900 md:justify-self-end'
-                )}
-              >
-                <SiteIcon name="map" size={26} /> See the demo
-              </Link>
-            </div>
           </div>
         </Container>
       </section>

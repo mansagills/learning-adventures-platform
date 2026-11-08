@@ -9,7 +9,7 @@ export default function Benefits() {
       icon: 'open-book' as const,
       title: 'A Season-Long Story',
       description:
-        'Help Jaylen and SPARK uncover the mystery behind the Hush across the Math, Science, English and History wings.',
+        'Help uncover the mystery behind the Hush across the Math, Science, English and History wings.',
       color: 'violet' as const,
     },
     {
@@ -21,9 +21,9 @@ export default function Benefits() {
     },
     {
       icon: 'books' as const,
-      title: 'Characters From the Books',
+      title: 'Characters From the Stories',
       description:
-        'Meet the heroes and villains from our interactive ebooks, right on campus.',
+        'Meet the heroes and villains of the Learning Adventures story, right on campus.',
       color: 'mint' as const,
     },
     {

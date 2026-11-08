@@ -1,4 +1,11 @@
 /**
+ * Master switch for the Books section. While false there are no books to
+ * show yet, so /books returns a 404 and every link, sitemap entry and homepage
+ * block for books is hidden. Set to true once real books are ready.
+ */
+export const BOOKS_LIVE = false;
+
+/**
  * Interactive ebooks: children's books that go with the games.
  *
  * On the site these are always called "interactive ebooks". The ebook
@@ -104,10 +111,12 @@ export function getBook(slug: string): Book | undefined {
 }
 
 export function getBooksBySubject(subject: SubjectId): Book[] {
+  if (!BOOKS_LIVE) return [];
   return books.filter((book) => book.subject === subject);
 }
 
 /** Books whose story connects to the given game. */
 export function getBooksForGame(gameSlug: string): Book[] {
+  if (!BOOKS_LIVE) return [];
   return books.filter((book) => book.companionGameSlugs.includes(gameSlug));
 }

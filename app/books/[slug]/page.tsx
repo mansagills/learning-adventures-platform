@@ -7,7 +7,7 @@ import GetEbookButton from '@/components/books/GetEbookButton';
 import SamplePageViewer from '@/components/books/SamplePageViewer';
 import PlayableGameCard from '@/components/play/PlayableGameCard';
 import { cn } from '@/lib/utils';
-import { books, getBook } from '@/lib/content/books';
+import { books, getBook, BOOKS_LIVE } from '@/lib/content/books';
 import { getGame, type PlayableGame } from '@/lib/content/games';
 import { getSubject } from '@/lib/content/subjects';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
@@ -22,6 +22,7 @@ interface BookPageProps {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
+  if (!BOOKS_LIVE) return [];
   return books.map((book) => ({ slug: book.slug }));
 }
 
@@ -36,6 +37,7 @@ export function generateMetadata({ params }: BookPageProps) {
 }
 
 export default function BookPage({ params }: BookPageProps) {
+  if (!BOOKS_LIVE) notFound();
   const book = getBook(params.slug);
   if (!book) notFound();
 

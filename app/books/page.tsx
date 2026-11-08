@@ -1,6 +1,7 @@
 import Container from '@/components/Container';
 import BookCard from '@/components/books/BookCard';
-import { books } from '@/lib/content/books';
+import { notFound } from 'next/navigation';
+import { books, BOOKS_LIVE } from '@/lib/content/books';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
 import SiteIcon from '@/components/icons/SiteIcon';
 
@@ -30,6 +31,7 @@ const steps = [
 ];
 
 export default function BooksPage() {
+  if (!BOOKS_LIVE) notFound();
   return (
     <div className="pb-20">
       <section className="border-b-2 border-pg-border bg-coral-50">

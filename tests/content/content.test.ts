@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { basename, join, resolve } from 'path';
 import { describe, expect, it } from 'vitest';
-import { games, homeFeaturedSlugs } from '@/lib/content/games';
+import { allGames, games, homeFeaturedSlugs } from '@/lib/content/games';
 import { books } from '@/lib/content/books';
 import { posts } from '@/lib/content/blog';
 import { subjects } from '@/lib/content/subjects';
@@ -9,7 +9,6 @@ import { iconNames } from '@/components/icons/art';
 
 const publicDir = resolve(__dirname, '../../public');
 const subjectIds = new Set(subjects.map((subject) => subject.id));
-const gameSlugs = new Set(games.map((game) => game.slug));
 
 function duplicates(values: string[]): string[] {
   return values.filter((value, index) => values.indexOf(value) !== index);
@@ -58,10 +57,11 @@ describe('public content data', () => {
     expect(new Set(homeFeaturedSlugs).size).toBe(homeFeaturedSlugs.length);
   });
 
-  it('every book companion game exists', () => {
+  it('every book companion game exists (hidden games count)', () => {
+    const allSlugs = new Set(allGames.map((game) => game.slug));
     const broken = books.flatMap((book) =>
       book.companionGameSlugs
-        .filter((slug) => !gameSlugs.has(slug))
+        .filter((slug) => !allSlugs.has(slug))
         .map((slug) => `${book.slug} -> ${slug}`)
     );
     expect(broken).toEqual([]);
