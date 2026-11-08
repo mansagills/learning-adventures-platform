@@ -53,6 +53,9 @@ export const PAGES: Array<[string, string]> = [
   ['animal-polar-evening', 'The poles at dusk'],
   ['animal-wetland', 'The wetland and the sea'],
   ['animal-wetland-evening', 'Wetland at dusk'],
+  ['eco-cast', 'Ecosystem Tycoon: the cast, tiles and pieces'],
+  ['eco-island', 'An island part way through a run'],
+  ['eco-island-night', 'The island at night'],
   ['weather-play', 'Weather Wizard: try the test level'],
   ['weather-cast', 'Weather Wizard: the cast and powers'],
   ['weather-shore', 'Sunny Shore'],
@@ -115,6 +118,17 @@ export function pageParams(): URLSearchParams {
       if (r === 'evening') q.set('time', 'evening');
       else if (r === 'quiet') q.set('talk', '0');
       else if (r === 'kiki') q.set('kiki', '1');
+    }
+    return q;
+  }
+  // Ecosystem Building Tycoon: #eco-cast, #eco-island[-night][-nia][-long]
+  if (token.startsWith('eco-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'eco-cast' : 'eco-island');
+    for (const r of rest) {
+      if (r === 'night') q.set('time', 'night');
+      else if (r === 'nia') q.set('nia', '1');
+      else if (r === 'long') q.set('run', 'long');
     }
     return q;
   }
