@@ -6,7 +6,7 @@ import { generateMetadata as seoMetadata } from '@/lib/seo';
 export const metadata = seoMetadata({
   title: 'About | Learning Adventures',
   description:
-    'Learning Adventures makes free learning games for kids in grades K–5, interactive ebooks that tell the stories behind them, and the Learning Adventures World.',
+    'Learning Adventures makes free learning games for kids in grades K–5, and the Learning Adventures World.',
   path: '/about',
 });
 
@@ -29,13 +29,6 @@ export default function AboutPage() {
           <Link href="/games">{games.length} free games and activities</Link>{' '}
           for math, science, reading and history. Every one is quick to start
           and teaches a real skill, with no sign-up needed.
-        </li>
-        <li>
-          <strong>Interactive ebooks.</strong>{' '}
-          <Link href="/books">Children&apos;s stories</Link> set in the same
-          world as the games. Jaylen and his robot buddy SPARK go on adventures
-          that pick up where the games leave off, so kids can read a story and
-          then play the games that go with it.
         </li>
         <li>
           <strong>The Learning Adventures World.</strong> A pixel-art Academy

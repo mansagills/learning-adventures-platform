@@ -34,9 +34,14 @@ export interface PlayableGame {
    */
   thumbnail: string;
   featured?: boolean;
+  /**
+   * Not shown on the site yet (the game hasn't been updated). It stays in this
+   * file; remove `hidden: true` to republish it.
+   */
+  hidden?: boolean;
 }
 
-export const games: PlayableGame[] = [
+export const allGames: PlayableGame[] = [
   // ── Math ────────────────────────────────────────────────────────────────
   {
     slug: 'math-race-rally',
@@ -250,6 +255,7 @@ export const games: PlayableGame[] = [
     skills: ['Marine Biology', 'Conservation'],
     estimatedTime: '15–20 min',
     htmlPath: '/games/ocean-conservation-heroes.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/ocean-conservation-heroes.jpg',
     featured: true,
   },
@@ -280,6 +286,7 @@ export const games: PlayableGame[] = [
     skills: ['Chemistry', 'Crystals', 'Experiments'],
     estimatedTime: '15–25 min',
     htmlPath: '/games/crystal-cave-chemistry.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/crystal-cave-chemistry.jpg',
     featured: true,
   },
@@ -325,6 +332,7 @@ export const games: PlayableGame[] = [
     skills: ['Ecology', 'Food Chains'],
     estimatedTime: '25–30 min',
     htmlPath: '/games/ecosystem-building-tycoon.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/ecosystem-building-tycoon.jpg',
   },
   {
@@ -339,6 +347,7 @@ export const games: PlayableGame[] = [
     skills: ['States of Matter', 'Chemistry'],
     estimatedTime: '10–20 min',
     htmlPath: '/games/states-of-matter-mixer.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/states-of-matter-mixer.jpg',
   },
   {
@@ -367,6 +376,7 @@ export const games: PlayableGame[] = [
     skills: ['Magnetism', 'Forces'],
     estimatedTime: '15–20 min',
     htmlPath: '/games/magnet-power-puzzle.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/magnet-power-puzzle.jpg',
   },
   {
@@ -380,6 +390,7 @@ export const games: PlayableGame[] = [
     skills: ['Light', 'Optics', 'Logic'],
     estimatedTime: '20–25 min',
     htmlPath: '/games/light-laboratory-escape.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/light-laboratory-escape.jpg',
   },
   {
@@ -393,6 +404,7 @@ export const games: PlayableGame[] = [
     skills: ['Plants', 'Life Cycles'],
     estimatedTime: '15–20 min',
     htmlPath: '/games/plant-growing-championship.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/plant-growing-championship.jpg',
   },
   {
@@ -407,6 +419,7 @@ export const games: PlayableGame[] = [
     skills: ['Geology', 'Rock Cycle'],
     estimatedTime: '15–20 min',
     htmlPath: '/games/rock-cycle-racing.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/rock-cycle-racing.jpg',
   },
   {
@@ -421,6 +434,7 @@ export const games: PlayableGame[] = [
     skills: ['Sound', 'Waves'],
     estimatedTime: '10–20 min',
     htmlPath: '/games/sound-wave-surfer.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/sound-wave-surfer.jpg',
   },
   {
@@ -449,6 +463,7 @@ export const games: PlayableGame[] = [
     skills: ['Simple Machines', 'Engineering'],
     estimatedTime: '20–25 min',
     htmlPath: '/games/simple-machines-construction.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/simple-machines-construction.jpg',
   },
   {
@@ -462,6 +477,7 @@ export const games: PlayableGame[] = [
     skills: ['Environment', 'Conservation'],
     estimatedTime: '15–20 min',
     htmlPath: '/games/pollution-solution-squad.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/pollution-solution-squad.jpg',
   },
   {
@@ -475,6 +491,7 @@ export const games: PlayableGame[] = [
     skills: ['Volcanoes', 'Earth Science'],
     estimatedTime: '25–30 min',
     htmlPath: '/lessons/volcano-explorer-lab.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/volcano-explorer-lab.jpg',
   },
   {
@@ -489,6 +506,7 @@ export const games: PlayableGame[] = [
     skills: ['Simple Machines', 'Forces'],
     estimatedTime: '25–30 min',
     htmlPath: '/lessons/simple-machines-lab.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/simple-machines-lab.jpg',
   },
 
@@ -505,6 +523,7 @@ export const games: PlayableGame[] = [
     skills: ['Spelling', 'Vocabulary', 'Listening'],
     estimatedTime: '15–20 min',
     htmlPath: '/lessons/spelling-bee-challenge.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/spelling-bee-challenge.jpg',
     featured: true,
   },
@@ -542,10 +561,14 @@ export const games: PlayableGame[] = [
     skills: ['Ancient History', 'Egypt'],
     estimatedTime: '25–30 min',
     htmlPath: '/lessons/ancient-egypt-explorer.html',
+    hidden: true,
     thumbnail: '/games/thumbnails/ancient-egypt-explorer.jpg',
     featured: true,
   },
 ];
+
+/** Every game that is live on the site (hidden games are left out). */
+export const games: PlayableGame[] = allGames.filter((game) => !game.hidden);
 
 /**
  * The homepage "Featured games" section, in order. The first game gets the

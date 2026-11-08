@@ -28,11 +28,6 @@ const perks: { icon: IconName; title: string; text: string }[] = [
     text: 'Hear about new games and activities as soon as they go live.',
   },
   {
-    icon: 'open-book',
-    title: 'Book launches',
-    text: 'Be the first to know when a new interactive ebook is ready to read.',
-  },
-  {
     icon: 'sparkle',
     title: 'Learning ideas',
     text: 'Quick, playful ways to keep kids curious at home.',

@@ -62,7 +62,7 @@ export default function PostPage({ params }: PostPageProps) {
         <h2 id="keep-exploring" className="!mt-3">
           Ready for an adventure?
         </h2>
-        <p>Pick a free game or read a story together.</p>
+        <p>Pick a free game and play together.</p>
         <div className="mt-5 flex flex-wrap justify-center gap-3">
           <Link
             href="/games"
@@ -70,13 +70,6 @@ export default function PostPage({ params }: PostPageProps) {
           >
             <SiteIcon name="controller" size={24} />
             Play the games
-          </Link>
-          <Link
-            href="/books"
-            className={`${buttonClass} bg-white !text-ink-900`}
-          >
-            <SiteIcon name="open-book" size={24} />
-            See the books
           </Link>
         </div>
       </aside>

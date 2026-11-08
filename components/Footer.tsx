@@ -18,7 +18,6 @@ const columns = [
   {
     title: 'Read & Explore',
     links: [
-      { href: '/books', label: 'Interactive ebooks' },
       { href: '/demo', label: 'World Demo' },
     ],
   },
@@ -49,8 +48,8 @@ export default function Footer() {
               <span>Learning Adventures</span>
             </Link>
             <p className="text-sm leading-relaxed text-gray-300">
-              Free learning games for grades K–5, plus interactive ebooks that
-              tell the stories behind them.
+              Free learning games for grades K–5, plus an early look at the
+              Learning Adventures World.
             </p>
             {contactEmail && (
               <a

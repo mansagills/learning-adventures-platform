@@ -45,7 +45,7 @@ export default function Faq() {
       id: 'games',
       question: 'Where are the regular games?',
       answer:
-        'All of our mini-games are free to play right now on the Games page, with no sign-up. You can also read the stories behind them in our interactive ebooks.',
+        'All of our mini-games are free to play right now on the Games page, with no sign-up.',
     },
   ];
 
@@ -209,8 +209,7 @@ export default function Faq() {
               Looking for the games?
             </h3>
             <p className="font-plus-jakarta text-foreground/70 mb-6">
-              Every mini-game is free to play today, and each interactive ebook
-              tells the story behind them.
+              Every mini-game is free to play today, with no sign-up.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -218,12 +217,6 @@ export default function Faq() {
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-pg-violet px-6 py-3 font-bold text-white shadow-pop transition-all duration-200 ease-bounce hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-pop-hover focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
               >
                 <SiteIcon name="controller" size={26} /> Play the games
-              </Link>
-              <Link
-                href="/books"
-                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-pg-border bg-white px-6 py-3 font-bold text-ink-900 transition-all duration-200 hover:bg-pg-yellow focus:outline-none focus-visible:ring-4 focus-visible:ring-pg-violet/40"
-              >
-                <SiteIcon name="books" size={26} /> See the books
               </Link>
             </div>
           </div>

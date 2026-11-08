@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { publishedPosts } from '@/lib/content/blog';
-import { books } from '@/lib/content/books';
+import { books, BOOKS_LIVE } from '@/lib/content/books';
 import { games } from '@/lib/content/games';
 import { subjects } from '@/lib/content/subjects';
 import { getNewsletterStatus } from '@/lib/newsletter';
@@ -34,8 +34,12 @@ export function GET(): Response {
       page(`/subjects/${subject.id}`, 'weekly', 0.8)
     ),
     ...games.map((game) => page(`/games/${game.slug}`, 'monthly', 0.7)),
-    page('/books', 'weekly', 0.8),
-    ...books.map((book) => page(`/books/${book.slug}`, 'monthly', 0.7)),
+    ...(BOOKS_LIVE
+      ? [
+          page('/books', 'weekly', 0.8),
+          ...books.map((book) => page(`/books/${book.slug}`, 'monthly', 0.7)),
+        ]
+      : []),
     page('/demo', 'monthly', 0.7),
     page('/blog', 'weekly', 0.6),
     ...publishedPosts.map((post) => page(`/blog/${post.slug}`, 'monthly', 0.5)),

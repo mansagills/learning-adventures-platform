@@ -21,9 +21,9 @@ export default function Benefits() {
     },
     {
       icon: 'books' as const,
-      title: 'Characters From the Books',
+      title: 'Characters From the Stories',
       description:
-        'Meet the heroes and villains from our interactive ebooks, right on campus.',
+        'Meet the heroes and villains of the Learning Adventures story, right on campus.',
       color: 'mint' as const,
     },
     {
