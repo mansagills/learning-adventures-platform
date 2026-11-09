@@ -2129,6 +2129,118 @@ Built in two halves, with a look preview first (an island, the tiles, the plants
 ##### Checks it will ship with
 Unit tests for every combo rule (each checked against the science), the seasons and targets, seeded islands that can always be won and for every habitat's questions at every level; a browser test that plays a run from the title screen to a restored island, and the Archipelago finale; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
 
+#### S4 Environment: Pollution Solution Squad, the sixth Wild Lands game and the first crafting adventure: PLAN WRITTEN (2026-11-09), waiting for the owner's choices
+
+> Source: the old site game `public/games/pollution-solution-squad.html`, with `public/games/ocean-conservation-heroes.html` merged in (the merge map in section 4). The owner picked it after Ecosystem Building Tycoon and asked for "a different style of game… a platformer adventure game style, or a sandbox crafting style game". Of three styles (A a platformer adventure, B a top-down sandbox, C a side-view crafting adventure), the owner chose **C2 with a free-building area** (2026-11-09). C2 is our own game in the side-scrolling crafting genre: hand-built stretches of coastline with set places to build fixes, not a world of diggable blocks. Grades 3–5, slug `pollution-solution-squad`. The new game replaces the old one at the same address, and `/games/ocean-conservation-heroes` redirects to it when it ships. Setting: the new Wild Lands setting `coastline` (a beach, a river mouth and a wetland, section 7c of `docs/GAME_WORLDS_PROPOSAL.md`).
+
+##### What the originals do
+- **Pollution Solution Squad teaches:** that pollution exists and can be cleaned. You tap trash, oil and smog on a picture with four tools (Trash Picker, Oil Cleaner, Air Purifier, Tree Planter) against a timer. An Environment Health bar fills, and animals appear as it rises. Three timed levels, a fact at the end of each, 82 emoji as the art. The pollution never comes from anywhere, so cleaning up is the whole story.
+- **Ocean Conservation Heroes teaches:** that the ocean has zones and that trash ends up in them. A submarine moves up and down through four zones collecting bottles, oil, bags and fishing nets, with an Ocean Health bar and facts about each zone.
+- **Keeps:**
+  - the four kinds of pollution (trash and plastic, oil, dirty air, lost habitat) and the matching fixes, which become things you craft and build
+  - the health bar, which becomes a water test you can see: trash, oil, cloudiness and oxygen at each stretch of the coast
+  - animals coming back as the coast gets cleaner
+  - the fishing nets (ghost nets) and plastic bags from Ocean Conservation Heroes, and the turtle that mistakes a bag for a jellyfish
+  - the good facts: millions of tons of plastic reach the sea each year; only about 3% of Earth's water is fresh; ocean plankton make about half of the oxygen we breathe
+- **Facts to fix:**
+  - "Plastic pollution kills over 1 million sea birds and 100,000 marine animals yearly" is quoted widely, but nobody has found where the numbers come from. The game keeps the idea (plastic harms seabirds, turtles and whales) and drops the numbers.
+  - "Bees pollinate 80% of flowering plants": most flowering plants need animals to carry their pollen, and bees are only one of those animals. It is reworded.
+  - "Recycling one aluminum can saves enough energy to run a TV for 3 hours" and the glass bottle and computer fact depend on the TV and the computer. They become a fact that holds: making a can from recycled metal uses about 95% less energy than making it new.
+  - "Planting trees is one of the best ways to fight climate change" is too simple, and climate isn't this game's topic. It is dropped. Trees stay in the game for shade, roots that hold soil, and homes for animals.
+  - The Air Purifier cleaned the air in one tap. In the new game, air gets cleaner when the smoke stops at its source (a filter on the mill chimney, buses that don't idle), not when the sky is wiped.
+  - The ocean-zone facts from Ocean Conservation Heroes are left out, because Ocean Depth Diver teaches the zones properly.
+- **Missing against the standard:** where pollution comes from, why prevention beats cleanup, levels and misconceptions, hints, debriefs, characters, a story, the pixel art, sound, saving and a grown-ups page. Above all, the engineering side: designing a fix, testing it and making it better.
+
+##### The game
+- **The big idea:** every morning, trash washes up on Turtle Beach again. The Squad cleans it, but it keeps coming back. Where is it coming from? You follow the pollution **upstream**, from the sea to its sources, and the beach only stays clean when the fixes stop the pollution where it starts. Cleaning up helps, and stopping it at the source helps more.
+- **How it plays (a side-scroller, built on the physics from Weather Wizard Battle):**
+  - **Explore:** run, jump, wade, swim in the shallows and paddle a kayak along one connected coastline, drawn side on in the Wild Lands style.
+  - **Gather:** pick up trash with your grabber. Most of it is material for crafting: bottles, cans, rope and old nets, scrap wood, tires, glass. Natural things (shells, driftwood homes, plants) stay where they are: "take only trash". Seeds and native plants come from the Squad's seed library.
+  - **Test the water:** at each stretch, a water test kit shows trash, oil, cloudiness (mud) and oxygen as four gauges, and one question asks what the readings mean.
+  - **Craft at the Workbench:** blueprints from the Squad's engineer turn materials into fixes. For each problem you **pick between two or three designs**, using the problem's goals and limits (for example: "keep the oil in when waves come, and use what we found"). Then you build it in the world and watch it work. A weaker design only half works, the game shows why, and you can improve it. That is the engineering loop: problem → design → test → improve.
+  - **Build the fix:** place it at the build spot (a blueprint stake) in the level. The water changes where you can see it: oil gathers behind the boom, the river turns from brown to clear, fish come back, birds land. Each fix also opens the way upstream.
+- **Gentle by default:** no lives and no timer. A fall into deep water brings you back to the last checkpoint (a Squad flag). An easy setting slows the action and adds a double jump, as in Weather Wizard Battle.
+- **Characters (draft names):**
+  - **Marisol Vega,** the Squad leader, a marine biologist at Beach Camp, who hosts and tells the story
+  - **Rafi Haddad,** the Squad's engineer, who runs the Workbench and gives the blueprints
+  - **Dr. Wen Li,** a water scientist at the wetland, who runs the water tests
+  - **Rosa Delgado,** a farmer and town council member upstream, who helps fix the sources
+  - **Ollie,** a river otter you free from a plastic six-pack ring on the first day, who follows you, sniffs out hidden trash and reacts to the water
+  - Ranger Tala appears at Beach Camp, as in the other Wild Lands games.
+- **Beach Camp (home base):** the Squad's hut, the Workbench, a sorting station (each bag of trash is sorted into recycling, compost, trash and hazardous waste such as batteries; a quick sort with a reason for each), the Squad Journal, the map, and the Nature Center lot next door.
+- **The four stretches, followed upstream** (each with two levels, a map between them):
+  1. **Turtle Beach (trash and plastic):** clean the beach, free Ollie, find the turtle nest. Plastic doesn't rot away; it breaks into tiny pieces (microplastics) that last hundreds of years. The trash keeps coming back, and its path leads to a storm drain pipe on the beach. *Fixes:* a trash net on the drain outlet (pick the net size: too big lets bottles through, too small clogs with leaves), recycling bins with lids so the wind can't empty them, a "take your trash home" sign.
+  2. **The Harbor and River Mouth (oil and ghost nets):** a fishing boat leaks fuel, and old nets tangle the rocks. Oil floats and spreads into a thin layer. *Fixes:* an oil boom (a floating fence) made of rope and sealed bottles, absorbent pads to soak up oil, a patch for the boat's leaking tank (the source), and a net bin at the dock so old nets get recycled. A seabird is cleaned with dish soap at the vet station. The level has a kayak paddle through the harbor.
+  3. **The Wetland (muddy water and algae):** the water is green and cloudy, and fish gasp at the surface. Fertilizer from upstream feeds too much algae; when the algae dies, decomposers use up the oxygen. Wetlands are nature's water filter and sponge. *Fixes:* replant native reeds and cattails, build a sand-and-gravel filter (pick the layer order), clear a blocked channel so the water flows through the reeds.
+  4. **Farm and Town (the sources):** the end of the trail. Rain washes fertilizer and soil off bare fields, and litter and car oil off the streets into storm drains, which run **straight to the river** with no cleaning. The mill chimney smokes. *Fixes with Rosa:* a strip of plants along the riverbank (a buffer strip), cover crops so fields aren't bare, a rain garden and rain barrels in town, "drains to river" markers painted by the storm drains, a filter on the mill chimney, and a plan for using fertilizer at the right time and in the right amount.
+- **The finale, The Big Rain:** a storm rolls in from the hills. The camera follows the rainwater downstream past every fix you built: the buffer strip catches the soil, the rain garden soaks up the street water, the reeds clean the wetland, the drain net catches the bottles, and the boom holds. The water test is green at every stretch. The next morning, Turtle Beach is clean and **stays clean**. Then **Clean Coast Day**: the town comes to the beach, the Squad gives out badges, and at night, with the beach lights switched to turtle-safe amber, the hatchlings make it to the sea.
+- **The Nature Center (the free-building area):** a lot beside Beach Camp, drawn side on as a cut-away, so you build above and below the ground: a little dune, a pond and the soil underneath. You place pieces on a grid, move them and take them away freely. There is no score and no way to lose. Pieces come from what you craft with spare materials and what the story unlocks:
+  - plants: beach grass for the dune, milkweed, sunflowers, a shade tree, cattails for the pond
+  - homes: a bird box, a bat box, a bee hotel, a turtle-safe dune fence
+  - things that help: a compost bin with worms in the soil below, a rain barrel, solar lights in amber
+  - things for people: benches and paths made from recycled plastic, signs, a lookout
+  
+  Animals visit depending on what you build (butterflies come to the milkweed, a frog to the pond, a heron to the cattails, bats at night), and each first visit adds a card to the Visitor Book with one fact. Every piece has a card that says how it helps. This is the sandbox part of the game: a place to be creative, and a quiet reminder that the same choices help a real garden or school yard.
+- **The Squad Journal (the logbook):** every fix, material and animal, with a picture and two facts, and the questions at three levels with the hint ladder, five stars per stretch and a talk-it-through question per stretch.
+- **Modeled on:** Weather Wizard Battle (the side-scroller physics in `src/kit/scroller/physics.ts`, levels drawn as letter grids, the play screen, the shop panel), Ecosystem Building Tycoon (placing pieces on a grid, for the Nature Center), and the Wild Lands logbook, hint ladder and save from the last four games.
+
+##### Learning design
+
+| Stretch (host) | Skill | Level 1 | Level 2 | Level 3 | Standards |
+|---|---|---|---|---|---|
+| Turtle Beach (Marisol) | Trash and plastic: where it comes from and where it goes | Litter on land can reach the sea through wind, rain and drains; animals mistake plastic for food (a bag looks like a jellyfish); sort recycling, compost and trash | Plastic breaks into tiny pieces but doesn't rot; most ocean trash starts on land; reduce and reuse come before recycling | Compare two fixes for the beach drain by their goals and limits; why the beach got dirty again after a cleanup; why a community plan works better than one cleanup | 5-ESS3-1, 3-5-ETS1-1, 3-5-ETS1-2 |
+| The Harbor and River Mouth (Rafi) | Oil and ghost nets; designing a fix | Oil floats on water and spreads; oil sticks to feathers and fur, so animals get cold; old nets keep catching animals | How a boom and absorbent pads work; why you fix the leak first; choose a boom design that holds in waves | Test a design, read what went wrong and improve it; compare designs by cost, materials and how well they work; why preventing a spill beats cleaning one | 3-5-ETS1-2, 3-5-ETS1-3, 3-LS4-4 |
+| The Wetland (Dr. Wen Li) | Clean water and the wetland | Wetlands filter water and soak up floods; muddy water blocks sunlight; read the four gauges | Too much fertilizer makes too much algae; dead algae uses up the oxygen, so fish gasp; water can look clear and still be polluted | Put the filter layers in order and explain why; read a bar graph of oxygen before and after the fix; how a changed habitat affects the animals that live there | 3-LS4-4, 5-ESS2-1, 5-ESS3-1 |
+| Farm and Town (Rosa) | Fixing it at the source | Storm drains go straight to the river; rain washes soil and fertilizer off bare fields; smoke from chimneys and cars dirties the air | Plant strips and rain gardens catch runoff; cover crops hold the soil; the right amount of fertilizer at the right time | Trace pollution from source to sea on a map; choose the best place for a fix; pick a town plan that meets every goal; how communities protect their water and air | 5-ESS3-1, 3-5-ETS1-1, 4-ESS3-1 |
+
+- **Mistakes the wrong answers come from:**
+  - most ocean trash is dropped by people at the beach or from ships (most of it comes from land, carried by rivers, drains and the wind)
+  - plastic rots away like food (it breaks into smaller pieces that last for hundreds of years)
+  - storm drains go to a water-cleaning plant (in most towns they flow straight to the river)
+  - if water looks clear, it is clean (fertilizer and some chemicals can't be seen; you need a test)
+  - fertilizer helps plants, so more is better for the river too (it feeds algae, and the algae uses up the oxygen when it dies)
+  - oil sinks or mixes into water (it floats and spreads into a thin layer)
+  - cleaning up is enough (pollution keeps coming until it is stopped at the source)
+  - wetlands are useless swamps (they clean water, stop floods and are nurseries for fish and birds)
+  - anything with a recycling symbol can go in the recycling bin, dirty or not; recycling is the first thing to do (reduce and reuse come first)
+  - air pollution only comes from factories (cars, buses and burning also make it)
+  - one person can't make a difference (many small actions add up, and towns can make rules together)
+  - the first design is the final one, or the biggest and most expensive design is the best (engineers test, compare against the goals and limits, and improve)
+- **Steps** (level 3 design questions): what is the problem → what must the fix do (goals) and what can we use (limits) → which design meets them best → test → improve.
+- **Hint ladder:** a nudge ("Where does the water in the drain come from?") → a picture (the map of the river with the arrow of the water's path, or the design's test with the leak circled) → the answer outlined.
+- **Debriefs:** one reason question per stretch, for example "The beach was clean on Monday and dirty on Tuesday. Why?" (the trash keeps coming down the river and out of the drain until it is stopped upstream).
+- **Progress and finale:** the four gauges at each stretch turn from red to green as the fixes go in; animals come back; each stretch has five stars for clean first answers; the stretches open one by one going upstream; the finale, The Big Rain, needs every stretch fixed. The Nature Center stays open after the end, and every level can be replayed to find missed trash and Visitor Book animals.
+- **Difficulty change from the original:** the old games only asked you to tap the pollution away. The new one asks where it came from, why it is harmful, and which fix works best and why, in three levels that reach the top of grade 5: reading gauges and graphs, tracing a path on a map, and comparing designs by their goals and limits (the 3–5 engineering standards).
+
+##### How it would be built (each step ends with the owner's look)
+1. **Look preview and a crafting test:**
+   - the cast (Marisol, Rafi, Dr. Wen Li, Rosa, Ollie the otter, the player as a Squad cadet with a grabber and a backpack, running, jumping, swimming and paddling)
+   - the four stretches side on, dirty and clean, with layered backgrounds
+   - the trash and materials, the fixes (net, boom, pads, reeds, filter, buffer strip, rain garden), the water gauges
+   - the Nature Center lot with some pieces placed
+   - **a short playable test level:** gather trash on the beach, craft the drain net at the Workbench and build it, then place a few pieces in the Nature Center, so the owner can try gathering, crafting and building before any level is made
+   - new art in `src/kit/worlds/wild-lands/` (`coast-art.ts` and a `coastline.ts` setting), kept out of the shared lists like the other previews so the finished games build the same
+2. **Half 1:** Beach Camp, the Workbench and sorting station, the Nature Center, Turtle Beach and the Harbor and River Mouth, the water tests, the Squad Journal, saving and the grown-ups page.
+3. **Half 2:** the Wetland, Farm and Town, The Big Rain and Clean Coast Day, the rest of the questions and Nature Center pieces, the site listing at the same address with a new card picture, and `/games/ocean-conservation-heroes` redirecting to it.
+
+##### Choices for the owner
+1. **Which way you travel:**
+   - **(a) Start at the beach and follow the trash upstream to its sources** (recommended). It is a mystery with a clear answer at the end, and the beach getting dirty again is a lesson children remember.
+   - (b) Start at the town and travel downstream with the water to the sea. Simpler to follow, but you meet the sources before you know why they matter.
+2. **How crafting works:**
+   - **(a) Blueprints with design choices you test** (pick a design, build it, see how well it works, improve it) (recommended). This is how engineers work, and it covers the grades 3–5 engineering standards.
+   - (b) Fixed recipes only (gather the materials, craft the one fix). Quicker, but less to think about.
+3. **The Nature Center:**
+   - **(a) A cut-away lot above and below the ground** (a dune, a pond, roots and worms in the soil), where animals visit depending on what you build (recommended).
+   - (b) A flat beach lot you decorate above the ground only.
+4. **Air pollution (from the original game):**
+   - **(a) A small part of Farm and Town** (the mill chimney filter, buses that don't idle, trees for shade) (recommended). It keeps the original's air idea, with the focus on water.
+   - (b) Leave air out and keep the game only about water.
+5. **Names:** the title stays Pollution Solution Squad. Marisol Vega, Rafi Haddad, Dr. Wen Li, Rosa Delgado and Ollie the river otter are drafts. Keep them, or change any.
+
+##### Checks it will ship with
+Unit tests for every stretch and level (questions, wrong answers with a reason, hints), the crafting rules (every recipe can be made from the materials in its level, every design's test result matches the science), the water gauges and the levels (every level can be finished, every build spot can be reached); a browser test that plays from the title screen through The Big Rain with the keyboard and real clicks, including the Nature Center; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
+
 #### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN APPROVED (2026-10-29); look APPROVED (2026-11-03); half 1 MERGED (PR #253); half 2 BUILT (2026-11-03): COMPLETED ✅ with its merge
 
 > Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
@@ -2366,3 +2478,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-21:** The owner merged half 1 (PR #238) and said "Go for half 2". Half 2 built: the midnight zone (atolla jelly, anglerfish, gulper eel), the deep sea floor with its hot vents and the water sample, 36 more logbook questions, the Creature Designer's midnight zone and two more challenges, the Trench Dive (five radio questions on the way down to about 10,900 meters and the snailfish photo) and the Glow Show (the game tells the site it is complete). The game now replaces the old one at `/games/ocean-depth-diver`, with a new card picture. 16 unit tests, 92/92 browser checks, score 9.2. Waiting for the owner's look.
 - **2026-10-21:** The owner merged half 2 (PR #240). **Ocean Depth Diver COMPLETED ✅** (both halves; 9.2/10; 92/92 browser checks). It replaces the old game on the site at the same address. That is 3 of the 14 Science games.
 - **2026-10-26:** The owner asked for the next Wild Lands game and picked **Fossil Dig Adventure** (over Animal Kingdom Match, Pollution Solution Squad and Rock Cycle Racing). Its plan is written (the S2 section above): a walking dig site in the badlands with four stations (the Quarry, the Cliff Wall, the Prep Lab, the Trackway) and a Museum Night finale with an ultraviolet Glow Room. Waiting for the owner's choices and approval.
+- **2026-11-09:** Ecosystem Building Tycoon merged (PR #263). The owner picked **Pollution Solution Squad** (with Ocean Conservation Heroes merged in) and asked for a new style; of three (a platformer adventure, a top-down sandbox, a side-view crafting adventure), the owner chose **the crafting adventure with hand-built stretches plus a free-building area**. Its plan is written (the S4 Pollution Solution Squad section above): follow the trash upstream from Turtle Beach through the Harbor and the Wetland to Farm and Town, craft and test fixes at the Workbench, The Big Rain finale, and the Nature Center to build in freely. Waiting for the owner's choices.
