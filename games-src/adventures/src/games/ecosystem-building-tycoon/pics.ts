@@ -7,9 +7,10 @@ import { POND_WEB, type Model, type Pic, type Question } from './problems';
 
 const T = 24;
 
-const tile = (id: PieceId, scale = 2, faded = false) => {
-  const img = pix(`q-${id}${faded ? '-gone' : ''}`, () => (faded ? fade(paintPiece(id, T)) : paintPiece(id, T)), scale, PIECES[id].name);
-  return h('figure', { class: `ebt-qtile${faded ? ' gone' : ''}` }, img, h('figcaption', { text: faded ? `No ${PIECES[id].name.toLowerCase()}` : PIECES[id].name }));
+const tile = (id: PieceId, scale = 2, faded = false, label?: string) => {
+  const name = label ?? PIECES[id].name;
+  const img = pix(`q-${id}${faded ? '-gone' : ''}`, () => (faded ? fade(paintPiece(id, T)) : paintPiece(id, T)), scale, name);
+  return h('figure', { class: `ebt-qtile${faded ? ' gone' : ''}` }, img, h('figcaption', { text: faded ? `No ${name.toLowerCase()}` : name }));
 };
 
 const sun = (scale = 2) =>
@@ -44,12 +45,18 @@ function fade(b: PixelBuffer, dark = false): PixelBuffer {
 /** The picture above a question. `labels` adds the words a hint shows. */
 export function buildPic(p: Pic, labels: boolean): HTMLElement {
   switch (p.k) {
+    case 'bars':
+      return barsPic(p.rows, labels);
+    case 'pop':
+      return popPic(p.prey, p.hunter, labels);
+    case 'cycle':
+      return cyclePic(labels);
     case 'chain': {
       const parts: HTMLElement[] = [];
       if (p.sun) parts.push(sun(), arrow());
       p.ids.forEach((id, i) => {
         if (i) parts.push(p.arrows ? arrow() : h('span', { class: 'ebt-qgap' }));
-        parts.push(tile(id));
+        parts.push(tile(id, 2, false, p.labels?.[i]));
       });
       return h(
         'div',
@@ -180,6 +187,108 @@ export function buildModel(q: Question): HTMLElement | null {
   if (m === 'chain' && !(q.pic.k === 'chain' && q.pic.arrows)) return buildPic({ k: 'chain', ids: ['grass', 'rabbit', 'fox'], arrows: true, sun: true }, true);
   if (m === 'web' && q.pic.k !== 'web') return buildPic({ k: 'web' }, true);
   if (m === 'needs' && q.pic.k !== 'needs') return buildPic({ k: 'needs' }, true);
+  if (m === 'cycle' && q.pic.k !== 'cycle') return cyclePic(true);
+  if (m === 'pyramid' && q.pic.k !== 'bars')
+    return barsPic(
+      [
+        ['Plants', 20, '#3fae5a'],
+        ['Plant-eaters', 8, '#f2c94c'],
+        ['Meat-eaters', 2, '#e0503a'],
+      ],
+      true,
+    );
   if (m === 'fact') return h('p', { class: 'ebt-model-fact', text: q.hints[1] });
   return null;
+}
+
+/** A ranger's count as a bar chart. With `labels`, a note about the energy pyramid. */
+function barsPic(rows: Array<[string, number, string]>, labels: boolean): HTMLElement {
+  const max = Math.max(1, ...rows.map((r) => r[1]));
+  return h(
+    'div',
+    { class: 'ebt-qcol ebt-qbars', role: 'img', 'aria-label': rows.map(([l, n]) => `${l}: ${n}`).join(', ') },
+    ...rows.map(([label, n, color]) => {
+      const fill = h('span', { class: 'ebt-bar-fill' });
+      fill.style.width = `${(n / max) * 100}%`;
+      fill.style.background = color;
+      return h('div', { class: 'ebt-bar' }, h('span', { class: 'ebt-bar-label', text: label }), h('span', { class: 'ebt-bar-track' }, fill), h('strong', { text: String(n) }));
+    }),
+    labels ? h('p', { class: 'ebt-qnote', text: 'A healthy island: the most plants, fewer plant-eaters, the fewest meat-eaters (the energy pyramid).' }) : null,
+  );
+}
+
+/** Prey and hunter numbers over ten years: the prey rises and falls, and the hunter follows about two years later. */
+function popPic(prey: PieceId, hunter: PieceId, labels: boolean): HTMLElement {
+  const W = 220;
+  const H = 110;
+  const c = h('canvas', {
+    class: 'ebt-pop-graph',
+    width: W * 2,
+    height: H * 2,
+    role: 'img',
+    'aria-label': `A graph of ${PIECES[prey].name.toLowerCase()} and ${PIECES[hunter].name.toLowerCase()} numbers over ten years`,
+  });
+  const ctx = c.getContext('2d');
+  if (ctx) {
+    ctx.scale(2, 2);
+    ctx.fillStyle = '#fffaf0';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#8a6a4a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(24, 8);
+    ctx.lineTo(24, H - 18);
+    ctx.lineTo(W - 6, H - 18);
+    ctx.stroke();
+    const line = (f: (t: number) => number, color: string) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let t = 0; t <= 10; t += 0.1) {
+        const x = 24 + (t / 10) * (W - 34);
+        const y = H - 18 - f(t) * (H - 30);
+        if (t === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    };
+    line((t) => 0.55 + 0.4 * Math.sin((t / 10) * Math.PI * 2.4), '#c08a2a');
+    line((t) => 0.3 + 0.22 * Math.sin(((t - 1.6) / 10) * Math.PI * 2.4), '#c8402a');
+    ctx.fillStyle = '#3a2414';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Years', W / 2 - 14, H - 4);
+  }
+  return h(
+    'div',
+    { class: 'ebt-qcol' },
+    c,
+    h(
+      'div',
+      { class: 'ebt-legend' },
+      h('span', { class: 'ebt-key', style: 'background:#c08a2a' }),
+      h('span', { text: PIECES[prey].name }),
+      h('span', { class: 'ebt-key', style: 'background:#c8402a' }),
+      h('span', { text: PIECES[hunter].name }),
+    ),
+    labels ? h('p', { class: 'ebt-qnote', text: 'The hunters’ line follows the prey’s line, a little later.' }) : null,
+  );
+}
+
+/** The decomposer cycle: an oak drops leaves, mushrooms break them down, the rich soil feeds the oak again. */
+function cyclePic(labels: boolean): HTMLElement {
+  const step = (id: PieceId | 'soil', name: string) =>
+    id === 'soil' ? h('figure', { class: 'ebt-qtile' }, h('span', { class: 'ebt-soil', 'aria-hidden': 'true' }), h('figcaption', { text: name })) : tile(id, 2, false, name);
+  return h(
+    'div',
+    { class: 'ebt-qrow ebt-cycle' },
+    step('oak', 'Oak tree'),
+    arrow(),
+    step('leaves', 'Fallen leaves'),
+    arrow(),
+    step('mushrooms', 'Decomposers'),
+    arrow(),
+    step('soil', 'Rich soil'),
+    h('span', { class: 'ebt-cycle-back', text: 'back to the oak' }),
+    labels ? h('p', { class: 'ebt-qnote', text: 'Matter goes round and round. Energy comes in new from the Sun every day.' }) : null,
+  );
 }

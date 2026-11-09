@@ -175,6 +175,17 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     delay: 1500,
   },
   // Weather Wizard Battle: start, pick a look, read Professor Nimbus's welcome, then the field camp with the hosts and the map board.
+  // Ecosystem Building Tycoon: start, read Warden Nia's welcome, start a short run on Meadow Island, then let Bramble sniff and place three seasons of tiles.
+  'ecosystem-building-tycoon': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      ...Array(22).fill('.dialogue'),
+      '[data-run="meadow-short"]',
+      ...Array(6).fill('.dialogue'),
+      ...Array(3).fill(['.ebt-tool:has-text("Sniff")', '.ebt-place', '.ebt-board']).flat(),
+    ],
+    delay: 1800,
+  },
   'weather-wizard-battle': {
     clicks: [
       'button:has-text("Start a new game")',

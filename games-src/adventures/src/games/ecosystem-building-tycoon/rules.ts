@@ -35,13 +35,21 @@ import { PIECES, type Ground, type PieceId, type Role } from '../../kit/worlds/w
 
 export type Rand = () => number;
 
-export type IslandKind = 'meadow' | 'pond';
-/** The island types in play now (half 2 adds the woods and the wetland). */
-export const ISLAND_KINDS: IslandKind[] = ['meadow', 'pond'];
+export type IslandKind = 'meadow' | 'pond' | 'woods' | 'wetland' | 'archipelago';
+/** Every island type, in the order they open. The Archipelago (the finale) joins the other four. */
+export const ISLAND_KINDS: IslandKind[] = ['meadow', 'pond', 'woods', 'wetland', 'archipelago'];
+/** The four island types with their own Field Notebook questions. */
+export type HomeKind = Exclude<IslandKind, 'archipelago'>;
+export const HOME_KINDS: HomeKind[] = ['meadow', 'pond', 'woods', 'wetland'];
 export type RunLength = 'short' | 'long';
 
+/** The usual island grid; the Archipelago is bigger. */
 export const W = 12;
 export const H = 8;
+
+export function sizeOf(kind: IslandKind): { w: number; h: number } {
+  return kind === 'archipelago' ? { w: 16, h: 10 } : { w: W, h: H };
+}
 
 export interface Island {
   kind: IslandKind;
@@ -210,7 +218,8 @@ export type Rule =
   | 'food-chain' // a plant, its eater and that eater's hunter
   | 'circle' // the circle of life
   | 'too-many-eaters' // more plant-eaters than plants
-  | 'too-many-hunters'; // more meat-eaters than plant-eaters
+  | 'too-many-hunters' // more meat-eaters than plant-eaters
+  | 'litter'; // fallen leaves that no decomposer is breaking down
 
 export interface Reason {
   rule: Rule;
@@ -333,6 +342,9 @@ export function score(b: Board, up: readonly UpgradeId[] = []): Score {
     } else if (id === 'stones') {
       const sheltered = near.filter((j) => SHELTERS.includes(b.pieces[j]!)).length;
       if (sheltered) r.push({ rule: 'shelter', pts: Math.min(2, sheltered) });
+    } else if (id === 'leaves' && !near.some((j) => working.has(j) && BREAKS_DOWN[b.pieces[j]!]!.includes('leaves'))) {
+      // nobody is breaking these leaves down: they pile up and smother the ground
+      r.push({ rule: 'litter', pts: -1 });
     }
     pieces.push({ i, id, pts: r.reduce((s, x) => s + x.pts, 0), reasons: r });
   }
@@ -353,9 +365,11 @@ export function score(b: Board, up: readonly UpgradeId[] = []): Score {
     const plant = around(is, loop).find((k) => isProducer(b.pieces[k]))!;
     bonuses.push({ rule: 'circle', pts: 5, cells: [loop, plant] });
   }
-  // balance: the energy pyramid
+  // balance: the energy pyramid. Hunters with prey next to them keep the plant-eaters in check (each one counts against one extra plant-eater).
   const c = census(b);
-  if (c.plantEaters > c.plants) bonuses.push({ rule: 'too-many-eaters', pts: -2 * (c.plantEaters - c.plants), cells: [] });
+  const fedHunters = [...fed].filter((i) => isHunter(b.pieces[i])).length;
+  const extraEaters = c.plantEaters - c.plants - Math.min(fedHunters, Math.max(0, c.plantEaters - c.plants));
+  if (extraEaters > 0) bonuses.push({ rule: 'too-many-eaters', pts: -2 * extraEaters, cells: [] });
   if (c.hunters > c.plantEaters) bonuses.push({ rule: 'too-many-hunters', pts: -2 * (c.hunters - c.plantEaters), cells: [] });
 
   const total = pieces.reduce((s, p) => s + p.pts, 0) + bonuses.reduce((s, x) => s + x.pts, 0);
@@ -417,6 +431,55 @@ export function removeVines(b: Board): Board {
   return { island: b.island, pieces: b.pieces.map((p) => (p === 'vine' ? null : p)) };
 }
 
+// ------------------------------------------------------------------ autumn and the drought
+
+/** In autumn every oak drops its leaves onto its first empty dry neighbor. Returns the new board and where the leaves fell. */
+export function dropLeaves(b: Board): { board: Board; fell: number[] } {
+  const pieces = [...b.pieces];
+  const fell: number[] = [];
+  b.pieces.forEach((p, i) => {
+    if (p !== 'oak') return;
+    const to = around(b.island, i).find((j) => !pieces[j] && LAND.includes(b.island.ground[j]!));
+    if (to === undefined) return;
+    pieces[to] = 'leaves';
+    fell.push(to);
+  });
+  return { board: { island: b.island, pieces }, fell };
+}
+
+/** The water the drought dries up: the Archipelago's eastern pond (water squares in the right half of the island). */
+export function droughtCells(is: Island): number[] {
+  return is.ground.map((g, i) => (g === 'water' && i % is.w >= is.w / 2 ? i : -1)).filter((i) => i >= 0);
+}
+
+/**
+ * The drought: the eastern pond dries to mud. Living things that need open
+ * water there (lily pads, snails, fish, ducks) cannot stay; edge animals and
+ * cattails can live on the mud. Returns the new board and what had to leave.
+ */
+export function startDrought(b: Board): { board: Board; gone: Array<[number, PieceId]> } {
+  const cells = droughtCells(b.island);
+  const ground = [...b.island.ground];
+  const pieces = [...b.pieces];
+  const gone: Array<[number, PieceId]> = [];
+  for (const i of cells) {
+    ground[i] = 'mud';
+    const p = pieces[i];
+    if (p && HABITAT[p] === 'water') {
+      gone.push([i, p]);
+      pieces[i] = null;
+    }
+  }
+  return { board: { island: { ...b.island, ground }, pieces }, gone };
+}
+
+/** The rain comes back: the dried pond fills again (the squares in `cells` turn back into water). */
+export function endDrought(b: Board, cells: readonly number[]): Board {
+  const ground = [...b.island.ground];
+  for (const i of cells) ground[i] = 'water';
+  return { island: { ...b.island, ground }, pieces: b.pieces };
+}
+
 // ------------------------------------------------------------------ runs and targets
 
 export interface Target {
@@ -428,54 +491,24 @@ export interface RunSpec {
   seasons: number;
   targets: Target[];
   rerolls: number;
+  /** The season the drought starts (the Archipelago only); it lasts DROUGHT_SEASONS seasons. */
+  drought?: number;
 }
 
+export const DROUGHT_SEASONS = 2;
+
 /** Targets tested with a simple greedy player on hundreds of seeded islands (see tests/ebt.test.ts): always reachable with good placing, missed with careless placing. */
+const run = (rerollsShort: number, short: number[], long: number[], drought?: [number, number]): Record<RunLength, RunSpec> => ({
+  short: { seasons: 12, rerolls: rerollsShort, targets: short.map((health, i) => ({ season: (i + 1) * 4, health })), drought: drought?.[0] },
+  long: { seasons: 20, rerolls: rerollsShort + 1, targets: long.map((health, i) => ({ season: (i + 1) * 4, health })), drought: drought?.[1] },
+});
+
 export const RUNS: Record<IslandKind, Record<RunLength, RunSpec>> = {
-  meadow: {
-    short: {
-      seasons: 12,
-      rerolls: 2,
-      targets: [
-        { season: 4, health: 6 },
-        { season: 8, health: 16 },
-        { season: 12, health: 28 },
-      ],
-    },
-    long: {
-      seasons: 20,
-      rerolls: 3,
-      targets: [
-        { season: 4, health: 6 },
-        { season: 8, health: 16 },
-        { season: 12, health: 28 },
-        { season: 16, health: 38 },
-        { season: 20, health: 46 },
-      ],
-    },
-  },
-  pond: {
-    short: {
-      seasons: 12,
-      rerolls: 2,
-      targets: [
-        { season: 4, health: 10 },
-        { season: 8, health: 22 },
-        { season: 12, health: 36 },
-      ],
-    },
-    long: {
-      seasons: 20,
-      rerolls: 3,
-      targets: [
-        { season: 4, health: 10 },
-        { season: 8, health: 22 },
-        { season: 12, health: 36 },
-        { season: 16, health: 48 },
-        { season: 20, health: 60 },
-      ],
-    },
-  },
+  meadow: run(2, [6, 16, 28], [6, 16, 28, 38, 46]),
+  pond: run(2, [10, 22, 36], [10, 22, 36, 48, 60]),
+  woods: run(2, [12, 26, 40], [12, 26, 40, 52, 64]),
+  wetland: run(2, [8, 20, 32], [8, 20, 32, 44, 54]),
+  archipelago: run(3, [10, 22, 32], [10, 22, 32, 42, 52], [6, 10]),
 };
 
 export const SEASON_NAMES = ['Spring', 'Summer', 'Autumn', 'Winter'] as const;
@@ -494,24 +527,52 @@ export function yearOf(season: number): number {
 /** The tiles each island type can deal, before unlocks. */
 const MEADOW_DECK: PieceId[] = ['grass', 'flowers', 'berries', 'rabbit', 'mouse', 'bee', 'butterfly', 'fox', 'hawk', 'mushrooms', 'worms', 'log', 'leaves', 'stones'];
 const POND_DECK: PieceId[] = ['grass', 'flowers', 'reeds', 'lilies', 'rabbit', 'mouse', 'butterfly', 'bee', 'snail', 'duck', 'fox', 'frog', 'fish', 'heron', 'mushrooms', 'worms', 'leaves', 'log'];
+/** The woods are full of trees and the things that live on them, so the oak, the deer, the owl and the dung beetle are always there. */
+const WOODS_DECK: PieceId[] = ['oak', 'grass', 'flowers', 'berries', 'deer', 'mouse', 'rabbit', 'bee', 'butterfly', 'fox', 'owl', 'hawk', 'mushrooms', 'worms', 'beetle', 'log', 'leaves', 'stones'];
+const WETLAND_DECK: PieceId[] = [
+  'reeds',
+  'lilies',
+  'grass',
+  'flowers',
+  'berries',
+  'snail',
+  'duck',
+  'frog',
+  'fish',
+  'heron',
+  'mouse',
+  'rabbit',
+  'butterfly',
+  'bee',
+  'fox',
+  'hawk',
+  'mushrooms',
+  'worms',
+  'log',
+  'leaves',
+  'stones',
+];
+const ARCHIPELAGO_DECK: PieceId[] = [...new Set([...MEADOW_DECK, ...POND_DECK, ...WOODS_DECK, ...WETLAND_DECK])];
+const DECKS: Record<IslandKind, PieceId[]> = { meadow: MEADOW_DECK, pond: POND_DECK, woods: WOODS_DECK, wetland: WETLAND_DECK, archipelago: ARCHIPELAGO_DECK };
 
 /** New tiles earned at the end of each run, win or lose, in this order. */
 export const UNLOCK_ORDER: PieceId[] = ['owl', 'deer', 'oak', 'beetle'];
 
-/** The tiles that island can deal with these unlocks. Land-only unlocks go to both islands; the pond keeps its water tiles. */
+/** The tiles that island can deal with these unlocks. Land-only unlocks go to every island; the pond keeps its water tiles. */
 export function deck(kind: IslandKind, unlocked: readonly PieceId[]): PieceId[] {
-  const base = kind === 'meadow' ? MEADOW_DECK : POND_DECK;
-  return [...base, ...UNLOCK_ORDER.filter((u) => unlocked.includes(u))];
+  return [...new Set([...DECKS[kind], ...UNLOCK_ORDER.filter((u) => unlocked.includes(u))])];
 }
 
 /**
  * A new island from a seed: an oval of land with a wobbly coast, a sandy
  * beach all round, grass inside with patches of bare soil, rich soil and
- * rock, and water: a small pond on the meadow, a big pond with muddy banks
- * on the pond island. Some tiles are there from the start.
+ * rock, and water: a small pond on the meadow and in the woods, a big pond
+ * with muddy banks on the pond island, a winding channel through the
+ * wetland, and two ponds on the Archipelago. Some tiles are there from the
+ * start.
  */
 export function makeIsland(kind: IslandKind, r: Rand): Board {
-  for (let attempt = 0; attempt < 50; attempt++) {
+  for (let attempt = 0; attempt < 80; attempt++) {
     const b = tryIsland(kind, r);
     if (b) return b;
   }
@@ -519,75 +580,111 @@ export function makeIsland(kind: IslandKind, r: Rand): Board {
 }
 
 function tryIsland(kind: IslandKind, r: Rand): Board | null {
-  const ground: Array<Ground | null> = new Array(W * H).fill(null);
-  const cx = (W - 1) / 2;
-  const cy = (H - 1) / 2;
+  const { w, h } = sizeOf(kind);
+  const ground: Array<Ground | null> = new Array(w * h).fill(null);
+  const cx = (w - 1) / 2;
+  const cy = (h - 1) / 2;
   const wob = [r(), r(), r(), r()];
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++) {
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
       const a = Math.atan2(y - cy, x - cx);
       const edge = 1 + 0.12 * Math.sin(a * 2 + wob[0] * 6) + 0.1 * Math.sin(a * 3 + wob[1] * 6);
-      const d = Math.hypot((x - cx) / (W / 2 - 0.2), (y - cy) / (H / 2 - 0.1));
-      if (d < edge) ground[y * W + x] = 'grass';
+      const d = Math.hypot((x - cx) / (w / 2 - 0.2), (y - cy) / (h / 2 - 0.1));
+      if (d < edge) ground[y * w + x] = 'grass';
     }
-  const is: Island = { kind, w: W, h: H, ground };
+  const is: Island = { kind, w, h, ground };
   // the beach: land next to the sea (or the grid's edge)
-  for (let i = 0; i < W * H; i++) {
+  for (let i = 0; i < w * h; i++) {
     if (!ground[i]) continue;
-    const x = i % W;
-    const y = Math.floor(i / W);
-    const coast = x === 0 || y === 0 || x === W - 1 || y === H - 1 || around(is, i).some((j) => !ground[j]);
+    const x = i % w;
+    const y = Math.floor(i / w);
+    const coast = x === 0 || y === 0 || x === w - 1 || y === h - 1 || around(is, i).some((j) => !ground[j]);
     if (coast) ground[i] = 'sand';
   }
   const inner = () => ground.map((g, i) => (g === 'grass' ? i : -1)).filter((i) => i >= 0);
   const pick = (list: number[]) => list[Math.floor(r() * list.length) % list.length];
+  const pond = (x: number, y: number, big: boolean) => {
+    const c = Math.round(y) * w + Math.round(x);
+    const cells = big ? [c, c - 1, c + 1, c - w, c + w, c - w - 1, c + w + 1, c - 2, c + 2] : [c, c - 1, c + 1, c - w, c + w - 1];
+    for (const i of cells) if (ground[i] === 'grass') ground[i] = 'water';
+    if (big && r() < 0.5 && ground[c - w + 1] === 'grass') ground[c - w + 1] = 'water';
+    if (big && r() < 0.5 && ground[c + w - 1] === 'grass') ground[c + w - 1] = 'water';
+  };
+  const banks = (chance: number) => {
+    for (const i of inner()) if (around(is, i).some((j) => ground[j] === 'water') && r() < chance) ground[i] = 'mud';
+  };
   // water
-  const centre = Math.round(cy) * W + Math.round(cx);
   if (kind === 'pond') {
-    const pond = [centre, centre - 1, centre + 1, centre - W, centre + W, centre - W - 1, centre + W + 1, centre - 2, centre + 2];
-    for (const i of pond) if (ground[i] === 'grass') ground[i] = 'water';
-    if (r() < 0.5 && ground[centre - W + 1] === 'grass') ground[centre - W + 1] = 'water';
-    if (r() < 0.5 && ground[centre + W - 1] === 'grass') ground[centre + W - 1] = 'water';
-    // muddy banks on some of the pond's edge
-    for (const i of inner()) if (around(is, i).some((j) => ground[j] === 'water') && r() < 0.45) ground[i] = 'mud';
+    pond(cx, cy, true);
+    banks(0.45);
+  } else if (kind === 'wetland') {
+    // a slow, winding channel from one side to the other, with wide muddy banks
+    const ph = r() * 6;
+    for (let x = 1; x < w - 1; x++) {
+      const y = Math.round(cy + Math.sin(x * 0.7 + ph) * 1.3);
+      for (const yy of [y, y + (x % 3 === 0 ? 1 : 0)]) if (ground[yy * w + x] === 'grass') ground[yy * w + x] = 'water';
+    }
+    banks(0.6);
+  } else if (kind === 'archipelago') {
+    pond(w * 0.28, cy, true);
+    pond(w * 0.72, cy + 0.5, false);
+    banks(0.35);
   } else {
-    const at = pick(inner().filter((i) => Math.abs((i % W) - cx) > 1.5));
+    const at = pick(inner().filter((i) => Math.abs((i % w) - cx) > 1.5));
     ground[at] = 'water';
-    const next = around(is, at).filter((j) => ground[j] === 'grass' && (j === at + 1 || j === at - 1 || j === at + W || j === at - W));
+    const next = around(is, at).filter((j) => ground[j] === 'grass' && (j === at + 1 || j === at - 1 || j === at + w || j === at - w));
     if (next.length) ground[pick(next)] = 'water';
   }
-  // patches
-  const grass = inner();
-  for (const i of grass) {
+  // patches: the woods (and the Archipelago's north-east corner) have far more rich soil from all the fallen leaves
+  for (const i of inner()) {
     const v = r();
-    if (v < 0.14) ground[i] = 'soil';
+    const woodsy = kind === 'woods' || (kind === 'archipelago' && i % w >= w / 2 && Math.floor(i / w) < h / 2);
+    if (woodsy) {
+      if (v < 0.1) ground[i] = 'soil';
+      else if (v < 0.4) ground[i] = 'rich';
+      else if (v < 0.44) ground[i] = 'rock';
+    } else if (v < 0.14) ground[i] = 'soil';
     else if (v < 0.2) ground[i] = 'rich';
     else if (v < 0.25) ground[i] = 'rock';
   }
   let b = emptyBoard(is);
-  const land = () => b.pieces.map((_, i) => i).filter((i) => canPlace(b, 'grass', i));
-  const water = () => b.pieces.map((_, i) => i).filter((i) => canPlace(b, 'lilies', i));
-  if (kind === 'meadow' && land().length < 34) return null;
-  if (kind === 'pond' && (water().length < 8 || land().length < 24 || land().length + water().length < 34)) return null;
-  // the tiles already there
-  const put = (id: PieceId, near?: number) => {
-    const spots = spotsFor(b, id).filter((i) => near === undefined || around(is, i).includes(near) === false);
-    if (spots.length) b = place(b, id, pick(spots));
+  const land = b.pieces.map((_, i) => i).filter((i) => canPlace(b, 'grass', i)).length;
+  const water = b.pieces.map((_, i) => i).filter((i) => canPlace(b, 'lilies', i)).length;
+  const need: Record<IslandKind, [number, number, number]> = {
+    // [land, water, both]
+    meadow: [34, 0, 34],
+    woods: [34, 0, 34],
+    pond: [24, 8, 34],
+    wetland: [22, 8, 34],
+    archipelago: [50, 14, 66],
   };
-  if (kind === 'meadow') {
-    put('grass');
-    put('grass');
-    put('log');
-    // the vine starts at the island's far end, away from the grass
-    const far = spotsFor(b, 'vine').filter((i) => i % W >= W - 4);
-    if (!far.length) return null;
+  const [nl, nw, nb] = need[kind];
+  if (land < nl || water < nw || land + water < nb) return null;
+  if (kind === 'archipelago' && droughtCells(is).length < 3) return null;
+  // the tiles already there
+  const put = (id: PieceId) => {
+    const spots = spotsFor(b, id);
+    if (!spots.length) return false;
+    b = place(b, id, pick(spots));
+    return true;
+  };
+  /** The vine starts at the island's far (east) end. */
+  const vine = () => {
+    const far = spotsFor(b, 'vine').filter((i) => i % w >= w - 4);
+    if (!far.length) return false;
     b = place(b, 'vine', pick(far));
-  } else {
-    put('lilies');
-    put('reeds');
-    put('grass');
-    put('leaves');
-  }
+    return true;
+  };
+  const start: Record<IslandKind, PieceId[]> = {
+    meadow: ['grass', 'grass', 'log'],
+    pond: ['lilies', 'reeds', 'grass', 'leaves'],
+    woods: ['oak', 'oak', 'log', 'leaves'],
+    // a boom: too many snails for the water plants
+    wetland: ['reeds', 'lilies', 'snail', 'snail', 'snail'],
+    archipelago: ['grass', 'oak', 'lilies', 'reeds', 'log'],
+  };
+  for (const id of start[kind]) if (!put(id)) return null;
+  if ((kind === 'meadow' || kind === 'wetland' || kind === 'archipelago') && !vine()) return null;
   return b;
 }
 
@@ -668,7 +765,7 @@ export function diagnose(b: Board, up: readonly UpgradeId[] = []): Trouble {
     ['too-many-hunters', -(s.bonuses.find((x) => x.rule === 'too-many-hunters')?.pts ?? 0) + (huntersShort ? hungryHunters * 4 : 0)],
     ['hungry', hungry * 3],
     ['vine', c.vines * 2 + s.pieces.filter((p) => p.reasons.some((x) => x.rule === 'shaded')).length * 2],
-    ['no-decomposers', c.decomposers === 0 || idle === c.decomposers ? 5 + idle : idle * 2],
+    ['no-decomposers', (c.decomposers === 0 || idle === c.decomposers ? 5 + idle : idle * 2) + s.pieces.filter((p) => p.reasons.some((x) => x.rule === 'litter')).length * 2],
     ['few-plants', c.plants < 5 ? (5 - c.plants) * 2 : 0],
     ['no-chain', s.bonuses.some((x) => x.rule === 'food-chain') ? 0 : 3],
   ];

@@ -15,14 +15,17 @@ import { showTitle } from '../../kit/ui/title';
 import { paintPortrait16, type Look16, type Mood } from '../../kit/worlds';
 import '../../kit/worlds/worlds.css';
 import '../../kit/worlds/wild-lands/wild.css';
-import { LUPE_FONOTI, NIA_ACHIENG, paintBoat, paintBramblePortrait, paintPiece, paintSea, PIECES, THEO_PARK, type PieceId } from '../../kit/worlds/wild-lands/eco-art';
+import { LUPE_FONOTI, NIA_ACHIENG, paintBoat, paintBramblePortrait, paintPiece, paintSea, PIECE_IDS, PIECES, THEO_PARK, type PieceId } from '../../kit/worlds/wild-lands/eco-art';
 import { RunView, wait } from './board';
 import {
   BRAMBLE_HELLO,
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
   GROWNUPS,
-  HALF_DONE,
+  DROUGHT_END,
+  DROUGHT_START,
+  FINALE_OPEN,
+  OPEN_DAY,
   ISLAND_INFO,
   MISCONCEPTION_WORDS,
   OPENING,
@@ -34,23 +37,26 @@ import {
   UPGRADES,
   type PersonId,
 } from './content';
-import { MEADOW_SONG, NIGHT_SONG, NOTEBOOK_SONG, POND_SONG, STATION_SONG } from './music';
+import { FINALE_SONG, MEADOW_SONG, NIGHT_SONG, NOTEBOOK_SONG, POND_SONG, STATION_SONG, WETLAND_SONG, WOODS_SONG } from './music';
+import { openFieldGuide, openWebBoard, webLinksAmong } from './guide';
 import { buildModel, buildPic } from './pics';
 import { pix } from './pix';
 import { bank, makeQuestion, shuffle, type Choice, type Misconception, type Question, type Tier } from './problems';
-import { deck, ISLAND_KINDS, makeIsland, RUNS, UNLOCK_ORDER, UPGRADE_IDS, type Census, type IslandKind, type RunLength, type Trouble, type UpgradeId } from './rules';
+import { deck, HOME_KINDS, ISLAND_KINDS, type HomeKind, makeIsland, RUNS, UNLOCK_ORDER, UPGRADE_IDS, type Census, type IslandKind, type RunLength, type Trouble, type UpgradeId } from './rules';
 import { freshSave, store, type EcoSave, type RunSave } from './save';
 
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
 const LOOKS: Record<Exclude<PersonId, 'bramble'>, Look16> = { nia: NIA_ACHIENG, lupe: LUPE_FONOTI, theo: THEO_PARK };
-const SONG: Record<IslandKind, string> = { meadow: 'meadow', pond: 'pond' };
+const SONG: Record<IslandKind, string> = { meadow: 'meadow', pond: 'pond', woods: 'woods', wetland: 'wetland', archipelago: 'finale' };
+/** The picture on each island's card at the station. */
+const ISLAND_ART: Record<IslandKind, PieceId> = { meadow: 'flowers', pond: 'lilies', woods: 'oak', wetland: 'reeds', archipelago: 'heron' };
 
 type Mode = 'title' | 'station' | 'run' | 'busy' | 'panel';
 
 interface Panel {
   modal: Modal;
-  island: IslandKind;
+  island: HomeKind;
   /** One question at a milestone, or the Field Notebook (as many as the child likes). */
   kind: 'milestone' | 'notebook';
   q: Question;
@@ -125,6 +131,9 @@ export class Game {
     audio.addSong('pond', POND_SONG);
     audio.addSong('notebook', NOTEBOOK_SONG);
     audio.addSong('night', NIGHT_SONG);
+    audio.addSong('woods', WOODS_SONG);
+    audio.addSong('wetland', WETLAND_SONG);
+    audio.addSong('finale', FINALE_SONG);
     bus.on('settings:changed', () => {
       this.toolbar?.setIcon('sound', settings.muted ? 'soundOff' : 'soundOn', settings.muted ? 'Sound off' : 'Sound');
     });
@@ -146,12 +155,12 @@ export class Game {
       place: (cell: number) => this.runView?.placeAt(cell),
       sniff: () => this.runView?.sniff(),
       reroll: () => this.runView?.reroll(),
-      notebook: (k: IslandKind) => this.mode === 'station' && this.openPanel(k, 'notebook'),
+      notebook: (k: HomeKind) => this.mode === 'station' && this.openPanel(k, 'notebook'),
       setTier: (s: string, t: Tier) => {
         skill(this.save.learner, s).tier = t;
       },
       /** Open one question by its id (for screenshots). */
-      ask: (k: IslandKind, id: string) => {
+      ask: (k: HomeKind, id: string) => {
         const d = bank(k).find((x) => x.id === id);
         if (!d || this.mode !== 'station') return false;
         skill(this.save.learner, k).tier = d.tier;
@@ -162,6 +171,13 @@ export class Game {
         return true;
       },
       /** Mark islands as restored (for testing later parts). */
+      guide: () => this.mode === 'station' && this.openGuide(),
+      web: () => this.mode === 'station' && this.openWeb(),
+      /** Mark tiles as found (for testing the Field Guide and the food web board). */
+      see: (ids: PieceId[]) => {
+        for (const id of ids) if (!this.save.seen.includes(id)) this.save.seen.push(id);
+        this.persist();
+      },
       restore: (ks: IslandKind[]) => {
         for (const k of ks) {
           if (!this.save.restored.includes(k)) this.save.restored.push(k);
@@ -260,8 +276,11 @@ export class Game {
     this.renderStation();
   }
 
+  /** Each island opens when the one before it is restored; the Archipelago when all four are. */
   private islandOpen(k: IslandKind): boolean {
-    return k === 'meadow' || this.save.restored.includes('meadow');
+    if (k === 'archipelago') return HOME_KINDS.every((x) => this.save.restored.includes(x));
+    const i = HOME_KINDS.indexOf(k);
+    return i === 0 || this.save.restored.includes(HOME_KINDS[i - 1]);
   }
 
   private stationBackground(): HTMLElement {
@@ -284,7 +303,7 @@ export class Game {
         { class: 'ebt-stars', role: 'img', 'aria-label': `${sv.stars[k]} of ${STARS_PER_ISLAND} Field Notebook stars` },
         ...Array.from({ length: STARS_PER_ISLAND }, (_, i) => iconImg(i < sv.stars[k] ? 'star' : 'starEmpty', '', 18)),
       );
-      const art = pix(`island-${k}`, () => paintPiece(k === 'meadow' ? 'flowers' : 'lilies', 24), 3, '');
+      const art = pix(`island-${k}`, () => paintPiece(ISLAND_ART[k], 24), 3, '');
       const runHere = run?.kind === k;
       return h(
         'section',
@@ -299,7 +318,9 @@ export class Game {
               : sv.runs[k]
                 ? `Not restored yet. Best health: ${sv.best[k]}. Runs: ${sv.runs[k]}.`
                 : 'A bare island, waiting for you.'
-            : 'Restore Meadow Island to open this one.',
+            : k === 'archipelago'
+              ? 'Restore all four islands to open the finale.'
+              : `Restore ${ISLAND_INFO[HOME_KINDS[HOME_KINDS.indexOf(k as HomeKind) - 1]].name} to open this one.`,
         ),
         open && !runHere
           ? h(
@@ -319,10 +340,10 @@ export class Game {
               ),
             )
           : null,
-        open
+        open && k !== 'archipelago'
           ? h(
               'button',
-              { class: 'btn ebt-notebook-btn', type: 'button', 'data-notebook': k, onclick: () => this.openPanel(k, 'notebook') },
+              { class: 'btn ebt-notebook-btn', type: 'button', 'data-notebook': k, onclick: () => this.openPanel(k as HomeKind, 'notebook') },
               iconImg('scroll', '', 22),
               h('span', { text: 'Field Notebook' }),
               stars,
@@ -345,7 +366,9 @@ export class Game {
           ),
         )
       : null;
-    const tiles = deck('meadow', sv.unlocked);
+    const found = sv.seen.length;
+    const links = webLinksAmong(sv.seen);
+    const drawn = links.filter((l) => sv.webLinks.includes(l)).length;
     this.stationEl = h(
       'div',
       { class: 'ebt-station' },
@@ -364,28 +387,57 @@ export class Game {
         h('div', { class: 'ebt-island-row' }, ...ISLAND_KINDS.map(card)),
         h(
           'section',
-          { class: 'panel ebt-tiles' },
-          h('h2', { text: `Your tiles (${tiles.length + (this.islandOpen('pond') ? 7 : 0)})` }),
+          { class: 'panel ebt-tiles ebt-hut' },
+          h('h2', { text: 'The research hut' }),
           h(
             'div',
-            { class: 'ebt-tile-list' },
-            ...tiles.map((id) =>
-              h(
-                'span',
-                { class: 'ebt-tile-chip', title: PIECE_FACT[id] },
-                pix(`chip-${id}`, () => paintPiece(id, 24), 1, ''),
-                h('span', { text: PIECES[id].name }),
-              ),
+            { class: 'ebt-run-buttons' },
+            h(
+              'button',
+              { class: 'btn', type: 'button', 'data-hut': 'guide', onclick: () => this.openGuide() },
+              h('strong', { text: 'Field Guide' }),
+              h('small', { text: `${found} of ${PIECE_IDS.length} living things and habitats found` }),
+            ),
+            h(
+              'button',
+              { class: 'btn', type: 'button', 'data-hut': 'web', onclick: () => this.openWeb() },
+              h('strong', { text: 'Food web board' }),
+              h('small', { text: links.length ? `${drawn} of ${links.length} arrows drawn` : 'Place some tiles first' }),
             ),
           ),
           h('p', {
             class: 'ebt-small',
-            text: nextUnlock ? `Finish a run (restored or not) to unlock a new tile: the ${PIECES[nextUnlock].name.toLowerCase()}.` : 'You have unlocked every tile so far.',
+            text: nextUnlock ? `Finish a run (restored or not) to unlock a new tile: the ${PIECES[nextUnlock].name.toLowerCase()}.` : 'You have unlocked every tile.',
           }),
         ),
       ),
     );
     this.host.insertBefore(this.stationEl, this.hud);
+  }
+
+  private openGuide(): void {
+    this.mode = 'panel';
+    audio.play('notebook');
+    openFieldGuide(this.host, this.save.seen, () => this.backToStation());
+  }
+
+  private openWeb(): void {
+    this.mode = 'panel';
+    audio.play('notebook');
+    openWebBoard(this.host, this.save.seen, this.save.webLinks, {
+      found: (link) => {
+        if (!this.save.webLinks.includes(link)) this.save.webLinks.push(link);
+        this.persist();
+      },
+      close: () => this.backToStation(),
+    });
+  }
+
+  private backToStation(): void {
+    if (this.mode !== 'panel') return;
+    this.mode = 'station';
+    audio.play('station');
+    this.renderStation();
   }
 
   private async chatNia(): Promise<void> {
@@ -394,7 +446,13 @@ export class Game {
       ? 'Start with a short run on Meadow Island. Put plants down first: every food chain starts with them. Then add animals right next to the plants they eat.'
       : !sv.restored.includes('pond')
         ? 'Pond Island is open! Pond tiles only go in the water, and the muddy edge. Follow the food web: lily pads, snails, fish, then the heron.'
-        : 'Both islands are restored. Try a long run, or beat your best health. Remember the energy pyramid: lots of plants, fewer plant-eaters, even fewer hunters.';
+        : !sv.restored.includes('woods')
+          ? 'Woods Island is open. Every autumn the oaks drop their leaves. Give them decomposers, or the leaves pile up.'
+          : !sv.restored.includes('wetland')
+            ? 'Wetland Island is out of balance: too many snails. Add water plants, and hunters to keep the plant-eaters in check.'
+            : !sv.restored.includes('archipelago')
+              ? 'The Archipelago is waiting: all four habitats on one island, and the weather station warns of a dry spell.'
+              : 'Every island is restored! Try a long run, beat your best health, or finish the food web board in the research hut.';
     await this.busy(() => this.talk.say(this.speakers.nia, line, 'smile'));
   }
 
@@ -422,7 +480,9 @@ export class Game {
     const s = seed ?? Math.floor(mulberry32(sv.seed++)() * 2 ** 31);
     const board = makeIsland(k, mulberry32(s));
     const spec = RUNS[k][length];
-    sv.run = { kind: k, length, seed: s, pieces: board.pieces, season: 1, hand: [], rerolls: spec.rerolls, deals: 0, upgrades: [], reached: 0 };
+    // the living things already on the island count as found (the Field Guide and the food web board)
+    for (const id of board.pieces) if (id && !sv.seen.includes(id)) sv.seen.push(id);
+    sv.run = { kind: k, length, seed: s, pieces: board.pieces, season: 1, hand: [], rerolls: spec.rerolls, deals: 0, upgrades: [], reached: 0, drought: 0, droughtDone: false };
     this.persist();
     this.openRun(sv.run);
     if (sv.runs[k] === 0) {
@@ -450,9 +510,19 @@ export class Game {
         }
       },
       milestone: (reached, of) => this.milestone(run.kind, reached, of),
+      event: (kind) => this.islandEvent(kind),
       finished: (won, trouble, health, census) => void this.runOver(run, won, trouble, health, census),
     });
     this.host.insertBefore(this.runView.root, this.hud);
+  }
+
+  /** The drought on the Archipelago starting or ending: Theo explains. */
+  private async islandEvent(kind: 'drought-start' | 'drought-end'): Promise<void> {
+    const was = this.mode;
+    this.mode = 'busy';
+    await this.talk.say(this.speakers.theo, kind === 'drought-start' ? DROUGHT_START : DROUGHT_END, kind === 'drought-start' ? 'thinking' : 'smile');
+    this.talk.end();
+    this.mode = was;
   }
 
   /** A target reached: a Field Notebook question, then a research choice (one more card for a clean answer). */
@@ -465,7 +535,8 @@ export class Game {
       'proud',
     );
     this.talk.end();
-    const clean = await new Promise<boolean>((resolve) => this.openPanel(k, 'milestone', resolve));
+    const station: HomeKind = k === 'archipelago' ? HOME_KINDS[(reached + this.save.runs.archipelago) % HOME_KINDS.length] : k;
+    const clean = await new Promise<boolean>((resolve) => this.openPanel(station, 'milestone', resolve));
     const up = await this.research(k, clean);
     this.mode = 'run';
     audio.play(SONG[k]);
@@ -575,9 +646,15 @@ export class Game {
       }
       if (unlock) await this.talk.say(this.speakers.bramble, `Snuffle! A new tile for your bag: the ${PIECES[unlock].name.toLowerCase()}. ${PIECE_FACT[unlock]}`, 'smile');
       else await this.talk.say(this.speakers.nia, 'You keep your badges, stars and tiles. Ready for another island?', 'smile');
-      if (sv.restored.length === ISLAND_KINDS.length && !sv.halfDoneSeen) {
-        await this.talk.say(this.speakers.nia, HALF_DONE, 'proud');
-        sv.halfDoneSeen = true;
+      if (firstRestore && k === 'archipelago') {
+        audio.play('finale');
+        await this.talk.say(this.speakers.nia, OPEN_DAY, 'proud');
+        await this.talk.say(this.speakers.lupe, 'The meadow and the woods are full of life. The plants are where it all starts!', 'smile');
+        await this.talk.say(this.speakers.theo, 'And the ponds and the wetland are a whole web again. Thank you, Junior Ranger.', 'smile');
+        await this.talk.say(this.speakers.bramble, 'Snuffle snuffle! Best island ever!', 'smile');
+      } else if (HOME_KINDS.every((x) => sv.restored.includes(x)) && !sv.finaleOpenSeen) {
+        await this.talk.say(this.speakers.nia, FINALE_OPEN, 'proud');
+        sv.finaleOpenSeen = true;
       }
     });
     this.persist();
@@ -626,7 +703,7 @@ export class Game {
 
   // ------------------------------------------------------------ the Field Notebook (questions)
 
-  private openPanel(island: IslandKind, kind: 'milestone' | 'notebook', done?: (clean: boolean) => void): void {
+  private openPanel(island: HomeKind, kind: 'milestone' | 'notebook', done?: (clean: boolean) => void): void {
     if (!bank(island).length) return;
     if (kind === 'notebook') this.mode = 'panel';
     audio.play('notebook');
@@ -996,7 +1073,7 @@ export class Game {
       'div',
       {},
       h('p', {
-        text: `This summary is kept only in this browser. Islands restored: ${sv.restored.length} of 2 (of 4 when the game is complete). Runs played: ${sv.runs.meadow + sv.runs.pond}. Tiles unlocked: ${sv.unlocked.length} of ${UNLOCK_ORDER.length}. Different tiles placed: ${sv.seen.length}.`,
+        text: `This summary is kept only in this browser. Islands restored: ${sv.restored.length} of 5 (four islands and the Archipelago). Runs played: ${ISLAND_KINDS.reduce((n, k) => n + sv.runs[k], 0)}. Food web arrows drawn: ${sv.webLinks.length}. Tiles unlocked: ${sv.unlocked.length} of ${UNLOCK_ORDER.length}. Different tiles placed: ${sv.seen.length}.`,
       }),
       h(
         'div',
@@ -1027,6 +1104,7 @@ export class Game {
       stars: { ...this.save.stars },
       unlocked: [...this.save.unlocked],
       seen: this.save.seen.length,
+      webLinks: this.save.webLinks.length,
       hasRun: !!this.save.run,
       lastEnd: this.lastEnd,
       research: [...document.querySelectorAll<HTMLElement>('.ebt-research-card')].map((b) => b.dataset.upgrade),
