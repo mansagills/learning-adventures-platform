@@ -325,14 +325,14 @@ export const allGames: PlayableGame[] = [
     title: 'Ecosystem Building Tycoon',
     subject: 'science',
     kind: 'game',
-    grades: '4–5',
-    difficulty: 'hard',
+    grades: '3–5',
+    difficulty: 'medium',
     description:
-      'Build and balance living ecosystems through environmental challenges.',
-    skills: ['Ecology', 'Food Chains'],
-    estimatedTime: '25–30 min',
-    htmlPath: '/games/ecosystem-building-tycoon.html',
-    hidden: true,
+      'Bring bare islands back to life, one season at a time. Place plants, animals and decomposers where they can really live: food chains, pollination and rich soil make combos, and the island grows healthier. Restore a meadow, a pond, the woods and a wetland, then the whole Archipelago.',
+    skills: ['Ecosystems', 'Food Chains', 'Food Webs', 'Decomposers', 'Energy Pyramid'],
+    estimatedTime: '10–30 min a run',
+    // Rebuilt with the Adventure Kit in the Wild Lands world (UX-4 Phase 2, Science), as a roguelike island builder
+    htmlPath: '/games/play/ecosystem-building-tycoon/index.html',
     thumbnail: '/games/thumbnails/ecosystem-building-tycoon.jpg',
   },
   {

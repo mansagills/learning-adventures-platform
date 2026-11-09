@@ -3,7 +3,9 @@
 // (keys, mouse, Bramble's sniff, new tiles, leaving and carrying on, the
 // milestone questions and research cards, the census at night and the
 // talk-it-through question), a run on Pond Island that misses a target (the
-// gentle ending), a restored Pond Island, a long run, the grown-ups page and a
+// gentle ending), a restored Pond Island, a long run, the Woods (autumn
+// leaves), the Wetland (too many snails), the Archipelago (the drought and
+// Open Day), the Field Guide, the food web board, the grown-ups page and a
 // phone. Needs `npx vite --port 5179` running.
 //   node scripts/e2e-ecosystem-building-tycoon.mjs [base] [outDir]
 import { chromium } from 'playwright-core';
@@ -321,6 +323,143 @@ await p.keyboard.press('t');
 await p.waitForTimeout(200);
 await p.click('text=Yes, go back');
 await p.waitForTimeout(300);
+
+// ------------------------------------------------------------ half 2: the Woods, the Wetland and the Archipelago
+/** Play one island carefully to the end (trying the next seed if a run misses a target). `each` runs after every season. */
+async function playIsland(kind, seeds, each = async () => {}) {
+  for (const seed of seeds) {
+    await p.evaluate(([k, sd]) => window.__ebt.start(k, 'short', sd), [kind, seed]);
+    await p.waitForTimeout(400);
+    await H.talkThrough();
+    for (let i = 0; i < 30; i++) {
+      r = await H.season();
+      await each(i, r);
+      if (!r || r.done) break;
+    }
+    for (let k = 0; k < 40 && !(await p.$('.ebt-census')) && (await H.st()).mode !== 'station'; k++) {
+      await H.talkThrough();
+      await p.waitForTimeout(200);
+    }
+    if (await p.$('.ebt-census')) {
+      if (kind === 'archipelago') await p.screenshot({ path: `${out}/22-archipelago-census.png` });
+      await p.click('.ebt-census .btn.primary');
+    }
+    await p.waitForTimeout(300);
+    for (let k = 0; k < 40 && (await H.st()).mode !== 'station'; k++) {
+      await H.talkThrough();
+      await p.waitForTimeout(200);
+    }
+    if ((await H.st()).restored.includes(kind)) return seed;
+    console.log(`(the ${kind} run with seed ${seed} missed a target; trying another island)`);
+  }
+  return null;
+}
+
+check(await p.isVisible('[data-run="woods-short"]'), 'Woods Island opens after Pond Island');
+check(!(await p.isVisible('[data-run="wetland-short"]')), 'Wetland Island is still locked');
+let leavesBefore = 0;
+let autumnLeaves = false;
+let woodsShot = false;
+const woods = await playIsland('woods', [1111, 1212, 1313], async (i, x) => {
+  if (!x) return;
+  const leaves = x.pieces.filter((q) => q === 'leaves').length;
+  if (x.season === 3) leavesBefore = leaves;
+  if (x.season === 4 && leaves > leavesBefore) autumnLeaves = true;
+  if (i === 7 && !woodsShot) {
+    woodsShot = true;
+    await p.screenshot({ path: `${out}/17-woods.png` });
+  }
+});
+check(woods !== null, `Woods Island is restored (seed ${woods})`);
+check(autumnLeaves, 'the oaks drop their leaves in autumn');
+
+const wet0 = await p.evaluate(() => {
+  window.__ebt.start('wetland', 'short', 5);
+  return true;
+});
+void wet0;
+await p.waitForTimeout(400);
+await H.talkThrough();
+r = await H.rs();
+check(r.pieces.filter((q) => q === 'snail').length === 3, 'the wetland starts with too many snails');
+check(await p.isVisible('.ebt-minibars'), 'the panel shows the island census (plants, plant-eaters, meat-eaters)');
+await p.screenshot({ path: `${out}/18-wetland-start.png` });
+await p.keyboard.press('t');
+await p.waitForTimeout(200);
+await p.click('text=Yes, go back');
+await p.waitForTimeout(300);
+const wetland = await playIsland('wetland', [2222, 2323, 2424]);
+check(wetland !== null, `Wetland Island is restored (seed ${wetland})`);
+s = await H.st();
+check(s.restored.includes('wetland'), 'all four islands are restored');
+check(await p.isVisible('[data-run="archipelago-short"]'), 'the Archipelago opens');
+await p.screenshot({ path: `${out}/19-station-finale.png` });
+
+let droughtSeen = false;
+let droughtShot = false;
+let droughtEnded = false;
+const archi = await playIsland('archipelago', [3333, 3434, 3535], async (i, x) => {
+  if (!x) return;
+  if (x.drought > 0) {
+    droughtSeen = true;
+    if (!droughtShot) {
+      droughtShot = true;
+      check(await p.isVisible('.ebt-drought'), 'the panel counts down the drought');
+      await p.screenshot({ path: `${out}/20-drought.png` });
+    }
+  }
+  if (x.droughtDone) droughtEnded = true;
+});
+check(archi !== null, `the Archipelago is restored (seed ${archi})`);
+check(droughtSeen && droughtEnded, 'the drought dries the east pond, then the rain comes back');
+s = await H.st();
+check(s.restored.includes('archipelago'), 'every island is restored');
+
+// the research hut
+await p.click('[data-hut="guide"]');
+await p.waitForTimeout(300);
+const pages = await p.$$eval('.ebt-guide-card', (els) => els.map((e) => e.classList.contains('locked')));
+check(pages.length === 26 && pages.filter((x) => !x).length >= 15, `the Field Guide has a page for every tile (${pages.filter((x) => !x).length} found)`);
+await p.screenshot({ path: `${out}/21-field-guide.png` });
+await p.keyboard.press('Escape');
+await p.waitForTimeout(300);
+await p.evaluate(() => window.__ebt.see(['log', 'mushrooms']));
+await p.click('[data-hut="web"]');
+await p.waitForTimeout(400);
+await p.click('[data-web="grass"]');
+await p.click('[data-web="rabbit"]');
+await p.waitForTimeout(150);
+check(await p.isVisible('.ebt-webpanel .ebt-feedback.good'), 'the food web board accepts grass to rabbit');
+await p.click('[data-web="fox"]');
+await p.click('[data-web="rabbit"]');
+await p.waitForTimeout(150);
+check((await p.textContent('.ebt-webpanel .ebt-feedback')).includes('Arrows point to the eater'), 'a backwards arrow gets a reminder that arrows point to the eater');
+await p.click('[data-web="rabbit"]');
+await p.click('[data-web="fox"]');
+await p.click('[data-web="log"]');
+await p.click('[data-web="mushrooms"]');
+await p.waitForTimeout(200);
+check((await H.st()).webLinks >= 3, 'right arrows are saved');
+await p.screenshot({ path: `${out}/23-food-web-board.png` });
+await p.keyboard.press('Escape');
+await p.waitForTimeout(300);
+
+// a woods question with the decomposer cycle, and a wetland graph
+await p.evaluate(() => window.__ebt.ask('woods', 'w-energy-matter'));
+await p.waitForTimeout(300);
+check(await p.isVisible('.ebt-cycle'), 'the decomposer cycle picture');
+await p.screenshot({ path: `${out}/24-woods-question.png` });
+await p.keyboard.press('Escape');
+await p.waitForTimeout(200);
+await p.evaluate(() => window.__ebt.ask('wetland', 'n-rise-fall'));
+await p.waitForTimeout(300);
+check(await p.isVisible('.ebt-pop-graph'), 'the predator and prey graph');
+await p.keyboard.press('h');
+await p.keyboard.press('h');
+await p.waitForTimeout(200);
+await p.screenshot({ path: `${out}/25-wetland-question.png` });
+await p.keyboard.press('Escape');
+await p.waitForTimeout(200);
 
 // ------------------------------------------------------------ the grown-ups page
 await p.click('[data-tool="settings"]');

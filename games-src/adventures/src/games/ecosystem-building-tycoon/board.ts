@@ -5,7 +5,7 @@ import { isTouchDevice, settings } from '../../kit/systems/settings';
 import { h, stackTop } from '../../kit/ui/dom';
 import { PIECES, ROLE_COLOR, ROLE_NAME, type PieceId } from '../../kit/worlds/wild-lands/eco-art';
 import { brambleCanvas, cardCanvas, EDGE, fireflyCanvas, glowCanvas, groundCanvas, hungryCanvas, pieceCanvas, seaCanvas, T } from './art';
-import { PIECE_FACT, RULE_TEXT, UPGRADES } from './content';
+import { ISLAND_INFO, PIECE_FACT, RULE_TEXT, UPGRADES } from './content';
 import {
   bestMove,
   canPlace,
@@ -15,6 +15,11 @@ import {
   diagnose,
   HABITAT,
   makeIsland,
+  dropLeaves,
+  droughtCells,
+  DROUGHT_SEASONS,
+  endDrought,
+  startDrought,
   place,
   removeVines,
   RUNS,
@@ -44,6 +49,8 @@ export interface RunHooks {
   persist(run: RunSave): void;
   /** A tile was placed for the first time ever. */
   firstPlace(id: PieceId): void;
+  /** Something happened on the island that someone should explain (the drought starting or ending). */
+  event(kind: 'drought-start' | 'drought-end'): Promise<void>;
 }
 
 interface Pop {
@@ -111,6 +118,8 @@ export class RunView {
   private rulesTold = new Set<Rule>();
   private view = { w: 480, h: 270, ox: 18, oy: 26, tall: false };
   private night = false;
+  /** The water squares the drought dries up (the Archipelago's east pond). */
+  private dryCells: number[] = [];
   private readonly keyHandler = (e: KeyboardEvent) => this.onKey(e);
   private readonly resizeHandler = () => this.fit();
 
@@ -121,7 +130,10 @@ export class RunView {
     private readonly hooks: RunHooks,
   ) {
     const fresh = makeIsland(run.kind, mulberry32(run.seed));
+    this.dryCells = droughtCells(fresh.island);
     this.board = { island: fresh.island, pieces: run.pieces.length === fresh.pieces.length ? [...run.pieces] : fresh.pieces };
+    // a saved run in the middle of the drought: the east pond is still mud
+    if (run.drought > 0) this.board = { island: { ...fresh.island, ground: fresh.island.ground.map((g, i) => (this.dryCells.includes(i) ? 'mud' : g)) }, pieces: this.board.pieces };
     this.run.pieces = [...this.board.pieces];
     this.spec = RUNS[run.kind][run.length];
     this.pool = deck(run.kind, unlocked);
@@ -380,6 +392,43 @@ export class RunView {
         await wait(500);
       }
     }
+    // autumn: the oaks drop their leaves
+    if (seasonName(this.run.season) === 'Autumn' && this.board.pieces.includes('oak')) {
+      const { board, fell } = dropLeaves(this.board);
+      if (fell.length) {
+        this.board = board;
+        this.sc = score(this.board, this.run.upgrades);
+        this.run.pieces = [...this.board.pieces];
+        this.popAt(fell[0], fell.length > 1 ? `Autumn: ${fell.length} leaf piles fell` : 'Autumn: leaves fell', '');
+        if (!this.rulesTold.has('litter')) {
+          this.rulesTold.add('litter');
+          this.tip('Autumn! The oaks dropped their leaves. Leaves that no decomposer breaks down pile up and cost a point each. Put mushrooms or worms next to them.');
+        }
+        this.renderAll();
+        await wait(500);
+      }
+    }
+    // the drought (the Archipelago)
+    if (this.run.drought > 0) {
+      this.run.drought--;
+      if (this.run.drought === 0) {
+        this.board = endDrought(this.board, this.dryCells);
+        this.run.droughtDone = true;
+        this.sc = score(this.board, this.run.upgrades);
+        this.renderAll();
+        await this.hooks.event('drought-end');
+      }
+    } else if (this.spec.drought && this.run.season === this.spec.drought && !this.run.droughtDone) {
+      const { board, gone } = startDrought(this.board);
+      this.board = board;
+      this.run.pieces = [...this.board.pieces];
+      this.run.drought = DROUGHT_SEASONS;
+      this.sc = score(this.board, this.run.upgrades);
+      for (const [cell, id] of gone.slice(0, 3)) this.popAt(cell, `The ${PIECES[id].name.toLowerCase()} left`, 'bad');
+      audio.retry();
+      this.renderAll();
+      await this.hooks.event('drought-start');
+    }
     const target = this.spec.targets[this.run.reached];
     if (target && this.run.season >= target.season) {
       if (this.sc.total >= target.health) {
@@ -451,7 +500,7 @@ export class RunView {
         ? `Bramble sniffs... the ${PIECES[id].name.toLowerCase()} on the glowing square: ${signed(m.gain)} health${why.length ? ` (${why.join(' and ')})` : ''}.`
         : `Bramble sniffs... nothing helps much this season. The ${PIECES[id].name.toLowerCase()} on the glowing square does least harm. Try new tiles?`,
     );
-    this.placeBtn.hidden = !isTouchDevice();
+    this.placeBtn.hidden = false;
   }
 
   toggleWeb(): void {
@@ -536,7 +585,7 @@ export class RunView {
       meter.append(m);
     });
     const left = t ? t.season - season : 0;
-    const islandName = this.run.kind === 'meadow' ? 'Meadow Island' : 'Pond Island';
+    const islandName = ISLAND_INFO[this.run.kind].name;
     this.hudEl.replaceChildren(
       h('div', { class: 'ebt-run-name', text: `${islandName} · ${this.run.length === 'short' ? 'Short run' : 'Long run'}` }),
       h('div', { class: 'ebt-season', text: `${seasonName(season)}, year ${yearOf(season)} · season ${season} of ${s.seasons}` }),
@@ -550,11 +599,32 @@ export class RunView {
             ? 'Every target reached!'
             : '',
       }),
+      this.censusBars(),
+      h('div', { class: 'ebt-drought', hidden: this.run.drought <= 0, text: `Drought: ${this.run.drought} more season${this.run.drought === 1 ? '' : 's'} until the rain comes back.` }),
       h('div', { class: 'ebt-ups', hidden: !this.run.upgrades.length }, ...this.run.upgrades.map((u) => h('span', { class: 'ebt-up', text: UPGRADES[u].name, title: UPGRADES[u].game }))),
     );
     this.rerollBtn.querySelector('span:not(.kbd)')!.textContent = `New tiles (${this.run.rerolls})`;
     this.rerollBtn.disabled = this.run.rerolls <= 0 || this.done;
     this.sniffBtn.disabled = this.done;
+  }
+
+  /** A tiny census: plants, plant-eaters and meat-eaters on the island now (the energy pyramid at a glance). */
+  private censusBars(): HTMLElement {
+    const c = census(this.board);
+    const max = Math.max(4, c.plants, c.plantEaters, c.hunters);
+    const row = (label: string, n: number, color: string) => {
+      const fill = h('span', { class: 'ebt-mini-fill' });
+      fill.style.width = `${(n / max) * 100}%`;
+      fill.style.background = color;
+      return h('div', { class: 'ebt-mini' }, h('span', { text: label }), h('span', { class: 'ebt-mini-track' }, fill), h('strong', { text: String(n) }));
+    };
+    return h(
+      'div',
+      { class: 'ebt-minibars', role: 'img', 'aria-label': `On the island: ${c.plants} plants, ${c.plantEaters} plant-eaters, ${c.hunters} meat-eaters` },
+      row('Plants', c.plants, ROLE_COLOR.producer),
+      row('Plant-eaters', c.plantEaters, ROLE_COLOR.herbivore),
+      row('Meat-eaters', c.hunters, ROLE_COLOR.carnivore),
+    );
   }
 
   private renderHand(): void {
@@ -726,6 +796,8 @@ export class RunView {
       busy: this.busy,
       done: this.done,
       upgrades: [...this.run.upgrades],
+      drought: this.run.drought,
+      droughtDone: this.run.droughtDone,
       best: bestMove(this.board, this.run.hand, this.run.upgrades),
       w: this.board.island.w,
       pieces: [...this.board.pieces],

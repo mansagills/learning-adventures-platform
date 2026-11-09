@@ -26,6 +26,14 @@ import {
   UNLOCK_ORDER,
   UPGRADE_IDS,
   VINE_EVERY,
+  dropLeaves,
+  droughtCells,
+  DROUGHT_SEASONS,
+  endDrought,
+  HOME_KINDS,
+  seasonName,
+  sizeOf,
+  startDrought,
   type Board,
   type Island,
   type IslandKind,
@@ -33,6 +41,7 @@ import {
   type RunLength,
 } from '../src/games/ecosystem-building-tycoon/rules';
 import { cleanSave, freshSave } from '../src/games/ecosystem-building-tycoon/save';
+import { checkArrow, webLinksAmong } from '../src/games/ecosystem-building-tycoon/guide';
 
 /** A small test island: every square grass unless the map says otherwise (w water, m mud, s sand, r rich soil, k rock). */
 function island(rows: string[]): Board {
@@ -106,6 +115,7 @@ describe('the living things (checked against the science)', () => {
       'circle',
       'too-many-eaters',
       'too-many-hunters',
+      'litter',
     ];
     for (const r of rules) expect(RULE_TEXT[r].tip.length).toBeGreaterThan(10);
     for (const u of UPGRADE_IDS) expect(UPGRADES[u].science.length).toBeGreaterThan(20);
@@ -358,6 +368,8 @@ function playRun(kind: IslandKind, length: RunLength, seed: number, careful: boo
   const spec = RUNS[kind][length];
   let rerolls = spec.rerolls;
   let reached = 0;
+  let dry: number[] = [];
+  let dryLeft = 0;
   for (let s = 1; s <= spec.seasons; s++) {
     let hand = dealHand(b, deck(kind, unlocked), 3, r);
     if (careful) {
@@ -374,6 +386,16 @@ function playRun(kind: IslandKind, length: RunLength, seed: number, careful: boo
       b = place(b, id, spots[Math.floor(r() * spots.length)]);
     }
     if (s % VINE_EVERY === 0) b = spreadVines(b).board;
+    if (seasonName(s) === 'Autumn') b = dropLeaves(b).board;
+    // the drought, in the same order as the game (it starts at the end of its season and lasts DROUGHT_SEASONS seasons)
+    if (dryLeft > 0) {
+      dryLeft--;
+      if (dryLeft === 0) b = endDrought(b, dry);
+    } else if (spec.drought && s === spec.drought) {
+      dry = droughtCells(b.island);
+      b = startDrought(b).board;
+      dryLeft = DROUGHT_SEASONS;
+    }
     const t = spec.targets[reached];
     if (t && s === t.season) {
       if (score(b).total < t.health) return reached;
@@ -382,6 +404,75 @@ function playRun(kind: IslandKind, length: RunLength, seed: number, careful: boo
   }
   return reached;
 }
+
+describe('half 2: autumn leaves, leaf piles, hunters and the drought', () => {
+  it('in autumn an oak drops its leaves next to it', () => {
+    const b = put(island(['ggg']), ['oak', 1, 0]);
+    const { board, fell } = dropLeaves(b);
+    expect(fell).toHaveLength(1);
+    expect(board.pieces[fell[0]]).toBe('leaves');
+  });
+  it('fallen leaves that no decomposer is breaking down pile up and cost a point', () => {
+    const b = put(island(['ggg']), ['leaves', 0, 0]);
+    expect(has(b, 0, 0, 'litter')).toBe(true);
+    const c = put(island(['ggg']), ['leaves', 0, 0], ['worms', 1, 0]);
+    expect(has(c, 0, 0, 'litter')).toBe(false);
+    // a dung beetle does not eat leaves, so the pile stays
+    const d = put(island(['ggg']), ['leaves', 0, 0], ['beetle', 1, 0]);
+    expect(has(d, 0, 0, 'litter')).toBe(true);
+  });
+  it('a hunter with prey next to it keeps the plant-eaters in check', () => {
+    const boom = put(island(['gggg']), ['grass', 0, 0], ['rabbit', 1, 0], ['mouse', 2, 0]);
+    expect(bonus(boom, 'too-many-eaters')[0].pts).toBe(-2);
+    const checked = place(boom, 'hawk', 3);
+    expect(bonus(checked, 'too-many-eaters')).toHaveLength(0);
+    // a hunter with nothing to eat does not help
+    const hungry = put(island(['ggggg']), ['grass', 0, 0], ['rabbit', 1, 0], ['mouse', 2, 0], ['owl', 4, 0]);
+    expect(bonus(hungry, 'too-many-eaters')).toHaveLength(1);
+  });
+  it('the drought dries the east pond: open-water life leaves, edge life stays, and the rain fills it again', () => {
+    const b = put(island(['gggwww', 'gggwww']), ['fish', 4, 0], ['frog', 5, 0], ['lilies', 4, 1], ['grass', 0, 0]);
+    const cells = droughtCells(b.island);
+    expect(cells).toEqual([3, 4, 5, 9, 10, 11]);
+    const { board, gone } = startDrought(b);
+    expect(gone.map(([, id]) => id).sort()).toEqual(['fish', 'lilies']);
+    expect(board.pieces[5]).toBe('frog');
+    expect(board.island.ground[4]).toBe('mud');
+    const wet = endDrought(board, cells);
+    expect(wet.island.ground[4]).toBe('water');
+    expect(wet.pieces[5]).toBe('frog');
+  });
+  it('the Archipelago is bigger, and has a pond for the drought to dry', () => {
+    expect(sizeOf('archipelago')).toEqual({ w: 16, h: 10 });
+    for (let s = 1; s <= 30; s++) {
+      const a = makeIsland('archipelago', mulberry32(s));
+      expect(a.pieces).toHaveLength(160);
+      expect(droughtCells(a.island).length).toBeGreaterThanOrEqual(3);
+      expect(RUNS.archipelago.short.drought).toBeLessThan(RUNS.archipelago.short.seasons);
+    }
+  });
+  it('the woods start with oaks and dead wood; the wetland starts with too many snails', () => {
+    const w = makeIsland('woods', mulberry32(3));
+    expect(w.pieces.filter((p) => p === 'oak')).toHaveLength(2);
+    const n = makeIsland('wetland', mulberry32(3));
+    expect(n.pieces.filter((p) => p === 'snail')).toHaveLength(3);
+    expect(bonus(n, 'too-many-eaters').length).toBe(1);
+  });
+});
+
+describe('the food web board', () => {
+  it('lists every true arrow between the tiles found, and only those', () => {
+    expect(webLinksAmong(['grass', 'rabbit', 'fox']).sort()).toEqual(['grass>rabbit', 'rabbit>fox']);
+    expect(webLinksAmong(['grass', 'fox'])).toEqual([]);
+    expect(webLinksAmong(['log', 'mushrooms', 'deer', 'beetle']).sort()).toEqual(['deer>beetle', 'log>mushrooms']);
+  });
+  it('checks an arrow: right, backwards or wrong', () => {
+    expect(checkArrow('snail', 'fish')).toBe('yes');
+    expect(checkArrow('fish', 'snail')).toBe('backwards');
+    expect(checkArrow('fox', 'snail')).toBe('no');
+    expect(checkArrow('leaves', 'worms')).toBe('yes');
+  });
+});
 
 describe('runs and targets', () => {
   it('targets come at the right seasons, and go up', () => {
@@ -414,6 +505,9 @@ describe('runs and targets', () => {
   it('the browser test seeds are won by careful placing', () => {
     expect(playRun('meadow', 'short', 4242, true)).toBe(3);
     expect(playRun('pond', 'short', 2424, true)).toBe(3);
+    expect(playRun('woods', 'short', 1111, true)).toBe(3);
+    expect(playRun('wetland', 'short', 2222, true)).toBe(3);
+    expect(playRun('archipelago', 'short', 3333, true)).toBe(3);
   });
 });
 
@@ -506,6 +600,22 @@ describe('saving', () => {
     expect(s.restored).toEqual(['meadow']);
     expect(s.stars.meadow).toBe(5);
     expect(s.run).toBeNull();
+  });
+  it('keeps progress for all five islands, and the food web arrows', () => {
+    const s = cleanSave({ stars: { woods: 3, archipelago: 2 }, restored: ['woods', 'archipelago'], webLinks: ['grass>rabbit', 'bad link', 7] });
+    expect(s.stars.woods).toBe(3);
+    expect(s.restored).toEqual(['woods', 'archipelago']);
+    expect(s.webLinks).toEqual(['grass>rabbit']);
+    expect(HOME_KINDS).toHaveLength(4);
+  });
+  it('keeps an Archipelago run in the middle of a drought', () => {
+    const b = makeIsland('archipelago', mulberry32(8));
+    const s = cleanSave({
+      run: { kind: 'archipelago', length: 'short', seed: 8, pieces: b.pieces, season: 7, hand: [], rerolls: 1, deals: 9, upgrades: [], reached: 1, drought: 1, droughtDone: false },
+    });
+    expect(s.run).toMatchObject({ kind: 'archipelago', drought: 1 });
+    // the wrong size for the island is thrown away
+    expect(cleanSave({ run: { kind: 'archipelago', length: 'short', seed: 8, pieces: new Array(96).fill(null) } }).run).toBeNull();
   });
   it('keeps a run in progress', () => {
     const b = makeIsland('pond', mulberry32(5));
