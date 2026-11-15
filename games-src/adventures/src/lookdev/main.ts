@@ -19,6 +19,7 @@ import { showSheet } from './sheet';
  * Fossil Dig Adventure: #dig-cast, #dig-site, #dig-site-evening, #dig-quarry, #dig-cliff, #dig-trackway, #dig-glow, #dig-glow-uv.
  * Animal Kingdom Match: #animal-cast, #animal-camp, #animal-rainforest, #animal-desert, #animal-polar, #animal-wetland (each with -evening).
  * Ecosystem Building Tycoon: #eco-cast, #eco-island, #eco-island-night (add -nia for the talk box, -long for the long run).
+ * Pollution Solution Squad: #coast-play (the crafting test), #coast-cast, #coast-nature, #coast-beach, -harbor, -wetland, -town (add -clean for after the fixes).
  * Weather Wizard Battle: #weather-play (the test level), #weather-cast, #weather-shore, -clouds, -mountain, -river, -storm (add -storm for the storm sky).
  */
 const q = pageParams();
@@ -63,4 +64,12 @@ if (view === 'scene') {
   import('./weather').then((m) => m.showWeatherCast(host));
 } else if (view === 'weather-play') {
   import('./weather').then((m) => m.showWeatherPlay(host));
+} else if (view === 'coast-cast') {
+  import('./coast').then((m) => m.showCoastCast(host));
+} else if (view === 'coast-play') {
+  import('./coast').then((m) => m.showCoastPlay(host));
+} else if (view === 'coast-nature') {
+  import('./coast').then((m) => m.showCoastNature(host));
+} else if (view === 'coast') {
+  import('./coast').then((m) => m.showCoastStretch(host, q));
 } else showSheet(host, q);

@@ -64,6 +64,17 @@ export const PAGES: Array<[string, string]> = [
   ['weather-river', 'River Run'],
   ['weather-storm', 'Storm Front'],
   ['weather-shore-storm', 'Sunny Shore with a storm sky'],
+  ['coast-play', 'Pollution Squad: try the crafting test'],
+  ['coast-cast', 'Pollution Squad: the cast, trash and fixes'],
+  ['coast-nature', 'The Nature Center'],
+  ['coast-beach', 'Turtle Beach'],
+  ['coast-beach-clean', 'Turtle Beach, after the fixes'],
+  ['coast-harbor', 'The Harbor'],
+  ['coast-harbor-clean', 'The Harbor, after the fixes'],
+  ['coast-wetland', 'The Wetland'],
+  ['coast-wetland-clean', 'The Wetland, after the fixes'],
+  ['coast-town', 'Farm and Town'],
+  ['coast-town-clean', 'Farm and Town, after the fixes'],
 ];
 
 const SETTING_IDS = ['station-deck', 'alien-planet', 'river-market', 'roman-forum'];
@@ -138,6 +149,14 @@ export function pageParams(): URLSearchParams {
     q.set('view', area === 'cast' ? 'weather-cast' : area === 'play' ? 'weather-play' : 'weather');
     if (area !== 'cast' && area !== 'play') q.set('area', area);
     if (rest.includes('storm')) q.set('time', 'storm');
+    return q;
+  }
+  // Pollution Solution Squad: #coast-cast, #coast-play, #coast-nature, #coast-<stretch>[-clean]
+  if (token.startsWith('coast-')) {
+    const [, area, ...rest] = token.split('-');
+    q.set('view', area === 'cast' ? 'coast-cast' : area === 'play' ? 'coast-play' : area === 'nature' ? 'coast-nature' : 'coast');
+    if (!['cast', 'play', 'nature'].includes(area)) q.set('area', area);
+    if (rest.includes('clean')) q.set('clean', '1');
     return q;
   }
   // Wild Lands: #wild-cast, #wild-camp[-evening], #wild-reef[-sunlight|-twilight|-midnight] (add -quiet to hide the talk box)
