@@ -751,7 +751,13 @@ export const RECIPES: Record<RecipeId, Recipe> = {
     designs: [
       { id: 'none', name: 'No lid', note: 'Leave the bins open', outcome: 'half', why: 'The gulls pull out food wrappers, and the wind blows light trash out onto the sand.' },
       { id: 'loose', name: 'A loose lid', note: 'A board laid on top', outcome: 'half', why: 'It stops the gulls, but a gust of wind lifts the board off and the trash blows away.' },
-      { id: 'clip', name: 'A clip-shut lid', note: 'A board held down with a rope loop', outcome: 'works', why: 'The rope loop holds the lid down in the wind, the gulls can’t lift it, and people can still open it.' },
+      {
+        id: 'clip',
+        name: 'A clip-shut lid',
+        note: 'A board held down with a rope loop',
+        outcome: 'works',
+        why: 'The rope loop holds the lid down in the wind, the gulls can’t lift it, and people can still open it.',
+      },
     ],
   },
   'drain-net': {
@@ -761,9 +767,27 @@ export const RECIPES: Record<RecipeId, Recipe> = {
     goals: ['Catch the trash coming out of the drain', 'Let the water flow through', 'Not get blocked up'],
     limits: ['Use what we found on the beach', 'Easy to lift off and empty'],
     designs: [
-      { id: 'big', name: 'Big holes', note: 'As wide as your hand', outcome: 'half', why: 'The water flows through and it never blocks. But bottle caps, wrappers and small bottles slip through the holes onto the beach.' },
-      { id: 'small', name: 'Tiny holes', note: 'As small as a pea', outcome: 'half', why: 'It catches everything, even sand and leaves, so it blocks up fast. The water backs up and spills over the top, and the trash goes with it.' },
-      { id: 'medium', name: 'Medium holes', note: 'As wide as your thumb', outcome: 'works', why: 'It catches bottles, cans, bags and wrappers, and the water and fine sand flow through. The Squad empties it after every big rain.' },
+      {
+        id: 'big',
+        name: 'Big holes',
+        note: 'As wide as your hand',
+        outcome: 'half',
+        why: 'The water flows through and it never blocks. But bottle caps, wrappers and small bottles slip through the holes onto the beach.',
+      },
+      {
+        id: 'small',
+        name: 'Tiny holes',
+        note: 'As small as a pea',
+        outcome: 'half',
+        why: 'It catches everything, even sand and leaves, so it blocks up fast. The water backs up and spills over the top, and the trash goes with it.',
+      },
+      {
+        id: 'medium',
+        name: 'Medium holes',
+        note: 'As wide as your thumb',
+        outcome: 'works',
+        why: 'It catches bottles, cans, bags and wrappers, and the water and fine sand flow through. The Squad empties it after every big rain.',
+      },
     ],
   },
   'tank-patch': {
@@ -775,7 +799,13 @@ export const RECIPES: Record<RecipeId, Recipe> = {
     designs: [
       { id: 'tape', name: 'Tape', note: 'Tape over the hole', outcome: 'half', why: 'It stops the drip for a moment, but water loosens the tape and it peels off. The leak starts again.' },
       { id: 'bucket', name: 'A bucket', note: 'Catch the drips', outcome: 'half', why: 'It catches some fuel, but the hole is still there. The bucket fills up, spills, and the boat rocks it over.' },
-      { id: 'patch', name: 'A metal patch', note: 'Flattened cans sealed over the hole', outcome: 'works', why: 'The metal patch is sealed tight over the hole, so no more fuel can leak out. The source is stopped.' },
+      {
+        id: 'patch',
+        name: 'A metal patch',
+        note: 'Flattened cans sealed over the hole',
+        outcome: 'works',
+        why: 'The metal patch is sealed tight over the hole, so no more fuel can leak out. The source is stopped.',
+      },
     ],
   },
   boom: {
@@ -787,7 +817,13 @@ export const RECIPES: Record<RecipeId, Recipe> = {
     designs: [
       { id: 'rope', name: 'Just a rope', note: 'A rope across the water', outcome: 'half', why: 'A rope alone soaks up water and sinks under the oil, and the oil floats right over it.' },
       { id: 'open', name: 'Open bottles', note: 'Bottles with no caps, on a rope', outcome: 'half', why: 'The open bottles fill with water and sink, one by one. The oil drifts out over them.' },
-      { id: 'sealed', name: 'Sealed bottles', note: 'Bottles with their caps on, on a rope', outcome: 'works', why: 'Full of air, the sealed bottles float, and the rope holds them together in a ring around the oil.' },
+      {
+        id: 'sealed',
+        name: 'Sealed bottles',
+        note: 'Bottles with their caps on, on a rope',
+        outcome: 'works',
+        why: 'Full of air, the sealed bottles float, and the rope holds them together in a ring around the oil.',
+      },
     ],
   },
   'net-bin': {
@@ -799,7 +835,13 @@ export const RECIPES: Record<RecipeId, Recipe> = {
     designs: [
       { id: 'crate', name: 'An open crate', note: 'A box with no top', outcome: 'half', why: 'The wind tugs nets out, and gulls pull at the rope. Some of it ends up back in the water.' },
       { id: 'sack', name: 'A plastic sack', note: 'A big bag tied to a post', outcome: 'half', why: 'It holds the nets for a day, then the sharp hooks and the sun tear it open.' },
-      { id: 'lid', name: 'A bin with a lid', note: 'Slats, a lid and drain holes', outcome: 'works', why: 'The lid keeps the nets in, the slats let rain drain out, and fishers can drop old gear in on the way home.' },
+      {
+        id: 'lid',
+        name: 'A bin with a lid',
+        note: 'Slats, a lid and drain holes',
+        outcome: 'works',
+        why: 'The lid keeps the nets in, the slats let rain drain out, and fishers can drop old gear in on the way home.',
+      },
     ],
   },
 };

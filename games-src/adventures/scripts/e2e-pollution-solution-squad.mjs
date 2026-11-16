@@ -105,6 +105,12 @@ function helpers(p) {
     await p.keyboard.press('g');
     await p.waitForTimeout(250);
     await talkThrough();
+    if ((await total()) > n0) return true;
+    // A slide after landing can carry you past it: turn round and try once more.
+    await p.evaluate(() => window.__pss.face(-1));
+    await p.keyboard.press('g');
+    await p.waitForTimeout(250);
+    await talkThrough();
     return (await total()) > n0;
   };
   /** At a Workbench: open it and pick a design. */
@@ -113,7 +119,13 @@ function helpers(p) {
     await p.waitForTimeout(400);
     const open = await p.isVisible('.pss-bench');
     if (!open) return false;
-    await p.click(`.pss-design[data-design="${design}"]`);
+    const btn = p.locator(`.pss-design[data-design="${design}"]`);
+    if (await btn.isDisabled()) {
+      console.log('  (the design button is disabled: materials are missing)', JSON.stringify((await ps()).bag));
+      await p.keyboard.press('Escape');
+      return false;
+    }
+    await btn.click();
     await p.waitForTimeout(300);
     return true;
   };
@@ -219,6 +231,8 @@ async function startAt(p, stretches = [], extra = {}) {
   await p.waitForTimeout(800);
   await p.click('text=Continue');
   await p.waitForTimeout(500);
+  // Wait until the camp is ready (slower on a small screen).
+  for (let i = 0; i < 40 && (await p.evaluate(() => window.__pss.state().mode)) !== 'camp'; i++) await p.waitForTimeout(150);
 }
 
 // ---------------------------------------------------------------- Turtle Beach (from a new game)
@@ -301,7 +315,7 @@ if (want('beach')) {
   check((await ps()).target === 'W', 'a Workbench prompt shows');
   check(await craft('loose'), 'the Workbench opens with the bin lid blueprint');
   s = await ps();
-  check(s.carrying?.design === 'loose' && s.bag.rope === undefined || s.bag.rope === 0, 'crafts a loose lid (the materials are used)');
+  check((s.carrying?.design === 'loose' && s.bag.rope === undefined) || s.bag.rope === 0, 'crafts a loose lid (the materials are used)');
   await runTo(50.6, 3000);
   let res = await buildAndTest();
   check(/half works/.test(res) && /wind/.test(res), 'the loose lid only half works: the wind lifts it');
@@ -510,7 +524,7 @@ if (want('harbor')) {
   check(/half works/.test(res) && /wind/.test(res), 'an open crate only half works: the wind tugs nets out');
   await p.click('.pss-result .btn.primary');
   await p.waitForTimeout(300);
-  check(await grabAt(70.5, []) || true, 'picks up the wood by the stake');
+  check((await grabAt(70.5, [])) || true, 'picks up the wood by the stake');
   await runTo(67.6, 3000, [], 'ArrowLeft');
   await craft('lid');
   await runTo(71.6, 3000);
@@ -571,7 +585,10 @@ if (want('nature')) {
   await p.waitForTimeout(500);
   let s = await st();
   check(s.nature === 6, `six pieces are built (${s.nature})`);
-  check(['butterfly', 'wren', 'frog', 'heron', 'worm'].every((v) => s.visitors.includes(v)), `visitors come for what is built (${s.visitors.join(', ')})`);
+  check(
+    ['butterfly', 'wren', 'frog', 'heron', 'worm'].every((v) => s.visitors.includes(v)),
+    `visitors come for what is built (${s.visitors.join(', ')})`,
+  );
   check(s.bag.wood === 4 && s.bag.bottle === 1, 'built pieces use spare materials from the backpack');
   await p.screenshot({ path: `${out}/30-nature.png` });
   await p.click('[data-piece="bench"]');
@@ -626,8 +643,9 @@ if (want('extras')) {
   ]) {
     const q = await openPage(vp);
     const hq = helpers(q);
-    await startAt(q, [], { ollie: true });
+    await startAt(q, [], { ollie: true, levelsDone: ['beach-1'] });
     await q.evaluate(() => window.__pss.startLevel('beach-2'));
+    for (let i = 0; i < 40 && (await q.evaluate(() => window.__pss.play()?.level)) !== 'beach-2'; i++) await q.waitForTimeout(150);
     await q.waitForTimeout(500);
     await hq.talkThrough();
     await q.waitForTimeout(400);

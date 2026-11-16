@@ -452,7 +452,9 @@ export class Game {
         { class: `pss-region${open ? '' : ' soon'}` },
         h('h3', {}, h('span', { text: info.name }), h('span', { class: 'stage', text: `${info.problem}${done ? ': done!' : ''}` })),
         ...(open ? rows : [h('span', { class: 'small-note', text: `Opens after ${STRETCH_INFO[STATIONS[STATIONS.indexOf(s) - 1]].name}.` })]),
-        open && sv.levelsDone.includes(stretchLevels(s)[0].id) && !done ? h('span', { class: 'small-note', text: `Squad Journal: ${sv.stars[s]} of ${STARS_PER_STRETCH} stars. Talk to Marisol.` }) : null,
+        open && sv.levelsDone.includes(stretchLevels(s)[0].id) && !done
+          ? h('span', { class: 'small-note', text: `Squad Journal: ${sv.stars[s]} of ${STARS_PER_STRETCH} stars. Talk to Marisol.` })
+          : null,
       );
     };
     const go = (l: LevelDef) => {
@@ -662,7 +664,10 @@ export class Game {
         const id = so.items[so.i];
         so.firstTry = true;
         count.textContent = `${so.i + 1} of ${so.items.length}`;
-        item.replaceChildren(pix(`sort-${id}`, () => paintTrash(id, 24), 4, TRASH[id].name), h('strong', { text: TRASH[id].name }));
+        item.replaceChildren(
+          pix(`sort-${id}`, () => paintTrash(id, 24), 4, TRASH[id].name),
+          h('strong', { text: TRASH[id].name }),
+        );
         say.textContent = `Which bin does the ${TRASH[id].name.toLowerCase()} go in?`;
         feedback.hidden = true;
         next.hidden = true;
@@ -785,7 +790,13 @@ export class Game {
         'header',
         {},
         h('h2', { id: 'pss-title', text: title }),
-        h('div', { class: 'pss-head-right' }, level, stars, h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() })),
+        h(
+          'div',
+          { class: 'pss-head-right' },
+          level,
+          stars,
+          h('button', { class: 'btn small', type: 'button', text: isTouchDevice() ? 'Leave' : 'Leave (Esc)', onclick: () => this.panel?.modal.close() }),
+        ),
       ),
       h('div', { class: 'pss-ask' }, face, prompt, speakBtn),
       h('div', { class: 'pss-body' }, pic, model),
@@ -876,7 +887,11 @@ export class Game {
         p.mark !== undefined ? this.tag('Net on', (32 + p.mark * Math.floor(120 / n) - 4) / 176, 0.0, 'small mark') : null,
       );
     }
-    return h('div', { class: 'pss-sky' }, pix(`scene-${p.s}`, () => paintScene(p.s), 2, SCENE_ALT[p.s] ?? ''));
+    return h(
+      'div',
+      { class: 'pss-sky' },
+      pix(`scene-${p.s}`, () => paintScene(p.s), 2, SCENE_ALT[p.s] ?? ''),
+    );
   }
 
   private renderModel(): void {
@@ -1112,7 +1127,12 @@ export class Game {
     const step = this.nextStep();
     const trashCard = (id: TrashId) =>
       sv.found.includes(id)
-        ? h('div', { class: 'pss-page' }, pix(`j-${id}`, () => paintTrash(id, 24), 2, ''), h('div', {}, h('strong', { text: TRASH[id].name }), h('p', { text: TRASH[id].material })))
+        ? h(
+            'div',
+            { class: 'pss-page' },
+            pix(`j-${id}`, () => paintTrash(id, 24), 2, ''),
+            h('div', {}, h('strong', { text: TRASH[id].name }), h('p', { text: TRASH[id].material })),
+          )
         : h('div', { class: 'pss-page' }, h('div', { class: 'pss-guide-empty', text: '?' }), h('p', { text: 'Not found yet.' }));
     const fixes = (Object.keys(RECIPES) as RecipeId[]).filter((r) => (sv.tried[r]?.length ?? 0) > 0);
     const fixCard = (r: RecipeId) => {
@@ -1132,7 +1152,12 @@ export class Game {
       );
     };
     const visitorCard = (v: VisitorId) =>
-      h('div', { class: 'pss-page' }, pix(`jv-${v}`, () => paintVisitor(v, 24, 0), 3, ''), h('div', {}, h('strong', { text: VISITOR_NAME[v] }), h('p', { text: VISITOR_NEEDS[v].fact })));
+      h(
+        'div',
+        { class: 'pss-page' },
+        pix(`jv-${v}`, () => paintVisitor(v, 24, 0), 3, ''),
+        h('div', {}, h('strong', { text: VISITOR_NAME[v] }), h('p', { text: VISITOR_NEEDS[v].fact })),
+      );
     const root = h(
       'div',
       { class: 'panel modal pss-guide', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'journal-title' },
@@ -1145,8 +1170,16 @@ export class Game {
       h(
         'div',
         { class: 'content' },
-        h('p', { class: 'small-note', style: 'margin:0', text: `Stars: ${OPEN_STRETCHES.map((s) => `${STRETCH_INFO[s].name} ${sv.stars[s]}/${STARS_PER_STRETCH}`).join(', ')}. Sorted: ${sv.sortedRight} of ${sv.sorted} right first time.` }),
-        h('div', { class: 'pss-badges' }, ...(badges.length ? badges.map((b) => h('span', { class: 'pss-badge', text: b })) : [h('span', { class: 'small-note', text: 'No badges yet. Finish a stretch of the coast.' })])),
+        h('p', {
+          class: 'small-note',
+          style: 'margin:0',
+          text: `Stars: ${OPEN_STRETCHES.map((s) => `${STRETCH_INFO[s].name} ${sv.stars[s]}/${STARS_PER_STRETCH}`).join(', ')}. Sorted: ${sv.sortedRight} of ${sv.sorted} right first time.`,
+        }),
+        h(
+          'div',
+          { class: 'pss-badges' },
+          ...(badges.length ? badges.map((b) => h('span', { class: 'pss-badge', text: b })) : [h('span', { class: 'small-note', text: 'No badges yet. Finish a stretch of the coast.' })]),
+        ),
         step && step.kind !== 'level' && this.mode === 'camp'
           ? h('button', {
               class: 'btn primary',
@@ -1163,7 +1196,9 @@ export class Game {
         h('h3', { text: 'Fixes', style: 'margin:12px 0 6px' }),
         fixes.length ? h('div', { class: 'pss-guide-grid' }, ...fixes.map(fixCard)) : h('p', { class: 'small-note', text: 'Build a fix at a blueprint stake and it will appear here.' }),
         h('h3', { text: 'Nature Center visitors', style: 'margin:12px 0 6px' }),
-        sv.visitors.length ? h('div', { class: 'pss-guide-grid' }, ...sv.visitors.map(visitorCard)) : h('p', { class: 'small-note', text: 'Build in the Nature Center next to camp, and see who comes to visit.' }),
+        sv.visitors.length
+          ? h('div', { class: 'pss-guide-grid' }, ...sv.visitors.map(visitorCard))
+          : h('p', { class: 'small-note', text: 'Build in the Nature Center next to camp, and see who comes to visit.' }),
       ),
     );
     const modal = new Modal(this.host, root);

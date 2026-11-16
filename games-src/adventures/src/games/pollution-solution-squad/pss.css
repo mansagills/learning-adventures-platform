@@ -765,10 +765,14 @@
 }
 .pss-palette {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
   gap: 6px;
-  max-width: 980px;
+  max-width: min(980px, 100vw);
+  overflow-x: auto;
+  padding: 2px 4px 6px;
+}
+.pss-piece {
+  flex: none;
 }
 .pss-piece {
   display: flex;
@@ -808,6 +812,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+  padding: 0 14px;
 }
 .pss-binbtn {
   display: flex;
@@ -846,6 +851,20 @@
     font-size: 11px;
   }
   .pss-gauge span {
+    display: none;
+  }
+}
+
+/* A sideways phone: the toolbar sits over the top right of the play screen,
+   so the place name and the gauge move under the backpack line. */
+@media (max-height: 500px) {
+  .pss-hud {
+    right: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .pss-hud .gap {
     display: none;
   }
 }

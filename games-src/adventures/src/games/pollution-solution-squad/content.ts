@@ -65,8 +65,16 @@ export const STRETCH_INFO: Record<Station, StretchInfo> = {
     debrief: {
       text: 'One to talk through: the net stopped the trash from the drain. But where did that trash come from in the first place?',
       options: [
-        { text: 'From the town upstream. Wind and rain wash it into drains and the river, and they bring it here.', correct: true, feedback: 'Exactly. The drain net helps, but the trash still starts upstream. That’s where we’re going next!' },
-        { text: 'From the sea. The waves make it.', misconception: 'beach-source', feedback: 'The sea doesn’t make trash. Something carries it down to the beach. Where does the drain pipe come from?' },
+        {
+          text: 'From the town upstream. Wind and rain wash it into drains and the river, and they bring it here.',
+          correct: true,
+          feedback: 'Exactly. The drain net helps, but the trash still starts upstream. That’s where we’re going next!',
+        },
+        {
+          text: 'From the sea. The waves make it.',
+          misconception: 'beach-source',
+          feedback: 'The sea doesn’t make trash. Something carries it down to the beach. Where does the drain pipe come from?',
+        },
         { text: 'People at the beach drop all of it.', misconception: 'beach-source', feedback: 'Some is dropped here, but the beach was clean the day before. What came out of the drain pipe?' },
       ],
       hints: ['Where does the drain pipe come from?', 'Think about the path: town, street drain, river, beach.', 'It starts on land, upstream, and drains and rivers carry it to the sea.'],
@@ -84,7 +92,11 @@ export const STRETCH_INFO: Record<Station, StretchInfo> = {
     debrief: {
       text: 'One to talk through: we patched the leak, then built the boom. Why did we fix the leak first?',
       options: [
-        { text: 'While it leaked, more oil kept coming. Stopping the source means the cleanup can finish.', correct: true, feedback: 'Yes! Stop the source, then clean up. Otherwise the cleanup never ends.' },
+        {
+          text: 'While it leaked, more oil kept coming. Stopping the source means the cleanup can finish.',
+          correct: true,
+          feedback: 'Yes! Stop the source, then clean up. Otherwise the cleanup never ends.',
+        },
         { text: 'It didn’t matter. Any order works.', misconception: 'leak-later', feedback: 'Think about the oil while the boat was still leaking. Did it stop coming?' },
         { text: 'The boom works better on a leaking boat.', misconception: 'wrong-reason', feedback: 'The boom holds oil in place, but it can’t stop more oil arriving. What can?' },
       ],

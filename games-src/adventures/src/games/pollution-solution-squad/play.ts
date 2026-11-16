@@ -1,7 +1,23 @@
 import { iconImg } from '../../kit/art/icons';
 import { PixelBuffer } from '../../kit/art/pixel';
-import { add, canCraft, count, craft, missing, missingText, takeDown, type Inventory } from '../../kit/craft/workbench';
-import { Cell, EASY, follow, newBody, NORMAL, parseLevel, placeAt, step, type Body, type Camera, type Controls, type Level, type LevelThing, type Platform, type Tuning } from '../../kit/scroller/physics';
+import { add, canCraft, count, craft, missing, takeDown, type Inventory } from '../../kit/craft/workbench';
+import {
+  Cell,
+  EASY,
+  follow,
+  newBody,
+  NORMAL,
+  parseLevel,
+  placeAt,
+  step,
+  type Body,
+  type Camera,
+  type Controls,
+  type Level,
+  type LevelThing,
+  type Platform,
+  type Tuning,
+} from '../../kit/scroller/physics';
 import { touchControlsVisible } from '../../kit/systems/settings';
 import { speak } from '../../kit/systems/speech';
 import { h, Modal } from '../../kit/ui/dom';
@@ -337,8 +353,18 @@ export class Play {
       return btn;
     };
     this.pad = h('div', { class: 'pss-pad' }, hold('arrowLeft', 'Run left', 'left'), hold('arrowRight', 'Run right', 'right'), hold('arrowUp', 'Jump', 'jump'));
-    const grabBtn = h('button', { class: 'btn pss-act', type: 'button', 'aria-label': 'Grab (key G)', onclick: () => this.grab() }, h('span', { text: 'Grab' }), h('span', { class: 'kbd', 'aria-hidden': 'true', text: 'G' }));
-    const useBtn = h('button', { class: 'btn pss-act', type: 'button', 'aria-label': 'Use (key E)', onclick: () => this.use() }, h('span', { text: 'Use' }), h('span', { class: 'kbd', 'aria-hidden': 'true', text: 'E' }));
+    const grabBtn = h(
+      'button',
+      { class: 'btn pss-act', type: 'button', 'aria-label': 'Grab (key G)', onclick: () => this.grab() },
+      h('span', { text: 'Grab' }),
+      h('span', { class: 'kbd', 'aria-hidden': 'true', text: 'G' }),
+    );
+    const useBtn = h(
+      'button',
+      { class: 'btn pss-act', type: 'button', 'aria-label': 'Use (key E)', onclick: () => this.use() },
+      h('span', { text: 'Use' }),
+      h('span', { class: 'kbd', 'aria-hidden': 'true', text: 'E' }),
+    );
     this.bar.append(this.pad, ...(camp ? [useBtn] : [grabBtn, useBtn]));
     if (!camp) {
       this.easyBtn = h('button', {
@@ -370,7 +396,7 @@ export class Play {
   }
 
   fit(): void {
-    const reserve = 70 + (this.building ? 120 : 0);
+    const reserve = 70 + (this.building ? 210 : 0);
     const room = Math.min(window.innerWidth / VW, (window.innerHeight - reserve) / VH);
     this.scale = room >= 2 ? Math.floor(room) : Math.max(0.5, room);
     this.canvas.style.width = `${Math.round(VW * this.scale)}px`;
@@ -486,7 +512,9 @@ export class Play {
         return;
       }
     }
-    const p = this.picks.find((q) => !q.got && Math.abs(q.x - reach) < 0.9 && Math.abs(q.y - (this.body.y + this.body.h)) < 1.2 && (!q.buried || o.sniff > 0));
+    const p = this.picks
+      .filter((q) => !q.got && Math.abs(q.x - reach) < 0.9 && Math.abs(q.y - (this.body.y + this.body.h)) < 1.2 && (!q.buried || o.sniff > 0))
+      .sort((a, b) => Math.abs(a.x - reach) - Math.abs(b.x - reach))[0];
     if (p) {
       p.got = true;
       this.bag = add(this.bag, p.id);
@@ -532,7 +560,7 @@ export class Play {
   private bagLine(): string {
     const items = Object.entries(this.bag)
       .filter(([, n]) => n > 0)
-      .map(([id, n]) => `${n} ${TRASH[id as TrashId].name.toLowerCase()}`);
+      .map(([id, n]) => `${n} ${plural(TRASH[id as TrashId].name.toLowerCase(), n)}`);
     return items.length ? items.join(', ') : 'nothing yet';
   }
 
@@ -587,7 +615,7 @@ export class Play {
     const notes: HTMLElement[] = [];
     if (this.carrying) notes.push(h('p', { text: 'You are carrying a fix already. Build it at the blueprint stake, or take it apart here.' }));
     else if (st.design) notes.push(h('p', { text: 'A design is on the stake. Take it down at the stake to get the materials back, then try another design.' }));
-    else if (!can) notes.push(h('p', { class: 'short', text: `Still to find: ${missingText(m, Object.fromEntries(Object.keys(m).map((id) => [id, TRASH[id as TrashId].name])))}. Look along the way, and up high.` }));
+    else if (!can) notes.push(h('p', { class: 'short', text: `Still to find: ${amounts(m)}. Look along the way, and up high.` }));
     const foot = h('div', { class: 'pss-row' });
     if (this.carrying) {
       foot.append(
@@ -721,7 +749,7 @@ export class Play {
     const n = this.nature;
     const names = (inv: Inventory) =>
       Object.entries(inv)
-        .map(([id, k]) => `${k} ${TRASH[id as TrashId].name.toLowerCase()}`)
+        .map(([id, k]) => `${k} ${plural(TRASH[id as TrashId].name.toLowerCase(), k)}`)
         .join(', ');
     const palette = h('div', { class: 'pss-palette', role: 'toolbar', 'aria-label': 'Nature Center pieces' });
     const refresh = () => {
@@ -773,7 +801,10 @@ export class Play {
     this.bar.hidden = true;
     this.el.append(this.buildBar);
     this.fit();
-    this.say(n.unlocked.length ? 'The Nature Center lot is yours. Pick a piece, then click a spot on the lot (or use the arrow keys and Enter).' : 'Finish a level to unlock your first plants and pieces.', 6);
+    this.say(
+      n.unlocked.length ? 'The Nature Center lot is yours. Pick a piece, then click a spot on the lot (or use the arrow keys and Enter).' : 'Finish a level to unlock your first plants and pieces.',
+      6,
+    );
   }
 
   leaveBuild(): void {
@@ -808,7 +839,7 @@ export class Play {
       if (!canAfford(this.bag, id)) {
         this.cb.onSound('nope');
         const m = missing(this.bag, { id, name: id, needs: NATURE_COST[id], goals: [], limits: [], designs: [] });
-        this.say(`${NATURE[id].name} needs ${missingText(m, Object.fromEntries(Object.keys(m).map((k) => [k, TRASH[k as TrashId].name])))} more. Collect spare materials in the levels.`, 4.5);
+        this.say(`${NATURE[id].name} needs ${amounts(m)} more. Collect spare materials in the levels.`, 4.5);
         return;
       }
       this.bag = pay(this.bag, id);
@@ -1020,7 +1051,8 @@ export class Play {
       } else {
         for (const b of this.benches) if (this.near(b.x + 0.5, 1.8)) best = { id: 'W', x: b.x + 0.5, y: b.y - 0.9, label: 'Workbench' };
         for (const s of this.stakes)
-          if (this.near(s.x + 0.5, 1.6) && s.testing <= 0) best = { id: 'X', x: s.x + 0.5, y: s.y - 0.9, label: s.works ? 'Look' : this.carrying?.recipe === s.recipe ? 'Build' : s.design ? 'Take down' : 'Stake' };
+          if (this.near(s.x + 0.5, 1.6) && s.testing <= 0)
+            best = { id: 'X', x: s.x + 0.5, y: s.y - 0.9, label: s.works ? 'Look' : this.carrying?.recipe === s.recipe ? 'Build' : s.design ? 'Take down' : 'Stake' };
       }
     }
     this.target = best;
@@ -1141,7 +1173,12 @@ export class Play {
       if (patch?.design && patch.design !== 'patch') {
         const peel = patch.design === 'tape' ? (patch.testing > 0 ? 1 - patch.testing / TEST_TIME : patch.works ? 0 : 1) : 0;
         const fill = patch.design === 'bucket' ? (patch.testing > 0 ? 1 - patch.testing / TEST_TIME : 1) : 0;
-        this.put(`tank-${patch.design}-${Math.round(peel * 4)}-${Math.round(fill * 4)}`, () => paintTankFix(T, patch.design as 'tape' | 'bucket', Math.round(fill * 4) / 4, Math.round(peel * 4) / 4), this.boat.x + 2.3, 10.2);
+        this.put(
+          `tank-${patch.design}-${Math.round(peel * 4)}-${Math.round(fill * 4)}`,
+          () => paintTankFix(T, patch.design as 'tape' | 'bucket', Math.round(fill * 4) / 4, Math.round(peel * 4) / 4),
+          this.boat.x + 2.3,
+          10.2,
+        );
       }
     }
     this.drawTiles();
@@ -1427,4 +1464,16 @@ function boomPic(design: string, s: number): PixelBuffer {
     }
   if (design === 'open') for (let k = 0; k < 4; k++) out.set(Math.round(s * 0.5 + k * s * 0.6), water + 1, '#ffffff');
   return out;
+}
+
+/** "2 plastic bottles", "2 batteries", "2 scrap wood". */
+function plural(name: string, n: number): string {
+  if (n === 1 || name.endsWith('wood')) return name;
+  return name.endsWith('y') ? `${name.slice(0, -1)}ies` : `${name}s`;
+}
+
+/** "2 scrap wood and 1 old rope", for what is still missing. */
+function amounts(m: Inventory): string {
+  const parts = Object.entries(m).map(([id, n]) => `${n} ${plural(TRASH[id as TrashId].name.toLowerCase(), n)}`);
+  return parts.length <= 1 ? parts.join('') : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
 }
