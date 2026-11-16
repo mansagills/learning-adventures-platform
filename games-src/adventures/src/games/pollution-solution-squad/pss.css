@@ -1,0 +1,870 @@
+/* Pollution Solution Squad: the play screen (canvas, HUD, grab and use buttons, touch pad), the Workbench and test results, the Nature Center, the sorting station, the water test and Squad Journal questions, and the map. */
+:root {
+  --pss-gold: #ffc23a;
+  --pss-deep: #1f6a7a;
+  --pss-good-bg: #d6ecf6;
+}
+.title-card .logo {
+  color: #1f6a7a;
+}
+.px-icon,
+.px {
+  image-rendering: pixelated;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ---------- the play screen ---------- */
+.pss-play {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #1d2236;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+.pss-box {
+  position: relative;
+}
+.pss-canvas {
+  display: block;
+  image-rendering: pixelated;
+  border-radius: 6px;
+  touch-action: none;
+}
+.pss-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  pointer-events: none;
+  text-shadow:
+    0 1px 0 #000,
+    0 0 3px #000;
+}
+.pss-hud .gap {
+  flex: 1;
+}
+.pss-hud img {
+  width: 12px;
+  height: auto;
+}
+.pss-therm img {
+  width: 10px;
+  height: 34px;
+}
+.pss-msg {
+  position: absolute;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(92%, 640px);
+  background: rgba(255, 255, 255, 0.95);
+  color: #1d1a30;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.pss-talkbtn {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pss-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  padding: 0 8px;
+}
+.pss-bar .btn {
+  min-height: 48px;
+  padding: 4px 10px;
+  gap: 6px;
+}
+.pss-power img {
+  width: 24px;
+  height: 24px;
+}
+.pss-power .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.pss-pad {
+  display: flex;
+  gap: 6px;
+}
+.pss-pad[hidden] {
+  display: none;
+}
+.pss-padbtn {
+  min-width: 60px;
+  justify-content: center;
+  font-size: 22px;
+  touch-action: none;
+}
+.pss-easy[aria-pressed='true'] {
+  background: #fff2c8;
+  border-color: var(--pss-gold);
+}
+/* the menu buttons sit at the top right, clear of the power buttons under the game */
+.pss-tools .toolbar {
+  top: max(8px, env(safe-area-inset-top, 0px));
+  right: max(8px, env(safe-area-inset-right, 0px));
+  bottom: auto;
+}
+@media (max-height: 520px) {
+  .pss-tools .toolbar .btn {
+    min-width: 48px;
+    padding: 2px 6px;
+  }
+  .pss-tools .toolbar .btn span:not(.kbd) {
+    display: none;
+  }
+}
+@media (max-width: 700px), (max-height: 480px) {
+  .pss-bar .btn {
+    min-height: 44px;
+    padding: 2px 8px;
+    font-size: 14px;
+  }
+  .pss-power span:not(.kbd) {
+    display: none;
+  }
+  .pss-msg {
+    font-size: 14px;
+    top: 30px;
+  }
+  .pss-hud {
+    font-size: 13px;
+  }
+}
+
+/* ---------- the map ---------- */
+.pss-map {
+  width: min(680px, 100%);
+}
+.pss-region {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  margin-bottom: 8px;
+}
+.pss-region.soon {
+  opacity: 0.7;
+}
+.pss-region h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text);
+}
+.pss-region .stage {
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.pss-lv {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pss-lv span {
+  flex: 1;
+  min-width: 160px;
+  font-size: var(--text-small);
+}
+.pss-sky {
+  position: relative;
+}
+.pss-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.pss-badge {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff2c8;
+  border: 2px solid var(--pss-gold);
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+.pss-page {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.pss-page .px-icon {
+  flex: none;
+  border-radius: 6px;
+  border: 2px solid #1d1a30;
+  max-width: 40%;
+  height: auto;
+}
+.pss-page p {
+  margin: 0 0 4px;
+  font-size: var(--text-small);
+}
+.pss-page strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ---------- the question panel ---------- */
+.pss-panel {
+  width: min(720px, 100%);
+}
+.pss-panel header {
+  background: linear-gradient(90deg, #cfe6f4, var(--paper-2));
+}
+.pss-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.pss-level {
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.pss-stars {
+  display: flex;
+  gap: 2px;
+}
+.pss-ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 3px dashed var(--paper-3);
+}
+.pss-host {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  border: 3px solid var(--wood-dark);
+  border-radius: 8px;
+  background: #dceaf6;
+}
+.pss-prompt {
+  flex: 1;
+  margin: 0;
+  font-size: calc(var(--text) + 2px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.pss-speak {
+  flex: none;
+}
+.pss-body {
+  padding: 10px 16px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.pss-pic {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  max-width: 100%;
+  padding: 6px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 50% 40%, #6aa8d8, #24405a);
+  border: 3px solid #1d1a30;
+}
+.pss-pic .px-icon,
+.pss-model .px-icon {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+/* keep the panel on one screen: big pictures (the Sun, Uranus with its rings) are capped in height */
+.pss-pic > .px-icon,
+.pss-sky .px-icon {
+  max-height: min(34vh, 230px);
+  object-fit: contain;
+}
+.pss-sky {
+  position: relative;
+}
+.pss-model[hidden] {
+  display: none;
+}
+.pss-row {
+  position: relative;
+  max-width: 100%;
+  margin-bottom: 14px;
+}
+.pss-tag {
+  position: absolute;
+  transform: translate(-50%, 0);
+  padding: 0 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1d1a30;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.pss-tag.small {
+  font-size: 11px;
+  padding: 0 3px;
+}
+.pss-choices {
+  padding: 10px 16px 0;
+}
+.pss-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.pss-choice {
+  min-height: 52px;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 180px;
+  max-width: 320px;
+}
+.pss-choice .kbd {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.pss-choice-text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text);
+  line-height: 1.25;
+  text-align: left;
+}
+.pss-choice.nope {
+  opacity: 0.35;
+}
+.pss-choice.nope .pss-choice-text {
+  text-decoration: line-through;
+}
+.pss-choice.right {
+  opacity: 1;
+  background: #d6f0c2;
+  border-color: var(--pss-deep);
+  box-shadow: 0 0 0 4px #7fbf5a;
+}
+.worked {
+  outline: 4px dashed var(--pss-deep);
+  outline-offset: 3px;
+  animation: pss-worked 1s ease-in-out infinite;
+}
+@keyframes pss-worked {
+  50% {
+    outline-color: #7fbf5a;
+  }
+}
+.pss-feedback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.pss-feedback[hidden] {
+  display: none;
+}
+.pss-feedback img {
+  flex: none;
+}
+.pss-feedback.good {
+  background: var(--pss-good-bg);
+  color: #1d4a1b;
+}
+.pss-feedback.try {
+  background: #fdecc8;
+  color: #6a3d06;
+}
+.pss-feedback.hint {
+  background: #e3e8f6;
+  color: #1c2f66;
+}
+.pss-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px 14px;
+}
+.pss-foot .btn .kbd {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .pss-hudbar {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+  }
+  .pss-ask {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .pss-host {
+    width: 48px;
+    height: 48px;
+  }
+  .pss-prompt {
+    font-size: var(--text);
+  }
+  .pss-body {
+    padding: 8px 10px 0;
+  }
+  .pss-pic {
+    min-height: 0;
+  }
+  .pss-choices {
+    padding: 6px 10px 0;
+  }
+  .pss-head-right .pss-level {
+    display: none;
+  }
+  .pss-options {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .pss-choice {
+    min-height: 46px;
+    max-width: none;
+    flex: none;
+  }
+  .pss-feedback {
+    margin: 6px 10px 0;
+    font-size: var(--text-small);
+  }
+  .pss-foot {
+    padding: 8px 10px 10px;
+  }
+  .pss-tag.small {
+    font-size: 9px;
+  }
+}
+.pss-guide {
+  width: min(760px, 100%);
+}
+.pss-guide-head {
+  margin: 14px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pss-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.pss-guide-card {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  text-align: center;
+  border-radius: 8px;
+  min-height: 0;
+}
+.pss-guide-card .px-icon {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+.pss-guide-empty {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--paper-3);
+  border-radius: 8px;
+  font-size: 28px;
+  color: var(--ink-soft);
+}
+.pss-guide-soon {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+  font-size: var(--text-small);
+}
+
+/* ---------- hint pictures ---------- */
+.pss-model-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.pss-model-fact {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f6ead2;
+  color: #4a2a10;
+  font-weight: 700;
+}
+
+/* ---------- power cards and the Weather Shop ---------- */
+.pss-cards,
+.pss-shop {
+  width: min(620px, 100%);
+}
+.pss-cards .content,
+.pss-shop .content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pss-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.pss-card .px-icon {
+  flex: none;
+  border-radius: 6px;
+}
+.pss-card h3 {
+  margin: 0 0 6px;
+}
+.pss-card p {
+  margin: 0 0 6px;
+  line-height: 1.45;
+}
+.pss-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 700;
+}
+.pss-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pss-gear {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+.pss-gear.owned {
+  border: 2px solid var(--pss-gold);
+}
+.pss-gear strong {
+  display: block;
+}
+.pss-gear span {
+  font-size: var(--text-small);
+}
+@media (max-width: 480px) {
+  .pss-gear {
+    grid-template-columns: auto 1fr;
+  }
+  .pss-gear .btn {
+    grid-column: 1 / -1;
+  }
+  .pss-card {
+    flex-direction: column;
+  }
+}
+
+/* ---------- the Storm Front: counting from the flash to the thunder ---------- */
+.pss-count {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(18, 24, 40, 0.85);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--text-small);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Pollution Solution Squad additions ---------- */
+.pss-bag {
+  max-width: 62%;
+  font-size: 13px;
+  line-height: 1.25;
+}
+.pss-gauge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+.pss-gauge img {
+  width: 12px;
+}
+.pss-gauge i {
+  display: block;
+  width: 54px;
+  height: 8px;
+  border-radius: 4px;
+  background: #0007;
+  overflow: hidden;
+}
+.pss-gauge b {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition:
+    width 0.4s,
+    background 0.4s;
+}
+.pss-act {
+  min-width: 72px;
+}
+.pss-bench,
+.pss-result {
+  max-width: 680px;
+}
+.pss-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 16px;
+}
+.pss-cols ul {
+  margin: 4px 0 8px 18px;
+  padding: 0;
+}
+.pss-needs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.pss-needs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.pss-needs img {
+  width: 18px;
+  height: auto;
+}
+.short {
+  color: #a8382a;
+}
+.pss-pickline {
+  margin: 10px 0 4px;
+  font-weight: 700;
+}
+.pss-designs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.pss-design {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 8px 6px;
+  white-space: normal;
+  text-align: center;
+}
+.pss-design-pic {
+  width: auto;
+  height: 72px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.pss-design small {
+  font-weight: 400;
+}
+.pss-design .tried {
+  color: #a8382a;
+  font-weight: 700;
+}
+.pss-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
+}
+.pss-result-pic {
+  display: block;
+  margin: 0 auto 6px;
+  height: 96px;
+  width: auto;
+}
+.pss-buildbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  color: #fff;
+}
+.pss-buildbar .pss-row {
+  margin: 0;
+  justify-content: center;
+}
+.pss-palette {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  max-width: min(980px, 100vw);
+  overflow-x: auto;
+  padding: 2px 4px 6px;
+}
+.pss-piece {
+  flex: none;
+}
+.pss-piece {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 78px;
+  min-height: 56px;
+  padding: 4px 6px;
+  font-size: 12px;
+  white-space: normal;
+}
+.pss-piece.on {
+  outline: 3px solid var(--pss-gold);
+  outline-offset: 1px;
+}
+.pss-piece img {
+  height: 30px;
+  width: auto;
+}
+.pss-piece small {
+  font-weight: 400;
+  font-size: 11px;
+}
+.pss-book {
+  font-weight: 700;
+  font-size: 14px;
+}
+.pss-sort-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0;
+}
+.pss-bins {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 14px;
+}
+.pss-binbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 48px;
+  padding: 6px 4px;
+  white-space: normal;
+}
+.pss-binbtn:disabled {
+  opacity: 0.45;
+}
+.pss-tag.mark {
+  color: #a8382a;
+}
+@media (max-width: 640px) {
+  .pss-cols {
+    grid-template-columns: 1fr;
+  }
+  .pss-designs {
+    grid-template-columns: 1fr;
+  }
+  .pss-design {
+    flex-direction: row;
+    text-align: left;
+  }
+  .pss-design-pic {
+    height: 48px;
+  }
+  .pss-bins {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pss-bag {
+    max-width: 52%;
+    font-size: 11px;
+  }
+  .pss-gauge span {
+    display: none;
+  }
+}
+
+/* A sideways phone: the toolbar sits over the top right of the play screen,
+   so the place name and the gauge move under the backpack line. */
+@media (max-height: 500px) {
+  .pss-hud {
+    right: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .pss-hud .gap {
+    display: none;
+  }
+}

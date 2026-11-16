@@ -381,9 +381,9 @@ export function paintOlliePortrait(happy = true): PixelBuffer {
 
 // ------------------------------------------------------------------ trash, materials and natural things
 
-export type TrashId = 'bottle' | 'can' | 'bag' | 'rope' | 'net' | 'wood' | 'tire' | 'glass' | 'ring' | 'battery' | 'wrapper' | 'cap';
+export type TrashId = 'bottle' | 'can' | 'bag' | 'rope' | 'net' | 'wood' | 'tire' | 'glass' | 'ring' | 'battery' | 'wrapper' | 'cap' | 'peel';
 
-export const TRASH: Record<TrashId, { name: string; material: string; bin: 'recycle' | 'trash' | 'hazard' | 'reuse' }> = {
+export const TRASH: Record<TrashId, { name: string; material: string; bin: 'recycle' | 'compost' | 'trash' | 'hazard' | 'reuse' }> = {
   bottle: { name: 'Plastic bottle', material: 'Bottles: sealed, they float (for the oil boom)', bin: 'recycle' },
   can: { name: 'Drink can', material: 'Metal: recycled into new cans', bin: 'recycle' },
   bag: { name: 'Plastic bag', material: 'A turtle can mistake it for a jellyfish', bin: 'trash' },
@@ -396,6 +396,7 @@ export const TRASH: Record<TrashId, { name: string; material: string; bin: 'recy
   battery: { name: 'Battery', material: 'Hazardous: it goes in its own bin', bin: 'hazard' },
   wrapper: { name: 'Snack wrapper', material: 'Mixed materials: trash', bin: 'trash' },
   cap: { name: 'Bottle cap', material: 'Small plastic: easy for birds to swallow', bin: 'recycle' },
+  peel: { name: 'Banana peel', material: 'Food scraps: they rot into rich soil', bin: 'compost' },
 };
 
 export const TRASH_IDS = Object.keys(TRASH) as TrashId[];
@@ -496,6 +497,15 @@ export function paintTrash(id: TrashId, T: number, frame = 0): PixelBuffer {
         { sep: true },
       );
       p.line(S(4), b - S(2.4), S(8), b - S(2.6), ramp('#f2c94c'), 3, { onlyOver: true });
+      break;
+    }
+    case 'peel': {
+      const y = ramp('#f2d04c', { warm: 1.1 });
+      p.ellipse(S(6), b - S(1.6), S(3.4), S(1.4), y, { sep: true });
+      p.capsule(S(3.4), b - S(1.4), S(1.4), b - S(3.4), S(0.8), y, { sep: true });
+      p.capsule(S(8.6), b - S(1.4), S(10.6), b - S(3), S(0.8), y, { sep: true });
+      p.rect(S(9.6), b - S(1.8), S(1.4), S(0.8), ramp('#5a4030'), { form: 'flat', level: 2 });
+      for (const x of [4.6, 7.4]) p.pix(S(x), b - S(1.6), '#8a6a2a');
       break;
     }
     case 'cap': {

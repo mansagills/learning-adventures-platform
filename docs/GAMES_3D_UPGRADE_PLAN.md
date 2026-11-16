@@ -2129,7 +2129,7 @@ Built in two halves, with a look preview first (an island, the tiles, the plants
 ##### Checks it will ship with
 Unit tests for every combo rule (each checked against the science), the seasons and targets, seeded islands that can always be won and for every habitat's questions at every level; a browser test that plays a run from the title screen to a restored island, and the Archipelago finale; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
 
-#### S4 Environment: Pollution Solution Squad, the sixth Wild Lands game and the first crafting adventure: PLAN APPROVED (2026-11-15: "1a, 2a, 3a, 4a, 5 keep"); step 1 (look preview and crafting test) BUILT, waiting for the owner's look
+#### S4 Environment: Pollution Solution Squad, the sixth Wild Lands game and the first crafting adventure: PLAN APPROVED (2026-11-15: "1a, 2a, 3a, 4a, 5 keep"); step 1 (look preview and crafting test) MERGED (PR #264, the owner: "Build half 1"); half 1 BUILT (2026-11-16)
 
 > Source: the old site game `public/games/pollution-solution-squad.html`, with `public/games/ocean-conservation-heroes.html` merged in (the merge map in section 4). The owner picked it after Ecosystem Building Tycoon and asked for "a different style of game… a platformer adventure game style, or a sandbox crafting style game". Of three styles (A a platformer adventure, B a top-down sandbox, C a side-view crafting adventure), the owner chose **C2 with a free-building area** (2026-11-09). C2 is our own game in the side-scrolling crafting genre: hand-built stretches of coastline with set places to build fixes, not a world of diggable blocks. Grades 3–5, slug `pollution-solution-squad`. The new game replaces the old one at the same address, and `/games/ocean-conservation-heroes` redirects to it when it ships. Setting: the new Wild Lands setting `coastline` (a beach, a river mouth and a wetland, section 7c of `docs/GAME_WORLDS_PROPOSAL.md`).
 
@@ -2276,6 +2276,40 @@ Unit tests for every combo rule (each checked against the science), the seasons 
     7. finally, build freely in the Nature Center (press E at its sign), where animals visit
   - Keys: arrows or A/D, Space/W/Up, G to grab, E to use, the easy setting; on-screen buttons for touch.
 - **Checks:** `scripts/coast-lookdev-shots.mjs` takes the screenshots and plays the test level with the keyboard: 29 checks, no console errors, and no sideways scrolling on a phone, upright or held sideways. 383 unit tests pass, and the game build is unchanged.
+
+##### Half 1 built (2026-11-16): Beach Camp, Turtle Beach, and the Harbor and River Mouth
+- **Code:** `src/games/pollution-solution-squad/` (built to `public/games/play/pollution-solution-squad/`; not listed on the site yet, so the old game still plays at `/games/pollution-solution-squad` until half 2; play the new one at `/games/play/pollution-solution-squad/index.html`):
+  - `play.ts`, the side-view play screen (levels, grabbing, Ollie, the Workbench, the blueprint stakes and their tests, the kayak, the oil slick, the camp and the Nature Center build mode)
+  - `levels.ts`, the levels drawn as grids of letters
+  - `problems.ts`, 36 questions, the sorting rules and the five blueprints
+  - `nature.ts`, the Nature Center rules (prices, what each level unlocks, where pieces may go, which animals visit)
+  - `art.ts`, the fixes and the question pictures
+  - `content.ts`, `save.ts`, `music.ts` and `game.ts`
+- **Beach Camp:** the hut, Rafi's Workbench, the sorting station, the Squad Journal board, the map board and the Nature Center sign. Marisol says what is next, Rafi explains the Workbench and Ranger Tala gives tips.
+- **Four levels,** each with trash to grab (G), Squad flags (checkpoints), a blueprint to build and test, and a gauge that drops as the place gets cleaner:
+  - **Turtle Beach.** *The Tide Line:* grab trash but leave shells, free Ollie from a six-pack ring, Ollie sniffs out buried trash, and lids for the beach bins (no lid, a loose lid the wind lifts, a clip-shut lid that works). *The Drain Pipe:* the storm drain keeps washing trash onto the beach until it has a net; big holes let small trash through, tiny holes clog, medium holes work.
+  - **The Harbor and River Mouth.** *The Leaky Boat:* patch the leaking fuel tank (tape peels, a bucket overflows, a proper patch works), then an oil boom from sealed bottles and rope (a rope alone and open bottles only half work). *The River Mouth:* paddle a kayak to four ghost nets, then build a net bin (a crate, a sack, a bin with a lid).
+- **Crafting:** a blueprint shows the goal, the limits and the materials. You pick a design, craft it, build it on the stake and watch the test. A design that half works can be taken down to get the materials back and try another. The Journal remembers every design tried.
+- **After each level:** the sorting station (recycling, compost, trash, hazardous waste; every choice gets a reason), then Dr. Wen's water test (two right answers) or the Squad Journal questions until five stars, a talk-it-through debrief and the stretch's badge.
+- **The questions** have pictures (the beach, the drain, the harbor, graphs, the trash path, the four bins, the water loop) and the three-step hint ladder. Each wrong answer names the likely mistake (for example "plastic rots away", "the boom sinks the oil", "the biggest design is best").
+- **The Nature Center:** a cut-away lot by the camp where you place 14 pieces (plants, boxes, a bench made from bottles, a pond lookout), paid for with spare materials. 8 visitors come when what they need is there; a Visitor Book counts them.
+- **Also:** gentle falls (back to the last flag), Easy jumps, saving, music for each stretch and the Journal, the Squad Journal page (trash found, fixes, visitors, badges) and the grown-ups page with a progress table and the misconception names.
+- **Fixed while testing, all found by the browser test playing like a child would:**
+  - The driftwood ledges were too high to jump to; they are now two tiles up.
+  - You could not get out of the kayak; pushing on at either dock now steps out.
+  - Ollie floated in the air above steps; Ollie now follows the ground.
+  - Grabbing took the farther of two pieces of wood; it now takes the nearest.
+  - On a sideways phone the toolbar covered the level name; it moves under the backpack line.
+  - The Nature Center's piece bar wrapped onto two rows and pushed the scene under the toolbar; it is one row that scrolls.
+  - The backpack said "2 plastic bottle"; plurals are fixed.
+- **Checks:**
+  - 24 unit tests (`tests/pss.test.ts`: the questions, sorting, the blueprints, every level has the materials it needs, the Nature Center rules, saving) plus the 9 crafting tests.
+  - `scripts/e2e-pollution-solution-squad.mjs` plays from the title screen through all four levels with the keyboard and real clicks: every grab, Ollie, every blueprint (designs that half work, taking down, the one that works), sorting, the water tests and the Journal, then the Nature Center, the map, saving, the grown-ups page and a phone upright and sideways (117 checks, no console errors). Run parts with `ONLY=beach,harbor,nature,extras`.
+- **Score so far: 8.7/10, provisional** (gameplay 2.1, learning 2.0, look and sound 1.3, ease of use 1.2, reliability 1.3, completeness 0.8). It loses points on:
+  - The Wetland, Farm and Town and The Big Rain finale are still to come (half 2).
+  - On an upright phone the play screen is small.
+  - Badge and Visitor Book messages can stack up when several arrive at once.
+  - The old game still shows on the site until half 2.
 
 ##### Checks it will ship with
 Unit tests for every stretch and level (questions, wrong answers with a reason, hints), the crafting rules (every recipe can be made from the materials in its level, every design's test result matches the science), the water gauges and the levels (every level can be finished, every build spot can be reached); a browser test that plays from the title screen through The Big Rain with the keyboard and real clicks, including the Nature Center; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
@@ -2519,3 +2553,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-10-26:** The owner asked for the next Wild Lands game and picked **Fossil Dig Adventure** (over Animal Kingdom Match, Pollution Solution Squad and Rock Cycle Racing). Its plan is written (the S2 section above): a walking dig site in the badlands with four stations (the Quarry, the Cliff Wall, the Prep Lab, the Trackway) and a Museum Night finale with an ultraviolet Glow Room. Waiting for the owner's choices and approval.
 - **2026-11-09:** Ecosystem Building Tycoon merged (PR #263). The owner picked **Pollution Solution Squad** (with Ocean Conservation Heroes merged in) and asked for a new style; of three (a platformer adventure, a top-down sandbox, a side-view crafting adventure), the owner chose **the crafting adventure with hand-built stretches plus a free-building area**. Its plan is written (the S4 Pollution Solution Squad section above): follow the trash upstream from Turtle Beach through the Harbor and the Wetland to Farm and Town, craft and test fixes at the Workbench, The Big Rain finale, and the Nature Center to build in freely. Waiting for the owner's choices.
 - **2026-11-15:** The owner approved the Pollution Solution Squad plan ("1a, 2a, 3a, 4a, 5 keep"). Step 1 is built: the look preview (cast, Ollie, trash, fixes, the four stretches before and after, the Nature Center) and a playable crafting test (`#coast-play`). Waiting for the owner's look.
+- **2026-11-15/16:** The owner said "Build half 1" (PR #264 merged). Half 1 built: Beach Camp, Turtle Beach (The Tide Line, The Drain Pipe) and the Harbor and River Mouth (The Leaky Boat, The River Mouth), five blueprints, the sorting station, 36 questions, the Nature Center, saving and the grown-ups page. 24 unit tests, 117 browser checks, provisional score 8.7. Not listed on the site until half 2.
