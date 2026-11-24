@@ -1072,10 +1072,12 @@ export function paintFinale(i: number, frame = 0): PixelBuffer {
     // amber light pools, then the hatchlings heading for the bright sea
     for (let k = 0; k < 3; k++) {
       const lx = 112 + k * 46;
-      for (let y = -10; y <= 4; y++) for (let x = -14; x <= 14; x++) if ((x * x) / 196 + (y * y) / 100 < 1) {
-        const c = b.get(lx + x, ground + y);
-        if (c) b.set(lx + x, ground + y, mixHex(c, '#ffb03a', 0.35));
-      }
+      for (let y = -10; y <= 4; y++)
+        for (let x = -14; x <= 14; x++)
+          if ((x * x) / 196 + (y * y) / 100 < 1) {
+            const c = b.get(lx + x, ground + y);
+            if (c) b.set(lx + x, ground + y, mixHex(c, '#ffb03a', 0.35));
+          }
       put(paintNature('amberlight', T, frame % 4), lx);
     }
     for (let k = 0; k < 5; k++) put(paintTurtle(1, (frame + k) % 2), 128 + k * 24 + (frame % 4) * 2, ground + 2 + (k % 2) * 4);

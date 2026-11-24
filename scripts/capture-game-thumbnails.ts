@@ -215,7 +215,7 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
     clicks: [
       'button:has-text("Start a new game")',
       '.modal button.primary',
-      ...Array(12).fill('.dialogue'),
+      ...Array(24).fill('.dialogue'),
     ],
     delay: 1500,
   },

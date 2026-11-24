@@ -1274,8 +1274,7 @@ export class Play {
       } else if (d.kind === 'n') {
         const idle = !this.works('mill-filter');
         this.put(`bus-${idle}-${idle ? f % 3 : 0}`, () => paintBus(T, idle, f % 3), d.x + 0.5, d.y + 1);
-      }
-      else if (d.kind === 't') {
+      } else if (d.kind === 't') {
         ctx.fillStyle = '#8a6a4a';
         ctx.fillRect(Math.round((d.x + 0.35 - this.cam.x) * T), Math.round((d.y + 0.1 - this.cam.y) * T), 7, Math.round(T * 0.9));
       }

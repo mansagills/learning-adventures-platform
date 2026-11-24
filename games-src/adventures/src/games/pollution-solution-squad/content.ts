@@ -158,7 +158,11 @@ export const STRETCH_INFO: Record<Station, StretchInfo> = {
         },
         { text: 'The town is the only dirty place.', misconception: 'wrong-reason', feedback: 'The beach, the harbor and the wetland were dirty too. Where did their pollution start?' },
       ],
-      hints: ['Think about the beach at the start: clean on Monday, dirty on Tuesday.', 'Where did the trash, oil and mud come from?', 'Fixing the source stops the pollution for every place downstream.'],
+      hints: [
+        'Think about the beach at the start: clean on Monday, dirty on Tuesday.',
+        'Where did the trash, oil and mud come from?',
+        'Fixing the source stops the pollution for every place downstream.',
+      ],
     },
     done: 'Farm and Town are fixed! The fields hold their soil, the streets soak up the rain, and the mill’s air is clean. There’s a storm coming. Let’s see if our fixes hold.',
     badge: 'Farm and Town badge',

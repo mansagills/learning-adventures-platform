@@ -185,7 +185,17 @@ describe('the Nature Center rules', () => {
 describe('the save', () => {
   it('cleans a broken or tampered save', () => {
     expect(cleanSave(null)).toMatchObject({ levelsDone: [], bag: {} });
-    const s = cleanSave({ levelsDone: ['beach-1', 'nope'], bag: { wood: 5, gold: 9, bottle: -3 }, stars: { beach: 99 }, nature: [{ id: 'milkweed', x: 3 }, { id: 'castle', x: 2 }, { id: 'bench', x: 500 }], tried: { 'drain-net': ['big', 'huge'] } });
+    const s = cleanSave({
+      levelsDone: ['beach-1', 'nope'],
+      bag: { wood: 5, gold: 9, bottle: -3 },
+      stars: { beach: 99 },
+      nature: [
+        { id: 'milkweed', x: 3 },
+        { id: 'castle', x: 2 },
+        { id: 'bench', x: 500 },
+      ],
+      tried: { 'drain-net': ['big', 'huge'] },
+    });
     expect(s.levelsDone).toEqual(['beach-1']);
     expect(s.bag).toEqual({ wood: 5 });
     expect(s.stars.beach).toBe(5);
