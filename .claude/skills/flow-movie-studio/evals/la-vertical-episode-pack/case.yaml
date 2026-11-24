@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: la-vertical-episode-pack
+expected_outcome: |
+  A folder with 00_project_config.md, 01_characters_and_locations.md, 02_scenes_prompt_pack.md and 03_run_sheet.md
+  for a ~2 minute 9:16 episode using the canon Jaylen and S.P.A.R.K. from docs/lore, with ~15 shots,
+  1 output per prompt, anchors pasted into every shot, and the photosynthesis idea carried in the story.
