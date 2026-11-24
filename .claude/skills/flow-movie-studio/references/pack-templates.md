@@ -26,6 +26,7 @@ Copy these layouts. Antigravity reads the files top to bottom, so keep headings 
 - Agent: Gemini Neon controls Flow through Antigravity's browser   <!-- the user's chosen agent; confirm the name shown in Antigravity -->
 
 ## Files
+0. flow-automation.md: how to drive Flow in the browser (read this first and follow it)
 1. 01_characters_and_locations.md: anchors and reference images
 2. 02_scenes_prompt_pack.md: <or list 02a, 02b ... parts>
 3. 03_run_sheet.md: checklist; tick each shot when saved
@@ -40,6 +41,7 @@ Copy these layouts. Antigravity reads the files top to bottom, so keep headings 
 2. Generate shots in run-sheet order. For each shot: paste its **Flow prompt** exactly, attach its listed ingredients, generate 1 clip, download it to its **Output** path, tick it in 03.
 3. Stop after the user's chosen point (default: end of Scene 1) and wait for review.
 4. If a clip fails or is clearly wrong (wrong character, broken anatomy, missing speech), retake once, then mark it "needs review" and move on.
+5. When all shots are done, run the continuity audit in flow-automation.md section 5 (hero props, characters, locations), fix drifted shots one at a time, then assemble and export to `renders/final/`.
 ```
 
 ## 01_characters_and_locations.md
@@ -130,6 +132,15 @@ Shots: <total> · Runtime: ~<M> min · Aspect: <16:9 | 9:16> · 1 output per pro
 | ✓ | Shot | Scene | Output | Notes |
 | --- | --- | --- | --- | --- |
 | [ ] | S01-SH01 | 1 | renders/scene-01/S01-SH01.mp4 | |
+
+## Continuity audit (after all shots)
+| Shot | Problem (prop, character, location drift) | Fix (correcting sentence used) | Take | Status |
+| --- | --- | --- | --- | --- |
+
+## Final assembly
+- [ ] Clips stitched in order at <16:9 | 9:16>
+- [ ] Audio checked, captions added in the editor if wanted
+- [ ] Exported to renders/final/<project-slug>.mp4
 
 ## Totals
 - Shots: <total> · Estimated credits: ~<credits> · Test (Scene 1): ~<scene-1 credits>

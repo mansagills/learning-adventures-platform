@@ -73,7 +73,7 @@ Then stop and ask: "Does this look right? You can change names, looks, plot beat
 
 ## Phase 3: Write the prompt pack
 
-After approval, read `references/flow-prompting.md` (how to write prompts Flow follows well) and `references/pack-templates.md` (the exact layout of each file), then write the files.
+After approval, read `references/flow-prompting.md` (how to write prompts Flow follows well), `references/pack-templates.md` (the exact layout of each file) and `references/flow-automation.md` (the browser steps the agent will follow in Flow: settings, reference assets, the shot loop, the continuity audit, assembly). Then write the files. The pack must agree with the automation guide: same settings, same shot IDs, same `renders/` paths.
 
 **Where**: a folder named after the project, `flow-productions/<project-slug>/` in the current working directory unless the user names another place. For an episode of a series, use `flow-productions/<series-slug>/ep<NN>-<episode-slug>/`, and copy the series' character and location wording from the earlier episode's `01_characters_and_locations.md` exactly, so the cast looks the same across episodes.
 
@@ -81,10 +81,11 @@ After approval, read `references/flow-prompting.md` (how to write prompts Flow f
 
 | File | What it holds |
 | --- | --- |
-| `00_project_config.md` | The settings Antigravity applies in Flow before generating: model, aspect ratio, quality, 1 clip per prompt, voice and audio on, naming and folders, the run order. |
+| `00_project_config.md` | The settings Antigravity applies in Flow before generating: model, aspect ratio, quality, 1 clip per prompt, voice and audio on, naming and folders, the run order, and a pointer to `flow-automation.md` (copied into the folder as `flow-automation.md` so the agent can read it). |
 | `01_characters_and_locations.md` | The bible: one locked description per character (the "anchor", pasted into every shot), voice settings, location anchors, key props, the film's visual style line, and the reference images to make first. |
 | `02_scenes_prompt_pack.md` | Every scene and shot in order, each shot a complete prompt ready to paste, plus its dialogue, sound and output path. |
-| `03_run_sheet.md` | A checklist of every shot (ID, file name, status box) and the steps for the user to start the run in Antigravity. |
+| `03_run_sheet.md` | A checklist of every shot (ID, file name, status box), the continuity audit table, and the steps for the user to start the run in Antigravity. |
+| `flow-automation.md` | A copy of `references/flow-automation.md`: how the agent drives Flow. Copy it unchanged. |
 
 If there are more than about 60 shots, split the scenes file by act (`02a_scenes_act1.md`, `02b_...`) so each file stays manageable, and list the parts in `00_project_config.md`.
 
@@ -95,6 +96,8 @@ If there are more than about 60 shots, split the scenes file by act (`02a_scenes
 - Shot count and total seconds match the approved brief (within about 10%).
 - Each line of dialogue fits its shot: about 2 to 3 words per second, so no more than about 18 words in an 8-second shot.
 - Aspect ratio and "1 output per prompt" appear in file 00 and nowhere contradict it.
+- `flow-automation.md` is copied into the project folder next to the numbered files, because Antigravity opens only that folder.
+- Hero props (a dragon egg, a glowing artifact) have a reference image and an exact anchor, so the continuity audit has something to compare against.
 - For Learning Adventures, the learning goal is shown on screen or said aloud in at least one shot, in the story's own words.
 
 ## Output delivery
