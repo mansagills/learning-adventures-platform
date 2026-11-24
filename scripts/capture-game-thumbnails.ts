@@ -210,6 +210,14 @@ const overrides: Record<string, { clicks?: string[]; delay?: number; after?: str
       ...Array(12).fill('.dialogue'),
     ],
     delay: 1500,
+  },  // Pollution Solution Squad: start, dress the cadet, read Marisol's and Rafi's welcome, then Beach Camp.
+  'pollution-solution-squad': {
+    clicks: [
+      'button:has-text("Start a new game")',
+      '.modal button.primary',
+      ...Array(12).fill('.dialogue'),
+    ],
+    delay: 1500,
   },
 };
 

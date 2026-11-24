@@ -1,10 +1,23 @@
 import { PixelBuffer } from '../../kit/art/pixel';
 import { Paint, hash, mixHex, ramp } from '../../kit/worlds/shade';
-import { paintTurtle, WILD } from '../../kit/worlds/wild-lands/art';
+import { paintFrog, paintHeron, paintTurtle, WILD } from '../../kit/worlds/wild-lands/art';
 import {
   COAST,
   paintBin,
   paintBoat,
+  paintBufferStrip,
+  paintBus,
+  paintCoastBackdrop,
+  paintCoastTile,
+  paintField,
+  paintFilter,
+  paintFish,
+  paintMill,
+  paintNature,
+  paintRainBarrel,
+  paintRainGarden,
+  paintReeds,
+  paintSquadFlag,
   paintBoom,
   paintDrainPipe,
   paintGhostNet,
@@ -16,10 +29,12 @@ import {
   paintTownHouse,
   paintTrash,
   type BinKind,
+  type FilterLayer,
+  type Stretch,
   type NetDesign,
 } from '../../kit/worlds/wild-lands/coast-art';
 import { paintHero } from '../../kit/worlds/hero16';
-import { MARISOL_VEGA, RAFI_HADDAD, ROSA_DELGADO, TOWNSFOLK } from '../../kit/worlds/wild-lands/coast-art';
+import { MARISOL_VEGA, RAFI_HADDAD, ROSA_DELGADO, TOWNSFOLK, WEN_LI } from '../../kit/worlds/wild-lands/coast-art';
 import type { Scene } from './problems';
 
 /**
@@ -367,6 +382,8 @@ function bars(vals: number[], labels: string[], unit: string, mark?: number): Pi
 /** The picture above a question. Labels (days, units) are added on top as text by the game. */
 export function paintScene(s: Scene): PixelBuffer {
   const sandY = Math.round(PH * 0.88);
+  const two = scene2(s);
+  if (two) return two;
   switch (s) {
     case 'turtle': {
       const b = canvas('sea');
@@ -623,6 +640,446 @@ export function paintLoop(lit = -1): PixelBuffer {
     for (let yy = -6; yy <= 6; yy++) for (let xx = -6; xx <= 6; xx++) if (xx * xx + yy * yy <= 36) b.set(x + xx, y + yy, i === lit ? '#ffffff' : colors[i]);
     for (let yy = -7; yy <= 7; yy++) for (let xx = -7; xx <= 7; xx++) if (Math.abs(xx * xx + yy * yy - 49) < 7) b.set(x + xx, y + yy, '#1e1a24');
   });
+  return b;
+}
+
+// ------------------------------------------------------------------ half 2: the wetland and the town
+
+/** Fill the bottom of a picture with water (clear, algae or mud) from row `top`. */
+function water(b: PixelBuffer, top: number, kind: 'clear' | 'algae' | 'mud', x0 = 0, x1 = PW): void {
+  const r = kind === 'algae' ? COAST.algae : kind === 'mud' ? COAST.mudWater : COAST.river;
+  for (let y = top; y < b.h; y++)
+    for (let x = x0; x < x1; x++) {
+      let c = r[y === top ? 4 : y < top + 3 ? 3 : 2];
+      if (kind === 'algae' && y < top + 3 && hash(x, y, 9) > 0.55) c = '#6ab84a';
+      if (kind === 'mud' && hash(x, y, 4) > 0.93) c = r[1];
+      b.set(x, y, c);
+    }
+}
+
+/** Grass ground from row `top`. */
+function grass(b: PixelBuffer, top: number, x0 = 0, x1 = PW): void {
+  for (let y = top; y < b.h; y++) for (let x = x0; x < x1; x++) b.set(x, y, y === top ? WILD.grass[4] : y < top + 3 ? WILD.grass[3] : COAST.soil[hash(x, y, 2) > 0.85 ? 3 : 2]);
+}
+
+/** Rain streaks over a picture. */
+function rain(b: PixelBuffer, seed = 0, n = 60): void {
+  for (let k = 0; k < n; k++) {
+    const x = Math.floor(hash(k, seed, 1) * b.w);
+    const y = Math.floor(hash(k, seed, 2) * b.h);
+    for (let j = 0; j < 4; j++) if (b.get(x - j, y + j * 2) !== undefined) b.set(x - Math.floor(j / 2), y + j * 2, '#cfe6f6');
+  }
+}
+
+/** A storm sky: dark clouds across the top. */
+function stormSky(b: PixelBuffer, h: number): void {
+  for (let y = 0; y < h; y++) for (let x = 0; x < b.w; x++) b.set(x, y, mixHex('#4a5466', '#8a96a6', y / h));
+  for (let k = 0; k < 9; k++) {
+    const cx = hash(k, 3, 3) * b.w;
+    const cy = 6 + hash(k, 4, 4) * h * 0.4;
+    for (let y = -8; y <= 8; y++) for (let x = -22; x <= 22; x++) if ((x * x) / 484 + (y * y) / 64 < 1) b.set(Math.round(cx + x), Math.round(cy + y), y < 0 ? '#6a7486' : '#545e70');
+  }
+}
+
+/** A small arrow pointing right (or down), drawn in ink. */
+function arrow(b: PixelBuffer, x: number, y: number, len = 10, down = false): void {
+  for (let k = 0; k < len; k++) down ? b.set(x, y + k, INK) : b.set(x + k, y, INK);
+  for (let k = 1; k < 4; k++) {
+    if (down) {
+      b.set(x - k, y + len - k, INK);
+      b.set(x + k, y + len - k, INK);
+    } else {
+      b.set(x + len - k, y - k, INK);
+      b.set(x + len - k, y + k, INK);
+    }
+  }
+}
+
+/** A glass of water (clear), with an optional test strip beside it. */
+function glass(strip: 'good' | 'bad' | null): PixelBuffer {
+  const p = new Paint(30, 40);
+  p.rect(4, 6, 18, 32, ramp('#e8f4f8', { cool: 1.3 }), { form: 'flat', level: 4, sep: true });
+  p.rect(5, 12, 16, 25, ramp('#bfe8f2', { cool: 1.3 }), { form: 'flat', level: 3 });
+  if (strip) {
+    p.rect(25, 8, 3, 26, ramp('#f6f2e6'), { form: 'flat', level: 4, sep: true });
+    p.rect(25, 26, 3, 6, strip === 'good' ? ramp('#3aa65a') : ramp('#e0503a'), { form: 'flat', level: 3 });
+  }
+  return p.toBuffer();
+}
+
+/** A sack of fertilizer. */
+function sack(): PixelBuffer {
+  const p = new Paint(24, 28);
+  p.poly(
+    [
+      [3, 6],
+      [21, 6],
+      [22, 27],
+      [2, 27],
+    ],
+    ramp('#d8c48a'),
+    { sep: true },
+  );
+  p.rect(6, 12, 12, 8, ramp('#3aa65a'), { form: 'flat', level: 3 });
+  p.ellipse(12, 16, 3, 3, ramp('#f2c94c'), { form: 'flat', level: 4 });
+  return p.toBuffer();
+}
+
+/** Short lawn grass (a tuft), for the designs that only half work. */
+function tufts(T: number, wTiles: number, brown = false): PixelBuffer {
+  const u = U(T);
+  const W = Math.round(wTiles * T);
+  const p = new Paint(W, Math.round(6 * u));
+  const r = brown ? ramp('#a89a5a') : ramp('#7cc44a');
+  for (let x = 0; x < W; x += Math.max(2, Math.round(u * 1.5))) p.line(x, Math.round(6 * u), x + (x % 3) - 1, Math.round((2 + (x % 4)) * u * 0.8), r, 2);
+  return p.toBuffer();
+}
+
+/** A tall or white chimney, with or without a filter, smoking or not. */
+function chimney(T: number, design: 'tall' | 'paint' | 'filter', frame = 0): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const tall = design === 'tall';
+  const H = Math.round((tall ? 44 : 30) * u);
+  const p = new Paint(Math.round(22 * u), H);
+  const top = tall ? S(14) : S(12);
+  p.rect(S(7), top, S(8), H - top, design === 'paint' ? ramp('#eef0f2', { cool: 1.2 }) : COAST.brick, { form: 'cylV', sep: true });
+  if (design === 'filter') {
+    p.rect(S(5), top - S(4), S(12), S(5), ramp('#8a9298', { cool: 1.1 }), { form: 'flat', level: 3, sep: true });
+    for (let k = 0; k < 4; k++) p.pix(S(6.5 + k * 3), top - S(2), '#3a3a40');
+    p.ellipse(S(11), top - S(7) - (frame % 3) * u, S(2), S(1.2), COAST.steam, { form: 'flat', level: 4 });
+  } else
+    for (let k = 0; k < 4; k++) {
+      const t = (k + frame * 0.3) % 4;
+      p.ellipse(S(11 + t * 2), top - S(2 + t * 3), S(2.2 + t * 0.8), S(1.8 + t * 0.5), COAST.smoke, { form: 'flat', level: 2 });
+    }
+  return p.toBuffer();
+}
+
+/**
+ * A half-2 fix at its build spot: wetland plants, the water filter, the
+ * riverbank strip, the rain garden and the chimney fix, in each design.
+ * `wet` shows rain water collecting (during a test).
+ */
+export function paintFix(recipe: 'reeds' | 'filter' | 'buffer' | 'rain-garden' | 'mill-filter', design: string, T: number, frame = 0, wet = false): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  if (recipe === 'reeds') {
+    const out = new PixelBuffer(Math.round(3 * T), Math.round(32 * u));
+    const one = design === 'native' ? paintReeds(T, 1, frame) : design === 'flowers' ? flower(T) : tufts(T, 1);
+    for (let k = 0; k < 3; k++) out.blit(one, Math.round(k * T + (T - one.w) / 2), out.h - one.h);
+    return out;
+  }
+  if (recipe === 'filter') {
+    const layers: FilterLayer[] = design === 'coarse' ? ['stones', 'gravel', 'sand'] : design === 'sand-top' ? ['sand', 'gravel', 'stones'] : ['gravel', 'sand', 'stones', 'sand'];
+    return paintFilter(T, layers, true, design === 'coarse', frame);
+  }
+  if (recipe === 'buffer') {
+    if (design === 'strip') return paintBufferStrip(T, 3, frame);
+    if (design === 'fence') {
+      const out = new PixelBuffer(Math.round(3 * T), Math.round(14 * u));
+      const p = new Paint(out.w, out.h);
+      for (let k = 0; k < 4; k++) p.rect(S(2 + k * 14), S(2), S(2), S(12), COAST.wood, { form: 'cylV', sep: true });
+      p.rect(0, S(4), out.w, S(1.6), COAST.wood, { form: 'flat', level: 3, sep: true });
+      p.rect(0, S(9), out.w, S(1.6), COAST.wood, { form: 'flat', level: 3, sep: true });
+      out.blit(p.toBuffer(), 0, 0);
+      return out;
+    }
+    return tufts(T, 3);
+  }
+  if (recipe === 'rain-garden') {
+    if (design === 'garden') return paintRainGarden(T, wet);
+    const out = new PixelBuffer(Math.round(3 * T), Math.round(16 * u));
+    const p = new Paint(out.w, out.h);
+    if (design === 'pipe') {
+      p.rect(S(2), S(4), S(40), S(3), COAST.pipe, { form: 'cylH', sep: true });
+      p.rect(S(40), S(4), S(3), S(12), COAST.pipe, { form: 'cylV', sep: true });
+      if (wet) for (let k = 0; k < 3; k++) p.ellipse(S(41.5), S(12 + ((k * 3 + frame) % 6)), S(0.8), S(1), COAST.river, { form: 'flat', level: 3 });
+    } else {
+      p.ellipse(out.w / 2, S(14), S(20), S(4), ramp('#9a9a8a'), { sep: true });
+      for (let k = 0; k < 30; k++) p.pix(S(6) + hash(k, 2, 2) * S(36), S(12) + hash(k, 3, 3) * S(3), '#6a6a62');
+      if (wet) p.ellipse(out.w / 2, S(12), S(22), S(2), COAST.river, { form: 'flat', level: 3 });
+    }
+    out.blit(p.toBuffer(), 0, 0);
+    return out;
+  }
+  return chimney(T, design as 'tall' | 'paint' | 'filter', frame);
+}
+
+function flower(T: number): PixelBuffer {
+  const u = U(T);
+  const S = (v: number) => v * u;
+  const p = new Paint(Math.round(12 * u), Math.round(16 * u));
+  p.line(S(6), S(16), S(6), S(6), ramp('#5a9a3a'), 2);
+  for (const [dx, dy] of [
+    [-2, 0],
+    [2, 0],
+    [0, -2],
+    [0, 2],
+  ])
+    p.ellipse(S(6 + dx), S(5 + dy), S(1.6), S(1.6), ramp('#e85aa0'), { form: 'flat', level: 3 });
+  p.ellipse(S(6), S(5), S(1.2), S(1.2), ramp('#f2c94c'), { form: 'flat', level: 4 });
+  return p.toBuffer();
+}
+
+/** The half-2 question pictures. */
+function scene2(s: Scene): PixelBuffer | null {
+  switch (s) {
+    case 'reeds-clean': {
+      const b = canvas('plain');
+      grass(b, 70);
+      water(b, 62, 'mud', 0, 56);
+      water(b, 62, 'clear', 120, PW);
+      for (let k = 0; k < 4; k++) stamp(b, paintReeds(16, k, 0), 70 + k * 12, 72);
+      arrow(b, 30, 50);
+      arrow(b, 130, 50);
+      return b;
+    }
+    case 'sponge': {
+      const b = new PixelBuffer(PW, PH);
+      stormSky(b, 50);
+      grass(b, 66);
+      water(b, 66, 'clear', 40, 110);
+      for (let k = 0; k < 5; k++) stamp(b, paintReeds(16, k, 0), 46 + k * 14, 70);
+      stamp(b, paintTownHouse(16, 1), 140, 66);
+      stamp(b, paintTownHouse(16, 2), 160, 66);
+      rain(b, 3);
+      for (let k = 0; k < 4; k++) arrow(b, 56 + k * 14, 70, 8, true);
+      return b;
+    }
+    case 'muddy': {
+      const b = canvas('plain');
+      water(b, 20, 'clear', 0, 86);
+      water(b, 20, 'mud', 90, PW);
+      for (let x = 0; x < PW; x++) b.set(x, 19, '#f2c94c');
+      for (let k = 0; k < 3; k++) {
+        for (let y = 20; y < 88; y++) b.set(18 + k * 22 + Math.floor((y - 20) / 6), y, y % 3 ? '#f6e08a' : COAST.river[3]);
+        for (let y = 20; y < 36; y++) b.set(108 + k * 22 + Math.floor((y - 20) / 6), y, '#f6e08a');
+      }
+      for (let k = 0; k < 3; k++) stamp(b, tufts(16, 1), 24 + k * 22, PH);
+      for (let k = 0; k < 3; k++) stamp(b, tufts(16, 1, true), 114 + k * 22, PH);
+      return b;
+    }
+    case 'gasp': {
+      const b = canvas('plain');
+      water(b, 40, 'algae');
+      for (let k = 0; k < 3; k++) stamp(b, paintFish(24, k, true), 40 + k * 48, 56);
+      return b;
+    }
+    case 'nursery': {
+      const b = canvas('plain');
+      water(b, 60, 'clear');
+      for (let k = 0; k < 6; k++) stamp(b, paintReeds(24, k, 0), 14 + k * 30, 92);
+      stamp(b, paintFish(16, 0), 44, 82);
+      stamp(b, paintFish(16, 1, false, '#e8c060'), 104, 88);
+      stamp(b, paintFrog(16, 0), 140, 64);
+      for (let k = 0; k < 6; k++) b.set(70 + (k % 3) * 2, 74 + Math.floor(k / 3) * 2, '#1e1a24');
+      return b;
+    }
+    case 'reeds': {
+      const b = canvas('plain');
+      water(b, 64, 'clear');
+      for (let k = 0; k < 5; k++) stamp(b, paintReeds(24, k, 0), 24 + k * 32, 90);
+      return b;
+    }
+    case 'green-pond': {
+      const b = canvas('day');
+      grass(b, 56);
+      water(b, 60, 'algae', 20, 156);
+      stamp(b, paintFish(16, 0, true), 70, 70);
+      stamp(b, sack(), 168, 56);
+      return b;
+    }
+    case 'two-glasses': {
+      const b = canvas('plain');
+      stamp(b, glass('good'), 56, 86, 2);
+      stamp(b, glass('bad'), 124, 86, 2);
+      return b;
+    }
+    case 'fertilizer': {
+      const b = canvas('day');
+      grass(b, 54);
+      stamp(b, paintField(16, 6, 'crop', 0), 70, 60);
+      stamp(b, sack(), 140, 56);
+      water(b, 80, 'algae', 0, PW);
+      arrow(b, 120, 66, 10, true);
+      return b;
+    }
+    case 'channel': {
+      const b = canvas('plain');
+      grass(b, 50);
+      water(b, 64, 'clear', 0, 70);
+      water(b, 64, 'clear', 110, PW);
+      for (const [k, x] of [
+        ['bottle', 76],
+        ['bag', 88],
+        ['can', 100],
+        ['wrapper', 92],
+      ] as const)
+        stamp(b, paintTrash(k, 16, 0), x, 68 + (x % 3));
+      for (let k = 0; k < 3; k++) stamp(b, paintReeds(16, k, 0), 128 + k * 14, 68);
+      return b;
+    }
+    case 'filters': {
+      const b = canvas('plain');
+      (['sand-top', 'mixed', 'coarse'] as const).forEach((d, i) => stamp(b, paintFix('filter', d, 16, 0), 30 + i * 58, 92, 2));
+      return b;
+    }
+    case 'heron-fish': {
+      const b = canvas('plain');
+      water(b, 56, 'algae');
+      stamp(b, paintHeron(24, 0), 50, 80);
+      stamp(b, paintFish(16, 0), 140, 86);
+      stamp(b, paintFish(16, 1), 158, 76);
+      arrow(b, 110, 72, 14);
+      return b;
+    }
+    case 'bare-field': {
+      const b = new PixelBuffer(PW, PH);
+      stormSky(b, 44);
+      grass(b, 44);
+      stamp(b, paintField(16, 7, 'bare', 0), 66, 62);
+      water(b, 70, 'mud', 124, PW);
+      for (let x = 100; x < 124; x++) for (let y = 62; y < 68; y++) if (hash(x, y, 5) > 0.4) b.set(x, y, COAST.mudWater[2]);
+      rain(b, 5);
+      return b;
+    }
+    case 'mill-bus': {
+      const b = canvas('plain');
+      grass(b, 80);
+      stamp(b, paintMill(24, false, 0), 56, 80);
+      stamp(b, paintBus(24, true, 1), 132, 82);
+      return b;
+    }
+    case 'buffer': {
+      const b = canvas('day');
+      grass(b, 60);
+      stamp(b, paintField(16, 5, 'crop', 0), 40, 66);
+      stamp(b, paintBufferStrip(16, 3, 0), 104, 66);
+      water(b, 66, 'clear', 134, PW);
+      return b;
+    }
+    case 'cover-crop': {
+      const b = canvas('day');
+      grass(b, 62);
+      stamp(b, paintField(16, 5, 'bare', 0), 46, 70);
+      stamp(b, paintField(16, 5, 'cover', 0), 132, 70);
+      for (let y = 50; y < PH; y++) b.set(88, y, '#ffffff');
+      return b;
+    }
+    case 'rain-garden': {
+      const b = new PixelBuffer(PW, PH);
+      stormSky(b, 60);
+      grass(b, 76);
+      stamp(b, paintTownHouse(24, 0), 50, 76);
+      stamp(b, paintRainGarden(24, true), 124, 84);
+      rain(b, 7, 40);
+      arrow(b, 80, 70, 16);
+      return b;
+    }
+    case 'barrel': {
+      const b = canvas('day');
+      grass(b, 76);
+      stamp(b, paintTownHouse(24, 2), 76, 76);
+      stamp(b, paintRainBarrel(24), 112, 78);
+      return b;
+    }
+    case 'mills': {
+      const b = canvas('plain');
+      (['tall', 'paint', 'filter'] as const).forEach((d, i) => stamp(b, chimney(16, d, 0), 30 + i * 58, 92, 1));
+      return b;
+    }
+    case 'council': {
+      const b = canvas('plain');
+      [ROSA_DELGADO, ...TOWNSFOLK.slice(0, 3), WEN_LI, MARISOL_VEGA].forEach((l, i) => stamp(b, personSmall(l), 18 + i * 28, 88));
+      return b;
+    }
+    case 'valley': {
+      const b = paintPath(null, PW, PH);
+      return b;
+    }
+    default:
+      return null;
+  }
+}
+
+// ------------------------------------------------------------------ the finale: The Big Rain and Clean Coast Day
+
+export const FW = 320;
+export const FH = 168;
+
+/** A finale picture: a stretch of the coast drawn wide, with its fixes, in the storm or the sun. */
+export function paintFinale(i: number, frame = 0): PixelBuffer {
+  const stretch: Stretch = i <= 2 ? 'town' : i === 3 ? 'wetland' : i === 4 ? 'harbor' : 'beach';
+  const night = i === 7;
+  const storm = i <= 4;
+  const b = new PixelBuffer(FW, FH);
+  const bd = paintCoastBackdrop(stretch, FW, FH, true);
+  b.blit(bd.sky, 0, 0);
+  b.blit(bd.far, 0, 0);
+  b.blit(bd.near, 0, 0);
+  if (storm) {
+    stormSky(b, 60);
+  }
+  const T = 24;
+  const ground = FH - 36;
+  // the ground: a row of tiles
+  for (let x = 0; x < FW; x += T) {
+    const water = (stretch === 'harbor' && x > 140) || (stretch === 'beach' && x > 230) || (stretch === 'wetland' && x > 90 && x < 230) || (stretch === 'town' && i === 1 && x >= 216);
+    const top = paintCoastTile(T, stretch, water ? 'waterTop' : 'top', x / T, frame % 4, 'clear');
+    const fill = paintCoastTile(T, stretch, water ? 'water' : 'fill', x / T + 1, frame % 4, 'clear');
+    b.blit(top, x, ground);
+    b.blit(fill, x, ground + T);
+  }
+  const put = (s: PixelBuffer, cx: number, bottom = ground) => stamp(b, s, cx, bottom);
+  if (i === 0) {
+    for (let k = 0; k < 4; k++) put(paintTownHouse(T, k), 40 + k * 70);
+    put(paintField(T, 2, 'cover', 0), 292);
+  } else if (i === 1) {
+    put(paintField(T, 5, 'cover', frame % 2), 70);
+    put(paintBufferStrip(T, 3, frame), 176);
+  } else if (i === 2) {
+    put(paintTownHouse(T, 1), 36);
+    put(paintTownHouse(T, 2), 92);
+    put(paintRainGarden(T, true), 150, ground + 4);
+    put(paintStormDrain(T, true), 196, ground + 4);
+    put(paintMill(T, true, frame), 268);
+  } else if (i === 3) {
+    for (let k = 0; k < 6; k++) put(paintReeds(T, k, frame), 100 + k * 22, ground + 10);
+    put(paintFish(T, frame, false), 150, ground + 22);
+    put(paintFish(T, frame + 1, false, '#e8c060'), 200, ground + 28);
+    put(paintHeron(T, 0), 40);
+  } else if (i === 4) {
+    put(paintNetBin(T), 60);
+    put(paintBoat(T, true, frame % 6), 220, ground + 18);
+  } else {
+    put(paintDrainPipe(T, 'medium', frame % 14, i === 5, 0.2), 60, ground);
+    if (i === 5) for (let k = 0; k < 3; k++) put(paintNature('amberlight', T, frame % 4), 112 + k * 46);
+    if (i === 6) {
+      put(paintSquadFlag(T, true, frame % 8), 104);
+      [MARISOL_VEGA, RAFI_HADDAD, WEN_LI, ROSA_DELGADO, ...TOWNSFOLK.slice(0, 3)].forEach((l, k) => put(paintHero(l, 1.5, 'right'), 124 + k * 15));
+    }
+  }
+  if (storm) rain(b, i * 7 + (frame % 3), 160);
+  if (night) {
+    for (let y = 0; y < FH; y++)
+      for (let x = 0; x < FW; x++) {
+        const c = b.get(x, y);
+        if (c) b.set(x, y, mixHex(c, '#101a3a', 0.62));
+      }
+    for (let k = 0; k < 40; k++) b.set(Math.floor(hash(k, 1, 7) * FW), Math.floor(hash(k, 2, 7) * 60), '#f6f2e6');
+    for (let y = -7; y <= 7; y++) for (let x = -7; x <= 7; x++) if (x * x + y * y <= 49) b.set(270 + x, 24 + y, '#f6f2d6');
+    // amber light pools, then the hatchlings heading for the bright sea
+    for (let k = 0; k < 3; k++) {
+      const lx = 112 + k * 46;
+      for (let y = -10; y <= 4; y++) for (let x = -14; x <= 14; x++) if ((x * x) / 196 + (y * y) / 100 < 1) {
+        const c = b.get(lx + x, ground + y);
+        if (c) b.set(lx + x, ground + y, mixHex(c, '#ffb03a', 0.35));
+      }
+      put(paintNature('amberlight', T, frame % 4), lx);
+    }
+    for (let k = 0; k < 5; k++) put(paintTurtle(1, (frame + k) % 2), 128 + k * 24 + (frame % 4) * 2, ground + 2 + (k % 2) * 4);
+  }
   return b;
 }
 

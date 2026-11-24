@@ -1342,10 +1342,11 @@ export function paintCoastTile(T: number, stretch: Stretch, kind: CoastTileKind,
           if (murk === 'oil') {
             const k = Math.floor((x + seed * T + frame) / 3) % 5;
             c = ['#3a3a48', '#7a5aa0', '#5a8ab0', '#8aa04a', '#a87a3a'][k];
-          } else c = mixHex(w[4], '#ffffff', murk === 'clear' || murk === 'trash' ? 0.5 : 0.2);
+          } else c = mixHex(w[4], '#ffffff', murk === 'clear' || murk === 'trash' ? 0.5 : murk === 'mud' ? 0.4 : 0.2);
         } else if (murk === 'oil' && kind === 'waterTop' && y < Math.round(3 * u)) c = mixHex(w[deep], '#2a2a34', 0.55);
         else if (murk === 'algae' && kind === 'waterTop' && y < Math.round(4 * u) && hash(x + seed * T, y, 4) > 0.55) c = hash(x, y, 8) > 0.5 ? '#8ac04a' : '#6aa83a';
         else if (murk === 'algae' && hash(x + seed * T, y + frame, 4) > 0.97) c = '#7cb04a';
+        else if (murk === 'mud' && kind === 'waterTop' && (y === Math.round(5 * u) || y === Math.round(10 * u)) && wave > 0.1) c = w[4];
         else if (wave > 0.92 && (y + frame) % 5 === 0) c = w[deep + 1] ?? w[4];
         b.set(x, y, c);
       }

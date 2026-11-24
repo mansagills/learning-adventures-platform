@@ -1168,7 +1168,7 @@ Only the Roman forum has the walking pieces (`walk`, `blocks`, `setTime`, `omit`
 - Screenshots at 1280×720 and 390×844, reviewed by eye, with extra contrast checks on the dark night shift.
 - A score against the rubric (8.5 to pass).
 
-### Phase 2: Science (14 games, from 21): IN PROGRESS (Body System Heroes, Solar System Explorer, Ocean Depth Diver and Fossil Dig Adventure are COMPLETED ✅; 4 of 14 done)
+### Phase 2: Science (14 games, from 21): IN PROGRESS (Body System Heroes, Solar System Explorer, Ocean Depth Diver, Fossil Dig Adventure, Animal Kingdom Match, Weather Wizard Battle, Ecosystem Building Tycoon and Pollution Solution Squad are COMPLETED ✅; 8 of 14 done)
 
 Detailed learning specs are written at the start of this phase, aligned to NGSS. Proposed batches (merged games follow the merge map):
 
@@ -2129,7 +2129,7 @@ Built in two halves, with a look preview first (an island, the tiles, the plants
 ##### Checks it will ship with
 Unit tests for every combo rule (each checked against the science), the seasons and targets, seeded islands that can always be won and for every habitat's questions at every level; a browser test that plays a run from the title screen to a restored island, and the Archipelago finale; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
 
-#### S4 Environment: Pollution Solution Squad, the sixth Wild Lands game and the first crafting adventure: PLAN APPROVED (2026-11-15: "1a, 2a, 3a, 4a, 5 keep"); step 1 (look preview and crafting test) MERGED (PR #264, the owner: "Build half 1"); half 1 BUILT (2026-11-16)
+#### S4 Environment: Pollution Solution Squad, the sixth Wild Lands game and the first crafting adventure: PLAN APPROVED (2026-11-15: "1a, 2a, 3a, 4a, 5 keep"); step 1 (look preview and crafting test) MERGED (PR #264, the owner: "Build half 1"); half 1 MERGED (PR #265); half 2 BUILT (2026-11-24): COMPLETED ✅ with its merge
 
 > Source: the old site game `public/games/pollution-solution-squad.html`, with `public/games/ocean-conservation-heroes.html` merged in (the merge map in section 4). The owner picked it after Ecosystem Building Tycoon and asked for "a different style of game… a platformer adventure game style, or a sandbox crafting style game". Of three styles (A a platformer adventure, B a top-down sandbox, C a side-view crafting adventure), the owner chose **C2 with a free-building area** (2026-11-09). C2 is our own game in the side-scrolling crafting genre: hand-built stretches of coastline with set places to build fixes, not a world of diggable blocks. Grades 3–5, slug `pollution-solution-squad`. The new game replaces the old one at the same address, and `/games/ocean-conservation-heroes` redirects to it when it ships. Setting: the new Wild Lands setting `coastline` (a beach, a river mouth and a wetland, section 7c of `docs/GAME_WORLDS_PROPOSAL.md`).
 
@@ -2310,6 +2310,32 @@ Unit tests for every combo rule (each checked against the science), the seasons 
   - On an upright phone the play screen is small.
   - Badge and Visitor Book messages can stack up when several arrive at once.
   - The old game still shows on the site until half 2.
+
+##### Half 2 built (2026-11-24): the Wetland, Farm and Town, and The Big Rain
+The owner merged half 1 (PR #265) and said "Build half 2".
+- **The Wetland** (Dr. Wen Li; the oxygen and cloudiness gauges):
+  - *The Green Pond:* a pond thick with green algae, fish gasping at the surface, and an old boardwalk with gaps to jump. The blueprint is wetland plants: lawn grass (drowns in the mud), garden flowers from far away (rot, and feed no local animals) or native reeds and cattails (work). When the reeds go in, the water turns clear, the fish swim down, and the oxygen gauge turns green.
+  - *The Filter:* a brown, muddy pool below a stream. The blueprint is a filter of stones, gravel and sand: sand on top (clogs), all mixed (comes out brown) or big to small (clear water out of the pipe). Then stepping stones across the clear pool.
+- **Farm and Town** (Rosa Delgado; the cloudiness gauge):
+  - *The Farm:* bare fields, a ditch and a hay wagon, and a muddy river under a bridge. The blueprint is a riverbank strip: mowed grass (the rain runs straight over it), a wooden fence (the mud flows under it) or a wide strip of native plants (works). The river runs clear and the fields turn green with a cover crop.
+  - *Main Street:* houses, a storm drain, a waiting bus and the mill. Two blueprints: something for the roof and street water (a pipe to the drain sends it to the river faster, a gravel patch overflows, a rain garden soaks it in), then the mill chimney (a taller chimney sends the smoke farther, white paint only looks clean, a smoke filter stops it at its source). When both work, the bus switches off its engine and the storm drains are marked "drains to river".
+- **Fixes tested in the rain:** the wetland plants, the filter, the strip and the rain garden are tested in a rainstorm.
+- **36 more questions** (18 per stretch, three levels each), with 20 new pictures (the reeds cleaning muddy water, the wetland as a sponge, sunlight in clear and muddy water, gasping fish, two clear glasses and a test strip, three filters, a bare field in the rain, the mill and the bus, a buffer strip, a cover crop, a rain garden, a rain barrel, three chimneys, the town council, the whole valley) and two bar graphs (the oxygen after the reeds, the mud after the plants). New mistakes the wrong answers target: a wetland is a useless swamp, muddy water does no harm, any plant will do, more fertilizer is better, lots of algae is good for fish, clear water is clean, the filter order doesn't matter, bare soil stays put, only factories pollute the air, and a fix in the wrong place.
+- **The Big Rain and Clean Coast Day (the finale):** after the Farm and Town debrief, a storm follows the water from the hills to the sea in eight pictures: the town and fields, the strip and the cover crops, the rain garden and the mill filter, the wetland, the harbor, Turtle Beach the morning after (still clean), Clean Coast Day with the whole cast, and the hatchlings heading to the sea under amber lights at night. Then the Clean Coast badge and a closing word from Marisol; the game tells the site it is complete. Marisol offers to show the finale again.
+- **Also:** music for the wetland, the town and the finale; the shade tree and the rain barrel join the Nature Center (all 16 pieces); the map shows all four stretches; the grown-ups page covers the whole game (two more standards: 5-ESS2-1 and 4-ESS3-1).
+- **On the site:** the new game replaces the old one at `/games/pollution-solution-squad` with a new card picture, and `/games/ocean-conservation-heroes` redirects to it.
+- **Fixed while testing:**
+  - The mill was written with the letter the level reader uses for ice, so it was an invisible ice block. It has its own letter now.
+  - The muddy pool looked like solid ground; it now has a waterline and ripples.
+  - On Main Street the second piece of wood came after the rain garden's build spot; a piece was added before it.
+  - On Clean Coast Day the lamps stood in front of the people.
+- **Checks:**
+  - 42 unit tests (`tests/pss.test.ts`): every question, picture, blueprint and level (including the materials for every fix), the bar graphs, the Nature Center, the save and the finale.
+  - `scripts/e2e-pollution-solution-squad.mjs` plays the whole game with the keyboard and real clicks, from the title screen through all eight levels, every blueprint (designs that half work, taking them down, the one that works), the water tests, the Journals, the debriefs and The Big Rain, then the Nature Center, the map, saving, the grown-ups page and a phone (`ONLY=beach,harbor,wetland,town,nature,extras`).
+- **Score: 9.0/10** (gameplay 2.1, learning 2.1, look and sound 1.3, ease of use 1.25, reliability 1.3, completeness 0.95). It loses points on:
+  - The Big Rain is a picture story with words, not something you play.
+  - On an upright phone the play screen is small (as in Weather Wizard Battle).
+  - Badge and Visitor Book messages can stack up when several arrive at once.
 
 ##### Checks it will ship with
 Unit tests for every stretch and level (questions, wrong answers with a reason, hints), the crafting rules (every recipe can be made from the materials in its level, every design's test result matches the science), the water gauges and the levels (every level can be finished, every build spot can be reached); a browser test that plays from the title screen through The Big Rain with the keyboard and real clicks, including the Nature Center; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
@@ -2554,3 +2580,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-11-09:** Ecosystem Building Tycoon merged (PR #263). The owner picked **Pollution Solution Squad** (with Ocean Conservation Heroes merged in) and asked for a new style; of three (a platformer adventure, a top-down sandbox, a side-view crafting adventure), the owner chose **the crafting adventure with hand-built stretches plus a free-building area**. Its plan is written (the S4 Pollution Solution Squad section above): follow the trash upstream from Turtle Beach through the Harbor and the Wetland to Farm and Town, craft and test fixes at the Workbench, The Big Rain finale, and the Nature Center to build in freely. Waiting for the owner's choices.
 - **2026-11-15:** The owner approved the Pollution Solution Squad plan ("1a, 2a, 3a, 4a, 5 keep"). Step 1 is built: the look preview (cast, Ollie, trash, fixes, the four stretches before and after, the Nature Center) and a playable crafting test (`#coast-play`). Waiting for the owner's look.
 - **2026-11-15/16:** The owner said "Build half 1" (PR #264 merged). Half 1 built: Beach Camp, Turtle Beach (The Tide Line, The Drain Pipe) and the Harbor and River Mouth (The Leaky Boat, The River Mouth), five blueprints, the sorting station, 36 questions, the Nature Center, saving and the grown-ups page. 24 unit tests, 117 browser checks, provisional score 8.7. Not listed on the site until half 2.
+- **2026-11-24:** Half 1 merged (PR #265). The owner said "Build half 2": the Wetland (The Green Pond, The Filter) and Farm and Town (The Farm, Main Street), five more blueprints, 36 more questions, The Big Rain and Clean Coast Day, the site listing at the same address and the ocean-conservation-heroes redirect. 42 unit tests, the full browser test, 9.0/10. **Pollution Solution Squad is COMPLETED ✅ with its merge. 8 of 14 Science games done.**

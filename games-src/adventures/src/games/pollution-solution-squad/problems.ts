@@ -4,7 +4,7 @@
  *
  * Each stretch of the coast has a question bank at three levels, asked at the
  * water test between its two levels and in the Squad Journal at the end.
- * Half 1 has two stretches:
+ * Four stretches, followed upstream:
  *   Turtle Beach (Marisol Vega): trash and plastic
  *     1. animals mistake plastic for food; take only trash; litter far
  *        away reaches the sea; sorting into recycling, compost, trash and
@@ -27,6 +27,27 @@
  *        a plan for the harbor; everyone working together
  *        (3-5-ETS1-2, 3-5-ETS1-3, 5-ESS3-1)
  *
+ *   The Wetland (Dr. Wen Li): clean water and the wetland
+ *     1. wetlands filter water and soak up floods; mud blocks sunlight;
+ *        reading the oxygen gauge; wetlands as nurseries; native plants
+ *        (3-LS4-4, 5-ESS2-1)
+ *     2. fertilizer feeds algae; dead algae uses up the oxygen; clear water
+ *        can still be polluted; more fertilizer is not better; how reed
+ *        roots help (5-ESS3-1)
+ *     3. the filter layers in order; a bar graph of the oxygen; a changed
+ *        habitat; improving a failed design; fixing the source; why a
+ *        wetland is worth keeping (3-LS4-4, 3-5-ETS1-3)
+ *   Farm and Town (Rosa Delgado): fixing it at the source
+ *     1. storm drains go straight to the river; rain washes bare soil away;
+ *        chimneys and engines dirty the air; roots hold soil (5-ESS3-1)
+ *     2. buffer strips, cover crops, rain gardens and rain barrels; the
+ *        right amount of fertilizer at the right time; engines off while
+ *        waiting (5-ESS3-1, 4-ESS3-1)
+ *     3. tracing pollution from source to sea; the best place for a fix;
+ *        comparing designs against the goal; a bar graph of the mud; a
+ *        town plan that meets every goal; many small actions add up
+ *        (3-5-ETS1-1, 3-5-ETS1-2, 5-ESS3-1)
+ *
  * Every wrong answer names the real mistake behind it (a misconception tag)
  * and carries one plain sentence that explains it without giving the answer
  * away.
@@ -38,8 +59,8 @@
 import type { Recipe } from '../../kit/craft/workbench';
 import { TRASH, type BinKind, type TrashId } from '../../kit/worlds/wild-lands/coast-art';
 
-export type Station = 'beach' | 'harbor';
-export const STATIONS: Station[] = ['beach', 'harbor'];
+export type Station = 'beach' | 'harbor' | 'wetland' | 'town';
+export const STATIONS: Station[] = ['beach', 'harbor', 'wetland', 'town'];
 export type Tier = 1 | 2 | 3;
 export const TIERS: Tier[] = [1, 2, 3];
 
@@ -61,6 +82,17 @@ export type Misconception =
   | 'oil-stays' // thinks spilled oil stays in one drop and doesn't spread
   | 'leak-later' // thinks the cleanup comes before stopping the leak
   | 'net-harmless' // thinks lost fishing nets stop catching animals
+  | 'wetland-useless' // thinks a wetland is a useless swamp
+  | 'mud-harmless' // thinks muddy water does no harm to the plants and animals in it
+  | 'gauge-mixup' // read the water test gauges wrong
+  | 'any-plant' // thinks any plant suits a habitat as well as the native ones
+  | 'more-fertilizer' // thinks more fertilizer is always better, or that it stays on the field
+  | 'algae-good' // thinks lots of algae is good for the fish
+  | 'looks-clean' // thinks water (or a fix) that looks clean is clean
+  | 'filter-order' // put the filter layers in an order that clogs or leaks
+  | 'bare-soil' // thinks bare soil stays put in the rain
+  | 'air-factories' // thinks only factories make air pollution, or that smoke vanishes
+  | 'wrong-place' // picked a place for a fix that can't catch the pollution in time
   | 'wrong-reason'; // gave a reason that doesn't explain it
 
 /** The pictures above the questions (the words in the question match them). */
@@ -94,9 +126,30 @@ export type Scene =
   | 'rivermouth' // the town, the river and the harbor where it meets the sea
   | 'booms' // three boom designs side by side
   | 'skirt' // a boom with a skirt hanging under the floats
-  | 'harbor-people'; // fishers, a family, the mayor and the Squad at the harbor
+  | 'harbor-people' // fishers, a family, the mayor and the Squad at the harbor
+  | 'reeds-clean' // muddy water flowing into the reeds and clear water coming out
+  | 'sponge' // storm rain soaking into the wetland, the town safe behind it
+  | 'muddy' // sunlight reaching plants in clear water, and not in muddy water
+  | 'gasp' // fish gasping at the surface of green water
+  | 'nursery' // young fish, a nest and frog eggs among the reeds
+  | 'reeds' // native reeds and cattails
+  | 'green-pond' // a pond covered in green algae
+  | 'two-glasses' // two clear glasses of water and a test strip
+  | 'fertilizer' // a sack of fertilizer by a field, and the river below
+  | 'channel' // trash blocking the channel into the reeds
+  | 'filters' // three filters with their layers in different orders
+  | 'heron-fish' // a heron by an empty pond, and fish swimming away
+  | 'bare-field' // brown water running off a bare field into the river
+  | 'mill-bus' // the smoking mill and an idling bus
+  | 'buffer' // a field, a strip of tall plants, then the river
+  | 'cover-crop' // a bare field beside a field of green cover crop
+  | 'rain-garden' // a house, its roof water running into a rain garden
+  | 'barrel' // a house with a rain barrel under the gutter
+  | 'mills' // three mill designs: tall, painted, filtered
+  | 'council' // the town council with Rosa, farmers and the Squad
+  | 'valley'; // the whole valley from the hills to the sea, with arrows
 
-export type Pic = { k: 'scene'; s: Scene } | { k: 'bars'; vals: number[]; labels: string[]; unit: string; mark?: number };
+export type Pic = { k: 'scene'; s: Scene } | { k: 'bars'; vals: number[]; labels: string[]; unit: string; mark?: number; markLabel?: string };
 
 /** The picture that hint 2 adds. */
 export type Model = 'path' | 'bins' | 'loop' | 'fact';
@@ -657,7 +710,527 @@ const HARBOR: QDef[] = [
   },
 ];
 
-const BANKS: Record<Station, QDef[]> = { beach: BEACH, harbor: HARBOR };
+// ------------------------------------------------------------------ The Wetland (Dr. Wen Li)
+
+const WETLAND: QDef[] = [
+  // level 1
+  {
+    id: 'w-filter-job',
+    tier: 1,
+    ask: 'Water from the farms and the town flows slowly through the wetland’s reeds and mud before it reaches the sea. What does the wetland do to that water?',
+    right: 'It cleans it: mud sinks, and plants take up extra fertilizer',
+    wrong: [
+      ['Nothing. A wetland is just a muddy swamp.', 'wetland-useless', 'Look at the water going in and the water coming out. Is it the same?'],
+      ['It makes the water dirtier', 'wetland-useless', 'The water leaving the reeds is clearer than the water going in. Look again.'],
+    ],
+    explain: 'A wetland is nature’s water filter. Slow water drops its mud, and the plants’ roots take up the extra fertilizer.',
+    hints: ['Compare the water going in and coming out.', 'What happens to mud when water slows down?'],
+    pic: scene('reeds-clean'),
+    model: 'fact',
+  },
+  {
+    id: 'w-sponge',
+    tier: 1,
+    ask: 'A big storm brings lots of rain. The wetland’s soft ground soaks it up like a sponge, then lets it out slowly. How does that help the town downstream?',
+    right: 'There is less flooding',
+    wrong: [
+      ['It makes the floods worse', 'wetland-useless', 'A sponge holds water. Does that send more water rushing downstream, or less?'],
+      ['It doesn’t change anything', 'wetland-useless', 'Think about where the rain goes when the ground soaks it up.'],
+    ],
+    explain: 'A wetland holds storm water and lets it out slowly, so the river downstream doesn’t rise as fast. That means less flooding.',
+    hints: ['What does a sponge do with water?', 'If the water comes out slowly, does the river rise fast or slowly?'],
+    pic: scene('sponge'),
+    model: 'fact',
+  },
+  {
+    id: 'w-muddy',
+    tier: 1,
+    ask: 'Muddy water is brown and cloudy. Underwater plants need sunlight to grow. What does the mud do to them?',
+    right: 'It blocks the sunlight, so they can’t grow well',
+    wrong: [
+      ['It feeds them, so they grow faster', 'mud-harmless', 'Look at the sunlight in the picture. How far does it reach in the brown water?'],
+      ['Nothing. Plants don’t need light underwater.', 'mud-harmless', 'Underwater plants make their food from sunlight, just like plants on land.'],
+    ],
+    explain: 'Mud makes the water cloudy, so sunlight can’t reach the plants on the bottom. Without light they can’t make food.',
+    hints: ['What do plants need to make their food?', 'Look how far the light reaches in the clear water and in the muddy water.'],
+    pic: scene('muddy'),
+    model: 'fact',
+  },
+  {
+    id: 'w-gauge',
+    tier: 1,
+    ask: 'Dr. Wen’s test kit has four gauges: trash, oil, cloudiness and oxygen. The oxygen gauge reads very low. Who has a problem?',
+    right: 'The fish: they need oxygen in the water to breathe',
+    wrong: [
+      ['Nobody. Fish don’t need oxygen.', 'gauge-mixup', 'Fish breathe oxygen too. They take it from the water with their gills.'],
+      ['Only the birds flying above', 'gauge-mixup', 'This gauge measures the water. Who lives in the water?'],
+    ],
+    explain: 'Fish take oxygen out of the water with their gills. When the oxygen is low, they gasp at the surface.',
+    hints: ['The gauge measures the water. Who breathes in the water?', 'Look at the fish at the top of the water.'],
+    pic: scene('gasp'),
+    model: 'fact',
+  },
+  {
+    id: 'w-nursery',
+    tier: 1,
+    ask: 'Young fish hide among the reeds. Birds nest in them, and frogs lay eggs in the shallow water. Why do so many animals need wetlands?',
+    right: 'Wetlands give them food, shelter and a safe place for their young',
+    wrong: [
+      ['They don’t. They could live anywhere.', 'wetland-useless', 'Where would the young fish hide without the reeds?'],
+      ['Only because the water is warm', 'wrong-reason', 'Warm water is part of it, but look at what the reeds give the animals.'],
+    ],
+    explain: 'Wetlands are nurseries. The reeds give food and hiding places, so many young fish, birds and frogs grow up there.',
+    hints: ['Look at where the young animals are hiding.', 'What do young animals need to grow up safely?'],
+    pic: scene('nursery'),
+    model: 'fact',
+  },
+  {
+    id: 'w-native',
+    tier: 1,
+    ask: 'The Squad is replanting the wetland. Native reeds and cattails grow here naturally. Why plant those, and not a garden plant from far away?',
+    right: 'They grow well in wet ground, local animals use them, and their roots clean the water',
+    wrong: [
+      ['Any plant works the same', 'any-plant', 'Lawn grass drowns in wet ground, and local animals don’t use it. Do all plants suit a wetland?'],
+      ['Plants from far away always grow better', 'any-plant', 'Plants from far away may not survive the wet, or they may take over and crowd out the rest.'],
+    ],
+    explain: 'Native plants belong here. They grow in wet mud, animals know how to use them, and their roots clean the water.',
+    hints: ['Which plants grow in this wetland on their own?', 'Think about the animals that live here. Which plants do they use?'],
+    pic: scene('reeds'),
+    model: 'fact',
+  },
+  // level 2
+  {
+    id: 'w-fertilizer',
+    tier: 2,
+    ask: 'Farmers spread fertilizer to help their crops grow. Rain washes the extra fertilizer into the river. What does it feed in the water?',
+    right: 'Algae, which grows into a thick green layer',
+    wrong: [
+      ['Nothing. Fertilizer only works on land.', 'more-fertilizer', 'Fertilizer feeds plants wherever it lands. Algae are tiny water plants.'],
+      ['The fish, so they grow bigger', 'more-fertilizer', 'Fish don’t eat fertilizer. What green thing in the pond grows from it?'],
+    ],
+    explain: 'Fertilizer feeds algae just as it feeds crops. Too much of it, and the algae covers the water in a thick green layer.',
+    hints: ['Fertilizer feeds plants. Are there plants in the water?', 'Look at the green layer on the pond.'],
+    pic: scene('green-pond'),
+    model: 'path',
+  },
+  {
+    id: 'w-oxygen',
+    tier: 2,
+    ask: 'The green algae grows fast, then dies. Tiny decomposers eat the dead algae, and they use up oxygen as they work. What happens to the fish?',
+    right: 'They gasp at the surface, because the water has too little oxygen',
+    wrong: [
+      ['Nothing. Algae is food, so the fish are happy.', 'algae-good', 'A little algae is food for some animals. But what do the decomposers use up?'],
+      ['They grow faster', 'algae-good', 'Look at the fish at the surface. Do they look well?'],
+    ],
+    explain: 'Decomposers breaking down the dead algae use up the oxygen in the water. The fish have too little to breathe.',
+    hints: ['What do the decomposers use up while they work?', 'What do fish need from the water to breathe?'],
+    pic: scene('gasp'),
+    model: 'fact',
+  },
+  {
+    id: 'w-clear',
+    tier: 2,
+    ask: 'Two glasses of water look exactly the same: clear. Dr. Wen tests them, and one has fertilizer and chemicals in it. How can you tell which one?',
+    right: 'Test it: some pollution can’t be seen',
+    wrong: [
+      ['Look at it: clear water is always clean', 'looks-clean', 'Both glasses look clear, but one is polluted. Can your eyes see everything in water?'],
+      ['Smell it: dirty water always smells', 'looks-clean', 'Many chemicals have no smell. What does a scientist use?'],
+    ],
+    explain: 'Clear water isn’t always clean. Fertilizer and many chemicals are invisible, so scientists test the water to know.',
+    hints: ['The two glasses look the same. Does that mean they are the same?', 'What is in Dr. Wen’s hand?'],
+    pic: scene('two-glasses'),
+    model: 'fact',
+  },
+  {
+    id: 'w-more',
+    tier: 2,
+    ask: 'A farmer thinks: “Fertilizer helps my crops, so twice as much will help them twice as much.” What happens to the extra?',
+    right: 'The crops can’t use it all, so rain washes it into the river',
+    wrong: [
+      ['The crops grow twice as big', 'more-fertilizer', 'Plants can only take up so much. Where does the rest go when it rains?'],
+      ['It stays in the soil forever', 'more-fertilizer', 'Rain soaks through and runs over the soil. What does it carry with it?'],
+    ],
+    explain: 'Crops only use what they need. The rest washes into the river, where it feeds algae. More is not better.',
+    hints: ['Can a plant eat more and more forever?', 'Where does rain carry what the crops don’t use?'],
+    pic: scene('fertilizer'),
+    model: 'path',
+  },
+  {
+    id: 'w-roots',
+    tier: 2,
+    ask: 'Reed roots take up fertilizer from the water to grow. Their stems slow the water down, so the mud sinks. How does that help the fish?',
+    right: 'Less fertilizer means less algae, and clearer water lets the light in',
+    wrong: [
+      ['The reeds make the water warmer', 'wrong-reason', 'Warmth isn’t what changed. What do the roots take out of the water?'],
+      ['The fish eat the reeds', 'wrong-reason', 'Some fish nibble plants, but that isn’t why the water got better. What do the roots take up?'],
+    ],
+    explain: 'The roots use up the fertilizer, so there is less algae and more oxygen. The slow water drops its mud, so light gets in.',
+    hints: ['What do the roots take out of the water?', 'Less fertilizer means less of what green thing?'],
+    pic: scene('reeds-clean'),
+    model: 'fact',
+  },
+  {
+    id: 'w-channel',
+    tier: 2,
+    ask: 'Trash blocks the channel into the reeds, so the river water flows around them instead. Why clear the channel?',
+    right: 'The water has to flow through the reeds to be cleaned',
+    wrong: [
+      ['It doesn’t matter where the water flows', 'wetland-useless', 'The reeds clean the water. Can they clean water that never reaches them?'],
+      ['So the trash floats out to sea', 'cleanup-enough', 'We want the trash out of the water, not sent downstream.'],
+    ],
+    explain: 'Reeds only clean the water that flows through them. Clearing the channel sends the river through the wetland’s filter.',
+    hints: ['Where do the reeds do their cleaning?', 'Look at where the water goes when the channel is blocked.'],
+    pic: scene('channel'),
+    model: 'fact',
+  },
+  // level 3
+  {
+    id: 'w-order',
+    tier: 3,
+    ask: 'The Squad builds a filter. Dirty water goes in at the top. The layers are big stones, gravel and fine sand. Which order, from top to bottom, works without clogging?',
+    right: 'Stones, then gravel, then sand',
+    wrong: [
+      ['Sand, then gravel, then stones', 'filter-order', 'Fine sand on top catches the leaves and twigs straight away, and it clogs. What should catch the big things first?'],
+      ['All mixed together', 'filter-order', 'Mixed up, the water finds paths around the sand and comes out muddy.'],
+    ],
+    explain: 'Big stones catch the twigs and leaves, gravel catches the grit, and fine sand catches the mud. Each layer catches smaller things.',
+    hints: ['Which layer should catch the biggest things?', 'Think from big to small, top to bottom.'],
+    pic: scene('filters'),
+    model: 'loop',
+  },
+  {
+    id: 'w-graph',
+    tier: 3,
+    ask: 'Dr. Wen measured the oxygen in the water each week. The reeds were planted in week 3. What does the graph show?',
+    right: 'The oxygen went up after the reeds were planted',
+    wrong: [
+      ['The oxygen went down after the reeds', 'graph-mixup', 'Look at the bars after the red line. Are they taller or shorter?'],
+      ['The oxygen stayed the same', 'graph-mixup', 'Compare the bars before and after the red line.'],
+    ],
+    explain: 'After week 3 the bars grow taller. With less algae, the water held more oxygen, and the fish came back.',
+    hints: ['Find the red line: that’s when the reeds were planted.', 'Are the bars after the line taller or shorter?'],
+    pic: { k: 'bars', vals: [3, 2, 2, 5, 7], labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5'], unit: 'oxygen', mark: 3, markLabel: 'Reeds in' },
+    model: 'fact',
+  },
+  {
+    id: 'w-heron',
+    tier: 3,
+    ask: 'The wetland turned green and low in oxygen. The fish swam away or died, and then the herons that eat them left too. Why did the herons leave?',
+    right: 'Their food, the fish, was gone',
+    wrong: [
+      ['Herons don’t like the color green', 'wrong-reason', 'The herons didn’t mind the color. What do they eat?'],
+      ['The reeds scared them away', 'wrong-reason', 'Herons hunt among reeds. What did they lose that they need?'],
+    ],
+    explain: 'Living things depend on each other. When the fish left, the herons lost their food, so they left too. A change in a habitat spreads.',
+    hints: ['What does a heron eat?', 'What happened to the fish first?'],
+    pic: scene('heron-fish'),
+    model: 'fact',
+  },
+  {
+    id: 'w-improve',
+    tier: 3,
+    ask: 'The first filter let muddy water through. Someone says: “That design failed, so filters don’t work.” What should the Squad do?',
+    right: 'Look at what went wrong, change the design and test it again',
+    wrong: [
+      ['Give up on filters', 'design-first', 'One test showed one design didn’t work. Does that mean no design can?'],
+      ['Keep using the muddy filter anyway', 'design-first', 'The test showed a problem. Should we ignore it?'],
+    ],
+    explain: 'Engineers learn from a failed test. Find what went wrong, improve the design, and test again.',
+    hints: ['What do engineers do after a test?', 'Look at the loop: problem, design, test, improve.'],
+    pic: scene('filters'),
+    model: 'loop',
+  },
+  {
+    id: 'w-source',
+    tier: 3,
+    ask: 'The reeds and the filter clean the wetland. But fertilizer keeps flowing in from upstream. What would stop the problem for good?',
+    right: 'Stop the extra fertilizer where it starts, on the farms',
+    wrong: [
+      ['Build more and more filters, forever', 'cleanup-enough', 'Filters help, but the fertilizer keeps coming. Where does it start?'],
+      ['Nothing can stop it', 'one-person', 'People put the fertilizer on the fields, so people can change how they use it.'],
+    ],
+    explain: 'Cleaning helps, but the fix that lasts is at the source. Next stop: the farms and the town upstream!',
+    hints: ['Where does the fertilizer come from?', 'Follow the river upstream on the map.'],
+    pic: scene('green-pond'),
+    model: 'path',
+  },
+  {
+    id: 'w-drain',
+    tier: 3,
+    ask: 'A builder wants to drain the wetland and make a parking lot. What problems would that cause?',
+    right: 'More flooding, dirtier water and fewer homes for animals',
+    wrong: [
+      ['None. A wetland is wasted land.', 'wetland-useless', 'Think of all the jobs the wetland does: the water, the floods, the animals.'],
+      ['The cars would have nowhere to park', 'wrong-reason', 'The cars would have a parking lot. What would the river and the animals lose?'],
+    ],
+    explain: 'A wetland cleans water, soaks up floods and shelters young animals. Without it, the town gets all three problems.',
+    hints: ['What three jobs does a wetland do?', 'Water, floods, animals.'],
+    pic: scene('sponge'),
+    model: 'fact',
+  },
+];
+
+// ------------------------------------------------------------------ Farm and Town (Rosa Delgado)
+
+const TOWN: QDef[] = [
+  // level 1
+  {
+    id: 't-carwash',
+    tier: 1,
+    ask: 'Someone washes their car in the street. The soapy, oily water runs into the storm drain. Where does it go?',
+    right: 'Straight into the river, with no cleaning',
+    wrong: [
+      ['To a plant that cleans it', 'drain-cleaned', 'In most towns, storm drains have no cleaning plant. Follow the pipe.'],
+      ['It disappears under the street', 'drain-cleaned', 'Water doesn’t disappear. Follow the pipe under the street.'],
+    ],
+    explain: 'Storm drains carry rain straight to the river. Soap, oil and litter go with it, so only rain should go down a drain.',
+    hints: ['What do the words beside the drain say?', 'Follow the drain pipe on the map.'],
+    pic: scene('drain'),
+    model: 'path',
+  },
+  {
+    id: 't-bare',
+    tier: 1,
+    ask: 'A field has been plowed, and the soil is bare. A heavy rain falls on it. What happens to the soil?',
+    right: 'The rain washes some of it into the river',
+    wrong: [
+      ['Nothing. Soil stays where it is.', 'bare-soil', 'Look at the brown water running off the field. What is it carrying?'],
+      ['The rain makes more soil', 'bare-soil', 'Rain doesn’t make soil. Look at where the brown water goes.'],
+    ],
+    explain: 'With nothing growing, nothing holds the soil. Heavy rain carries it off the field and into the river, making it muddy.',
+    hints: ['Is anything growing to hold the soil?', 'Look at the color of the water leaving the field.'],
+    pic: scene('bare-field'),
+    model: 'path',
+  },
+  {
+    id: 't-air',
+    tier: 1,
+    ask: 'Smoke comes out of the mill’s chimney. A bus waits with its engine running. What do both of them make dirty?',
+    right: 'The air',
+    wrong: [
+      ['Only the river', 'air-factories', 'Look where the smoke goes. Is it in the water, or in the sky?'],
+      ['Nothing. Smoke just disappears.', 'air-factories', 'The smoke spreads out, but it doesn’t vanish. We still breathe it in.'],
+    ],
+    explain: 'Smoke from chimneys and engines goes into the air we breathe. It spreads out, but it doesn’t vanish.',
+    hints: ['Where does the smoke go?', 'Look at the sky above the mill and the bus.'],
+    pic: scene('mill-bus'),
+    model: 'fact',
+  },
+  {
+    id: 't-who-air',
+    tier: 1,
+    ask: 'Which of these make air pollution?',
+    right: 'Factories, cars, buses and burning things',
+    wrong: [
+      ['Only factories', 'air-factories', 'Look at the bus with its engine running. What comes out of the back?'],
+      ['Only cars', 'air-factories', 'Cars do, but look at the chimney too.'],
+    ],
+    explain: 'Air pollution comes from many places: factory chimneys, car and bus engines, and burning wood or trash.',
+    hints: ['Look at the whole picture. What is smoking?', 'More than one thing makes smoke.'],
+    pic: scene('mill-bus'),
+    model: 'fact',
+  },
+  {
+    id: 't-roots',
+    tier: 1,
+    ask: 'Grass and plants grow along the riverbank. Their roots hold the soil together. What happens when it rains?',
+    right: 'Less soil washes into the river',
+    wrong: [
+      ['More soil washes in', 'bare-soil', 'The roots hold on to the soil. Does that let more go, or less?'],
+      ['The plants wash into the river', 'bare-soil', 'Roots hold plants in the ground. What else do they hold?'],
+    ],
+    explain: 'Roots work like a net in the ground. They hold the soil, so the rain carries much less of it into the river.',
+    hints: ['What do roots hold on to?', 'Compare the bank with plants and the bare field.'],
+    pic: scene('buffer'),
+    model: 'fact',
+  },
+  {
+    id: 't-marker',
+    tier: 1,
+    ask: 'The Squad paints “Drains to river” beside every storm drain in town. Why?',
+    right: 'So people know not to pour or drop anything in',
+    wrong: [
+      ['To show people where to put their trash', 'drain-cleaned', 'A drain is not a trash bin. Where does it lead?'],
+      ['To make the street look nice', 'wrong-reason', 'It does look nice, but what do the words tell people?'],
+    ],
+    explain: 'Many people think drains go to a cleaning plant. The sign tells them the truth: whatever goes in reaches the river.',
+    hints: ['Read the words beside the drain.', 'Where does the drain lead?'],
+    pic: scene('drain'),
+    model: 'path',
+  },
+  // level 2
+  {
+    id: 't-buffer',
+    tier: 2,
+    ask: 'A wide strip of tall native plants grows between a field and the river. How does it help when it rains?',
+    right: 'It slows the water, so soil and fertilizer are caught before the river',
+    wrong: [
+      ['It makes the rain fall somewhere else', 'wrong-reason', 'Plants can’t move the rain. What do they do to water running across them?'],
+      ['It doesn’t. Plants can’t stop water.', 'bare-soil', 'Water slows down as it runs through thick plants. What does slow water drop?'],
+    ],
+    explain: 'A buffer strip slows the runoff. The soil settles out, and the roots take up fertilizer before it reaches the river.',
+    hints: ['What happens to water running through thick plants?', 'What does slow water drop?'],
+    pic: scene('buffer'),
+    model: 'fact',
+  },
+  {
+    id: 't-cover',
+    tier: 2,
+    ask: 'After the harvest, a farmer plants a cover crop instead of leaving the field bare all winter. Why?',
+    right: 'Its roots hold the soil, so the winter rain can’t wash it away',
+    wrong: [
+      ['To sell it in winter', 'wrong-reason', 'A cover crop isn’t grown to sell. What does it do for the field?'],
+      ['Bare soil is better for the river', 'bare-soil', 'Bare soil washes away in the rain. Where does it end up?'],
+    ],
+    explain: 'A cover crop covers the soil when nothing else is growing. Its roots hold the soil, and it adds goodness back when it is plowed in.',
+    hints: ['What happens to bare soil in the rain?', 'Compare the bare field and the green one.'],
+    pic: scene('cover-crop'),
+    model: 'fact',
+  },
+  {
+    id: 't-garden',
+    tier: 2,
+    ask: 'Rain runs off roofs and streets fast. A rain garden is a low patch of plants that fills up in a storm. What does it do?',
+    right: 'It soaks the water into the ground, so less runs into the drain',
+    wrong: [
+      ['It sends the water to the drain faster', 'drain-cleaned', 'The garden is low, like a bowl. Does the water rush past it, or collect in it?'],
+      ['It stops the rain from falling', 'wrong-reason', 'Nothing stops the rain. What happens to it after it lands?'],
+    ],
+    explain: 'A rain garden is like a shallow bowl. It catches the runoff and lets it soak in slowly, and the plants clean it.',
+    hints: ['Look at the shape of the garden.', 'Where does the water go when it collects in the garden?'],
+    pic: scene('rain-garden'),
+    model: 'fact',
+  },
+  {
+    id: 't-timing',
+    tier: 2,
+    ask: 'Rosa plans when to spread fertilizer. The forecast says heavy rain tomorrow. What is the best plan?',
+    right: 'Wait until after the heavy rain, and use only what the crops need',
+    wrong: [
+      ['Spread it right before the rain, so it soaks in', 'more-fertilizer', 'Heavy rain washes fertilizer off the field. Where does it go?'],
+      ['Spread extra, in case some washes away', 'more-fertilizer', 'The extra is exactly what washes into the river.'],
+    ],
+    explain: 'The right amount at the right time: wait for dry weather, and use only what the crops can take up. Then little washes away.',
+    hints: ['What will the heavy rain do to fertilizer on the field?', 'How much do the crops really need?'],
+    pic: scene('fertilizer'),
+    model: 'fact',
+  },
+  {
+    id: 't-barrel',
+    tier: 2,
+    ask: 'A rain barrel collects the water from a house’s roof. How does it help the river?',
+    right: 'Less water rushes into the storm drain, and the garden gets watered later',
+    wrong: [
+      ['It cleans the river', 'wrong-reason', 'The barrel never touches the river. What does it catch?'],
+      ['It makes more rain', 'wrong-reason', 'A barrel can’t make rain. Where would the roof water go without it?'],
+    ],
+    explain: 'Without the barrel, roof water rushes down the street into the drain, picking up dirt. The barrel keeps it for the garden.',
+    hints: ['Where does roof water go without the barrel?', 'What is the saved water used for later?'],
+    pic: scene('barrel'),
+    model: 'fact',
+  },
+  {
+    id: 't-idle',
+    tier: 2,
+    ask: 'A bus waits ten minutes with its engine running. The driver could switch it off. What changes if they do?',
+    right: 'Less smoke goes into the air',
+    wrong: [
+      ['Nothing. A waiting engine makes no smoke.', 'air-factories', 'Look at the back of the waiting bus. What is coming out?'],
+      ['The river gets cleaner', 'wrong-reason', 'Engine smoke goes into the air first. What does switching off help most?'],
+    ],
+    explain: 'An engine makes smoke whenever it runs, even standing still. Switching it off while waiting keeps the air cleaner.',
+    hints: ['Is the waiting bus making smoke?', 'What happens to the smoke when the engine stops?'],
+    pic: scene('mill-bus'),
+    model: 'fact',
+  },
+  // level 3
+  {
+    id: 't-trace',
+    tier: 3,
+    ask: 'Soil washes off a bare field into a stream. Trace its path. Where does it go, in order?',
+    right: 'The stream, the river, the wetland, the harbor, then the sea',
+    wrong: [
+      ['The sea first, then the stream', 'beach-source', 'Water flows downhill. Does it start at the sea or end there?'],
+      ['It stays in the field', 'bare-soil', 'The rain carried it off the field. Follow the water downhill.'],
+    ],
+    explain: 'Water flows downhill, from the fields to the sea. That is why a fix upstream helps every place downstream.',
+    hints: ['Which way does water flow: uphill or downhill?', 'Follow the arrows on the map from the hills to the sea.'],
+    pic: scene('valley'),
+    model: 'path',
+  },
+  {
+    id: 't-spot',
+    tier: 3,
+    ask: 'The Squad can plant one buffer strip. Where will it catch the most soil from the field?',
+    right: 'Between the field and the river, at the bottom of the slope',
+    wrong: [
+      ['At the top of the hill, far from the river', 'wrong-place', 'Water picks up soil all the way down the hill. Where would the strip catch it before the river?'],
+      ['Beside the sea', 'wrong-place', 'By the sea, the soil has already traveled the whole river. Where can it be stopped sooner?'],
+    ],
+    explain: 'At the bottom of the field, the strip catches the runoff from the whole slope, just before it reaches the river.',
+    hints: ['Where does the water go after it runs down the field?', 'Catch it before it reaches the river.'],
+    pic: scene('buffer'),
+    model: 'path',
+  },
+  {
+    id: 't-mill',
+    tier: 3,
+    ask: 'The goal is cleaner air for the town. Design A: a taller chimney. Design B: a filter that catches the smoke. Design C: paint the chimney white. Which meets the goal?',
+    right: 'B: the filter stops the smoke at its source',
+    wrong: [
+      ['A: the smoke goes higher', 'design-biggest', 'A taller chimney carries the smoke farther away. Is there any less smoke?'],
+      ['C: it looks cleaner', 'looks-clean', 'Paint changes how it looks, not what comes out of the top.'],
+    ],
+    explain: 'Only the filter makes less smoke. The others move it or hide it. Check each design against the goal.',
+    hints: ['What is the goal?', 'Which design means less smoke comes out?'],
+    pic: scene('mills'),
+    model: 'loop',
+  },
+  {
+    id: 't-graph',
+    tier: 3,
+    ask: 'Rosa measured the mud in the river each month. The buffer strip and the cover crops were planted after March. What does the graph show?',
+    right: 'The mud went down after the plants went in',
+    wrong: [
+      ['The mud went up after the plants went in', 'graph-mixup', 'Look at the bars after the red line. Are they taller or shorter?'],
+      ['The mud stayed the same', 'graph-mixup', 'Compare the bars before and after the red line.'],
+    ],
+    explain: 'After March the bars get shorter. The roots held the soil, so less mud reached the river.',
+    hints: ['Find the red line: that’s when the plants went in.', 'Are the bars after the line taller or shorter?'],
+    pic: { k: 'bars', vals: [8, 7, 8, 4, 2], labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'], unit: 'mud', mark: 3, markLabel: 'Plants in' },
+    model: 'fact',
+  },
+  {
+    id: 't-plan',
+    tier: 3,
+    ask: 'The town council picks one plan. The goals: a cleaner river, cleaner air, and the farms keep working. Which plan meets every goal?',
+    right: 'Buffer strips and cover crops, rain gardens, and a filter on the mill',
+    wrong: [
+      ['Close all the farms', 'goal-mixup', 'That helps the river, but do the farms keep working?'],
+      ['Clean the beach every day', 'cleanup-enough', 'Cleanups help, but does the pollution stop coming? Check every goal.'],
+    ],
+    explain: 'The best plan meets every goal. It stops the pollution at its sources and keeps the farms and the town working.',
+    hints: ['Check each plan against all three goals.', 'Which plan stops the pollution where it starts?'],
+    pic: scene('council'),
+    model: 'loop',
+  },
+  {
+    id: 't-together',
+    tier: 3,
+    ask: 'A farmer says: “I’m just one farmer. What I do doesn’t matter to the river.” What would you say?',
+    right: 'Many farmers each making changes add up to a clean river',
+    wrong: [
+      ['You’re right. Only big factories matter.', 'one-person', 'Every field along the river adds a little. What if every farmer changed a little?'],
+      ['Only scientists can help a river', 'one-person', 'Scientists test the water, but farmers, families and towns make the changes.'],
+    ],
+    explain: 'The river collects water from every field, street and roof. Many small changes add up, and towns can decide on them together.',
+    hints: ['How many fields drain into the river?', 'What if everyone made one small change?'],
+    pic: scene('council'),
+    model: 'fact',
+  },
+];
+
+const BANKS: Record<Station, QDef[]> = { beach: BEACH, harbor: HARBOR, wetland: WETLAND, town: TOWN };
 
 export type Rand = () => number;
 
@@ -736,9 +1309,9 @@ export function sortWhy(id: TrashId, picked: BinKind): string {
   return 'This doesn’t need to be thrown away. It can be made into something new.';
 }
 
-// ------------------------------------------------------------------ the blueprints (half 1)
+// ------------------------------------------------------------------ the blueprints
 
-export type RecipeId = 'bin-lids' | 'drain-net' | 'tank-patch' | 'boom' | 'net-bin';
+export type RecipeId = 'bin-lids' | 'drain-net' | 'tank-patch' | 'boom' | 'net-bin' | 'reeds' | 'filter' | 'buffer' | 'rain-garden' | 'mill-filter';
 
 /** The Workbench blueprints. Every recipe has exactly one design that works; the others half work, and the test says why. */
 export const RECIPES: Record<RecipeId, Recipe> = {
@@ -841,6 +1414,156 @@ export const RECIPES: Record<RecipeId, Recipe> = {
         note: 'Slats, a lid and drain holes',
         outcome: 'works',
         why: 'The lid keeps the nets in, the slats let rain drain out, and fishers can drop old gear in on the way home.',
+      },
+    ],
+  },
+  reeds: {
+    id: 'reeds',
+    name: 'Wetland plants',
+    needs: { wood: 2, rope: 1 },
+    goals: ['Grow in wet, muddy ground', 'Take up the extra fertilizer, so less algae grows', 'Give the wetland animals food and shelter'],
+    limits: ['Plants from the Squad’s seed library', 'Wooden stakes and rope hold them until their roots grow'],
+    designs: [
+      {
+        id: 'lawn',
+        name: 'Lawn grass',
+        note: 'Short grass from the garden shop',
+        outcome: 'half',
+        why: 'Lawn grass drowns in the wet mud, and its roots are too short to hold anything. The algae comes straight back.',
+      },
+      {
+        id: 'flowers',
+        name: 'Garden flowers',
+        note: 'Bright flowers from far away',
+        outcome: 'half',
+        why: 'They look pretty for a week, then most of them rot in the wet. The ones that live give the local animals nothing to eat.',
+      },
+      {
+        id: 'native',
+        name: 'Native reeds and cattails',
+        note: 'Plants that grow here naturally',
+        outcome: 'works',
+        why: 'The reeds love wet mud. Their roots take up the fertilizer, the algae shrinks, and the fish and birds have shelter again.',
+      },
+    ],
+  },
+  filter: {
+    id: 'filter',
+    name: 'Water filter',
+    needs: { wood: 2, bottle: 2 },
+    goals: ['Take the mud out of the water', 'Let the water keep flowing', 'Not clog up with leaves and twigs'],
+    limits: ['A box of scrap wood with bottle pipes', 'Stones, gravel and sand from the riverbed'],
+    designs: [
+      {
+        id: 'sand-top',
+        name: 'Sand on top',
+        note: 'Sand, then gravel, then stones',
+        outcome: 'half',
+        why: 'The fine sand on top catches the leaves and twigs straight away and clogs. The water backs up and spills over the side, still muddy.',
+      },
+      {
+        id: 'mixed',
+        name: 'All mixed up',
+        note: 'Stones, gravel and sand stirred together',
+        outcome: 'half',
+        why: 'The water finds paths between the big stones and rushes around the sand. It comes out of the pipe still brown.',
+      },
+      {
+        id: 'coarse',
+        name: 'Big to small',
+        note: 'Stones, then gravel, then sand',
+        outcome: 'works',
+        why: 'The stones catch the twigs, the gravel catches the grit, and the fine sand catches the mud. Clear water flows out of the pipe.',
+      },
+    ],
+  },
+  buffer: {
+    id: 'buffer',
+    name: 'Riverbank strip',
+    needs: { wood: 2, rope: 1 },
+    goals: ['Catch the soil and fertilizer washing off the field', 'Keep the riverbank from crumbling', 'Leave the farm room to grow crops'],
+    limits: ['Plants from the seed library', 'Stakes and rope mark the strip while it grows'],
+    designs: [
+      {
+        id: 'mowed',
+        name: 'Mowed grass',
+        note: 'Short lawn down to the water',
+        outcome: 'half',
+        why: 'The rain runs fast over the short grass, and its shallow roots hold little. Brown water still pours into the river.',
+      },
+      {
+        id: 'fence',
+        name: 'A wooden fence',
+        note: 'A fence along the bank',
+        outcome: 'half',
+        why: 'The fence stops a few leaves, but the muddy water flows straight under it. A fence has no roots.',
+      },
+      {
+        id: 'strip',
+        name: 'A wide plant strip',
+        note: 'Tall native grasses and shrubs',
+        outcome: 'works',
+        why: 'The thick plants slow the water down. The soil settles out, the roots take up the fertilizer, and clear water reaches the river.',
+      },
+    ],
+  },
+  'rain-garden': {
+    id: 'rain-garden',
+    name: 'Rain garden',
+    needs: { wood: 2 },
+    goals: ['Soak up the rain from the roofs and street', 'Send less water into the storm drain', 'Clean the water as it soaks in'],
+    limits: ['A low corner by the houses', 'Scrap wood for the edges'],
+    designs: [
+      {
+        id: 'pipe',
+        name: 'A pipe to the drain',
+        note: 'Send the roof water straight to the drain',
+        outcome: 'half',
+        why: 'The street stays dry, but the water rushes into the storm drain even faster, carrying dirt and oil to the river.',
+      },
+      {
+        id: 'gravel',
+        name: 'A gravel patch',
+        note: 'Gravel, but no plants',
+        outcome: 'half',
+        why: 'A little water soaks in, but the gravel soon fills up and overflows. With no plants, nothing cleans the water.',
+      },
+      {
+        id: 'garden',
+        name: 'A rain garden',
+        note: 'A low bowl of deep-rooted plants',
+        outcome: 'works',
+        why: 'The water collects in the low garden and soaks slowly into the ground. The plants and soil clean it on the way.',
+      },
+    ],
+  },
+  'mill-filter': {
+    id: 'mill-filter',
+    name: 'Chimney fix',
+    needs: { can: 3 },
+    goals: ['Less smoke in the town’s air', 'The mill keeps working'],
+    limits: ['Metal from cans, and Rafi’s filter cloth'],
+    designs: [
+      {
+        id: 'tall',
+        name: 'A taller chimney',
+        note: 'Make the chimney twice as tall',
+        outcome: 'half',
+        why: 'The smoke comes out higher up and drifts farther away, but there is just as much of it. It lands on the next town instead.',
+      },
+      {
+        id: 'paint',
+        name: 'Paint it white',
+        note: 'A clean, bright chimney',
+        outcome: 'half',
+        why: 'The chimney looks clean, but the same smoke pours out of the top. Looking clean isn’t the same as being clean.',
+      },
+      {
+        id: 'filter',
+        name: 'A smoke filter',
+        note: 'A filter that catches the smoke',
+        outcome: 'works',
+        why: 'The filter catches the smoke at its source, before it leaves the chimney. The mill keeps working, and the air is clean.',
       },
     ],
   },

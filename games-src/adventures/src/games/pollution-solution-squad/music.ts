@@ -65,3 +65,66 @@ export const JOURNAL_SONG: Song = {
   ],
   lead: 'triangle',
 };
+
+/** The Wetland: slow and misty in D minor, with frogs and dragonflies. */
+export const WETLAND_SONG: Song = {
+  bpm: 96,
+  chords: [
+    [50, 53, 57],
+    [46, 50, 53],
+    [48, 52, 55],
+    [45, 49, 52],
+  ],
+  bass: [38, 34, 36, 33],
+  // prettier-ignore
+  melody: [
+    74, null, null, 77, 76, null, 74, null,
+    70, null, 72, null, 74, null, null, null,
+    72, null, null, 76, 74, null, 72, null,
+    69, null, 73, null, 76, null, null, null,
+  ],
+  lead: 'triangle',
+  drums: false,
+};
+
+/** Farm and Town: a bright, walking country tune in G major. */
+export const TOWN_SONG: Song = {
+  bpm: 112,
+  chords: [
+    [55, 59, 62],
+    [60, 64, 67],
+    [62, 66, 69],
+    [55, 59, 62],
+  ],
+  bass: [43, 48, 50, 43],
+  // prettier-ignore
+  melody: [
+    71, 74, 79, null, 78, 76, 74, null,
+    76, null, 72, null, 74, null, null, null,
+    74, 78, 81, null, 79, 78, 76, null,
+    74, null, 71, null, 67, null, null, null,
+  ],
+  lead: 'square',
+  drums: true,
+};
+
+/** The Big Rain and Clean Coast Day: a big, warm finale in C major. */
+export const FINALE_SONG: Song = {
+  bpm: 104,
+  chords: [
+    [60, 64, 67],
+    [65, 69, 72],
+    [57, 60, 64],
+    [67, 71, 74],
+  ],
+  bass: [48, 53, 45, 43],
+  // prettier-ignore
+  melody: [
+    79, null, 76, 79, 84, null, 81, null,
+    77, null, 81, null, 79, null, null, null,
+    76, null, 72, 76, 81, null, 79, 77,
+    79, null, 74, null, 72, null, null, null,
+  ],
+  lead: 'triangle',
+  drums: true,
+};

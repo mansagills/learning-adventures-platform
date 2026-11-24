@@ -1,12 +1,13 @@
 // Browser checks for Pollution Solution Squad: plays from the title screen
-// through Beach Camp and every level of half 1 with the keyboard (running,
+// through Beach Camp and all eight levels with the keyboard (running,
 // jumping, grabbing trash, freeing Ollie, crafting at the Workbench, building
-// and testing fixes, the kayak), the sorting station, the water tests, the
-// Squad Journal questions and the talk-it-through questions, then the Nature
-// Center, saving, the map, the Journal, the grown-ups page and a phone.
+// and testing fixes, the kayak, the boardwalk and the stepping stones), the
+// sorting station, the water tests, the Squad Journal questions and the
+// talk-it-through questions, The Big Rain finale, then the Nature Center,
+// saving, the map, the Journal, the grown-ups page and a phone.
 // Needs `npx vite --port 5179` running.
 //   node scripts/e2e-pollution-solution-squad.mjs [base] [outDir]
-//   ONLY=beach,harbor,nature,extras picks parts (each part loads a save that starts there)
+//   ONLY=beach,harbor,wetland,town,nature,extras picks parts (each part loads a save that starts there)
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 const [base = 'http://localhost:5179/pollution-solution-squad/index.html', out = 'test-output/pss-e2e'] = process.argv.slice(2);
@@ -195,8 +196,8 @@ async function startAt(p, stretches = [], extra = {}) {
   await p.goto(base);
   await p.evaluate(
     ([ss, ex]) => {
-      const lv = { beach: ['beach-1', 'beach-2'], harbor: ['harbor-1', 'harbor-2'] };
-      const zero = { beach: 0, harbor: 0 };
+      const lv = { beach: ['beach-1', 'beach-2'], harbor: ['harbor-1', 'harbor-2'], wetland: ['wetland-1', 'wetland-2'], town: ['town-1', 'town-2'] };
+      const zero = { beach: 0, harbor: 0, wetland: 0, town: 0 };
       const save = {
         version: 1,
         appearance: { body: 'girl', skin: 'deep', hairStyle: 'puffs', hairColor: 'black', outfit: 'green', accessory: 'none' },
@@ -551,8 +552,279 @@ if (want('harbor')) {
     await p.waitForTimeout(150);
   }
   s = await st();
-  check(s.done.includes('harbor') && s.next === null, 'the Harbor is done: half 1 is finished');
-  await p.screenshot({ path: `${out}/25-half-done.png` });
+  check(s.done.includes('harbor') && s.next === 'level:wetland-1', 'the Harbor is done; the Wetland is next');
+  await p.screenshot({ path: `${out}/25-harbor-done.png` });
+  await p.close();
+}
+
+
+// ---------------------------------------------------------------- The Wetland
+
+if (want('wetland')) {
+  const p = await openPage();
+  const h = helpers(p);
+  const { st, ps, talkThrough, runTo, grabAt, craft, buildAndTest, answerUntilClosed, debrief, sortAll, toFlag } = h;
+  await startAt(p, ['beach', 'harbor'], { bag: {} });
+  await p.evaluate(() => window.__pss.startLevel('wetland-1'));
+  await p.waitForTimeout(500);
+  await talkThrough();
+  check((await ps()).level === 'wetland-1', 'The Green Pond is playing, with Dr. Wen Li');
+  check(await grabAt(4.5), 'grabs a bottle');
+  check(await grabAt(6.5), 'grabs a wrapper');
+  check(await grabAt(10.5, [8.2]), 'jumps up the muddy bank for scrap wood');
+  check(await grabAt(19.5, [12.2]), 'jumps the ditch and grabs a can');
+  check(await grabAt(22.5), 'grabs a banana peel');
+  check(await grabAt(25.5), 'grabs an old rope');
+  check(await grabAt(28.5), 'grabs a plastic bag');
+  await p.screenshot({ path: `${out}/60-green-pond.png` });
+  check(await grabAt(38.5, [29.4, 34.2]), 'jumps along the old boardwalk for scrap wood');
+  check(await grabAt(44.5, [40.2]), 'jumps the next gap for a bottle cap');
+  let s = await runTo(50.6, 6000, [45.2]);
+  check(s.falls === 0 && s.x > 48, 'gets across the green pond without falling in');
+  check(await craft('lawn'), 'the wetland plants blueprint opens');
+  await runTo(54.6, 3000);
+  let res = await buildAndTest();
+  check(/half works/.test(res) && /drowns/.test(res), 'lawn grass only half works: it drowns in the mud');
+  await p.screenshot({ path: `${out}/61-lawn-half.png` });
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('e');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  check((await ps()).stakes[0].design === null, 'takes the grass down to get the materials back');
+  await runTo(50.6, 3000, [], 'ArrowLeft');
+  await craft('native');
+  await runTo(54.6, 3000);
+  res = await buildAndTest();
+  check(/it works/.test(res), 'native reeds and cattails work');
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.evaluate(() => window.__pss.teleport(40.4, 8));
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: `${out}/62-reeds.png` });
+  check((await ps()).gauge < 0.2, 'the pond clears: the oxygen gauge turns green');
+  await p.evaluate(() => window.__pss.teleport(56));
+  await p.waitForTimeout(200);
+  check(await grabAt(58.5), 'grabs a battery');
+  check(await grabAt(61.5), 'grabs a glass bottle');
+  check(await grabAt(64.5, [62.2]), 'jumps up the log for a bottle');
+  await p.waitForTimeout(400);
+  check(await grabAt(67.5), 'grabs the bottle Ollie sniffed out');
+  await toFlag(77, [69.4]);
+  s = await st();
+  check(s.levelsDone.includes('wetland-1') && s.built.includes('reeds'), 'The Green Pond is done');
+  await sortAll();
+  for (let i = 0; i < 20 && !(await st()).panel; i++) {
+    await talkThrough();
+    await p.waitForTimeout(150);
+  }
+  s = await st();
+  check(s.panel?.kind === 'test' && s.panel.station === 'wetland', 'Dr. Wen’s water test opens');
+  await p.screenshot({ path: `${out}/63-wetland-test.png` });
+  await answerUntilClosed();
+  await talkThrough();
+  await p.waitForTimeout(300);
+  await p.click('text=Play it now');
+  await p.waitForTimeout(500);
+  await talkThrough();
+  check((await ps()).level === 'wetland-2', 'The Filter is playing');
+
+  check(await grabAt(4.5), 'grabs a wrapper');
+  check(await grabAt(6.5), 'grabs scrap wood');
+  check(await grabAt(16.5, [8.4, 13.8]), 'jumps the stream and onto the log for a bottle');
+  check(await grabAt(19.5), 'grabs a can');
+  check(await grabAt(22.5), 'grabs a bag');
+  check(await grabAt(30.5, [23.4]), 'jumps the stream; Ollie sniffs out buried wood');
+  check(await grabAt(36.5), 'grabs a peel');
+  check(await grabAt(39.5, [37.0]), 'jumps up for another bottle');
+  check(await grabAt(43.5), 'grabs a rope');
+  check(await grabAt(45.5), 'grabs a cap');
+  await runTo(50.6, 3000);
+  check(await craft('sand-top'), 'the filter blueprint opens');
+  await runTo(53.6, 3000);
+  res = await buildAndTest();
+  check(/half works/.test(res) && /clogs/.test(res), 'sand on top only half works: it clogs');
+  await p.screenshot({ path: `${out}/64-filter-half.png` });
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('e');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await runTo(50.6, 3000, [], 'ArrowLeft');
+  await craft('coarse');
+  await runTo(53.6, 3000);
+  res = await buildAndTest();
+  check(/it works/.test(res), 'stones, gravel, then sand: clear water flows out');
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.screenshot({ path: `${out}/65-filter.png` });
+  check(await grabAt(70.5, [55.4, 59.4, 63.4]), 'crosses the stepping stones and grabs a battery');
+  check(await grabAt(73.5), 'grabs a glass bottle');
+  await toFlag(81, [74.4]);
+  s = await st();
+  check(s.levelsDone.includes('wetland-2') && s.built.includes('filter'), 'The Filter is done');
+  await sortAll();
+  for (let i = 0; i < 20 && !(await st()).panel; i++) {
+    await talkThrough();
+    await p.waitForTimeout(150);
+  }
+  check((await st()).panel?.kind === 'journal', 'the Wetland Journal questions open');
+  await answerUntilClosed(30, true);
+  await p.waitForTimeout(300);
+  await debrief(/farms/);
+  for (let i = 0; i < 10; i++) {
+    await talkThrough();
+    await p.waitForTimeout(150);
+  }
+  s = await st();
+  check(s.done.includes('wetland') && s.next === 'level:town-1', 'the Wetland is done; Farm and Town are next');
+  await p.close();
+}
+
+// ---------------------------------------------------------------- Farm and Town, and the finale
+
+if (want('town')) {
+  const p = await openPage();
+  const h = helpers(p);
+  const { st, ps, talkThrough, runTo, grabAt, craft, buildAndTest, answerUntilClosed, debrief, sortAll, toFlag } = h;
+  let messages = [];
+  await p.exposeFunction('__note', (m) => messages.push(m));
+  await startAt(p, ['beach', 'harbor', 'wetland'], { bag: {} });
+  await p.evaluate(() => window.addEventListener('message', (e) => window.__note(e.data?.type)));
+  await p.evaluate(() => window.__pss.startLevel('town-1'));
+  await p.waitForTimeout(500);
+  await talkThrough();
+  check((await ps()).level === 'town-1', 'The Farm is playing, with Rosa Delgado');
+  check(await grabAt(6.5), 'grabs a bag');
+  check(await grabAt(9.5), 'grabs a can');
+  check(await grabAt(15.5), 'grabs a rope by the bare field');
+  check(await grabAt(20.5, [18.2]), 'jumps up the field bank for wood');
+  check(await grabAt(26.5), 'grabs a peel');
+  check(await grabAt(31.5), 'grabs a wrapper');
+  check(await grabAt(39.5, [34.4]), 'jumps the ditch for wood');
+  check(await grabAt(43.5, [41.0]), 'jumps onto the hay wagon for a cap');
+  check(await grabAt(50.5), 'grabs the wood Ollie sniffed out');
+  await runTo(52.6, 3000);
+  check(await craft('fence'), 'the riverbank strip blueprint opens');
+  await runTo(56.6, 3000);
+  let res = await buildAndTest();
+  check(/half works/.test(res) && /under/.test(res), 'a fence only half works: the muddy water flows under it');
+  await p.screenshot({ path: `${out}/70-fence-half.png` });
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('e');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await runTo(52.6, 3000, [], 'ArrowLeft');
+  await craft('strip');
+  await runTo(56.6, 3000);
+  res = await buildAndTest();
+  check(/it works/.test(res), 'a wide strip of native plants works');
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.screenshot({ path: `${out}/71-strip.png` });
+  check(await grabAt(73.5, [58.4]), 'crosses the bridge over a clear river and grabs a battery');
+  check(await grabAt(75.5), 'grabs a glass bottle');
+  await toFlag(79);
+  let s = await st();
+  check(s.levelsDone.includes('town-1') && s.built.includes('buffer'), 'The Farm is done');
+  await sortAll(true);
+  for (let i = 0; i < 20 && !(await st()).panel; i++) {
+    await talkThrough();
+    await p.waitForTimeout(150);
+  }
+  check((await st()).panel?.kind === 'test', 'Rosa’s water test opens');
+  await answerUntilClosed();
+  await talkThrough();
+  await p.waitForTimeout(300);
+  await p.click('text=Play it now');
+  await p.waitForTimeout(500);
+  await talkThrough();
+  check((await ps()).level === 'town-2', 'Main Street is playing');
+
+  check(await grabAt(8.5), 'grabs a can');
+  check(await grabAt(11.5, [9.0]), 'jumps onto the shop awning for wood');
+  check(await grabAt(15.5), 'grabs a bag');
+  check(await grabAt(16.5), 'grabs more wood');
+  await runTo(17.6, 3000);
+  check(await craft('pipe'), 'the rain garden blueprint opens');
+  await runTo(22.6, 3000);
+  res = await buildAndTest();
+  check(/half works/.test(res) && /faster/.test(res), 'a pipe to the drain only half works: the water rushes to the river faster');
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('e');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await runTo(17.6, 3000, [], 'ArrowLeft');
+  await craft('garden');
+  await runTo(22.6, 3000);
+  res = await buildAndTest();
+  check(/it works/.test(res), 'a rain garden works');
+  await p.screenshot({ path: `${out}/72-rain-garden.png` });
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  check(await grabAt(31.5), 'grabs a can');
+  check(await grabAt(37.5, [32.4]), 'jumps the canal for wood');
+  check(await grabAt(43.5), 'grabs a peel by the waiting bus');
+  check(await grabAt(46.5, [44.0]), 'jumps up for a can');
+  await runTo(51.6, 3000);
+  check(await craft('tall'), 'the chimney fix blueprint opens');
+  await runTo(55.6, 3000);
+  res = await buildAndTest();
+  check(/half works/.test(res) && /farther/.test(res), 'a taller chimney only half works: the smoke just goes farther');
+  await p.screenshot({ path: `${out}/73-tall-half.png` });
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await p.keyboard.press('e');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await runTo(51.6, 3000, [], 'ArrowLeft');
+  await craft('filter');
+  await runTo(55.6, 3000);
+  res = await buildAndTest();
+  check(/it works/.test(res), 'a smoke filter works');
+  await p.click('.pss-result .btn.primary');
+  await p.waitForTimeout(300);
+  await talkThrough();
+  await p.screenshot({ path: `${out}/74-mill.png` });
+  check(await grabAt(65.5), 'grabs a cap');
+  check(await grabAt(67.5), 'grabs a glass bottle');
+  check(await grabAt(70.5), 'grabs a battery');
+  await toFlag(86);
+  s = await st();
+  check(s.levelsDone.includes('town-2') && s.built.includes('rain-garden') && s.built.includes('mill-filter'), 'Main Street is done');
+  await sortAll();
+  for (let i = 0; i < 20 && !(await st()).panel; i++) {
+    await talkThrough();
+    await p.waitForTimeout(150);
+  }
+  check((await st()).panel?.kind === 'journal', 'the Farm and Town Journal questions open');
+  await p.screenshot({ path: `${out}/75-town-q.png` });
+  await answerUntilClosed(30);
+  await p.waitForTimeout(300);
+  await debrief(/before it starts/);
+  for (let i = 0; i < 20 && !(await p.isVisible('.pss-finale')); i++) {
+    await talkThrough();
+    await p.waitForTimeout(200);
+  }
+  check(await p.isVisible('.pss-finale'), 'every stretch is done: The Big Rain begins');
+  for (let i = 0; i < 8; i++) {
+    await p.waitForTimeout(500);
+    if ([0, 3, 6, 7].includes(i)) await p.screenshot({ path: `${out}/8${i}-finale.png` });
+    await p.click('.pss-finale .btn.primary');
+  }
+  await p.waitForTimeout(400);
+  check(!(await p.isVisible('.pss-finale')), 'the storm follows the water past every fix, then Clean Coast Day and the hatchlings');
+  await talkThrough();
+  await p.waitForTimeout(300);
+  s = await st();
+  check(s.finaleSeen && s.done.length === 4 && s.next === null, 'the game is finished, and saved');
+  check(messages.includes('game-complete'), 'the game tells the site it is complete');
   await p.close();
 }
 
