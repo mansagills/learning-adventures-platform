@@ -1,4 +1,4 @@
-import type { GaugeKind, Stretch, TrashId } from '../../kit/worlds/wild-lands/coast-art';
+import type { GaugeKind, Murk, Stretch, TrashId } from '../../kit/worlds/wild-lands/coast-art';
 import type { RecipeId, Station } from './problems';
 
 /**
@@ -15,6 +15,10 @@ import type { RecipeId, Station } from './problems';
  *   B  the fishing boat (it leaks fuel until the tank is fixed)
  *   k  the kayak (stand in it and paddle with left and right)   G  a ghost net in the water (grab it from the kayak)
  *   p  palm   u  a gull   r  a rock in the water   t  a mooring post
+ *   z  a fish in the water (it gasps until the water is fixed)
+ *   L  a farm field (bare until the riverbank strip works, then a green cover crop)
+ *   U  a house   V  a storm drain   Z  the mill (it smokes until the chimney fix works)   n  a bus
+ *   w  Dr. Wen Li   o  Rosa Delgado (they stand and watch)
  *   Camp only: M Marisol   R Rafi   T Ranger Tala   S the sorting station   J the Squad Journal board
  *              Q the map board   N the Nature Center sign   H the Squad hut
  */
@@ -58,6 +62,8 @@ export interface LevelDef {
   slick?: [number, number];
   /** The kayak can paddle between these columns. */
   kayak?: [number, number];
+  /** Dirty water (algae or mud) between these columns, until this fix works. */
+  murky?: { x: [number, number]; kind: Murk; fixedBy: RecipeId };
 }
 
 /** A blank grid with helpers to paint it. */
@@ -241,6 +247,154 @@ function harbor2(): string[] {
     .rows();
 }
 
+// ------------------------------------------------------------------ The Wetland
+
+function wetland1(): string[] {
+  return grid(80, 12)
+    .fill(0, 79, 10, 11, '#')
+    .put(1, 9, 'P')
+    .put(4, 9, 'a')
+    .put(6, 9, 'c')
+    .fill(9, 10, 8, 9, '#') // a muddy bank
+    .put(10, 7, 'f')
+    .fill(13, 14, 10, 11, '~')
+    .put(17, 9, 'C')
+    .put(19, 9, 'b')
+    .put(22, 9, 'j')
+    .put(25, 9, 'e')
+    .put(28, 9, 'i')
+    .fill(30, 46, 10, 11, '~') // the green pond
+    .fill(31, 34, 9, 9, '=') // the old boardwalk, with gaps
+    .fill(37, 40, 9, 9, '=')
+    .fill(43, 45, 9, 9, '=')
+    .many('z', [35, 9], [41, 9])
+    .put(38, 8, 'f')
+    .put(44, 8, 'g')
+    .put(47, 9, 'w')
+    .put(49, 9, 'C')
+    .put(51, 9, 'W')
+    .put(55, 9, 'X') // the wetland plants (they go in around the pond)
+    .put(58, 9, 'l')
+    .put(61, 9, 'q')
+    .fill(63, 65, 8, 8, '=')
+    .put(64, 7, 'a')
+    .put(67, 9, 'h')
+    .fill(70, 71, 10, 11, '~')
+    .put(77, 9, 'F')
+    .many('u', [22, 3], [52, 2])
+    .rows();
+}
+
+function wetland2(): string[] {
+  return grid(84, 12)
+    .fill(0, 83, 10, 11, '#')
+    .put(1, 9, 'P')
+    .put(4, 9, 'c')
+    .put(6, 9, 'f')
+    .fill(9, 10, 10, 11, '~')
+    .put(13, 9, 'C')
+    .fill(15, 17, 8, 8, '=')
+    .put(16, 7, 'a')
+    .put(19, 9, 'b')
+    .put(22, 9, 'i')
+    .fill(24, 25, 10, 11, '~')
+    .put(30, 9, 'v')
+    .put(33, 9, 'C')
+    .put(36, 9, 'j')
+    .fill(38, 40, 8, 8, '=')
+    .put(39, 7, 'a')
+    .put(43, 9, 'e')
+    .put(45, 9, 'g')
+    .put(47, 9, 'C')
+    .put(49, 9, 'w')
+    .put(51, 9, 'W')
+    .put(54, 9, 'X') // the filter, where the stream runs into the pool
+    .fill(56, 65, 10, 11, '~') // the muddy pool below the filter
+    .fill(58, 59, 9, 9, '=') // stepping stones
+    .fill(62, 63, 9, 9, '=')
+    .many('z', [61, 9])
+    .put(68, 9, 'C')
+    .put(70, 9, 'l')
+    .put(73, 9, 'q')
+    .fill(75, 76, 10, 11, '~')
+    .put(81, 9, 'F')
+    .many('u', [20, 3], [60, 2])
+    .rows();
+}
+
+// ------------------------------------------------------------------ Farm and Town
+
+function town1(): string[] {
+  return grid(82, 12)
+    .fill(0, 81, 10, 11, '#')
+    .put(1, 9, 'P')
+    .put(3, 9, 'o')
+    .put(6, 9, 'i')
+    .put(9, 9, 'b')
+    .put(12, 9, 'L')
+    .put(15, 9, 'e')
+    .fill(19, 20, 8, 9, '#') // a field bank
+    .put(20, 7, 'f')
+    .put(23, 9, 'C')
+    .put(26, 9, 'j')
+    .put(28, 9, 'L')
+    .put(31, 9, 'c')
+    .fill(35, 36, 10, 11, '~') // a ditch
+    .put(39, 9, 'f')
+    .fill(42, 44, 8, 8, '=') // a hay wagon
+    .put(43, 7, 'g')
+    .put(47, 9, 'C')
+    .put(50, 9, 'v')
+    .put(53, 9, 'W')
+    .put(57, 9, 'X') // the riverbank strip
+    .fill(59, 69, 10, 11, '~') // the river
+    .fill(59, 69, 9, 9, '=') // the bridge
+    .put(73, 9, 'l')
+    .put(75, 9, 'q')
+    .put(79, 9, 'F')
+    .many('u', [26, 3], [64, 2])
+    .rows();
+}
+
+function town2(): string[] {
+  return grid(90, 12)
+    .fill(0, 89, 10, 11, '#')
+    .put(1, 9, 'P')
+    .put(3, 9, 'o')
+    .put(5, 9, 'U')
+    .put(8, 9, 'b')
+    .fill(10, 12, 8, 8, '=') // a shop awning
+    .put(11, 7, 'f')
+    .put(13, 9, 'U')
+    .put(15, 9, 'i')
+    .put(16, 9, 'f')
+    .put(18, 9, 'W')
+    .put(20, 9, 'V')
+    .put(23, 9, 'X') // the rain garden, by the houses and the drain
+    .put(26, 9, 'U')
+    .put(29, 9, 'C')
+    .put(31, 9, 'b')
+    .fill(33, 34, 10, 11, '~') // a canal
+    .put(37, 9, 'f')
+    .put(40, 9, 'n')
+    .put(43, 9, 'j')
+    .fill(45, 47, 8, 8, '=')
+    .put(46, 7, 'b')
+    .put(49, 9, 'C')
+    .put(52, 9, 'W')
+    .put(56, 9, 'X') // the chimney fix
+    .put(60, 9, 'Z')
+    .put(65, 9, 'g')
+    .put(67, 9, 'q')
+    .put(70, 9, 'l')
+    .put(73, 9, 'C')
+    .put(76, 9, 'U')
+    .put(80, 9, 'V')
+    .put(86, 9, 'F')
+    .many('u', [24, 3], [70, 2])
+    .rows();
+}
+
 export const CAMP: LevelDef = {
   id: 'camp',
   stretch: 'beach',
@@ -335,6 +489,89 @@ export const LEVELS: LevelDef[] = [
     builds: ['net-bin'],
     gauge: 'trash',
     kayak: [10, 58],
+  },
+  {
+    id: 'wetland-1',
+    stretch: 'wetland',
+    num: 1,
+    name: 'The Green Pond',
+    rows: wetland1(),
+    intro: [
+      'Welcome to the wetland. I’m Dr. Wen Li, and I test the water here. Look at the pond: green and thick, and the fish are gasping at the surface.',
+      'Fertilizer from upstream is feeding the algae. We need plants whose roots take it up. Bring scrap wood and rope for stakes, and pick the right plants at the Workbench.',
+    ],
+    tips: [
+      [8, 'Wood on the muddy bank. Jump up!'],
+      [29, 'The old boardwalk has gaps. Jump from plank to plank.'],
+      [35, 'See the fish gasping at the surface? The water has too little oxygen.'],
+      [50, 'Rafi’s Workbench. Which plants suit a wetland (E)?'],
+      [54, 'The stake by the pond. Plant them here, and watch the water.'],
+    ],
+    builds: ['reeds'],
+    gauge: 'oxygen',
+    murky: { x: [30, 46], kind: 'algae', fixedBy: 'reeds' },
+  },
+  {
+    id: 'wetland-2',
+    stretch: 'wetland',
+    num: 2,
+    name: 'The Filter',
+    rows: wetland2(),
+    intro: [
+      'The stream into this pool is brown with mud. The mud blocks the sunlight, so the pool plants can’t grow.',
+      'Rafi has a blueprint for a filter of stones, gravel and sand. The order of the layers matters! Bring two pieces of scrap wood and two bottles.',
+    ],
+    tips: [
+      [14, 'A bottle on the log. Jump up!'],
+      [28, 'Ollie is sniffing! Something is buried here.'],
+      [50, 'Rafi’s Workbench. Which order of layers works (E)?'],
+      [53, 'Build the filter here, where the stream runs into the pool.'],
+    ],
+    builds: ['filter'],
+    gauge: 'mud',
+    murky: { x: [56, 65], kind: 'mud', fixedBy: 'filter' },
+  },
+  {
+    id: 'town-1',
+    stretch: 'town',
+    num: 1,
+    name: 'The Farm',
+    rows: town1(),
+    intro: [
+      'I’m Rosa Delgado. I farm this valley, and I’m on the town council. You’ve followed the mud all the way here, to my fields.',
+      'When it rains, the water runs off the bare soil and carries it into the river. Help me plant a strip along the riverbank to catch it.',
+    ],
+    tips: [
+      [10, 'A bare field. Nothing is growing to hold the soil.'],
+      [18, 'Wood on the field bank. Jump up!'],
+      [41, 'Jump onto the hay wagon.'],
+      [49, 'Ollie is sniffing! Something is buried here.'],
+      [52, 'Rafi’s Workbench. What will catch the soil (E)?'],
+      [56, 'The stake on the riverbank. Build the strip here, and watch it rain.'],
+    ],
+    builds: ['buffer'],
+    gauge: 'mud',
+    murky: { x: [59, 69], kind: 'mud', fixedBy: 'buffer' },
+  },
+  {
+    id: 'town-2',
+    stretch: 'town',
+    num: 2,
+    name: 'Main Street',
+    rows: town2(),
+    intro: [
+      'This is our town. When it rains, the water runs off the roofs and the street, straight into the storm drains, and the drains go straight to the river.',
+      'Two fixes: something by the houses to soak up the rain, and a fix for the mill chimney’s smoke. Rafi has the blueprints.',
+    ],
+    tips: [
+      [16, 'Rafi’s Workbench. Pick a design for the roof and street water (E).'],
+      [21, 'A storm drain. Rain from the street goes straight to the river from here.'],
+      [39, 'The bus is waiting with its engine running. That smoke goes into the air.'],
+      [51, 'Another Workbench. Now the mill chimney.'],
+      [58, 'The mill. Build the chimney fix on this stake.'],
+    ],
+    builds: ['rain-garden', 'mill-filter'],
+    gauge: 'mud',
   },
 ];
 

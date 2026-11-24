@@ -37,7 +37,7 @@ export const NATURE_COST: Record<NatureId, Inventory> = {
   logpile: { wood: 2 },
 };
 
-/** The level that unlocks each piece (half 2 adds the shade tree and the rain barrel). */
+/** The level that unlocks each piece. */
 export const NATURE_UNLOCK: Partial<Record<NatureId, string>> = {
   beachgrass: 'beach-1',
   sunflower: 'beach-1',
@@ -53,6 +53,8 @@ export const NATURE_UNLOCK: Partial<Record<NatureId, string>> = {
   batbox: 'harbor-2',
   logpile: 'harbor-2',
   lookout: 'harbor-2',
+  shadetree: 'town-1',
+  rainbarrel: 'town-2',
 };
 
 export function unlocked(levelsDone: readonly string[]): NatureId[] {

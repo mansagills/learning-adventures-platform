@@ -27,6 +27,8 @@ export interface SquadSave {
   introSeen: string[];
   openingSeen: boolean;
   halfDoneSeen: boolean;
+  /** The Big Rain and Clean Coast Day have been seen (the game is finished). */
+  finaleSeen: boolean;
   /** Ollie has been freed (from the first level on, Ollie comes along). */
   ollie: boolean;
   easy: boolean;
@@ -49,8 +51,8 @@ export interface SquadSave {
   visitors: VisitorId[];
 }
 
-const zeroes = (): Record<Station, number> => ({ beach: 0, harbor: 0 });
-const noLists = (): Record<Station, string[]> => ({ beach: [], harbor: [] });
+const zeroes = (): Record<Station, number> => ({ beach: 0, harbor: 0, wetland: 0, town: 0 });
+const noLists = (): Record<Station, string[]> => ({ beach: [], harbor: [], wetland: [], town: [] });
 
 export function freshSave(): SquadSave {
   return {
@@ -64,6 +66,7 @@ export function freshSave(): SquadSave {
     introSeen: [],
     openingSeen: false,
     halfDoneSeen: false,
+    finaleSeen: false,
     ollie: false,
     easy: false,
     recent: noLists(),
@@ -139,6 +142,7 @@ export function cleanSave(raw: unknown): SquadSave {
     introSeen: only(r.introSeen, ids),
     openingSeen: r.openingSeen === true,
     halfDoneSeen: r.halfDoneSeen === true,
+    finaleSeen: r.finaleSeen === true,
     ollie: r.ollie === true,
     easy: r.easy === true,
     recent,

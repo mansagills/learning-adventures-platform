@@ -54,6 +54,25 @@ describe('Pollution Solution Squad questions', () => {
     const harbor = bank('harbor').find((d) => d.id === 'h-graph')!;
     if (harbor.pic.k !== 'bars') throw new Error('expected bars');
     for (let i = 1; i < harbor.pic.vals.length; i++) expect(harbor.pic.vals[i]).toBeLessThan(harbor.pic.vals[i - 1]);
+    // the oxygen went up after the reeds, and the mud went down after the plants
+    const oxy = bank('wetland').find((d) => d.id === 'w-graph')!;
+    if (oxy.pic.k !== 'bars' || oxy.pic.mark === undefined) throw new Error('expected bars with a mark');
+    expect(Math.min(...oxy.pic.vals.slice(oxy.pic.mark))).toBeGreaterThan(Math.max(...oxy.pic.vals.slice(0, oxy.pic.mark)));
+    const mud = bank('town').find((d) => d.id === 't-graph')!;
+    if (mud.pic.k !== 'bars' || mud.pic.mark === undefined) throw new Error('expected bars with a mark');
+    expect(Math.max(...mud.pic.vals.slice(mud.pic.mark))).toBeLessThan(Math.min(...mud.pic.vals.slice(0, mud.pic.mark)));
+  });
+
+  it('every picture is drawn, and every scene has words for a screen reader', async () => {
+    const { paintScene } = await import('../src/games/pollution-solution-squad/art');
+    for (const s of STATIONS)
+      for (const d of bank(s))
+        if (d.pic.k === 'scene') {
+          const b = paintScene(d.pic.s);
+          let painted = 0;
+          for (let y = 0; y < b.h; y += 4) for (let x = 0; x < b.w; x += 4) if (b.get(x, y)) painted++;
+          expect(painted, d.id).toBeGreaterThan(100);
+        }
   });
 
   it('the families sum is right', () => {
@@ -139,7 +158,7 @@ describe('the Nature Center rules', () => {
   it('unlocks pieces as levels are finished', () => {
     expect(unlocked([])).toEqual([]);
     expect(unlocked(['beach-1'])).toContain('beachgrass');
-    expect(unlocked(LEVELS.map((l) => l.id)).length).toBe(14);
+    expect(unlocked(LEVELS.map((l) => l.id)).length).toBe(NATURE_IDS.length);
   });
 
   it('charges materials, and gives them back', () => {
@@ -166,12 +185,40 @@ describe('the Nature Center rules', () => {
 describe('the save', () => {
   it('cleans a broken or tampered save', () => {
     expect(cleanSave(null)).toMatchObject({ levelsDone: [], bag: {} });
-    const s = cleanSave({ levelsDone: ['beach-1', 'nope'], bag: { wood: 5, gold: 9, bottle: -3 }, stars: { beach: 99 }, nature: [{ id: 'milkweed', x: 3 }, { id: 'castle', x: 2 }, { id: 'bench', x: 500 }], tried: { 'drain-net': ['big', 'huge'] } });
+    const s = cleanSave({
+      levelsDone: ['beach-1', 'nope'],
+      bag: { wood: 5, gold: 9, bottle: -3 },
+      stars: { beach: 99 },
+      nature: [
+        { id: 'milkweed', x: 3 },
+        { id: 'castle', x: 2 },
+        { id: 'bench', x: 500 },
+      ],
+      tried: { 'drain-net': ['big', 'huge'] },
+    });
     expect(s.levelsDone).toEqual(['beach-1']);
     expect(s.bag).toEqual({ wood: 5 });
     expect(s.stars.beach).toBe(5);
     expect(s.nature).toEqual([{ id: 'milkweed', x: 3 }]);
     expect(s.tried['drain-net']).toEqual(['big']);
     expect(freshSave().appearance.outfit).toBe('green');
+    expect(cleanSave({ finaleSeen: true, stars: { town: 3, wetland: 'x' } })).toMatchObject({ finaleSeen: true, stars: { town: 3, wetland: 0 } });
+  });
+});
+
+describe('the finale', () => {
+  it('has a picture for every line of The Big Rain', async () => {
+    const { BIG_RAIN } = await import('../src/games/pollution-solution-squad/content');
+    const { paintFinale, FW, FH } = await import('../src/games/pollution-solution-squad/art');
+    expect(BIG_RAIN).toHaveLength(8);
+    for (let i = 0; i < BIG_RAIN.length; i++) {
+      const b = paintFinale(i, 0);
+      expect([b.w, b.h]).toEqual([FW, FH]);
+    }
+  });
+
+  it('follows the water downstream, past every stretch', () => {
+    const order = LEVELS.map((l) => l.stretch).filter((s, i, a) => a.indexOf(s) === i);
+    expect(order).toEqual(['beach', 'harbor', 'wetland', 'town']);
   });
 });

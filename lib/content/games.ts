@@ -244,22 +244,6 @@ export const allGames: PlayableGame[] = [
     featured: true,
   },
   {
-    slug: 'ocean-conservation-heroes',
-    title: 'Ocean Conservation Heroes',
-    subject: 'science',
-    kind: 'game',
-    grades: '2–5',
-    difficulty: 'medium',
-    description:
-      'Dive in and clean up ocean pollution while learning about marine ecosystems.',
-    skills: ['Marine Biology', 'Conservation'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/ocean-conservation-heroes.html',
-    hidden: true,
-    thumbnail: '/games/thumbnails/ocean-conservation-heroes.jpg',
-    featured: true,
-  },
-  {
     slug: 'animal-kingdom-match',
     title: 'Animal Kingdom Match',
     subject: 'science',
@@ -473,11 +457,12 @@ export const allGames: PlayableGame[] = [
     kind: 'game',
     grades: '3–5',
     difficulty: 'medium',
-    description: 'Clean up polluted places and bring ecosystems back to life.',
-    skills: ['Environment', 'Conservation'],
-    estimatedTime: '15–20 min',
-    htmlPath: '/games/pollution-solution-squad.html',
-    hidden: true,
+    description:
+      'Trash keeps washing up on Turtle Beach. Follow it upstream with the Pollution Solution Squad and Ollie the otter: pick up trash, craft and test fixes at the Workbench, clean up an oil spill and a green wetland, stop the pollution at its source on the farms and in town, then build your own Nature Center.',
+    skills: ['Pollution', 'Water Quality', 'Engineering Design', 'Recycling'],
+    estimatedTime: '60–90 min',
+    // Rebuilt with the Adventure Kit in the Wild Lands world (UX-4 Phase 2, Science); Ocean Conservation Heroes is merged in
+    htmlPath: '/games/play/pollution-solution-squad/index.html',
     thumbnail: '/games/thumbnails/pollution-solution-squad.jpg',
   },
   {

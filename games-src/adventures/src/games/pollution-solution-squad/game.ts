@@ -24,6 +24,8 @@ import {
   MARISOL_VEGA,
   NATURE,
   RAFI_HADDAD,
+  ROSA_DELGADO,
+  WEN_LI,
   TRASH,
   TRASH_IDS,
   VISITOR_NAME,
@@ -36,13 +38,14 @@ import {
   type TrashId,
   type VisitorId,
 } from '../../kit/worlds/wild-lands/coast-art';
-import { paintBars, paintBins4, paintLoop, paintPath, paintScene } from './art';
+import { FH, FW, paintBars, paintBins4, paintFinale, paintLoop, paintPath, paintScene } from './art';
 import {
+  BIG_RAIN,
   BUILT_LINE,
   CONTROLS_TIP_KEYS,
   CONTROLS_TIP_TOUCH,
+  FINALE_END,
   GROWNUPS,
-  HALF_DONE,
   MISCONCEPTION_WORDS,
   OLLIE_FREED,
   OPEN_STRETCHES,
@@ -59,7 +62,7 @@ import {
   type PersonId,
 } from './content';
 import { CAMP, LEVELS, level, stretchLevels, type LevelDef } from './levels';
-import { BEACH_SONG, CAMP_SONG, HARBOR_SONG, JOURNAL_SONG } from './music';
+import { BEACH_SONG, CAMP_SONG, FINALE_SONG, HARBOR_SONG, JOURNAL_SONG, TOWN_SONG, WETLAND_SONG } from './music';
 import { unlocked } from './nature';
 import { pix } from './pix';
 import { designPic, Play, type FinishResult, type SoundKind } from './play';
@@ -69,8 +72,8 @@ import { freshSave, store, type SquadSave } from './save';
 const RULES: SkillRules = { maxTier: 3, masteryTier: 2, masteryCount: 3 };
 const MAX_PER_STRETCH = 12;
 const MOOD: Record<Expression, Mood> = { neutral: 'neutral', smile: 'smile', curious: 'curious', proud: 'smile', thinking: 'thinking' };
-const LOOKS: Record<Exclude<PersonId, 'ollie'>, Look16> = { marisol: MARISOL_VEGA, rafi: RAFI_HADDAD, tala: RANGER_TALA };
-const SONG: Record<Station, string> = { beach: 'beach', harbor: 'harbor' };
+const LOOKS: Record<Exclude<PersonId, 'ollie'>, Look16> = { marisol: MARISOL_VEGA, rafi: RAFI_HADDAD, tala: RANGER_TALA, wen: WEN_LI, rosa: ROSA_DELGADO };
+const SONG: Record<Station, string> = { beach: 'beach', harbor: 'harbor', wetland: 'wetland', town: 'town' };
 const BINS: BinKind[] = ['recycle', 'compost', 'trash', 'hazard'];
 
 type Mode = 'title' | 'camp' | 'level' | 'busy' | 'panel';
@@ -140,6 +143,8 @@ export class Game {
       marisol: speaker('marisol', 200),
       rafi: speaker('rafi', 150),
       tala: speaker('tala', 170),
+      wen: speaker('wen', 190),
+      rosa: speaker('rosa', 165),
       ollie: {
         name: PEOPLE.ollie.name,
         role: PEOPLE.ollie.role,
@@ -155,6 +160,9 @@ export class Game {
     audio.addSong('beach', BEACH_SONG);
     audio.addSong('harbor', HARBOR_SONG);
     audio.addSong('journal', JOURNAL_SONG);
+    audio.addSong('wetland', WETLAND_SONG);
+    audio.addSong('town', TOWN_SONG);
+    audio.addSong('finale', FINALE_SONG);
     bus.on('settings:changed', () => {
       this.toolbar?.setIcon('sound', settings.muted ? 'soundOff' : 'soundOn', settings.muted ? 'Sound off' : 'Sound');
       this.play?.showTouch(touchControlsVisible());
@@ -180,6 +188,7 @@ export class Game {
       grab: () => this.play?.grab(),
       use: () => this.play?.use(),
       camp: () => this.mode !== 'title' && this.enterCamp(),
+      finale: () => this.mode === 'camp' && void this.bigRain(),
       open: (s: Station, kind: PanelKind = 'journal') => this.mode === 'camp' && this.openPanel(s, kind),
       setTier: (s: string, t: Tier) => {
         skill(this.save.learner, s).tier = t;
@@ -403,7 +412,14 @@ export class Game {
     await this.busy(async () => {
       const m = this.speakers.marisol;
       if (!step) {
-        await this.talk.say(m, 'The beach and the harbor are clean for now. Play any level again from the map, or build in the Nature Center. The wetland and the town upstream come next!', 'smile');
+        await this.talk.say(m, 'The whole coast is clean, from the hills to the sea! Play any level again from the map to find hidden trash, or build in the Nature Center.', 'smile');
+        if (this.save.finaleSeen) {
+          const again = await choose(this.host, 'The Big Rain', 'Would you like to watch The Big Rain and Clean Coast Day again?', [
+            { id: 'yes', label: 'Watch it again' },
+            { id: 'no', label: 'Not now' },
+          ]);
+          if (again === 'yes') await this.bigRain();
+        }
         return;
       }
       await this.talk.say(m, `Next: ${step.level.name}, at ${STRETCH_INFO[step.level.stretch].name}. Open the map when you are ready.`, 'smile');
@@ -476,10 +492,9 @@ export class Game {
         h('p', {
           class: 'small-note',
           style: 'margin:0 0 10px',
-          text: 'Follow the trash upstream. Each stretch of the coast has two levels. Between them, Marisol runs a water test; after them, earn 5 stars in the Squad Journal to finish the stretch.',
+          text: 'Follow the trash upstream. Each stretch of the coast has two levels. Between them comes a water test; after them, earn 5 stars in the Squad Journal to finish the stretch.',
         }),
         ...STATIONS.map(box),
-        h('section', { class: 'pss-region soon' }, h('h3', {}, h('span', { text: 'The Wetland, then Farm and Town' }), h('span', { class: 'stage', text: 'Upstream: coming soon' }))),
         this.mode === 'level' ? h('button', { class: 'btn', type: 'button', text: 'Back to camp', onclick: () => (modal.close(), this.enterCamp()) }) : null,
       ),
     );
@@ -881,10 +896,10 @@ export class Game {
       return h(
         'div',
         { class: 'pss-sky' },
-        pix(`bars-${q.id}`, () => paintBars(p.vals, p.labels, p.unit, p.mark), 2, `A bar graph of the ${p.unit} each day: ${p.labels.map((l, i) => `${l} ${p.vals[i]}`).join(', ')}.`),
+        pix(`bars-${q.id}`, () => paintBars(p.vals, p.labels, p.unit, p.mark), 2, `A bar graph of the ${p.unit}: ${p.labels.map((l, i) => `${l} ${p.vals[i]}`).join(', ')}.`),
         ...p.labels.map((l, i) => this.tag(l, (36 + i * Math.floor(120 / n) + (Math.floor(120 / n) - 8) / 2) / 176, 0.86, 'small')),
         this.tag(p.unit, 0.02, 0.0, 'small'),
-        p.mark !== undefined ? this.tag('Net on', (32 + p.mark * Math.floor(120 / n) - 4) / 176, 0.0, 'small mark') : null,
+        p.mark !== undefined ? this.tag(p.markLabel ?? 'Net on', (32 + p.mark * Math.floor(120 / n) - 4) / 176, 0.0, 'small mark') : null,
       );
     }
     return h(
@@ -1109,13 +1124,92 @@ export class Game {
       audio.levelUp();
       toast(`${info.badge}!`, 'reward');
       await this.talk.say(who, info.done, 'proud');
-      if (OPEN_STRETCHES.every((x) => this.save.done.includes(x)) && !this.save.halfDoneSeen) {
-        await this.talk.say(this.speakers.marisol, HALF_DONE, 'proud');
-        this.save.halfDoneSeen = true;
-        this.persist();
-        window.parent?.postMessage({ type: 'game-complete', score: OPEN_STRETCHES.reduce((n, x) => n + this.save.stars[x], 0) }, '*');
-      }
     });
+    if (OPEN_STRETCHES.every((x) => this.save.done.includes(x)) && !this.save.finaleSeen) await this.bigRain();
+  }
+
+  // ------------------------------------------------------------ the finale: The Big Rain and Clean Coast Day
+
+  /** The storm follows the water from the hills to the sea past every fix, then Clean Coast Day and the hatchlings. */
+  private async bigRain(): Promise<void> {
+    if (this.play) this.play.paused = true;
+    this.mode = 'busy';
+    audio.play('finale');
+    const img = h('canvas', { class: 'pss-finale-pic', width: FW, height: FH, role: 'img' }) as HTMLCanvasElement;
+    const ctx = img.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    const who = h('strong', { class: 'pss-finale-who' });
+    const line = h('p', { class: 'pss-finale-line', 'aria-live': 'polite' });
+    const count = h('span', { class: 'pss-level' });
+    const next = h('button', { class: 'btn primary', type: 'button', 'data-autofocus': true, text: 'Next' }) as HTMLButtonElement;
+    const root = h(
+      'div',
+      { class: 'panel modal pss-finale', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'finale-title' },
+      h('header', {}, h('h2', { id: 'finale-title', text: 'The Big Rain' }), count),
+      h('div', { class: 'content' }, img, h('div', { class: 'pss-finale-text' }, who, line), h('div', { class: 'pss-row' }, next)),
+    );
+    let i = 0;
+    let raf = 0;
+    let frame = 0;
+    const frames = new Map<string, HTMLCanvasElement>();
+    const draw = () => {
+      frame++;
+      const f = Math.floor(frame / 10) % 8;
+      const key = `${i}-${f}`;
+      let c = frames.get(key);
+      if (!c) frames.set(key, (c = paintFinale(i, f).toCanvas(1)));
+      ctx.drawImage(c, 0, 0);
+      raf = requestAnimationFrame(draw);
+    };
+    const titles = ['The Big Rain', 'The Big Rain', 'The Big Rain', 'The Big Rain', 'The Big Rain', 'The morning after', 'Clean Coast Day', 'Hatchling night'];
+    const ALT = [
+      'Rain pouring onto the houses and the green fields of the valley',
+      'Rain on a green field, a wide strip of tall plants and clear water in the river',
+      'Rain on the houses, the rain garden full of water, a marked storm drain and the mill with its filter and clean steam',
+      'Rain on the wetland: tall reeds, fish swimming in clear water, and a heron',
+      'Rain on the harbor: the patched fishing boat and the net bin on the dock',
+      'Turtle Beach the morning after the storm, clean, with the drain net in place',
+      'The Squad, Rosa, Dr. Wen and townsfolk on the clean beach under the Squad flag',
+      'Night on the beach: amber lights, and turtle hatchlings crawling toward the moonlit sea',
+    ];
+    const show = () => {
+      const b = BIG_RAIN[i];
+      const p = PEOPLE[b.who];
+      who.textContent = p.name;
+      line.textContent = b.text;
+      count.textContent = `${i + 1} of ${BIG_RAIN.length}`;
+      (root.querySelector('#finale-title') as HTMLElement).textContent = titles[i] ?? 'The Big Rain';
+      img.setAttribute('aria-label', ALT[i] ?? '');
+      next.textContent = i === BIG_RAIN.length - 1 ? 'The end' : 'Next';
+      speak(`${p.name}. ${b.text}`);
+    };
+    await new Promise<void>((resolve) => {
+      const modal = new Modal(this.host, root, () => {
+        cancelAnimationFrame(raf);
+        stopSpeaking();
+        resolve();
+      });
+      next.addEventListener('click', () => {
+        if (i < BIG_RAIN.length - 1) {
+          i++;
+          show();
+        } else modal.close();
+      });
+      show();
+      draw();
+    });
+    const first = !this.save.finaleSeen;
+    this.save.finaleSeen = true;
+    this.persist();
+    await this.busy(async () => {
+      audio.play('camp');
+      if (first) {
+        audio.levelUp();
+        toast('Clean Coast badge!', 'reward');
+      }
+      await this.talk.say(this.speakers.marisol, FINALE_END, 'proud');
+    });
+    if (first) window.parent?.postMessage({ type: 'game-complete', score: OPEN_STRETCHES.reduce((n, x) => n + this.save.stars[x], 0) }, '*');
   }
 
   // ------------------------------------------------------------ the Squad Journal (pages and badges)
@@ -1277,7 +1371,7 @@ export class Game {
       'div',
       {},
       h('p', {
-        text: `This summary is kept only in this browser. Stretches finished: ${sv.done.length} of 2 (of 4 when the game is complete). Levels reached the flag on: ${sv.levelsDone.length} of ${LEVELS.length}. Fixes built that work: ${sv.built.length} (designs tried: ${tried}). Kinds of trash found: ${sv.found.length}. Nature Center pieces: ${sv.nature.length}; visitors: ${sv.visitors.length}.${sv.easy ? ' Easy jumps are on.' : ''}`,
+        text: `This summary is kept only in this browser. Stretches finished: ${sv.done.length} of 4.${sv.finaleSeen ? ' The Big Rain finale is done.' : ''} Levels reached the flag on: ${sv.levelsDone.length} of ${LEVELS.length}. Fixes built that work: ${sv.built.length} (designs tried: ${tried}). Kinds of trash found: ${sv.found.length}. Nature Center pieces: ${sv.nature.length}; visitors: ${sv.visitors.length}.${sv.easy ? ' Easy jumps are on.' : ''}`,
       }),
       h(
         'div',
@@ -1306,6 +1400,7 @@ export class Game {
       stars: { ...this.save.stars },
       tests: { ...this.save.tests },
       done: [...this.save.done],
+      finaleSeen: this.save.finaleSeen,
       bag: { ...this.save.bag },
       found: [...this.save.found],
       built: [...this.save.built],
@@ -1372,4 +1467,25 @@ const SCENE_ALT: Record<string, string> = {
   booms: 'Three booms: a plain rope under the water, open bottles sinking, and sealed bottles floating',
   skirt: 'A boom of floats with a curtain hanging down under the water',
   'harbor-people': 'Rafi, townsfolk, Marisol and Rosa standing together on the dock',
+  'reeds-clean': 'Brown, muddy water flowing into a clump of reeds, and clear water flowing out the other side',
+  sponge: 'Storm rain falling on a wetland full of reeds, soaking into the ground, with houses safe beside it',
+  muddy: 'Sunlight shining down into clear water to green plants, and stopping near the top of brown, muddy water above brown plants',
+  gasp: 'Three fish with their mouths open at the surface of thick green water',
+  nursery: 'Reeds in clear water, with young fish, frog eggs and a frog among them',
+  reeds: 'Tall reeds and brown cattails growing in shallow water',
+  'green-pond': 'A pond covered in a thick green layer, a fish gasping, and a sack of fertilizer beside a field',
+  'two-glasses': 'Two glasses of clear water that look the same, each with a test strip: one green, one red',
+  fertilizer: 'A sack of fertilizer by a field of crops, with an arrow down to a green river',
+  channel: 'Trash piled in a channel, blocking the water from flowing into the reeds',
+  filters: 'Three filters: sand on top, everything mixed, and stones, gravel and sand from top to bottom',
+  'heron-fish': 'A heron standing by a green pond, and fish swimming away from it',
+  'bare-field': 'Rain on a bare, plowed field, with brown water running off it into the river',
+  'mill-bus': 'The mill with smoke pouring from its chimney, and a bus waiting with smoke from its engine',
+  buffer: 'A field of crops, then a wide strip of tall plants, then the river',
+  'cover-crop': 'A bare field on the left, and a field covered in a green cover crop on the right',
+  'rain-garden': 'Rain on a house, with an arrow to a low garden full of plants collecting the water',
+  barrel: 'A house with a rain barrel under the gutter',
+  mills: 'Three chimneys: a very tall one with smoke, a white one with smoke, and one with a filter and only a little steam',
+  council: 'Rosa, townsfolk, Dr. Wen and Marisol standing together',
+  valley: 'The valley from the hills to the sea: the town, a street drain, the river, the beach and the sea, with arrows downhill',
 };

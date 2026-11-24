@@ -62,9 +62,15 @@ const nextConfig = {
         source: '/games/planet-explorer-quest',
         destination: '/games/solar-system-explorer',
         permanent: true,
-      },      {
+      },
+      {
         source: '/games/water-cycle-journey',
         destination: '/games/weather-wizard-battle',
+        permanent: true,
+      },
+      {
+        source: '/games/ocean-conservation-heroes',
+        destination: '/games/pollution-solution-squad',
         permanent: true,
       },
     ];

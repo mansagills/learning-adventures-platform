@@ -28,20 +28,26 @@ import {
   MARISOL_VEGA,
   NATURE,
   RAFI_HADDAD,
+  ROSA_DELGADO,
   TRASH,
+  WEN_LI,
   VISITOR_NAME,
   VISITOR_NEEDS,
   paintBoat,
   paintBoom,
+  paintBus,
   paintCadet,
   paintCoastBackdrop,
   paintCoastTile,
   paintDrainPipe,
+  paintField,
+  paintFish,
   paintGaugeIcon,
   paintGhostNet,
   paintGull,
   paintKayak,
   paintLotTile,
+  paintMill,
   paintNatural,
   paintNature,
   paintOilSlick,
@@ -50,6 +56,8 @@ import {
   paintSquadFlag,
   paintSquadHut,
   paintStake,
+  paintStormDrain,
+  paintTownHouse,
   paintTrash,
   paintVisitor,
   paintWorkbench,
@@ -63,7 +71,7 @@ import {
   type TrashId,
   type VisitorId,
 } from '../../kit/worlds/wild-lands/coast-art';
-import { paintBoard, paintCrate, paintLidBins, paintSortStation, paintTankFix } from './art';
+import { paintBoard, paintCrate, paintFix, paintLidBins, paintSortStation, paintTankFix } from './art';
 import { artStretch, BURIED, LITTER, LOT, type LevelDef } from './levels';
 import { canAfford, NATURE_COST, pay, pieceAt, placeProblem, visitors, type Placed } from './nature';
 import { RECIPES, type RecipeId } from './problems';
@@ -85,6 +93,11 @@ const VIEW_H = VH / T;
 const DT = 1 / 60;
 /** How long a fix is tested (seconds). */
 const TEST_TIME = 4.5;
+/** The half-2 fixes, drawn with paintFix. */
+type Fix2 = 'reeds' | 'filter' | 'buffer' | 'rain-garden' | 'mill-filter';
+const FIX2: readonly RecipeId[] = ['reeds', 'filter', 'buffer', 'rain-garden', 'mill-filter'];
+/** Fixes tested in a rainstorm. */
+const RAINY: readonly RecipeId[] = ['reeds', 'filter', 'buffer', 'rain-garden', 'drain-net'];
 
 export interface FinishResult {
   /** The backpack at the flag. */
@@ -257,7 +270,7 @@ export class Play {
     this.shells = of('s');
     this.benches = of('W');
     this.people = th.filter((t) => 'MRTSJQN'.includes(t.kind));
-    this.decor = th.filter((t) => 'puHrt'.includes(t.kind));
+    this.decor = th.filter((t) => 'puHrtzLUVZnwo'.includes(t.kind));
     this.ghosts = of('G').map((t) => ({ x: t.x + 0.5, y: t.y + 1, got: opts.levelDone }));
     this.drain = of('D')[0] ?? null;
     this.boat = of('B')[0] ?? null;
@@ -1082,7 +1095,14 @@ export class Play {
     const sl = this.def.slick;
     const boom = this.stakes.find((s) => s.recipe === 'boom');
     if (sl && x >= sl[0] && x <= sl[1] && !boom?.works) return 'oil';
+    const m = this.def.murky;
+    if (m && x >= m.x[0] && x <= m.x[1] && !this.works(m.fixedBy)) return m.kind;
     return 'clear';
+  }
+
+  /** A fix in this level that works (or the level was finished before). */
+  private works(r: RecipeId): boolean {
+    return !!this.stakes.find((s) => s.recipe === r)?.works;
   }
 
   private drawBackdrop(): void {
@@ -1165,6 +1185,12 @@ export class Play {
     for (const d of this.decor) {
       if (d.kind === 'p') this.put(`palm-${d.x % 2}`, () => paintPalm(T, d.x % 2), d.x + 0.5, d.y + 1);
       else if (d.kind === 'H') this.put('hut', () => paintSquadHut(T), d.x + 0.5, d.y + 1);
+      else if (d.kind === 'U') this.put(`house-${d.x % 4}`, () => paintTownHouse(T, d.x % 4), d.x + 0.5, d.y + 1);
+      else if (d.kind === 'Z') this.drawMill(d.x, f);
+      else if (d.kind === 'L') {
+        const cover = this.works('buffer');
+        this.put(`field-${cover}-${f % 2}`, () => paintField(T, 6, cover ? 'cover' : 'bare', f % 2), d.x + 3, d.y + 1);
+      }
     }
     if (this.boat) {
       const patch = this.stakes.find((s) => s.recipe === 'tank-patch');
@@ -1214,6 +1240,10 @@ export class Play {
       }
     }
     for (const s of this.stakes) {
+      if (FIX2.includes(s.recipe) && s.design) {
+        this.drawFix(s, f);
+        continue;
+      }
       if (s.recipe === 'net-bin' && s.design) {
         const d = s.design as 'crate' | 'sack' | 'lid';
         const t = s.testing > 0 ? 1 - s.testing / TEST_TIME : s.works ? 0 : 1;
@@ -1232,7 +1262,19 @@ export class Play {
     for (const d of this.decor) {
       if (d.kind === 'u') this.put(`gull-${f % 2}`, () => paintGull(T, f % 2), d.x + 0.5 + Math.sin(this.frame / 50 + d.x) * 2, d.y + 1);
       else if (d.kind === 'r') this.put(`rock-${d.x % 2}`, () => paintNatural('stone', T, d.x % 2), d.x + 0.5, 10.4);
-      else if (d.kind === 't') {
+      else if (d.kind === 'z') {
+        const ok = this.murk(d.x) === 'clear';
+        const sx = d.x + 0.5 + (ok ? Math.sin(this.frame / 40 + d.x) * 0.8 : 0);
+        this.put(`fish-${ok}-${f % 2}-${d.x % 2}`, () => paintFish(T, f % 2, !ok, d.x % 2 ? '#e8c060' : '#f2902f'), sx, ok ? 10.95 : 10.35);
+      } else if (d.kind === 'w') this.put('wen', () => paintHero(WEN_LI, 1.5, 'right'), d.x + 0.5, d.y + 1);
+      else if (d.kind === 'o') this.put('rosa', () => paintHero(ROSA_DELGADO, 1.5, 'right'), d.x + 0.5, d.y + 1);
+      else if (d.kind === 'V') {
+        const marked = this.works('rain-garden') || this.def.stretch !== 'town' || this.def.num !== 2;
+        this.put(`sdrain-${marked}`, () => paintStormDrain(T, marked), d.x + 0.5, d.y + 1.15);
+      } else if (d.kind === 'n') {
+        const idle = !this.works('mill-filter');
+        this.put(`bus-${idle}-${idle ? f % 3 : 0}`, () => paintBus(T, idle, f % 3), d.x + 0.5, d.y + 1);
+      } else if (d.kind === 't') {
         ctx.fillStyle = '#8a6a4a';
         ctx.fillRect(Math.round((d.x + 0.35 - this.cam.x) * T), Math.round((d.y + 0.1 - this.cam.y) * T), 7, Math.round(T * 0.9));
       }
@@ -1292,6 +1334,8 @@ export class Play {
       this.put(`me-${pose}-${face}-${wf}-${blink}`, () => paintCadet(this.look, T, face, { pose, frame: wf, blink }), this.cx, this.body.y + this.body.h);
       if (this.carrying) this.put('carry', () => designPic(this.carrying!.recipe, this.carrying!.design, true), this.cx, this.body.y - 0.05);
     }
+    // a rainstorm while a fix is tested in the rain
+    if (this.stakes.some((st) => st.testing > 0 && RAINY.includes(st.recipe))) this.drawRain();
     // the HUD
     const line = `Backpack: ${this.bagLine()}${this.carrying ? `, and a ${RECIPES[this.carrying.recipe].name.toLowerCase()}` : ''}`;
     if (this.bagText.dataset.t !== line) {
@@ -1307,6 +1351,11 @@ export class Play {
 
   /** The gauge: how much trash (or oil) is left here, 0 to 1. */
   private gaugeValue(): number {
+    if (this.def.murky) return this.works(this.def.murky.fixedBy) ? 0.05 : 0.85;
+    if (this.def.stretch === 'town') {
+      const n = this.stakes.filter((s) => s.works).length;
+      return n >= this.stakes.length ? 0.05 : n ? 0.45 : 0.85;
+    }
     if (this.def.gauge === 'oil') {
       const patch = this.stakes.find((s) => s.recipe === 'tank-patch');
       const boom = this.stakes.find((s) => s.recipe === 'boom');
@@ -1314,6 +1363,62 @@ export class Play {
     }
     const left = this.picks.filter((p) => !p.got).length + this.ghosts.filter((g) => !g.got).length * 2;
     return Math.min(1, left / Math.max(8, this.total));
+  }
+
+  /** A half-2 fix at its stake (the wetland plants go in around the pond). */
+  private drawFix(s: Stake, f: number): void {
+    const r = s.recipe as Fix2;
+    const d = s.design!;
+    const wet = s.testing > 0 || s.works;
+    if (r === 'mill-filter') return; // drawn on the mill
+    if (r === 'reeds') {
+      const m = this.def.murky;
+      const spots = m ? [m.x[0] + 1.5, (m.x[0] + m.x[1]) / 2 + 0.5, m.x[1] - 0.5] : [s.x + 0.5];
+      for (const x of spots) this.put(`fix-reeds-${d}-${f % 4}`, () => paintFix('reeds', d, T, f % 4), x, 10.55);
+      this.put(`fix-reeds-${d}-${f % 4}`, () => paintFix('reeds', d, T, f % 4), s.x + 0.5, s.y + 1);
+      return;
+    }
+    this.put(`fix-${r}-${d}-${f % 4}-${wet}`, () => paintFix(r, d, T, f % 4, wet), s.x + 0.5, s.y + 1);
+  }
+
+  /** The mill, with the chimney fix on it (a taller chimney, white paint, or the smoke filter). */
+  private drawMill(x: number, f: number): void {
+    const st = this.stakes.find((s) => s.recipe === 'mill-filter');
+    const d = st?.design ?? null;
+    const filtered = d === 'filter';
+    this.put(`mill-${filtered}-${f % 8}`, () => paintMill(T, filtered, f % 8), x + 0.5, 10);
+    if (d !== 'tall' && d !== 'paint') return;
+    const ctx = this.ctx;
+    const cx = x + 1.625;
+    const px = (v: number) => Math.round((v - this.cam.x) * T);
+    const py = (v: number) => Math.round((v - this.cam.y) * T);
+    if (d === 'paint') {
+      ctx.fillStyle = '#eef0f2';
+      ctx.fillRect(px(cx - 0.25), py(6.15), Math.round(T * 0.5), Math.round(T * 1.85));
+    } else {
+      ctx.fillStyle = '#b0583a';
+      ctx.fillRect(px(cx - 0.25), py(4.4), Math.round(T * 0.5), Math.round(T * 1.8));
+      ctx.fillStyle = '#8a8478';
+      for (let k = 0; k < 4; k++) {
+        const t = ((k + this.frame / 30) % 4) / 4;
+        ctx.beginPath();
+        ctx.arc(px(cx + t * 0.9), py(4.2 - t * 1.4), 3 + t * 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  /** Rain streaks over the view. */
+  private drawRain(): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = 'rgba(40,50,70,0.18)';
+    ctx.fillRect(0, 0, VW, VH);
+    ctx.fillStyle = '#cfe6f6';
+    for (let k = 0; k < 90; k++) {
+      const x = (k * 53 + this.frame * 2) % (VW + 40);
+      const y = (k * 97 + this.frame * 9) % VH;
+      ctx.fillRect(x - 20, y, 1, 6);
+    }
   }
 
   private drawNature(): void {
@@ -1391,6 +1496,7 @@ export class Play {
       ollie: { free: this.ollie.free, x: this.ollie.x, sniff: this.ollie.sniff > 0 },
       respawn: { ...this.respawn },
       falls: this.falls,
+      gauge: this.def.num ? this.gaugeValue() : 0,
       done: this.done,
       building: this.building,
       modal: !!this.modal,
@@ -1432,6 +1538,7 @@ export function designPic(recipe: RecipeId, design: string, small = false): Pixe
   if (recipe === 'bin-lids') return paintLidBins(s, design as 'none' | 'loose' | 'clip', 0);
   if (recipe === 'tank-patch') return paintTankFix(s, design as 'tape' | 'bucket' | 'patch', 0.4, 0);
   if (recipe === 'boom') return boomPic(design, s);
+  if (FIX2.includes(recipe)) return paintFix(recipe as Fix2, design, s, 0);
   return paintCrate(s, design as 'crate' | 'sack' | 'lid', 0);
 }
 
