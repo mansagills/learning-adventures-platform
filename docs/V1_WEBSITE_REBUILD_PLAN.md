@@ -442,7 +442,7 @@ Each phase ends with a check-in; the owner approves before the next starts. One 
 | 0     | Decisions and accounts                                       | Provider choice, sender email, mailing address     | In progress: Kit chosen; team deciding the email setup |
 | 1     | Blog: `/blog`, `/blog/[slug]`, first welcome post            | Approve the draft post (can be rewritten later)    | COMPLETED ✅                                           |
 | 2     | Newsletter page and form (shows "coming soon" until Phase 3) | Approve the page copy                              | COMPLETED ✅ (copy review pending)                     |
-| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Planned                                                |
+| 3     | Connect the email service, update the Privacy page           | API key added to Vercel; test sign-up on a preview | Code built (2026-11-25); waits on the Kit account      |
 | 4     | Link everything together, docs, go live                      | Final review on the Vercel preview, then merge     | Planned                                                |
 
 **Owner decisions (2026-09-27):** use **Kit** for the newsletter, and **publish** the welcome post now (it can be rewritten any time).
@@ -472,6 +472,18 @@ Each phase ends with a check-in; the owner approves before the next starts. One 
 - Tests: `tests/newsletter/status.test.ts` covers the three statuses. The lint icon rule and the emoji check cover `components/newsletter` and `app/newsletter`.
 - Checked in production builds: preview mode (a bad email and a missing checkbox show errors; a good sign-up shows "Check your inbox" and makes no network request) and live-site mode (`VERCEL_ENV=production`: "Sign-ups open soon", no blog box, not in the sitemap). 1280px and 390px, no sideways scroll, no console errors.
 - Unchanged until Phase 3: the Privacy page (the form sends nothing yet) and the book pages' optional "Tell me when it's out" link.
+
+**Phase 3 notes (code built 2026-11-25; waits on the owner's Kit account):**
+
+- The owner picked Kit again on 2026-11-25 and asked for this order: set up Kit, then the form and page, then content.
+- New audience: the marketing plan (the "Learning Adventures ICP" doc) targets educators as well as parents. The form now asks "I'm signing up as: a parent or guardian / a teacher or educator", and each choice can get its own Kit tag. The checkbox is now "I'm 18 or older, and I'd like email updates from Learning Adventures" (it was "I'm a parent or guardian, 18 or older"). The page copy, title and the first promise ("For grown-ups only. We never ask for a child's name or email.") were widened to match, and a "Classroom ideas" perk was added. **The owner should confirm this copy and "about once a month".**
+- `app/api/newsletter/route.ts` (POST): checks the sign-up again on the server (`checkSignup` in `lib/newsletter.ts`: first name, email, audience, age box, honeypot), then `subscribeToNewsletter` calls Kit's v4 API with the `X-Kit-Api-Key` header: create the subscriber as `inactive` (Kit's default, `active`, would skip the confirmation email), add them to the form (this sends the form's double opt-in email), then tag them. A last name goes in the `last_name` custom field; if Kit refuses it, the sign-up is retried without it. Replies: 200, 400 with a message the form shows, 503 when not connected, 502 when Kit fails (logged without the email address).
+- Env vars (Vercel, Production and Preview; never committed): `NEWSLETTER_API_KEY` (secret), `NEWSLETTER_FORM_ID` (a number), and optional `NEWSLETTER_TAG_PARENT_ID` and `NEWSLETTER_TAG_EDUCATOR_ID`. The page is `live` only when the key and form ID are both set. With none set the site still builds and behaves as before.
+- The Privacy page has a new "Our newsletter" section (what we collect, Kit holds it, double opt-in, unsubscribe, deletion on request) and is dated November 2026. It is accurate before and after Kit is connected because it is written as "if you sign up".
+- Tests: `tests/newsletter/status.test.ts` (statuses and settings) and `tests/newsletter/signup.test.ts` (sign-up checks and the exact Kit calls, with a stand-in for Kit).
+- **Still to do once Kit exists:** create the form (double opt-in on), the `last_name` custom field and the two tags; put their numbers and the API key in Vercel; then sign up on a Vercel preview with a real address and check the confirmation email arrives (Kit's docs don't say outright that an inactive subscriber added to a form gets it, so this test matters), the contact appears with the right tag, and unsubscribing works.
+- Not changed: the hidden book pages' "Tell me when it's out" link (`NEXT_PUBLIC_NEWSLETTER_URL`); switch it to `/newsletter` when books return.
+- Open copy question for the owner: the site says K–5 (homepage, Privacy page) but some games reach grade 7 (Seeds of Genius is 3–7). The newsletter copy avoids naming grades.
 
 **How to add a blog post:** add an entry to `posts` in `lib/content/blog.ts`, write `content/blog/<slug>.md` (plain text; `##` for headings, `**bold**`, `- ` for bullet points, `[text](/games)` for links), then run `npm test`. Use `status: 'draft'` to keep it hidden until it's ready.
 

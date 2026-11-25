@@ -9,9 +9,9 @@ import SiteIcon, { type IconName } from '@/components/icons/SiteIcon';
 export function generateMetadata() {
   return {
     ...seoMetadata({
-      title: 'Newsletter for Parents | Learning Adventures',
+      title: 'Newsletter for Parents and Educators | Learning Adventures',
       description:
-        'Get new games, book launches and simple ways to keep learning fun at home, about once a month. For parents and guardians.',
+        'New games and simple ways to make learning fun, at home or in class, about once a month. For parents, guardians and educators.',
       path: '/newsletter',
     }),
     // Keep the page out of search results until sign-ups are open.
@@ -32,10 +32,15 @@ const perks: { icon: IconName; title: string; text: string }[] = [
     title: 'Learning ideas',
     text: 'Quick, playful ways to keep kids curious at home.',
   },
+  {
+    icon: 'books',
+    title: 'Classroom ideas',
+    text: 'For educators: ways to use a game in a lesson, and the skills each one practices.',
+  },
 ];
 
 const promises = [
-  'For parents and guardians only. We never ask for a child’s name or email.',
+  'For grown-ups only. We never ask for a child’s name or email.',
   'About one email a month, with no spam.',
   'Unsubscribe any time with one click at the bottom of every email.',
   'We never sell your email address.',
@@ -57,9 +62,9 @@ export default function NewsletterPage() {
             Learning adventures in your inbox
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-ink-700">
-            A friendly note for parents and guardians: what&apos;s new on the
-            site, what&apos;s coming next, and easy ways to make learning fun at
-            home.
+            A friendly note for parents, guardians and educators: what&apos;s
+            new on the site, what&apos;s coming next, and easy ways to make
+            learning fun at home or in class.
           </p>
         </Container>
       </section>
