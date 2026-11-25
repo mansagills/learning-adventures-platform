@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import ContentPage from '@/components/ContentPage';
 import { siteConfig } from '@/lib/siteConfig';
 import { generateMetadata as seoMetadata } from '@/lib/seo';
@@ -11,9 +12,10 @@ export const metadata = seoMetadata({
 
 /**
  * Privacy policy, written from how the v1 site actually works (no accounts,
- * no analytics, progress kept in browser storage). Keep it in sync with the
- * site: if accounts, analytics or the newsletter are turned on, this page must
- * change first.
+ * no analytics, progress kept in browser storage, and a newsletter for
+ * grown-ups run by Kit). Keep it in sync with the site: if accounts or
+ * analytics are turned on, or the newsletter form asks for more, this page
+ * must change first.
  */
 export default function PrivacyPage() {
   const { contactEmail } = siteConfig.links;
@@ -25,22 +27,47 @@ export default function PrivacyPage() {
       intro={
         <p>
           The short version: kids can play every game on this site without an
-          account, and we don&apos;t ask for names, emails or any other personal
-          information.
+          account, and we never ask children for names, emails or any other
+          personal information. The only thing we collect is a grown-up&apos;s
+          name and email, if they choose to sign up for our newsletter.
         </p>
       }
-      updated="September 2026"
+      updated="November 2026"
     >
       <h2>What we collect</h2>
       <p>
-        This website does not have accounts or sign-up forms, and we don&apos;t
-        use analytics or advertising trackers. We don&apos;t collect personal
-        information from visitors.
+        This website does not have accounts, and we don&apos;t use analytics or
+        advertising trackers. Apart from the newsletter below, we don&apos;t
+        collect personal information from visitors.
       </p>
       <p>
         Like any website, our hosting provider automatically processes basic
         technical information (such as IP address and browser type) so it can
         deliver pages and keep the site secure.
+      </p>
+
+      <h2>Our newsletter</h2>
+      <p>
+        Parents, guardians and educators who are 18 or older can sign up for our
+        newsletter on the <Link href="/newsletter">newsletter page</Link>. If
+        you do, we collect:
+      </p>
+      <ul>
+        <li>your first name, and your last name if you give it</li>
+        <li>your email address</li>
+        <li>whether you&apos;re a parent or an educator</li>
+      </ul>
+      <p>
+        We use this only to send you the newsletter and updates about Learning
+        Adventures. The sign-up form never asks for a child&apos;s name, age or
+        email.
+      </p>
+      <p>
+        Your details are kept by Kit (kit.com), the email service that sends our
+        newsletter, under its own privacy policy. You&apos;re only added once
+        you click the link in the confirmation email we send. Every email has a
+        one-click unsubscribe link, and you can ask us to delete your details at
+        any time by emailing us. We never sell your email address.
       </p>
 
       <h2>What&apos;s saved on your device</h2>

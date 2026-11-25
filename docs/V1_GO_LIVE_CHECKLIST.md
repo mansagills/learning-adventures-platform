@@ -19,7 +19,12 @@ work done in Vercel and in `lib/content/`.
   - `NEXT_PUBLIC_DEMO_TRAILER_URL`: a YouTube/Vimeo embed on `/demo`
 - [x] Leave `NEXT_PUBLIC_ENABLE_ACCOUNTS` **unset** (accounts, dashboards and admin stay hidden).
 
-The site needs **no other environment variables**: no Supabase, database or secrets.
+- [ ] **Newsletter (optional, server-only):** set `NEWSLETTER_API_KEY` (Kit v4 API key) and
+      `NEWSLETTER_FORM_ID`, plus optional `NEWSLETTER_TAG_PARENT_ID` and
+      `NEWSLETTER_TAG_EDUCATOR_ID`, to open sign-ups on `/newsletter`. Test a real sign-up on a
+      preview first (see UX-2 Phase 3 in `docs/V1_WEBSITE_REBUILD_PLAN.md`).
+
+Apart from the optional newsletter settings, the site needs **no other environment variables**: no Supabase, database or secrets.
 
 ## Cutover in Vercel
 

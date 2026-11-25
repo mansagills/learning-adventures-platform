@@ -24,9 +24,17 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const inputClass =
   'mt-1 w-full rounded-2xl border-2 border-pg-border bg-white px-4 py-3 text-base font-medium text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-4 focus:ring-pg-violet/30';
 
+type Audience = 'parent' | 'educator';
+
+const audiences: { value: Audience; label: string }[] = [
+  { value: 'parent', label: 'A parent or guardian' },
+  { value: 'educator', label: 'A teacher or educator' },
+];
+
 /**
- * Sign-up form for parents: first name, optional last name, email, and a
- * required "I'm a parent or guardian" checkbox. It never asks about children.
+ * Sign-up form for grown-ups: first name, optional last name, email, whether
+ * they're a parent or an educator (each gets its own Kit tag), and a required
+ * "I'm 18 or older" checkbox. It never asks about children.
  */
 export default function NewsletterForm({
   mode,
@@ -36,7 +44,8 @@ export default function NewsletterForm({
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [isParent, setIsParent] = useState(false);
+  const [audience, setAudience] = useState<Audience | ''>('');
+  const [isAdult, setIsAdult] = useState(false);
   // A field real people never see. Bots that fill in every box fill this one
   // too, so those sign-ups can be ignored.
   const [website, setWebsite] = useState('');
@@ -56,11 +65,18 @@ export default function NewsletterForm({
       });
       return;
     }
-    if (!isParent) {
+    if (!audience) {
+      setState({
+        step: 'error',
+        message: 'Please choose whether you are a parent or an educator.',
+      });
+      return;
+    }
+    if (!isAdult) {
       setState({
         step: 'error',
         message:
-          'Please confirm you are a parent or guardian, 18 or older. Our newsletter is for grown-ups only.',
+          'Please confirm you are 18 or older. Our newsletter is for grown-ups only.',
       });
       return;
     }
@@ -82,10 +98,22 @@ export default function NewsletterForm({
           email: email.trim(),
           firstName: firstName.trim(),
           lastName: lastName.trim(),
-          isParent,
+          audience,
+          isAdult,
           website,
         }),
       });
+      if (response.status === 400) {
+        // The server found something to fix and says what.
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setState({
+          step: 'error',
+          message: data?.error || 'Please check the form and try again.',
+        });
+        return;
+      }
       if (!response.ok) throw new Error(`Sign-up failed (${response.status})`);
       setState({ step: 'done' });
     } catch {
@@ -202,18 +230,48 @@ export default function NewsletterForm({
           </label>
         </div>
 
+        <fieldset>
+          <legend className="font-bold text-ink-900">
+            I&apos;m signing up as
+          </legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            {audiences.map((option) => (
+              <label
+                key={option.value}
+                className={cn(
+                  'flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 py-3 font-semibold text-ink-900 transition-colors',
+                  audience === option.value
+                    ? 'border-pg-violet bg-pg-violet/10'
+                    : 'border-pg-border bg-white hover:bg-ink-50'
+                )}
+              >
+                <input
+                  type="radio"
+                  name="audience"
+                  value={option.value}
+                  required
+                  checked={audience === option.value}
+                  onChange={() => setAudience(option.value)}
+                  className="h-5 w-5 shrink-0 accent-pg-violet"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
-            name="isParent"
+            name="isAdult"
             required
-            checked={isParent}
-            onChange={(event) => setIsParent(event.target.checked)}
+            checked={isAdult}
+            onChange={(event) => setIsAdult(event.target.checked)}
             className="mt-1 h-5 w-5 shrink-0 rounded border-2 border-pg-border accent-pg-violet"
           />
           <span className="text-ink-700">
-            I&apos;m a parent or guardian, 18 or older, and I&apos;d like email
-            updates from Learning Adventures.
+            I&apos;m 18 or older, and I&apos;d like email updates from Learning
+            Adventures.
           </span>
         </label>
 
