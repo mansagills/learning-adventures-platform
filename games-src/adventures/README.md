@@ -63,6 +63,7 @@ node scripts/coast-lookdev-shots.mjs [base] [outDir]     # Pollution Solution Sq
 node scripts/e2e-weather-wizard-battle.mjs [base] [outDir]   # Weather Wizard Battle: plays all ten levels with the keyboard (the raft, the storm), the requests, forecast stops, the shop and the Weather Book (ONLY=shore,clouds,mountain,river,storm,extras picks parts)
 node scripts/e2e-ecosystem-building-tycoon.mjs [base] [outDir]   # Ecosystem Building Tycoon: the opening, the Field Notebook, a restored Meadow Island (keys, mouse, sniff, new tiles, leave and carry on, milestone questions and research cards, the census), a missed target on Pond Island, a restored Pond Island, a long run, the Woods (autumn leaves), the Wetland (too many snails), the Archipelago (the drought and Open Day), the Field Guide, the food web board, the grown-ups page and a phone (needs `npx vite --port 5179`)
 node scripts/e2e-pollution-solution-squad.mjs [base] [outDir]   # Pollution Solution Squad: the opening, Beach Camp, all eight levels with the keyboard (grabbing, Ollie, every blueprint with designs that half work and the one that works, the kayak, the boardwalk and the stepping stones), sorting, the water tests, the Squad Journal, The Big Rain finale, the Nature Center, the map, saving, the grown-ups page and a phone (ONLY=beach,harbor,wetland,town,nature,extras picks parts; needs `npx vite --port 5179`)
+node scripts/akb-lookdev-shots.mjs [base] [outDir]   # Kingdom Builders: Africa look preview (the map of Africa, the cast, Egypt in its three seasons and at dusk), desktop and phone, with error, no-network and no-sideways-scroll checks (needs `npx vite --port 5179`; open /lookdev/kingdoms/; CHROMIUM=<path> on Windows)
 node scripts/gear-shots.mjs <url> <outDir>   # pictures of ninja gear combinations from every side
 node scripts/tour.mjs <url> <outDir>     # screenshots of every belt, hints and a phone
 ```
@@ -95,6 +96,8 @@ src/kit/                   the Adventure Kit, shared by every game
   learning/mastery.ts      the learner model: tiers, streaks, mastery, misconceptions
   systems/                 sound (made in code), settings (shared by all games), saving, keyboard input, read-aloud
   ui/                      talk box, title, character creator, settings, grown-ups page, toolbar, toasts, touch pad
+  render/lowpolyRenderer.ts  the low-poly 3D renderer (lit, shadowed scene; city-builder camera that pans, zooms and turns in quarter turns), first used by Kingdom Builders: Africa
+  world/lowpoly/shapes.ts  helpers for building low-poly models in code (shared flat-shaded materials, wobble, one mesh per color)
   scroller/physics.ts      the side-scroller's physics (Weather Wizard Battle): a tile map, gravity, jumping with coyote time and a jump buffer, ledges, moving platforms, a following camera; unit tested in tests/scroller.test.ts
 src/games/<slug>/          one folder per game
   worlds/                  the world theme layer: world styles, settings, the 16-bit painter and characters
