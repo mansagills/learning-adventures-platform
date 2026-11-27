@@ -1,0 +1,551 @@
+/* Rock Cycle Racing. The modern low-poly skin of Kingdom Builders: Africa,
+   in canyon colors: warm sand panels, lava orange and crystal violet
+   accents, Fredoka for titles and Atkinson Hyperlegible for reading. */
+:root {
+  --rcr-ink: #2a1c16;
+  --rcr-ink-soft: #5e4638;
+  --rcr-panel: rgba(255, 246, 236, 0.94);
+  --rcr-edge: rgba(130, 70, 40, 0.2);
+  --rcr-lava: #d9541c;
+  --rcr-lava-soft: #ffb36b;
+  --rcr-crystal: #6b4fd6;
+  --rcr-green: #2e7d4f;
+  --rcr-shadow: 0 10px 30px rgba(50, 20, 10, 0.25), 0 2px 6px rgba(50, 20, 10, 0.14);
+  --rcr-radius: 18px;
+  --rcr-display: 'Fredoka', 'Atkinson Hyperlegible', system-ui, sans-serif;
+  --rcr-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #1a100c;
+  color: var(--rcr-ink);
+  font-family: var(--rcr-body);
+  overflow: hidden;
+}
+
+.rcr-stage {
+  position: fixed;
+  inset: 0;
+}
+.rcr-stage .lp-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+.rcr-ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.rcr-ui > * {
+  pointer-events: auto;
+}
+
+.rcr-panel {
+  background: var(--rcr-panel);
+  border: 1px solid var(--rcr-edge);
+  border-radius: var(--rcr-radius);
+  box-shadow: var(--rcr-shadow);
+  backdrop-filter: blur(6px);
+}
+
+/* Top bar: the Order Card, the Cycle Stars and the Deep Time Clock */
+.rcr-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+  pointer-events: none;
+}
+.rcr-top > *,
+.rcr-top-right > * {
+  pointer-events: auto;
+}
+.rcr-top-right {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.rcr-order,
+.rcr-clock,
+.rcr-stars {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 14px 8px 10px;
+}
+.rcr-order svg {
+  color: var(--rcr-lava);
+  flex: none;
+}
+.rcr-clock svg {
+  color: var(--rcr-crystal);
+  flex: none;
+}
+.rcr-stars svg {
+  color: #c99000;
+}
+.rcr-order small,
+.rcr-clock small {
+  display: block;
+  font-size: 12px;
+  color: var(--rcr-ink-soft);
+}
+.rcr-order b,
+.rcr-clock b,
+.rcr-stars b {
+  font-family: var(--rcr-display);
+  font-weight: 600;
+  font-size: 17px;
+}
+.rcr-order {
+  max-width: 330px;
+}
+.rcr-clock span {
+  display: block;
+  font-size: 11px;
+  color: var(--rcr-ink-soft);
+}
+
+/* The fork signs */
+.rcr-signs {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.rcr-signs.show {
+  opacity: 1;
+}
+.rcr-sign {
+  min-width: 170px;
+  max-width: 220px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  color: #fff;
+  box-shadow: var(--rcr-shadow);
+  border: 3px solid transparent;
+  opacity: 0.82;
+}
+.rcr-sign b {
+  display: block;
+  font-family: var(--rcr-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+.rcr-sign span {
+  font-size: 14px;
+}
+.rcr-sign-deep {
+  background: #5b43bf;
+}
+.rcr-sign-erupt {
+  background: #c8501c;
+}
+.rcr-sign.picked {
+  opacity: 1;
+  border-color: #fff;
+  transform: scale(1.06);
+}
+
+/* Short messages */
+.rcr-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 120px;
+  transform: translate(-50%, 10px);
+  background: var(--rcr-panel);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 17px;
+  max-width: calc(100% - 40px);
+  text-align: center;
+  box-shadow: var(--rcr-shadow);
+  opacity: 0;
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+  pointer-events: none;
+}
+.rcr-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Cards: the intro, the question and the finish */
+.rcr-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 18px 20px;
+}
+.rcr-card h2 {
+  font-family: var(--rcr-display);
+  font-weight: 600;
+  margin: 10px 0 6px;
+  font-size: 24px;
+  color: var(--rcr-lava);
+}
+.rcr-card p {
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 6px 0;
+}
+.rcr-help {
+  color: var(--rcr-ink-soft);
+}
+.rcr-talk {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.rcr-talk img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #ffd8a8, #e98b4f);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(60, 25, 10, 0.25);
+}
+.rcr-talk b {
+  font-family: var(--rcr-display);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--rcr-lava);
+}
+.rcr-talk p {
+  margin: 3px 0 0;
+}
+.rcr-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid var(--rcr-edge);
+  background: #fff;
+  color: var(--rcr-ink);
+  font: 600 17px var(--rcr-display);
+  padding: 10px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.rcr-btn-main {
+  background: var(--rcr-lava);
+  border-color: var(--rcr-lava);
+  color: #fff;
+}
+.rcr-btn-quiet {
+  font-size: 14px;
+  padding: 6px 12px;
+}
+.rcr-btn:focus-visible,
+.rcr-answer:focus-visible {
+  outline: 3px solid var(--rcr-crystal);
+  outline-offset: 2px;
+}
+.rcr-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.rcr-q {
+  font-weight: 700;
+}
+.rcr-answers {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+}
+.rcr-answer {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  border: 2px solid var(--rcr-edge);
+  background: #fff;
+  color: var(--rcr-ink);
+  font: 600 18px var(--rcr-body);
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.rcr-answer:hover:not(:disabled) {
+  border-color: var(--rcr-lava-soft);
+}
+.rcr-answer:disabled {
+  cursor: default;
+}
+.rcr-answer.wrong {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+.rcr-answer.right {
+  border-color: var(--rcr-green);
+  background: #e6f5ec;
+}
+.rcr-answer.outline {
+  border: 3px dashed var(--rcr-green);
+}
+.rcr-num {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3e4d4;
+  font-size: 15px;
+  flex: none;
+}
+.rcr-hint {
+  min-height: 1.4em;
+  color: var(--rcr-ink-soft);
+}
+.rcr-finish small {
+  font: 600 15px var(--rcr-display);
+  color: var(--rcr-crystal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.rcr-family {
+  font-weight: 700;
+  color: var(--rcr-ink-soft);
+}
+.rcr-fact {
+  background: #fbefe2;
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.rcr-met {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 700;
+}
+.rcr-met.yes {
+  color: var(--rcr-green);
+}
+.rcr-met.no {
+  color: var(--rcr-ink-soft);
+}
+.rcr-met svg {
+  flex: none;
+}
+
+/* Touch controls */
+.rcr-touch {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.rcr-touch-side {
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+.rcr-touch-btn {
+  appearance: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: rgba(40, 20, 12, 0.5);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 600 13px var(--rcr-display);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rcr-touch-btn svg {
+  width: 30px;
+  height: 30px;
+}
+.rcr-touch-push {
+  background: rgba(217, 84, 28, 0.75);
+}
+
+/* Look preview: the page switcher, labels and map pins */
+.rcr-nav {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+  font-size: 13px;
+  max-width: 190px;
+}
+.rcr-nav a {
+  color: var(--rcr-ink);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.rcr-nav a[aria-current='page'] {
+  background: var(--rcr-lava);
+  color: #fff;
+}
+.rcr-nav small {
+  color: var(--rcr-ink-soft);
+  padding: 0 8px;
+}
+.rcr-tag {
+  position: absolute;
+  transform: translate(-50%, 0);
+  background: var(--rcr-panel);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(50, 20, 10, 0.2);
+  pointer-events: none;
+}
+.rcr-tag.process {
+  background: rgba(42, 28, 22, 0.82);
+  color: #fff;
+  font-weight: 400;
+}
+.rcr-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 12px 5px 6px;
+  font: 600 15px var(--rcr-display);
+  color: var(--rcr-ink);
+  box-shadow: var(--rcr-shadow);
+  cursor: pointer;
+}
+.rcr-pin i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: block;
+}
+.rcr-title {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 12px 16px;
+  max-width: 360px;
+}
+.rcr-title h1 {
+  font-family: var(--rcr-display);
+  font-weight: 600;
+  margin: 0;
+  font-size: 22px;
+  color: var(--rcr-lava);
+}
+.rcr-title p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.rcr-cast-cards {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  right: 220px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  pointer-events: none;
+}
+.rcr-cast-cards > div {
+  padding: 8px 12px;
+  font-size: 13px;
+  max-width: 210px;
+}
+.rcr-cast-cards b {
+  font-family: var(--rcr-display);
+  font-size: 15px;
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .rcr-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .rcr-top-right {
+    justify-content: space-between;
+  }
+  .rcr-order {
+    max-width: none;
+  }
+  .rcr-order b,
+  .rcr-clock b {
+    font-size: 15px;
+  }
+  .rcr-signs {
+    top: 40%;
+    width: calc(100% - 24px);
+    justify-content: center;
+  }
+  .rcr-sign {
+    min-width: 0;
+    flex: 1;
+  }
+  .rcr-sign b {
+    font-size: 16px;
+  }
+  .rcr-toast {
+    bottom: 104px;
+    font-size: 15px;
+    border-radius: 16px;
+  }
+  .rcr-nav {
+    top: auto;
+    bottom: auto;
+    right: 12px;
+    max-width: 150px;
+  }
+  .rcr-cast-cards {
+    display: none;
+  }
+  .rcr-touch-btn {
+    width: 64px;
+    height: 64px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rcr-signs,
+  .rcr-toast {
+    transition: none;
+  }
+}
