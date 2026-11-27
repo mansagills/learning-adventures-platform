@@ -232,3 +232,48 @@ describe('Rock Cycle Racing words', () => {
     for (const c of ORDER_CARDS) expect(ROCK_FORMS[c.goal], c.goal).toBeTruthy();
   });
 });
+
+describe('driving the test track', () => {
+  /** A simple driver: push all the way, steer to a line across the road. */
+  function drive(side: 'deep' | 'erupt') {
+    const track = buildTestTrack();
+    const st = newRoll(0, 0);
+    let path = 'vent';
+    let t = 0;
+    let slowest = Infinity;
+    const dt = 1 / 120;
+    while (t < 240) {
+      const p = track.graph.path(path);
+      const goal = path === 'vent' && p.length - st.s < 40 ? (side === 'deep' ? -3 : 3) : 0;
+      const steer = Math.max(-1, Math.min(1, (goal - st.x) * 0.6 - st.vx * 0.15));
+      stepRoll(st, { throttle: 1, brake: false, steer, jump: false }, p.at(st.s), DEFAULT_ROLL, dt);
+      for (const b of track.boosts) if (b.path === path && st.s > b.s - 0.8 && st.s < b.s + 1.2 && st.boost <= 0) st.boost = 1.3;
+      t += dt;
+      if (t > 3) slowest = Math.min(slowest, st.v);
+      if (st.s >= p.length) {
+        const n = track.graph.next(path);
+        if (n.kind !== 'fork') break;
+        const choice = track.graph.pick(n.fork, st.x);
+        st.s -= p.length;
+        st.x -= choice.offset;
+        path = choice.path;
+      }
+      if (path !== 'vent' && st.s >= track.graph.path(path).length - 3) break;
+    }
+    return { path, t, slowest };
+  }
+
+  it('reaches the granite finish by staying deep, and the basalt finish by erupting', () => {
+    const deep = drive('deep');
+    const erupt = drive('erupt');
+    expect(deep.path).toBe('deep');
+    expect(erupt.path).toBe('erupt');
+    // Short enough for a test race, long enough to enjoy.
+    for (const r of [deep, erupt]) {
+      expect(r.t).toBeLessThan(120);
+      expect(r.t).toBeGreaterThan(10);
+      // Never stuck against a wall or a slope.
+      expect(r.slowest).toBeGreaterThan(4);
+    }
+  });
+});
