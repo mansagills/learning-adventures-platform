@@ -2340,6 +2340,36 @@ The owner merged half 1 (PR #265) and said "Build half 2".
 ##### Checks it will ship with
 Unit tests for every stretch and level (questions, wrong answers with a reason, hints), the crafting rules (every recipe can be made from the materials in its level, every design's test result matches the science), the water gauges and the levels (every level can be finished, every build spot can be reached); a browser test that plays from the title screen through The Big Rain with the keyboard and real clicks, including the Nature Center; screenshots at desktop and phone width; a score against the rubric (8.5 to pass).
 
+#### S2 Earth: Rock Cycle Racing, the first 3D racer: PLAN APPROVED (2026-11-27: "a" on all six, names kept); step 1 (look preview and test track) BUILT (2026-11-27)
+
+> Source: the old site game `public/games/rock-cycle-racing.html`, with the activity `public/lessons/volcano-explorer-lab.html` merged in (as the merge map says). Grades 3–5, slug `rock-cycle-racing` (the new game replaces the old one at the same address when it ships). The full plan is the owner's Claude Doc "Rock Cycle Racing: game plan". It is the second game in the low-poly 3D style that Kingdom Builders: Africa started (the owner's idea, 2026-11-27).
+
+##### The game in short
+You race as a rock. You start as magma and roll down tracks that are the paths of the rock cycle: each fork is a real process (cool slowly underground, erupt, weather, wash downstream, get buried and pressed, get squeezed and heated). Where you finish decides what rock you become. Each race has an Order Card (a rock you have to finish as), a Deep Time Clock that shows how long the change really takes, and a rival, Blaze, a hot-headed scoria rock. Four legs with two tracks each (the Lava Run, the River Run, Layer Bay and the Deep Squeeze), the Volcano Lab between races, and a Grand Prix finale that goes all the way round the cycle. The setting is `volcano-canyon` in the Wild Lands (section 7c of `docs/GAME_WORLDS_PROPOSAL.md`).
+
+##### Owner answers (2026-11-27: "a" on all six)
+- **The view: (a)** 3D, with the camera behind the racer, like a marble run: the track dives into the volcano, through magma tubes and glowing tunnels.
+- **Who you race as: (a)** the rock itself, which changes form as it races.
+- **Grades: (a)** 3–5.
+- **Between races: (a)** the Pit Garage, with rock powers that come from what each rock is really like.
+- **Length: (a)** two halves, like the other games.
+- **Names: keep** Rock Cycle Racing, Dr. Ana Quispe (host), Noor Rahman, Captain Bea Lindqvist, Dr. Sione Taufa, Ranger Tala, Blaze and Scree the pika.
+
+##### Step 1 built (2026-11-27): the look preview and the test track
+- **New kit code** (plain logic, no drawing):
+  - `src/kit/race/track.ts`: a 3D track made of paths that split at forks, measured evenly along their length, with the slope, the bend and the kind (tunnel, lava, road) at each point.
+  - `src/kit/race/roll.ts`: the rolling physics (pushing, braking, slopes, bends, walls, a small jump), and `chaseCam.ts`, the camera behind the racer.
+  - `src/kit/render/lowpolyRenderer.ts` gains a camera with no dragging (`controls: 'none'`), a field of view that widens on tall phone screens, and shadows that follow the racer. Kingdom Builders works exactly as before.
+- **Game code** in `src/games/rock-cycle-racing/`: the rock cycle rules (`cycle.ts`, every change a rock can really go through), the words (`content.ts`), the test track (`tracks.ts`), the 3D models (`models.ts`: the racer in eight rock forms, Blaze, the cast, Scree), the canyon and the volcano (`scene.ts`), the race map (`map.ts`, a cut-away block of the Earth with the rock cycle drawn on it), the race itself (`race.ts`) and its look (`rcr.css`).
+- **Pages** (dev server only, at `/lookdev/rocks/`):
+  - `#cast`: the cast and the racer in eight of its rock forms
+  - `#canyon`, `#canyon-dusk`, `#canyon-night`: the canyon and the volcano from above
+  - `#map`: the race map
+  - **`#play`, the test track:** start as magma in the chamber under the volcano, answer the gate question on the way up the vent, and at the fork either stay deep and cool slowly in a crystal cave (granite, about a million years on the Deep Time Clock) or erupt up the volcano's throat, out over the crater and down the mountain as a lava flow (basalt, a few days). `#play-basalt` gives you the basalt Order Card instead.
+  - Flags: `-low` for the low-detail mode, `-steady` for a calmer camera (also on with reduced motion).
+  - Keys: Up or W to push, Down or S to brake, Left/Right or A/D to steer, Space to jump, 1 to 3 to answer; on-screen buttons for touch.
+- **Checks:** unit tests in `tests/rcr.test.ts` (the track, the physics, the rock cycle rules and the words); `scripts/rcr-lookdev-shots.mjs` takes the screenshots at desktop and phone width and plays the test track to both finishes with the keyboard.
+
 #### S3 Life: Animal Kingdom Match, the third Wild Lands game: PLAN APPROVED (2026-10-29); look APPROVED (2026-11-03); half 1 MERGED (PR #253); half 2 BUILT (2026-11-03): COMPLETED ✅ with its merge
 
 > Source: the old site game `public/games/animal-kingdom-match.html` (no merges: the merge map keeps it as its own game). The owner picked it as the next Wild Lands game on 2026-10-29, over Rock Cycle Racing, Weather Wizard Battle and Pollution Solution Squad. Grades 1–4, slug `animal-kingdom-match` (the new game replaces the old one at the same address when it ships). It is the youngest Wild Lands game so far, so everything is read aloud, answers can be pictures as well as words, and nothing is timed.
@@ -2583,3 +2613,4 @@ Final pass over all 27: new card pictures, homepage featured games, the player g
 - **2026-11-24:** Half 1 merged (PR #265). The owner said "Build half 2": the Wetland (The Green Pond, The Filter) and Farm and Town (The Farm, Main Street), five more blueprints, 36 more questions, The Big Rain and Clean Coast Day, the site listing at the same address and the ocean-conservation-heroes redirect. 42 unit tests, the full browser test, 9.0/10. **Pollution Solution Squad is COMPLETED ✅ with its merge. 8 of 14 Science games done.**
 - **2026-11-25:** The owner asked for a History city builder about African kingdoms and peoples (Age of Empires style, without conquest), in a more modern 3D look. Plan written and approved: low-poly 3D, chapters on an Africa map and timeline, eight chapters, replacing Ancient Egypt Explorer (`docs/AFRICAN_KINGDOMS_BUILDER_PLAN.md`). Next: the look preview (the Egypt map by day and in the flood season, villagers, Jeli Awa and Koko, the hub map).
 - **2026-11-25:** The owner said "Start look preview". Built: the new low-poly renderer in the kit, the hub map of Africa with the eight chapter pins and the timeline, the cast and Egypt buildings, and the Egypt map in all three Nile seasons and at dusk (`/lookdev/kingdoms/`). 10 unit tests; 36/36 page checks at desktop and phone width. Waiting for the owner's look before part 1.
+- **2026-11-27:** The owner picked **Rock Cycle Racing** next, as the second game in the low-poly 3D style, and approved its plan ("a" on all six, names kept; the S2 Earth section above). Step 1 is built: the race kit, the look preview (the cast, the canyon, the race map) and a playable test track (`/lookdev/rocks/#play`). Waiting for the owner's look.

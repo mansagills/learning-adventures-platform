@@ -76,6 +76,14 @@ export interface LowpolyOptions {
   shadowSize?: number;
   /** Turn off shadows and antialiasing (the low-detail mode). */
   lowDetail?: boolean;
+  /**
+   * 'builder' (the default) is the city-builder camera with its mouse, touch
+   * and key controls. 'none' leaves the camera to the game (for example a
+   * chase camera in a racer); call `centerShadows` to keep the shadows near.
+   */
+  controls?: 'builder' | 'none';
+  /** Field of view in degrees on a wide screen and on a tall (phone) screen. */
+  fov?: { wide: number; tall: number };
 }
 
 export class LowpolyRenderer {
@@ -88,6 +96,7 @@ export class LowpolyRenderer {
   readonly goal: CameraView;
   readonly view: CameraView;
   private readonly opts: Required<Omit<LowpolyOptions, 'lighting' | 'view'>>;
+  private readonly builder: boolean;
   private readonly updaters: Array<(dt: number, t: number) => void> = [];
   private readonly clock = new THREE.Clock();
   private readonly keys = new Set<string>();
@@ -104,7 +113,10 @@ export class LowpolyRenderer {
       bounds: options.bounds ?? 24,
       shadowSize: options.shadowSize ?? 40,
       lowDetail: options.lowDetail ?? false,
+      controls: options.controls ?? 'builder',
+      fov: options.fov ?? { wide: 32, tall: 46 },
     };
+    this.builder = this.opts.controls === 'builder';
     this.renderer = new THREE.WebGLRenderer({ antialias: !this.opts.lowDetail, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -133,7 +145,7 @@ export class LowpolyRenderer {
     this.scene.add(this.sun, this.sun.target, this.hemi);
     this.setLighting(options.lighting ?? LIGHTING.day);
 
-    this.bindInput();
+    if (this.builder) this.bindInput();
     new ResizeObserver(() => this.resize()).observe(host);
     this.resize();
   }
@@ -212,8 +224,10 @@ export class LowpolyRenderer {
   frame(): void {
     const dt = Math.min(this.clock.getDelta(), 0.1);
     this.elapsed += dt;
-    this.keyPan(dt);
-    this.ease(dt);
+    if (this.builder) {
+      this.keyPan(dt);
+      this.ease(dt);
+    }
     for (const u of this.updaters) u(dt, this.elapsed);
     this.renderer.render(this.scene, this.camera);
   }
@@ -233,9 +247,14 @@ export class LowpolyRenderer {
     this.camera.position.copy(v.target).add(off);
     this.camera.lookAt(v.target);
     // Keep the shadow area centred on what the player is looking at.
+    this.centerShadows(v.target);
+  }
+
+  /** Move the sun's shadow area so it is centred on `target`. */
+  centerShadows(target: THREE.Vector3): void {
     const sunDir = this.sun.position.clone().sub(this.sun.target.position).normalize();
-    this.sun.target.position.copy(v.target);
-    this.sun.position.copy(v.target).addScaledVector(sunDir, 80);
+    this.sun.target.position.copy(target);
+    this.sun.position.copy(target).addScaledVector(sunDir, 80);
   }
 
   private keyPan(dt: number): void {
@@ -255,7 +274,7 @@ export class LowpolyRenderer {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     // On a tall phone screen, widen the view so the map still fits.
-    this.camera.fov = w < h ? 46 : 32;
+    this.camera.fov = w < h ? this.opts.fov.tall : this.opts.fov.wide;
     this.camera.updateProjectionMatrix();
   }
 
